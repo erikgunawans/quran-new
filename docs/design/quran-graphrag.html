@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Hybrid GraphRAG architecture, knowledge-graph schema, extraction pipeline, and scholar review-queue governance for a Quranic AI chat platform. Axiara AI brand system.">
+<title>Quranic GraphRAG — Architecture &amp; Schema</title>
+<style>
+  /* minimal reset (the Artifact host injects one; standalone needs its own) */
+  *,*::before,*::after{box-sizing:border-box}
+  body,h1,h2,h3,h4,p,ul,ol,figure,pre,blockquote{margin:0}
+  ul,ol{padding:0}
+  img{max-width:100%;display:block}
+  table{border-collapse:collapse}
+</style>
+<style>
+  /* ── Axiara AI brand system · "The Lit Control Room" ─────────────────
+     Dark-first · zero-radius · hairline depth · Brand Red as single signal
+     Barlow Condensed (display) · Barlow (body) · Courier New (mono)
+     Fonts use brand-declared fallback stacks (CSP blocks the Google @import). */
+  /* Brand-invariant tokens */
+  :root{
+    --red:#F14F44; --red-dark:#D03B31; --red-wash:rgba(241,79,68,.12); --red-warm:rgba(241,79,68,.45);
+    --success:#4CBA6A;
+    --f-display:"Barlow Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+    --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --f-mono:"Courier New",ui-monospace,Menlo,Consolas,monospace;
+    --dur-snap:150ms; --ease-snap:ease-out; --ease-reveal:cubic-bezier(.16,1,.3,1);
+    --maxw:72ch;
+  }
+  /* ── DEFAULT: sanctioned LIGHT theme (editorial / print / export).
+       Brand Red & Blue unchanged. Dark #111 panels stay dark as bold anchors —
+       so code wells and the diagram remain dark on the white page. ── */
+  :root{
+    --bg:#FFFFFF; --surface:#F7F7F7; --surface-2:#FFFFFF; --surface-3:#F0F0F0;
+    --border:#E8E8E8; --border-mid:#DDDDDD;
+    --ink:#111111; --body:#333333; --muted:#6E6E6E; --muted-strong:#555555; --muted-faint:#BBBBBB;
+    --blue:#3A7BD5; --blue-light:#2F6BC4; --blue-wash:rgba(58,123,213,.09);
+    --code-bg:#111111; --code-ink:#E5E5E5; --code-border:#111111;
+    --code-cm:#8A8A8A; --code-kw:#5B9BF5; --code-st:#E5E5E5;
+    --shadow-lift:0 8px 24px rgba(17,17,17,.08);
+    color-scheme:light;
+  }
+  /* Dark variant — the cockpit register, when the viewer's OS/toggle asks for it. */
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#111111; --surface:#1A1A1A; --surface-2:#1E1E1E; --surface-3:#131313;
+      --border:#222222; --border-mid:#2E2E2E;
+      --ink:#FFFFFF; --body:#E5E5E5; --muted:#888888; --muted-strong:#6B6B6B; --muted-faint:#3A3A3A;
+      --blue:#3A7BD5; --blue-light:#5B9BF5; --blue-wash:rgba(58,123,213,.14);
+      --code-bg:#131313; --code-ink:#E5E5E5; --code-border:#222222;
+      --code-cm:#888888; --code-kw:#5B9BF5; --code-st:#E5E5E5;
+      --shadow-lift:none;
+      color-scheme:dark;
+    }
+  }
+  /* Explicit toggle wins over the media query, in both directions. */
+  :root[data-theme="light"]{
+    --bg:#FFFFFF; --surface:#F7F7F7; --surface-2:#FFFFFF; --surface-3:#F0F0F0;
+    --border:#E8E8E8; --border-mid:#DDDDDD;
+    --ink:#111111; --body:#333333; --muted:#6E6E6E; --muted-strong:#555555; --muted-faint:#BBBBBB;
+    --blue:#3A7BD5; --blue-light:#2F6BC4; --blue-wash:rgba(58,123,213,.09);
+    --code-bg:#111111; --code-ink:#E5E5E5; --code-border:#111111;
+    --code-cm:#8A8A8A; --code-kw:#5B9BF5; --code-st:#E5E5E5;
+    --shadow-lift:0 8px 24px rgba(17,17,17,.08);
+    color-scheme:light;
+  }
+  :root[data-theme="dark"]{
+    --bg:#111111; --surface:#1A1A1A; --surface-2:#1E1E1E; --surface-3:#131313;
+    --border:#222222; --border-mid:#2E2E2E;
+    --ink:#FFFFFF; --body:#E5E5E5; --muted:#888888; --muted-strong:#6B6B6B; --muted-faint:#3A3A3A;
+    --blue:#3A7BD5; --blue-light:#5B9BF5; --blue-wash:rgba(58,123,213,.14);
+    --code-bg:#131313; --code-ink:#E5E5E5; --code-border:#222222;
+    --code-cm:#888888; --code-kw:#5B9BF5; --code-st:#E5E5E5;
+    --shadow-lift:none;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--body);font-family:var(--f-body);
+    line-height:1.75;font-size:clamp(15px,.35vw + 14px,16px);margin:0;
+    -webkit-font-smoothing:antialiased;font-weight:400;}
+  .wrap{max-width:min(100% - 2.5rem,80ch);margin:0 auto;padding:0 1.25rem 6rem;}
+
+  a{color:var(--blue-light);text-decoration:none;}
+  a:hover{color:var(--red);text-decoration:underline;text-underline-offset:3px;}
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+
+  .label{font-family:var(--f-display);font-weight:700;font-size:.66rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--muted);}
+
+  /* ── masthead ── */
+  header.mast{padding:3.6rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2.4rem;}
+  .brandline{display:flex;align-items:center;gap:.85rem;margin-bottom:1.6rem;}
+  .slashes{display:inline-flex;gap:3px;}
+  .slashes i{width:5px;height:19px;background:var(--red);transform:skewX(-18deg);display:block;}
+  .slashes i:nth-child(2){opacity:.7} .slashes i:nth-child(3){opacity:.4}
+  .brandline .wm{font-family:var(--f-display);font-weight:800;letter-spacing:.2em;
+    text-transform:uppercase;font-size:.8rem;color:var(--ink);}
+  .brandline .div{color:var(--muted-faint);}
+  h1{font-family:var(--f-display);font-weight:900;line-height:.92;text-transform:uppercase;
+    letter-spacing:-.01em;font-size:clamp(2.5rem,6.6vw,4.6rem);margin:0 0 1rem;text-wrap:balance;color:var(--ink);}
+  h1 .r{color:var(--red);}
+  .dek{font-size:1.05rem;color:var(--body);max-width:62ch;margin:0;line-height:1.65;}
+  .mast-meta{display:flex;flex-wrap:wrap;gap:.5rem 0;margin-top:1.8rem;border-top:1px solid var(--border);}
+  .mast-meta span{flex:1 1 190px;padding:.9rem 1rem .3rem 0;font-family:var(--f-mono);font-size:.76rem;
+    color:var(--muted);border-right:1px solid var(--border);}
+  .mast-meta span:last-child{border-right:none;}
+  .mast-meta b{display:block;font-family:var(--f-display);font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;font-size:.6rem;color:var(--muted-strong);margin-bottom:.35rem;}
+  .mast-meta em{font-style:normal;color:var(--ink);}
+
+  /* ── toc ── */
+  nav.toc{background:var(--surface);border:1px solid var(--border);padding:1.2rem 1.4rem;margin:0 0 2.8rem;}
+  nav.toc>p{margin:0 0 .9rem;}
+  nav.toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 1.4rem;}
+  nav.toc li{counter-increment:toc;border-bottom:1px solid var(--border);}
+  nav.toc a{display:flex;gap:.7rem;padding:.5rem 0;color:var(--body);font-size:.9rem;align-items:baseline;}
+  nav.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--f-mono);
+    font-size:.72rem;color:var(--red);}
+  nav.toc a:hover{color:var(--ink);text-decoration:none;padding-left:.3rem;
+    transition:padding var(--dur-snap) var(--ease-snap);}
+
+  /* ── part divider ── */
+  .part{margin:4rem 0 2.6rem;border-top:2px solid var(--red);padding-top:1.2rem;}
+  .part .pn{font-family:var(--f-mono);font-size:.72rem;color:var(--red);display:block;margin-bottom:.4rem;}
+  .part h2{font-size:clamp(1.7rem,4vw,2.5rem);}
+  .part p{color:var(--muted);margin:.7rem 0 0;}
+
+  /* ── sections ── */
+  section{margin:0 0 3.2rem;scroll-margin-top:1.5rem;}
+  .sec-head{border-top:1px solid var(--border-mid);padding-top:1.1rem;margin-bottom:1.4rem;}
+  .sec-head .kicker{display:block;margin-bottom:.5rem;}
+  h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.005em;
+    font-size:clamp(1.5rem,3.4vw,2.15rem);line-height:1.02;margin:0;color:var(--ink);text-wrap:balance;}
+  h3{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.02em;
+    font-size:1.12rem;margin:1.9rem 0 .55rem;color:var(--ink);}
+  h4{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.16em;
+    font-size:.74rem;color:var(--muted);margin:1.7rem 0 .55rem;}
+  p{margin:0 0 1rem;max-width:var(--maxw);}
+  strong{font-weight:600;color:var(--ink);}
+  em{font-style:italic;color:var(--body);}
+  ul,ol.body{max-width:var(--maxw);margin:0 0 1.1rem;padding-left:1.1rem;}
+  li{margin:.45rem 0;}
+  li::marker{color:var(--red);}
+
+  .thesis{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);
+    padding:1.4rem 1.5rem;margin:0 0 1.4rem;}
+  .thesis p{margin:0 0 .85rem;} .thesis p:last-child{margin:0;}
+  .thesis strong{color:var(--ink);}
+
+  /* ── code + diagram ── */
+  .figure{margin:1.4rem 0 1.6rem;}
+  .figure figcaption{font-family:var(--f-display);font-weight:700;text-transform:uppercase;
+    letter-spacing:.18em;font-size:.64rem;color:var(--muted);margin-bottom:.6rem;}
+  /* Code + diagram are DARK ANCHORS in both themes (brand: #111 panels stay dark). */
+  pre.diagram,pre.code{overflow-x:auto;background:var(--code-bg);border:1px solid var(--code-border);
+    color:var(--code-ink);font-family:var(--f-mono);box-shadow:var(--shadow-lift);}
+  pre.diagram{font-size:.7rem;line-height:1.5;padding:1.3rem 1.4rem;}
+  pre.code{font-size:.8rem;line-height:1.6;padding:1.1rem 1.3rem;margin:.4rem 0 1.4rem;}
+  pre.code .cm{color:var(--code-cm);} pre.code .kw{color:var(--code-kw);font-weight:700;}
+  pre.code .lb{color:var(--red);}
+  pre.code .st{color:var(--code-st);}
+  code.inl{font-family:var(--f-mono);font-size:.86em;background:var(--surface-3);
+    padding:.08em .4em;border:1px solid var(--border);color:var(--ink);white-space:nowrap;}
+
+  /* ── tables ── */
+  .twrap{overflow-x:auto;margin:.7rem 0 1.6rem;border:1px solid var(--border);}
+  table{border-collapse:collapse;width:100%;font-size:.85rem;background:var(--surface);}
+  th,td{text-align:left;padding:.6rem .85rem;border-bottom:1px solid var(--border);vertical-align:top;}
+  thead th{background:var(--surface-2);font-family:var(--f-display);font-weight:700;font-size:.62rem;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background var(--dur-snap) var(--ease-snap);}
+  tbody tr:hover{background:var(--surface-2);}
+  td code,th code{font-family:var(--f-mono);font-size:.85em;color:var(--body);white-space:nowrap;}
+  .num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);}
+
+  /* ── truth-class chips ── */
+  .chip{display:inline-flex;align-items:center;gap:.32em;font-family:var(--f-display);font-weight:700;
+    font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;padding:.24em .55em;border:1px solid;
+    white-space:nowrap;line-height:1;}
+  .chip::before{font-size:.72em;}
+  .chip.can{color:var(--blue-light);border-color:var(--blue);background:var(--blue-wash);}
+  .chip.can::before{content:"\25C6";}
+  .chip.int{color:var(--ink);border-color:var(--border-mid);background:var(--surface-2);}
+  .chip.int::before{content:"\25C7";color:var(--muted);}
+  .chip.der{color:var(--muted);border-color:var(--muted-faint);border-style:dashed;background:transparent;}
+  .chip.der::before{content:"\25B3";}
+  .legend{display:flex;flex-wrap:wrap;gap:0;margin:1.1rem 0 1.4rem;border:1px solid var(--border);}
+  .legend .item{flex:1 1 210px;min-width:190px;padding:1rem 1.1rem;border-right:1px solid var(--border);}
+  .legend .item:last-child{border-right:none;}
+  .legend .item p{font-size:.8rem;color:var(--muted);margin:.55rem 0 0;max-width:none;line-height:1.55;}
+
+  /* ── decisions grid ── */
+  .decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0;
+    border:1px solid var(--border);margin:1rem 0 1.4rem;}
+  .dcard{padding:1.1rem 1.2rem;border-right:1px solid var(--border);border-top:2px solid var(--red);}
+  .dcard:last-child{border-right:none;}
+  .dcard .lab{font-family:var(--f-display);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    font-size:.6rem;color:var(--muted);margin:0 0 .5rem;}
+  .dcard .val{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.01em;
+    font-size:1.25rem;line-height:1;margin:0 0 .5rem;color:var(--ink);}
+  .dcard p{font-size:.79rem;color:var(--muted);margin:0;max-width:none;line-height:1.55;}
+
+  .note{border-left:3px solid var(--border-mid);background:var(--surface);padding:.9rem 1.1rem;
+    margin:1.2rem 0;font-size:.9rem;color:var(--muted);}
+  .note strong{color:var(--body);}
+
+  /* ── alert: the one true red signal (the review gate) ── */
+  .alert{border:1px solid var(--red);background:var(--red-wash);padding:1.2rem 1.4rem;margin:1.3rem 0;}
+  .alert .t{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.16em;
+    font-size:.68rem;color:var(--red);margin:0 0 .55rem;display:block;}
+  .alert p{margin:0;color:var(--body);max-width:none;}
+
+  /* ── stage rail ── */
+  .stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:0;
+    border:1px solid var(--border);margin:1.2rem 0 1.5rem;}
+  .stage{padding:.9rem .8rem;border-right:1px solid var(--border);}
+  .stage:last-child{border-right:none;}
+  .stage .n{font-family:var(--f-mono);font-size:.7rem;color:var(--red);}
+  .stage .s{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+    font-size:.72rem;color:var(--ink);margin:.3rem 0 .25rem;}
+  .stage .d{font-size:.72rem;color:var(--muted);line-height:1.45;}
+
+  /* ── next-step ── */
+  .next{margin-top:3.2rem;background:var(--surface);border:1px solid var(--border);padding:1.7rem 1.8rem;}
+  .next h3{margin-top:0;}
+  .next .opts{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.1rem;}
+  @media (max-width:560px){.next .opts{grid-template-columns:1fr;}}
+  .opt{border:1px solid var(--border);padding:1rem 1.1rem;background:var(--surface-2);
+    transition:border-color var(--dur-snap) var(--ease-snap),transform var(--dur-snap) var(--ease-snap);}
+  .opt:hover{border-color:var(--red-warm);transform:translateY(-4px);}
+  .opt.pick{border-color:var(--red);}
+  .opt .tag{font-family:var(--f-display);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    font-size:.6rem;color:var(--muted);}
+  .opt.pick .tag{color:var(--red);}
+  .opt p{font-size:.85rem;margin:.4rem 0 0;color:var(--muted);max-width:none;line-height:1.55;}
+  .opt.pick p{color:var(--body);}
+
+  footer.foot{margin-top:3rem;padding-top:1.4rem;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;align-items:center;}
+  footer .label{font-size:.6rem;}
+
+  @media (prefers-reduced-motion:no-preference){
+    section{animation:rise .6s var(--ease-reveal) both;}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (prefers-reduced-motion:reduce){
+    section{animation:fade .3s ease both;}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+    .opt:hover,nav.toc a:hover{transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="brandline">
+      <span class="slashes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="wm">Axiara AI</span>
+      <span class="div">·</span>
+      <span class="label">Systems Architecture</span>
+    </div>
+    <h1>Quranic Graph<span class="r">RAG</span><br>Architecture &amp; Schema</h1>
+    <p class="dek">A hybrid GraphRAG design for an AI chat platform over the Qur'an and its exegesis —
+      engineered so plurality of scholarship, doctrinal integrity, and low-latency retrieval are
+      structural properties of the system, not afterthoughts.</p>
+    <div class="mast-meta">
+      <span><b>Store</b><em>Single-store</em></span>
+      <span><b>Concurrency</b><em>Hundreds</em></span>
+      <span><b>Doctrine</b><em>Plural + attributed</em></span>
+      <span><b>Corpus</b><em>114 / 6,236 · fixed</em></span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="label">Contents</p>
+    <ol>
+      <li><a href="#framing">The two framing insights</a></li>
+      <li><a href="#layers">Layered architecture &amp; diagram</a></li>
+      <li><a href="#balance">Balancing vector ⇄ graph</a></li>
+      <li><a href="#decisions">Locked decisions</a></li>
+      <li><a href="#principles">Schema — design principles</a></li>
+      <li><a href="#nodes">Node catalog</a></li>
+      <li><a href="#edges">Relationship vocabulary</a></li>
+      <li><a href="#provenance">The provenance model</a></li>
+      <li><a href="#example">Worked example — 2:255</a></li>
+      <li><a href="#queries">Three retrieval modes</a></li>
+      <li><a href="#integrity">Build-time integrity</a></li>
+      <li><a href="#import-extract">Import vs. extract</a></li>
+      <li><a href="#stages">The seven stages</a></li>
+      <li><a href="#extract">Extraction — the constrained call</a></li>
+      <li><a href="#gate">The review gate</a></li>
+      <li><a href="#barriers">Five hallucination barriers</a></li>
+      <li><a href="#burden">The review burden, sized</a></li>
+      <li><a href="#tiers">Tiered review policy</a></li>
+      <li><a href="#roles">Who reviews</a></li>
+      <li><a href="#card">The review card</a></li>
+      <li><a href="#disagreement">Two kinds of disagreement</a></li>
+      <li><a href="#durability">Decision durability</a></li>
+      <li><a href="#launch">Launch before 100%</a></li>
+      <li><a href="#audit">Audit trail &amp; metrics</a></li>
+    </ol>
+  </nav>
+
+  <section id="framing">
+    <div class="sec-head"><span class="kicker label">Why this problem is different</span>
+      <h2>The two framing insights</h2></div>
+    <div class="thesis">
+      <p><strong>Your corpus is small, fixed, and sacred.</strong> The Qur'an is 114 surahs /
+        6,236 verses — it never changes. The Tafsir corpus is larger but grows slowly and is
+        curated, not user-generated. This is the opposite of a typical GraphRAG problem. It means
+        you can <strong>precompute almost everything, the entire graph fits in RAM, and concurrency
+        is a read-scaling problem — not a write-scaling one.</strong></p>
+      <p><strong>You must architecturally separate the divine text from human interpretation.</strong>
+        Qur'anic text and verified translation are immutable, verifiable facts. Tafsir is scholarly
+        opinion — plural, sometimes divergent, always attributed. The graph and the generation layer
+        treat these as different classes of truth. Conflating them is the single biggest doctrinal risk.</p>
+    </div>
+    <p>Every decision downstream — the storage call, the retrieval routing, the schema's
+      <em>truth-class</em> tagging, the anti-hallucination gates — follows from these two facts.
+      Because the corpus is fixed, the expensive work (triple extraction, embedding, entity
+      resolution, deep thematic traversal) is pushed <em>left</em>, into an offline build run under
+      human review, and never enters the request path.</p>
+  </section>
+
+  <section id="layers">
+    <div class="sec-head"><span class="kicker label">System topology</span>
+      <h2>Layered architecture</h2></div>
+    <p>Four layers, cleanly split between <strong>request-time</strong> (cheap, bounded, cacheable)
+      and <strong>build-time</strong> (expensive, offline, versioned, reviewed).</p>
+    <figure class="figure">
+      <figcaption>Fig. 1 — Request path (top) vs. offline build pipeline (bottom)</figcaption>
+      <pre class="diagram" aria-label="Architecture diagram">                          ┌─────────────────────────────────┐
+                          │  Client (chat, high concurrency) │
+                          └────────────────┬────────────────┘
+                                           │
+                    ┌──────────────────────▼──────────────────────┐
+   SERVING          │   API gateway · rate-limit · semantic cache  │  ← most queries
+   (request-time)   │   (exact + embedding-similarity cache)       │    never reach retrieval
+                    └──────────────────────┬──────────────────────┘
+                                           │ cache miss
+                    ┌──────────────────────▼──────────────────────┐
+   ORCHESTRATION    │  Query Router / Planner (cheap classifier)   │
+   (request-time)   │  → picks: vector-first · graph-first · hybrid│
+                    └───────┬───────────────────────┬─────────────┘
+                            │                       │
+              ┌─────────────▼──────┐    ┌───────────▼─────────────┐
+   RETRIEVAL  │  Vector retriever  │    │  Graph retriever         │
+   (bounded)  │  (semantic ANN)    │    │  (1–2 hop, parametrized) │
+              └─────────────┬──────┘    └───────────┬─────────────┘
+                            └───────────┬───────────┘
+                              ┌─────────▼──────────┐
+                              │ Reranker + context  │  ← fuse, dedup, enforce citations
+                              │ assembler (grounded)│
+                              └─────────┬──────────┘
+                              ┌─────────▼──────────┐
+   GENERATION                 │ LLM (strict grounding,│
+                              │ cite-or-refuse)      │
+                              └──────────────────────┘
+
+   ─────────────────────────────────────────────────────────────────────
+   BUILD-TIME  (offline · batch · versioned · human-reviewed)
+     Text → chunk → LLM triple extraction → validation → KG + embeddings
+     + precomputed hot traversals (verse→tafsir, verse→topics, theme paths)</pre>
+    </figure>
+    <p>The critical move is pushing work into build-time. Request-time does only cheap, bounded
+      work — an ANN lookup, a 1–2 hop traversal, a rerank — so latency stays flat under concurrent load.</p>
+  </section>
+
+  <section id="balance">
+    <div class="sec-head"><span class="kicker label">Retrieval strategy</span>
+      <h2>Balancing vector ⇄ graph under load</h2></div>
+    <p>Don't run both engines on every query — <strong>route</strong>. A small classifier (or a fast,
+      cached LLM call) tags query intent and picks a path:</p>
+    <div class="twrap"><table>
+      <thead><tr><th>Query shape</th><th>Example</th><th>Primary path</th></tr></thead>
+      <tbody>
+        <tr><td>Semantic / definitional</td><td>"What does the Qur'an say about patience?"</td>
+          <td><strong>Vector-first</strong> → verses by similarity, then 1-hop to attached Tafsir</td></tr>
+        <tr><td>Relational / structural</td><td>"Which verses does Ibn Kathir link to Ayat al-Kursi?"</td>
+          <td><strong>Graph-first</strong> → deterministic traversal, no vector needed</td></tr>
+        <tr><td>Thematic / comparative</td><td>"How is the story of Musa told across surahs?"</td>
+          <td><strong>Hybrid</strong> → vector seeds entry verses, graph traverses links, fuse</td></tr>
+        <tr><td>Factual lookup</td><td>"Show me 2:255"</td>
+          <td><strong>Direct index</strong> → skip retrieval entirely</td></tr>
+      </tbody>
+    </table></div>
+    <h4>Where the latency wins actually come from</h4>
+    <ul>
+      <li><strong>Semantic caching at the edge.</strong> The same ~thousand questions cover most
+        traffic. Cache on <em>embedding similarity</em>, not exact string — this deflects the
+        majority of load before it touches retrieval.</li>
+      <li><strong>Bound graph queries to 1–2 hops at request time.</strong> Anything deeper is
+        precomputed at build-time as materialized paths. Deep live traversal under load is the
+        classic GraphRAG latency killer — avoided by never doing it live.</li>
+      <li><strong>Keep the graph in memory.</strong> At this corpus size the whole graph + vector
+        index fits on one well-provisioned node. Scale reads with <em>replicas</em>, not sharding.</li>
+    </ul>
+  </section>
+
+  <section id="decisions">
+    <div class="sec-head"><span class="kicker label">Confirmed for this build</span>
+      <h2>Locked decisions</h2></div>
+    <div class="decisions">
+      <div class="dcard"><p class="lab">Storage</p><p class="val">Single-store</p>
+        <p>Neo4j w/ native vector index, or Postgres + <code class="inl">pgvector</code> + Apache AGE.
+          Graph + vectors co-located → hybrid retrieval is one query, fewest moving parts.</p></div>
+      <div class="dcard"><p class="lab">Concurrency</p><p class="val">Hundreds</p>
+        <p>One in-memory node + a couple of read replicas + semantic cache covers launch comfortably.
+          No sharding, no regional pods yet.</p></div>
+      <div class="dcard"><p class="lab">Doctrine</p><p class="val">Plural + attributed</p>
+        <p>Surface multiple scholarly views, each cited to its source. The system attributes; it never
+          arbitrates. Enforced in the schema, not just the prompt.</p></div>
+    </div>
+    <div class="note"><strong>Migration path:</strong> if you outgrow single-store, the split is clean —
+      the vector index lifts out to a dedicated engine (Qdrant/Weaviate) keyed by node id, while the
+      graph stays put. Nothing in the schema below assumes co-location beyond the fusion query, which
+      becomes a two-call fan-out.</div>
+  </section>
+
+  <section id="principles">
+    <div class="sec-head"><span class="kicker label">Ontology · Part 1</span>
+      <h2>Schema — four governing principles</h2></div>
+    <ol class="body">
+      <li><strong>Truth-class is a first-class property.</strong> Every node is tagged
+        <span class="chip can">canonical</span> <span class="chip int">interpretive</span>
+        <span class="chip der">derived</span>. The generation layer treats each differently; the
+        schema forces the distinction.</li>
+      <li><strong>No anonymous assertions.</strong> Every interpretive and derived edge carries
+        provenance — which source or extraction run asserted it, and a confidence. An unattributed
+        doctrinal edge is a <em>schema violation</em>, not a quality issue.</li>
+      <li><strong>Closed predicate vocabulary.</strong> Relationship types are a fixed enum. The
+        extraction LLM may only emit predicates from that list — open-vocabulary extraction over
+        scripture is banned by design.</li>
+      <li><strong>Stable, human-readable IDs.</strong> <code class="inl">ayah:2:255</code>,
+        <code class="inl">source:ibn-kathir</code>. Deterministic, so rebuilds are idempotent and
+        diffable under review.</li>
+    </ol>
+    <div class="legend" aria-label="Truth-class legend">
+      <div class="item"><span class="chip can">canonical</span>
+        <p>The Arabic text and verified translation. Immutable. <strong>Never</strong> LLM-touched.</p></div>
+      <div class="item"><span class="chip int">interpretive</span>
+        <p>Tafsir &amp; occasion-of-revelation. Plural, attributed opinion. Always cited.</p></div>
+      <div class="item"><span class="chip der">derived</span>
+        <p>Machine-extracted topics, thematic links, embeddings. Carry a <code class="inl">review_status</code>.</p></div>
+    </div>
+  </section>
+
+  <section id="nodes">
+    <div class="sec-head"><span class="kicker label">Ontology · Part 2</span>
+      <h2>Node catalog</h2></div>
+    <div class="twrap"><table>
+      <thead><tr><th>Label</th><th>Class</th><th>Purpose</th><th>Key properties</th><th>Vec</th></tr></thead>
+      <tbody>
+        <tr><td><code>Surah</code></td><td><span class="chip can">canonical</span></td><td>The 114 chapters</td>
+          <td><code>number, name_ar/en/id, revelation_type, ayah_count, order_revealed</code></td><td>—</td></tr>
+        <tr><td><code>Ayah</code></td><td><span class="chip can">canonical</span></td><td>The 6,236 verses — spine of the graph</td>
+          <td><code>id (s:a), text_uthmani, text_simple, juz, hizb, page, sajda</code></td><td>✓</td></tr>
+        <tr><td><code>Translation</code></td><td><span class="chip can">canonical</span></td><td>A verified translation of an Ayah</td>
+          <td><code>ayah_id, lang, translator, text</code></td><td>✓</td></tr>
+        <tr><td><code>Word</code></td><td><span class="chip can">canonical</span></td><td>Token-level Arabic (linguistic queries)</td>
+          <td><code>ayah_id, position, text_ar, transliteration, lemma, pos_tag</code></td><td>—</td></tr>
+        <tr><td><code>Root</code></td><td><span class="chip can">canonical</span></td><td>Triliteral Arabic root</td>
+          <td><code>root_ar, transliteration, gloss</code></td><td>opt</td></tr>
+        <tr><td><code>TafsirSource</code></td><td><span class="chip int">interpretive</span></td><td>A commentary work / author</td>
+          <td><code>name, author, madhhab, era, lang, authority_tier</code></td><td>—</td></tr>
+        <tr><td><code>TafsirPassage</code></td><td><span class="chip int">interpretive</span></td><td>One commentary passage on an Ayah</td>
+          <td><code>source_id, ayah_id, text, text_lang</code></td><td>✓</td></tr>
+        <tr><td><code>Entity</code></td><td><span class="chip int">interpretive</span></td><td>Prophet · Person · Place · Event · Concept</td>
+          <td><code>type, name_ar/en/id, description</code></td><td>✓</td></tr>
+        <tr><td><code>Topic</code></td><td><span class="chip der">derived</span></td><td>Thematic tag (mercy, patience, tawhid…)</td>
+          <td><code>label, label_id, description, review_status</code></td><td>✓</td></tr>
+        <tr><td><code>RevelationContext</code></td><td><span class="chip int">interpretive</span></td><td>Asbab al-Nuzul (occasion of revelation)</td>
+          <td><code>ayah_id, narrative, source_id</code></td><td>✓</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><strong>Why <code class="inl">Word</code> / <code class="inl">Root</code> earn their place:</strong>
+      they unlock a query class pure-vector RAG can't touch — "every verse sharing the root ر-ح-م (mercy)",
+      morphology, precise linguistic grounding. A genuine differentiator for an Indonesian Tafsiriyah
+      audience. If launch scope is tight, model <code class="inl">Ayah</code> + <code class="inl">Root</code>
+      first and defer full <code class="inl">Word</code> tokenization to phase 2.</div>
+  </section>
+
+  <section id="edges">
+    <div class="sec-head"><span class="kicker label">Ontology · Part 3</span>
+      <h2>Relationship vocabulary</h2></div>
+    <p>Sixteen predicates — the <em>entire</em> set. The extractor's system prompt enumerates these
+      and refuses anything else. <code class="inl">[*]</code> marks edges that carry provenance
+      <code class="inl">{source_id, confidence, review_status, extracted_by}</code>.</p>
+
+    <h4><span class="chip can">canonical</span> &nbsp;Structural — deterministic, no provenance</h4>
+    <pre class="code">(Ayah)       <span class="kw">-[:PART_OF]-&gt;</span>        (Surah)
+(Word)       <span class="kw">-[:IN_AYAH]-&gt;</span>        (Ayah)
+(Word)       <span class="kw">-[:HAS_ROOT]-&gt;</span>       (Root)
+(Translation)<span class="kw">-[:TRANSLATES]-&gt;</span>     (Ayah)
+(Ayah)       <span class="kw">-[:PRECEDES]-&gt;</span>       (Ayah)   <span class="cm">// reading order, for context windows</span></pre>
+
+    <h4><span class="chip int">interpretive</span> &nbsp;Attributed — provenance mandatory</h4>
+    <pre class="code">(TafsirPassage) <span class="kw">-[:EXPLAINS]-&gt;</span>        (Ayah)              <span class="lb">[*]</span>
+(TafsirPassage) <span class="kw">-[:AUTHORED_BY]-&gt;</span>     (TafsirSource)
+(Ayah)          <span class="kw">-[:HAS_CONTEXT]-&gt;</span>     (RevelationContext) <span class="lb">[*]</span>
+(Ayah)          <span class="kw">-[:ABROGATES]-&gt;</span>       (Ayah) {naskh_type}  <span class="lb">[*]</span>  <span class="cm">// naskh — always cited</span>
+(Ayah)          <span class="kw">-[:REFERENCES]-&gt;</span>      (Ayah)              <span class="lb">[*]</span>  <span class="cm">// cross-ref asserted by a source</span></pre>
+
+    <h4><span class="chip der">derived</span> &nbsp;Machine-extracted — provenance + review_status mandatory</h4>
+    <pre class="code">(Ayah)   <span class="kw">-[:MENTIONS]-&gt;</span>               (Entity) {mention_form} <span class="lb">[*]</span>
+(Ayah)   <span class="kw">-[:ABOUT_TOPIC]-&gt;</span>            (Topic)  {weight}       <span class="lb">[*]</span>
+(Ayah)   <span class="kw">-[:THEMATICALLY_LINKED_TO]-&gt;</span> (Ayah)  {weight, basis} <span class="lb">[*]</span>
+(Entity) <span class="kw">-[:NARRATIVE_OF]-&gt;</span>           (Entity) {role}         <span class="lb">[*]</span>
+(Topic)  <span class="kw">-[:SUBTOPIC_OF]-&gt;</span>            (Topic)                 <span class="lb">[*]</span></pre>
+    <p>New predicates require a schema PR + scholar sign-off — never an ad-hoc LLM decision.</p>
+  </section>
+
+  <section id="provenance">
+    <div class="sec-head"><span class="kicker label">The doctrinal keystone</span>
+      <h2>The provenance model</h2></div>
+    <p>Every interpretive / derived edge is an assertion by <em>someone</em> or <em>something</em>:</p>
+    <pre class="code">(:TafsirPassage {id:<span class="st">'tp:ibn-kathir:2:255'</span>})
+  <span class="kw">-[:EXPLAINS</span> {
+      confidence:    <span class="st">1.0</span>,
+      review_status: <span class="st">'scholar_verified'</span>,   <span class="cm">// human_pending | scholar_verified | auto</span>
+      extracted_by:  <span class="st">'curated_import_v3'</span>    <span class="cm">// or 'llm_extract_run_2026_07'</span>
+   }<span class="kw">]-&gt;</span>
+(:Ayah {id:<span class="st">'ayah:2:255'</span>})</pre>
+    <p>This is what makes <strong>plural + attributed</strong> work structurally: a query for "the
+      meaning of X" returns <em>N</em> <code class="inl">TafsirPassage</code> nodes, each with its
+      source and <code class="inl">authority_tier</code>. The generation layer is contractually
+      required to present them side-by-side with citations — it <em>cannot</em> collapse them into
+      one voice, because the graph never gave it one.</p>
+  </section>
+
+  <section id="example">
+    <div class="sec-head"><span class="kicker label">Ontology in practice</span>
+      <h2>Worked example — Ayat al-Kursi (2:255)</h2></div>
+    <pre class="code">(a:Ayah {id:<span class="st">'ayah:2:255'</span>, text_uthmani:<span class="st">'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ...'</span>,
+         juz:3, truth_class:<span class="st">'canonical'</span>})
+(a)<span class="kw">-[:PART_OF]-&gt;</span>(:Surah {id:<span class="st">'surah:2'</span>, name_ar:<span class="st">'البقرة'</span>, name_id:<span class="st">'Al-Baqarah'</span>})
+(:Translation {lang:<span class="st">'id'</span>, translator:<span class="st">'Tafsiriyah'</span>,
+   text:<span class="st">'Allah, tidak ada tuhan selain Dia...'</span>})<span class="kw">-[:TRANSLATES]-&gt;</span>(a)
+
+<span class="cm">// interpretive — PLURAL, each attributed</span>
+(:TafsirPassage {id:<span class="st">'tp:ibn-kathir:2:255'</span>})<span class="kw">-[:EXPLAINS</span> {review_status:<span class="st">'scholar_verified'</span>}<span class="kw">]-&gt;</span>(a)
+(:TafsirPassage {id:<span class="st">'tp:jalalayn:2:255'</span>})  <span class="kw">-[:EXPLAINS</span> {review_status:<span class="st">'scholar_verified'</span>}<span class="kw">]-&gt;</span>(a)
+(:TafsirPassage {id:<span class="st">'tp:ibn-kathir:2:255'</span>})<span class="kw">-[:AUTHORED_BY]-&gt;</span>(:TafsirSource {id:<span class="st">'source:ibn-kathir'</span>, authority_tier:1})
+
+<span class="cm">// derived — reviewed</span>
+(a)<span class="kw">-[:ABOUT_TOPIC</span> {weight:0.98, review_status:<span class="st">'scholar_verified'</span>}<span class="kw">]-&gt;</span>(:Topic {label:<span class="st">'Tawhid'</span>})
+(a)<span class="kw">-[:MENTIONS]-&gt;</span>(:Entity {id:<span class="st">'entity:allah'</span>, type:<span class="st">'Concept'</span>})
+(a)<span class="kw">-[:THEMATICALLY_LINKED_TO</span> {weight:0.9, basis:<span class="st">'divine attributes'</span>}<span class="kw">]-&gt;</span>(:Ayah {id:<span class="st">'ayah:59:22'</span>})</pre>
+  </section>
+
+  <section id="queries">
+    <div class="sec-head"><span class="kicker label">Retrieval, concretely</span>
+      <h2>The three modes, as queries</h2></div>
+    <h4>Vector-first — "verses about God's sovereignty"</h4>
+    <pre class="code"><span class="kw">CALL</span> db.index.vector.queryNodes(<span class="st">'ayah_id_embedding'</span>, 8, $qVec) <span class="kw">YIELD</span> node <span class="kw">AS</span> a
+<span class="kw">OPTIONAL MATCH</span> (tp:TafsirPassage)-[:EXPLAINS]-&gt;(a)   <span class="cm">// 1-hop enrichment, bounded</span>
+<span class="kw">RETURN</span> a, collect(tp)</pre>
+    <h4>Graph-first — "what does Ibn Kathir link 2:255 to?" (deterministic)</h4>
+    <pre class="code"><span class="kw">MATCH</span> (:Ayah {id:<span class="st">'ayah:2:255'</span>})-[r:REFERENCES|THEMATICALLY_LINKED_TO]-&gt;(a2:Ayah)
+<span class="kw">WHERE</span> r.source_id = <span class="st">'source:ibn-kathir'</span>
+<span class="kw">RETURN</span> a2, r.basis</pre>
+    <h4>Hybrid — "how is Musa's story told across surahs?"</h4>
+    <pre class="code"><span class="kw">CALL</span> db.index.vector.queryNodes(<span class="st">'entity_embedding'</span>, 1, $musaVec) <span class="kw">YIELD</span> node <span class="kw">AS</span> musa
+<span class="kw">MATCH</span> (musa)&lt;-[:MENTIONS]-(a:Ayah)-[:ABOUT_TOPIC]-&gt;(:Topic {label:<span class="st">'Prophetic narratives'</span>})
+<span class="kw">RETURN</span> a <span class="kw">ORDER BY</span> a.surah_number   <span class="cm">// precompute as a build-time hot path</span></pre>
+  </section>
+
+  <section id="integrity">
+    <div class="sec-head"><span class="kicker label">Guardrails</span>
+      <h2>Build-time integrity — enforced, not hoped</h2></div>
+    <ul>
+      <li>Uniqueness on every <code class="inl">id</code>; <code class="inl">Ayah</code> count
+        <strong>must equal 6,236</strong>, <code class="inl">Surah</code> <strong>must equal 114</strong>
+        — a hard gate on every rebuild.</li>
+      <li>Every <code class="inl">EXPLAINS</code> / <code class="inl">ABOUT_TOPIC</code> /
+        <code class="inl">THEMATICALLY_LINKED_TO</code> edge <strong>must</strong> have non-null
+        provenance → CI rejects the build otherwise.</li>
+      <li>No edge may connect a <span class="chip can">canonical</span> node <em>to</em> a
+        <span class="chip der">derived</span> node without passing through an attributed
+        (<span class="chip int">interpretive</span>) edge type. You can't quietly attach machine
+        opinion to scripture.</li>
+      <li>Every derived edge with <code class="inl">review_status:'auto'</code> is
+        <strong>excluded from doctrinal query paths</strong> until promoted — it can inform ranking,
+        never a cited claim.</li>
+    </ul>
+    <p>Together these make your three hard requirements <em>structural</em>: plural-attributed
+      (provenance on every interpretive edge), anti-hallucination (truth-class separation + review
+      gates), and low-latency hybrid (embeddings only where searched, traversals bounded, hot paths
+      precomputable).</p>
+  </section>
+
+  <!-- ══════════════ PART TWO ══════════════ -->
+  <div class="part">
+    <span class="pn">PART TWO</span>
+    <h2>The Triple-Extraction Pipeline</h2>
+    <p>The machine that populates the graph. It runs <strong>offline, in batch, versioned, and gated
+      by human review</strong> — never in the request path. Its whole job is to turn prose into
+      attributed, schema-valid edges <em>without ever letting the model assert something over
+      scripture that a scholar hasn't confirmed.</em></p>
+  </div>
+
+  <section id="import-extract">
+    <div class="sec-head"><span class="kicker label">The dividing line</span>
+      <h2>Import vs. extract</h2></div>
+    <p>Not everything is "extracted." Conflating these is the most common GraphRAG mistake:</p>
+    <div class="twrap"><table>
+      <thead><tr><th>Data</th><th>Class</th><th>How it enters the graph</th></tr></thead>
+      <tbody>
+        <tr><td>Ayah text, Surah structure, Word/Root morphology, verified Translations</td>
+          <td><span class="chip can">canonical</span></td>
+          <td><strong>Imported</strong> from trusted structured datasets (Tanzil, Quranic Arabic Corpus,
+            KEMENAG). <strong>Zero LLM.</strong> Deterministic, checksummed.</td></tr>
+        <tr><td>Tafsir passages, Asbab al-Nuzul</td>
+          <td><span class="chip int">interpretive</span></td>
+          <td><strong>Imported as text</strong>, then extraction runs <em>over</em> them to produce
+            edges. The passage text itself is never rewritten by the LLM.</td></tr>
+        <tr><td>Topics, entity mentions, thematic links, cross-references</td>
+          <td><span class="chip der">derived</span></td>
+          <td><strong>Extracted</strong> by LLM, then validated + reviewed.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="alert"><span class="t">The constraint that kills most hallucination</span>
+      <p>The LLM only ever <em>reads</em> canonical/interpretive text and <em>emits typed edges
+        pointing at it</em>. It never authors node text. That single rule eliminates the largest
+        hallucination surface before any prompt engineering begins.</p></div>
+  </section>
+
+  <section id="stages">
+    <div class="sec-head"><span class="kicker label">Pipeline</span>
+      <h2>The seven stages</h2></div>
+    <div class="stages">
+      <div class="stage"><span class="n">01</span><div class="s">Ingest</div>
+        <div class="d">Canonical first — it's the anchor everything attaches to.</div></div>
+      <div class="stage"><span class="n">02</span><div class="s">Chunk</div>
+        <div class="d">Verse-aligned spans, not token windows.</div></div>
+      <div class="stage"><span class="n">03</span><div class="s">Extract</div>
+        <div class="d">Closed vocabulary, structured JSON only.</div></div>
+      <div class="stage"><span class="n">04</span><div class="s">Validate</div>
+        <div class="d">Schema + predicate whitelist. Pure code.</div></div>
+      <div class="stage"><span class="n">05</span><div class="s">Resolve</div>
+        <div class="d">Entity linking + triple dedup.</div></div>
+      <div class="stage"><span class="n">06</span><div class="s">Gate</div>
+        <div class="d">Confidence + scholar review.</div></div>
+      <div class="stage"><span class="n">07</span><div class="s">Load</div>
+        <div class="d">Idempotent upsert, versioned.</div></div>
+    </div>
+
+    <h3>01 · Ingest</h3>
+    <p>Load canonical data first. Each Tafsir source is registered as a <code class="inl">TafsirSource</code>
+      node with its <code class="inl">authority_tier</code> and <code class="inl">madhhab</code>
+      <em>before</em> its passages are processed — so provenance has a target. Every passage keeps a
+      stable id (<code class="inl">tp:&lt;source&gt;:&lt;surah&gt;:&lt;ayah&gt;</code>) and a content checksum.</p>
+
+    <h3>02 · Chunk, verse-aligned</h3>
+    <p>Chunk Tafsir <strong>along ayah boundaries</strong>, not by token windows. A commentary passage
+      is already scoped to a verse — preserve that. Every extracted triple then gets a natural anchor
+      (<code class="inl">ayah_id</code>) and natural provenance (<code class="inl">source_id</code>)
+      <em>for free, before the model runs</em>. Range-scoped passages (commentary on 2:1–5) attach to
+      each ayah in the range with a <code class="inl">scope_span</code> marker.</p>
+  </section>
+
+  <section id="extract">
+    <div class="sec-head"><span class="kicker label">Stage 03 · the constrained call</span>
+      <h2>Extraction</h2></div>
+    <p>The model gets the <strong>verse + translation</strong> (canonical anchor), the
+      <strong>Tafsir passage</strong> (the source being read), and a <strong>closed schema</strong>.
+      It returns structured JSON only — forced via tool / <code class="inl">response_format</code>, so
+      malformed output can't propagate.</p>
+
+    <h4>System prompt shape</h4>
+    <pre class="code"><span class="cm">You extract knowledge-graph edges from Islamic exegetical text.</span>
+<span class="cm">You may ONLY use these predicates:</span>
+  EXPLAINS · REFERENCES · ABROGATES · HAS_CONTEXT
+  MENTIONS · ABOUT_TOPIC · THEMATICALLY_LINKED_TO · NARRATIVE_OF
+
+<span class="lb">RULES</span>
+  • For every edge you MUST quote the exact evidence_span from the passage.
+  • If the passage does not support an edge, omit it.
+  • NEVER infer a relationship the text does not state.
+  • NEVER assert the ruling/meaning of a verse as fact — attribute it to this source.
+  • If nothing is extractable, return {"edges": []}.</pre>
+
+    <h4>Output schema (per edge)</h4>
+    <pre class="code">{
+  <span class="st">"predicate"</span>:     <span class="st">"ABOUT_TOPIC"</span>,
+  <span class="st">"subject_id"</span>:    <span class="st">"ayah:2:255"</span>,
+  <span class="st">"object"</span>:        { <span class="st">"type"</span>: <span class="st">"Topic"</span>, <span class="st">"label"</span>: <span class="st">"Divine sovereignty"</span> },
+  <span class="st">"evidence_span"</span>: <span class="st">"His Kursi extends over the heavens and the earth"</span>,
+  <span class="st">"confidence"</span>:    0.86,
+  <span class="st">"source_id"</span>:     <span class="st">"source:ibn-kathir"</span>
+}</pre>
+
+    <p>Two choices do the heavy lifting here:</p>
+    <ul>
+      <li><strong><code class="inl">evidence_span</code> is mandatory.</strong> No span → the edge is
+        discarded at Stage 04. This forces grounding and gives reviewers a one-glance audit: <em>does
+        this quote actually say that?</em></li>
+      <li><strong>The object is a canonical id <em>or</em> a candidate descriptor</strong>
+        (<code class="inl">{type, label}</code>) — the model shouldn't guess node IDs for entities and
+        topics. Resolution happens deterministically at Stage 05.</li>
+    </ul>
+    <p>Extraction runs per-passage, in parallel — embarrassingly parallel over a bounded corpus.</p>
+
+    <h3>04 · Validate — pure code, zero LLM</h3>
+    <p>Reject any edge that:</p>
+    <ul>
+      <li>uses a predicate outside the whitelist;</li>
+      <li>has a <code class="inl">subject_id</code> that isn't a real canonical node;</li>
+      <li>has an <code class="inl">evidence_span</code> that <strong>isn't a literal substring of the
+        source passage</strong> — this catches fabricated quotes, a direct hallucination check;</li>
+      <li>fails predicate type rules (e.g. <code class="inl">ABROGATES</code> must connect two Ayahs).</li>
+    </ul>
+    <p>Rejections are <em>logged with a reason</em>, never silently dropped — the reject log is itself
+      a quality signal for the next extraction run.</p>
+
+    <h3>05 · Resolve &amp; dedup</h3>
+    <ul>
+      <li><strong>Entity / Topic resolution:</strong> map each candidate <code class="inl">{type,label}</code>
+        to an existing node via embedding similarity + an alias table ("Musa", "Moses", "Nabi Musa" →
+        <code class="inl">entity:musa</code>). Above threshold → link. Below → queue as a
+        <em>new-entity candidate</em> for review; never auto-create doctrinally-significant entities.</li>
+      <li><strong>Triple dedup:</strong> the same edge from the same source collapses to one. The same
+        edge from <em>different</em> sources stays as <strong>separate provenance</strong> — that
+        plurality is the entire point. Never merge across sources.</li>
+    </ul>
+  </section>
+
+  <section id="gate">
+    <div class="sec-head"><span class="kicker label">Stage 06</span>
+      <h2>The review gate</h2></div>
+    <div class="alert"><span class="t">This is where doctrinal accuracy is won or lost</span>
+      <p>Promotion from <code class="inl">auto</code> to <code class="inl">scholar_verified</code> is
+        the <em>only</em> path an extracted doctrinal edge reaches a citable answer. Everything else
+        in this document is scaffolding around this gate.</p></div>
+    <div class="twrap"><table>
+      <thead><tr><th>Condition</th><th>review_status</th><th>In doctrinal query paths?</th></tr></thead>
+      <tbody>
+        <tr><td>Imported canonical / curated Tafsir</td><td><code>scholar_verified</code></td><td>Yes</td></tr>
+        <tr><td>Extracted, <code>confidence ≥ τ_high</code>, non-doctrinal predicate
+          (<code>ABOUT_TOPIC</code>, <code>MENTIONS</code>)</td><td><code>auto</code></td>
+          <td><strong>No</strong> — ranking only</td></tr>
+        <tr><td>Extracted, doctrinal predicate (<code>ABROGATES</code>, <code>HAS_CONTEXT</code>,
+          <code>REFERENCES</code>) — <em>at any confidence</em></td><td><code>human_pending</code></td>
+          <td>No, until promoted</td></tr>
+        <tr><td><code>confidence &lt; τ_low</code></td><td><code>human_pending</code></td><td>No</td></tr>
+      </tbody>
+    </table></div>
+    <p>The scholar-facing queue shows the edge, its <code class="inl">evidence_span</code>, the verse,
+      and the source. The reviewer <strong>promotes</strong>, <strong>rejects</strong>, or
+      <strong>edits</strong>. Every decision is written to an audit log (who, when, what). Doctrinal
+      edges — <code class="inl">ABROGATES</code> especially, since Naskh is contested — are
+      <strong>never auto-promotable</strong>, regardless of confidence.</p>
+
+    <h3>07 · Load — idempotent, versioned</h3>
+    <p>Upsert by stable id: re-running the whole pipeline produces the same graph, no duplicate edges.
+      Each load is tagged with an <code class="inl">extraction_run</code> version + embedding-model
+      version, so you can diff two runs ("what changed when we upgraded the extractor?") and roll back.
+      Because IDs are deterministic, re-extracting one source touches only that source's edges.</p>
+  </section>
+
+  <section id="barriers">
+    <div class="sec-head"><span class="kicker label">Recap</span>
+      <h2>Five hallucination barriers</h2></div>
+    <p>Independent, in pipeline order — each one alone is defeatable; together they're the moat:</p>
+    <ol class="body">
+      <li><strong>LLM never authors node text</strong> (import vs. extract split) → can't fabricate scripture.</li>
+      <li><strong>Closed predicate vocabulary</strong> → can't invent relationships.</li>
+      <li><strong>Mandatory <code class="inl">evidence_span</code>, verified as a literal substring</strong>
+        → can't fabricate a supporting quote.</li>
+      <li><strong>Confidence + doctrinal-predicate gating</strong> → uncertain or sensitive claims
+        can't reach answers unreviewed.</li>
+      <li><strong>Scholar promotion gate + audit log</strong> → a human owns every doctrinal edge that
+        becomes citable.</li>
+    </ol>
+    <p>Retrieval then only ever pulls <code class="inl">scholar_verified</code> edges into cited
+      context. <code class="inl">auto</code> edges influence ranking but are never quoted.</p>
+
+    <h4>Decisions to pin before build</h4>
+    <ul>
+      <li><strong>Extractor model tier</strong> — a strong model vs. a cheaper one at higher volume with
+        heavier review. For a one-time bounded corpus, spend on the stronger model; you extract once.</li>
+      <li><strong>Review capacity</strong> — plural-attributed doctrine means real scholar hours on the
+        <code class="inl">human_pending</code> queue at ingest. Scope who reviews and their throughput:
+        this gates launch.</li>
+      <li><strong>Thresholds <code class="inl">τ_high</code> / <code class="inl">τ_low</code></strong> —
+        set empirically from a labeled sample of ~200 extracted edges once the extractor is wired.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════ PART THREE ══════════════ -->
+  <div class="part">
+    <span class="pn">PART THREE</span>
+    <h2>The Scholar Review-Queue</h2>
+    <p>The piece most likely to sink the project — and a <strong>staffing and governance problem
+      wearing an engineering costume.</strong> Everything in Parts One and Two exists to protect
+      the gate described here.</p>
+  </div>
+
+  <section id="burden">
+    <div class="sec-head"><span class="kicker label">The reframe</span>
+      <h2>The review burden, sized</h2></div>
+    <p>The instinct is <em>"40,000 extracted edges × human review = impossible, we'll never launch."</em>
+      That is only true if you review everything. You shouldn't. Rough volume for a four-source
+      Tafsir corpus:</p>
+    <div class="twrap"><table>
+      <thead><tr><th>Edge class</th><th>Est. volume</th><th>Review burden</th></tr></thead>
+      <tbody>
+        <tr><td>Structural canonical (<code>PART_OF</code>, <code>TRANSLATES</code>, <code>HAS_ROOT</code>…)</td>
+          <td class="num">~50k+</td><td><strong>Zero.</strong> Deterministic import, no LLM, nothing to judge.</td></tr>
+        <tr><td><code>EXPLAINS</code> (passage → ayah)</td><td class="num">~25k</td>
+          <td><strong>Near-zero.</strong> The passage is already scoped to the verse by its source.
+            Verse-aligned chunking makes this structural, not inferred.</td></tr>
+        <tr><td><code>ABOUT_TOPIC</code> · <code>MENTIONS</code> · <code>THEMATICALLY_LINKED_TO</code></td>
+          <td class="num">~35k</td><td><strong>Sampled audit only.</strong> These are <code>auto</code> —
+            they influence ranking, never a cited doctrinal claim.</td></tr>
+        <tr><td><strong>Doctrinal:</strong> <code>ABROGATES</code> · <code>HAS_CONTEXT</code> · <code>REFERENCES</code></td>
+          <td class="num">~1–3k</td><td><strong>Full dual review. This is the real queue.</strong></td></tr>
+        <tr><td>New <code>Entity</code> / <code>Topic</code> creation</td><td class="num">~300–800</td>
+          <td>Full review — naming matters.</td></tr>
+      </tbody>
+    </table></div>
+    <p>Naskh cases are famously bounded (classical counts range from a handful to a few hundred by
+      school). Asbab al-Nuzul covers a few hundred verses. Cross-references run to the low thousands.</p>
+    <div class="alert"><span class="t">The must-review set is ~1,500–3,500 edges — not 40,000</span>
+      <p>That is the difference between "impossible" and "a few focused weeks." Every design choice
+        below exists to protect this ratio.</p></div>
+  </section>
+
+  <section id="tiers">
+    <div class="sec-head"><span class="kicker label">The throughput unlock</span>
+      <h2>Tiered review policy</h2></div>
+    <div class="twrap"><table>
+      <thead><tr><th>Tier</th><th>Applies to</th><th>Gate</th><th>Citable?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>T0</strong> — no review</td><td>Structural canonical edges</td>
+          <td>Deterministic import + CI count checks</td><td>Yes</td></tr>
+        <tr><td><strong>T1</strong> — dual scholar review</td>
+          <td><code>ABROGATES</code>, <code>HAS_CONTEXT</code>, <code>REFERENCES</code>, new Entity creation</td>
+          <td>Two independent reviewers must agree; disagreement escalates</td><td>Only after promotion</td></tr>
+        <tr><td><strong>T2</strong> — sampled audit</td>
+          <td><code>ABOUT_TOPIC</code>, <code>MENTIONS</code>, <code>THEMATICALLY_LINKED_TO</code> @ high confidence</td>
+          <td>Review a random <strong>n≈300</strong> sample; if precision ≥ threshold (~95%), the
+            population ships as <code>auto</code></td><td><strong>No</strong> — ranking only</td></tr>
+        <tr><td><strong>T3</strong> — blocked</td>
+          <td>Anything below <code>τ_low</code>, or any doctrinal edge not yet promoted</td><td>—</td><td>No</td></tr>
+      </tbody>
+    </table></div>
+    <p>The T2 sampling move is what makes this tractable: a <em>statistical guarantee</em> over 35,000
+      edges from ~300 human judgments — and those edges are never quoted anyway. If sample precision
+      comes in low, you don't review harder. You <strong>fix the extractor and re-run.</strong>
+      Human review is not a patch for a bad extractor.</p>
+  </section>
+
+  <section id="roles">
+    <div class="sec-head"><span class="kicker label">Governance</span>
+      <h2>Who reviews — three roles, not one</h2></div>
+    <ul>
+      <li><strong>Curator</strong> (ops, non-doctrinal). Triages the queue, kills obvious junk, dedups,
+        fixes formatting. <em>Cannot promote doctrinal edges.</em> Exists to keep scholar time scarce
+        and expensive.</li>
+      <li><strong>Reviewer</strong> (credentialed — mufassir-trained ustadz). Promotes / rejects / edits
+        T1 edges. The load-bearing role.</li>
+      <li><strong>Scholar board</strong> (senior). Adjudicates reviewer disagreement, owns the predicate
+        vocabulary, and signs off on the source list and <code class="inl">authority_tier</code> values.</li>
+    </ul>
+    <div class="alert"><span class="t">The single most consequential decision in the system</span>
+      <p><em>Which</em> Tafsir are in scope, and how they rank, determines every answer the platform
+        will ever give. That is a board decision, made once, in writing — not something an engineer
+        picks while wiring the ingest script, and not something an edge-level reviewer can drift.</p></div>
+  </section>
+
+  <section id="card">
+    <div class="sec-head"><span class="kicker label">Reviewer UX</span>
+      <h2>The review card</h2></div>
+    <p>The design goal is to turn a doctrinal judgment into a <strong>binary evidence check</strong>.
+      The reviewer should never have to reconstruct context.</p>
+    <figure class="figure">
+      <figcaption>Fig. 2 — T1 review card</figcaption>
+      <pre class="diagram" aria-label="Review card mockup">┌─ REVIEW  #1,284 of 2,910 ─────────────────  [T1 · DOCTRINAL] ─┐
+│                                                                │
+│  VERSE   2:255  Al-Baqarah                                     │
+│  اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ...                              │
+│  "Allah, tidak ada tuhan selain Dia, Yang Mahahidup..."        │
+│                                                                │
+│  PROPOSED CLAIM                                                │
+│  Ibn Kathir  cross-references  2:255 → 59:22                   │
+│  basis: "divine attributes"          confidence: 0.81          │
+│                                                                │
+│  EVIDENCE (from Tafsir Ibn Kathir, 2:255)                      │
+│  "...and this is like His saying, exalted be He, ▓▓▓▓▓▓▓▓▓▓    │
+│   ▓He is Allah, other than whom there is no deity, Knower▓     │
+│   ▓of the unseen and the witnessed▓ — [Al-Hashr 59:22]..."     │
+│                                                                │
+│  ▸ Does the quoted passage support this claim?                 │
+│                                                                │
+│  [ PROMOTE ]  [ REJECT ▾ ]  [ EDIT ]  [ ESCALATE → BOARD ]     │
+└────────────────────────────────────────────────────────────────┘</pre>
+    </figure>
+    <h4>Three rules that carry it</h4>
+    <ol class="body">
+      <li><strong>The claim is in plain language, never Cypher.</strong> The reviewer is a scholar,
+        not a graph engineer.</li>
+      <li><strong>The <code class="inl">evidence_span</code> is highlighted in situ, with surrounding
+        context.</strong> This is the payoff for making it mandatory at Stage 03 — it converts
+        <em>"is this theologically true?"</em> into <em>"does this quote say that?"</em>, which is
+        fast and objective.</li>
+      <li><strong>Reject requires a reason code</strong> from a fixed taxonomy:
+        <code class="inl">evidence_doesnt_support</code> · <code class="inl">wrong_predicate</code> ·
+        <code class="inl">wrong_entity</code> · <code class="inl">source_misattributed</code> ·
+        <code class="inl">doctrinally_incorrect</code> · <code class="inl">duplicate</code> ·
+        <code class="inl">out_of_scope</code>. The reason distribution <em>is</em> your extractor's
+        bug report — a spike in <code class="inl">wrong_predicate</code> means the prompt's vocabulary
+        boundaries are blurry.</li>
+    </ol>
+  </section>
+
+  <section id="disagreement">
+    <div class="sec-head"><span class="kicker label">Existential distinction</span>
+      <h2>Two kinds of disagreement</h2></div>
+    <div class="thesis">
+      <p><strong>Sources disagreeing is <em>data</em>, not conflict.</strong> Ibn Kathir and
+        Al-Jalalayn reading a verse differently is expected and correct. Both edges are valid, both
+        persist, each attributed. The queue must <strong>never</strong> ask a reviewer to pick a
+        winner between two sources. If your UI has a "which is right?" button, you have built a
+        fatwa machine by accident.</p>
+      <p><strong>Reviewers disagreeing is a <em>conflict</em>.</strong> Two reviewers judging the same
+        edge differently → auto-escalate to the board. No silent tie-breaking.</p>
+    </div>
+    <p>Track <strong>inter-rater agreement (Cohen's κ)</strong> as a first-class metric. A low κ does
+      not mean you hired bad reviewers — it means <strong>your rubric is ambiguous</strong>, and the
+      fix is to sharpen the predicate definitions, not to lean harder on the reviewers.</p>
+  </section>
+
+  <section id="durability">
+    <div class="sec-head"><span class="kicker label">Protecting scholar hours</span>
+      <h2>Decision durability across re-extraction</h2></div>
+    <p>The trap: you upgrade the extractor, re-run the pipeline, and 3,000 human decisions evaporate.
+      Avoid it by keying every decision to a <strong>stable semantic identity</strong>, not a run id:</p>
+    <pre class="code">decision_key = hash(subject_id, predicate, object_id, <span class="kw">normalize</span>(evidence_span))</pre>
+    <p>On re-extraction:</p>
+    <ul>
+      <li>Identical key → <strong>prior promotion carries forward automatically.</strong> Zero re-review.</li>
+      <li>Evidence span changed → back in the queue (the grounding changed, so the judgment must be re-made).</li>
+      <li>New edge → queue as normal.</li>
+      <li>Previously <em>rejected</em> key reappears → <strong>auto-suppressed</strong> and flagged:
+        the extractor is repeating a known error.</li>
+    </ul>
+    <p>That last rule is quietly important. It stops a re-run from resurrecting rejected content, and
+      it turns the reject log into a permanent regression guard.</p>
+  </section>
+
+  <section id="launch">
+    <div class="sec-head"><span class="kicker label">Shipping</span>
+      <h2>Launch before 100% — prioritize the hot path</h2></div>
+    <p>You do <strong>not</strong> need a fully reviewed graph to go live. Order the queue by expected
+      query traffic:</p>
+    <ol class="body">
+      <li><strong>High-traffic verses first</strong> — Al-Fatiha, Ayat al-Kursi, Yasin, Al-Kahf, the
+        last two juz, the common du'a verses. A small fraction of verses absorbs the large majority
+        of queries.</li>
+      <li>Then doctrinal edges on those verses, then the long tail.</li>
+    </ol>
+    <p>Ship when the <strong>hot path</strong> is reviewed, and let coverage grow behind the live
+      product. Which requires one thing to be built first:</p>
+    <div class="alert"><span class="t">Honest degradation — build this before launch</span>
+      <p>When a verse has no <code class="inl">scholar_verified</code> doctrinal edges, the system must
+        <strong>not</strong> improvise. It shows the canonical text plus attributed Tafsir passages
+        <em>verbatim</em>, and states plainly that the relational layer isn't yet verified for this
+        verse. Silence is a valid, dignified answer here — inventing a connection is not. This
+        fallback is precisely what lets you launch early without risk.</p></div>
+  </section>
+
+  <section id="audit">
+    <div class="sec-head"><span class="kicker label">Accountability</span>
+      <h2>Audit trail &amp; metrics</h2></div>
+    <h4>Append-only, non-negotiable</h4>
+    <pre class="code">{ edge_key, reviewer_id, decision, reason_code, note,
+  prior_status, new_status, extraction_run, model_version, timestamp }</pre>
+    <p>Immutable. Every citable doctrinal edge traces to a <strong>named human who approved it, and
+      the evidence they saw.</strong> When someone eventually asks "who decided this?" — and on a
+      Qur'anic platform, someone will — there must be an answer that isn't "the model."</p>
+
+    <h4>The metrics that actually run the gate</h4>
+    <div class="twrap"><table>
+      <thead><tr><th>Metric</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td>Queue depth by tier</td><td>Launch readiness</td></tr>
+        <tr><td>T2 sample precision</td><td>Whether <code>auto</code> edges are trustworthy enough to rank on</td></tr>
+        <tr><td>Inter-rater κ</td><td>Rubric clarity — <em>not</em> reviewer quality</td></tr>
+        <tr><td>Reviewer throughput (edges/hr)</td><td>Staffing math — <strong>measure, don't guess</strong></td></tr>
+        <tr><td>Reject reason distribution</td><td>Your extractor's bug list</td></tr>
+        <tr><td>Hot-path coverage %</td><td>The actual launch gate</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>What to do first</h3>
+    <div class="thesis">
+      <p><strong>Run a 100-edge pilot before committing to any timeline.</strong> Take 100 real T1
+        edges, put two reviewers through the card UI, and measure: seconds per edge, κ, and the
+        reject-reason mix. That single afternoon gives you (a) a real throughput number to staff
+        against, (b) a read on whether your predicate definitions are sharp enough, and (c) an early
+        precision estimate on the extractor.</p>
+      <p><em>Every number in this document is an estimate until that pilot replaces it with a fact.</em></p>
+    </div>
+  </section>
+
+  <div class="next">
+    <span class="kicker label">Next</span>
+    <h3>Where to go from here</h3>
+    <div class="opts">
+      <div class="opt pick"><span class="tag">Remaining</span>
+        <p><strong>B — Serving &amp; concurrency plan.</strong> Semantic cache design, replica topology
+          for hundreds-concurrent, and which traversals to materialize at build-time.</p></div>
+      <div class="opt"><span class="tag">Then</span>
+        <p><strong>Implementation.</strong> Source-list board sign-off, canonical dataset import, the
+          100-edge extractor pilot — in that order.</p></div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span class="label">Axiara AI · Systems Architecture</span>
+    <span class="label">Single-store · Hundreds · Plural + Attributed</span>
+  </footer>
+</div>
+
+</body>
+</html>
