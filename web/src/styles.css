@@ -734,3 +734,16 @@ dialog.explain article { padding: 26px 28px 28px; }
     to   { opacity: 1; transform: none; }
   }
 }
+
+/* ── the conversation is the user's, and they can burn it ────────────────────
+   Persistence without deletion is surveillance. The thread is intimate — debt, shame, grief — and
+   phones get shared. It expires on its own after 12h; this is the way to end it sooner. */
+.thread-tools {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 0 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.thread-tools .linkish { color: var(--ink-3); font-weight: 500; }
+.thread-tools .linkish:hover { color: var(--caution); }

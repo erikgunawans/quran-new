@@ -3,7 +3,8 @@ import "./read.css";
 import { announce } from "./announce.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
-import { compose, retrieve, type Corpus, type Hit, type Voice } from "./retrieve.ts";
+import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
+import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { copyVerse, shareVerse } from "./share.ts";
@@ -91,6 +92,99 @@ function skeleton(): HTMLElement {
 const scrollDown = () =>
   requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }));
 
+// ── the one renderer ─────────────────────────────────────────────────────────
+//
+// Live answers and restored answers are drawn by THIS function and nothing else. That is what makes
+// persistence safe: we store what Nur *decided* (a ref, a set of hits, a bounds error) and rebuild
+// the markup from today's code. Stash the rendered HTML instead and a previous build's mistakes —
+// the English captions, the old chip markup — would resurrect from disk months later.
+//
+// `animate` is off on replay: a restored thread should be *there*, already, the way you left it.
+// Nineteen verses fading in one after another on a cold open is theatre, and it is not the truth.
+async function renderTurn(t: Turn, animate = true): Promise<string> {
+  switch (t.kind) {
+    case "no-such-surah":
+      return `<p class="said">Surah ${t.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
+
+    case "no-such-ayah": {
+      const m = surahMeta(t.surah);
+      return `<p class="said">Surah ${esc(displayName(t.surah))} cuma punya <b>${m?.ayahs ?? "?"} ayat</b>, jadi ayat ${t.ayah} tidak ada. Mau buka surahnya?</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+
+    case "surah": {
+      const m = surahMeta(t.surah);
+      return `<p class="said">Ini surah ${esc(displayName(t.surah))} — ${m?.ayahs ?? "?"} ayat.</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+
+    case "ayah": {
+      // The verse is real. We have it. There is no world in which we deny it.
+      const v = await loadAyah(t.surah, t.ayah);
+      const card = fromShard(v, t.surah, displayName(t.surah));
+      card.continueTo = true; // the peak gets a landing
+      card.animate = animate;
+      return `<p class="said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` + mount(card);
+    }
+
+    case "silence":
+      return `
+        <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
+        <div class="silence">
+          Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.
+          Coba ceritakan dengan kata lain — atau sebutkan surah dan ayatnya langsung, misalnya <b>18:10</b>.
+        </div>`;
+
+    case "hits": {
+      if (!corpus) throw new Error("corpus");
+      const verses = t.refs.map((r) => corpus!.verses.find((v) => v.ref === r)).filter((v) => v !== undefined);
+      if (!verses.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
+
+      const lead = compose(
+        verses.map((v) => ({ verse: v, score: 1, matched: [] })),
+        t.q,
+      );
+
+      return (
+        `<p class="said">${lead}</p>` +
+        verses
+          .map((v) =>
+            mount({
+              ref: v.ref,
+              surah: v.surah,
+              ayah: v.ayah,
+              surah_name: v.surah_name,
+              arabic: v.arabic,
+              primary: v.primary,
+              companion: v.companion,
+              why: v.why,
+              extra: tafsirEl(v),
+              continueTo: true,
+              animate,
+            }),
+          )
+          .join("")
+      );
+    }
+  }
+}
+
+function announceTurn(t: Turn): void {
+  switch (t.kind) {
+    case "ayah":
+      say(`${displayName(t.surah)} ${t.surah}:${t.ayah} ditampilkan.`);
+      break;
+    case "silence":
+      say("Belum ada ayat yang cocok. Nur tidak mengarang jawaban.");
+      break;
+    case "hits":
+      say(`${t.refs.length} ayat ditemukan: ${t.refs.join(", ")}.`);
+      break;
+    default:
+      break;
+  }
+}
+
 // ── ask ──────────────────────────────────────────────────────────────────────
 //
 // The old code had ONE failure sentence — "aku belum menemukan ayat yang cocok" — and used it
@@ -128,7 +222,7 @@ async function ask(question: string) {
   // clever. "aku gak sanggup bayar utang, pengen mati aja" used to match on `utang` and come back
   // with a verse about loan terms. The app answered the topic and missed the person.
   //
-  // Nothing gets to answer ahead of this.
+  // Nothing gets to answer ahead of this. And nothing about it is written to disk — see thread.ts.
   const crisis = detectCrisis(q);
   if (crisis) {
     loading.remove();
@@ -136,7 +230,7 @@ async function ask(question: string) {
     thread.append(answer);
     scrollDown();
     say("Nur menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
-    return;
+    return; // NOT remembered. Deliberately. A shared phone must not out him in the morning.
   }
 
   // Reference resolution is LOCAL — the surah index is inlined, not fetched. Nur can tell the
@@ -144,63 +238,22 @@ async function ask(question: string) {
   const ref = parseRef(q);
 
   try {
-    if (ref.kind === "no-such-surah") {
-      answer.innerHTML = `<p class="said">Surah ${ref.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
-    } else if (ref.kind === "no-such-ayah") {
-      answer.innerHTML = `<p class="said">Surah ${esc(displayName(ref.surah.n))} cuma punya <b>${ref.surah.ayahs} ayat</b>, jadi ayat ${ref.ayah} tidak ada. Mau buka surahnya?</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(displayName(ref.surah.n))} →</a></div>`;
-    } else if (ref.kind === "surah") {
-      answer.innerHTML = `<p class="said">Ini surah ${esc(displayName(ref.surah.n))} — ${ref.surah.ayahs} ayat.</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(displayName(ref.surah.n))} →</a></div>`;
-    } else if (ref.kind === "ayah") {
-      // The verse is real. We have it. There is no world in which we deny it.
-      const v = await loadAyah(ref.surah.n, ref.ayah);
-      const card = fromShard(v, ref.surah.n, displayName(ref.surah.n));
-      card.continueTo = true; // the peak gets a landing
-      card.animate = true;
-      answer.innerHTML = `<p class="said">Ini ${esc(displayName(ref.surah.n))} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card);
-      say(`${displayName(ref.surah.n)} ${ref.surah.n}:${ref.ayah} ditampilkan.`);
-    } else {
-      // Not a reference — a question. Now, and only now, retrieval may come up empty.
-      if (!corpus) throw new Error("corpus");
-      const hits: Hit[] = retrieve(corpus, q);
+    const turn: Turn =
+      ref.kind === "no-such-surah"
+        ? { q, kind: "no-such-surah", surah: ref.surah }
+        : ref.kind === "no-such-ayah"
+          ? { q, kind: "no-such-ayah", surah: ref.surah.n, ayah: ref.ayah }
+          : ref.kind === "surah"
+            ? { q, kind: "surah", surah: ref.surah.n }
+            : ref.kind === "ayah"
+              ? { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah }
+              : turnFromHits(q, corpus ? retrieve(corpus, q) : []);
 
-      if (!hits.length) {
-        answer.innerHTML = `
-          <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
-          <div class="silence">
-            Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.
-            Coba ceritakan dengan kata lain — atau sebutkan surah dan ayatnya langsung, misalnya <b>18:10</b>.
-          </div>`;
-        say("Belum ada ayat yang cocok. Nur tidak mengarang jawaban.");
-      } else {
-        answer.innerHTML =
-          `<p class="said">${compose(hits, q)}</p>` +
-          hits
-            .map((h) => {
-              const card: VerseCard = {
-                ref: h.verse.ref,
-                surah: h.verse.surah,
-                ayah: h.verse.ayah,
-                surah_name: h.verse.surah_name,
-                arabic: h.verse.arabic,
-                primary: h.verse.primary,
-                companion: h.verse.companion,
-                why: h.verse.why,
-                extra: tafsirEl(h.verse),
-                continueTo: true,
-                animate: true,
-              };
-              return mount(card);
-            })
-            .join("");
-        say(
-          `${hits.length} ayat ditemukan. ${hits
-            .map((h) => `${h.verse.ref}, terjemah makna oleh ${h.verse.primary?.translator ?? "?"}`)
-            .join(". ")}`,
-        );
-      }
-    }
+    if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
+
+    answer.innerHTML = await renderTurn(turn);
+    announceTurn(turn);
+    rememberTurn(turn);
   } catch (err) {
     const msg =
       err instanceof ShardError
@@ -213,6 +266,7 @@ async function ask(question: string) {
 
   loading.remove();
   thread.append(answer);
+  showClearControl();
   scrollDown();
 }
 
@@ -313,6 +367,15 @@ document.addEventListener("click", (e) => {
   const boot = el.closest<HTMLButtonElement>("#boot-retry");
   if (boot) {
     void bootCorpus();
+    return;
+  }
+
+  if (el.closest("#nur-clear")) {
+    clearThread();
+    thread.querySelectorAll(".msg, .thread-tools").forEach((n) => n.remove());
+    onScreen.clear();
+    say("Percakapan dihapus.");
+    location.reload(); // back to the empty state, cleanly
     return;
   }
 
@@ -425,8 +488,58 @@ async function bootCorpus(): Promise<void> {
   void evictStaleCaches();
 
   void route();
-  void bootCorpus();
+  void bootCorpus().then(restoreThread);
 })();
+
+/**
+ * Put the conversation back.
+ *
+ * Runs after the corpus lands, because `hits` turns need it to re-render. Ref turns would work
+ * without it — the surah index is inlined — but restoring half a conversation is worse than
+ * restoring it a beat later.
+ *
+ * Rendered through the same `renderTurn()` the live path uses, with `animate` off: a restored
+ * thread should simply BE there, the way you left it. Nineteen verses fading in on a cold open is
+ * theatre, not memory.
+ */
+async function restoreThread(): Promise<void> {
+  const turns = loadThread();
+  if (!turns.length) return;
+
+  $("#hello")?.remove();
+  showChat();
+
+  for (const t of turns) {
+    const me = document.createElement("div");
+    me.className = "msg me";
+    me.textContent = t.q;
+    thread.append(me);
+
+    const answer = document.createElement("div");
+    answer.className = "msg nur";
+    try {
+      answer.innerHTML = await renderTurn(t, false);
+    } catch {
+      // A shard we cannot reach (offline, never cached). Say so; do not resurrect a blank bubble.
+      answer.innerHTML = `<div class="oops"><p>Ayat ini tidak bisa dimuat sekarang — koneksimu sedang tidak stabil.</p>
+        <button class="act retry" data-retry="${esc(t.q)}">Coba lagi</button></div>`;
+    }
+    thread.append(answer);
+  }
+
+  showClearControl();
+  say(`Percakapan sebelumnya dipulihkan — ${turns.length} pertanyaan.`);
+  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight }));
+}
+
+/** The user can always burn it. Shown only when there is something to burn. */
+function showClearControl(): void {
+  if (!hasThread() || document.getElementById("nur-clear")) return;
+  const bar = document.createElement("div");
+  bar.className = "thread-tools";
+  bar.innerHTML = `<button class="linkish" id="nur-clear">Hapus percakapan</button>`;
+  thread.prepend(bar);
+}
 
 // Keep the reading surface reachable even before the corpus lands.
 export { surahMeta, app };
