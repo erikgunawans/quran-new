@@ -303,6 +303,14 @@
       <li><a href="#durability">Decision durability</a></li>
       <li><a href="#launch">Launch before 100%</a></li>
       <li><a href="#audit">Audit trail &amp; metrics</a></li>
+      <li><a href="#budget">The latency budget</a></li>
+      <li><a href="#cache">The cache hierarchy</a></li>
+      <li><a href="#traffic">Devotional traffic &amp; Ramadan</a></li>
+      <li><a href="#materialize">Materialized traversals</a></li>
+      <li><a href="#topology">Topology — permission to under-build</a></li>
+      <li><a href="#ceiling">The real ceiling: LLM limits</a></li>
+      <li><a href="#degradation">The degradation ladder</a></li>
+      <li><a href="#observability">Observability — six numbers</a></li>
     </ol>
   </nav>
 
@@ -1009,16 +1017,207 @@
     </div>
   </section>
 
+  <!-- ══════════════ PART FOUR ══════════════ -->
+  <div class="part">
+    <span class="pn">PART FOUR</span>
+    <h2>Serving &amp; Concurrency</h2>
+    <p>How the system stays fast under load — and, just as importantly, <strong>what not to build.</strong></p>
+  </div>
+
+  <section id="budget">
+    <div class="sec-head"><span class="kicker label">The reframe</span>
+      <h2>The latency budget</h2></div>
+    <div class="alert"><span class="t">Your bottleneck is the LLM, not the graph</span>
+      <p>At hundreds-concurrent, chat traffic is human-paced — a user sends a message every 20–60
+        seconds while active, so ~300 concurrent users is roughly <strong>5–15 requests/second</strong>.
+        Retrieval runs in 20–80ms. Token generation takes 2–5 seconds. Optimizing a traversal from
+        40ms to 10ms while the LLM burns 3,000ms is theatre.</p></div>
+    <p>Target: <strong>p95 time-to-first-token &lt; 1.5s</strong>, full streamed response &lt; 6s.</p>
+    <div class="twrap"><table>
+      <thead><tr><th>Stage</th><th>Budget</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Cache lookup (L0/L1)</td><td class="num">5–20ms</td><td>Most requests should <em>end here</em></td></tr>
+        <tr><td>Query routing (classifier)</td><td class="num">20–150ms</td><td>Or ~0ms via heuristic for obvious shapes</td></tr>
+        <tr><td>Retrieval (ANN + 1–2 hop graph)</td><td class="num">20–80ms</td><td>In-memory; this is not your problem</td></tr>
+        <tr><td>Rerank</td><td class="num">20–100ms</td><td>First thing to drop under load</td></tr>
+        <tr><td>Context assembly</td><td class="num">&lt;10ms</td><td></td></tr>
+        <tr><td><strong>LLM time-to-first-token</strong></td><td class="num"><strong>400–900ms</strong></td>
+          <td><strong>← the dominant term</strong></td></tr>
+        <tr><td>LLM full generation (streamed)</td><td class="num">2,000–5,000ms</td>
+          <td>Stream it — TTFT is what users feel</td></tr>
+      </tbody>
+    </table></div>
+    <p>Retrieval is ~5% of the budget. Budget your engineering attention the same way.</p>
+  </section>
+
+  <section id="cache">
+    <div class="sec-head"><span class="kicker label">Where the wins are</span>
+      <h2>The cache hierarchy</h2></div>
+    <p>The structural gift again: <strong>the corpus is static.</strong> Cache invalidation — normally
+      the hardest problem in RAG — nearly vanishes. Answers change only when the <em>graph</em>
+      changes (a rebuild, or a scholar promotion), never because the world moved.</p>
+    <div class="twrap"><table>
+      <thead><tr><th>Layer</th><th>What it stores</th><th>Hit behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><strong>L0</strong> — exact response cache</td><td>normalized query → full cited response</td>
+          <td>Return verbatim. ~0 LLM cost.</td></tr>
+        <tr><td><strong>L1</strong> — semantic response cache</td><td>query embedding → cached response, ANN matched</td>
+          <td>Return if cosine ≥ <strong>0.95</strong> (conservative)</td></tr>
+        <tr><td><strong>L2</strong> — retrieval cache</td><td>query → retrieved node-set (pre-LLM)</td>
+          <td>Reuse retrieval, re-synthesize</td></tr>
+        <tr><td><strong>L3</strong> — materialized traversals</td><td>precomputed paths inside the graph</td>
+          <td>Not a cache — a build artifact</td></tr>
+      </tbody>
+    </table></div>
+    <h4>The cache key is the whole design</h4>
+    <pre class="code">key = <span class="kw">hash</span>(normalized_query, lang, prompt_version, <span class="lb">graph_version</span>, <span class="lb">model_version</span>)</pre>
+    <p>Because <code class="inl">graph_version</code> and <code class="inl">model_version</code> are
+      <em>in the key</em>, a rebuild or model upgrade <strong>invalidates by construction</strong> —
+      no purge job, no stale-answer bug. Old entries simply become unreachable and age out.</p>
+    <div class="alert"><span class="t">Hard guard on L1 — specific to this domain</span>
+      <p>Never let semantic matching cross an explicit verse reference. <em>"Explain 2:255"</em> and
+        <em>"explain 2:256"</em> sit ~0.97 cosine apart and are <strong>different verses</strong>.
+        Rule: <strong>if the query contains an explicit āyah reference, the reference must match
+        exactly or it is a cache miss.</strong> A wrong-verse answer on a Qur'anic product is not a
+        cache bug — it is a credibility event.</p></div>
+  </section>
+
+  <section id="traffic">
+    <div class="sec-head"><span class="kicker label">Domain-specific load</span>
+      <h2>Devotional traffic &amp; Ramadan</h2></div>
+    <p>Qur'anic traffic is not uniform. It is <strong>head-heavy and calendar-correlated</strong> — and
+      both facts are exploitable:</p>
+    <ul>
+      <li><strong>Head-heavy.</strong> Al-Fatiha, Ayat al-Kursi, Yasin, Ar-Rahman, the last juz, the
+        common du'a verses. A small fraction of verses absorbs the large majority of queries.</li>
+      <li><strong>Calendar-correlated.</strong> <strong>Al-Kahf spikes every Friday.</strong> Ramadan is
+        a sustained multi-week surge — plausibly <strong>10–50× baseline</strong> — with a further
+        spike around Laylat al-Qadr. Prayer times shape the daily curve.</li>
+    </ul>
+    <ol class="body">
+      <li><strong>Pre-warm the cache at build time.</strong> Generate and cache responses for the top
+        few hundred expected queries <em>before</em> traffic arrives. Cold-start hit rate should be
+        high on day one, not earned over weeks.</li>
+      <li><strong>Ramadan is a scheduled event, not an incident.</strong> Provision ahead of it, warm
+        the cache for its query mix (fasting, night prayer, Laylat al-Qadr), and rehearse the
+        degradation ladder. It is the most predictable load event you will ever have — treat it as
+        capacity planning, not firefighting.</li>
+    </ol>
+  </section>
+
+  <section id="materialize">
+    <div class="sec-head"><span class="kicker label">Build-time artifacts</span>
+      <h2>Materialized traversals</h2></div>
+    <p>The rule: <strong>if a traversal is &gt;2 hops and matches a known query template, materialize
+      it at build time.</strong></p>
+    <ul>
+      <li><code class="inl">verse → all Tafsir passages</code> (every source) — the #1 hot path</li>
+      <li><code class="inl">verse → topics</code>, <code class="inl">verse → entities</code></li>
+      <li><code class="inl">topic → verses</code> (the inverted index)</li>
+      <li><code class="inl">verse → thematically-linked verses</code> (denormalized, weighted, top-K)</li>
+      <li><code class="inl">entity → all verses mentioning it</code>, ordered (the full Musa narrative chain)</li>
+      <li><code class="inl">root → verses</code> (powers the linguistic queries)</li>
+      <li><code class="inl">surah → context bundle</code> (revelation type, themes, summary)</li>
+    </ul>
+    <p>Each turns a multi-hop live traversal into a <strong>single-hop lookup</strong>. This is why
+      deep traversal never appears in the request path.</p>
+  </section>
+
+  <section id="topology">
+    <div class="sec-head"><span class="kicker label">Infrastructure</span>
+      <h2>Topology — permission to under-build</h2></div>
+    <figure class="figure">
+      <figcaption>Fig. 3 — Serving topology, hundreds-concurrent</figcaption>
+      <pre class="diagram" aria-label="Serving topology diagram">        [ CDN / edge ]
+              │
+      [ LB ] ─┴─ 2× stateless app instances   (routing, assembly, LLM calls)
+              │
+       [ Redis ] ← L0 / L1 / L2 cache
+              │
+   [ 1 primary + 2 read replicas ]  ← graph + vector index, fully in RAM
+              │
+        [ LLM provider ]  ← the real constraint</pre>
+    </figure>
+    <p><strong>Memory sizing.</strong> ~6,236 ayahs + ~25k Tafsir passages + entities/topics.
+      Embeddings ≈ 60k vectors × 1024 dims × 4 bytes ≈ <strong>250MB</strong>. Graph structure is
+      small; Tafsir text 100–500MB. <strong>The entire corpus fits comfortably in 8–16GB RAM on a
+      single node</strong> — the database never touches disk on the read path.</p>
+    <p>Writes happen only during a build or a scholar promotion, so the primary is nearly idle and
+      replicas absorb all reads.</p>
+    <div class="alert"><span class="t">What NOT to build</span>
+      <p>No sharding. No multi-region. No custom vector index. No microservices. At this scale with a
+        fixed corpus, <strong>a monolith plus a cache plus one in-memory database is the correct
+        architecture</strong> — and you should feel good about it. Complexity here buys nothing and
+        costs you velocity.</p></div>
+  </section>
+
+  <section id="ceiling">
+    <div class="sec-head"><span class="kicker label">The actual wall</span>
+      <h2>The real ceiling: LLM limits and cost</h2></div>
+    <ul>
+      <li><strong>Provider rate limits (TPM/RPM) are your true capacity ceiling</strong>, not CPU. At
+        ~10 rps with ~3k-token prompts that is ~30k input tokens/second. Check quota headroom
+        <em>before</em> Ramadan, not during.</li>
+      <li><strong>Cache hit rate is money.</strong> A 60% hit rate roughly halves the LLM bill. This is
+        the highest-leverage number in the system — instrument it first.</li>
+      <li><strong>Keep context tight.</strong> Top-K verses plus their Tafsir, not 50 passages. Prompt
+        bloat costs latency <em>and</em> cost <em>and</em> answer quality, simultaneously.</li>
+      <li><strong>Backpressure, don't error.</strong> If the provider throttles, queue with an honest
+        "thinking" state and shed load down the ladder below.</li>
+    </ul>
+  </section>
+
+  <section id="degradation">
+    <div class="sec-head"><span class="kicker label">Under burst</span>
+      <h2>The degradation ladder</h2></div>
+    <div class="twrap"><table>
+      <thead><tr><th>Level</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0 — Normal</strong></td><td>Full hybrid retrieval + LLM synthesis</td></tr>
+        <tr><td><strong>1 — Warm</strong></td><td>Widen pre-warmed cache coverage; serve more from L0/L1</td></tr>
+        <tr><td><strong>2 — Trim</strong></td><td>Drop the reranker; tighten top-K</td></tr>
+        <tr><td><strong>3 — Source mode</strong></td><td><strong>Skip LLM synthesis.</strong> Return the
+          structured, cited retrieval directly — canonical text + attributed Tafsir, rendered by
+          template. Fast, cheap, and <em>doctrinally safer than synthesis</em></td></tr>
+        <tr><td><strong>4 — Queue</strong></td><td>Honest wait state with position, not an error page</td></tr>
+      </tbody>
+    </table></div>
+    <p>Level 3 deserves emphasis. Because the graph already carries attributed, verified sources,
+      <strong>"just show the sources, beautifully" is a genuinely good product experience</strong> —
+      not a failure mode. Most RAG systems cannot degrade this gracefully, because they have nothing
+      but the model. You do.</p>
+    <div class="alert"><span class="t">Never degrade by</span>
+      <p>Loosening doctrinal gates, dropping citations, or letting the model answer without retrieval.
+        Those are not trade-offs — they are failures wearing a trade-off costume.</p></div>
+  </section>
+
+  <section id="observability">
+    <div class="sec-head"><span class="kicker label">Running it</span>
+      <h2>Observability — six numbers</h2></div>
+    <p>Cache hit rate by layer · p95 TTFT · retrieval latency · LLM latency &amp; tokens/request ·
+      cost/request · active degradation level.</p>
+    <div class="thesis">
+      <p>Plus one that closes the loop back to Part Three: <strong>unreviewed-verse fallback rate</strong>
+        — how often a query lands on a verse with no <code class="inl">scholar_verified</code> edges and
+        hits the honest-degradation path.</p>
+      <p>That single metric is a live map of <strong>exactly where to point the scholar review queue
+        next.</strong> Your serving tier tells your governance tier what to work on — the system
+        learns where it is weakest from the people using it.</p>
+    </div>
+  </section>
+
   <div class="next">
     <span class="kicker label">Next</span>
-    <h3>Where to go from here</h3>
+    <h3>Implementation order</h3>
     <div class="opts">
-      <div class="opt pick"><span class="tag">Remaining</span>
-        <p><strong>B — Serving &amp; concurrency plan.</strong> Semantic cache design, replica topology
-          for hundreds-concurrent, and which traversals to materialize at build-time.</p></div>
+      <div class="opt pick"><span class="tag">Start here</span>
+        <p><strong>1. Board sign-off on the source list</strong> + <code class="inl">authority_tier</code>
+          values. Everything downstream inherits this decision.<br>
+          <strong>2. Canonical dataset import</strong> (Tanzil, Quranic Arabic Corpus, KEMENAG) — zero LLM,
+          fully deterministic, gated on the 114/6,236 count checks.</p></div>
       <div class="opt"><span class="tag">Then</span>
-        <p><strong>Implementation.</strong> Source-list board sign-off, canonical dataset import, the
-          100-edge extractor pilot — in that order.</p></div>
+        <p><strong>3. The 100-edge extractor pilot</strong> — measure throughput, κ, and reject-reason mix.
+          Replace every estimate in this document with a fact before committing to a timeline.</p></div>
     </div>
   </div>
 
