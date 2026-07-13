@@ -5,3 +5,5 @@
 .serena/
 data/
 node_modules/
+web/dist/
+web/public/corpus.json

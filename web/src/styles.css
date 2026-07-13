@@ -1,0 +1,381 @@
+/* ════════════════════════════════════════════════════════════════════
+   Nur — نور
+   The interface is the room. The scripture is the light source.
+   No gold. No filigree. The drama is luminance, not ornament.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── DARK: the 2am room (default emotional register) ───────────────── */
+:root {
+  --bg:          oklch(0.158 0.012 155);
+  --surface:     oklch(0.205 0.016 155);
+  --surface-2:   oklch(0.255 0.018 155);
+  --line:        oklch(0.305 0.016 155);
+  --line-strong: oklch(0.380 0.018 155);
+
+  --ink:   oklch(0.975 0.004 95);   /* the light — faintly warm, lamplight */
+  --ink-2: oklch(0.780 0.008 155);
+  --ink-3: oklch(0.640 0.010 155);
+
+  --primary:       oklch(0.680 0.115 150);
+  --primary-ink:   oklch(0.180 0.020 150);
+  --primary-wash:  oklch(0.680 0.115 150 / 0.14);
+  --primary-line:  oklch(0.680 0.115 150 / 0.40);
+
+  --caution:      oklch(0.760 0.140 55);
+  --caution-wash: oklch(0.760 0.140 55 / 0.12);
+
+  --glow: 0 0 40px oklch(0.975 0.004 95 / 0.10), 0 0 90px oklch(0.975 0.004 95 / 0.05);
+  --shadow-pop: 0 8px 28px oklch(0.10 0.01 155 / 0.55);
+
+  --f-ar: "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
+  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --step--1: 0.833rem;
+  --step-0:  1rem;
+  --step-1:  1.2rem;
+  --step-2:  1.44rem;
+  --step-3:  1.728rem;
+  --step-4:  2.074rem;
+
+  --r:    8px;
+  --r-lg: 12px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --t:    200ms var(--ease);
+
+  /* z-scale — semantic, never 9999 */
+  --z-sticky: 10;
+  --z-sheet-backdrop: 20;
+  --z-sheet: 30;
+  --z-toast: 40;
+
+  /* user-scalable scripture, independent of UI */
+  --ar-size: 2.1rem;
+
+  color-scheme: dark;
+}
+
+/* ── LIGHT: the commute. Composed, not inverted. ───────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:          oklch(1.000 0.000 0);   /* pure white — no hidden warmth */
+    --surface:     oklch(0.978 0.004 155);
+    --surface-2:   oklch(0.955 0.006 155);
+    --line:        oklch(0.905 0.008 155);
+    --line-strong: oklch(0.845 0.010 155);
+
+    --ink:   oklch(0.185 0.018 155);
+    --ink-2: oklch(0.420 0.014 155);
+    --ink-3: oklch(0.530 0.012 155);
+
+    --primary:      oklch(0.400 0.106 150);
+    --primary-ink:  oklch(0.995 0.002 150);
+    --primary-wash: oklch(0.400 0.106 150 / 0.09);
+    --primary-line: oklch(0.400 0.106 150 / 0.32);
+
+    --caution:      oklch(0.520 0.135 55);
+    --caution-wash: oklch(0.520 0.135 55 / 0.10);
+
+    --glow: none;
+    --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
+
+    color-scheme: light;
+  }
+}
+:root[data-theme="dark"]  { color-scheme: dark; }
+:root[data-theme="light"] {
+  --bg: oklch(1.000 0.000 0); --surface: oklch(0.978 0.004 155);
+  --surface-2: oklch(0.955 0.006 155); --line: oklch(0.905 0.008 155);
+  --line-strong: oklch(0.845 0.010 155);
+  --ink: oklch(0.185 0.018 155); --ink-2: oklch(0.420 0.014 155); --ink-3: oklch(0.530 0.012 155);
+  --primary: oklch(0.400 0.106 150); --primary-ink: oklch(0.995 0.002 150);
+  --primary-wash: oklch(0.400 0.106 150 / 0.09); --primary-line: oklch(0.400 0.106 150 / 0.32);
+  --caution: oklch(0.520 0.135 55); --caution-wash: oklch(0.520 0.135 55 / 0.10);
+  --glow: none; --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.158 0.012 155); --surface: oklch(0.205 0.016 155);
+  --surface-2: oklch(0.255 0.018 155); --line: oklch(0.305 0.016 155);
+  --line-strong: oklch(0.380 0.018 155);
+  --ink: oklch(0.975 0.004 95); --ink-2: oklch(0.780 0.008 155); --ink-3: oklch(0.640 0.010 155);
+  --primary: oklch(0.680 0.115 150); --primary-ink: oklch(0.180 0.020 150);
+  --primary-wash: oklch(0.680 0.115 150 / 0.14); --primary-line: oklch(0.680 0.115 150 / 0.40);
+  --caution: oklch(0.760 0.140 55); --caution-wash: oklch(0.760 0.140 55 / 0.12);
+  --glow: 0 0 40px oklch(0.975 0.004 95 / 0.10), 0 0 90px oklch(0.975 0.004 95 / 0.05);
+  --shadow-pop: 0 8px 28px oklch(0.10 0.01 155 / 0.55);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink-2);
+  font-family: var(--f-ui);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+.sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── shell ─────────────────────────────────────────────────────────── */
+.app { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 8rem; }
+
+.top {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 0 0.85rem;
+  background: color-mix(in oklch, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+/* the wordmark: a lamp. luminance, not a logo. */
+.mark { display: flex; align-items: center; gap: 0.55rem; margin-right: auto; }
+.mark .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 12px var(--ink), 0 0 24px oklch(0.975 0.004 95 / 0.5);
+}
+:root[data-theme="light"] .mark .dot,
+:root:not([data-theme="dark"]) .mark .dot { box-shadow: none; background: var(--primary); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mark .dot {
+    background: var(--ink);
+    box-shadow: 0 0 12px var(--ink), 0 0 24px oklch(0.975 0.004 95 / 0.5);
+  }
+}
+.mark .name {
+  font-family: var(--f-ar); font-size: var(--step-2); color: var(--ink);
+  line-height: 1; letter-spacing: 0;
+}
+.mark .latin {
+  font-size: var(--step--1); color: var(--ink-3); letter-spacing: 0.12em;
+  text-transform: uppercase; font-weight: 500;
+}
+
+.icon-btn {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border-radius: var(--r); color: var(--ink-3);
+  transition: background var(--t), color var(--t);
+}
+.icon-btn:hover  { background: var(--surface-2); color: var(--ink); }
+.icon-btn:active { background: var(--line); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ── chat ──────────────────────────────────────────────────────────── */
+.thread { display: flex; flex-direction: column; gap: 1.5rem; padding-top: 2rem; }
+
+/* empty state teaches, in real language */
+.hello { padding: 3rem 0 1rem; }
+.hello h1 {
+  font-size: var(--step-4); font-weight: 600; color: var(--ink);
+  letter-spacing: -0.025em; line-height: 1.15; text-wrap: balance;
+  margin-bottom: 0.6rem;
+}
+.hello p { color: var(--ink-2); max-width: 34ch; text-wrap: pretty; }
+.seeds { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.75rem; }
+.seed {
+  padding: 0.55rem 0.9rem; border: 1px solid var(--line);
+  border-radius: 999px; color: var(--ink-2); font-size: var(--step--1);
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.seed:hover { border-color: var(--primary-line); color: var(--ink); background: var(--primary-wash); }
+.seed:active { transform: translateY(1px); }
+
+.msg.me {
+  align-self: flex-end; max-width: 85%;
+  background: var(--primary-wash); border: 1px solid var(--primary-line);
+  color: var(--ink); padding: 0.7rem 1rem; border-radius: var(--r-lg);
+  border-bottom-right-radius: 4px;
+}
+
+.msg.nur { align-self: stretch; }
+
+/* Nur speaking — never in a scholar's voice */
+.said { color: var(--ink-2); margin-bottom: 1.25rem; max-width: 68ch; text-wrap: pretty; }
+.said strong { color: var(--ink); font-weight: 600; }
+
+/* ── the verse: the light source ───────────────────────────────────── */
+.verse {
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); overflow: hidden;
+}
+
+.verse-head {
+  display: flex; align-items: baseline; gap: 0.6rem;
+  padding: 0.75rem 1.1rem; border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.ref {
+  font-variant-numeric: tabular-nums; font-weight: 600;
+  color: var(--primary); font-size: var(--step--1);
+}
+.surah-name { color: var(--ink-3); font-size: var(--step--1); }
+.verse-head .why { margin-left: auto; color: var(--ink-3); font-size: var(--step--1); }
+
+/* Arabic — the hero. Scales independently of the UI. */
+.ar {
+  font-family: var(--f-ar);
+  font-size: var(--ar-size);
+  line-height: 2.1;
+  direction: rtl;
+  text-align: right;
+  color: var(--ink);
+  padding: 1.9rem 1.1rem;
+  text-shadow: var(--glow);
+  /* NEVER letter-spacing on Arabic — it breaks the joins */
+  letter-spacing: normal;
+}
+
+/* the one permitted flourish: the word rises into light. once, on the hero. */
+@media (prefers-reduced-motion: no-preference) {
+  .verse[data-new] .ar {
+    animation: rise 620ms var(--ease) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; filter: blur(7px); transform: translateY(6px); }
+    to   { opacity: 1; filter: blur(0);   transform: none; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .verse[data-new] .ar { animation: fade 240ms ease both; }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+}
+
+/* ── readings: attribution IS the design ──────────────────────────── */
+.reading { padding: 1.1rem; border-top: 1px solid var(--line); }
+.reading + .reading { border-top: 1px solid var(--line); }
+
+.reading.primary { background: var(--primary-wash); }
+
+.who {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+.chip {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 0.2em 0.5em;
+  border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-3);
+  white-space: nowrap;
+}
+.chip.lead { border-color: var(--primary-line); color: var(--primary); background: var(--bg); }
+.by { font-size: var(--step--1); color: var(--ink-3); }
+.by b { color: var(--ink-2); font-weight: 600; }
+
+.reading .txt { color: var(--ink); line-height: 1.7; text-wrap: pretty; max-width: 68ch; }
+.reading.companion .txt { color: var(--ink-2); }
+
+/* ── the source stack: four scholars, none ranked above another ────── */
+.sources { border-top: 1px solid var(--line); }
+.sources > summary {
+  padding: 0.8rem 1.1rem; cursor: pointer; list-style: none;
+  color: var(--ink-3); font-size: var(--step--1);
+  display: flex; align-items: center; gap: 0.5rem;
+  transition: color var(--t);
+}
+.sources > summary::-webkit-details-marker { display: none; }
+.sources > summary:hover { color: var(--ink); }
+.sources > summary::after {
+  content: ""; width: 6px; height: 6px; margin-left: auto;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg); transition: transform var(--t);
+}
+.sources[open] > summary::after { transform: rotate(-135deg); }
+
+.scholar { padding: 0 1.1rem 1.1rem; }
+.scholar + .scholar { border-top: 1px solid var(--line); padding-top: 1.1rem; }
+.scholar .txt { color: var(--ink-2); font-size: var(--step--1); line-height: 1.7; max-width: 68ch; }
+
+.tier {
+  font-size: 0.68rem; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* honest silence — the system says it does not know */
+.silence {
+  margin-top: 1rem; padding: 0.85rem 1rem;
+  border: 1px dashed var(--line-strong); border-radius: var(--r);
+  color: var(--ink-3); font-size: var(--step--1);
+}
+
+/* the meaning-changed caution — never decorative */
+.caution {
+  display: flex; gap: 0.6rem; padding: 0.75rem 1rem;
+  background: var(--caution-wash); border-top: 1px solid var(--line);
+  color: var(--ink-2); font-size: var(--step--1);
+}
+.caution b { color: var(--caution); font-weight: 600; }
+
+/* ── composer ──────────────────────────────────────────────────────── */
+.composer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky);
+  padding: 0.9rem 1.25rem calc(0.9rem + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+}
+.composer form {
+  max-width: 46rem; margin: 0 auto;
+  display: flex; gap: 0.5rem; align-items: flex-end;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 0.45rem 0.45rem 0.45rem 0.9rem;
+  transition: border-color var(--t);
+}
+.composer form:focus-within { border-color: var(--primary-line); }
+
+.composer textarea {
+  flex: 1; background: none; border: none; resize: none;
+  color: var(--ink); font: inherit; padding: 0.5rem 0;
+  max-height: 7rem; min-height: 1.6rem; line-height: 1.6;
+}
+.composer textarea:focus { outline: none; }
+.composer textarea::placeholder { color: var(--ink-3); } /* AA, not a light gray */
+
+.send {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border-radius: var(--r); background: var(--primary); color: var(--primary-ink);
+  transition: opacity var(--t), transform var(--t);
+  flex-shrink: 0;
+}
+.send:hover:not(:disabled)  { opacity: 0.9; }
+.send:active:not(:disabled) { transform: scale(0.95); }
+.send:disabled { opacity: 0.35; cursor: not-allowed; }
+.send svg { width: 17px; height: 17px; }
+
+/* ── skeleton, not a spinner ───────────────────────────────────────── */
+.skeleton { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.sk-line { height: 12px; margin: 1.1rem; border-radius: 4px; background: var(--surface-2); }
+.sk-line.ar { height: 34px; margin: 1.6rem 1.1rem; }
+.sk-line.short { width: 42%; }
+@media (prefers-reduced-motion: no-preference) {
+  .sk-line { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.45 } }
+}
+
+/* ── type-size control (scripture scales alone) ────────────────────── */
+.size { display: flex; gap: 2px; }
+.size button {
+  width: 30px; height: 30px; border-radius: var(--r); color: var(--ink-3);
+  font-size: var(--step--1); font-weight: 600;
+  transition: background var(--t), color var(--t);
+}
+.size button:hover { background: var(--surface-2); color: var(--ink); }
+.size button[aria-pressed="true"] { background: var(--primary-wash); color: var(--primary); }
+
+@media (max-width: 30rem) {
+  :root { --ar-size: 1.75rem; }
+  .verse-head .why { display: none; }
+}

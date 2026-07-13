@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#131a17" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="description" content="Nur — Al-Qur'an dengan terjemah makna yang bisa kamu pahami. Setiap sumber disebutkan namanya.">
+<title>Nur — نور</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Latin stays quiet. -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="mark">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="name" lang="ar" dir="rtl">نور</span>
+      <span class="latin">Nur</span>
+    </div>
+
+    <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
+      <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
+      <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
+      <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
+    </div>
+
+    <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+      </svg>
+    </button>
+  </header>
+
+  <main class="thread" id="thread">
+    <section class="hello" id="hello">
+      <h1>Ada apa hari ini?</h1>
+      <p>Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.</p>
+      <div class="seeds">
+        <button class="seed">aku lagi capek banget</button>
+        <button class="seed">lagi banyak utang, stress</button>
+        <button class="seed">baru kehilangan orang tua</button>
+        <button class="seed">ngerasa dosaku kebanyakan</button>
+        <button class="seed">cemas terus tiap malam</button>
+        <button class="seed">2:255</button>
+      </div>
+    </section>
+  </main>
+
+  <p class="sr" id="live" role="status" aria-live="polite"></p>
+</div>
+
+<div class="composer">
+  <form id="composer">
+    <label class="sr" for="q">Ceritakan apa yang kamu rasakan</label>
+    <textarea id="q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off"></textarea>
+    <button class="send" id="send" type="submit" disabled aria-label="Kirim">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

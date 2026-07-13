@@ -3,17 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Quranic GraphRAG \u2014 canonical corpus ingest and knowledge-graph build",
+  "description": "Quranic GraphRAG — canonical corpus ingest and knowledge-graph build",
   "scripts": {
     "ingest": "bun run src/cli.ts ingest",
     "ingest:lock": "bun run src/cli.ts ingest --update-lock",
     "verify": "bun run src/cli.ts verify",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "review:build": "bun run src/review/build-comparison.ts"
+    "review:build": "bun run src/review/build-comparison.ts",
+    "app:corpus": "bun run src/app/build-corpus.ts",
+    "dev": "vite web --port 5173",
+    "build": "bun run app:corpus && vite build web"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vite": "^8.1.4"
   }
 }
