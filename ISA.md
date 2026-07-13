@@ -3,7 +3,7 @@ project: Nur
 task: Fix the three P0s and two P1s from the 20/40 critique
 effort: E3
 phase: complete
-progress: 59/59
+progress: 76/76
 mode: build
 started: 2026-07-13
 updated: 2026-07-13
@@ -176,6 +176,25 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-40: `bun run typecheck` is clean
 - [x] ISC-41: All 21 WCAG AA contrast tests still pass in both themes
 - [x] ISC-42: Anti: no corpus integrity gate is weakened, skipped, or removed — `bun run verify` still passes 24/24
+
+### Adversarial review — 14 findings (2026-07-14)
+
+- [x] ISC-60: Crisis intent is detected BEFORE ref parsing and BEFORE retrieval — nothing answers ahead of it
+- [x] ISC-61: A crisis reply names one real, reachable resource (SEJIWA — 119 ext. 8, Kemenkes)
+- [x] ISC-62: Anti: a crisis reply never leads with scripture — no verse, no Arabic, no translation block
+- [x] ISC-63: Anti: a crisis reply never preaches — no "dosa", "sabar", "ujian", "azab", "neraka"
+- [x] ISC-64: A clock is not a verse — "jam 2:30 pagi" does not resolve to Al-Baqarah 2:30
+- [x] ISC-65: An explicitly marked ref ("QS 2:30") still resolves even beside time words
+- [x] ISC-66: Retrieval requires a THEME hit — a coincidental word ("cara") can no longer answer
+- [x] ISC-67: Every display surface renders Indonesian spellings (Al-Baqarah, not Al-Baqara)
+- [x] ISC-68: A cached surah reads with `fetch()` hard-blocked — the offline claim is now true
+- [x] ISC-69: Shard and corpus URLs carry `?v=CORPUS_VERSION`; stale caches are evicted on boot
+- [x] ISC-70: Shard integrity verifies surah number and 1..N contiguity, not just length
+- [x] ISC-71: Anti: a corrupt shard is evicted from cache, never allowed to poison future reads
+- [x] ISC-72: `bun run verify` gates the BROWSER artifacts, incl. a staleness gate that hard-fails
+- [x] ISC-73: The divergence review queue is tracked in git (docs/review/), not gitignored
+- [x] ISC-74: `bun run dev` rebuilds the corpus — stale artifacts cannot be served in development
+- [x] ISC-75: One owner for the live region; `onScreen` is bounded; `esc()` escapes single quotes
 
 ## Test Strategy
 

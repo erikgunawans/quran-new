@@ -4,6 +4,96 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-14 — The crisis path, and 14 defects from an adversarial review
+
+**Anchor:** `main` @ `25785aa` (local only — this repo has no remote)
+
+### The one that mattered
+
+**Nur did not notice a person saying they want to die.** Typed into the live app:
+*"aku gak sanggup bayar utang, pengen mati aja."* It matched on `utang`, served 2:280 — a verse
+about granting debtors respite — and never saw the rest of the sentence. `rg` for any crisis
+vocabulary across the whole codebase returned nothing.
+
+That is Rifqi: 19, in debt, awake at 2am. He is the persona PRODUCT.md was written around.
+
+`web/src/crisis.ts` now runs **before** reference parsing and **before** retrieval — nothing gets
+to answer ahead of it. It acknowledges the person, names **one** real resource (SEJIWA — dial
+**119**, then **8**; Kemenkes, free, 24h), and does **not** lead with scripture. Tests assert it
+never preaches: no *dosa*, no *sabar*, no *ujian*, no verse, no Arabic.
+
+The detector is deliberately broad. A false positive costs one extra caring sentence; a false
+negative costs something we cannot undo. The tuning follows that asymmetry, not precision.
+
+### Behavioural truths
+
+- **A clock is not a verse.** *"aku bangun jam 2:30 pagi"* resolved to Al-Baqarah 2:30 — silently
+  reinterpreting insomnia as a citation, on the ref path, which skips retrieval and so had no
+  scoring to catch it. Bare `N:M` is now disqualified near time words; `QS 2:30` still resolves.
+- **`score > 0` shipped confident junk.** *"gimana cara sholat tahajud"* returned 2:152 (Gratitude),
+  matched on the word `cara`. The floor is now a **theme hit** — Nur answers when it recognises a
+  *feeling*, not when a word coincidentally appears in a translation. The honest-silence copy is
+  finally reachable.
+- **The app was misspelling surah names at Indonesian readers** ("Al-Baqara", "At-Tawba"). Every
+  display surface routes through `displayName()` now.
+
+### Truth of claims — four were defects introduced the day before
+
+- **"a shard is cached forever" was a comment asserting a property the code did not have.** It was
+  a `Map`; it died on reload. Now real CacheStorage keyed on `CORPUS_VERSION`. **Verified: Al-Kahf
+  renders 110/110 after a reload with `fetch()` hard-blocked.** An uncached surah fails honestly
+  with a retry, not a blank screen.
+- Shard and corpus URLs now carry `?v=CORPUS_VERSION`. Without it, a rebuild left every CDN and
+  phone serving the previous scripture indefinitely.
+- The divergence review queue was written into **gitignored** `data/`. The artifact Erik has to act
+  on vanished on a clean checkout. Now tracked at `docs/review/divergence.json` (468K, 1,224 verses
+  ranked worst-first).
+- `bun run dev` did not rebuild the corpus — the actual cause of the English captions shipping
+  behind a green test suite. It does now.
+
+### The gates were checking the wrong end
+
+All 24 gates validated `data/canonical/` — the **input**. They never looked at what a phone
+downloads. Seven browser gates added, including a **staleness gate that hard-fails** when the
+browser artifacts and the corpus disagree. Confirmed it fires by feeding it a stale build.
+
+**24 → 31 gates. 119 → 180 tests.**
+
+Also: shard integrity now checks surah number + 1..N contiguity (a right-length, wrong-content
+shard used to pass) and evicts a bad shard rather than poisoning every future read.
+
+### Next, in order
+
+1. **[P1] The core concept is never explained.** *Terjemah makna* vs *terjemah harfiah* is the whole
+   product and has zero documentation in the UI. Jordan (first-timer) sees two translations that
+   disagree and cannot learn why.
+2. **[P1] The chat thread is destroyed on reload.** Verified: 2 messages → 0. Only theme and Arabic
+   size persist. Casey switches to WhatsApp and loses everything.
+3. **[P2] The crisis lexicon is hand-written and Indonesian-only.** It will miss phrasings nobody
+   thought of. This is the best remaining use of an LLM anywhere in this product.
+4. Re-run `$impeccable critique` (last: **30/40**, was 20/40).
+
+### Open items waiting on Erik
+
+- **Verify the helpline.** 119 ext. 8 (SEJIWA/Kemenkes) is a real-world commitment made on his
+  behalf. One constant in `crisis.ts`. Please sanity-check before this reaches anyone.
+- **Rule on the divergence queue** — `docs/review/divergence.json`, ranked worst-first.
+- Scholar-board sign-off on sources + authority tiers.
+- **Verify the Tafsiriyah text against a published edition.** Attribution is inherited, not verified.
+- **Audio/recitation is entirely absent.** The Qur'an *is* recitation.
+- PAI pins `gpt-5.4` while the installed Codex CLI is on `gpt-5.5` — every Forge call 400s until
+  that pin is fixed. Codex quota is also exhausted until **Jul 20**.
+
+### Standing constraints
+
+- **No remote.** Commits stay local; there is nothing to push. **bun/bunx only. TypeScript only.**
+- `data/` (~230 MB) is gitignored and regenerable via `bun run ingest`.
+- Gates: **180 tests · typecheck clean (root + web) · 31 gates.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — **never weaken these.**
+- Erik ruled: **ship Tafsiriyah-primary** (thesis intact); **attribution risk accepted**.
+
+---
+
 ## 2026-07-13 (later) — The corpus is sharded; Nur can be read. 20/40 → 30/40
 
 **Anchor:** `main` @ `b17b5ee` (local only — no remote)
