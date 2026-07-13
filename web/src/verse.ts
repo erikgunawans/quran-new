@@ -8,8 +8,22 @@
  */
 import type { ShardVerse } from "./quran.ts";
 
+/**
+ * Escape for HTML — including single quotes.
+ *
+ * `'` was missing. Nothing currently breaks, because every attribute here is double-quoted — but
+ * that is a property of today's templates, not of this function, and the next person to write
+ * `data-x='${esc(v)}'` would open an injection with no warning. The verse text is scripture and
+ * the translator names come from a pinned corpus, so the risk is theoretical; the loaded gun
+ * pointing at the next contributor is not.
+ */
 export const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 export interface Reading {
   text: string;
@@ -60,6 +74,16 @@ export interface VerseCard {
   extra?: string;
   /** Offer "read the rest of this surah". The emotional peak needs somewhere to land. */
   continueTo?: boolean;
+  /**
+   * Play the entrance animation.
+   *
+   * Opt-IN, and that matters. `data-new` used to be stamped on every card unconditionally and
+   * never removed — permanent state standing in for a lifecycle event. In chat that is one or two
+   * cards and a nice flourish; in Al-Baqarah it was 286 simultaneous `blur(7px)` filters, each its
+   * own compositor layer, on the mid-range Android in the brief. The reading surface had to fight
+   * it back with a specificity override. Now the reading surface simply never asks for it.
+   */
+  animate?: boolean;
 }
 
 /** Build a card from a shard verse. */
@@ -77,7 +101,7 @@ export function verseEl(v: VerseCard): string {
   const flag = FLAGGED[v.ref];
 
   return `
-    <article class="verse" data-new data-ref="${v.ref}">
+    <article class="verse"${v.animate ? " data-new" : ""} data-ref="${v.ref}">
       <header class="verse-head">
         <span class="ref">${v.ref}</span>
         <span class="surah-name">${esc(v.surah_name)}</span>

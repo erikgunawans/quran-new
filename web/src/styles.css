@@ -484,3 +484,66 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (prefers-reduced-motion: reduce) {
   .act, .nav-link { transition: none; }
 }
+
+/* ── crisis ──────────────────────────────────────────────────────────────────
+   Deliberately NOT the caution style. The amber `.caution` banner means "this translation is
+   contested" — a scholarly footnote. Reusing it for a person saying they want to die would rank
+   a human life alongside a rendering dispute.
+   This is the calmest, most solid surface in the app: full border, no alarm colour, no icon
+   shouting at someone who is already frightened. It reads as steady, not as an emergency siren. */
+.crisis {
+  margin: 4px 0 8px;
+  padding: 22px 24px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  color: var(--ink);
+  font: var(--step-0)/1.65 var(--f-ui);
+  max-width: 62ch;
+}
+.crisis p { margin: 0 0 14px; }
+.crisis p:last-child { margin-bottom: 0; }
+
+.crisis-lead {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.crisis-line {
+  padding: 16px 18px;
+  border-radius: var(--r);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+/* The one thing on this screen that must be impossible to miss, and impossible to mis-tap. */
+.crisis-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: var(--step-1);
+  color: var(--primary-ink);
+  background: var(--primary);
+  border-radius: var(--r);
+  text-decoration: none;
+}
+.crisis-cta:hover { filter: brightness(1.06); }
+.crisis-cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.crisis-meta {
+  display: block;
+  margin-top: 10px;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.crisis-close { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .crisis-cta { transition: none; }
+}

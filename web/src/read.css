@@ -28,12 +28,8 @@
    in both the no-preference and the reduce branch without !important.
    The chat keeps its flourish untouched.
    ──────────────────────────────────────────────────────────────────── */
-#read .verse[data-new] .ar {
-  animation: none;
-  filter: none;
-  opacity: 1;
-  transform: none;
-}
+/* (The blur trap is gone at the source: verse.ts now stamps `data-new` only when the caller asks
+   to animate, and the reading surface never does. No override needed.) */
 
 /* Motion in the reading flow is state-carrying and cheap: it lands on the
    two chrome elements, never on 286 lines of scripture. */

@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json",
     "review:build": "bun run src/review/build-comparison.ts",
     "app:corpus": "bun run src/app/build-corpus.ts",
-    "dev": "vite web --port 5173",
+    "dev": "bun run app:corpus && vite web --port 5173",
     "build": "bun run app:corpus && vite build web"
   },
   "devDependencies": {

@@ -20,9 +20,9 @@
  *
  * Conflating (2) and (3) is what produced the lie. They are now separate code paths.
  */
-import { BASMALAH, SURAH_INDEX, type SurahMeta } from "./surah-index.ts";
+import { BASMALAH, CORPUS_VERSION, SURAH_INDEX, type SurahMeta } from "./surah-index.ts";
 
-export { BASMALAH, SURAH_INDEX, type SurahMeta };
+export { BASMALAH, CORPUS_VERSION, SURAH_INDEX, type SurahMeta };
 
 export interface ShardVerse {
   /** Ayah number within the surah. */
@@ -44,6 +44,43 @@ export interface Shard {
   bismillah: boolean;
   verses: ShardVerse[];
 }
+
+// ── how Indonesia actually spells them ───────────────────────────────────────
+//
+// The corpus ships academic transliteration — "Al-Baqara", "At-Tawba", "Al-Faatiha". No Indonesian
+// writes those. They write Al-Baqarah, At-Taubah, Al-Fatihah. A product whose entire thesis is
+// "meet the reader in the language they actually use" was misspelling the surah names at them.
+//
+// Only the endings that are genuinely wrong in Indonesian usage are overridden; the rest of the
+// transliteration is left alone rather than rewritten wholesale on a guess.
+const DISPLAY_NAME: Record<number, string> = {
+  1: "Al-Fatihah", 2: "Al-Baqarah", 3: "Ali 'Imran", 4: "An-Nisa", 5: "Al-Maidah",
+  6: "Al-An'am", 7: "Al-A'raf", 8: "Al-Anfal", 9: "At-Taubah", 10: "Yunus",
+  11: "Hud", 12: "Yusuf", 13: "Ar-Ra'd", 14: "Ibrahim", 15: "Al-Hijr",
+  16: "An-Nahl", 17: "Al-Isra", 18: "Al-Kahfi", 19: "Maryam", 20: "Taha",
+  21: "Al-Anbiya", 22: "Al-Hajj", 23: "Al-Mu'minun", 24: "An-Nur", 25: "Al-Furqan",
+  26: "Asy-Syu'ara", 27: "An-Naml", 28: "Al-Qasas", 29: "Al-'Ankabut", 30: "Ar-Rum",
+  31: "Luqman", 32: "As-Sajdah", 33: "Al-Ahzab", 34: "Saba", 35: "Fatir",
+  36: "Yasin", 37: "As-Saffat", 38: "Sad", 39: "Az-Zumar", 40: "Gafir",
+  41: "Fussilat", 42: "Asy-Syura", 43: "Az-Zukhruf", 44: "Ad-Dukhan", 45: "Al-Jasiyah",
+  46: "Al-Ahqaf", 47: "Muhammad", 48: "Al-Fath", 49: "Al-Hujurat", 50: "Qaf",
+  51: "Az-Zariyat", 52: "At-Tur", 53: "An-Najm", 54: "Al-Qamar", 55: "Ar-Rahman",
+  56: "Al-Waqi'ah", 57: "Al-Hadid", 58: "Al-Mujadilah", 59: "Al-Hasyr", 60: "Al-Mumtahanah",
+  61: "As-Saff", 62: "Al-Jumu'ah", 63: "Al-Munafiqun", 64: "At-Tagabun", 65: "At-Talaq",
+  66: "At-Tahrim", 67: "Al-Mulk", 68: "Al-Qalam", 69: "Al-Haqqah", 70: "Al-Ma'arij",
+  71: "Nuh", 72: "Al-Jinn", 73: "Al-Muzzammil", 74: "Al-Muddassir", 75: "Al-Qiyamah",
+  76: "Al-Insan", 77: "Al-Mursalat", 78: "An-Naba", 79: "An-Nazi'at", 80: "'Abasa",
+  81: "At-Takwir", 82: "Al-Infitar", 83: "Al-Mutaffifin", 84: "Al-Insyiqaq", 85: "Al-Buruj",
+  86: "At-Tariq", 87: "Al-A'la", 88: "Al-Gasyiyah", 89: "Al-Fajr", 90: "Al-Balad",
+  91: "Asy-Syams", 92: "Al-Lail", 93: "Ad-Duha", 94: "Asy-Syarh", 95: "At-Tin",
+  96: "Al-'Alaq", 97: "Al-Qadr", 98: "Al-Bayyinah", 99: "Az-Zalzalah", 100: "Al-'Adiyat",
+  101: "Al-Qari'ah", 102: "At-Takasur", 103: "Al-'Asr", 104: "Al-Humazah", 105: "Al-Fil",
+  106: "Quraisy", 107: "Al-Ma'un", 108: "Al-Kausar", 109: "Al-Kafirun", 110: "An-Nasr",
+  111: "Al-Lahab", 112: "Al-Ikhlas", 113: "Al-Falaq", 114: "An-Nas",
+};
+
+/** The name to SHOW. Every surface renders through this; nothing renders `meta.tl` raw. */
+export const displayName = (n: number): string => DISPLAY_NAME[n] ?? bySurah.get(n)?.tl ?? `Surah ${n}`;
 
 const bySurah = new Map<number, SurahMeta>(SURAH_INDEX.map((s) => [s.n, s]));
 
@@ -119,11 +156,29 @@ export type RefResult =
 // costume, so all the spellings people actually type are accepted.
 const SURAH_WORD = String.raw`sur(?:ah|at|a)?`;
 
+/**
+ * A CLOCK IS NOT A VERSE.
+ *
+ * `2:30` is a valid reference to Al-Baqarah 30. It is also half past two in the morning, which is
+ * exactly when this product expects to be used. Left unguarded, the bare `N:M` pattern turned
+ * "aku bangun jam 2:30 pagi" into Al-Baqarah 2:30, and "udah jam 3:15 masih gabisa tidur" into
+ * Aal-i-Imraan 3:15 — silently reinterpreting a person's insomnia as a citation, and skipping
+ * retrieval entirely on the way (the ref path has no scoring to catch a bad guess).
+ *
+ * So a bare `N:M` is disqualified when the sentence is talking about time. Explicitly marked refs
+ * ("QS 2:30", "surat 2 ayat 30") are never disqualified — the marker IS the intent.
+ */
+const TIME_CUE =
+  /\b(jam|pukul|pkl|wib|wit|wita|am|pm|pagi|siang|sore|petang|malam|subuh|dini hari|tengah malam|menit|detik)\b/i;
+
 const REF_PATTERNS: RegExp[] = [
-  /(?:^|\s)(\d{1,3})\s*[:.]\s*(\d{1,3})(?:\s|$)/, //  18:10   18.10
+  /(?:^|\s)(\d{1,3})\s*[:.]\s*(\d{1,3})(?:\s|$)/, //  18:10   18.10   ← bare; time-guarded below
   new RegExp(String.raw`${SURAH_WORD}\s*(\d{1,3})\s*(?:ayat|ayah|ay\.?)\s*(\d{1,3})`, "i"), // surat 18 ayat 10
   /(?:^|\s)q\.?s\.?\s*(\d{1,3})\s*[:.]\s*(\d{1,3})/i, //  QS 18:10
 ];
+
+/** Only the bare `N:M` form is ambiguous with a clock. The marked forms carry their own intent. */
+const IS_BARE = (i: number) => i === 0;
 
 /**
  * Parse a user's message into a Qur'anic reference.
@@ -135,9 +190,13 @@ export function parseRef(input: string): RefResult {
   const q = input.trim();
   if (!q) return { kind: "not-a-ref" };
 
-  for (const re of REF_PATTERNS) {
+  for (const [i, re] of REF_PATTERNS.entries()) {
     const m = q.match(re);
     if (!m) continue;
+
+    // "jam 2:30 pagi" is a time, not Al-Baqarah 30. Hand it to retrieval, where it belongs.
+    if (IS_BARE(i) && TIME_CUE.test(q)) continue;
+
     const sn = Number(m[1]);
     const an = Number(m[2]);
     const surah = bySurah.get(sn);
@@ -175,9 +234,50 @@ export class ShardError extends Error {
   }
 }
 
-/** Surahs already fetched. Immutable per corpus_version, so a shard is cached forever. */
+/** In-memory, for this page view. */
 const cache = new Map<number, Shard>();
 const inflight = new Map<number, Promise<Shard>>();
+
+/**
+ * Shards that survive a reload.
+ *
+ * The in-memory Map above used to be the whole story, while the comment beside it claimed shards
+ * were "cached forever". They were not — they died on every reload, so a reader on patchy 4G who
+ * closed the app and reopened it with no signal could not read anything. The claim was aspiration
+ * written as fact, which is worse than no comment at all, because it gets believed.
+ *
+ * Now it is true. A shard is content-addressed by CORPUS_VERSION: it changes if and only if the
+ * scripture changes, so a cached surah can be trusted indefinitely and served with no network.
+ * Caches from older corpus versions are dropped on boot rather than left to rot.
+ *
+ * CacheStorage is unavailable in insecure contexts and in some in-app browsers. That is a
+ * degradation, not a failure — we fall back to network-only and say nothing, because a reader who
+ * can still read does not need to hear about our storage layer.
+ */
+const CACHE_NAME = `nur-quran-${CORPUS_VERSION}`;
+const shardUrl = (n: number) => `/surah/${n}.json?v=${CORPUS_VERSION}`;
+
+const cacheStore = async (): Promise<Cache | null> => {
+  try {
+    if (!("caches" in globalThis)) return null;
+    return await caches.open(CACHE_NAME);
+  } catch {
+    return null;
+  }
+};
+
+/** Drop shards from a previous corpus. Scripture changed; the old bytes must not linger. */
+export async function evictStaleCaches(): Promise<void> {
+  try {
+    if (!("caches" in globalThis)) return;
+    const keys = await caches.keys();
+    await Promise.all(
+      keys.filter((k) => k.startsWith("nur-quran-") && k !== CACHE_NAME).map((k) => caches.delete(k)),
+    );
+  } catch {
+    /* a cache we cannot clean is not a reason to stop the reader */
+  }
+}
 
 /**
  * Fetch one surah. Never the whole book.
@@ -197,28 +297,55 @@ export async function loadSurah(n: number): Promise<Shard> {
   if (!meta) throw new ShardError(`Surah ${n} tidak ada. Al-Qur'an punya 114 surah.`, n);
 
   const task = (async (): Promise<Shard> => {
-    let res: Response;
-    try {
-      res = await fetch(`/surah/${n}.json`);
-    } catch {
-      throw new ShardError(`Gagal memuat ${meta.tl}. Periksa koneksimu.`, n);
+    const url = shardUrl(n);
+    const store = await cacheStore();
+
+    // Cache first. A surah you have already read must open with no network at all.
+    let res: Response | undefined = await store?.match(url).catch(() => undefined);
+    let fromCache = Boolean(res);
+
+    if (!res) {
+      try {
+        res = await fetch(url);
+      } catch {
+        throw new ShardError(`Gagal memuat ${displayName(n)}. Periksa koneksimu.`, n);
+      }
+      fromCache = false;
     }
-    if (!res.ok) throw new ShardError(`Gagal memuat ${meta.tl} (${res.status}).`, n);
+    if (!res.ok) throw new ShardError(`Gagal memuat ${displayName(n)} (${res.status}).`, n);
+
+    // Clone BEFORE reading the body — a Response body can only be consumed once, and the copy is
+    // what gets persisted. Only after integrity passes, though: a corrupt shard that gets cached
+    // is a corrupt shard forever.
+    const toPersist = fromCache ? null : res.clone();
 
     let shard: Shard;
     try {
       shard = (await res.json()) as Shard;
     } catch {
-      throw new ShardError(`Data ${meta.tl} rusak saat diunduh.`, n);
+      throw new ShardError(`Data ${displayName(n)} rusak saat diunduh.`, n);
     }
 
-    // Integrity: refuse a partial surah rather than render a truncated one.
-    if (shard.verses.length !== shard.ayahs || shard.ayahs !== meta.ayahs) {
+    // Integrity. A truncated or scrambled surah must never render.
+    //
+    // The counts alone are not enough: a shard with the right LENGTH and the wrong CONTENT would
+    // sail through. So the ayah numbers must also be exactly 1..N, in order. That catches
+    // truncation, duplication, reordering, and a shard served for the wrong surah — which is the
+    // realistic failure when a CDN or a stale cache hands back the wrong file.
+    const wrongCount = shard.verses.length !== shard.ayahs || shard.ayahs !== meta.ayahs;
+    const wrongSurah = shard.n !== n;
+    const notContiguous = shard.verses.some((v, i) => v.a !== i + 1);
+
+    if (wrongCount || wrongSurah || notContiguous) {
+      // A bad shard in the cache would poison every future read. Evict it.
+      await store?.delete(url).catch(() => undefined);
       throw new ShardError(
-        `Data ${meta.tl} tidak lengkap (${shard.verses.length} dari ${meta.ayahs} ayat). Aku tidak menampilkan surah yang terpotong.`,
+        `Data ${displayName(n)} tidak lengkap atau rusak (${shard.verses.length} dari ${meta.ayahs} ayat). Aku tidak menampilkan surah yang terpotong.`,
         n,
       );
     }
+
+    if (toPersist) await store?.put(url, toPersist).catch(() => undefined);
 
     cache.set(n, shard);
     return shard;

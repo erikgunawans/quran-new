@@ -7,6 +7,7 @@ import { parseSurahMetadata, parseVerseFile, toAyahs, toTranslations } from "./p
 import { sourceById, tafsirSources, translationSources } from "./sources.ts";
 import { IntegrityError, validateCanonical } from "./validate.ts";
 import { validateInterpretive } from "./validate-interpretive.ts";
+import { validateBrowser } from "../app/validate-browser.ts";
 
 async function readRaw(file: string): Promise<string> {
   const f = Bun.file(`${RAW_DIR}/${file}`);
@@ -87,7 +88,15 @@ export async function verify(): Promise<void> {
   const b = validateInterpretive(canon, interp);
   report("canonical integrity", a.checks);
   report("interpretive integrity", b.checks);
-  console.log(`\n✓ ${a.checks.length + b.checks.length} gates passed`);
+
+  // The gates above validate the corpus on disk — the INPUT. They say nothing about what a
+  // person's phone actually downloads. That gap is how English captions shipped for an hour
+  // behind a green suite. These gates check the OUTPUT.
+  const manifest = await Bun.file("data/canonical/manifest.json").json();
+  const c = await validateBrowser(manifest.corpus_version);
+  report("browser artifacts", c.checks);
+
+  console.log(`\n✓ ${a.checks.length + b.checks.length + c.checks.length} gates passed`);
 }
 
 export { IntegrityError };

@@ -1,7 +1,9 @@
 import "./styles.css";
 import "./read.css";
+import { announce } from "./announce.ts";
+import { crisisReply, detectCrisis } from "./crisis.ts";
 import { compose, retrieve, type Corpus, type Hit, type Voice } from "./retrieve.ts";
-import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
+import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { copyVerse, shareVerse } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
@@ -13,16 +15,32 @@ const form = $<HTMLFormElement>("#composer");
 const input = $<HTMLTextAreaElement>("#q");
 const send = $<HTMLButtonElement>("#send");
 const app = $<HTMLElement>("#app");
-const live = $<HTMLElement>("#live");
 
 let corpus: Corpus | null = null;
 let voices = new Map<string, Voice>();
-/** Every verse currently on screen, so copy/share can find it by ref. */
+
+/**
+ * Verses currently in the chat thread, so copy/share can find one by ref.
+ *
+ * Bounded. This used to grow forever — one entry per verse ever rendered, never cleared, in a
+ * thread that also grows forever, on the mid-range Android in the brief. Only the most recent
+ * exchanges are reachable by tapping anyway, so holding the rest was pure leak.
+ */
+const MAX_CARDS = 60;
 const onScreen = new Map<string, VerseCard>();
 
-const say = (msg: string) => {
-  live.textContent = msg;
+const remember = (card: VerseCard) => {
+  onScreen.delete(card.ref); // re-inserting moves it to the end — Map preserves insertion order
+  onScreen.set(card.ref, card);
+  while (onScreen.size > MAX_CARDS) {
+    const oldest = onScreen.keys().next().value;
+    if (oldest === undefined) break;
+    onScreen.delete(oldest);
+  }
 };
+
+/** One owner for the live region — see announce.ts. */
+const say = announce;
 
 // ── rendering ────────────────────────────────────────────────────────────────
 function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }[] }): string {
@@ -56,7 +74,7 @@ function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }
 }
 
 function mount(card: VerseCard): string {
-  onScreen.set(card.ref, card);
+  remember(card);
   return verseEl(card);
 }
 
@@ -103,6 +121,23 @@ async function ask(question: string) {
   const answer = document.createElement("div");
   answer.className = "msg nur";
 
+  // ── before anything else ──────────────────────────────────────────────────
+  //
+  // Crisis check runs FIRST — before reference parsing, before retrieval, before Nur gets to be
+  // clever. "aku gak sanggup bayar utang, pengen mati aja" used to match on `utang` and come back
+  // with a verse about loan terms. The app answered the topic and missed the person.
+  //
+  // Nothing gets to answer ahead of this.
+  const crisis = detectCrisis(q);
+  if (crisis) {
+    loading.remove();
+    answer.innerHTML = crisisReply();
+    thread.append(answer);
+    scrollDown();
+    say("Nur menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
+    return;
+  }
+
   // Reference resolution is LOCAL — the surah index is inlined, not fetched. Nur can tell the
   // truth about what the Qur'an contains even with no network at all.
   const ref = parseRef(q);
@@ -111,18 +146,19 @@ async function ask(question: string) {
     if (ref.kind === "no-such-surah") {
       answer.innerHTML = `<p class="said">Surah ${ref.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
     } else if (ref.kind === "no-such-ayah") {
-      answer.innerHTML = `<p class="said">Surah ${esc(ref.surah.tl)} cuma punya <b>${ref.surah.ayahs} ayat</b>, jadi ayat ${ref.ayah} tidak ada. Mau buka surahnya?</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(ref.surah.tl)} →</a></div>`;
+      answer.innerHTML = `<p class="said">Surah ${esc(displayName(ref.surah.n))} cuma punya <b>${ref.surah.ayahs} ayat</b>, jadi ayat ${ref.ayah} tidak ada. Mau buka surahnya?</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(displayName(ref.surah.n))} →</a></div>`;
     } else if (ref.kind === "surah") {
-      answer.innerHTML = `<p class="said">Ini surah ${esc(ref.surah.tl)} — ${ref.surah.ayahs} ayat.</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(ref.surah.tl)} →</a></div>`;
+      answer.innerHTML = `<p class="said">Ini surah ${esc(displayName(ref.surah.n))} — ${ref.surah.ayahs} ayat.</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(displayName(ref.surah.n))} →</a></div>`;
     } else if (ref.kind === "ayah") {
       // The verse is real. We have it. There is no world in which we deny it.
       const v = await loadAyah(ref.surah.n, ref.ayah);
-      const card = fromShard(v, ref.surah.n, ref.surah.tl);
+      const card = fromShard(v, ref.surah.n, displayName(ref.surah.n));
       card.continueTo = true; // the peak gets a landing
-      answer.innerHTML = `<p class="said">Ini ${esc(ref.surah.tl)} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card);
-      say(`${ref.surah.tl} ${ref.surah.n}:${ref.ayah} ditampilkan.`);
+      card.animate = true;
+      answer.innerHTML = `<p class="said">Ini ${esc(displayName(ref.surah.n))} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card);
+      say(`${displayName(ref.surah.n)} ${ref.surah.n}:${ref.ayah} ditampilkan.`);
     } else {
       // Not a reference — a question. Now, and only now, retrieval may come up empty.
       if (!corpus) throw new Error("corpus");
@@ -152,6 +188,7 @@ async function ask(question: string) {
                 why: h.verse.why,
                 extra: tafsirEl(h.verse),
                 continueTo: true,
+                animate: true,
               };
               return mount(card);
             })
@@ -340,7 +377,9 @@ async function bootCorpus(): Promise<void> {
   send.disabled = true;
 
   try {
-    const res = await fetch("/corpus.json");
+    // Versioned, for the same reason the shards are: without it, a corpus rebuild leaves every
+    // CDN and every phone serving the previous scripture until some cache decides to expire.
+    const res = await fetch(`/corpus.json?v=${CORPUS_VERSION}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     corpus = (await res.json()) as Corpus;
     voices = new Map(corpus.sources.map((s) => [s.id, s]));
@@ -370,6 +409,9 @@ async function bootCorpus(): Promise<void> {
       b.setAttribute("aria-pressed", String(b.dataset["size"] === savedSize));
     }
   }
+
+  // Shards from a previous corpus version are no longer this scripture. Drop them.
+  void evictStaleCaches();
 
   void route();
   void bootCorpus();

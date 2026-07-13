@@ -21,6 +21,7 @@ import {
   findSurah,
   isCached,
   loadSurah,
+  displayName,
   ShardError,
   SURAH_INDEX,
   surahMeta,
@@ -28,6 +29,7 @@ import {
   type ShardVerse,
   type SurahMeta,
 } from "./quran.ts";
+import { announce } from "./announce.ts";
 import { copyVerse, shareVerse } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
 
@@ -52,10 +54,8 @@ const claim = (): number => ++token;
 /** Verses currently on the reading surface, so copy/share can find one by ref. */
 const onRead = new Map<string, VerseCard>();
 
-const say = (msg: string): void => {
-  const live = document.getElementById("live");
-  if (live) live.textContent = msg;
-};
+/** One owner for the live region — see announce.ts. */
+const say = announce;
 
 const reduced = (): boolean => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -116,10 +116,10 @@ const fold = (s: string): string =>
 
 const indexRow = (s: SurahMeta): string => `
   <li>
-    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
+    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
       <span class="srow-n">${s.n}</span>
       <span class="srow-id">
-        <span class="srow-tl">${esc(s.tl)}</span>
+        <span class="srow-tl">${esc(displayName(s.n))}</span>
         <span class="srow-meta">${s.ayahs} ayat · ${revID(s.rev)}</span>
       </span>
       <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
@@ -227,7 +227,7 @@ const headEl = (m: SurahMeta): string => `
     ${backEl("back-top")}
     <div class="surah-title">
       <h1 class="surah-ar" dir="rtl" lang="ar">${esc(m.ar)}</h1>
-      <p class="surah-tl">${esc(m.tl)}</p>
+      <p class="surah-tl">${esc(displayName(m.n))}</p>
       <p class="surah-meta">${m.ayahs} ayat · ${revID(m.rev)}</p>
     </div>
   </header>`;
@@ -311,7 +311,7 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
     const msg =
       err instanceof ShardError
         ? err.message
-        : `Gagal memuat ${meta.tl}. Koneksimu sepertinya sedang tidak stabil.`;
+        : `Gagal memuat ${displayName(meta.n)}. Koneksimu sepertinya sedang tidak stabil.`;
 
     body.innerHTML = oopsEl(msg, true);
     body.querySelector<HTMLButtonElement>(".read-retry")?.addEventListener("click", () => {
@@ -341,13 +341,13 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
 
   const opening = shard.verses.slice(0, upTo);
   body.innerHTML = `${bismillah}<div class="verses" id="verses">${opening
-    .map((v) => cardEl(v, n, shard.name))
+    .map((v) => cardEl(v, n, displayName(n)))
     .join("")}</div>`;
 
   const verses = body.querySelector<HTMLDivElement>("#verses");
   if (!verses) return;
 
-  say(`${meta.tl} terbuka. ${meta.ayahs} ayat.`);
+  say(`${displayName(meta.n)} terbuka. ${meta.ayahs} ayat.`);
 
   // ── landing on the ayah the user came for ─────────────────────────────────
   let landed = false;
@@ -377,7 +377,7 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
     // Parse once per chunk into a fragment, then a single append — not innerHTML +=, which
     // would re-parse and re-create every ayah already on the page, every time.
     const tpl = document.createElement("template");
-    tpl.innerHTML = batch.map((v) => cardEl(v, n, shard.name)).join("");
+    tpl.innerHTML = batch.map((v) => cardEl(v, n, displayName(n))).join("");
     verses.append(tpl.content);
 
     tryLand();
@@ -395,7 +395,7 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
       const rest = document.createElement("template");
       rest.innerHTML = shard.verses
         .slice(rendered)
-        .map((v) => cardEl(v, n, shard.name))
+        .map((v) => cardEl(v, n, displayName(n)))
         .join("");
       verses.append(rest.content);
     }
