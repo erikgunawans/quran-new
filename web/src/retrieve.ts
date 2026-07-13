@@ -170,7 +170,11 @@ export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
  * rules, never says "Islam teaches that…". The scripture and the named scholars do the
  * speaking; Nur only holds the door open.
  */
-export function compose(hits: Hit[], question: string): string {
+// `_question` is deliberately unused today: composition is theme-driven, and Nur must not appear
+// to "reply" to the words themselves. It stays in the signature because this is the seam where a
+// generative model would slot in — and even then it may only phrase what retrieval already
+// grounded. (This unused param went unnoticed for a session because typecheck never covered web/.)
+export function compose(hits: Hit[], _question: string): string {
   if (!hits.length) return "";
   const theme = hits[0]!.verse.theme;
   const opener: Record<string, string> = {

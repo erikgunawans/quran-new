@@ -1,0 +1,467 @@
+/**
+ * The reading surface.
+ *
+ * THE MISSING DOOR
+ * ----------------
+ * Nur could answer questions about the Qur'an but could not open it. You could not read
+ * Al-Kahf on a Friday — the most predictable devotional act the product exists to serve —
+ * because the only surface was a chat box. Everything below exists to close that hole.
+ *
+ * Two views, one file:
+ *   renderIndex  — all 114 surahs, from the inlined index. Zero network, works offline,
+ *                  works on the very first cold open before a single byte is fetched.
+ *   renderSurah  — one surah, continuous, top to bottom, the way scripture is actually read.
+ *
+ * Scripture is drawn ONLY through verseEl()/fromShard(). Hand-writing card markup here would
+ * fork the honesty contract — a verse could reach the page with its literal companion or its
+ * attribution quietly missing. There is one renderer, and it always draws both.
+ */
+import {
+  BASMALAH,
+  findSurah,
+  isCached,
+  loadSurah,
+  ShardError,
+  SURAH_INDEX,
+  surahMeta,
+  type Shard,
+  type ShardVerse,
+  type SurahMeta,
+} from "./quran.ts";
+import { copyVerse, shareVerse } from "./share.ts";
+import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
+
+// ── how much scripture arrives at once ───────────────────────────────────────
+//
+// Al-Baqarah is 286 ayahs. Building all of them in one synchronous pass locks the main thread
+// on the mid-range Android this product is actually used on. Paint enough to fill the screen,
+// then let the rest arrive while the phone is idle.
+const FIRST = 20;
+const CHUNK = 20;
+
+/**
+ * A monotonically increasing render token.
+ *
+ * A user on patchy 4G taps a surah, waits, gives up, taps another. The first shard can still
+ * land afterwards. Without a token the late arrival paints its verses into a view the user
+ * already left. Every render claims a token; every async continuation checks it still holds.
+ */
+let token = 0;
+const claim = (): number => ++token;
+
+/** Verses currently on the reading surface, so copy/share can find one by ref. */
+const onRead = new Map<string, VerseCard>();
+
+const say = (msg: string): void => {
+  const live = document.getElementById("live");
+  if (live) live.textContent = msg;
+};
+
+const reduced = (): boolean => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Idle scheduling, feature-detected off globalThis rather than assumed.
+ *
+ * Safari has no requestIdleCallback. The timeout is a floor, not a promise: it guarantees the
+ * remaining ayahs still arrive promptly on a busy thread instead of starving behind other work.
+ */
+const idle = (fn: () => void): void => {
+  const ric = (
+    globalThis as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    }
+  ).requestIdleCallback;
+
+  // Fire exactly once, via whichever scheduler gets there first.
+  let ran = false;
+  const run = (): void => {
+    if (ran) return;
+    ran = true;
+    fn();
+  };
+
+  // The backstop is not belt-and-braces — it is load-bearing, and it was found the hard way.
+  //
+  // A chunk chain driven ONLY by requestIdleCallback stops dead in a hidden or throttled tab:
+  // Chrome starves rIC in background tabs, the chain never resumes, and the reader is left with
+  // a SILENTLY TRUNCATED surah. Observed: Al-Baqarah rendering 280 of 286 ayahs and stopping —
+  // dropping 2:285-286 (`Amanar-Rasulu`, recited nightly) and 2:282, the longest verse in the
+  // Qur'an. No error, no indication; the surah just ended early.
+  //
+  // That is the same class of failure the shard integrity check exists to prevent — scripture
+  // does not degrade gracefully — so completeness must never depend on an optional scheduler.
+  if (ric) ric(run, { timeout: 80 });
+  setTimeout(run, 120);
+};
+
+// ── the data speaks English; the reader does not ─────────────────────────────
+//
+// SURAH_INDEX carries "meccan"/"medinan" because that is what the corpus ships. An Indonesian
+// reader has never called it that. This is the only place the two vocabularies touch.
+const revID = (rev: string): string =>
+  rev === "meccan" ? "Makkiyah" : rev === "medinan" ? "Madaniyah" : rev;
+
+/** Fold to a searchable shape: "Al-Kahf" and "al kahfi" and "alkahf" all collapse together. */
+const fold = (s: string): string =>
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/['’`\-_.]/g, "")
+    .replace(/\s+/g, "");
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE INDEX
+// ═══════════════════════════════════════════════════════════════════════════
+
+const indexRow = (s: SurahMeta): string => `
+  <li>
+    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
+      <span class="srow-n">${s.n}</span>
+      <span class="srow-id">
+        <span class="srow-tl">${esc(s.tl)}</span>
+        <span class="srow-meta">${s.ayahs} ayat · ${revID(s.rev)}</span>
+      </span>
+      <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+    </a>
+  </li>`;
+
+/**
+ * All 114 surahs.
+ *
+ * Synchronous and network-free on purpose — SURAH_INDEX is inlined in the bundle. Even when
+ * corpus.json never arrives, this list still opens. 114 plain rows build in one pass without
+ * trouble; the chunking below is for surahs, not for this.
+ */
+export function renderIndex(mount: HTMLElement): void {
+  claim(); // any surah still chunking in the background belongs to a view we are leaving
+  onRead.clear();
+
+  mount.innerHTML = `
+    <div class="read-index">
+      <header class="read-intro">
+        <h1>Baca Al-Qur'an</h1>
+        <p>Seratus empat belas surah, semuanya ada di sini. Buka yang mana pun — Al-Kahfi di hari Jumat, atau apa pun yang kamu butuhkan malam ini.</p>
+      </header>
+
+      <div class="find">
+        <label class="sr" for="surah-cari">Cari surah berdasarkan nama atau nomor</label>
+        <input
+          id="surah-cari"
+          class="find-in"
+          type="search"
+          placeholder="Cari surah…"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          enterkeyhint="search">
+      </div>
+
+      <ul class="surah-list" id="surah-list">${SURAH_INDEX.map(indexRow).join("")}</ul>
+
+      <p class="no-hit" id="surah-none" hidden>
+        Tidak ada surah dengan nama itu. Coba nomornya, atau sepotong namanya saja.
+      </p>
+    </div>`;
+
+  const input = mount.querySelector<HTMLInputElement>("#surah-cari");
+  const list = mount.querySelector<HTMLUListElement>("#surah-list");
+  const none = mount.querySelector<HTMLParagraphElement>("#surah-none");
+  // If any of the three is missing the markup above changed underneath us. Filtering is an
+  // enhancement — the 114 links are already on the page and still work. Leave them be.
+  if (!input || !list || !none) return;
+
+  const rows = Array.from(list.querySelectorAll<HTMLAnchorElement>(".srow"));
+  let pending: ReturnType<typeof setTimeout> | undefined;
+
+  const apply = (): void => {
+    const raw = input.value.trim();
+    const q = fold(input.value);
+
+    // A substring match over the corpus transliteration is not enough, and the gap is the
+    // whole P0 in a new costume: the corpus says "Al-Kahf" and "Yaseen", while an Indonesian
+    // types "kahfi" and "yasin" — neither is a substring of the other, so the index would tell
+    // them the surah does not exist. quran.ts already owns that vocabulary in findSurah()'s
+    // curated alias table. We reuse it rather than forking a second, dumber name-matcher here.
+    const alias = raw === "" ? undefined : findSurah(raw);
+    let hits = 0;
+
+    for (const row of rows) {
+      const match =
+        q === "" ||
+        (row.dataset["find"] ?? "").includes(q) ||
+        (alias !== undefined && String(alias.n) === row.dataset["n"]);
+      if (match) hits++;
+      const li = row.parentElement;
+      if (li) li.hidden = !match;
+    }
+
+    none.hidden = hits > 0;
+
+    // Debounced: a screen reader announcing on every keystroke is noise, not help.
+    if (pending !== undefined) clearTimeout(pending);
+    const typed = input.value.trim();
+    pending = setTimeout(() => {
+      say(
+        q === ""
+          ? `Menampilkan semua ${rows.length} surah.`
+          : hits === 0
+            ? `Tidak ada surah yang cocok dengan "${typed}".`
+            : `${hits} surah cocok.`,
+      );
+    }, 300);
+  };
+
+  input.addEventListener("input", apply);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE SURAH
+// ═══════════════════════════════════════════════════════════════════════════
+
+const backEl = (cls: string): string =>
+  `<a class="back ${cls}" href="#/baca"><span aria-hidden="true">←</span> Kembali ke daftar surah</a>`;
+
+const headEl = (m: SurahMeta): string => `
+  <header class="surah-head">
+    ${backEl("back-top")}
+    <div class="surah-title">
+      <h1 class="surah-ar" dir="rtl" lang="ar">${esc(m.ar)}</h1>
+      <p class="surah-tl">${esc(m.tl)}</p>
+      <p class="surah-meta">${m.ayahs} ayat · ${revID(m.rev)}</p>
+    </div>
+  </header>`;
+
+/**
+ * A scripture-SHAPED wait, not a grey bar.
+ *
+ * The silhouette of what is coming — one line at Arabic height, two at translation height —
+ * so the page does not lurch when the real thing lands.
+ */
+const skeletonEl = (): string => {
+  const block = `
+    <div class="skeleton">
+      <div class="sk-line ar"></div>
+      <div class="sk-line"></div>
+      <div class="sk-line short"></div>
+    </div>`;
+  return `<div class="read-sk" aria-hidden="true">${block.repeat(3)}</div>`;
+};
+
+/**
+ * Never a blank mount. Every failure says what happened.
+ *
+ * `retry` is false for failures retrying cannot fix — surah 115 will not exist on the second
+ * attempt, and a button that cannot work is a small lie of its own.
+ */
+const oopsEl = (msg: string, retry: boolean): string => `
+  <div class="oops" role="alert">
+    <p>${esc(msg)}</p>
+    ${retry ? `<button class="act read-retry" type="button">Coba lagi</button>` : ""}
+  </div>`;
+
+/** Build one card and register it, so its copy/share buttons can find it later. */
+const cardEl = (v: ShardVerse, n: number, name: string): string => {
+  const card = fromShard(v, n, name);
+  onRead.set(card.ref, card);
+  return verseEl(card);
+};
+
+/**
+ * One surah, continuously.
+ *
+ * @param scrollToAyah  from `#/surah/18#10` — land on the ayah the user actually came for.
+ */
+export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: number): Promise<void> {
+  const mine = claim();
+  onRead.clear();
+  bindActs();
+
+  const meta = surahMeta(n);
+  if (!meta) {
+    // Reachable by a hand-typed URL. The index is inlined, so we can say this offline and be
+    // certain of it — and retrying will not conjure a 115th surah, so we do not offer to.
+    const msg = `Surah ${n} tidak ada. Al-Qur'an punya 114 surah.`;
+    mount.innerHTML = `
+      <div class="surah-view">
+        ${oopsEl(msg, false)}
+        <div class="back-bottom">${backEl("")}</div>
+      </div>`;
+    say(msg);
+    return;
+  }
+
+  mount.innerHTML = `
+    <div class="surah-view">
+      ${headEl(meta)}
+      <div class="surah-body" id="surah-body">${isCached(n) ? "" : skeletonEl()}</div>
+      <div class="back-bottom">${backEl("")}</div>
+    </div>`;
+
+  const body = mount.querySelector<HTMLDivElement>("#surah-body");
+  if (!body) return;
+
+  let shard: Shard;
+  try {
+    shard = await loadSurah(n);
+  } catch (err) {
+    if (token !== mine) return; // the user has already navigated somewhere else
+    // ShardError messages are written for humans, in Indonesian, and are more specific than
+    // anything we could say here — a corrupt download and a dead connection are different facts.
+    const msg =
+      err instanceof ShardError
+        ? err.message
+        : `Gagal memuat ${meta.tl}. Koneksimu sepertinya sedang tidak stabil.`;
+
+    body.innerHTML = oopsEl(msg, true);
+    body.querySelector<HTMLButtonElement>(".read-retry")?.addEventListener("click", () => {
+      void renderSurah(mount, n, scrollToAyah);
+    });
+    say(msg);
+    return;
+  }
+  if (token !== mine) return;
+
+  // ── the basmalah ──────────────────────────────────────────────────────────
+  //
+  // Unnumbered, above ayah 1 — it is the opening of the surah, not a verse of it. Except in
+  // Al-Faatiha, where it IS ayah 1, and At-Tawbah, which has none at all. The shard's boolean
+  // already encodes that ruling; we honour it rather than re-deriving it. And loadSurah has
+  // already lifted the basmalah out of the verse text, so rendering it here cannot double it.
+  const bismillah = shard.bismillah
+    ? `<p class="bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</p>`
+    : "";
+
+  const opening = shard.verses.slice(0, FIRST);
+  body.innerHTML = `${bismillah}<div class="verses" id="verses">${opening
+    .map((v) => cardEl(v, n, shard.name))
+    .join("")}</div>`;
+
+  const verses = body.querySelector<HTMLDivElement>("#verses");
+  if (!verses) return;
+
+  say(`${meta.tl} terbuka. ${meta.ayahs} ayat.`);
+
+  // ── landing on the ayah the user came for ─────────────────────────────────
+  let landed = false;
+  const tryLand = (): void => {
+    if (landed || scrollToAyah === undefined) return;
+    const target = verses.querySelector(`.verse[data-ref="${n}:${scrollToAyah}"]`);
+    if (!target) return; // not chunked in yet — try again after the next batch
+    landed = true;
+    target.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+    target.classList.add("landed");
+    say(`Ayat ${n}:${scrollToAyah} ditampilkan.`);
+  };
+  tryLand();
+
+  // ── the rest, while the phone is idle ─────────────────────────────────────
+  if (shard.verses.length <= FIRST) return;
+
+  let at = FIRST;
+  const step = (): void => {
+    // Two guards, and both are real: the token catches a navigation, isConnected catches a
+    // re-render that replaced this container while a chunk was still queued.
+    if (token !== mine || !verses.isConnected) return;
+
+    const batch = shard.verses.slice(at, at + CHUNK);
+    at += batch.length;
+
+    // Parse once per chunk into a fragment, then a single append — not innerHTML +=, which
+    // would re-parse and re-create every ayah already on the page, every time.
+    const tpl = document.createElement("template");
+    tpl.innerHTML = batch.map((v) => cardEl(v, n, shard.name)).join("");
+    verses.append(tpl.content);
+
+    tryLand();
+
+    if (at < shard.verses.length) {
+      idle(step);
+      return;
+    }
+
+    // Completeness backstop. The chain believes it is finished — prove it. If the DOM does not
+    // hold every ayah of this surah, flush the remainder in one pass rather than let a reader
+    // scroll to the end of a surah that quietly stopped short.
+    const rendered = verses.querySelectorAll(".verse").length;
+    if (rendered < shard.verses.length) {
+      const rest = document.createElement("template");
+      rest.innerHTML = shard.verses
+        .slice(rendered)
+        .map((v) => cardEl(v, n, shard.name))
+        .join("");
+      verses.append(rest.content);
+    }
+  };
+  idle(step);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COPY / SHARE ON THE READING SURFACE
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// verseEl() stamps every card with copy and share buttons. main.ts already delegates clicks on
+// [data-act], but it resolves the card from ITS OWN map of chat verses — a ref rendered here is
+// not in it, so it finds nothing and returns. Without this handler those two buttons would be
+// on every ayah in the Qur'an and do nothing at all.
+//
+// This listener is scoped to #read and looks the ref up in onRead, so the two never contend:
+// for a chat verse this one finds nothing and stops; for a reading verse main.ts finds nothing
+// and stops. The egress contract still holds either way, because both go through share.ts —
+// an interpretation cannot leave this app dressed as scripture.
+let bound = false;
+
+function bindActs(): void {
+  if (bound) return;
+  bound = true;
+
+  document.addEventListener("click", (e) => {
+    const el = e.target;
+    if (!(el instanceof Element)) return;
+
+    const act = el.closest<HTMLButtonElement>("button[data-act]");
+    if (!act || !act.closest("#read")) return;
+
+    const kind = act.dataset["act"];
+    if (kind !== "copy" && kind !== "share") return;
+
+    const card = onRead.get(act.dataset["ref"] ?? "");
+    if (!card) return;
+
+    void carry(act, kind, card);
+  });
+}
+
+/**
+ * The word on the button, and only the word.
+ *
+ * verseEl() builds the button as `<span aria-hidden>⧉</span> Salin` — an icon span followed by
+ * a bare text node. Writing the new label into the span (the obvious move, and the one the
+ * `span:last-child` selector invites) leaves the original text node sitting there, so the
+ * button reads "Tersalin Salin" — and on the restore it degrades further to "Salin Salin".
+ * The label lives in the TEXT NODE. Swap that, leave the icon alone.
+ */
+const labelNode = (act: HTMLButtonElement): ChildNode | undefined =>
+  Array.from(act.childNodes)
+    .reverse()
+    .find((node) => node.nodeType === Node.TEXT_NODE && (node.textContent ?? "").trim() !== "");
+
+async function carry(act: HTMLButtonElement, kind: "copy" | "share", card: VerseCard): Promise<void> {
+  const outcome = kind === "copy" ? ((await copyVerse(card)) ? "copied" : "failed") : await shareVerse(card);
+
+  const label = labelNode(act);
+  const original = act.dataset["label"] ?? label?.textContent?.trim() ?? "";
+  act.dataset["label"] = original;
+
+  act.classList.toggle("ok", outcome !== "failed");
+  if (label) {
+    label.textContent =
+      outcome === "failed" ? " Gagal menyalin" : outcome === "shared" ? " Dibagikan" : " Tersalin";
+  }
+  say(outcome === "failed" ? "Gagal menyalin ayat." : "Ayat tersalin, lengkap dengan sumbernya.");
+
+  setTimeout(() => {
+    act.classList.remove("ok");
+    if (label) label.textContent = ` ${original}`;
+  }, 1800);
+}

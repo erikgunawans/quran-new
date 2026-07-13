@@ -15,13 +15,18 @@
 </head>
 <body>
 
-<div class="app">
+<div class="app" id="app">
   <header class="top">
-    <div class="mark">
+    <a class="mark" href="#/" aria-label="Nur — beranda">
       <span class="dot" aria-hidden="true"></span>
       <span class="name" lang="ar" dir="rtl">نور</span>
       <span class="latin">Nur</span>
-    </div>
+    </a>
+
+    <nav class="nav" aria-label="Utama">
+      <a class="nav-link" href="#/" id="nav-tanya">Tanya</a>
+      <a class="nav-link" href="#/baca" id="nav-baca">Baca</a>
+    </nav>
 
     <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
       <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
@@ -36,25 +41,34 @@
     </button>
   </header>
 
-  <main class="thread" id="thread">
-    <section class="hello" id="hello">
-      <h1>Ada apa hari ini?</h1>
-      <p>Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.</p>
-      <div class="seeds">
-        <button class="seed">aku lagi capek banget</button>
-        <button class="seed">lagi banyak utang, stress</button>
-        <button class="seed">baru kehilangan orang tua</button>
-        <button class="seed">ngerasa dosaku kebanyakan</button>
-        <button class="seed">cemas terus tiap malam</button>
-        <button class="seed">2:255</button>
-      </div>
-    </section>
-  </main>
+  <!-- Corpus failed to load. Reading still works — the surah index is inlined, not fetched. -->
+  <div class="boot-error" id="boot-error" role="alert" hidden></div>
+
+  <section id="chat">
+    <main class="thread" id="thread">
+      <section class="hello" id="hello">
+        <h1>Ada apa hari ini?</h1>
+        <p>Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.</p>
+        <div class="seeds">
+          <button class="seed">aku lagi capek banget</button>
+          <button class="seed">lagi banyak utang, stress</button>
+          <button class="seed">baru kehilangan orang tua</button>
+          <button class="seed">ngerasa dosaku kebanyakan</button>
+          <button class="seed">cemas terus tiap malam</button>
+          <button class="seed">al kahfi</button>
+        </div>
+        <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+      </section>
+    </main>
+  </section>
+
+  <!-- The reading surface. You cannot have a Qur'an app you cannot read the Qur'an in. -->
+  <section id="read" hidden></section>
 
   <p class="sr" id="live" role="status" aria-live="polite"></p>
 </div>
 
-<div class="composer">
+<div class="composer" id="composer-bar">
   <form id="composer">
     <label class="sr" for="q">Ceritakan apa yang kamu rasakan</label>
     <textarea id="q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off"></textarea>

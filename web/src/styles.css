@@ -379,3 +379,108 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   :root { --ar-size: 1.75rem; }
   .verse-head .why { display: none; }
 }
+
+/* ── nav ─────────────────────────────────────────────────────────────────────
+   Two doors, named plainly. "Tanya" (ask) is the differentiator; "Baca" (read) is the JOB.
+   Before this existed you could not open Al-Kahf on a Friday. */
+.nav { display: flex; gap: 2px; margin-inline-start: auto; }
+
+.nav-link {
+  font: 500 var(--step--1)/1 var(--f-ui);
+  color: var(--ink-3);
+  text-decoration: none;
+  padding: 7px 12px;
+  border-radius: var(--r);
+  transition: color var(--t), background var(--t);
+}
+.nav-link:hover { color: var(--ink); background: var(--surface); }
+.nav-link[aria-current="page"] { color: var(--ink); background: var(--surface-2); }
+.nav-link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.mark { text-decoration: none; }
+
+.hint {
+  margin-top: 18px;
+  font: var(--step--1)/1.6 var(--f-ui);
+  color: var(--ink-3);
+}
+.hint b { color: var(--ink-2); font-weight: 600; }
+
+/* ── boot error ──────────────────────────────────────────────────────────────
+   The old app died silently here: fetch() with no try/catch, no res.ok, and the user got a
+   beautiful dead screen. Note what this banner says — reading STILL WORKS, because the surah
+   index is inlined in the bundle rather than fetched. Only chat retrieval degrades. */
+.boot-error {
+  margin: 0 auto 20px;
+  max-width: 66ch;
+  padding: 16px 18px;
+  border: 1px solid var(--caution);
+  background: var(--caution-wash);
+  border-radius: var(--r-lg);
+  color: var(--ink);
+  font: var(--step-0)/1.6 var(--f-ui);
+}
+.boot-error .sub { margin-top: 6px; color: var(--ink-2); font-size: var(--step--1); }
+.boot-error .act { margin-top: 12px; }
+
+.oops {
+  padding: 16px 18px;
+  border: 1px solid var(--caution);
+  background: var(--caution-wash);
+  border-radius: var(--r-lg);
+  color: var(--ink);
+}
+.oops .retry { margin-top: 12px; }
+
+/* ── verse actions — copy / share / continue ─────────────────────────────────
+   Gen Z's primary devotional act online IS sharing a verse. The product had no surface for it.
+   The payload is built in share.ts and always carries BOTH renderings plus attribution — an
+   interpretation must never leave this app dressed as scripture. */
+.verse-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 var(--step--1)/1 var(--f-ui);
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 8px 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+.act:hover { color: var(--ink); border-color: var(--line-strong); background: var(--surface); }
+.act:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.act.ok { color: var(--primary); border-color: var(--primary-line); background: var(--primary-wash); }
+.act.go { margin-inline-start: auto; color: var(--ink); border-color: var(--primary-line); }
+.act.go:hover { background: var(--primary-wash); }
+
+/* ── foreign-language tafsir ─────────────────────────────────────────────────
+   Ibn Kathir is only available to us in ENGLISH, shown to Indonesian readers. That is the exact
+   wound this product exists to heal. Dropping a scholar is worse than showing him — so he is
+   sorted last (build-corpus.ts) and LABELLED, so nobody concludes the fault is theirs. */
+.scholar.foreign .txt { color: var(--ink-3); }
+
+.lang-warn {
+  font: 500 var(--step--1)/1 var(--f-ui);
+  font-size: 0.72rem;
+  color: var(--caution);
+  border: 1px solid var(--caution);
+  border-radius: 999px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act, .nav-link { transition: none; }
+}

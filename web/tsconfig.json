@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // The root config has no DOM lib and does not include web/ — which meant the entire
+    // frontend was never typechecked at all, while `bun run typecheck` reported clean.
+    // A gate that cannot fail is not a gate.
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["bun-types", "vite/client"]
+  },
+  "include": ["src"]
+}

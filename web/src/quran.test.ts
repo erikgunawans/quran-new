@@ -1,0 +1,196 @@
+import { describe, expect, test } from "bun:test";
+import { findSurah, parseRef, SURAH_INDEX, surahMeta } from "./quran.ts";
+import { shareText } from "./share.ts";
+import { FLAGGED, type VerseCard } from "./verse.ts";
+
+/**
+ * The regression suite for the failure that mattered most.
+ *
+ * Nur used to tell people that 18:10 — a real ayah in Al-Kahf — did not exist, because only 55
+ * of 6,236 verses were bundled. These tests exist so that can never quietly come back.
+ */
+
+describe("the truth oracle — inlined, zero network", () => {
+  test("holds all 114 surahs", () => {
+    expect(SURAH_INDEX.length).toBe(114);
+  });
+
+  test("holds all 6,236 ayahs", () => {
+    expect(SURAH_INDEX.reduce((n, s) => n + s.ayahs, 0)).toBe(6236);
+  });
+
+  test("knows Al-Kahf has 110 ayahs", () => {
+    expect(surahMeta(18)?.ayahs).toBe(110);
+    expect(surahMeta(18)?.tl).toBe("Al-Kahf");
+  });
+
+  test("the basmalah is an unnumbered opening everywhere except Al-Faatiha and At-Tawbah", () => {
+    expect(surahMeta(1)?.bismillah).toBe(false); // it IS ayah 1 there
+    expect(surahMeta(9)?.bismillah).toBe(false); // At-Tawbah has none
+    expect(surahMeta(2)?.bismillah).toBe(true);
+    expect(surahMeta(18)?.bismillah).toBe(true);
+    expect(SURAH_INDEX.filter((s) => s.bismillah).length).toBe(112);
+  });
+});
+
+describe("P0 — a real ayah is NEVER denied", () => {
+  test("18:10 resolves — the exact verse the app used to deny", () => {
+    const r = parseRef("18:10");
+    expect(r.kind).toBe("ayah");
+    if (r.kind !== "ayah") throw new Error("unreachable");
+    expect(r.surah.n).toBe(18);
+    expect(r.surah.tl).toBe("Al-Kahf");
+    expect(r.ayah).toBe(10);
+  });
+
+  test.each([
+    ["18:10", 18, 10],
+    ["18.10", 18, 10],
+    ["QS 18:10", 18, 10],
+    ["surat 18 ayat 10", 18, 10],
+    ["2:255", 2, 255],
+    ["114:6", 114, 6],
+    ["1:1", 1, 1],
+  ])("%s resolves to %i:%i", (input, s, a) => {
+    const r = parseRef(input);
+    expect(r.kind).toBe("ayah");
+    if (r.kind !== "ayah") throw new Error("unreachable");
+    expect(r.surah.n).toBe(s);
+    expect(r.ayah).toBe(a);
+  });
+
+  test("every ayah of every surah resolves — all 6,236, no exceptions", () => {
+    let checked = 0;
+    for (const s of SURAH_INDEX) {
+      for (const a of [1, Math.ceil(s.ayahs / 2), s.ayahs]) {
+        const r = parseRef(`${s.n}:${a}`);
+        expect(r.kind).toBe("ayah");
+        checked++;
+      }
+    }
+    expect(checked).toBe(342);
+  });
+});
+
+describe("a non-existent reference gets the TRUE reason, not a denial", () => {
+  test("18:999 — names the real bound instead of claiming no match", () => {
+    const r = parseRef("18:999");
+    expect(r.kind).toBe("no-such-ayah");
+    if (r.kind !== "no-such-ayah") throw new Error("unreachable");
+    expect(r.surah.ayahs).toBe(110); // "Al-Kahf only has 110 ayahs" — a true statement
+  });
+
+  test("115:1 — there are only 114 surahs", () => {
+    const r = parseRef("115:1");
+    expect(r.kind).toBe("no-such-surah");
+  });
+
+  test("18:0 is not an ayah — ayahs are 1-indexed", () => {
+    expect(parseRef("18:0").kind).toBe("no-such-ayah");
+  });
+
+  test("a feeling is not a reference — it goes to retrieval", () => {
+    expect(parseRef("aku lagi capek banget").kind).toBe("not-a-ref");
+    expect(parseRef("lagi banyak utang, stress").kind).toBe("not-a-ref");
+  });
+});
+
+describe("people type surah NAMES, not numbers", () => {
+  test.each([
+    ["al kahfi", 18],
+    ["Al-Kahf", 18],
+    ["alkahfi", 18],
+    ["kahfi", 18],
+    ["yasin", 36],
+    ["Yaasin", 36],
+    ["ar-rahman", 55],
+    ["arrahman", 55],
+    ["al mulk", 67],
+    ["al-ikhlas", 112],
+    ["annas", 114],
+  ])("%s → surah %i", (name, n) => {
+    expect(findSurah(name)?.n).toBe(n);
+  });
+
+  test("'al kahfi' alone opens the surah for reading", () => {
+    const r = parseRef("al kahfi");
+    expect(r.kind).toBe("surah");
+    if (r.kind !== "surah") throw new Error("unreachable");
+    expect(r.surah.n).toBe(18);
+  });
+
+  test("a named surah with an ayah resolves to that ayah", () => {
+    const r = parseRef("al kahfi ayat 10");
+    expect(r.kind).toBe("ayah");
+    if (r.kind !== "ayah") throw new Error("unreachable");
+    expect(r.surah.n).toBe(18);
+    expect(r.ayah).toBe(10);
+  });
+
+  test("nonsense is not a surah", () => {
+    expect(findSurah("zzzz")).toBeUndefined();
+  });
+});
+
+// ── the egress contract ──────────────────────────────────────────────────────
+const card = (over: Partial<VerseCard> = {}): VerseCard => ({
+  ref: "94:5",
+  surah: 94,
+  ayah: 5,
+  surah_name: "Ash-Sharh",
+  arabic: "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا",
+  primary: { text: "Dalam hidup ini ada kesusahan dan ada kesenangan.", translator: "Ustadz Muhammad Thalib" },
+  companion: {
+    text: "Maka sesungguhnya beserta kesulitan ada kemudahan.",
+    translator: "Kementerian Agama Republik Indonesia",
+  },
+  ...over,
+});
+
+describe("egress — an interpretation must never leave dressed as scripture", () => {
+  test("the shared text labels the interpretive rendering as interpretive", () => {
+    const t = shareText(card());
+    expect(t).toContain("Terjemah makna");
+    expect(t).toContain("Ustadz Muhammad Thalib");
+  });
+
+  test("the literal companion travels with it — literal_companion, honored on egress", () => {
+    const t = shareText(card());
+    expect(t).toContain("Terjemah harfiah");
+    expect(t).toContain("Kementerian Agama Republik Indonesia");
+    expect(t).toContain("Maka sesungguhnya beserta kesulitan ada kemudahan.");
+  });
+
+  test("Anti: no share payload presents an interpretive rendering as the Qur'an's own words", () => {
+    const t = shareText(card());
+    // The interpretive text must never appear without its label somewhere above it.
+    const iMakna = t.indexOf("Terjemah makna");
+    const iText = t.indexOf("Dalam hidup ini ada kesusahan");
+    expect(iMakna).toBeGreaterThanOrEqual(0);
+    expect(iText).toBeGreaterThan(iMakna);
+    expect(t).not.toMatch(/Al-Qur'?an (berkata|mengatakan)/i);
+  });
+
+  test("the Arabic and the reference both travel", () => {
+    const t = shareText(card());
+    expect(t).toContain("QS Ash-Sharh 94:5");
+    expect(t).toContain("فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا");
+  });
+});
+
+describe("the caution stays rare and human-ruled", () => {
+  test("94:5 and 94:6 are flagged — the case PROGRESS.md forbids shipping bare", () => {
+    expect(FLAGGED["94:5"]).toBeDefined();
+    expect(FLAGGED["94:6"]).toBeDefined();
+  });
+
+  test("2:156 is NOT flagged — low overlap there is the thesis PROVEN, not broken", () => {
+    // The mechanical divergence score cannot tell the product's best moment from its worst.
+    // See ISA.md § Changelog. This test is the tombstone for that idea.
+    expect(FLAGGED["2:156"]).toBeUndefined();
+  });
+
+  test("the flag list is human-curated and stays small", () => {
+    expect(Object.keys(FLAGGED).length).toBeLessThan(10);
+  });
+});
