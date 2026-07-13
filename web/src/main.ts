@@ -2,6 +2,7 @@ import "./styles.css";
 import "./read.css";
 import { announce } from "./announce.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
+import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
 import { compose, retrieve, type Corpus, type Hit, type Voice } from "./retrieve.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
@@ -315,6 +316,13 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  const ex = el.closest<HTMLElement>("[data-explain]");
+  if (ex) {
+    if (ex.dataset["explain"] === "open") openExplainer();
+    else closeExplainer();
+    return;
+  }
+
   const act = el.closest<HTMLButtonElement>("[data-act]");
   if (!act) return;
   const kind = act.dataset["act"];
@@ -409,6 +417,9 @@ async function bootCorpus(): Promise<void> {
       b.setAttribute("aria-pressed", String(b.dataset["size"] === savedSize));
     }
   }
+
+  // A reader who has already had the concept explained does not need the nudge again.
+  if (hasExplained()) document.getElementById("nur-explain-hint")?.classList.add("seen");
 
   // Shards from a previous corpus version are no longer this scripture. Drop them.
   void evictStaleCaches();

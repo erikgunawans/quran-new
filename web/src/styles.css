@@ -547,3 +547,190 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (prefers-reduced-motion: reduce) {
   .crisis-cta { transition: none; }
 }
+
+/* ── the chip is now a button ────────────────────────────────────────────────
+   The label a first-timer is confused BY is the label they press. */
+button.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color var(--t), color var(--t);
+}
+button.chip:hover { border-color: var(--line-strong); }
+button.chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.chip-q {
+  display: inline-grid;
+  place-items: center;
+  width: 14px; height: 14px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.62rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+/* ── the nudge on the empty state ────────────────────────────────────────────
+   Offered BEFORE the concept becomes confusing, not after. Disappears once read. */
+.explain-hint {
+  margin-top: 14px;
+  font: var(--step--1)/1.6 var(--f-ui);
+  color: var(--ink-3);
+}
+.explain-hint.seen { display: none; }
+.explain-hint b { color: var(--ink-2); font-weight: 600; }
+
+.linkish {
+  font: inherit;
+  font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.linkish:hover { text-decoration: underline; }
+.linkish:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ── the explainer ───────────────────────────────────────────────────────────
+   <dialog> + showModal() buys focus trapping, Escape-to-close, and an inert background — the
+   things a hand-rolled overlay always forgets. */
+dialog.explain {
+  width: min(72ch, calc(100vw - 32px));
+  max-height: min(86vh, 900px);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+dialog.explain::backdrop { background: oklch(0.10 0.01 155 / 0.72); }
+dialog.explain article { padding: 26px 28px 28px; }
+
+.explain-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.explain-head h2 {
+  margin: 0;
+  font: 600 var(--step-3)/1.25 var(--f-ui);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.explain-x {
+  margin-inline-start: auto;
+  flex: none;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  font-size: var(--step-0);
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  cursor: pointer;
+}
+.explain-x:hover { color: var(--ink); border-color: var(--line-strong); }
+.explain-x:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.explain-lead {
+  margin: 0 0 22px;
+  font: var(--step-1)/1.6 var(--f-ui);
+  color: var(--ink);
+  max-width: 62ch;
+}
+
+.explain-kinds {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-bottom: 26px;
+}
+.explain-kind {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+}
+.explain-kind p {
+  margin: 10px 0 0;
+  font: var(--step--1)/1.6 var(--f-ui);
+  color: var(--ink-2);
+}
+.explain-kind .chip { pointer-events: none; }
+
+.explain-h3 {
+  margin: 0 0 2px;
+  font: 600 var(--step-1)/1.35 var(--f-ui);
+  text-wrap: balance;
+}
+.explain-ref {
+  margin: 0 0 14px;
+  font: var(--step--1)/1 var(--f-ui);
+  color: var(--ink-3);
+}
+
+/* The argument. Two renderings of 2:156, side by side — the product's thesis, shown not told. */
+.explain-compare {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-bottom: 22px;
+}
+.explain-side {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+}
+.explain-txt {
+  margin: 10px 0 12px;
+  font: var(--step-0)/1.6 var(--f-ui);
+  color: var(--ink);
+}
+.explain-note {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font: var(--step--1)/1.6 var(--f-ui);
+  color: var(--ink-2);
+}
+
+.explain-why {
+  margin: 0 0 22px;
+  font: var(--step-0)/1.65 var(--f-ui);
+  color: var(--ink);
+  max-width: 62ch;
+}
+
+/* Telling the truth against ourselves. An explainer that only sells the product is advertising. */
+.explain-honest {
+  padding: 18px 20px;
+  border: 1px solid var(--caution);
+  background: var(--caution-wash);
+  border-radius: var(--r);
+  margin-bottom: 24px;
+}
+.explain-honest p {
+  margin: 0 0 10px;
+  font: var(--step--1)/1.65 var(--f-ui);
+  color: var(--ink);
+}
+.explain-honest p:last-child { margin-bottom: 0; }
+
+.explain-done { min-height: 44px; padding: 12px 20px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.explain[open] { animation: explain-in 260ms var(--ease) both; }
+  @keyframes explain-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.99); }
+    to   { opacity: 1; transform: none; }
+  }
+}

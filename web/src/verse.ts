@@ -50,10 +50,19 @@ export const FLAGGED: Record<string, string> = {
 
 function readingEl(r: Reading, lead: boolean): string {
   const label = lead ? "Terjemah makna" : "Terjemah harfiah";
+
+  // The chip IS the affordance.
+  //
+  // This label is the thing a first-timer is confused BY — two translations of the same verse,
+  // saying different things, with no way to learn why. So it is also the thing they press. An
+  // explainer parked behind an About link solves the problem for people who did not have it.
   return `
     <div class="reading ${lead ? "primary" : "companion"}">
       <div class="who">
-        <span class="chip ${lead ? "lead" : ""}">${label}</span>
+        <button class="chip ${lead ? "lead" : ""}" data-explain="open"
+                aria-label="${label} — apa bedanya? Buka penjelasan">
+          ${label} <span class="chip-q" aria-hidden="true">?</span>
+        </button>
         <span class="by">oleh <b>${esc(r.translator)}</b></span>
       </div>
       <p class="txt">${esc(r.text)}</p>
