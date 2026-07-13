@@ -150,5 +150,8 @@ export function toTranslations(records: readonly VerseRecord[], source: Source):
     lang,
     translator,
     text: r.text,
+    // Carries the companion role so the honesty gate can see it: the official literal
+    // translation must remain reachable beside the interpretive primary voice.
+    ...(source.display_role ? { display_role: source.display_role } : {}),
   }));
 }

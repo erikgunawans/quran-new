@@ -45,7 +45,11 @@ function canon(translations: Translation[] = []): CanonicalDataset {
   return { surahs, ayahs, translations };
 }
 
-const src = (slug: string, tier: 1 | 2 | 3 = 1): TafsirSource => ({
+const src = (
+  slug: string,
+  tier: 1 | 2 | 3 = 1,
+  role: "primary" | "companion" | "reference" = "reference",
+): TafsirSource => ({
   id: tafsirSourceId(slug),
   truth_class: TRUTH_INTERPRETIVE,
   name: slug,
@@ -53,6 +57,7 @@ const src = (slug: string, tier: 1 | 2 | 3 = 1): TafsirSource => ({
   lang: "id",
   era: "Classical",
   authority_tier: tier,
+  display_role: role,
 });
 
 const passage = (slug: string): TafsirPassage => ({
@@ -67,9 +72,37 @@ const passage = (slug: string): TafsirPassage => ({
 });
 
 const interp = (): InterpretiveDataset => ({
-  tafsir_sources: [src("ibn-kathir"), src("as-saadi", 2)],
+  tafsir_sources: [src("tafsiriyah-thalib", 3, "primary"), src("ibn-kathir"), src("as-saadi", 2)],
   tafsir_passages: [passage("ibn-kathir"), passage("as-saadi")],
 });
+
+/** Kemenag literal translation — the permanent companion. */
+const companion = (): Translation => ({
+  id: translationId("kemenag", 1, 1),
+  truth_class: TRUTH_CANONICAL,
+  translation_type: "literal",
+  ayah_id: AYAH,
+  lang: "id",
+  translator: "Kementerian Agama Republik Indonesia",
+  text: "Dengan nama Allah",
+  display_role: "companion",
+});
+
+/** Tafsiriyah — the primary voice, always attributed. */
+const primaryVoice = (): Translation => ({
+  id: translationId("tafsiriyah-thalib", 1, 1),
+  truth_class: "interpretive",
+  translation_type: "interpretive",
+  ayah_id: AYAH,
+  lang: "id",
+  translator: "Ustadz Muhammad Thalib",
+  text: "Dengan nama Allah yang Mahaluas belas kasih-Nya",
+  source_id: tafsirSourceId("tafsiriyah-thalib"),
+  authority_tier: 3,
+  display_role: "primary",
+});
+
+const full = () => canon([companion(), primaryVoice()]);
 
 const violations = (fn: () => unknown): string[] => {
   try {
@@ -93,30 +126,30 @@ describe("cleanText", () => {
 
 describe("interpretive gates", () => {
   test("a plural, attributed corpus passes", () => {
-    const report = validateInterpretive(canon(), interp());
-    expect(violations(() => validateInterpretive(canon(), interp()))).toEqual([]);
+    const report = validateInterpretive(full(), interp());
+    expect(violations(() => validateInterpretive(full(), interp()))).toEqual([]);
     expect(report.checks.some((c) => c.name === "plurality")).toBe(true);
   });
 
   test("rejects a single-voice corpus — one voice reads as authoritative", () => {
     const single: InterpretiveDataset = {
-      tafsir_sources: [src("ibn-kathir")],
+      tafsir_sources: [src("ibn-kathir", 1, "primary")],
       tafsir_passages: [passage("ibn-kathir")],
     };
-    expect(violations(() => validateInterpretive(canon(), single)).join()).toMatch(
+    expect(violations(() => validateInterpretive(full(), single)).join()).toMatch(
       /plural attribution requires at least 2/,
     );
   });
 
   test("rejects a passage whose source was never declared (provenance hole)", () => {
     const bad: InterpretiveDataset = { ...interp(), tafsir_passages: [passage("ghost-scholar")] };
-    expect(violations(() => validateInterpretive(canon(), bad)).join()).toMatch(/unknown source/);
+    expect(violations(() => validateInterpretive(full(), bad)).join()).toMatch(/unknown source/);
   });
 
   test("rejects a passage anchored to a nonexistent ayah", () => {
     const orphan = { ...passage("ibn-kathir"), ayah_id: ayahId(99, 99) };
     const bad: InterpretiveDataset = { ...interp(), tafsir_passages: [orphan, passage("as-saadi")] };
-    expect(violations(() => validateInterpretive(canon(), bad)).join()).toMatch(
+    expect(violations(() => validateInterpretive(full(), bad)).join()).toMatch(
       /outside the canonical corpus/,
     );
   });
@@ -126,7 +159,41 @@ describe("interpretive gates", () => {
       tafsir_sources: [src("ibn-kathir"), src("as-saadi"), src("silent")],
       tafsir_passages: [passage("ibn-kathir"), passage("as-saadi")],
     };
-    expect(violations(() => validateInterpretive(canon(), bad)).join()).toMatch(/contributes nothing/);
+    expect(violations(() => validateInterpretive(full(), bad)).join()).toMatch(/contributes nothing/);
+  });
+});
+
+describe("display roles — the honesty gate", () => {
+  test("rejects two sources both claiming to be the primary voice", () => {
+    const bad: InterpretiveDataset = {
+      tafsir_sources: [src("tafsiriyah-thalib", 3, "primary"), src("ibn-kathir", 1, "primary")],
+      tafsir_passages: [passage("tafsiriyah-thalib"), passage("ibn-kathir")],
+    };
+    expect(violations(() => validateInterpretive(full(), bad)).join()).toMatch(
+      /claim display_role "primary"/,
+    );
+  });
+
+  test("rejects a corpus with no primary voice", () => {
+    const bad: InterpretiveDataset = {
+      tafsir_sources: [src("ibn-kathir"), src("as-saadi", 2)],
+      tafsir_passages: [passage("ibn-kathir"), passage("as-saadi")],
+    };
+    expect(violations(() => validateInterpretive(full(), bad)).join()).toMatch(
+      /reading experience has no voice/,
+    );
+  });
+
+  /**
+   * The load-bearing test. Leading with an interpretive translation is only honest because
+   * the official literal one is permanently alongside it. Remove the companion and the
+   * product becomes exactly the thing it refuses to be — so the build must refuse to ship.
+   */
+  test("REFUSES to ship an interpretive primary with no literal companion", () => {
+    const noCompanion = canon([primaryVoice()]); // Tafsiriyah alone, Kemenag dropped
+    expect(violations(() => validateInterpretive(noCompanion, interp())).join()).toMatch(
+      /only honest if the literal one is always available alongside/,
+    );
   });
 });
 
@@ -166,16 +233,28 @@ describe("the literal ⟺ canonical invariant", () => {
 });
 
 describe("source registry", () => {
-  test("Tarjamah Tafsiriyah is registered as interpretive, tier 3, with a contestation note", () => {
+  test("Tafsiriyah is the PRIMARY voice and tier 3 — the two axes are independent", () => {
     const s = sourceById("tafsiriyah-thalib");
     expect(s.translation_type).toBe("interpretive");
-    expect(s.authority_tier).toBe(3);
-    expect(s.note).toMatch(/contested/i);
     expect(s.author).toBe("Ustadz Muhammad Thalib");
+    // It leads the reading experience (the mission)...
+    expect(s.display_role).toBe("primary");
+    // ...while carrying contemporary weight for grounding doctrinal claims (the scholarship).
+    expect(s.authority_tier).toBe(3);
   });
 
-  test("Kemenag is registered as a literal translation", () => {
-    expect(sourceById("tanzil-id-kemenag").translation_type).toBe("literal");
+  test("the Tafsiriyah note discloses what it is, without euphemism", () => {
+    const note = sourceById("tafsiriyah-thalib").note ?? "";
+    expect(note).toMatch(/meaning-based/i); // it says what it IS
+    expect(note).toMatch(/kemenag/i); // it names its relationship to the official translation
+    expect(note).toMatch(/debated|contested/i); // it does not hide the dispute
+    expect(note).toMatch(/never presented as the bare word/i); // the line we hold
+  });
+
+  test("Kemenag is the literal COMPANION — always available, never removed", () => {
+    const s = sourceById("tanzil-id-kemenag");
+    expect(s.translation_type).toBe("literal");
+    expect(s.display_role).toBe("companion");
   });
 
   test("toTafsirSource refuses a source missing attribution", () => {

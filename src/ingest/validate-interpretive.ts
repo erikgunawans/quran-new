@@ -94,6 +94,35 @@ export function validateInterpretive(
     }
   }
 
+  // ── Display roles: exactly one primary voice, and a companion always exists ──
+  //
+  // The mission is to lead with a rendering people can understand. That is legitimate, and
+  // it is only legitimate because the official literal translation stays permanently
+  // reachable beside it. Leading with an interpretive translation while hiding the literal
+  // one would be exactly the "ugly way" this product refuses. So the gate enforces BOTH:
+  // there is a primary voice, and there is always something to compare it against.
+  const primaries = [
+    ...interp.tafsir_sources.filter((s) => s.display_role === "primary").map((s) => s.id),
+  ];
+  if (primaries.length === 0) {
+    v.push(`no source has display_role "primary" — the reading experience has no voice`);
+  } else if (primaries.length > 1) {
+    v.push(`${primaries.length} sources claim display_role "primary": ${primaries.join(", ")} — pick one`);
+  } else {
+    pass("primary_voice", `${primaries[0]}`);
+  }
+
+  const companions = canon.translations.filter((t) => t.display_role === "companion");
+  const hasLiteralCompanion = companions.some((t) => t.translation_type === "literal");
+  if (!hasLiteralCompanion) {
+    v.push(
+      `no literal translation is marked display_role "companion" — leading with an interpretive ` +
+        `translation is only honest if the literal one is always available alongside it`,
+    );
+  } else {
+    pass("literal_companion", "official literal translation always available for comparison");
+  }
+
   // ── Plurality: the whole design assumes more than one voice ──────────
   if (interp.tafsir_sources.length < 2) {
     v.push(

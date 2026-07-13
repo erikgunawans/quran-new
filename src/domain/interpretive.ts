@@ -23,14 +23,33 @@ export const tafsirPassageId = (slug: string, surah: number, ayah: number): Tafs
   `tp:${slug}:${surah}:${ayah}`;
 
 /**
- * How much weight a source carries — NOT a claim that a lower tier is "wrong".
- * Tiering is a scholar-board decision, recorded here; engineers do not set it.
+ * Scholarly weight when GROUNDING A DOCTRINAL CLAIM — and nothing else.
+ * A scholar-board decision, recorded here; engineers do not set it.
  *
  *   1 — classical, broadly accepted across schools
  *   2 — modern, mainstream, widely taught
- *   3 — contemporary or contested; always shown WITH its attribution and caveat
+ *   3 — contemporary; still finding its place in scholarly consensus
+ *
+ * A lower tier is NOT a claim that a source is wrong, and it says NOTHING about how
+ * prominently a source is shown. See DisplayRole: the two axes are orthogonal, and
+ * conflating them makes a product either dishonest or unreadable.
  */
 export type AuthorityTier = 1 | 2 | 3;
+
+/**
+ * Prominence in the READING EXPERIENCE — a product decision, not a doctrinal one.
+ *
+ * This axis exists because of the mission: make the Qur'an understandable and
+ * heart-reaching. A literal rendering nobody can feel their way into fails that mission
+ * however officially sanctioned it is. So the reading surface may LEAD with a
+ * meaning-based (tafsiriyah) translation, while doctrinal CLAIMS stay grounded in the
+ * higher-tier tafsir corpus.
+ *
+ *   primary   — the default rendering. The product's voice.
+ *   companion — always one tap away for comparison. Never removed, never buried.
+ *   reference — grounding material behind cited answers; not the reading surface.
+ */
+export type DisplayRole = "primary" | "companion" | "reference";
 
 export interface TafsirSource {
   readonly id: TafsirSourceId;
@@ -41,7 +60,8 @@ export interface TafsirSource {
   /** Rough era, for display and for ordering plural views. */
   readonly era: string;
   readonly authority_tier: AuthorityTier;
-  /** Free-text note surfaced in the UI when a source is contested. */
+  readonly display_role: DisplayRole;
+  /** Shown with the source. States what it is plainly — a description, not a disclaimer. */
   readonly note?: string;
 }
 

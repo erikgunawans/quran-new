@@ -33,15 +33,16 @@ function requireInterpretiveMeta(source: Source): {
   lang: string;
   era: string;
   tier: 1 | 2 | 3;
+  role: "primary" | "companion" | "reference";
 } {
-  const { source_slug, author, lang, era, authority_tier } = source;
-  if (!source_slug || !author || !lang || !era || !authority_tier) {
+  const { source_slug, author, lang, era, authority_tier, display_role } = source;
+  if (!source_slug || !author || !lang || !era || !authority_tier || !display_role) {
     throw new Error(
       `source ${source.id}: interpretive sources must declare source_slug, author, lang, era, ` +
-        `and authority_tier — an unattributed opinion is a provenance hole`,
+        `authority_tier, and display_role — an unattributed opinion is a provenance hole`,
     );
   }
-  return { slug: source_slug, author, lang, era, tier: authority_tier };
+  return { slug: source_slug, author, lang, era, tier: authority_tier, role: display_role };
 }
 
 export function toTafsirSource(source: Source): TafsirSource {
@@ -54,6 +55,7 @@ export function toTafsirSource(source: Source): TafsirSource {
     lang: m.lang,
     era: m.era,
     authority_tier: m.tier,
+    display_role: m.role,
     ...(source.note ? { note: source.note } : {}),
   };
 }
@@ -131,7 +133,8 @@ export function parseTafsiriyahDump(json: string, source: Source): Translation[]
       const text = cleanText(String(v.translations?.["terjemahTafsiriyah"] ?? ""));
       if (!Number.isInteger(ayah) || text === "") continue;
       out.push({
-        id: translationId(m.lang, entry.surah, ayah!),
+        // Keyed on the source slug, NOT the language — Kemenag and Tafsiriyah are both "id".
+        id: translationId(m.slug, entry.surah, ayah!),
         truth_class: TRUTH_INTERPRETIVE,
         translation_type: "interpretive",
         ayah_id: ayahId(entry.surah, ayah!),
@@ -140,6 +143,7 @@ export function parseTafsiriyahDump(json: string, source: Source): Translation[]
         text,
         source_id: tafsirSourceId(m.slug),
         authority_tier: m.tier,
+        display_role: m.role,
         ...(source.note ? { note: source.note } : {}),
       });
     }

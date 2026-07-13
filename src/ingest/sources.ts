@@ -1,4 +1,4 @@
-import type { AuthorityTier } from "../domain/interpretive.ts";
+import type { AuthorityTier, DisplayRole } from "../domain/interpretive.ts";
 
 /**
  * Pinned source registry.
@@ -36,7 +36,8 @@ export interface Source {
   readonly author?: string;
   readonly era?: string;
   readonly authority_tier?: AuthorityTier;
-  /** Shown in the UI. Use it to state contestation plainly rather than burying it. */
+  readonly display_role?: DisplayRole;
+  /** Shown in the UI. States what the source IS, plainly. */
   readonly note?: string;
 }
 
@@ -71,6 +72,10 @@ export const SOURCES: readonly Source[] = [
     lang: "id",
     translator: "Kementerian Agama Republik Indonesia",
     translation_type: "literal",
+    // Companion, not primary: it is the official literal rendering and stays permanently
+    // available for comparison. Never removed, never buried — it is what makes leading with
+    // an interpretive translation defensible rather than evasive.
+    display_role: "companion",
   },
 
   // ── INTERPRETIVE — translation ──────────────────────────────────────────────
@@ -88,14 +93,25 @@ export const SOURCES: readonly Source[] = [
     source_slug: "tafsiriyah-thalib",
     author: "Ustadz Muhammad Thalib",
     era: "Contemporary (2012)",
+
+    // THE PRODUCT'S VOICE. This is the reason the platform exists: a rendering people can
+    // actually understand and be moved by, where the official literal translation leaves
+    // many readers cold. It leads the reading experience.
+    display_role: "primary",
+
+    // ...and it is still tier 3, because that axis answers a DIFFERENT question: how much
+    // weight it carries when the system grounds a doctrinal claim. Contemporary, and its
+    // place in scholarly consensus is still being argued. Leading the reading surface and
+    // being the final word on doctrine are not the same job. Both facts are true at once.
     authority_tier: 3,
+
     note:
-      "Interpretive translation (tarjamah tafsiriyah), not a literal translation and not a " +
-      "classical tafsir. Published as a critique of the official Kemenag translation and " +
-      "contested in Indonesia — Kemenag's Lajnah Pentashihan Mushaf Al-Qur'an raised objections " +
-      "regarding the official tashih process. Always display WITH attribution and alongside the " +
-      "Kemenag translation. Never present as the plain meaning of the verse. " +
-      "Scope and tier pending scholar-board ratification.",
+      "Terjemah makna (tarjamah tafsiriyah) oleh Ustadz Muhammad Thalib — a meaning-based " +
+      "rendering, not a word-for-word translation. Its clarity comes precisely from that: it " +
+      "renders what the verse means as the author understands it, rather than the bare words. " +
+      "Published in 2012 as a response to the official Kemenag translation, and debated in " +
+      "Indonesia on that basis. Presented as what it is, always named, always with the Kemenag " +
+      "literal translation available alongside. Never presented as the bare word of the Qur'an.",
   },
 
   // ── INTERPRETIVE — classical & modern tafsir ────────────────────────────────
@@ -107,6 +123,7 @@ export const SOURCES: readonly Source[] = [
     license: "Public domain / open dataset (spa5k/tafsir_api)",
     attribution: "Tafsir Ibn Kathir (abridged, English)",
     source_slug: "ibn-kathir",
+    display_role: "reference" as const,
     author: "Ismail ibn Kathir",
     lang: "en",
     era: "Classical (14th c.)",
@@ -120,6 +137,7 @@ export const SOURCES: readonly Source[] = [
     license: "Open dataset (spa5k/tafsir_api)",
     attribution: "Tafsir As-Sa'di — Indonesian",
     source_slug: "as-saadi",
+    display_role: "reference" as const,
     author: "Abd ar-Rahman as-Sa'di",
     lang: "id",
     era: "Modern (20th c.)",
@@ -133,6 +151,7 @@ export const SOURCES: readonly Source[] = [
     license: "Open dataset (spa5k/tafsir_api)",
     attribution: "Al-Mukhtasar fi at-Tafsir — Indonesian",
     source_slug: "mukhtasar",
+    display_role: "reference" as const,
     author: "Markaz Tafsir, Riyadh (committee)",
     lang: "id",
     era: "Contemporary",

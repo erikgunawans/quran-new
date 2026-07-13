@@ -87,8 +87,10 @@ export interface Translation {
   readonly text: string;
   /** Required for interpretive translations; absent for literal ones. */
   readonly source_id?: string;
-  /** Required for interpretive translations. Set by the scholar board, not by engineers. */
+  /** Scholarly weight for grounding claims. Set by the scholar board, not by engineers. */
   readonly authority_tier?: 1 | 2 | 3;
+  /** Prominence in the reading experience — a product decision, orthogonal to authority_tier. */
+  readonly display_role?: "primary" | "companion" | "reference";
   /** Surfaced in the UI when a source is contested. */
   readonly note?: string;
 }
