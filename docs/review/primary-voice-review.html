@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primary Voice Review — Tafsiriyah vs Kemenag</title>
+<style>
+  :root{
+    --bg:#FFFFFF;--surface:#F7F7F7;--surface-2:#FFFFFF;--border:#E8E8E8;--border-mid:#DDDDDD;
+    --ink:#111111;--body:#333333;--muted:#6E6E6E;
+    --red:#F14F44;--red-wash:rgba(241,79,68,.10);--blue:#3A7BD5;--blue-wash:rgba(58,123,213,.08);
+    --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+    --f-body:"Barlow",system-ui,-apple-system,sans-serif;
+    --f-mono:"Courier New",ui-monospace,monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#111111;--surface:#1A1A1A;--surface-2:#1E1E1E;--border:#222222;--border-mid:#2E2E2E;
+    --ink:#FFFFFF;--body:#E5E5E5;--muted:#888888;--blue:#5B9BF5;--blue-wash:rgba(58,123,213,.14);
+    color-scheme:dark;}}
+  :root[data-theme="light"]{--bg:#FFFFFF;--surface:#F7F7F7;--surface-2:#FFFFFF;--border:#E8E8E8;
+    --ink:#111111;--body:#333333;--muted:#6E6E6E;--blue:#3A7BD5;color-scheme:light;}
+  :root[data-theme="dark"]{--bg:#111111;--surface:#1A1A1A;--surface-2:#1E1E1E;--border:#222222;
+    --ink:#FFFFFF;--body:#E5E5E5;--muted:#888888;--blue:#5B9BF5;color-scheme:dark;}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--body);font-family:var(--f-body);line-height:1.7;margin:0;font-size:16px}
+  .wrap{max-width:min(100% - 2rem,1080px);margin:0 auto;padding:0 1rem 6rem}
+  header.mast{padding:3rem 0 1.6rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+  .slashes{display:inline-flex;gap:3px;margin-bottom:1.2rem}
+  .slashes i{width:5px;height:18px;background:var(--red);transform:skewX(-18deg);display:block}
+  .slashes i:nth-child(2){opacity:.7}.slashes i:nth-child(3){opacity:.4}
+  h1{font-family:var(--f-display);font-weight:900;text-transform:uppercase;font-size:clamp(2rem,5vw,3.4rem);
+    line-height:.95;margin:0 0 .8rem;color:var(--ink);letter-spacing:-.01em}
+  .dek{color:var(--body);max-width:65ch;margin:0}
+  .task{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);
+    padding:1.2rem 1.4rem;margin:1.6rem 0}
+  .task p{margin:0 0 .6rem}.task p:last-child{margin:0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--border);margin:1.4rem 0}
+  .stat{padding:.9rem 1.1rem;border-right:1px solid var(--border)}
+  .stat:last-child{border-right:none}
+  .stat b{display:block;font-family:var(--f-display);font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;font-size:.58rem;color:var(--muted);margin-bottom:.3rem}
+  .stat span{font-family:var(--f-display);font-weight:800;font-size:1.5rem;color:var(--ink)}
+  .theme{margin:2.6rem 0}
+  h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:1.5rem;
+    color:var(--ink);border-top:2px solid var(--border-mid);padding-top:.9rem;margin:0 0 1.2rem;letter-spacing:.01em}
+  h2 .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-weight:400}
+  .verse{border:1px solid var(--border);background:var(--surface-2);margin-bottom:1.2rem;padding:1.1rem 1.2rem}
+  .vh{display:flex;flex-wrap:wrap;align-items:baseline;gap:.7rem;margin-bottom:.7rem}
+  .ref{font-family:var(--f-mono);font-weight:700;color:var(--red);font-size:.9rem}
+  .why{color:var(--muted);font-size:.86rem;flex:1}
+  .sig{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);white-space:nowrap}
+  .sig.warn{color:var(--red);font-weight:700}
+  .ar{font-size:1.5rem;line-height:2;text-align:right;color:var(--ink);margin:.4rem 0 1rem;
+    padding-bottom:.9rem;border-bottom:1px solid var(--border)}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border)}
+  @media (max-width:720px){.pair{grid-template-columns:1fr}}
+  .col{padding:.9rem 1rem}
+  .col.lit{border-right:1px solid var(--border);background:var(--bg)}
+  .col.int{background:var(--blue-wash)}
+  @media (max-width:720px){.col.lit{border-right:none;border-bottom:1px solid var(--border)}}
+  .lbl{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+    font-size:.6rem;color:var(--muted);margin:0 0 .5rem}
+  .col.int .lbl{color:var(--blue)}
+  .txt{margin:0;color:var(--ink);font-size:.96rem;line-height:1.65}
+  .ground{margin-top:.8rem;border-top:1px solid var(--border);padding-top:.6rem}
+  .ground summary{font-family:var(--f-display);font-weight:700;text-transform:uppercase;
+    letter-spacing:.12em;font-size:.62rem;color:var(--muted);cursor:pointer}
+  .gp{font-size:.85rem;color:var(--body);margin:.7rem 0 0;padding-left:.8rem;border-left:2px solid var(--border-mid)}
+  .ga{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    font-size:.66rem;color:var(--ink);display:block;margin-bottom:.2rem}
+  .verdict{display:flex;flex-wrap:wrap;gap:.9rem;align-items:center;margin-top:.9rem;
+    padding-top:.8rem;border-top:1px solid var(--border)}
+  .vl{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+    font-size:.6rem;color:var(--muted)}
+  .verdict label{font-size:.84rem;color:var(--body);cursor:pointer;display:flex;align-items:center;gap:.3rem}
+  footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--border);
+    font-family:var(--f-display);text-transform:uppercase;letter-spacing:.2em;font-size:.6rem;color:var(--muted)}
+  @media print{.verdict input{-webkit-appearance:none;appearance:none;width:11px;height:11px;border:1px solid #666}
+    .ground{display:block}.ground summary{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+  <span class="slashes" aria-hidden="true"><i></i><i></i><i></i></span>
+  <h1>Primary Voice Review<br>Tafsiriyah vs Kemenag</h1>
+  <p class="dek">The product proposes to lead with the <strong>Tarjamah Tafsiriyah</strong> (Ustadz
+  Muhammad Thalib) because the official literal translation leaves many readers cold. This sheet
+  tests that claim where it matters most — on the 55 verses people actually arrive with
+  when they are struggling.</p>
+</header>
+
+<div class="task">
+  <p><strong>What we need from you.</strong> For each verse: read the Arabic, then both renderings.
+  Ask one question — <em>which one would actually reach a person in this state?</em></p>
+  <p>Mark <strong>⚠ changes the meaning</strong> whenever the Tafsiriyah says something the verse does
+  not say. That flag matters more than the preference: a rendering can be warmer and still be wrong,
+  and we would rather know now.</p>
+  <p>The tafsir corpus is shown under each verse so you can check the interpretive reading against
+  classical grounding. <em>This tool takes no position. The percentages are mechanical, not verdicts.</em></p>
+</div>
+
+<div class="stats">
+  <div class="stat"><b>Verses</b><span>55</span></div>
+  <div class="stat"><b>Avg expansion</b><span>1.17×</span></div>
+  <div class="stat"><b>Low overlap &lt;20%</b><span>16</span></div>
+  <div class="stat"><b>Themes</b><span>12</span></div>
+</div>
+
+<section class="theme"><h2>Hardship &amp; ease <span class="n">6</span></h2>
+      <article class="verse" id="v94-5">
+        <header class="vh">
+          <span class="ref">94:5</span>
+          <span class="why">&quot;With hardship comes ease&quot; — the consolation verse</span>
+          <span class="sig warn">overlap 0% · 1.30×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Karena sesungguhnya sesudah kesulitan itu ada kemudahan,</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ In the Name of Allah, the Most Gracious, the Most Merciful. أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ - وَوَضَعْنَا عَنكَ وِزْرَكَ - الَّذِي أَنقَضَ ظَهْرَكَ - وَرَفَعْنَا لَكَ ذِكْرَكَ - فَإِنَّ مَعَ الْعُسْرِ يُسْرًا - إِنَّ مَعَ الْعُسْرِ يُسْرًا - فَإِذَا فَرَغْتَ فَانصَبْ - وَإِلَىٰ رَبِّكَ فَارْغَب (1. Have We not opened your breast for you?)(2. And removed from yo…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Bukankah Kami telah melapangkan untukmu dadamu? Dan Kami telah menghilangkan dari padamu bebanmu, yang memberat-kan punggungmu? Dan Kami tinggikan bagimu sebutan (nama)mu. Karena sesungguhnya sesudah kesulitan itu ada kemudahan. Se-sungguhnya sesudah kesulitan itu ada kemudahan. Maka apabila kamu telah selesai (dari sesuatu urusan), kerjakanlah dengan sungguh-sungguh (urusan) yang lain, dan hanya…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sesungguhnya bersamaan dengan kesusahan dan kesempitan itu terdapat kemudahan, kelapangan, dan kemenangan.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="94:5"> Tafsiriyah</label>
+          <label><input type="radio" name="94:5"> Kemenag</label>
+          <label><input type="radio" name="94:5"> Tie</label>
+          <label><input type="radio" name="94:5"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v94-6">
+        <header class="vh">
+          <span class="ref">94:6</span>
+          <span class="why">The repetition that makes it a promise, not a coincidence</span>
+          <span class="sig warn">overlap 0% · 1.49×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">sesungguhnya sesudah kesulitan itu ada kemudahan.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ In the Name of Allah, the Most Gracious, the Most Merciful. أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ - وَوَضَعْنَا عَنكَ وِزْرَكَ - الَّذِي أَنقَضَ ظَهْرَكَ - وَرَفَعْنَا لَكَ ذِكْرَكَ - فَإِنَّ مَعَ الْعُسْرِ يُسْرًا - إِنَّ مَعَ الْعُسْرِ يُسْرًا - فَإِذَا فَرَغْتَ فَانصَبْ - وَإِلَىٰ رَبِّكَ فَارْغَب (1. Have We not opened your breast for you?)(2. And removed from yo…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Bukankah Kami telah melapangkan untukmu dadamu? Dan Kami telah menghilangkan dari padamu bebanmu, yang memberat-kan punggungmu? Dan Kami tinggikan bagimu sebutan (nama)mu. Karena sesungguhnya sesudah kesulitan itu ada kemudahan. Se-sungguhnya sesudah kesulitan itu ada kemudahan. Maka apabila kamu telah selesai (dari sesuatu urusan), kerjakanlah dengan sungguh-sungguh (urusan) yang lain, dan hanya…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sesungguhnya bersamaan dengan kesusahan dan kesempitan itu terdapat kemudahan, kelapangan, dan kemenangan. Jika engkau mengerti hal itu maka janganlah sampai gangguan kaummu itu membuatmu takut dan janganlah sampai hal itu menghalangimu dari dakwah ke jalan Allah.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="94:6"> Tafsiriyah</label>
+          <label><input type="radio" name="94:6"> Kemenag</label>
+          <label><input type="radio" name="94:6"> Tie</label>
+          <label><input type="radio" name="94:6"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v65-7">
+        <header class="vh">
+          <span class="ref">65:7</span>
+          <span class="why">Allah will bring ease after difficulty</span>
+          <span class="sig ">overlap 21% · 1.10×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">لِيُنفِقْ ذُو سَعَةٍ مِّن سَعَتِهِۦ ۖ وَمَن قُدِرَ عَلَيْهِ رِزْقُهُۥ فَلْيُنفِقْ مِمَّآ ءَاتَىٰهُ ٱللَّهُ ۚ لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا مَآ ءَاتَىٰهَا ۚ سَيَجْعَلُ ٱللَّهُ بَعْدَ عُسْرٍ يُسْرًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Hendaklah orang yang mampu memberi nafkah menurut kemampuannya. Dan orang yang disempitkan rezekinya hendaklah memberi nafkah dari harta yang diberikan Allah kepadanya. Allah tidak memikulkan beban kepada seseorang melainkan sekedar apa yang Allah berikan kepadanya. Allah kelak akan memberikan kelapangan sesudah kesempitan.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Hendaklah suami yang kaya memberikan belanja kepada istri-istrinya sesuai kekayaannya. Adapun suami yang miskin, hendaklah ia memberikan belanja kepada istri-istrinya sesuai dengan rezeki yang Allah berikan kepadanya. Allah tidak akan memaksa seseorang di luar kemampuan yang telah Allah berikan kepadanya. Allah akan mendatangkan kemudahan setelah kesulitan.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Lodge them where you dwell, according to what you have, and do not harm them so as to suppress them. And if they are pregnant, then spend on them till they lay down their burden. Then if they suckle the children for you, give them their due payment, and let each of you deal with each other in a mannerly way. But if you make difficulties for one another, then some other woman may suckle for him (6)…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Tempatkanlah mereka (para istri) di mana kamu bertempat tinggal menurut kemampuanmu dan janganlah kamu menyusahkan mereka untuk menyempitkan (hati) mereka. Dan jika mereka (istri-istri yang sudah ditalak) itu sedang hamil, maka berikanlah kepada mereka itu nafkahnya hingga mereka bersalin, kemudian jika mereka menyusukan (anak-anak)mu untukmu, maka berikan-lah kepada mereka upahnya; dan musyawara…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Hendaknya orang-orang yang mempunyai keleluasaan dalam harta itu memberikan nafkah kepada istri yang sudah ditalaknya dan anaknya sesuai dengan kemampuannya. Barang siapa yang disempitkan rezekinya maka hendaknya ia memberikan nafkah dari apa yang diberikan Allah kepadanya. Allah tidak membebani seseorang kecuali sesuai dengan apa yang diberikan oleh Allah kepadanya. Dia tidak membebaninya lebih d…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="65:7"> Tafsiriyah</label>
+          <label><input type="radio" name="65:7"> Kemenag</label>
+          <label><input type="radio" name="65:7"> Tie</label>
+          <label><input type="radio" name="65:7"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-286">
+        <header class="vh">
+          <span class="ref">2:286</span>
+          <span class="why">&quot;Allah burdens no soul beyond what it can bear&quot;</span>
+          <span class="sig ">overlap 32% · 1.11×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا ٱكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَآ إِن نَّسِينَآ أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَآ إِصْرًا كَمَا حَمَلْتَهُۥ عَلَى ٱلَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِۦ ۖ وَٱعْفُ عَنَّا وَٱغْفِرْ لَنَا وَٱرْحَمْنَآ ۚ أَنتَ مَوْلَىٰنَا فَٱنصُرْنَا عَلَى ٱلْقَوْمِ ٱلْكَٰفِرِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Allah tidak membebani seseorang melainkan sesuai dengan kesanggupannya. Ia mendapat pahala (dari kebajikan) yang diusahakannya dan ia mendapat siksa (dari kejahatan) yang dikerjakannya. (Mereka berdoa): &quot;Ya Tuhan kami, janganlah Engkau hukum kami jika kami lupa atau kami tersalah. Ya Tuhan kami, janganlah Engkau bebankan kepada kami beban yang berat sebagaimana Engkau bebankan kepada orang-orang sebelum kami. Ya Tuhan kami, janganlah Engkau pikulkan kepada kami apa yang tak sanggup kami memikulnya. Beri maaflah kami; ampunilah kami; dan rahmatilah kami. Engkaulah Penolong kami, maka tolonglah kami terhadap kaum yang kafir&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Allah tidak membebani seseorang melebihi kemampuannya. Seseorang akan mendapatkan pahala dari setiap amal shalihnya dan bertanggung jawab atas setiap kesalahannya. Orang-orang mukmin berdo'a: &quot;Ya Tuhan kami, janganlah Engkau siksa kami karena kami lupa atau kami keliru. Wahai Tuhan kami, janganlah Engkau bebankan perintah dan larangan kepada kami seperti yang telah Engkau bebankan kepada orang-orang sebelum kami. Wahai Tuhan kami, janganlah Engkau bebankan perintah dan larangan kepada kami yang kami tidak sanggup memikulnya. Maafkanlah kami atas kelemahan kami. Ampunilah kami atas dosa-dosa kami. Sayangilah kami, Engkaulah Tuhan kami. Karena itu tolonglah kami mengalahkan orang-orang kafir.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> The Messenger believes in what has been sent down to him from his Lord, and (so do) the believers. Each one believes in Allah, His Angels, His Books, and His Messengers. (They say,) &quot;We make no distinction between one another of His Messengers ـ and they say, &quot;We hear, and we obey. (We seek) Your forgiveness, our Lord, and to You is the return (of all). (285)Allah burdens not a person beyond his s…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Rasul telah beriman kepada al-Qur`an yang diturunkan ke-padanya dari Rabbnya, demikian pula orang-orang yang beriman. Semuanya beriman kepada Allah, malaikat-malaikatNya, kitab-kitabNya dan rasul-rasulNya. (Mereka mengatakan), 'Kami tidak membeda-bedakan antara seseorang pun (dengan yang lain) dari rasul-rasulNya,' dan mereka mengatakan, 'Kami dengar dan kami taat.' (Mereka berdoa), 'Ampunilah ka…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Allah tidak membebani seseorang kecuali dengan sesuatu yang sanggup dilakukannya karena agama Allah dibangun di atas asas kemudahan, sehingga tidak ada sesuatu yang memberatkan di dalamnya. Barang siapa berbuat baik, dia akan mendapatkan ganjaran atas apa yang dia lakukan, tanpa dikurangi sedikit pun, dan barang siapa berbuat buruk, dia akan memikul dosanya sendiri, tidak dipikul oleh orang lain. …</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:286"> Tafsiriyah</label>
+          <label><input type="radio" name="2:286"> Kemenag</label>
+          <label><input type="radio" name="2:286"> Tie</label>
+          <label><input type="radio" name="2:286"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v65-2">
+        <header class="vh">
+          <span class="ref">65:2</span>
+          <span class="why">A way out for the one who is conscious of God</span>
+          <span class="sig ">overlap 33% · 1.26×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَإِذَا بَلَغْنَ أَجَلَهُنَّ فَأَمْسِكُوهُنَّ بِمَعْرُوفٍ أَوْ فَارِقُوهُنَّ بِمَعْرُوفٍ وَأَشْهِدُوا۟ ذَوَىْ عَدْلٍ مِّنكُمْ وَأَقِيمُوا۟ ٱلشَّهَٰدَةَ لِلَّهِ ۚ ذَٰلِكُمْ يُوعَظُ بِهِۦ مَن كَانَ يُؤْمِنُ بِٱللَّهِ وَٱلْيَوْمِ ٱلْـَٔاخِرِ ۚ وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Apabila mereka telah mendekati akhir iddahnya, maka rujukilah mereka dengan baik atau lepaskanlah mereka dengan baik dan persaksikanlah dengan dua orang saksi yang adil di antara kamu dan hendaklah kamu tegakkan kesaksian itu karena Allah. Demikianlah diberi pengajaran dengan itu orang yang beriman kepada Allah dan hari akhirat. Barangsiapa bertakwa kepada Allah niscaya Dia akan mengadakan baginya jalan keluar.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, apabila perempuan yang ditalak telah sampai pada hari akhir masa iddahnya, maka kalian boleh rujuk dengan baik atau kalian lanjutkan perceraian itu dengan baik. Rujuk kalian itu, persaksikanlah kepada dua orang laki-laki mukmin yang adil. Wahai kaum mukmin, berikanlah kesaksian karena Allah. Itulah nasehat yang diberikan kepada orang-orang yang beriman kepada Allah dan hari akhir. Siapa saja yang taat kepada Allah dan bertauhid, pasti Allah akan memberikan jalan keluar baginya dari segala kesulitan.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Then when they are about to attain their term appointed, either take them back in a good manner or part with them in a good manner. And take as witness two just persons from among you. And establish the testimony for Allah. That will be an admonition given to him who believes in Allah and the Last Day. And whosoever has Taqwa of Allah, He will make a way for him to get out (2)And He will provide h…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai Nabi, apabila kamu menceraikan istri-istrimu, maka hendaklah kamu ceraikan mereka pada waktu mereka dapat (menghadapi) iddahnya (yang wajar) dan hitunglah waktu iddah itu serta bertakwalah kepada Allah, Rabbmu. Janganlah kamu keluarkan mereka dari rumah mereka dan janganlah mereka (di-izinkan) keluar kecuali kalau mereka mengerjakan perbuatan keji yang terang. Itulah hukum-hukum Allah, dan ba…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Jika mereka telah mendekati masa berakhirnya idah mereka maka rujuklah mereka demi cinta dan hubungan yang baik atau biarkan kalian tidak merujuk mereka hingga idah mereka berakhir lalu mereka berkuasa atas diri mereka dengan kalian berikan kepada mereka hak-hak mereka. Jika kalian hendak merujuk mereka atau berpisah dengan mereka maka persaksikan dua saksi yang adil dari kalian sebagai upaya menc…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="65:2"> Tafsiriyah</label>
+          <label><input type="radio" name="65:2"> Kemenag</label>
+          <label><input type="radio" name="65:2"> Tie</label>
+          <label><input type="radio" name="65:2"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-214">
+        <header class="vh">
+          <span class="ref">2:214</span>
+          <span class="why">&quot;When will Allah's help come?&quot; — the cry of the tested</span>
+          <span class="sig ">overlap 34% · 1.26×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">أَمْ حَسِبْتُمْ أَن تَدْخُلُوا۟ ٱلْجَنَّةَ وَلَمَّا يَأْتِكُم مَّثَلُ ٱلَّذِينَ خَلَوْا۟ مِن قَبْلِكُم ۖ مَّسَّتْهُمُ ٱلْبَأْسَآءُ وَٱلضَّرَّآءُ وَزُلْزِلُوا۟ حَتَّىٰ يَقُولَ ٱلرَّسُولُ وَٱلَّذِينَ ءَامَنُوا۟ مَعَهُۥ مَتَىٰ نَصْرُ ٱللَّهِ ۗ أَلَآ إِنَّ نَصْرَ ٱللَّهِ قَرِيبٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Apakah kamu mengira bahwa kamu akan masuk surga, padahal belum datang kepadamu (cobaan) sebagaimana halnya orang-orang terdahulu sebelum kamu? Mereka ditimpa oleh malapetaka dan kesengsaraan, serta digoncangkan (dengan bermacam-macam cobaan) sehingga berkatalah Rasul dan orang-orang yang beriman bersamanya: &quot;Bilakah datangnya pertolongan Allah?&quot; Ingatlah, sesungguhnya pertolongan Allah itu amat dekat.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum muslim, apakah kalian mengira dapat masuk surga hanya karena kalian mengaku beriman, padahal belum datang cobaan kepada kalian seperti cobaan yang telah menimpa orang-orang mukmin sebelum kalian. Orang-orang mukmin ditimpa malapetaka dan berbagai bencana. Mereka digoncang oleh berbagai gangguan orang-orang kafir, sehingga Rasul dan orang-orang mukmin yang menjadi shahabatnya berkata: &quot;Kapankah pertolongan Allah itu datang?&quot; Wahai kaum muslim, ketahuilah bahwa pertolongan Allah itu telah dekat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Or think you that you will enter Paradise without such (trials) as came to those who passed away before you? They were afflicted with severe poverty and ailments and were so shaken that even the Messenger and those who believed along with him said, &quot;When (will come) the help of Allah&quot; Yes! Certainly, the help of Allah is near (214) Victory only comes after succeeding in the Trials Allah said: أَمْ…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Apakah kamu mengira bahwa kamu akan masuk surga, padahal belum datang kepadamu (cobaan) sebagaimana halnya orang-orang terdahulu sebelum kamu? Mereka ditimpa oleh mala-petaka dan kesengsaraan, serta digoncangkan (dengan bermacam-macam cobaan) sehingga berkatalah Rasul dan orang-orang yang beriman bersamanya, 'Bilakah datangnya pertolongan Allah?' Ingatlah, sesungguhnya pertolongan Allah itu amat …</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Apakah kalian -wahai orang-orang mukmin- menyangka akan masuk surga sedangkan kalian belum menerima ujian seperti yang diterima oleh orang-orang sebelum kalian. Mereka dahulu ditimpa kemiskinan dan penyakit yang berat, serta diguncang oleh beragam ketakutan. Bahkan ujian yang mereka terima memaksa mereka untuk meminta segera diberikan pertolongan dari Allah. Sehingga Rasul dan orang-orang mukmin y…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:214"> Tafsiriyah</label>
+          <label><input type="radio" name="2:214"> Kemenag</label>
+          <label><input type="radio" name="2:214"> Tie</label>
+          <label><input type="radio" name="2:214"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Anxiety &amp; fear <span class="n">6</span></h2>
+      <article class="verse" id="v13-28">
+        <header class="vh">
+          <span class="ref">13:28</span>
+          <span class="why">Hearts find rest in the remembrance of God</span>
+          <span class="sig ">overlap 48% · 1.03×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">(yaitu) orang-orang yang beriman dan hati mereka manjadi tenteram dengan mengingat Allah. Ingatlah, hanya dengan mengingati Allah-lah hati menjadi tenteram.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">yaitu mereka yang beriman dan hatinya menjadi tenteram ketika mengingat Allah. Ketahuilah, sesungguhnya dengan mengingat Allah semua hati akan menjadi tenteram.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And those who disbelieved say: &quot;Why is not a sign sent down to him from his Lord&quot; Say: &quot;Verily, Allah sends astray whom He wills and guides unto Himself those who turn to Him in repentance. (27)Those who believed and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest (28)Those who believed, and work righteousness, Tuba is for them and a beau…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Orang-orang kafir berkata, 'Mengapa tidak diturunkan ke-padanya (Muhammad) tanda (mukjizat) dari Rabbnya?' Katakan-lah, 'Sesungguhnya Allah menyesatkan siapa yang Dia kehendaki dan menunjuki orang-orang yang bertaubat kepadaNya.' (Yaitu) orang-orang yang beriman dan hati mereka menjadi tentram dengan mengingat Allah. Ingatlah, hanya dengan mengingati Allah-lah hati menjadi tentram. Orang-orang ya…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Orang-orang yang Allah beri petunjuk itu adalah orang-orang yang beriman dan hati mereka merasa tenang dengan mengingat Allah dan berzikir kepada-Nya, baik dengan bertasbih dan bertahmid kepada-Nya, membaca Kitab-Nya dan mendengarkan bacaannya, ataupun dengan jenis-jenis zikir lainnya. Ingatlah bahwa hanya dengan berzikir kepada Allah hati akan menjadi tenang dan tenteram, dan hati memang pantas m…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="13:28"> Tafsiriyah</label>
+          <label><input type="radio" name="13:28"> Kemenag</label>
+          <label><input type="radio" name="13:28"> Tie</label>
+          <label><input type="radio" name="13:28"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v3-139">
+        <header class="vh">
+          <span class="ref">3:139</span>
+          <span class="why">&quot;Do not lose heart, do not grieve&quot;</span>
+          <span class="sig warn">overlap 13% · 1.09×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Janganlah kamu bersikap lemah, dan janganlah (pula) kamu bersedih hati, padahal kamulah orang-orang yang paling tinggi (derajatnya), jika kamu orang-orang yang beriman.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, janganlah kalian merasa hina dan jangan bersedih. Dan akhirnya kalian akan dapat mengalahkan kaum kafir, jika kalian benar-benar beriman kepada Allah dan Rasul-Nya.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Many similar ways (and mishaps of life) were faced [by nations (believers and disbelievers) that have passed away] before you, so travel through the earth, and see what was the end of those who denied (137)This is a plain statement for mankind, a guidance and instruction for the Muttaqin (138)So do not become weak, nor be sad, and you will be triumphant if you are indeed believers (139)If a wound …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Janganlah kamu bersikap lemah, dan janganlah (pula) kamu bersedih hati, padahal kamulah orang-orang yang paling tinggi (derajatnya), jika kamu orang-orang yang beriman. Jika kamu (pada perang Uhud) mendapat luka, maka sesungguhnya kaum (kafir) itu pun (pada perang Badar) mendapat luka yang serupa. Dan masa (kejayaan dan kehancuran) itu Kami pergilirkan di antara manusia (agar mereka mendapat pela…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Janganlah kalian -wahai orang-orang mukmin- menjadi lemah dan bersedih hati atas apa yang menimpa kalian dalam perang Uhud. Tidak sepatutnya kalian bersikap seperti itu karena kalian adalah orang-orang yang paling mulia dengan keimanan kalian, dan paling terhormat dengan adanya bantuan Allah dan harapan akan datangnya pertolongan dari-Nya, jika kalian beriman kepada Allah dan percaya akan janji-Ny…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:139"> Tafsiriyah</label>
+          <label><input type="radio" name="3:139"> Kemenag</label>
+          <label><input type="radio" name="3:139"> Tie</label>
+          <label><input type="radio" name="3:139"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v9-40">
+        <header class="vh">
+          <span class="ref">9:40</span>
+          <span class="why">&quot;Do not grieve — Allah is with us&quot;</span>
+          <span class="sig ">overlap 23% · 1.16×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">إِلَّا تَنصُرُوهُ فَقَدْ نَصَرَهُ ٱللَّهُ إِذْ أَخْرَجَهُ ٱلَّذِينَ كَفَرُوا۟ ثَانِىَ ٱثْنَيْنِ إِذْ هُمَا فِى ٱلْغَارِ إِذْ يَقُولُ لِصَٰحِبِهِۦ لَا تَحْزَنْ إِنَّ ٱللَّهَ مَعَنَا ۖ فَأَنزَلَ ٱللَّهُ سَكِينَتَهُۥ عَلَيْهِ وَأَيَّدَهُۥ بِجُنُودٍ لَّمْ تَرَوْهَا وَجَعَلَ كَلِمَةَ ٱلَّذِينَ كَفَرُوا۟ ٱلسُّفْلَىٰ ۗ وَكَلِمَةُ ٱللَّهِ هِىَ ٱلْعُلْيَا ۗ وَٱللَّهُ عَزِيزٌ حَكِيمٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Jikalau kamu tidak menolongnya (Muhammad) maka sesungguhnya Allah telah menolongnya (yaitu) ketika orang-orang kafir (musyrikin Mekah) mengeluarkannya (dari Mekah) sedang dia salah seorang dari dua orang ketika keduanya berada dalam gua, di waktu dia berkata kepada temannya: &quot;Janganlah kamu berduka cita, sesungguhnya Allah beserta kita&quot;. Maka Allah menurunkan keterangan-Nya kepada (Muhammad) dan membantunya dengan tentara yang kamu tidak melihatnya, dan Al-Quran menjadikan orang-orang kafir itulah yang rendah. Dan kalimat Allah itulah yang tinggi. Allah Maha Perkasa lagi Maha Bijaksana.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, jika kalian tidak mau menolong Rasul, maka Allah telah menolongnya ketika kaum kafir Quraisy mengusirnya dari Makkah. Rasul disertai oleh Abu Bakar, sehingga menjadi berdua ketika berada di gua Tsur. Wahai kaum mukmin, ingatlah ketika Rasul berkata kepada Abu Bakar: &quot;Janganlah kamu merasa sedih. Allah pasti membela kita.&quot; Wahai kaum mukmin, ingatlah ketika perang Badar, Allah menurunkan ketenangan kepada Rasul dan memperkuat pasukannya dengan tentara-tentara yang tidak kalian lihat. Allah telah menetapkan bahwa agama orang kafir itu hina, sedangkan agama Allah itulah yang mulia. Allah Mahaperkasa mengalahkan orang kafir, dan Mahabijaksana mengatur siasat-Nya.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> If you help him (Muhammad ﷺ) not (it does not matter), for Allah did indeed help him when the disbelievers drove him out, the second of the two; when they were both in the cave, he said to his companion: &quot;Be not sad (or afraid), surely, Allah is with us.&quot; Then Allah sent down His Sakinah (calmness, tranquillity, peace) upon him, and strengthened him with forces (angels) which you saw not, and made…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Jikalau kamu tidak menolongnya (Muhammad) maka se-sungguhnya Allah telah menolongnya (yaitu) ketika orang-orang kafir (musyrikin Makkah) mengeluarkannya (dari Makkah) sedang dia salah seorang dari dua orang ketika keduanya berada dalam gua, di waktu dia berkata kepada sahabatnya, 'Janganlah kamu berduka cita, sesungguhnya Allah beserta kita.' Maka Allah menu-runkan ketenanganNya kepada (Muhammad)…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Apabila kalian -wahai orang-orang mukmin- tidak mau menolong Rasulullah -ṣallallāhu 'alaihi wa sallam- maupun memenuhi seruannya untuk berjihad di jalan Allah maka sebenarnya Allah telah menolongnya tanpa kalian, yaitu di saat orang-orang musyrik mengusirnya bersama Abu Bakar -raḍiallāhu ‘anhu-. Ketika itu keduanya bersembunyi di dalam Gua Ṡūr untuk menghindari kejaran orang-orang kafir, yaitu ket…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="9:40"> Tafsiriyah</label>
+          <label><input type="radio" name="9:40"> Kemenag</label>
+          <label><input type="radio" name="9:40"> Tie</label>
+          <label><input type="radio" name="9:40"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v20-46">
+        <header class="vh">
+          <span class="ref">20:46</span>
+          <span class="why">&quot;Fear not. I am with you, hearing and seeing&quot;</span>
+          <span class="sig ">overlap 26% · 1.32×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">قَالَ لَا تَخَافَآ ۖ إِنَّنِى مَعَكُمَآ أَسْمَعُ وَأَرَىٰ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Allah berfirman: &quot;Janganlah kamu berdua khawatir, sesungguhnya Aku beserta kamu berdua, Aku mendengar dan melihat&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Allah berfirman: &quot;Wahai Musa dan Harun, janganlah kamu takut. Sungguh Aku senantiasa melindungi kamu berdua. Aku mendengarkan dan mengawasi kamu berdua.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Both of them said: &quot;Our Lord! Verily, we fear lest he should hasten to punish us or lest he should transgress. (45)He (Allah) said: &quot;Fear not, verily, I am with you both, hearing and seeing. (46)&quot;So go you both to him, and say: 'Verily, we are both Messengers of your Lord, so let the Children of Israel go with us, and torment them not; indeed, we have come with a sign from your Lord! And peace wil…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Pergilah kamu beserta saudaramu dengan membawa ayat-ayatKu, dan janganlah kalian berdua lalai dalam mengingatKu. Pergilah kamu berdua kepada Fir'aun, sesungguhnya dia telah melampaui batas; maka berbicaralah kamu berdua kepadanya dengan kata-kata yang lemah lembut, mudah-mudahan dia ingat atau takut.&quot; Berkatalah mereka berdua, &quot;Ya Rabb kami, sesung-guhnya kami khawatir bahwa dia segera menyiksa k…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Allah berfirman kepada keduanya, &quot;Janganlah kalian berdua khawatir karena Aku bersama kalian untuk menolong dan melindungi kalian. Aku akan mendengar dan melihat apa yang akan terjadi antara kalian dan dia.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="20:46"> Tafsiriyah</label>
+          <label><input type="radio" name="20:46"> Kemenag</label>
+          <label><input type="radio" name="20:46"> Tie</label>
+          <label><input type="radio" name="20:46"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v41-30">
+        <header class="vh">
+          <span class="ref">41:30</span>
+          <span class="why">The angels: &quot;do not fear, and do not grieve&quot;</span>
+          <span class="sig ">overlap 37% · 1.00×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">إِنَّ ٱلَّذِينَ قَالُوا۟ رَبُّنَا ٱللَّهُ ثُمَّ ٱسْتَقَٰمُوا۟ تَتَنَزَّلُ عَلَيْهِمُ ٱلْمَلَٰٓئِكَةُ أَلَّا تَخَافُوا۟ وَلَا تَحْزَنُوا۟ وَأَبْشِرُوا۟ بِٱلْجَنَّةِ ٱلَّتِى كُنتُمْ تُوعَدُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Sesungguhnya orang-orang yang mengatakan: &quot;Tuhan kami ialah Allah&quot; kemudian mereka meneguhkan pendirian mereka, maka malaikat akan turun kepada mereka dengan mengatakan: &quot;Janganlah kamu takut dan janganlah merasa sedih; dan gembirakanlah mereka dengan jannah yang telah dijanjikan Allah kepadamu&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Sesungguhnya orang-orang yang berkata: &quot;Tuhan kami adalah Allah&quot;, kemudian mereka tidak menyekutukan Allah sedikitpun, kelak di akhirat para malaikat akan turun kepada mereka dengan berkata: &quot;Kalian jangan takut dan jangan bersedih. Bergembiralah kalian dengan surga yang dijanjikan kepada kalian.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Verily, those who say: &quot;Our Lord is Allah,&quot; and then they stand firm, on them the angels will descend (saying): &quot;Fear not, nor grieve! But receive the glad tidings of Paradise which you have been promised! (30)&quot;We have been your friends in the life of this world and are (so) in the Hereafter. Therein you shall have (all) that your souls desire, and therein you shall have (all) for which you ask. (…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Sesungguhnya orang-orang yang mengatakan, 'Rabb kami ialah Allah,' kemudian mereka meneguhkan pendirian mereka, maka malaikat akan turun kepada mereka, 'Janganlah kamu me-rasa takut dan janganlah kamu merasa sedih; dan bergembiralah kamu dengan surga yang telah dijanjikan Allah kepadamu.' Kami-lah pelindung-pelindungmu dalam kehidupan dunia dan di akhirat; di dalamnya kamu memperoleh apa yang kam…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sesungguhnya orang-orang yang berkata, “Tuhan kami adalah Allah, tidak ada tuhan bagi kami kecuali Allah” dan mereka istikamah menjalankan perintah-Nya dan menjauhi larangan-Nya maka para malaikat turun kepada mereka saat mereka menghadapi ajal dengan mengatakan, “Janganlah kalian takut kepada kematian dan kejadian sesudahnya dan jangan bersedih atas dunia yang kalian tinggalkan, tetapi berbahagia…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="41:30"> Tafsiriyah</label>
+          <label><input type="radio" name="41:30"> Kemenag</label>
+          <label><input type="radio" name="41:30"> Tie</label>
+          <label><input type="radio" name="41:30"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-112">
+        <header class="vh">
+          <span class="ref">2:112</span>
+          <span class="why">No fear shall be upon them, nor shall they grieve</span>
+          <span class="sig warn">overlap 13% · 1.15×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">بَلَىٰ مَنْ أَسْلَمَ وَجْهَهُۥ لِلَّهِ وَهُوَ مُحْسِنٌ فَلَهُۥٓ أَجْرُهُۥ عِندَ رَبِّهِۦ وَلَا خَوْفٌ عَلَيْهِمْ وَلَا هُمْ يَحْزَنُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">(Tidak demikian) bahkan barangsiapa yang menyerahkan diri kepada Allah, sedang ia berbuat kebajikan, maka baginya pahala pada sisi Tuhannya dan tidak ada kekhawatiran terhadap mereka dan tidak (pula) mereka bersedih hati.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Pengakuan orang Yahudi dan Nasrani semacam itu adalah dusta. Siapa saja yang taat kepada Allah dan beramal shalih, dia akan memperoleh pahala di sisi Tuhannya. Orang mukmin tiada takut menghadapi hari akhirat, dan tiada sedih kehilangan kesenangan dunia.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And they say, &quot;None shall enter Paradise unless he be a Jew or a Christian.&quot; These are their own desires. Say (O Muhammad ﷺ), &quot;Produce your Burhan if you are truthful. (111)Yes! But whoever submits his face (himself) to Allah (i.e. follows Allah's religion of Islamic Monotheism) and he is a Muhsin then his reward is with his Lord (Allah), on such shall be no fear, nor shall they grieve (112)The Je…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan mereka (Yahudi dan Nasrani) berkata, 'Sekali-kali tidak akan masuk surga kecuali orang-orang (yang beragama) Yahudi atau Nasrani.' Demikian itu (hanya) angan-angan mereka yang kosong belaka. Katakanlah, 'Tunjukkanlah bukti kebenaranmu jika kamu adalah orang yang benar.' (Tidak demikian) bahkan barangsiapa yang menyerahkan diri kepada Allah, sedang dia ber-buat kebajikan, maka baginya pahala d…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sesungguhnya surga itu akan dimasuki oleh setiap orang yang tulus dan ikhlas kepada Allah serta melaksanakan ibadah dengan baik, yaitu dengan mengikuti ajaran Rasulullah. Itulah sifat orang yang akan masuk surga dari golongan mana pun dan ia akan mendapatkan ganjaran dari Allah. Tidak ada kekhawatiran terhadap mereka dalam menghadapi apa yang akan terjadi di akhirat nanti, dan mereka juga tidak pe…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:112"> Tafsiriyah</label>
+          <label><input type="radio" name="2:112"> Kemenag</label>
+          <label><input type="radio" name="2:112"> Tie</label>
+          <label><input type="radio" name="2:112"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Grief &amp; loss <span class="n">6</span></h2>
+      <article class="verse" id="v2-156">
+        <header class="vh">
+          <span class="ref">2:156</span>
+          <span class="why">Inna lillahi wa inna ilayhi raji'un — said at every death</span>
+          <span class="sig warn">overlap 12% · 1.08×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">ٱلَّذِينَ إِذَآ أَصَٰبَتْهُم مُّصِيبَةٌ قَالُوٓا۟ إِنَّا لِلَّهِ وَإِنَّآ إِلَيْهِ رَٰجِعُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">(yaitu) orang-orang yang apabila ditimpa musibah, mereka mengucapkan: &quot;Inna lillaahi wa innaa ilaihi raaji'uun&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Ketika kaum mukmin ditimpa musibah, mereka berkata: &quot;Kami semua adalah milik Allah. Kami semua pasti kembali kepada-Nya.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And certainly, We shall test you with something of fear, hunger, loss of wealth, lives and fruits, but give glad tidings to As-Sabirin (the patient)(155)Who, when afflicted with calamity, say: &quot;Truly, to Allah we belong and truly, to Him we shall return. (156)They are those on whom are the Salawat (i.e., who are blessed and will be forgiven) from their Lord, and (they are those who) receive His me…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sungguh akan Kami berikan cobaan kepadamu, dengan sedikit ketakutan, kelaparan, kekurangan harta, jiwa, dan buah-buahan. Dan berikanlah berita gembira kepada orang-orang yang sabar. (Yaitu) orang-orang yang apabila ditimpa musibah, mereka mengucapkan, 'Inna lillahi wa inna ilaihi raji'un.' Mereka itulah yang mendapat keberkahan yang sempurna dan rahmat dari Rabb mereka dan mereka itulah orang…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Yaitu orang-orang yang apabila ditimpa salah satu musibah dari musibah-musibah tersebut mereka berkata dengan nada rida dan pasrah, “Sesungguhnya kami adalah milik Allah yang dapat memperlakukan kami menurut kehendak-Nya, dan sesungguhnya kami akan kembali kepadanya kelak pada hari Kiamat. Dialah yang telah menciptakan kami dan menganugerahkan beragam nikmat kepada kami. Dialah juga tempat kami ke…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:156"> Tafsiriyah</label>
+          <label><input type="radio" name="2:156"> Kemenag</label>
+          <label><input type="radio" name="2:156"> Tie</label>
+          <label><input type="radio" name="2:156"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-155">
+        <header class="vh">
+          <span class="ref">2:155</span>
+          <span class="why">&quot;We will surely test you… give glad tidings to the patient&quot;</span>
+          <span class="sig ">overlap 34% · 1.22×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَلَنَبْلُوَنَّكُم بِشَىْءٍ مِّنَ ٱلْخَوْفِ وَٱلْجُوعِ وَنَقْصٍ مِّنَ ٱلْأَمْوَٰلِ وَٱلْأَنفُسِ وَٱلثَّمَرَٰتِ ۗ وَبَشِّرِ ٱلصَّٰبِرِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan sungguh akan Kami berikan cobaan kepadamu, dengan sedikit ketakutan, kelaparan, kekurangan harta, jiwa dan buah-buahan. Dan berikanlah berita gembira kepada orang-orang yang sabar.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, Kami pasti menguji kalian dengan berbagai cobaan berupa rasa takut, kelaparan, kekurangan harta, jiwa, dan buah-buahan. Wahai Muhammad, berilah kabar gembira kepada orang-orang yang ikhlas menghadapi ujian.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And certainly, We shall test you with something of fear, hunger, loss of wealth, lives and fruits, but give glad tidings to As-Sabirin (the patient)(155)Who, when afflicted with calamity, say: &quot;Truly, to Allah we belong and truly, to Him we shall return. (156)They are those on whom are the Salawat (i.e., who are blessed and will be forgiven) from their Lord, and (they are those who) receive His me…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sungguh akan Kami berikan cobaan kepadamu, dengan sedikit ketakutan, kelaparan, kekurangan harta, jiwa, dan buah-buahan. Dan berikanlah berita gembira kepada orang-orang yang sabar. (Yaitu) orang-orang yang apabila ditimpa musibah, mereka mengucapkan, 'Inna lillahi wa inna ilaihi raji'un.' Mereka itulah yang mendapat keberkahan yang sempurna dan rahmat dari Rabb mereka dan mereka itulah orang…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sungguh Kami benar-benar akan menguji kalian dengan aneka musibah, yakni dengan sedikit rasa takut kepada musuh, rasa lapar karena kekurangan makanan, kekurangan harta benda karena hilang atau sulit mendapatkannya, berkurangnya jiwa akibat bencana yang menelan korban jiwa atau gugur di medan jihad fi sabilillah, dan berkurangnya buah-buahan yang tumbuh di muka bumi. Berikanlah -wahai Nabi- kabar g…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:155"> Tafsiriyah</label>
+          <label><input type="radio" name="2:155"> Kemenag</label>
+          <label><input type="radio" name="2:155"> Tie</label>
+          <label><input type="radio" name="2:155"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-157">
+        <header class="vh">
+          <span class="ref">2:157</span>
+          <span class="why">Blessings and mercy upon those who endure</span>
+          <span class="sig ">overlap 32% · 1.10×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">أُو۟لَٰٓئِكَ عَلَيْهِمْ صَلَوَٰتٌ مِّن رَّبِّهِمْ وَرَحْمَةٌ ۖ وَأُو۟لَٰٓئِكَ هُمُ ٱلْمُهْتَدُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Mereka itulah yang mendapat keberkatan yang sempurna dan rahmat dari Tuhan mereka dan mereka itulah orang-orang yang mendapat petunjuk.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Kaum mukmin mendapatkan rahmat dan kasih sayang dari Tuhan mereka. Mereka itulah orang-orang yang memperoleh hidayah untuk menjalani iman dan Islam.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And certainly, We shall test you with something of fear, hunger, loss of wealth, lives and fruits, but give glad tidings to As-Sabirin (the patient)(155)Who, when afflicted with calamity, say: &quot;Truly, to Allah we belong and truly, to Him we shall return. (156)They are those on whom are the Salawat (i.e., who are blessed and will be forgiven) from their Lord, and (they are those who) receive His me…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sungguh akan Kami berikan cobaan kepadamu, dengan sedikit ketakutan, kelaparan, kekurangan harta, jiwa, dan buah-buahan. Dan berikanlah berita gembira kepada orang-orang yang sabar. (Yaitu) orang-orang yang apabila ditimpa musibah, mereka mengucapkan, 'Inna lillahi wa inna ilaihi raji'un.' Mereka itulah yang mendapat keberkahan yang sempurna dan rahmat dari Rabb mereka dan mereka itulah orang…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Orang-orang yang memiliki sifat semacam itu akan disanjung oleh Allah di hadapan sekumpulan malaikat yang paling tinggi dan mendapatkan rahmat dari-Nya. Mereka itulah orang-orang yang mendapat petunjuk ke jalan yang benar.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:157"> Tafsiriyah</label>
+          <label><input type="radio" name="2:157"> Kemenag</label>
+          <label><input type="radio" name="2:157"> Tie</label>
+          <label><input type="radio" name="2:157"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v12-86">
+        <header class="vh">
+          <span class="ref">12:86</span>
+          <span class="why">Ya'qub: &quot;I complain of my grief only to Allah&quot;</span>
+          <span class="sig ">overlap 29% · 0.88×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">قَالَ إِنَّمَآ أَشْكُوا۟ بَثِّى وَحُزْنِىٓ إِلَى ٱللَّهِ وَأَعْلَمُ مِنَ ٱللَّهِ مَا لَا تَعْلَمُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Ya'qub menjawab: &quot;Sesungguhnya hanyalah kepada Allah aku mengadukan kesusahan dan kesedihanku, dan aku mengetahui dari Allah apa yang kamu tiada mengetahuinya&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Ya'qub berkata: &quot;Aku hanya mengadukan kesedihan dan penderitaanku kepada Allah. Aku mengetahui dari Allah hal-hal yang tidak kalian ketahui.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> He [Ya'qub] said: &quot;Nay, but your own selves have beguiled you into something. So patience is most fitting (for me). May be Allah will bring them (back) all to me. Truly, He! Only He is All-Knowing, All-Wise. (83)And he turned away from them and said: &quot;Alas, my grief for Yusuf!&quot; And he lost his sight because of the sorrow that he was suppressing (84)They said: &quot;By Allah! You will never cease rememb…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Ya'qub berpaling dari mereka (anak-anaknya) seraya berkata, 'Aduhai duka citaku terhadap Yusuf', dan kedua matanya menjadi putih karena kesedihan, dan dia adalah seorang yang menahan amarahnya (terhadap anak-anaknya). Mereka berkata, 'Demi Allah, senantiasa kamu mengingati Yusuf, sehingga kamu mengidap penyakit yang berat atau kamu termasuk orang-orang yang binasa.' Ya'qub menjawab, 'Sesunggu…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sang Ayah berkata kepada mereka, &quot;Aku tidak pernah mengadukan kepedihan dan kesedihan hatiku selain kepada Allah saja dan aku mengetahui kasih sayang Allah, kebaikan-Nya, jawaban-Nya dan balasan-Nya bagi orang yang ditimpa musibah yang tidak kalian ketahui.&quot;</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="12:86"> Tafsiriyah</label>
+          <label><input type="radio" name="12:86"> Kemenag</label>
+          <label><input type="radio" name="12:86"> Tie</label>
+          <label><input type="radio" name="12:86"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v3-185">
+        <header class="vh">
+          <span class="ref">3:185</span>
+          <span class="why">Every soul will taste death</span>
+          <span class="sig ">overlap 34% · 0.99×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">كُلُّ نَفْسٍ ذَآئِقَةُ ٱلْمَوْتِ ۗ وَإِنَّمَا تُوَفَّوْنَ أُجُورَكُمْ يَوْمَ ٱلْقِيَٰمَةِ ۖ فَمَن زُحْزِحَ عَنِ ٱلنَّارِ وَأُدْخِلَ ٱلْجَنَّةَ فَقَدْ فَازَ ۗ وَمَا ٱلْحَيَوٰةُ ٱلدُّنْيَآ إِلَّا مَتَٰعُ ٱلْغُرُورِ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Tiap-tiap yang berjiwa akan merasakan mati. Dan sesungguhnya pada hari kiamat sajalah disempurnakan pahalamu. Barangsiapa dijauhkan dari neraka dan dimasukkan ke dalam surga, maka sungguh ia telah beruntung. Kehidupan dunia itu tidak lain hanyalah kesenangan yang memperdayakan.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Setiap orang akan mengalami kematian. Wahai manusia, kalian akan diberi balasan yang cukup pada hari kiamat. Siapa saja yang kelak diselamatkan dari neraka lalu dimasukkan ke dalam surga, sungguh ia beruntung. Kehidupan dunia ini hanyalah kesenangan yang menyesatkan manusia.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Everyone shall taste death. And only on the Day of Resurrection shall you be paid your wages in full. And whoever is moved away from the Fire and admitted to Paradise, he indeed is successful. The life of this world is only the enjoyment of deception (185)You shall certainly be tried and tested in your wealth and properties and in yourselves, and you shall certainly hear much that will grieve you …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Tiap-tiap yang berjiwa akan merasakan mati. Dan sesung-guhnya pada Hari Kiamat sajalah disempurnakan pahalamu. Ba-rangsiapa dijauhkan dari neraka dan dimasukkan ke dalam surga, maka sungguh dia telah beruntung. Kehidupan dunia itu tidak lain hanyalah kesenangan yang memperdayakan.&quot; (Ali Imran: 185). (185) Ayat yang mulia ini mengandung penjelasan tentang zuhud dari dunia karena bersifat fana dan …</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Setiap jiwa, siapa pun ia pasti akan merasakan kematian, sebab itu hendaknya setiap makhluk tidak terlena dengan dunia ini. Pada hari Kiamat kelak mereka akan diberi balasan atas amal perbuatan mereka masing-masing secara penuh, tanpa ada pengurangan. Barang siapa yang Allah jauhkan dari api neraka dan Dia masukkan ke dalam surga maka dia benar-benar telah mendapatkan kebaikan yang ia harapkan dan…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:185"> Tafsiriyah</label>
+          <label><input type="radio" name="3:185"> Kemenag</label>
+          <label><input type="radio" name="3:185"> Tie</label>
+          <label><input type="radio" name="3:185"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v21-35">
+        <header class="vh">
+          <span class="ref">21:35</span>
+          <span class="why">Tested with evil and good, as a trial</span>
+          <span class="sig warn">overlap 19% · 1.06×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">كُلُّ نَفْسٍ ذَآئِقَةُ ٱلْمَوْتِ ۗ وَنَبْلُوكُم بِٱلشَّرِّ وَٱلْخَيْرِ فِتْنَةً ۖ وَإِلَيْنَا تُرْجَعُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Tiap-tiap yang berjiwa akan merasakan mati. Kami akan menguji kamu dengan keburukan dan kebaikan sebagai cobaan (yang sebenar-benarnya). Dan hanya kepada Kamilah kamu dikembalikan.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Setiap makhluk yang bernyawa pasti mengalami kematian. Wahai manusia, kalian akan diuji dengan nasib baik dan buruk untuk menguji keimanan kalian. Kalian kelak pasti dikembalikan kepada Kami.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And We granted not to any human being immortality before you; then if you die, would they live forever (34)Everyone is going to taste death, and We shall test you with evil and with good by way of trial. And to Us you will be returned (35) No One has been granted Immortality in this World وَمَا جَعَلْنَا لِبَشَرٍ مِّن قَبْلِكَ (And We granted not to any human being immortality before you;) means, …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Kami tidak menjadikan hidup abadi bagi seorang manusia pun sebelum kamu (Muhammad), maka jikalau kamu mati, apakah mereka akan kekal? Tiap-tiap yang berjiwa akan merasakan mati. Kami akan menguji kamu dengan keburukan dan kebaikan sebagai cobaan (yang sebenar-benarnya). Dan hanya kepada Kami-lah kamu dikembalikan.&quot; (Al-Anbiya`: 34-35). (34) Ketika para musuh Rasulullah mengatakan seperti yang dic…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Setiap jiwa, baik yang beriman atau kafir pasti akan merasakan mati di dunia ini. Di kehidupan dunia ini Kami menguji kalian -wahai manusia- dengan berbagai kewajiban, kenikmatan, dan kesengsaraan. Kemudian setelah wafat, kalian pasti akan kembali kepada Kami, bukan kepada selain Kami, lalu Kami memberikan balasan atas amalan kalian.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="21:35"> Tafsiriyah</label>
+          <label><input type="radio" name="21:35"> Kemenag</label>
+          <label><input type="radio" name="21:35"> Tie</label>
+          <label><input type="radio" name="21:35"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Patience <span class="n">5</span></h2>
+      <article class="verse" id="v2-153">
+        <header class="vh">
+          <span class="ref">2:153</span>
+          <span class="why">Seek help through patience and prayer</span>
+          <span class="sig warn">overlap 14% · 1.55×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّٰبِرِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Hai orang-orang yang beriman, jadikanlah sabar dan shalat sebagai penolongmu, sesungguhnya Allah beserta orang-orang yang sabar.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, bersabarlah kalian dan laksanakanlah shalat untuk membantu diri kalian menghadapi ujian dari Allah. Sungguh rahmat Allah selalu menyertai orang-orang yang ikhlas menghadapi ujian.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O you who believe! Seek help in patience and As-Salah (the prayer). Truly, Allah is with As-Sabirin (the patient)(153)And say not of those who are killed in the way of Allah, &quot;They are dead.&quot; Nay, they are living, but you perceive (it) not (154) The Virtue of Patience and Prayer After Allah commanded that He be appreciated, He ordained patience and prayer. It is a fact that the servant is either e…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai orang-orang yang beriman, mintalah pertolongan (ke-pada Allah) dengan sabar dan shalat, sesungguhnya Allah beserta orang-orang yang sabar.&quot; (Al-Baqarah: 153). (153) Allah تعالى memerintahkan kaum Mukminin untuk meminta pertolongan dalam segala urusan mereka, baik dunia maupun akhirat, ﴾ بِٱلصَّبۡرِ وَٱلصَّلَوٰةِۚ ﴿ &quot;dengan sabar dan shalat.&quot; Kesabaran adalah pengendalian dan penjagaan diri te…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Wahai orang-orang yang beriman! Mintalah pertolongan dengan kesabaran dan salat untuk melakukan ketaatan kepada-Ku dan tunduk pada perintah-Ku. Sesungguhnya Allah bersama orang-orang yang sabar. Dia senantiasa membimbing dan menolong mereka.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:153"> Tafsiriyah</label>
+          <label><input type="radio" name="2:153"> Kemenag</label>
+          <label><input type="radio" name="2:153"> Tie</label>
+          <label><input type="radio" name="2:153"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v39-10">
+        <header class="vh">
+          <span class="ref">39:10</span>
+          <span class="why">The patient are given their reward without measure</span>
+          <span class="sig ">overlap 26% · 1.20×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">قُلْ يَٰعِبَادِ ٱلَّذِينَ ءَامَنُوا۟ ٱتَّقُوا۟ رَبَّكُمْ ۚ لِلَّذِينَ أَحْسَنُوا۟ فِى هَٰذِهِ ٱلدُّنْيَا حَسَنَةٌ ۗ وَأَرْضُ ٱللَّهِ وَٰسِعَةٌ ۗ إِنَّمَا يُوَفَّى ٱلصَّٰبِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Katakanlah: &quot;Hai hamba-hamba-Ku yang beriman. bertakwalah kepada Tuhanmu&quot;. Orang-orang yang berbuat baik di dunia ini memperoleh kebaikan. Dan bumi Allah itu adalah luas. Sesungguhnya hanya orang-orang yang bersabarlah Yang dicukupkan pahala mereka tanpa batas.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, katakanlah: &quot;Wahai orang-orang yang beriman, taatlah kepada Tuhan kalian.&quot; Di dunia ini orang-orang yang beramal shalih selalu mendapatkan barakah. Bumi Allah itu luas. Sungguh orang-orang yang bersabar menghadapi penindasan kaum kafir kelak akan diberi pahala yang sempurna tanpa batas di akhirat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Say: &quot;O My servants who believe, have Taqwa of your Lord. Good is for those who do good in this world, and Allah's earth is spacious! Only those who are patient shall receive their reward in full, without reckoning. (10)Say: &quot;Verily, I am commanded to worship Allah, making religion sincerely for Him. (11)&quot;And I am commanded (this) in order that I may be the first of the Musli (12) The Command for …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Katakanlah, 'Hai hamba-hambaKu yang beriman, bertak-walah kepada Rabbmu.' Orang-orang yang berbuat baik di dunia ini memperoleh kebaikan. Dan bumi Allah itu adalah luas. Sesung-guhnya hanya orang-orang yang bersabarlah yang dicukupkan pahala mereka tanpa batas.&quot; (Az-Zumar: 10). (10) Artinya, katakanlah dengan menyeru manusia-manu-sia termulia, yaitu orang-orang yang beriman, dan dengan meme-rinta…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Katakanlah -wahai Rasul- kepada hamba-hamba-Ku yang beriman kepada-Ku dan kepada rasul-rasul-Ku, “Bertakwalah kalian kepada Tuhan kalian dengan melaksanakan perintah-perintah-Nya dan menjauhi larangan-larangan-Nya. Orang-orang yang membaguskan amal perbuatan di dunia akan mendapat balasan kebaikan di dunia berupa kemenangan, keselamatan, dan harta kekayaan dan di akhirat berupa surga. Bumi Allah i…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="39:10"> Tafsiriyah</label>
+          <label><input type="radio" name="39:10"> Kemenag</label>
+          <label><input type="radio" name="39:10"> Tie</label>
+          <label><input type="radio" name="39:10"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v3-200">
+        <header class="vh">
+          <span class="ref">3:200</span>
+          <span class="why">Be patient, persevere, remain steadfast</span>
+          <span class="sig warn">overlap 19% · 1.24×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱصْبِرُوا۟ وَصَابِرُوا۟ وَرَابِطُوا۟ وَٱتَّقُوا۟ ٱللَّهَ لَعَلَّكُمْ تُفْلِحُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Hai orang-orang yang beriman, bersabarlah kamu dan kuatkanlah kesabaranmu dan tetaplah bersiap siaga (di perbatasan negerimu) dan bertakwalah kepada Allah, supaya kamu beruntung.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai orang-orang beriman, bersabarlah kalian. Tingkatkanlah kesabaran kalian dalam menghadapi musuh, dan bersiagalah kalian untuk memerangi orang-orang kafir. Taatlah kepada Allah, pasti kalian akan beruntung di akhirat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And there are, certainly, among the People of the Scripture (Jews and Christians), those who believe in Allah and in that which has been revealed to you, and in that which has been revealed to them, humbling themselves before Allah. They do not sell the verses of Allah for a small price, for them is a reward with their Lord. Surely, Allah is swift in account (199)O you who believe! Endure and be m…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sesungguhnya di antara ahli Kitab, ada orang yang beriman kepada Allah dan kepada sesuatu yang diturunkan kepa-damu dan sesuatu yang diturunkan kepada mereka sedang mereka berendah hati kepada Allah dan mereka tidak menukarkan ayat-ayat Allah dengan harga yang sedikit. Mereka memperoleh pahala di sisi Tuhannya. Sesungguhnya Allah amat cepat perhitunganNya. Hai orang-orang yang beriman, bersab…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Wahai orang-orang yang beriman kepada Allah dan mengikuti Rasul-Nya! Bersabarlah kalian terhadap beban-beban syariat (agama) serta musibah-musibah dunia yang menimpa kalian, dan kalahkanlah orang-orang kafir dalam hal kesabaran, serta angan sampai mereka lebih sabar dari kalian. Tegakkanlah jihad di jalan Allah, dan takutlah kalian kepada Allah dengan cara menjalankan perintah-perintah-Nya dan men…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:200"> Tafsiriyah</label>
+          <label><input type="radio" name="3:200"> Kemenag</label>
+          <label><input type="radio" name="3:200"> Tie</label>
+          <label><input type="radio" name="3:200"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v103-3">
+        <header class="vh">
+          <span class="ref">103:3</span>
+          <span class="why">Al-Asr — those who counsel patience</span>
+          <span class="sig warn">overlap 15% · 1.12×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">kecuali orang-orang yang beriman dan mengerjakan amal saleh dan nasehat menasehati supaya mentaati kebenaran dan nasehat menasehati supaya menetapi kesabaran.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Orang-orang yang tidak celaka di akhirat kelak hanyalah orang-orang yang beriman dan beramal shalih, mengajak manusia untuk bertauhid, dan beramal shalih dengan penuh kesabaran.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> They have mentioned that 'Amr bin Al-'As went to visit Musaylimah Al-Kadhdhab after the Messenger of Allah ﷺ was commissioned (as a Prophet) and before 'Amr had accepted Islam. Upon his arrival, Musaylimah said to him, &quot;What has been revealed to your friend (Muhammad ﷺ) during this time?&quot; 'Amr said, &quot;A short and concise Surah has been revealed to him.&quot; Musaylimah then said, &quot;What is it?&quot; 'Amr repl…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Demi masa. Sesungguhnya manusia itu benar-benar berada dalam kerugian, kecuali orang-orang yang beriman dan mengerja-kan amal shalih dan nasihat menasihati supaya menaati kebenaran dan nasihat menasihati supaya menetapi kesabaran.&quot; (Al-Ashr: 1-3). Makkiyah &quot;Dengan Menyebut Nama Allah Yang Maha Pengasih Lagi Maha Penyayang.&quot; (1-3) Allah سبحانه وتعالى bersumpah dengan masa, yaitu siang dan malam se…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> kecuali orang-orang yang beriman kepada Allah dan para rasul-Nya, mengerjakan amal saleh, serta saling berwasiat di antara mereka dengan kebenaran dan kesabaran dalam menjalani kebenaran. Orang-orang yang mempunyai sifat-sifat ini pasti selamat dalam kehidupan dunia dan akhirat.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="103:3"> Tafsiriyah</label>
+          <label><input type="radio" name="103:3"> Kemenag</label>
+          <label><input type="radio" name="103:3"> Tie</label>
+          <label><input type="radio" name="103:3"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v8-46">
+        <header class="vh">
+          <span class="ref">8:46</span>
+          <span class="why">Allah is with the patient</span>
+          <span class="sig ">overlap 32% · 1.33×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَأَطِيعُوا۟ ٱللَّهَ وَرَسُولَهُۥ وَلَا تَنَٰزَعُوا۟ فَتَفْشَلُوا۟ وَتَذْهَبَ رِيحُكُمْ ۖ وَٱصْبِرُوٓا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّٰبِرِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan taatlah kepada Allah dan Rasul-Nya dan janganlah kamu berbantah-bantahan, yang menyebabkan kamu menjadi gentar dan hilang kekuatanmu dan bersabarlah. Sesungguhnya Allah beserta orang-orang yang sabar.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, taatlah kalian kepada Allah dan Rasul-Nya. Janganlah kalian berselisih ketika memerangi musuh, karena kalian akan lemah dan kewibawaan kalian akan hilang. Bersabarlah kalian dalam menghadapi musuh. Sesungguhnya Allah mendampingi orang-orang yang sabar.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O you who believe! When you meet (an enemy) force, take a firm stand against them and remember Allah much, so that you may be successful (45)And obey Allah and His Messenger, and do not dispute (with one another) lest you lose courage and your strength departs, and be patient. Surely, Allah is with the patients (46) Manners of War Allah instructs His faithful servants in the manners of fighting an…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai orang-orang yang beriman, apabila kamu memerangi pasukan (musuh), maka berteguh hatilah kamu dan sebutlah (Nama) Allah sebanyak-banyaknya agar kamu beruntung. Dan taatlah kepada Allah dan RasulNya, dan janganlah kamu berbantah-ban-tahan, yang menyebabkan kamu menjadi gentar dan hilang kekuat-anmu, dan bersabarlah, sesungguhnya Allah beserta orang-orang yang sabar. Dan janganlah kamu menjadi s…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tetaplah kalian taat kepada Allah dan taat kepada Rasul-Nya dalam seluruh ucapan, perbuatan, dan hal ihwal kalian, serta janganlah kalian berselisih pendapat karena perselisihan akan membuat kalian menjadi lemah, takut, dan kehilangan kekuatan kalian. Bersabarlah ketika kalian berhadapan dengan musuh kalian karena sesungguhnya Allah bersama orang-orang yang bersabar dalam bentuk pertolongan, dukun…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="8:46"> Tafsiriyah</label>
+          <label><input type="radio" name="8:46"> Kemenag</label>
+          <label><input type="radio" name="8:46"> Tie</label>
+          <label><input type="radio" name="8:46"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Forgiveness &amp; despair <span class="n">6</span></h2>
+      <article class="verse" id="v39-53">
+        <header class="vh">
+          <span class="ref">39:53</span>
+          <span class="why">&quot;Do not despair of the mercy of Allah&quot; — the verse for the ashamed</span>
+          <span class="sig ">overlap 33% · 1.29×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">قُلْ يَٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ ۚ إِنَّ ٱللَّهَ يَغْفِرُ ٱلذُّنُوبَ جَمِيعًا ۚ إِنَّهُۥ هُوَ ٱلْغَفُورُ ٱلرَّحِيمُ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Katakanlah: &quot;Hai hamba-hamba-Ku yang malampaui batas terhadap diri mereka sendiri, janganlah kamu berputus asa dari rahmat Allah. Sesungguhnya Allah mengampuni dosa-dosa semuanya. Sesungguhnya Dialah Yang Maha Pengampun lagi Maha Penyayang.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, katakanlah, Allah berfirman: &quot;Wahai hamba-hamba-Ku yang telah melakukan dosa-dosa besar, janganlah kalian putus asa dari rahmat Allah. Sungguh Allah mengampuni semua dosa hamba-Nya yang mau bertaubat. Sungguh Allah adalah Tuhan Yang Maha Pengampun lagi Maha Penyayang kepada semua makhluk-Nya.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Say: &quot;O My servants who have transgressed against themselves! Despair not of the mercy of Allah, verily, Allah forgives all sins. Truly, He is Oft-Forgiving, Most Merciful. (53)&quot;And turn in repentance (and in obedience with true faith) to your Lord and submit to Him before the torment comes upon you, (and) then you will not be helped. (54)&quot;And follow the best of that which is sent down to you from…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Katakanlah, 'Hai hamba-hambaKu yang melampaui batas terhadap diri mereka sendiri, janganlah kamu berputus asa dari rahmat Allah. Sesungguhnya Allah mengampuni dosa-dosa semua-nya. Sesungguhnya Dia-lah Yang Maha Pengampun lagi Maha Penyayang.' Dan kembalilah kamu kepada Rabbmu, dan berserah dirilah kepadaNya sebelum datang azab kepadamu kemudian kamu tidak dapat ditolong. Dan ikutilah sebaik-baik …</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Katakanlah -wahai Rasul- kepada hamba-hamba-Ku yang melampaui batas atas diri mereka dengan kesyirikan kepada Allah dan kemaksiatan, “Janganlah kalian berputus asa dari rahmat Allah dan ampunan-Nya terhadap dosa-dosa kalian karena sesungguhnya Allah mengampuni seluruh dosa bagi siapa yang bertobat kepada-Nya. Sesungguhnya Allah Maha Pengampun bagi dosa-dosa siapa yang bertobat, Maha Penyayang kepa…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="39:53"> Tafsiriyah</label>
+          <label><input type="radio" name="39:53"> Kemenag</label>
+          <label><input type="radio" name="39:53"> Tie</label>
+          <label><input type="radio" name="39:53"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v3-135">
+        <header class="vh">
+          <span class="ref">3:135</span>
+          <span class="why">Who forgives sins but Allah?</span>
+          <span class="sig ">overlap 23% · 1.27×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَٱلَّذِينَ إِذَا فَعَلُوا۟ فَٰحِشَةً أَوْ ظَلَمُوٓا۟ أَنفُسَهُمْ ذَكَرُوا۟ ٱللَّهَ فَٱسْتَغْفَرُوا۟ لِذُنُوبِهِمْ وَمَن يَغْفِرُ ٱلذُّنُوبَ إِلَّا ٱللَّهُ وَلَمْ يُصِرُّوا۟ عَلَىٰ مَا فَعَلُوا۟ وَهُمْ يَعْلَمُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan (juga) orang-orang yang apabila mengerjakan perbuatan keji atau menganiaya diri sendiri, mereka ingat akan Allah, lalu memohon ampun terhadap dosa-dosa mereka dan siapa lagi yang dapat mengampuni dosa selain dari pada Allah? Dan mereka tidak meneruskan perbuatan kejinya itu, sedang mereka mengetahui.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Orang-orang yang taat kepada Allah dan bertauhid yaitu orang-orang yang setelah berbuat dosa besar atau berbuat dosa-dosa kecil, mereka segera bertaubat kepada Allah, kemudian mohon ampun atas segala dosa mereka. Tiada yang dapat mengampuni dosa-dosa manusia selain Allah. Kemudian mereka tidak mengulangi dosa-dosa yang lalu itu untuk seterusnya, dan mereka menyadari dosa-dosanya itu.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O you who believe! Do not consume Riba doubled and multiplied, but fear Allah that you may be successful (130)And fear the Fire, which is prepared for the disbelievers (131)And obey Allah and the Messenger that you may obtain mercy (132)And march forth in the way (which leads to) forgiveness from your Lord, and for Paradise as wide as the heavens and the earth, prepared for the Muttaqin (the pious…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai orang-orang yang beriman, janganlah kamu memakan riba dengan berlipat ganda dan bertakwalah kamu kepada Allah supaya kamu mendapat keberuntungan. Dan peliharalah dirimu dari api neraka, yang disediakan untuk orang-orang yang kafir. Dan taatilah Allah dan Rasul, supaya kamu diberi rahmat. Dan bersegeralah kamu kepada ampunan dari Tuhanmu dan kepada surga yang luasnya seluas langit dan bumi yan…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Yaitu orang-orang yang apabila melakukan dosa besar atau mengurangi bagian mereka sendiri dengan cara melakukan dosa yang kecil maka mereka segera ingat kepada Allah dan teringat ancaman-Nya bagi orang-orang yang berbuat maksiat, dan janji-Nya bagi orang-orang yang bertakwa, kemudian menyesali perbuatannya dan memohon kepada Tuhannya agar dosanya ditutupi dan dirinya tidak dihukum atas perbuatan t…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:135"> Tafsiriyah</label>
+          <label><input type="radio" name="3:135"> Kemenag</label>
+          <label><input type="radio" name="3:135"> Tie</label>
+          <label><input type="radio" name="3:135"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v66-8">
+        <header class="vh">
+          <span class="ref">66:8</span>
+          <span class="why">Turn to Allah in sincere repentance</span>
+          <span class="sig ">overlap 36% · 1.04×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ تُوبُوٓا۟ إِلَى ٱللَّهِ تَوْبَةً نَّصُوحًا عَسَىٰ رَبُّكُمْ أَن يُكَفِّرَ عَنكُمْ سَيِّـَٔاتِكُمْ وَيُدْخِلَكُمْ جَنَّٰتٍ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ يَوْمَ لَا يُخْزِى ٱللَّهُ ٱلنَّبِىَّ وَٱلَّذِينَ ءَامَنُوا۟ مَعَهُۥ ۖ نُورُهُمْ يَسْعَىٰ بَيْنَ أَيْدِيهِمْ وَبِأَيْمَٰنِهِمْ يَقُولُونَ رَبَّنَآ أَتْمِمْ لَنَا نُورَنَا وَٱغْفِرْ لَنَآ ۖ إِنَّكَ عَلَىٰ كُلِّ شَىْءٍ قَدِيرٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Hai orang-orang yang beriman, bertaubatlah kepada Allah dengan taubatan nasuhaa (taubat yang semurni-murninya). Mudah-mudahan Rabbmu akan menutupi kesalahan-kesalahanmu dan memasukkanmu ke dalam jannah yang mengalir di bawahnya sungai-sungai, pada hari ketika Allah tidak menghinakan Nabi dan orang-orang mukmin yang bersama dia; sedang cahaya mereka memancar di hadapan dan di sebelah kanan mereka, sambil mereka mengatakan: &quot;Ya Rabb kami, sempurnakanlah bagi kami cahaya kami dan ampunilah kami; Sesungguhnya Engkau Maha Kuasa atas segala sesuatu&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai orang-orang beriman, bertaubatlah kepada Allah dengan taubat yang sungguh-sungguh. Mudah-mudahan Tuhan kalian menghapuskan dosa-dosa kalian dan memasukkan kalian ke dalam surga-surga. Di bawah surga mengalir sungai-sungai. Pada hari kiamat, Allah tiada menghinakan nabi-Nya dan orang-orang mukmin yang mengikutinya. Cahaya mereka memancar di depan mereka dan di sebelah kanan mereka. Orang-orang mukmin berkata: &quot;Wahai Tuhan kami, nyalakanlah terus menerus cahaya kami bagi kami hingga kami masuk surga dan ampunilah kami. Sungguh Engkau Mahakuasa berbuat apa saja.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O you who believe! Protect yourselves and your families against a Fire (Hell) whose fuel is men and stones, over which are (appointed) angels stern (and) severe, who disobey not the commands they receive from Allah, but do that which they are commanded (6)(It will be said in the Hereafter) O you who disbelieve! Make no excuses this Day! You are being requited only for what you used to do (7)O you …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai orang-orang yang beriman, bertaubatlah kepada Allah dengan taubat yang semurni-murninya, mudah-mudahan Rabb kamu akan menutupi kesalahan-kesalahanmu dan memasukkan kamu ke dalam surga yang mengalir di bawahnya sungai-sungai, pada hari ketika Allah tidak menghinakan Nabi dan orang-orang yang beriman bersama dengan dia; sedang cahaya mereka meman-car di hadapan dan di sebelah kanan mereka, samb…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Wahai orang-orang yang beriman kepada Allah dan menjalankan syariat-Nya! Bertobatlah kalian kepada Allah dari dosa-dosa kalian dengan tobat yang jujur, semoga Tuhan kalian menghapuskan kesalahan-kesalahan kalian dan memasukkan kalian ke dalam surga-surga yang di bawah istana-istana dan pepohonannya mengalir sungai-sungai pada hari Kiamat, yaitu hari saat Allah tidak menghinakan Nabi dan orang-oran…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="66:8"> Tafsiriyah</label>
+          <label><input type="radio" name="66:8"> Kemenag</label>
+          <label><input type="radio" name="66:8"> Tie</label>
+          <label><input type="radio" name="66:8"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v24-22">
+        <header class="vh">
+          <span class="ref">24:22</span>
+          <span class="why">Let them pardon and overlook</span>
+          <span class="sig ">overlap 28% · 1.29×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَلَا يَأْتَلِ أُو۟لُوا۟ ٱلْفَضْلِ مِنكُمْ وَٱلسَّعَةِ أَن يُؤْتُوٓا۟ أُو۟لِى ٱلْقُرْبَىٰ وَٱلْمَسَٰكِينَ وَٱلْمُهَٰجِرِينَ فِى سَبِيلِ ٱللَّهِ ۖ وَلْيَعْفُوا۟ وَلْيَصْفَحُوٓا۟ ۗ أَلَا تُحِبُّونَ أَن يَغْفِرَ ٱللَّهُ لَكُمْ ۗ وَٱللَّهُ غَفُورٌ رَّحِيمٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan janganlah orang-orang yang mempunyai kelebihan dan kelapangan di antara kamu bersumpah bahwa mereka (tidak) akan memberi (bantuan) kepada kaum kerabat(nya), orang-orang yang miskin dan orang-orang yang berhijrah pada jalan Allah, dan hendaklah mereka memaafkan dan berlapang dada. Apakah kamu tidak ingin bahwa Allah mengampunimu? Dan Allah adalah Maha Pengampun lagi Maha Penyayang,</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Orang-orang yang berkecukupan dan hartanya banyak di antara kalian, hendaklah jangan jera membantu orang-orang yang berhak mendapat bantuan, yaitu keluarga-keluarga dekatnya, orang-orang miskin dan orang-orang yang hijrah di jalan Allah. Hendaklah mereka selalu memberi maaf dan pengampunan kepada orang-orang yang menyakiti hati mereka. Wahai orang-orang beriman, apakah diri kalian tidak senang mendapatkan pengampunan dari Allah? Allah Maha Pengampun lagi Maha Penyayang kepada semua makhluk-Nya.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And let not those among you who are blessed with graces and wealth swear not to give to their kinsmen, the poor, and those who left their homes for Allah's cause. Let them pardon and forgive. Do you not love that Allah should forgive you? And Allah is Oft-Forgiving, Most Merciful (22) Urging Those Who Have Been Blessed With Wealth to Give and to Be Tolerant Allah says, وَلَا يَأْتَلِ (And let not …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Sesungguhnya orang-orang yang membawa berita bohong itu adalah dari golongan kamu juga. Janganlah kamu kira bahwa berita bohong itu buruk bagi kamu bahkan ia adalah baik bagi kamu. Tiap-tiap orang dari mereka mendapat balasan dari dosa yang dikerjakannya. Dan siapa di antara mereka yang mengambil bagian yang terbesar dalam penyiaran berita bohong itu mendapat-kan azab yang besar. Mengapa di waktu…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Janganlah orang-orang yang mempunyai keutamaan dalam agama dan kelapangan harta di antara kalian bersumpah untuk tidak akan memberi bantuan lagi kepada kaum kerabatnya yang membutuhkan -karena miskin lagi berhijrah di jalan Allah- hanya lantaran dosa yang mereka lakukan dan hendaklah mereka memaafkan dan berlapang dada terhadap mereka. Apakah kalian tidak ingin agar Allah mengampuni dosa-dosa kali…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="24:22"> Tafsiriyah</label>
+          <label><input type="radio" name="24:22"> Kemenag</label>
+          <label><input type="radio" name="24:22"> Tie</label>
+          <label><input type="radio" name="24:22"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v4-110">
+        <header class="vh">
+          <span class="ref">4:110</span>
+          <span class="why">Whoever does wrong then seeks forgiveness</span>
+          <span class="sig ">overlap 39% · 1.14×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَمَن يَعْمَلْ سُوٓءًا أَوْ يَظْلِمْ نَفْسَهُۥ ثُمَّ يَسْتَغْفِرِ ٱللَّهَ يَجِدِ ٱللَّهَ غَفُورًا رَّحِيمًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan barangsiapa yang mengerjakan kejahatan dan menganiaya dirinya, kemudian ia mohon ampun kepada Allah, niscaya ia mendapati Allah Maha Pengampun lagi Maha Penyayang.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Siapa saja yang berbuat dosa besar atau dosa kecil kemudian ia memohon ampun kepada Allah, niscaya ia akan mendapati Allah Maha Pengampun lagi Maha Penyayang kepada hamba-Nya yang bertaubat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And whoever does evil or wrongs himself but afterwards seeks Allah's forgiveness, he will find Allah Oft-Forgiving, Most Merciful.) 111. And whoever earns sin, he earns it only against himself. And Allah is Ever All-Knowing, All-Wise (110)And whoever earns a fault or a sin and then blames it on someone innocent, he has indeed burdened himself with falsehood and a manifest sin (111)Had not the grac…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Sesungguhnya Kami telah menurunkan Kitab kepadamu dengan membawa kebenaran, supaya kamu mengadili antara manusia dengan apa yang telah Allah wahyukan kepadamu, dan janganlah kamu menjadi penantang (orang yang tidak bersalah) karena (membela) orang-orang yang khianat, dan mohonlah ampun kepada Allah. Sesungguhnya Allah Maha Pengampun lagi Maha Penyayang. Dan janganlah kamu berdebat (untuk membela)…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Barang siapa yang berbuat buruk atau menganiaya dirinya sendiri dengan berbuat dosa, kemudian ia meminta ampun kepada Allah seraya mengakui dosanya, menyesalinya, dan meninggalkannya secara total, ia akan senantiasa mendapati bahwa Allah adalah Tuhan Yang Maha Pengampun atas dosa-dosanya lagi Maha Penyayang kepadanya.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="4:110"> Tafsiriyah</label>
+          <label><input type="radio" name="4:110"> Kemenag</label>
+          <label><input type="radio" name="4:110"> Tie</label>
+          <label><input type="radio" name="4:110"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v42-25">
+        <header class="vh">
+          <span class="ref">42:25</span>
+          <span class="why">He accepts repentance from His servants</span>
+          <span class="sig ">overlap 33% · 1.02×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَهُوَ ٱلَّذِى يَقْبَلُ ٱلتَّوْبَةَ عَنْ عِبَادِهِۦ وَيَعْفُوا۟ عَنِ ٱلسَّيِّـَٔاتِ وَيَعْلَمُ مَا تَفْعَلُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan Dialah yang menerima taubat dari hamba-hamba-Nya dan memaafkan kesalahan-kesalahan dan mengetahui apa yang kamu kerjakan,</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Allah Maha Menerima taubat para hamba-Nya. Allah memaafkan dosa-dosa para hamba-Nya dan mengetahui apa saja yang kalian perbuat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And He it is Who accepts repentance from His servants, and forgives sins, and He knows what you do (25)And He answers those who believe and do righteous good deeds, and gives them increase of His bounty. And as for the disbelievers, theirs will be a severe torment (26)And if Allah were to extend the provision for His servants, they would surely rebel in the earth, but He sends down by measure as H…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Dia-lah yang menerima taubat dari hamba-hambaNya dan memaafkan kesalahan-kesalahan dan mengetahui apa yang kamu kerjakan, dan orang-orang yang beriman serta mengerjakan amal yang shalih menerima seruanNya dan menambah kepada mereka bagian dari karuniaNya. Dan orang-orang yang kafir bagi mereka azab yang sangat keras. Dan jikalau Allah melapangkan rizki kepada hamba-hambaNya, tentulah mereka a…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Dia -Subḥānahu- yang menerima tobat hamba-hamba-Nya dari kekafiran dan maksiat jika mereka bertobat kepada-Nya dan Dia mengampuni kesalahan-kesalahan yang pernah mereka perbuat. Dia mengetahui apa saja yang kalian kerjakan, tidak ada satu pun dari perbuatan kalian yang tersembunyi dari-Nya, dan Dia akan membalas kalian atas perbuatan itu.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="42:25"> Tafsiriyah</label>
+          <label><input type="radio" name="42:25"> Kemenag</label>
+          <label><input type="radio" name="42:25"> Tie</label>
+          <label><input type="radio" name="42:25"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Provision &amp; debt <span class="n">6</span></h2>
+      <article class="verse" id="v65-3">
+        <header class="vh">
+          <span class="ref">65:3</span>
+          <span class="why">Provision from where he does not expect</span>
+          <span class="sig warn">overlap 18% · 0.91×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ۚ وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ ۚ إِنَّ ٱللَّهَ بَٰلِغُ أَمْرِهِۦ ۚ قَدْ جَعَلَ ٱللَّهُ لِكُلِّ شَىْءٍ قَدْرًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan memberinya rezeki dari arah yang tiada disangka-sangkanya. Dan barangsiapa yang bertawakkal kepada Allah niscaya Allah akan mencukupkan (keperluan)nya. Sesungguhnya Allah melaksanakan urusan yang (dikehendaki)Nya. Sesungguhnya Allah telah mengadakan ketentuan bagi tiap-tiap sesuatu.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Allah akan memberikan rezeki kepada orang mukmin dari arah yang tidak disangka-sangka. Siapa saja yang bertawakal kepada Allah, cukuplah Allah menjadi penjamin orang mukmin. Allah pasti mengabulkan permohonannya. Allah menetapkan apa saja dengan ukuran tertentu.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Then when they are about to attain their term appointed, either take them back in a good manner or part with them in a good manner. And take as witness two just persons from among you. And establish the testimony for Allah. That will be an admonition given to him who believes in Allah and the Last Day. And whosoever has Taqwa of Allah, He will make a way for him to get out (2)And He will provide h…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Hai Nabi, apabila kamu menceraikan istri-istrimu, maka hendaklah kamu ceraikan mereka pada waktu mereka dapat (menghadapi) iddahnya (yang wajar) dan hitunglah waktu iddah itu serta bertakwalah kepada Allah, Rabbmu. Janganlah kamu keluarkan mereka dari rumah mereka dan janganlah mereka (di-izinkan) keluar kecuali kalau mereka mengerjakan perbuatan keji yang terang. Itulah hukum-hukum Allah, dan ba…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Dia juga memberinya rezeki dari arah yang tidak terlintas di dalam hatinya dan tidak ada dalam perhitungannya. Barang siapa bersandar kepada Allah dalam segala urusannya maka Allah akan mencukupi kebutuhannya. Sesungguhnya Allah melaksanakan urusan-Nya, tidak lemah untuk berbuat sesuatu, dan tidak ada sesuatu yang luput dari-Nya. Allah sudah membuat batasan untuk segala sesuatu yang akan selesai p…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="65:3"> Tafsiriyah</label>
+          <label><input type="radio" name="65:3"> Kemenag</label>
+          <label><input type="radio" name="65:3"> Tie</label>
+          <label><input type="radio" name="65:3"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v11-6">
+        <header class="vh">
+          <span class="ref">11:6</span>
+          <span class="why">No creature but its provision is upon Allah</span>
+          <span class="sig ">overlap 31% · 1.07×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَمَا مِن دَآبَّةٍ فِى ٱلْأَرْضِ إِلَّا عَلَى ٱللَّهِ رِزْقُهَا وَيَعْلَمُ مُسْتَقَرَّهَا وَمُسْتَوْدَعَهَا ۚ كُلٌّ فِى كِتَٰبٍ مُّبِينٍ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan tidak ada suatu binatang melata pun di bumi melainkan Allah-lah yang memberi rezekinya, dan Dia mengetahui tempat berdiam binatang itu dan tempat penyimpanannya. Semuanya tertulis dalam Kitab yang nyata (Lauh mahfuzh).</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Tidak satu pun makhluk yang melata di muka bumi, melainkan Allah pasti memberikan rezeki kepadanya. Allah mengetahui tempat kediaman dan tempat kematian semua makhluk. Semua telah tercatat dalam suatu catatan yang jelas di Lauhil Mahfuzh.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And no moving creature is there on earth but its provision is due from Allah. And He knows its dwelling place and its deposit. All is in a Clear Book (6) Allah is Responsible for the Provisions of All Creatures Allah, the Exalted, informs that He is responsible for the provisions of all the creatures that dwell in the earth, whether they are small, large, sea-dwelling or land-dwelling. He knows th…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan tidak ada suatu binatang melata pun di bumi melain-kan Allah-lah yang memberi rizkinya, dan Dia mengetahui tempat berdiamnya bintang itu dan tempat penyimpanannya. Semuanya tertulis dalam Kitab yang nyata (Lauh Mahfuzh).&quot; (Hud: 6). (6) Maksudnya, semua yang merayap di muka bumi berupa manusia, binatang darat atau laut maka Allah telah menjamin rizki dan makanan mereka, rizki mereka menjadi ke…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tidak ada makhluk yang hidup di bumi ini melainkan rezekinya dijamin oleh Allah sebagai wujud kemurahan-Nya kepada makhluk. Dia mengetahui tempat tinggalnya di bumi dan mengetahui tempat di mana ia akan mati. Setiap makhluk hidup bersama rezekinya, tempat tinggalnya, dan tempat matinya semuanya tercatat di dalam kitab yang jelas, yaitu Loh Mahfuẓ.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="11:6"> Tafsiriyah</label>
+          <label><input type="radio" name="11:6"> Kemenag</label>
+          <label><input type="radio" name="11:6"> Tie</label>
+          <label><input type="radio" name="11:6"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v51-22">
+        <header class="vh">
+          <span class="ref">51:22</span>
+          <span class="why">In the heaven is your provision</span>
+          <span class="sig warn">overlap 18% · 1.03×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَفِى ٱلسَّمَآءِ رِزْقُكُمْ وَمَا تُوعَدُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan di langit terdapat (sebab-sebab) rezekimu dan terdapat (pula) apa yang dijanjikan kepadamu.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai manusia, di langit ada rezeki bagi kalian. Juga semua karunia yang dijanjikan kepada kalian.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Verily, those who have Taqwa will be in the midst of Gardens and Springs (15)Taking joy in the things which their Lord has given them. Verily, they were before this doers of good (16)They used to sleep but little by night (17)And in the hours before dawn, they were asking for forgiveness (18)And in their wealth there was the right of the Sa'il and the Mahrum (19)And on the earth are signs for thos…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan di bumi itu terdapat tanda-tanda (kekuasaan Allah) bagi orang-orang yang yakin, dan (juga) pada dirimu sendiri. Maka apakah kamu tiada memperhatikan. Dan di langit terdapat (sebab-sebab) rizkimu dan terdapat (pula) apa yang dijanjikan kepada-mu.&quot; (Adz-Dzariyat: 20-22). &quot;Maka demi Rabb langit dan bumi, sesungguhnya yang dijan-jikan itu adalah benar-benar (akan terjadi) seperti perkataan yang k…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Di langit terdapat rezeki dunia dan rezeki agama bagi kalian dan padanya terdapat balasan yang dijanjikan kepada kalian, baik balasan kebaikan ataupun keburukan.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="51:22"> Tafsiriyah</label>
+          <label><input type="radio" name="51:22"> Kemenag</label>
+          <label><input type="radio" name="51:22"> Tie</label>
+          <label><input type="radio" name="51:22"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v29-60">
+        <header class="vh">
+          <span class="ref">29:60</span>
+          <span class="why">Allah provides for it and for you</span>
+          <span class="sig ">overlap 34% · 1.17×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَكَأَيِّن مِّن دَآبَّةٍ لَّا تَحْمِلُ رِزْقَهَا ٱللَّهُ يَرْزُقُهَا وَإِيَّاكُمْ ۚ وَهُوَ ٱلسَّمِيعُ ٱلْعَلِيمُ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan berapa banyak binatang yang tidak (dapat) membawa (mengurus) rezekinya sendiri. Allah-lah yang memberi rezeki kepadanya dan kepadamu dan Dia Maha Mendengar lagi Maha Mengetahui.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Sangat banyak hewan melata yang tidak menyimpan rezekinya. Allah lah yang menjamin rezeki hewan-hewan itu. Allah juga menjamin rezeki kalian. Allah Maha Mendengar lagi Maha Mengetahui semua kebutuhan makhluk-Nya.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O My servants who believe! Certainly, spacious is My earth. Therefore worship Me (56)Everyone shall taste death. Then unto Us you shall be returned (57)And those who believe and do righteous good deeds, to them We shall surely give lofty dwellings in Paradise, beneath which rivers flow, to live therein forever. Excellent is the reward for the workers (58)Those who are patient, and put their trust …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan berapa banyak binatang yang tidak (dapat) membawa (mengurus) rizkinya sendiri. Allah-lah yang memberi rizki kepada-nya dan kepadamu, dan Dia Maha Mendengar lagi Maha Mengeta-hui.&quot; (Al-Ankabut: 60). (60) Allah سبحانه وتعالى Sang Pencipta telah menjamin rizki seluruh makhluk, yang kuat maupun mereka yang lemah. Betapa banyak ﴾ مِّن دَآبَّةٖ ﴿ &quot;binatang melata,&quot; di muka bumi ini yang lemah keku…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Setiap hewan melata -meski banyak jumlahnya- yang engkau tidak bisa mengumpulkan rezekinya serta memikulnya, Allahlah yang memberinya rezeki dan juga memberi rezeki kepada kalian. Oleh sebab itu, tidak ada alasan bagi kalian untuk tidak berhijrah karena khawatir kelaparan. Sungguh, Dia Maha Mendengar ucapan-ucapan kalian dan Maha Mengetahui segala niat dan amal perbuatan kalian, tidak ada sedikit …</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="29:60"> Tafsiriyah</label>
+          <label><input type="radio" name="29:60"> Kemenag</label>
+          <label><input type="radio" name="29:60"> Tie</label>
+          <label><input type="radio" name="29:60"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-280">
+        <header class="vh">
+          <span class="ref">2:280</span>
+          <span class="why">If the debtor is in hardship, grant him respite</span>
+          <span class="sig warn">overlap 14% · 1.75×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا۟ خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan jika (orang yang berhutang itu) dalam kesukaran, maka berilah tangguh sampai dia berkelapangan. Dan menyedekahkan (sebagian atau semua utang) itu, lebih baik bagimu, jika kamu mengetahui.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, jika peminjam dalam kesulitan untuk mengembalikan pinjamannya kepada kalian, hendaklah dia diberi tempo sampai mendapatkan kemudahan untuk membayar. Akan tetapi, bila harta yang kalian pinjamkan itu kalian dermakan, maka hal itu lebih baik bagi kalian, jika kalian benar-benar mau menyadari besarnya pahala akhirat.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> O you who believe! Have Taqwa of Allah and give up what remains from Riba, if you are (really) believers (278)And if you do not do it, then take a notice of war from Allah and His Messenger but if you repent,you shall have your capital sums. Deal not unjustly, and you shall not be dealt with unjustly (279)And if the debtor is having a hard time, then grant him time till it is easy for him to repay…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Orang-orang yang makan (mengambil) riba tidak dapat berdiri melainkan seperti berdirinya orang yang kemasukan setan lantaran (tekanan) penyakit gila. Keadaan mereka yang demikian itu, adalah disebabkan mereka berkata (berpendapat), sesungguh-nya jual beli itu sama dengan riba, padahal Allah telah menghalal-kan jual beli dan mengharamkan riba. Orang-orang yang telah sampai kepadanya nasihat (berup…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Apabila orang yang kamu hutangi itu mengalami kesulitan ekonomi, tidak punya uang untuk melunasinya, maka tundalah tagihannya sampai kondisi keuangannya membaik dan mampu melunasi hutangnya. Bila kalian bersedekah kepadanya dengan tidak menagih hutangnya atau membebaskan sebagian hutangnya, itu lebih baik bagi kalian jika kalian mengetahui keutamaan tindakan kalian itu di sisi Allah -Ta'ālā-.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:280"> Tafsiriyah</label>
+          <label><input type="radio" name="2:280"> Kemenag</label>
+          <label><input type="radio" name="2:280"> Tie</label>
+          <label><input type="radio" name="2:280"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v94-7">
+        <header class="vh">
+          <span class="ref">94:7</span>
+          <span class="why">When you are free, labour on</span>
+          <span class="sig ">overlap 22% · 1.07×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَإِذَا فَرَغْتَ فَٱنصَبْ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Maka apabila kamu telah selesai (dari sesuatu urusan), kerjakanlah dengan sungguh-sungguh (urusan) yang lain,</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, karena itu bila kamu telah menyelesaikan suatu urusan duniamu, maka laksanakanlah ibadah dengan baik.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ In the Name of Allah, the Most Gracious, the Most Merciful. أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ - وَوَضَعْنَا عَنكَ وِزْرَكَ - الَّذِي أَنقَضَ ظَهْرَكَ - وَرَفَعْنَا لَكَ ذِكْرَكَ - فَإِنَّ مَعَ الْعُسْرِ يُسْرًا - إِنَّ مَعَ الْعُسْرِ يُسْرًا - فَإِذَا فَرَغْتَ فَانصَبْ - وَإِلَىٰ رَبِّكَ فَارْغَب (1. Have We not opened your breast for you?)(2. And removed from yo…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Bukankah Kami telah melapangkan untukmu dadamu? Dan Kami telah menghilangkan dari padamu bebanmu, yang memberat-kan punggungmu? Dan Kami tinggikan bagimu sebutan (nama)mu. Karena sesungguhnya sesudah kesulitan itu ada kemudahan. Se-sungguhnya sesudah kesulitan itu ada kemudahan. Maka apabila kamu telah selesai (dari sesuatu urusan), kerjakanlah dengan sungguh-sungguh (urusan) yang lain, dan hanya…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Jika engkau telah berhenti dari pekerjaanmu dan menyelesaikannya maka bersungguh-sungguhlah untuk beribadah kepada Tuhanmu.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="94:7"> Tafsiriyah</label>
+          <label><input type="radio" name="94:7"> Kemenag</label>
+          <label><input type="radio" name="94:7"> Tie</label>
+          <label><input type="radio" name="94:7"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Trust in God <span class="n">4</span></h2>
+      <article class="verse" id="v3-159">
+        <header class="vh">
+          <span class="ref">3:159</span>
+          <span class="why">When you have decided, put your trust in Allah</span>
+          <span class="sig ">overlap 33% · 1.10×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَبِمَا رَحْمَةٍ مِّنَ ٱللَّهِ لِنتَ لَهُمْ ۖ وَلَوْ كُنتَ فَظًّا غَلِيظَ ٱلْقَلْبِ لَٱنفَضُّوا۟ مِنْ حَوْلِكَ ۖ فَٱعْفُ عَنْهُمْ وَٱسْتَغْفِرْ لَهُمْ وَشَاوِرْهُمْ فِى ٱلْأَمْرِ ۖ فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى ٱللَّهِ ۚ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Maka disebabkan rahmat dari Allah-lah kamu berlaku lemah lembut terhadap mereka. Sekiranya kamu bersikap keras lagi berhati kasar, tentulah mereka menjauhkan diri dari sekelilingmu. Karena itu maafkanlah mereka, mohonkanlah ampun bagi mereka, dan bermusyawaratlah dengan mereka dalam urusan itu. Kemudian apabila kamu telah membulatkan tekad, maka bertawakkallah kepada Allah. Sesungguhnya Allah menyukai orang-orang yang bertawakkal kepada-Nya.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, berkat rahmat Allah kepadamu, kamu bersikap lemah lembut kepada para pengikutmu. Sekiranya kamu kasar lagi keras hati kepada pengikutmu, niscaya mereka akan menjauhi kamu. Karena itu, maafkanlah orang-orang mukmin yang bersalah. Mohonkanlah ampun untuk mereka, ajaklah mereka bermusyawarah dalam urusan-urusan keduniaan mereka. Jika kamu telah berketetapan hati, maka pasrahkanlah dirimu kepada Allah. Sungguh Allah mencintai orang-orang yang pasrah kepada ketetapan Allah.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And by the mercy of Allah, you dealt with them gently. And had you been severe and harsh-hearted, they would have broken away from about you; so pardon them, and ask forgiveness for them; and consult them in the affairs. Then when you have taken a decision, put your trust in Allah, certainly, Allah loves those who put their trust (in Him)(159)If Allah helps you, none can overcome you; and if He fo…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Maka disebabkan rahmat dari Allah-lah kamu berlaku lemah lembut terhadap mereka. Sekiranya kamu bersikap keras lagi berhati kasar, tentulah mereka menjauhkan diri dari sekeli-lingmu. Karena itu maafkanlah mereka, mohonkanlah ampun bagi mereka, dan bermusyawarahlah dengan mereka dalam urusan itu. Kemudian apabila kamu telah membulatkan tekad, maka bertawa-kallah kepada Allah. Sesungguhnya Allah me…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Karena disebabkan oleh rahmat yang besar dari Allahlah, akhlak kamu -wahai Nabi- menjadi lunak kepada sahabat-sahabatmu. Seandainya engkau menunjukkan sikap kasar dalam ucapan dan tindakanmu, serta mempunyai hati yang keras, niscaya mereka akan pergi meninggalkanmu. Oleh karena itu, maafkanlah kekurangan mereka dalam bersikap kepadamu dan mohonkanlah ampunan untuk mereka, serta bermusyawarahlah de…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:159"> Tafsiriyah</label>
+          <label><input type="radio" name="3:159"> Kemenag</label>
+          <label><input type="radio" name="3:159"> Tie</label>
+          <label><input type="radio" name="3:159"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v8-2">
+        <header class="vh">
+          <span class="ref">8:2</span>
+          <span class="why">Hearts tremble, faith increases, they trust</span>
+          <span class="sig ">overlap 30% · 1.09×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">إِنَّمَا ٱلْمُؤْمِنُونَ ٱلَّذِينَ إِذَا ذُكِرَ ٱللَّهُ وَجِلَتْ قُلُوبُهُمْ وَإِذَا تُلِيَتْ عَلَيْهِمْ ءَايَٰتُهُۥ زَادَتْهُمْ إِيمَٰنًا وَعَلَىٰ رَبِّهِمْ يَتَوَكَّلُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Sesungguhnya orang-orang yang beriman ialah mereka yang bila disebut nama Allah gemetarlah hati mereka, dan apabila dibacakan ayat-ayat-Nya bertambahlah iman mereka (karenanya), dan hanya kepada Tuhanlah mereka bertawakkal.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Orang-orang mukmin yang sebenarnya yaitu mereka yang gemetar hatinya ketika mendengar nama Allah disebut. Dan iman mereka semakin kuat ketika Al-Qur'an dibacakan kepada mereka. Orang mukmin yang sebenarnya bertawakal hanya kepada Tuhan mereka.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> The believers are only those who, when Allah is mentioned, feel a fear in their hearts and when His Ayat are recited unto them, they increase their faith; and they put their trust in their Lord (2)Who perform the Salah and spend out of what We have provided them (3)It is they who are the believers in truth. For them are grades of dignity with their Lord, and forgiveness and a generous provision (P…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Mereka menanyakan kepadamu tentang (pembagian) harta rampasan perang. Katakanlah, 'Harta rampasan perang itu kepunyaan Allah dan Rasul, sebab itu bertakwalah kepada Allah dan perbaikilah hubungan di antara sesamamu, dan taatlah kepada Allah dan RasulNya jika kamu adalah orang-orang yang beriman.' Sesungguhnya orang-orang yang beriman itu adalah mereka yang apabila disebut nama Allah, gemetarlah h…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sesungguhnya orang-orang mukmin sejati ialah orang-orang yang apabila nama Allah -Subḥānahu wa Ta'ālā- disebut maka hati mereka merasa takut, kemudian hati dan tubuh mereka tergerak untuk taat kepada-Nya, dan apabila ayat-ayat Allah dibaca maka mereka merenungkannya sehingga iman mereka terus bertambah dan bertambah, serta kepada Tuhan mereka saja mereka bersandar dalam meraih kebaikan dan menghin…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="8:2"> Tafsiriyah</label>
+          <label><input type="radio" name="8:2"> Kemenag</label>
+          <label><input type="radio" name="8:2"> Tie</label>
+          <label><input type="radio" name="8:2"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v3-173">
+        <header class="vh">
+          <span class="ref">3:173</span>
+          <span class="why">&quot;Allah is sufficient for us&quot; — hasbunallah</span>
+          <span class="sig ">overlap 31% · 1.02×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">ٱلَّذِينَ قَالَ لَهُمُ ٱلنَّاسُ إِنَّ ٱلنَّاسَ قَدْ جَمَعُوا۟ لَكُمْ فَٱخْشَوْهُمْ فَزَادَهُمْ إِيمَٰنًا وَقَالُوا۟ حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">(Yaitu) orang-orang (yang mentaati Allah dan Rasul) yang kepada mereka ada orang-orang yang mengatakan: &quot;Sesungguhnya manusia telah mengumpulkan pasukan untuk menyerang kamu, karena itu takutlah kepada mereka&quot;, maka perkataan itu menambah keimanan mereka dan mereka menjawab: &quot;Cukuplah Allah menjadi Penolong kami dan Allah adalah sebaik-baik Pelindung&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Ada orang-orang munafik yang berkata kepada orang-orang mukmin: &quot;Wahai kaum mukmin, musuh-musuh Islam telah berkumpul untuk mengepung kalian. Karena itu, takutlah kalian kepada mereka.&quot; Akan tetapi ternyata orang-orang mukmin bertambah kuat imannya dan mereka berkata: &quot;Cukuplah Allah menjadi pelindung bagi kami. Allah adalah sebaik-baik pemberi perlindungan.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> (169. Think not of those as dead who are killed in the way of Allah. Nay, they are alive, with their Lord, and they have provision.)(170. They rejoice in what Allah has bestowed upon them of His bounty and rejoice for the sake of those who have not yet joined them, but are left behind (not yet martyred) that on them no fear shall come, nor shall they grieve.)(171. They rejoice in a grace and a bou…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;(Yaitu) orang-orang yang menaati perintah Allah dan Ra-sulNya sesudah mereka mendapat luka (dalam peperangan Uhud). Bagi orang-orang yang berbuat kebaikan dari kalangan mereka dan yang bertakwa ada pahala yang besar. (Yaitu) orang-orang (yang menaati Allah dan Rasul) yang kepada mereka ada orang-orang yang mengatakan, 'Sesungguhnya manusia telah mengumpulkan pasukan untuk menyerangmu, karena itu …</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Yaitu orang-orang yang diberitahu oleh sebagian orang musyrik, &quot;Sesungguhnya orang-orang Quraisy di bawah komando Abu Sufyan telah menghimpun pasukan yang sangat besar untuk menyerang dan menghabisi kalian, maka berhati-hatilah dan takutlah kalian dalam menghadapi mereka.” Namun, ucapan dan peringatan itu justru menambah kepercayaan mereka kepada Allah dan keyakinan mereka akan kebenaran janji-Nya…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="3:173"> Tafsiriyah</label>
+          <label><input type="radio" name="3:173"> Kemenag</label>
+          <label><input type="radio" name="3:173"> Tie</label>
+          <label><input type="radio" name="3:173"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v64-11">
+        <header class="vh">
+          <span class="ref">64:11</span>
+          <span class="why">No calamity strikes except by permission of Allah</span>
+          <span class="sig ">overlap 42% · 0.89×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">مَآ أَصَابَ مِن مُّصِيبَةٍ إِلَّا بِإِذْنِ ٱللَّهِ ۗ وَمَن يُؤْمِنۢ بِٱللَّهِ يَهْدِ قَلْبَهُۥ ۚ وَٱللَّهُ بِكُلِّ شَىْءٍ عَلِيمٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Tidak ada suatu musibah pun yang menimpa seseorang kecuali dengan ijin Allah; dan barangsiapa yang beriman kepada Allah niscaya Dia akan memberi petunjuk kepada hatinya. Dan Allah Maha Mengetahui segala sesuatu.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Apa saja bencana yang menimpa seseorang hanyalah terjadi dengan izin Allah. Siapa saja yang beriman kepada Allah, pasti hatinya akan mendapat hidayah. Allah Maha Mengetahui segala sesuatu.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> No calamity occurs, but by the permission of Allah, and whosoever believes in Allah, He guides his heart. And Allah is the All-Knower of everything (11)Obey Allah, and obey the Messenger; but if you turn away, then the duty of Our Messenger is only to convey clearly (12)Allah! La ilaha illa Huwa. And in Allah therefore let the believers put their trust (13) All that occurs to Mankind is by Allah's…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Tidak ada sesuatu musibah pun yang menimpa seseorang kecuali dengan izin Allah; dan barangsiapa yang beriman kepada Allah, niscaya Dia akan memberi petunjuk kepada hatinya. Dan Allah Maha Mengetahui segala sesuatu. Dan taatlah kepada Allah dan taatlah kepada Rasul, jika kamu berpaling, maka sesungguh-nya kewajiban Rasul Kami hanyalah menyampaikan (amanat Allah) dengan terang. (Dia-lah) Allah, tid…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tidak ada suatu musibah pun yang menimpa seseorang pada dirinya, hartanya, atau anaknya melainkan dengan kada dan takdir Allah. Barang siapa beriman kepada Allah, kada-Nya, dan takdir-Nya niscaya Allah akan memberi petunjuk kepada hatinya dengan berserah diri kepada perintah-Nya dan rida dengan takdir-Nya. Allah Mahatahu atas segala sesuatu, tidak ada sesuatu pun yang luput dari-Nya.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="64:11"> Tafsiriyah</label>
+          <label><input type="radio" name="64:11"> Kemenag</label>
+          <label><input type="radio" name="64:11"> Tie</label>
+          <label><input type="radio" name="64:11"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Gratitude <span class="n">3</span></h2>
+      <article class="verse" id="v14-7">
+        <header class="vh">
+          <span class="ref">14:7</span>
+          <span class="why">&quot;If you are grateful, I will surely increase you&quot;</span>
+          <span class="sig warn">overlap 15% · 0.99×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَإِذْ تَأَذَّنَ رَبُّكُمْ لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ ۖ وَلَئِن كَفَرْتُمْ إِنَّ عَذَابِى لَشَدِيدٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan (ingatlah juga), tatkala Tuhanmu memaklumkan; &quot;Sesungguhnya jika kamu bersyukur, pasti Kami akan menambah (nikmat) kepadamu, dan jika kamu mengingkari (nikmat-Ku), maka sesungguhnya azab-Ku sangat pedih&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai manusia, ingatlah ketika Tuhan kalian berfirman: &quot;Jika kalian taat kepada-Ku, sungguh Aku akan menambah rahmat kepada kalian. Akan tetapi jika kalian durhaka kepada-Ku, sungguh adzab-Ku sangat berat.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And (remember) when Musa said to his people: &quot;Call to mind Allah's favor to you, when He delivered you from Fir'awn's people who were afflicting you with horrible torment, and were slaughtering your sons and letting your women live; and in it was a tremendous trial from your Lord. (6)And (remember) when your Lord proclaimed: &quot;If you give thanks, I will give you more; but if you are thankless, veri…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sesungguhnya Kami telah mengutus Musa dengan mem-bawa ayat-ayat Kami, dan Kami perintahkan kepadanya, 'Keluar-kanlah kaummu dari gelap gulita kepada cahaya terang benderang, dan ingatkanlah mereka kepada hari-hari Allah.' Sesungguhnya pada yang demikian itu terdapat tanda-tanda (kekuasaan Allah) bagi setiap orang penyabar dan banyak bersyukur. Dan (ingatlah), ketika Musa berkata kepada kaumny…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Musa berkata kepada mereka, “Ingatlah ketika Tuhan kalian memberitahu kalian secara pasti; jika kalian bersyukur kepada Allah atas nikmat-nikmat-Nya yang telah Dia berikan kepada kalian, niscaya Dia akan menambahkan nikmat dan karunia-Nya kepada kalian. Akan tetapi, jika kalian mengingkari nikmat-nikmat-Nya atas kalian dan kalian tidak mensyukurinya maka azab Allah atas siapa yang mengingkari nikm…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="14:7"> Tafsiriyah</label>
+          <label><input type="radio" name="14:7"> Kemenag</label>
+          <label><input type="radio" name="14:7"> Tie</label>
+          <label><input type="radio" name="14:7"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v2-152">
+        <header class="vh">
+          <span class="ref">2:152</span>
+          <span class="why">Remember Me, I will remember you</span>
+          <span class="sig warn">overlap 9% · 2.13×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Karena itu, ingatlah kamu kepada-Ku niscaya Aku ingat (pula) kepadamu, dan bersyukurlah kepada-Ku, dan janganlah kamu mengingkari (nikmat)-Ku.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, taatlah kalian kepada-Ku dengan cara mengikuti Rasul-Ku ini. Aku pasti akan menyelamatkan kalian dari siksa neraka. Taatlah kalian kepada perintah-Ku dalam menggunakan nikmat-Ku yang telah Aku berikan kepada kalian. Janganlah kalian durhaka kepada-Ku dalam menggunakan nikmat-Ku itu.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Similarly (to complete My blessings on you), We have sent among you a Messenger (Muhammad ﷺ) of your own, reciting to you Our verses (the Qur'an) and purifying you, and teaching you the Book (the Qur'an) and the Hikmah (i. e., Sunnah, Islamic laws and Fiqh ـ jurisprudence), and teaching you that which you did not know (151)Therefore remember Me (by praying, glorifying). I will remember you, and be…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Sebagaimana (Kami telah menyempurnakan nikmat Kami kepadamu) Kami telah mengutus kepadamu Rasul di antara kamu yang membacakan ayat-ayat Kami kepadamu dan menyucikan kamu dan mengajarkan kepadamu al-Kitab dan al-Hikmah (as-Sunnah) serta mengajarkan kepada kamu apa yang belum kamu ketahui. Karena itu, ingatlah kamu kepadaKu, niscaya Aku ingat (pula) kepadamu, dan bersyukurlah kepadaKu, dan janganl…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Ingatlah Aku dengan hati dan anggota badan kalian, niscaya Aku akan mengingat kalian dengan memuji dan menjaga kalian karena setiap perbuatan akan berbalas perbuatan serupa. Juga syukurilah nikmat-nikmat yang telah Aku berikan kepada kalian, serta jangan kufur kepada-Ku dengan mengingkari nikmat-nikmat-Ku dan menggunakannya untuk hal-hal yang diharamkan bagi kalian.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:152"> Tafsiriyah</label>
+          <label><input type="radio" name="2:152"> Kemenag</label>
+          <label><input type="radio" name="2:152"> Tie</label>
+          <label><input type="radio" name="2:152"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v55-13">
+        <header class="vh">
+          <span class="ref">55:13</span>
+          <span class="why">Which of the favours of your Lord will you deny?</span>
+          <span class="sig ">overlap 23% · 1.64×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">فَبِأَىِّ ءَالَآءِ رَبِّكُمَا تُكَذِّبَانِ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Maka nikmat Tuhan kamu yang manakah yang kamu dustakan?</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai manusia dan jin, nikmat yang mana di antara nikmat-nikmat Tuhanmu yang kamu ingkari?</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> The Introduction to Surat Ar-Rahman Imam Ahmad recorded that Zirr said that a man said [to Ibn Mas'ud]: &quot;How is this recited: &quot;Ma'in Ghayri Yasin or Asin?&quot; He asked him, &quot;Are you that proficient in reciting the whole Qur'an?&quot; He replied, &quot;I recite the Mufassal section in one Rak'ah.&quot; So he said, &quot;Woe to you! Do you recite the Qur'an in haste, as if it is poetry? I know that the Prophet ﷺ used to r…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;(Rabb) Yang Maha Pengasih. Yang telah mengajarkan al-Qur`an. Dia menciptakan manusia. Mengajarnya pandai berbicara. Matahari dan bulan (beredar) menurut perhitungan. Dan bintang-bintang dan pohon-pohonan kedua-duanya tunduk kepadaNya. Dan Allah telah meninggikan langit dan Dia meletakkan neraca (keadilan). Supaya kamu jangan melampaui batas tentang neraca itu. Dan tegakkanlah timbangan itu dengan…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Maka, nikmat Allah yang besar manakah -wahai sekalian jin dan manusia- yang kalian dustakan?!</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="55:13"> Tafsiriyah</label>
+          <label><input type="radio" name="55:13"> Kemenag</label>
+          <label><input type="radio" name="55:13"> Tie</label>
+          <label><input type="radio" name="55:13"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Prayer answered <span class="n">4</span></h2>
+      <article class="verse" id="v2-186">
+        <header class="vh">
+          <span class="ref">2:186</span>
+          <span class="why">&quot;I am near — I respond to the call of the caller&quot;</span>
+          <span class="sig ">overlap 28% · 0.97×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَإِذَا سَأَلَكَ عِبَادِى عَنِّى فَإِنِّى قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ ٱلدَّاعِ إِذَا دَعَانِ ۖ فَلْيَسْتَجِيبُوا۟ لِى وَلْيُؤْمِنُوا۟ بِى لَعَلَّهُمْ يَرْشُدُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan apabila hamba-hamba-Ku bertanya kepadamu tentang Aku, maka (jawablah), bahwasanya Aku adalah dekat. Aku mengabulkan permohonan orang yang berdoa apabila ia memohon kepada-Ku, maka hendaklah mereka itu memenuhi (segala perintah-Ku) dan hendaklah mereka beriman kepada-Ku, agar mereka selalu berada dalam kebenaran.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, bila hamba-hamba-Ku bertanya kepadamu tentang keberadaan-Ku, maka katakanlah bahwa Aku amat dekat dengan hamba-Ku. Aku kabulkan permohonan orang-orang yang memohon kepada-Ku, dengan syarat mereka mau mematuhi perintah-Ku dan mengimani keesaan-Ku. Mudah-mudahan mereka selamat dari kesesatan.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And when My servants ask you (O Muhammad ﷺ concerning Me, then answer them), I am indeed near (to them by My knowledge). I respond to the invocations of the supplicant when he calls on Me (without any mediator or intercessor). So let them obey Me and believe in Me, so that they may be led aright (186) Allah hears the Servant's Supplication Imam Ahmad reported that Abu Musa Al-Ash'ari said, &quot;We wer…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan apabila hamba-hambaKu bertanya kepadamu tentang Aku, maka (jawablah), bahwasanya Aku adalah dekat. Aku me-ngabulkan permohonan orang yang berdoa apabila ia memohon kepadaKu, maka hendaklah mereka itu memenuhi (segala perin-tahKu) dan hendaklah mereka beriman kepadaKu, agar mereka selalu berada dalam kebenaran.&quot; (Al-Baqarah: 186). (186) Ayat ini adalah jawaban dari suatu pertanyaan. Be-berapa …</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Apabila engkau -wahai Nabi- ditanya oleh hamba-hamba-Ku tentang kedekatan-Ku dan kesediaan-Ku mengabulkan doa mereka, maka sesungguhnya Aku ini dekat dengan mereka, mengetahui keadaan mereka, dan mendengar doa mereka. Jadi, mereka tidak membutuhkan perantara dan tidak perlu bersuara keras. Aku mengabulkan doa orang yang berdoa apabila dia berdoa kepada-Ku dengan tulus ikhlas di dalam doanya. Sebab…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="2:186"> Tafsiriyah</label>
+          <label><input type="radio" name="2:186"> Kemenag</label>
+          <label><input type="radio" name="2:186"> Tie</label>
+          <label><input type="radio" name="2:186"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v40-60">
+        <header class="vh">
+          <span class="ref">40:60</span>
+          <span class="why">&quot;Call upon Me, I will respond to you&quot;</span>
+          <span class="sig ">overlap 28% · 1.18×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَقَالَ رَبُّكُمُ ٱدْعُونِىٓ أَسْتَجِبْ لَكُمْ ۚ إِنَّ ٱلَّذِينَ يَسْتَكْبِرُونَ عَنْ عِبَادَتِى سَيَدْخُلُونَ جَهَنَّمَ دَاخِرِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan Tuhanmu berfirman: &quot;Berdoalah kepada-Ku, niscaya akan Kuperkenankan bagimu. Sesungguhnya orang-orang yang menyombongkan diri dari menyembah-Ku akan masuk neraka Jahannam dalam keadaan hina dina&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Tuhan kalian berfirman kepada orang-orang mukmin: &quot;Taatlah kalian kepada-Ku, niscaya Aku akan teguhkan hati kalian. Sungguh orang-orang yang menolak untuk taat dan mengesakan Aku, mereka akan masuk ke dalam neraka Jahanam dengan hina.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And your Lord said: &quot;Call upon Me, I will answer you. Verily, those who scorn My worship they will surely enter Hell in humiliation! (60) The Command to call upon Allah By His grace and kindness, Allah encourages His servants to call upon Him, and He guarantees to respond. Sufyan Ath-Thawri used to say: &quot;O You Who love most those who ask of You, and O You Who hate most those who do not ask of You,…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Rabbmu berfirman, 'Berdoalah kepadaKu, niscaya akan Ku-perkenankan bagimu. Sesungguhnya orang-orang yang menyombongkan diri dari menyembahKu akan masuk Neraka Jahanam dalam keadaan hina dina'.&quot; (Ghafir: 60). (60) Ini adalah bagian dari kelembutan Allah terhadap hamba-hambaNya dan nikmatNya yang sangat besar, di mana Dia menyeru mereka kepada apa yang di dalamnya terdapat kebaikan bagi Agama d…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tuhan kalian -wahai manusia- berfirman, “Esakanlah Aku dalam ibadah dan permintaan (doa), niscaya Aku akan memperkenankan doa kalian, memaafkan kalian, dan merahmati kalian. Sesungguhnya orang-orang yang menyombongkan diri dari beribadah kepada-Ku akan masuk ke neraka Jahanam pada hari Kiamat dalam keadaan hina dina.”</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="40:60"> Tafsiriyah</label>
+          <label><input type="radio" name="40:60"> Kemenag</label>
+          <label><input type="radio" name="40:60"> Tie</label>
+          <label><input type="radio" name="40:60"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v7-55">
+        <header class="vh">
+          <span class="ref">7:55</span>
+          <span class="why">Call upon your Lord humbly and in secret</span>
+          <span class="sig ">overlap 28% · 1.35×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">ٱدْعُوا۟ رَبَّكُمْ تَضَرُّعًا وَخُفْيَةً ۚ إِنَّهُۥ لَا يُحِبُّ ٱلْمُعْتَدِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Berdoalah kepada Tuhanmu dengan berendah diri dan suara yang lembut. Sesungguhnya Allah tidak menyukai orang-orang yang melampaui batas.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai kaum mukmin, mohonlah kalian kepada Allah, Tuhan kalian dengan sikap merendahkan diri dan dengan rasa takut. Sungguh Allah tidak menyukai orang-orang yang melanggar syari'at-Nya.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Invoke your Lord Tadarru'an and Khufyah. He likes not the aggressors (55)And do not do mischief on the earth, after it has been set in order, and invoke Him with fear and hope. Surely, Allah's mercy is (ever) near unto the good-doers (56) Encouraging supplicating to Allah Allah commands His servants to supplicate to Him, for this will ensure their welfare in this life and the Hereafter. Allah said…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Berdoalah kepada Rabbmu dengan berendah diri dan suara yang lembut. Sesungguhnya Allah tidak menyukai orang-orang yang melampaui batas. Dan janganlah kamu membuat keru-sakan di muka bumi sesudah (Allah) memperbaikinya, dan ber-doalah kepadaNya dengan rasa takut (tidak akan diterima) dan harapan (akan dikabulkan). Sesungguhnya rahmat Allah amat dekat kepada orang-orang yang berbuat baik.&quot; (Al-A'ra…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Berdoalah kalian -wahai orang-orang mukmin- kepada Tuhan kalian dengan penuh kerendahan dan ketundukan, dan dengan suara yang pelan dan samar, serta tulus dalam berdoa, tidak memperlihatkannya kepada manusia dan tidak menyekutukan-Nya dengan yang lain. Sesungguhnya Allah tidak menyukai orang-orang yang melampaui batas dalam berdoa. Di antara tindakan terbesar yang melampaui batas dalam berdoa iala…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="7:55"> Tafsiriyah</label>
+          <label><input type="radio" name="7:55"> Kemenag</label>
+          <label><input type="radio" name="7:55"> Tie</label>
+          <label><input type="radio" name="7:55"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v21-87">
+        <header class="vh">
+          <span class="ref">21:87</span>
+          <span class="why">The du'a of Yunus, from inside the darkness</span>
+          <span class="sig ">overlap 26% · 1.57×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَذَا ٱلنُّونِ إِذ ذَّهَبَ مُغَٰضِبًا فَظَنَّ أَن لَّن نَّقْدِرَ عَلَيْهِ فَنَادَىٰ فِى ٱلظُّلُمَٰتِ أَن لَّآ إِلَٰهَ إِلَّآ أَنتَ سُبْحَٰنَكَ إِنِّى كُنتُ مِنَ ٱلظَّٰلِمِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan (ingatlah kisah) Dzun Nun (Yunus), ketika ia pergi dalam keadaan marah, lalu ia menyangka bahwa Kami tidak akan mempersempitnya (menyulitkannya), maka ia menyeru dalam keadaan yang sangat gelap: &quot;Bahwa tidak ada Tuhan selain Engkau. Maha Suci Engkau, sesungguhnya aku adalah termasuk orang-orang yang zalim&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Ingatlah tentang kisah Dzun Nun yaitu Yunus. Ketika Yunus meninggalkan kaumnya yang durhaka dengan rasa marah. Yunus menyangka bahwa Kami tidak akan menghukum perbuatannya melarikan diri dari dakwah. Pada kegelapan malam, dalam perut ikan di tengah laut Yunus berdo'a: &quot;Sesungguhnya tidak ada tuhan yang berhak dimohon perlindungannya kecuali Engkau. Engkau Mahasuci dari sifat kezhaliman. Sungguh aku termasuk golongan orang yang berbuat zhalim, karena telah bersangka buruk kepada Engkau.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And (remember) Dhun-Nun, when he went off in anger, and imagined that We shall not punish him! But he cried through the darknesses (Zulumat)(saying): &quot;There is no God but You, Glorified be You! Truly, I have been of the Zalimin wrongdoers. (87)So We answered his call, and delivered him from the distress. And thus We do deliver the believers (88) Yunus This story is mentioned here, and in Surat As-…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan (ingatlah kisah) Dzu an-Nun (Yunus), ketika dia pergi dalam keadaan marah, lalu dia menyangka bahwa Kami tidak akan menyulitkannya, maka dia menyeru dalam keadaan sangat gelap, 'Bahwa tidak ada tuhan (yang berhak disembah) kecuali Engkau. Mahasuci Engkau, sesungguhnya aku adalah termasuk orang-orang yang zhalim.' Maka Kami memperkenankan doanya dan menyelamatkannya dari kedukaan. Dan demikian…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Ingatlah pula -wahai Rasul- tentang kisah orang yang ditelan oleh ikan besar, yaitu Yunus -'alaihissalām- ketika ia pergi -tanpa ada perintah dari Tuhannya- dalam keadaan marah terhadap kaumnya yang terus-menerus berada dalam kemaksiatan. Dia menyangka bahwa Kami tidak akan menyulitkannya dengan menghukumnya atas kepergiannya, sehingga ia pun Kami uji dengan ujian yang sulit lagi berat tatkala dit…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="21:87"> Tafsiriyah</label>
+          <label><input type="radio" name="21:87"> Kemenag</label>
+          <label><input type="radio" name="21:87"> Tie</label>
+          <label><input type="radio" name="21:87"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Mercy <span class="n">3</span></h2>
+      <article class="verse" id="v7-156">
+        <header class="vh">
+          <span class="ref">7:156</span>
+          <span class="why">&quot;My mercy encompasses all things&quot;</span>
+          <span class="sig ">overlap 39% · 1.07×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَٱكْتُبْ لَنَا فِى هَٰذِهِ ٱلدُّنْيَا حَسَنَةً وَفِى ٱلْـَٔاخِرَةِ إِنَّا هُدْنَآ إِلَيْكَ ۚ قَالَ عَذَابِىٓ أُصِيبُ بِهِۦ مَنْ أَشَآءُ ۖ وَرَحْمَتِى وَسِعَتْ كُلَّ شَىْءٍ ۚ فَسَأَكْتُبُهَا لِلَّذِينَ يَتَّقُونَ وَيُؤْتُونَ ٱلزَّكَوٰةَ وَٱلَّذِينَ هُم بِـَٔايَٰتِنَا يُؤْمِنُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan tetapkanlah untuk kami kebajikan di dunia ini dan di akhirat; sesungguhnya kami kembali (bertaubat) kepada Engkau. Allah berfirman: &quot;Siksa-Ku akan Kutimpakan kepada siapa yang Aku kehendaki dan rahmat-Ku meliputi segala sesuatu. Maka akan Aku tetapkan rahmat-Ku untuk orang-orang yang bertakwa, yang menunaikan zakat dan orang-orang yang beriman kepada ayat-ayat Kami&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Berikanlah kepada kami kebaikan di dunia dan di akhirat. Sungguh kami telah diberi petunjuk untuk bertaubat kepada-Mu.&quot; Allah berfirman: &quot;Siksa-Ku akan Kutimpakan kepada siapa saja yang Aku kehendaki karena dosa-dosanya, dan rahmat-Ku meliputi segala sesuatu. Aku akan menetapkan rahmat itu bagi mereka yang melaksanakan shalat dan menunaikan zakat serta meyakini bukti-bukti kebenaran keesaan Kami.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And Musa chose out of his people seventy (of the best) men for Our appointed time and place of meeting, and when they were seized with a violent earthquake, he said: &quot;O my Lord, if it had been Your Will, You could have destroyed them and me before; would You destroy us for the deeds of the foolish among us? It is only Your trial by which You lead astray whom You will, and keep guided whom You will…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Kemudian Kami utus Musa sesudah rasul-rasul itu memba-wa ayat-ayat Kami kepada Fir'aun dan pemuka-pemuka kaumnya, lalu mereka mengingkari ayat-ayat itu. Maka perhatikanlah ba-gaimana akibat orang-orang yang membuat kerusakan. Dan Musa berkata, 'Hai Fir'aun, sesungguhnya aku ini adalah seorang utusan dari Rabb semesta alam, wajib atasku tidak berkata atas Nama Allah, kecuali yang hak. Sesungguhnya…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Jadikanlah kami bagian dari orang-orang yang Engkau muliakan di dalam hidup ini dengan beragam nikmat, jauh dari marabahaya, dan gemar berbuat baik, serta masukkanlah kami ke dalam golongan orang-orang saleh yang Engkau siapkan surga di akhirat kelak. Sesungguhnya kami telah bertobat kepada-Mu dan kembali ke jalan-Mu seraya mengakui kekeliruan kami.” Allah -Ta'ālā- berfirman, “Azab-Ku akan Aku tim…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="7:156"> Tafsiriyah</label>
+          <label><input type="radio" name="7:156"> Kemenag</label>
+          <label><input type="radio" name="7:156"> Tie</label>
+          <label><input type="radio" name="7:156"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v21-107">
+        <header class="vh">
+          <span class="ref">21:107</span>
+          <span class="why">Sent as a mercy to the worlds</span>
+          <span class="sig ">overlap 33% · 1.04×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَمَآ أَرْسَلْنَٰكَ إِلَّا رَحْمَةً لِّلْعَٰلَمِينَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan tiadalah Kami mengutus kamu, melainkan untuk (menjadi) rahmat bagi semesta alam.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, Kami utus kamu hanyalah untuk menjadi rahmat bagi seluruh umat manusia.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And indeed We have written in Az-Zabur after Adh-Dhikr that My righteous servants shall inherit the land (105)Verily, in this there is a plain Message for people who worship Allah (106)And We have sent you (O Muhammad ﷺ) not but as a mercy for the 'Alamin (107) The Earth will be inherited by the Righteous Allah tells us of His decree for His righteous servants who are the blessed in this world and…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Sesungguhnya (apa yang disebutkan) dalam (surat) ini, benar-benar menjadi peringatan bagi kaum yang menyembah Allah. Dan tidaklah Kami mengutus kamu, melainkan untuk (menjadi) rahmat bagi semesta alam. Katakanlah, 'Sesungguhnya yang di-wahyukan kepadaku adalah, 'Bahwasanya Tuhanmu adalah Tuhan Yang Esa, maka apakah kamu telah berserah diri (kepadaNya).' Jika mereka berpaling maka katakanlah, 'Aku…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Kami tidaklah mengutus engkau sebagai rasul -wahai Muhammad- melainkan sebagai rahmat bagi semua makhluk disebabkan mulianya sifatmu berupa sikap komitmen dan antusiasmu untuk memberikan hidayah pada manusia dan menyelamatkan mereka dari azab Allah.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="21:107"> Tafsiriyah</label>
+          <label><input type="radio" name="21:107"> Kemenag</label>
+          <label><input type="radio" name="21:107"> Tie</label>
+          <label><input type="radio" name="21:107"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v6-54">
+        <header class="vh">
+          <span class="ref">6:54</span>
+          <span class="why">Your Lord has decreed mercy upon Himself</span>
+          <span class="sig ">overlap 29% · 1.04×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَإِذَا جَآءَكَ ٱلَّذِينَ يُؤْمِنُونَ بِـَٔايَٰتِنَا فَقُلْ سَلَٰمٌ عَلَيْكُمْ ۖ كَتَبَ رَبُّكُمْ عَلَىٰ نَفْسِهِ ٱلرَّحْمَةَ ۖ أَنَّهُۥ مَنْ عَمِلَ مِنكُمْ سُوٓءًۢا بِجَهَٰلَةٍ ثُمَّ تَابَ مِنۢ بَعْدِهِۦ وَأَصْلَحَ فَأَنَّهُۥ غَفُورٌ رَّحِيمٌ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Apabila orang-orang yang beriman kepada ayat-ayat Kami itu datang kepadamu, maka katakanlah: &quot;Salaamun alaikum. Tuhanmu telah menetapkan atas diri-Nya kasih sayang, (yaitu) bahwasanya barang siapa yang berbuat kejahatan di antara kamu lantaran kejahilan, kemudian ia bertaubat setelah mengerjakannya dan mengadakan perbaikan, maka sesungguhnya Allah Maha Pengampun lagi Maha Penyayang.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, apabila orang-orang yang mengimani Al-Qur'an datang kepadamu, katakanlah kepada mereka: &quot;Semoga kalian hidup sejahtera. Tuhan kalian telah mewajibkan diri-Nya untuk memberikan rahmat kepada kalian. Siapa saja di antara kalian yang melakukan dosa karena kelalaian, kemudian ia bertaubat dan beramal shalih, sungguh Allah Maha Pengampun lagi Maha Penyayang kepada orang yang bertaubat.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Say: &quot;I don't tell you that with me are the treasures of Allah, nor (that) I know the Unseen; nor do I tell you that I am an angel. I but follow what is revealed to me.&quot; Say: &quot;Are the blind and the one who sees equal? Will you not then consider? (50)And warn therewith those who fear that they will be gathered before their Lord, when there will be neither a protector nor an intercessor for them bes…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan berilah peringatan dengan ayat yang diwahyukan itu kepada orang-orang yang takut akan dihimpun kepada Tuhannya (pada Hari Kiamat), sedang bagi mereka tidak ada seorang pelin-dung dan pemberi syafa'at pun selain dari Allah, agar mereka bertakwa. Dan janganlah kamu mengusir orang-orang yang me-nyeru Tuhannya di pagi hari dan di petang hari, sedang mereka menghendaki WajahNya. Kamu tidak memikul…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Apabila kamu -wahai Rasul- didatangi oleh orang-orang yang beriman kepada ayat-ayat Kami yang membuktikan kebenaran agama yang kamu bawa maka jawablah salam mereka untuk menghormati mereka. Lalu berilah mereka kabar gembira akan luasnya kasih sayang Allah karena Allah telah mewajibkan diri-Nya sendiri untuk menebar kasih sayang sebagai bagian dari kemuliaan-Nya. Barang siapa di antara kalian berbu…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="6:54"> Tafsiriyah</label>
+          <label><input type="radio" name="6:54"> Kemenag</label>
+          <label><input type="radio" name="6:54"> Tie</label>
+          <label><input type="radio" name="6:54"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Self-worth &amp; purpose <span class="n">3</span></h2>
+      <article class="verse" id="v95-4">
+        <header class="vh">
+          <span class="ref">95:4</span>
+          <span class="why">Created man in the best of forms</span>
+          <span class="sig ">overlap 29% · 0.71×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِىٓ أَحْسَنِ تَقْوِيمٍ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">sesungguhnya Kami telah menciptakan manusia dalam bentuk yang sebaik-baiknya.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Kami menciptakan manusia dengan sifat yang paling baik.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> The Recitation of Surat At-Tin in the Prayer while Traveling Malik and Shu'bah narrated from 'Adi bin Thabit, who narrated that Al-Bara' bin 'Azib said, &quot;The Prophet ﷺ used to recite in one of his Rak'ahs while traveling 'At-Tin waz-Zaytun' (Surat At-Tin), and I have never heard anyone with a nicer voice or recitation than him.&quot; The Group has recorded this Hadith in their books. بِسْمِ اللَّهِ الر…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Demi (buah) Tin dan (buah) Zaitun, dan demi bukit Sinai, dan demi kota (Makkah) ini yang aman, sungguh Kami telah men-ciptakan manusia dalam bentuk yang sebaik-baiknya. Kemudian Kami kembalikan dia ke tempat yang serendah-rendahnya (neraka), kecuali orang-orang yang beriman dan mengerjakan amal shalih; maka bagi mereka pahala yang tiada putus-putusnya. Maka apa-kah yang menyebabkan kamu mendustak…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sungguh Kami telah menciptakan manusia dengan sebaik-baik ciptaan dan seindah-indahnya rupa.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="95:4"> Tafsiriyah</label>
+          <label><input type="radio" name="95:4"> Kemenag</label>
+          <label><input type="radio" name="95:4"> Tie</label>
+          <label><input type="radio" name="95:4"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v51-56">
+        <header class="vh">
+          <span class="ref">51:56</span>
+          <span class="why">Created jinn and mankind only to worship</span>
+          <span class="sig warn">overlap 15% · 0.87×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَمَا خَلَقْتُ ٱلْجِنَّ وَٱلْإِنسَ إِلَّا لِيَعْبُدُونِ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan aku tidak menciptakan jin dan manusia melainkan supaya mereka mengabdi kepada-Ku.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Aku ciptakan jin dan manusia hanyalah agar mereka taat dan mengesakan Aku.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> Likewise, no Messenger came to those before them but they said: &quot;A sorcerer or a madman! (52)Have they transmitted this saying to these? Nay, they are themselves a people transgressing beyond bounds (53)So turn away from them, you are not blameworthy (54)And remind, for verily, the reminding profits the believers (55)And I created not the Jinn and mankind except that they should worship Me (56)I s…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Aku tidak menciptakan jin dan manusia melainkan supaya mereka menyembahKu. Aku tidak menghendaki rizki sedi-kitpun dari mereka dan Aku tidak menghendaki supaya mereka memberi Aku makan. Sesungguhnya Allah, Dia-lah Maha Pemberi rizki Yang Mempunyai Kekuatan lagi Sangat Kokoh.&quot; (Adz-Dzari-yat: 56-58). (56) Inilah tujuan Allah سبحانه وتعالى menciptakan jin dan manusia, dan Allah سبحانه وتعالى me…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tidaklah Aku ciptakan jin dan manusia melainkan untuk beribadah kepada-Ku semata, tidaklah Aku menciptakan mereka agar mereka mengadakan sekutu bagi-Ku.</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="51:56"> Tafsiriyah</label>
+          <label><input type="radio" name="51:56"> Kemenag</label>
+          <label><input type="radio" name="51:56"> Tie</label>
+          <label><input type="radio" name="51:56"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v17-70">
+        <header class="vh">
+          <span class="ref">17:70</span>
+          <span class="why">We have certainly honoured the children of Adam</span>
+          <span class="sig ">overlap 29% · 1.10×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَلَقَدْ كَرَّمْنَا بَنِىٓ ءَادَمَ وَحَمَلْنَٰهُمْ فِى ٱلْبَرِّ وَٱلْبَحْرِ وَرَزَقْنَٰهُم مِّنَ ٱلطَّيِّبَٰتِ وَفَضَّلْنَٰهُمْ عَلَىٰ كَثِيرٍ مِّمَّنْ خَلَقْنَا تَفْضِيلًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan sesungguhnya telah Kami muliakan anak-anak Adam, Kami angkut mereka di daratan dan di lautan, Kami beri mereka rezeki dari yang baik-baik dan Kami lebihkan mereka dengan kelebihan yang sempurna atas kebanyakan makhluk yang telah Kami ciptakan.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Sungguh Kami telah memuliakan anak Adam lebih daripada yang lain. Kami telah menjadikan manusia dapat berjalan di darat dan berlayar di laut. Kami berikan rezeki yang baik kepada mereka. Kami melebihkan manusia dari sebagian besar makhluk Kami dengan kelebihan yang jelas.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And indeed We have honored the Children of Adam, and We have carried them on land and sea, and have provided them with At-Tayyibat, and have preferred them above many of those whom We have created with a marked preferment (70) The Honor and noble Nature of Man Allah tells us how He has honored the sons of Adam and made them noble by creating them in the best and most perfect of forms, as He says: …</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan sesungguhnya telah Kami muliakan anak-anak Adam, Kami angkut mereka di daratan dan di lautan, Kami beri mereka rizki dari yang baik-baik, dan Kami lebihkan mereka dengan ke-lebihan yang sempurna atas kebanyakan makhluk yang telah Kami ciptakan.&quot; (Al-Isra`: 70). (70) Ini adalah salah satu kemurahan dan kebaikan Allah yang tidak terukur kadarnya kepada mereka, yang mana Dia me-muliakan Bani Ada…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Sungguh, Kami telah memuliakan anak keturunan Adam dengan karunia akal pikiran, bersujudnya para malaikat terhadap kakek mereka, serta kemuliaan lainnya. Kami juga telah menundukkan segala sarana yang mengangkut mereka di daratan berupa hewan tunggangan dan alat transportasi, serta menundukkan sarana yang mengangkut mereka di lautan berupa kapal-kapal, dan Kami beri mereka rezeki berupa makanan, m…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="17:70"> Tafsiriyah</label>
+          <label><input type="radio" name="17:70"> Kemenag</label>
+          <label><input type="radio" name="17:70"> Tie</label>
+          <label><input type="radio" name="17:70"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section><section class="theme"><h2>Family <span class="n">3</span></h2>
+      <article class="verse" id="v30-21">
+        <header class="vh">
+          <span class="ref">30:21</span>
+          <span class="why">He placed between you affection and mercy</span>
+          <span class="sig warn">overlap 19% · 1.11×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَمِنْ ءَايَٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَـَٔايَٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda bagi kaum yang berfikir.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Sebagian dari tanda keagungan Allah adalah Allah telah menciptakan istri-istri kalian dari jenis kalian sendiri agar kalian memperoleh ketenangan hidup bersamanya. Allah tanamkan kecintaan dan kasih sayang di antara kalian. Sungguh adanya hidup berpasangan suami istri menjadi bukti adanya kekuasaan Allah bagi orang-orang yang berakal.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And among His signs is this that He created you from dust, and then – behold you are human beings scattered (20)And among His signs is this that He created for you wives from among yourselves, that you may find repose in them, and He has put between you affection and mercy. Verily, in that are indeed signs for a people who reflect (21) Among the Signs of Allah Allah says: وَمِنْ آيَاتِهِ (And amon…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan di antara tanda-tanda kekuasaanNya ialah Dia men-ciptakan kamu dari tanah, kemudian tiba-tiba kamu (menjadi) manusia yang berkembang biak. Dan di antara tanda-tanda kekua-saanNya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikanNya di antaramu rasa kasih dan sayang. Sesungguh-nya pada yang demikian itu benar-bena…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Dan, di antara tanda-tanda kekuasaan-Nya yang agung yang menunjukkan kekuasaan dan keesaan-Nya adalah Dia menciptakan untuk kalian -wahai kaum laki-laki- dari jenis kalian pasangan-pasangan agar jiwa kalian merasa cenderung dan tenang kepadanya karena ada kesamaan di antara kalian, serta Dia memunculkan rasa cinta dan kasih sayang di antara kalian dan mereka. Sesungguhnya di dalam hal itu terdapat…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="30:21"> Tafsiriyah</label>
+          <label><input type="radio" name="30:21"> Kemenag</label>
+          <label><input type="radio" name="30:21"> Tie</label>
+          <label><input type="radio" name="30:21"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v17-23">
+        <header class="vh">
+          <span class="ref">17:23</span>
+          <span class="why">Be good to parents</span>
+          <span class="sig ">overlap 27% · 0.93×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوٓا۟ إِلَّآ إِيَّاهُ وَبِٱلْوَٰلِدَيْنِ إِحْسَٰنًا ۚ إِمَّا يَبْلُغَنَّ عِندَكَ ٱلْكِبَرَ أَحَدُهُمَآ أَوْ كِلَاهُمَا فَلَا تَقُل لَّهُمَآ أُفٍّ وَلَا تَنْهَرْهُمَا وَقُل لَّهُمَا قَوْلًا كَرِيمًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan Tuhanmu telah memerintahkan supaya kamu jangan menyembah selain Dia dan hendaklah kamu berbuat baik pada ibu bapakmu dengan sebaik-baiknya. Jika salah seorang di antara keduanya atau kedua-duanya sampai berumur lanjut dalam pemeliharaanmu, maka sekali-kali janganlah kamu mengatakan kepada keduanya perkataan &quot;ah&quot; dan janganlah kamu membentak mereka dan ucapkanlah kepada mereka perkataan yang mulia.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Wahai Muhammad, Tuhanmu telah menetapkan: &quot;Janganlah kalian beribadah kecuali hanya kepada Allah, dan berbuat baiklah kepada ibu bapak kamu. Jika ibu bapak kamu, salah satu atau keduanya berusia lanjut dalam pemeliharaan kamu, janganlah kamu berkata 'ah' kepada mereka, dan janganlah membentak mereka. Akan tetapi katakanlah kepada mereka perkataan yang menyenangkan mereka.</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And your Lord has Qada [decreed] that you worship none but Him. And that you be dutiful to your parents. If one of them or both of them attain old age in your life, say not to them a word of disrespect, nor reprimand them but address them in terms of honor (23)And lower unto them the wing of submission and humility through mercy, and say: &quot;My Lord! Bestow on them Your mercy as they did bring me up…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Rabbmu telah memerintahkan supaya kamu jangan me-nyembah kecuali kepadaNya, dan hendaklah kamu berbuat baik pada ibu bapakmu dengan sebaik-baiknya. Jika salah seorang di antara keduanya atau kedua-duanya sampai berumur lanjut dalam pemeliharaanmu, maka sekali-kali janganlah kamu mengatakan kepada keduanya perkataan, 'Ah' dan janganlah kamu membentak mereka, dan ucapkanlah kepada mereka perkat…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Tuhanmu telah memerintahkan dan mewajibkanmu -wahai hamba Allah- agar tidak menyembah selain-Nya, serta memerintahkan untuk berbuat baik kepada kedua orang tua, terutama ketika mereka telah berusia lanjut. Jika salah seorang di antara keduanya atau kedua-duanya telah berusia lanjut dalam pemeliharaanmu maka janganlah sekali-kali engkau mengeluh dari mereka dengan kata-kata yang menyakiti mereka, d…</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="17:23"> Tafsiriyah</label>
+          <label><input type="radio" name="17:23"> Kemenag</label>
+          <label><input type="radio" name="17:23"> Tie</label>
+          <label><input type="radio" name="17:23"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article>
+      <article class="verse" id="v17-24">
+        <header class="vh">
+          <span class="ref">17:24</span>
+          <span class="why">&quot;My Lord, have mercy on them as they raised me&quot;</span>
+          <span class="sig ">overlap 23% · 1.26×</span>
+        </header>
+        <p class="ar" dir="rtl" lang="ar">وَٱخْفِضْ لَهُمَا جَنَاحَ ٱلذُّلِّ مِنَ ٱلرَّحْمَةِ وَقُل رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًا</p>
+        <div class="pair">
+          <div class="col lit">
+            <p class="lbl">Kemenag — literal (harfiyah)</p>
+            <p class="txt">Dan rendahkanlah dirimu terhadap mereka berdua dengan penuh kesayangan dan ucapkanlah: &quot;Wahai Tuhanku, kasihilah mereka keduanya, sebagaimana mereka berdua telah mendidik aku waktu kecil&quot;.</p>
+          </div>
+          <div class="col int">
+            <p class="lbl">Tarjamah Tafsiriyah — meaning-based <em>(proposed primary voice)</em></p>
+            <p class="txt">Tundukkanlah dirimu kepada ibu bapakmu dengan sikap rendah hati lantaran rasa kasih sayang, dan berdo'alah: &quot;Wahai Tuhanku, kasih sayangilah ibu bapakku sebagaimana mereka telah memeliharaku dengan kasih sayang sewaktu aku masih kecil.&quot;</p>
+          </div>
+        </div>
+        <details class="ground">
+          <summary>Grounding — what the tafsir corpus says (3)</summary>
+          <p class="gp"><span class="ga">Ismail ibn Kathir <em>[tier 1]</em></span> And your Lord has Qada [decreed] that you worship none but Him. And that you be dutiful to your parents. If one of them or both of them attain old age in your life, say not to them a word of disrespect, nor reprimand them but address them in terms of honor (23)And lower unto them the wing of submission and humility through mercy, and say: &quot;My Lord! Bestow on them Your mercy as they did bring me up…</p><p class="gp"><span class="ga">Abd ar-Rahman as-Sa'di <em>[tier 2]</em></span> &quot;Dan Rabbmu telah memerintahkan supaya kamu jangan me-nyembah kecuali kepadaNya, dan hendaklah kamu berbuat baik pada ibu bapakmu dengan sebaik-baiknya. Jika salah seorang di antara keduanya atau kedua-duanya sampai berumur lanjut dalam pemeliharaanmu, maka sekali-kali janganlah kamu mengatakan kepada keduanya perkataan, 'Ah' dan janganlah kamu membentak mereka, dan ucapkanlah kepada mereka perkat…</p><p class="gp"><span class="ga">Markaz Tafsir, Riyadh (committee) <em>[tier 2]</em></span> Rendahkanlah dirimu terhadap keduanya dengan penuh rasa kasih sayang, dan katakanlah, &quot;Wahai Tuhanku! Sayangi dan rahmatilah keduanya karena mereka berdua telah bersusah payah membina dan memeliharaku sewaktu kecil.&quot;</p>
+        </details>
+        <div class="verdict">
+          <span class="vl">Which reaches further?</span>
+          <label><input type="radio" name="17:24"> Tafsiriyah</label>
+          <label><input type="radio" name="17:24"> Kemenag</label>
+          <label><input type="radio" name="17:24"> Tie</label>
+          <label><input type="radio" name="17:24"> ⚠ Tafsiriyah changes the meaning</label>
+        </div>
+      </article></section>
+
+<footer>Axiara AI · Generated from the pinned corpus · Kemenag (literal) + Tarjamah Tafsiriyah (interpretive)</footer>
+</div>
+</body>
+</html>
