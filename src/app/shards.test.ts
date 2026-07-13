@@ -139,4 +139,24 @@ describe("Anti: the UI speaks Indonesian only", () => {
     expect(PROBLEM_VERSES.length).toBe(55);
     for (const v of PROBLEM_VERSES) expect(v.why.trim().length).toBeGreaterThan(0);
   });
+
+  // Guard the ARTIFACT, not just the source.
+  //
+  // The captions were translated in problem-verses.ts and the source test above went green —
+  // while the browser kept rendering "Remember Me, I will remember you", because corpus.json had
+  // been built BEFORE the translation and nobody rebuilt it. The test was measuring the input;
+  // the reader sees the output. A gate on the source alone is not a gate.
+  test("Anti: the SHIPPED corpus.json carries no English caption", async () => {
+    const corpus = (await Bun.file("web/public/corpus.json").json()) as { verses: { ref: string; why: string }[] };
+    const leaks = corpus.verses.filter((v) => ENGLISH.test(v.why)).map((v) => `${v.ref} — ${v.why}`);
+    expect(leaks).toEqual([]);
+  });
+
+  test("the shipped corpus.json is not stale relative to the source captions", async () => {
+    const corpus = (await Bun.file("web/public/corpus.json").json()) as { verses: { ref: string; why: string }[] };
+    for (const v of PROBLEM_VERSES) {
+      const shipped = corpus.verses.find((x) => x.ref === v.ref.join(":"));
+      expect(shipped?.why).toBe(v.why);
+    }
+  });
 });

@@ -2,7 +2,7 @@
 project: Nur
 task: Fix the three P0s and two P1s from the 20/40 critique
 effort: E3
-phase: learn
+phase: complete
 progress: 59/59
 mode: build
 started: 2026-07-13

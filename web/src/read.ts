@@ -332,7 +332,14 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
     ? `<p class="bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</p>`
     : "";
 
-  const opening = shard.verses.slice(0, FIRST);
+  // If the reader came here FOR a specific ayah — tapped "Baca lanjutan" on 2:255, or opened a
+  // link to Ayat al-Kursi — that ayah must exist in the DOM on the first paint. Chunking it in
+  // twelve batches later means they arrive, see the wrong part of the surah, and wait several
+  // seconds staring at Al-Baqarah's opening while the verse they asked for catches up.
+  // Render through the target, then chunk the remainder as usual.
+  const upTo = scrollToAyah !== undefined ? Math.max(FIRST, Math.min(scrollToAyah + 2, shard.verses.length)) : FIRST;
+
+  const opening = shard.verses.slice(0, upTo);
   body.innerHTML = `${bismillah}<div class="verses" id="verses">${opening
     .map((v) => cardEl(v, n, shard.name))
     .join("")}</div>`;
@@ -358,7 +365,7 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   // ── the rest, while the phone is idle ─────────────────────────────────────
   if (shard.verses.length <= FIRST) return;
 
-  let at = FIRST;
+  let at = upTo;
   const step = (): void => {
     // Two guards, and both are real: the token catches a navigation, isConnected catches a
     // re-render that replaced this container while a chunk was still queued.

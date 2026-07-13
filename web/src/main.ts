@@ -191,11 +191,25 @@ function showChat() {
   readView.hidden = true;
 }
 
+/** Tell the reader — and the screen reader — which door they are standing in. */
+function markNav(reading: boolean) {
+  const tanya = $<HTMLAnchorElement>("#nav-tanya");
+  const baca = $<HTMLAnchorElement>("#nav-baca");
+  for (const [el, on] of [
+    [tanya, !reading],
+    [baca, reading],
+  ] as const) {
+    if (on) el.setAttribute("aria-current", "page");
+    else el.removeAttribute("aria-current");
+  }
+}
+
 async function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
 
   if (m) {
+    markNav(true);
     chatView.hidden = true;
     readView.hidden = false;
     await renderSurah(readView, Number(m[1]), m[2] ? Number(m[2]) : undefined);
@@ -203,12 +217,14 @@ async function route() {
   }
 
   if (hash === "#/baca") {
+    markNav(true);
     chatView.hidden = true;
     readView.hidden = false;
     renderIndex(readView);
     return;
   }
 
+  markNav(false);
   showChat();
 }
 
