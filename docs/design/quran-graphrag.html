@@ -468,8 +468,10 @@
           <td><code>number, name_ar/en/id, revelation_type, ayah_count, order_revealed</code></td><td>—</td></tr>
         <tr><td><code>Ayah</code></td><td><span class="chip can">canonical</span></td><td>The 6,236 verses — spine of the graph</td>
           <td><code>id (s:a), text_uthmani, text_simple, juz, hizb, page, sajda</code></td><td>✓</td></tr>
-        <tr><td><code>Translation</code></td><td><span class="chip can">canonical</span></td><td>A verified translation of an Ayah</td>
-          <td><code>ayah_id, lang, translator, text</code></td><td>✓</td></tr>
+        <tr><td><code>Translation</code></td>
+          <td><span class="chip can">canonical</span> <span class="chip int">interpretive</span></td>
+          <td>A translation of an Ayah — class depends on <code>translation_type</code></td>
+          <td><code>ayah_id, lang, translator, text, translation_type, source_id?, authority_tier?</code></td><td>✓</td></tr>
         <tr><td><code>Word</code></td><td><span class="chip can">canonical</span></td><td>Token-level Arabic (linguistic queries)</td>
           <td><code>ayah_id, position, text_ar, transliteration, lemma, pos_tag</code></td><td>—</td></tr>
         <tr><td><code>Root</code></td><td><span class="chip can">canonical</span></td><td>Triliteral Arabic root</td>
@@ -486,6 +488,18 @@
           <td><code>ayah_id, narrative, source_id</code></td><td>✓</td></tr>
       </tbody>
     </table></div>
+    <div class="alert"><span class="t">Not every translation is canonical — the <code class="inl">translation_type</code> split</span>
+      <p>A <strong>literal</strong> (<em>harfiyah</em>) translation renders the words. An
+        <strong>interpretive</strong> (<em>tafsiriyah</em>) translation renders the meaning as its
+        author understands it, folding exegesis <em>into</em> the translated text. On 1:3
+        "Ar-Rahman Ar-Rahim", Kemenag gives <em>"Yang Maha Pengasih, Maha Penyayang"</em>; the
+        Tarjamah Tafsiriyah gives <em>"…belas kasih-Nya kepada orang mukmin, serta Maha Penyayang
+        kepada semua makhluk-Nya"</em> — an exegetical claim wearing a translation's clothes.</p>
+      <p>So: <strong>only <code class="inl">literal</code> translations may be
+        <span class="chip can">canonical</span>.</strong> Interpretive ones are opinion — they carry
+        <code class="inl">source_id</code> + <code class="inl">authority_tier</code>, are always
+        attributed, and may never be presented as the plain meaning of the verse. The gate
+        <code class="inl">literal_iff_canonical</code> enforces this at build time; there is no override.</p></div>
     <div class="note"><strong>Why <code class="inl">Word</code> / <code class="inl">Root</code> earn their place:</strong>
       they unlock a query class pure-vector RAG can't touch — "every verse sharing the root ر-ح-م (mercy)",
       morphology, precise linguistic grounding. A genuine differentiator for an Indonesian Tafsiriyah

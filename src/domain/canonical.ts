@@ -22,8 +22,15 @@ export type TranslationId = `translation:${string}:${number}:${number}`;
 
 export const surahId = (surah: number): SurahId => `surah:${surah}`;
 export const ayahId = (surah: number, ayah: number): AyahId => `ayah:${surah}:${ayah}`;
-export const translationId = (lang: string, surah: number, ayah: number): TranslationId =>
-  `translation:${lang}:${surah}:${ayah}`;
+
+/**
+ * Keyed on the SOURCE slug, not the language — Kemenag and Tarjamah Tafsiriyah are both
+ * `id`, and keying on language would silently collide them into one node. Two translations
+ * of the same verse must remain two distinct, separately-attributed nodes. That is the
+ * whole point of plural attribution.
+ */
+export const translationId = (slug: string, surah: number, ayah: number): TranslationId =>
+  `translation:${slug}:${surah}:${ayah}`;
 
 export interface Surah {
   readonly id: SurahId;
@@ -49,14 +56,41 @@ export interface Ayah {
   readonly text_uthmani: string;
 }
 
+/**
+ * Literal vs interpretive translation.
+ *
+ * This distinction exists because "Tarjamah Tafsiriyah" (Ustadz Muhammad Thalib) forced it.
+ * A *literal* (harfiyah) translation renders the words — Kemenag's does. An *interpretive*
+ * (tafsiriyah) translation renders the meaning as its author understands it, folding exegesis
+ * INTO the translated text. Example, 1:3 "Ar-Rahman Ar-Rahim":
+ *
+ *   literal      (Kemenag)    "Yang Maha Pengasih, Maha Penyayang"
+ *   interpretive (Tafsiriyah) "...belas kasih-Nya kepada orang mukmin, serta Maha Penyayang
+ *                              kepada semua makhluk-Nya"
+ *
+ * The second is an exegetical claim wearing a translation's clothes. It is therefore NOT
+ * canonical: it is opinion, it must be attributed, and it may never be presented as the
+ * plain meaning of the verse. Only `literal` translations may be truth_class "canonical";
+ * the gates enforce this and there is no override.
+ */
+export type TranslationType = "literal" | "interpretive";
+
 export interface Translation {
   readonly id: TranslationId;
-  readonly truth_class: typeof TRUTH_CANONICAL;
+  /** "canonical" iff translation_type === "literal". Enforced by validateCanonical. */
+  readonly truth_class: typeof TRUTH_CANONICAL | "interpretive";
+  readonly translation_type: TranslationType;
   readonly ayah_id: AyahId;
   readonly lang: string;
   /** Named human translator/body — never a model. */
   readonly translator: string;
   readonly text: string;
+  /** Required for interpretive translations; absent for literal ones. */
+  readonly source_id?: string;
+  /** Required for interpretive translations. Set by the scholar board, not by engineers. */
+  readonly authority_tier?: 1 | 2 | 3;
+  /** Surfaced in the UI when a source is contested. */
+  readonly note?: string;
 }
 
 export interface CanonicalDataset {

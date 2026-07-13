@@ -70,13 +70,14 @@ describe("parseVerseFile", () => {
 
 describe("toTranslations", () => {
   test("stamps lang, named human translator, and canonical truth_class", () => {
-    const source = sourceById("tanzil-id-indonesian");
+    const source = sourceById("tanzil-id-kemenag");
     const [t] = toTranslations([{ surah: 2, ayah: 255, text: "Allah..." }], source);
     expect(t).toMatchObject({
-      id: "translation:id:2:255",
+      id: "translation:kemenag:2:255",
       ayah_id: "ayah:2:255",
       lang: "id",
       truth_class: "canonical",
+      translation_type: "literal",
       translator: "Kementerian Agama Republik Indonesia",
     });
   });
@@ -84,7 +85,7 @@ describe("toTranslations", () => {
   test("refuses a translation source that declares no translator", () => {
     // An anonymous translation is a provenance hole: every canonical translation must
     // name the human body responsible for it.
-    const { translator: _omitted, ...source } = sourceById("tanzil-id-indonesian");
+    const { translator: _omitted, ...source } = sourceById("tanzil-id-kemenag");
     expect(() => toTranslations([{ surah: 1, ayah: 1, text: "x" }], source)).toThrow(
       /must declare lang and translator/,
     );

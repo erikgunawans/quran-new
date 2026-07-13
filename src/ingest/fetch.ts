@@ -1,4 +1,5 @@
 import { mkdir } from "node:fs/promises";
+import { SURAH_COUNT } from "../domain/canonical.ts";
 import { SOURCES, type Source } from "./sources.ts";
 
 export const RAW_DIR = "data/raw";
@@ -18,11 +19,49 @@ export async function readLock(): Promise<Lockfile> {
   return (await f.exists()) ? ((await f.json()) as Lockfile) : {};
 }
 
+async function getJson(url: string, label: string): Promise<unknown> {
+  const res = await fetch(url, { redirect: "follow" });
+  if (!res.ok) throw new Error(`${label}: HTTP ${res.status} ${res.statusText} — ${url}`);
+  return res.json();
+}
+
+/** Bounded concurrency — be a good citizen to the upstream hosts. */
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (next < items.length) {
+        const i = next++;
+        out[i] = await fn(items[i]!);
+      }
+    }),
+  );
+  return out;
+}
+
+/**
+ * Materialize a per-surah API source into ONE deterministic dump.
+ *
+ * This is what makes a live third-party endpoint pinnable at all: pull all 114 surahs once,
+ * serialize in a fixed order, hash the result. Production never touches the upstream host —
+ * it reads the checksummed dump. If upstream mutates or disappears, the pin catches it and
+ * the build stops. That is the whole answer to "this tafsir is served off someone's box".
+ */
+async function downloadPerSurah(source: Source): Promise<Uint8Array> {
+  const surahs = Array.from({ length: SURAH_COUNT }, (_, i) => i + 1);
+  const pages = await mapLimit(surahs, 8, (s) =>
+    getJson(source.surahUrl!(s), `${source.id} surah ${s}`),
+  );
+  const bundle = surahs.map((surah, i) => ({ surah, payload: pages[i] }));
+  return new TextEncoder().encode(JSON.stringify(bundle));
+}
+
 async function download(source: Source): Promise<Uint8Array> {
+  if (source.surahUrl) return downloadPerSurah(source);
+  if (!source.url) throw new Error(`source ${source.id}: declares neither url nor surahUrl`);
   const res = await fetch(source.url, { redirect: "follow" });
-  if (!res.ok) {
-    throw new Error(`fetch failed for ${source.id}: HTTP ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw new Error(`fetch failed for ${source.id}: HTTP ${res.status} ${res.statusText}`);
   return new Uint8Array(await res.arrayBuffer());
 }
 
@@ -54,7 +93,11 @@ export async function fetchAll(opts: { updateLock: boolean }): Promise<Lockfile>
     }
 
     await Bun.write(`${RAW_DIR}/${source.file}`, bytes);
-    next[source.id] = { sha256: hash, bytes: bytes.byteLength, url: source.url };
+    next[source.id] = {
+      sha256: hash,
+      bytes: bytes.byteLength,
+      url: source.url ?? `${source.surahUrl!(1)} (+113 more, materialized)`,
+    };
     const status = pinned ? (pinned.sha256 === hash ? "pinned" : "DRIFT") : "new";
     console.log(`  fetched ${source.file.padEnd(22)} ${String(bytes.byteLength).padStart(9)} B  [${status}]`);
   }

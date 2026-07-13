@@ -108,32 +108,62 @@ export function validateCanonical(ds: CanonicalDataset): GateReport {
   if (emptyAyahs > 0) v.push(`${emptyAyahs} ayah(s) have empty text_uthmani`);
   else pass("no_empty_text", "every ayah carries Uthmani text");
 
-  // ── Gate 8: translations cover every ayah exactly once, per language ──
-  const byLang = new Map<string, Set<string>>();
-  for (const t of ds.translations) {
+  // ── Gate 8: LITERAL translations cover every ayah exactly once ────────
+  // Only literal translations are canonical scripture-rendering and must be complete.
+  // Interpretive ones are opinion and are validated separately (Gate 10).
+  const literal = ds.translations.filter((t) => t.translation_type === "literal");
+  const byTranslator = new Map<string, Set<string>>();
+  for (const t of literal) {
     if (!ayahIds.has(t.ayah_id)) v.push(`translation ${t.id} references unknown ayah ${t.ayah_id}`);
-    const seen = byLang.get(t.lang) ?? new Set<string>();
-    if (seen.has(t.ayah_id)) v.push(`duplicate ${t.lang} translation for ${t.ayah_id}`);
+    const seen = byTranslator.get(t.translator) ?? new Set<string>();
+    if (seen.has(t.ayah_id)) v.push(`duplicate translation for ${t.ayah_id} from ${t.translator}`);
     seen.add(t.ayah_id);
-    byLang.set(t.lang, seen);
+    byTranslator.set(t.translator, seen);
   }
-  for (const [lang, seen] of byLang) {
+  for (const [who, seen] of byTranslator) {
     if (seen.size !== AYAH_COUNT) {
-      v.push(`translation "${lang}" covers ${seen.size} ayahs, must cover all ${AYAH_COUNT}`);
+      v.push(`literal translation "${who}" covers ${seen.size} ayahs, must cover all ${AYAH_COUNT}`);
     } else {
-      pass(`translation_coverage[${lang}]`, `${AYAH_COUNT}/${AYAH_COUNT}`);
+      pass(`literal_coverage`, `${AYAH_COUNT}/${AYAH_COUNT} (${who})`);
     }
   }
   const emptyTrans = ds.translations.filter((t) => t.text.trim() === "").length;
   if (emptyTrans > 0) v.push(`${emptyTrans} translation(s) have empty text`);
 
+  // ── Gate 10: literal ⟺ canonical. THE doctrinal invariant. ───────────
+  // An interpretive translation folds exegesis into the rendered text. It may never be
+  // presented as the plain meaning of the verse, so it may never be truth_class canonical,
+  // and it must always carry attribution. There is no override for this.
+  let mislabeled = 0;
+  let unattributed = 0;
+  for (const t of ds.translations) {
+    const shouldBeCanonical = t.translation_type === "literal";
+    const isCanonical = t.truth_class === TRUTH_CANONICAL;
+    if (shouldBeCanonical !== isCanonical) {
+      mislabeled++;
+      v.push(
+        `translation ${t.id}: translation_type="${t.translation_type}" but ` +
+          `truth_class="${t.truth_class}" — interpretive translations must NOT be canonical`,
+      );
+    }
+    if (t.translation_type === "interpretive" && (!t.source_id || !t.authority_tier)) {
+      unattributed++;
+      v.push(`translation ${t.id}: interpretive but missing source_id/authority_tier (provenance hole)`);
+    }
+  }
+  if (mislabeled === 0) pass("literal_iff_canonical", "no interpretive translation is canonical");
+  if (unattributed === 0 && ds.translations.some((t) => t.translation_type === "interpretive")) {
+    pass("interpretive_attribution", "every interpretive translation is attributed");
+  }
+
   // ── Gate 9: truth_class is canonical, everywhere. No exceptions. ─────
+  // Interpretive translations are deliberately NOT canonical — Gate 10 owns them.
   const tainted =
     ds.surahs.filter((s) => s.truth_class !== TRUTH_CANONICAL).length +
     ds.ayahs.filter((a) => a.truth_class !== TRUTH_CANONICAL).length +
-    ds.translations.filter((t) => t.truth_class !== TRUTH_CANONICAL).length;
-  if (tainted > 0) v.push(`${tainted} node(s) are not tagged truth_class="canonical"`);
-  else pass("truth_class", 'all nodes tagged "canonical"');
+    literal.filter((t) => t.truth_class !== TRUTH_CANONICAL).length;
+  if (tainted > 0) v.push(`${tainted} canonical node(s) are not tagged truth_class="canonical"`);
+  else pass("truth_class", 'scripture + literal translations tagged "canonical"');
 
   if (v.length > 0) throw new IntegrityError(v);
   return { checks };

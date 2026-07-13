@@ -129,14 +129,23 @@ export function toAyahs(records: readonly VerseRecord[]): Ayah[] {
   }));
 }
 
+/** Literal (harfiyah) translations only — these are the canonical ones. */
 export function toTranslations(records: readonly VerseRecord[], source: Source): Translation[] {
-  const { lang, translator } = source;
+  const { lang, translator, translation_type } = source;
   if (!lang || !translator) {
     throw new Error(`source ${source.id}: translation sources must declare lang and translator`);
   }
+  if (translation_type !== "literal") {
+    throw new Error(
+      `source ${source.id}: toTranslations() emits canonical (literal) translations only — ` +
+        `interpretive translations carry provenance and must go through parseTafsiriyahDump()`,
+    );
+  }
+  const slug = source.id.replace(/^tanzil-[a-z]{2}-/, "");
   return records.map((r) => ({
-    id: translationId(lang, r.surah, r.ayah),
+    id: translationId(slug, r.surah, r.ayah),
     truth_class: TRUTH_CANONICAL,
+    translation_type: "literal" as const,
     ayah_id: ayahId(r.surah, r.ayah),
     lang,
     translator,

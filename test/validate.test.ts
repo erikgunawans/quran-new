@@ -52,8 +52,9 @@ function fixture(): CanonicalDataset {
         text_uthmani: `نص ${n}:${a}`,
       });
       translations.push({
-        id: translationId("id", n, a),
+        id: translationId("kemenag", n, a),
         truth_class: TRUTH_CANONICAL,
+        translation_type: "literal",
         ayah_id: ayahId(n, a),
         lang: "id",
         translator: "Kementerian Agama Republik Indonesia",
@@ -135,7 +136,7 @@ describe("canonical integrity gates", () => {
   test("catches a translation pointing at a nonexistent ayah", () => {
     const ds = fixture();
     const translations = ds.translations.map((t) =>
-      t.id === "translation:id:1:1" ? { ...t, ayah_id: ayahId(115, 1) } : t,
+      t.id === "translation:kemenag:1:1" ? { ...t, ayah_id: ayahId(115, 1) } : t,
     );
     expect(violations({ ...ds, translations }).join()).toMatch(/references unknown ayah/);
   });

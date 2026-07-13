@@ -9,9 +9,29 @@
     "bytes": 1384015,
     "url": "https://tanzil.net/pub/download/index.php?marks=true&sajdah=true&quranType=uthmani&outType=txt-2&agree=true"
   },
-  "tanzil-id-indonesian": {
+  "tanzil-id-kemenag": {
     "sha256": "70428e875c50c3c42d3829654d2bd386e146f0fa68cc20c34fdd4ea3b53e21a8",
     "bytes": 1159449,
     "url": "https://tanzil.net/trans/id.indonesian"
+  },
+  "tafsiriyah-thalib": {
+    "sha256": "d07ad244e34fbcbeb4ee04863f6e7f25eaaed36f5d063bcd466e93db8ecafd97",
+    "bytes": 3260562,
+    "url": "https://media-quran-api.lpoalr.easypanel.host/api/surahs/1 (+113 more, materialized)"
+  },
+  "tafsir-ibn-kathir-en": {
+    "sha256": "4863517e04866797b19670a0af89aa513efb38083b0419b7cf7c6af26cd6c77a",
+    "bytes": 44536546,
+    "url": "https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/en-tafisr-ibn-kathir/1.json (+113 more, materialized)"
+  },
+  "tafsir-as-saadi-id": {
+    "sha256": "c0aa0b3194a5d86347adabb388761e943556329f286e97a3f520a5ea9142b8f6",
+    "bytes": 63520935,
+    "url": "https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/id-tafsir-as-saadi/1.json (+113 more, materialized)"
+  },
+  "tafsir-mukhtasar-id": {
+    "sha256": "7d888fd609f8744918005ef2d74767a27a30b798ad555d84188b7fc5daedb8ef",
+    "bytes": 2385540,
+    "url": "https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/indonesian-mokhtasar/1.json (+113 more, materialized)"
   }
 }
