@@ -3,3 +3,5 @@
 
 # Tooling / agent state
 .serena/
+data/
+node_modules/
