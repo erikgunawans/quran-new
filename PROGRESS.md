@@ -4,6 +4,42 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## Checkpoint 2026-07-15 (later) — Cycle 2 opened: mobile-first UI redesign, chat centerpiece
+
+- **Session:** Erik asked for the UI to be much improved, mobile-first, with "the generative AI
+  chat capability" at the center of discussion, and a written proposal before Path B2. Ran a full
+  Algorithm E4 pass — FirstPrinciples Challenge + Advisor consult before proposing anything,
+  because the request touched a locked `ISA.md` Constraint ("No generative model in the retrieval
+  path... do not weaken"). Surfaced three named options via `AskUserQuestion` instead of guessing;
+  Erik chose UI/UX-only (engine unchanged) and confirmed the written proposal was the requested
+  deliverable ("please provide a good wife" was dictation noise for "a good write-up").
+- **Shipped (engine-agnostic, no retrieval-path code touched):**
+  - Touch targets: `.icon-btn` 36→44px, `.size button` 30→44px, `.seed` chips min-height 44px.
+  - `safe-area-inset-top` on `.top`, matching the composer's existing bottom handling.
+  - New breakpoints: compact `<375px` and tablet+ `≥768px`, alongside the existing `480px` tier.
+  - Header regrouped: theme + Arabic-size collapse into one "Tampilan" overflow trigger below
+    768px (same elements, not duplicated — CSS repositions, JS toggles); inline as before ≥768px.
+  - Info + display popovers become bottom sheets below `~416px` instead of edge-anchored floats.
+  - A real "Nur sedang menyusun jawaban…" composing state, with a `MIN_COMPOSING_MS` floor — a
+    real bug caught in verification: without the floor, the state never painted at all on the
+    majority (synchronous, local-retrieval) query path. Full detail in `ISA.md` Changelog.
+  - `visualViewport`-aware composer repositioning for the iOS Safari fixed-bar/keyboard class of
+    bug — implemented, real-device confirmation deferred (Interceptor can't open a real keyboard).
+- **Files changed:** `web/index.html`, `web/src/main.ts`, `web/src/styles.css`, `ISA.md`.
+- **Tests:** `bun run typecheck` clean (root + web). `bun test` 226/226 (148 root + 78 web).
+  `bun run verify` 24/24 corpus gates, unchanged. Live-verified via Interceptor (real Chrome):
+  desktop inline display-group, mobile panel layout (forced via CSS override — this Interceptor
+  build has no real viewport-resize/device-emulation), and the composing-state fix.
+- **Deferred (recorded as ISC-78/79, `[DEFERRED-VERIFY]` in `ISA.md`):** a real narrow-viewport
+  (≤375px) live probe of the header/panel breakpoints, and a real-iOS-device spot-check of the
+  keyboard-aware composer. Neither is guessable from this environment; both need a follow-up pass
+  with real device/viewport access.
+- **Next:** Erik's own call — a device spot-check for ISC-78/79, then whether to extend this
+  cycle further (the citation-card hierarchy polish mentioned but not detailed in the proposal),
+  and separately, the Path B2 edge review (666 edges) this session was originally deferred for.
+
+---
+
 ## Checkpoint 2026-07-15 (session sync)
 
 - **Session:** Resumed Phase 2 work. Shipped issue 08 (visual/image share cards) end-to-end,

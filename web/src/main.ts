@@ -106,10 +106,13 @@ function restoreThread(): boolean {
   return true;
 }
 
+// The composing label is real content (announced to screen readers via #live in ask()), not
+// decoration — the dots are aria-hidden because they're the same idea said twice visually.
 function skeleton(): HTMLElement {
   const el = document.createElement("div");
   el.className = "msg nur";
-  el.innerHTML = `<div class="skeleton" aria-hidden="true">
+  el.innerHTML = `<p class="composing"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Nur sedang menyusun jawaban…</p>
+    <div class="skeleton" aria-hidden="true">
     <div class="sk-line short"></div><div class="sk-line ar"></div>
     <div class="sk-line"></div><div class="sk-line short"></div></div>`;
   return el;
@@ -145,6 +148,14 @@ async function ask(question: string) {
   const loading = skeleton();
   thread.append(loading);
   scrollDown();
+  say("Nur sedang menyusun jawaban.");
+  // Retrieval here is a local, synchronous corpus lookup — no network round-trip. Without a
+  // floor, the composing state mounts and gets swapped for the answer in the same tick, before
+  // the browser ever paints it: a "distinguishable composing state" that nobody actually sees.
+  // MIN_COMPOSING_MS holds the state on screen for one real beat (within DESIGN.md's 150-250ms
+  // motion band) — never added to genuinely slow paths (a shard fetch), only floors the instant
+  // ones, so the state reads as intentional rhythm rather than an artificial delay tax.
+  const composingStarted = Date.now();
 
   const answer = document.createElement("div");
   answer.className = "msg nur";
@@ -235,6 +246,12 @@ async function ask(question: string) {
 
   threadHistory.push({ q, html: answer.innerHTML, cards: turnCards });
   saveThread();
+
+  const MIN_COMPOSING_MS = 260;
+  const elapsed = Date.now() - composingStarted;
+  if (elapsed < MIN_COMPOSING_MS) {
+    await new Promise((r) => setTimeout(r, MIN_COMPOSING_MS - elapsed));
+  }
 
   loading.remove();
   thread.append(answer);
@@ -461,6 +478,35 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ── the "tampilan" (display) sheet — theme + Arabic size, collapsed on phones ────────────────
+//
+// Below the tablet breakpoint (styles.css) the panel becomes a real dropdown/sheet; at tablet+
+// CSS keeps it always visible inline, so this toggle only matters on the widths where the
+// trigger itself is shown. Same open/close pattern as the info popover above, deliberately —
+// one interaction model for every header disclosure, not two.
+const displayBtn = $<HTMLButtonElement>("#display-trigger");
+const displayPanel = $<HTMLElement>("#display-panel");
+displayBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const open = displayPanel.hidden;
+  displayPanel.hidden = !open;
+  displayBtn.setAttribute("aria-expanded", String(open));
+});
+document.addEventListener("click", (e) => {
+  if (displayPanel.hidden) return;
+  if (e.target === displayBtn || displayBtn.contains(e.target as Node)) return;
+  if (displayPanel.contains(e.target as Node)) return;
+  displayPanel.hidden = true;
+  displayBtn.setAttribute("aria-expanded", "false");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !displayPanel.hidden) {
+    displayPanel.hidden = true;
+    displayBtn.setAttribute("aria-expanded", "false");
+    displayBtn.focus();
+  }
+});
+
 // ── theme — both modes are first-class ───────────────────────────────────────
 $("#theme").addEventListener("click", () => {
   const cur =
@@ -506,8 +552,32 @@ async function bootCorpus(): Promise<void> {
   }
 }
 
+// ── keyboard-aware composer ──────────────────────────────────────────────────
+//
+// `.composer` is `position: fixed; bottom: 0`. iOS Safari resizes the *visual* viewport when
+// the on-screen keyboard opens but leaves the *layout* viewport (what `fixed` anchors to)
+// alone — a documented WebKit quirk, not a bug in this code — so a naively-fixed bar can end up
+// floating above the keyboard with a gap, or hidden beneath it. `visualViewport` is the
+// standards-track fix: when it resizes, pin the composer to its actual bottom edge instead of
+// trusting `position: fixed` to react on its own. No-ops everywhere the API is unsupported or
+// the offset is zero (desktop, no keyboard open) — DEFERRED-VERIFY: Interceptor cannot open a
+// real iOS on-screen keyboard, so this needs a spot-check on a physical device (same disclosed
+// gap as the audio-playback verification in Phase 2 issue 05).
+function bindKeyboardAwareComposer() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const bar = $<HTMLElement>("#composer-bar");
+  const reposition = () => {
+    const offset = window.innerHeight - vv.height - vv.offsetTop;
+    bar.style.transform = offset > 0 ? `translateY(-${offset}px)` : "";
+  };
+  vv.addEventListener("resize", reposition);
+  vv.addEventListener("scroll", reposition);
+}
+
 (() => {
   bindLazyTafsir();
+  bindKeyboardAwareComposer();
 
   const savedTheme = localStorage.getItem("nur:theme");
   if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;

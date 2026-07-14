@@ -29,12 +29,6 @@
       <a class="nav-link" href="#/tema" id="nav-tema">Tema</a>
     </nav>
 
-    <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
-      <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
-      <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
-      <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
-    </div>
-
     <div class="info-pop">
       <button class="icon-btn" id="info" aria-haspopup="true" aria-expanded="false" aria-controls="info-panel" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -47,11 +41,35 @@
       </div>
     </div>
 
-    <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
-      </svg>
-    </button>
+    <!-- theme + Arabic size: inline controls on tablet/desktop; on phones they collapse behind
+         one trigger (below the tablet breakpoint in styles.css) so the header row doesn't carry
+         nine 44px targets across a thumb's reach. Same elements either way — CSS repositions
+         the panel, nothing is duplicated. -->
+    <div class="display-pop" id="display-pop">
+      <button class="icon-btn display-trigger" id="display-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="display-panel" aria-label="Tampilan: mode dan ukuran teks" title="Tampilan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h11M4 12h16M4 18h7"/><circle cx="18" cy="6" r="2"/><circle cx="9" cy="18" r="2"/>
+        </svg>
+      </button>
+      <div class="pop" id="display-panel" role="dialog" aria-label="Tampilan" hidden>
+        <div class="pop-row">
+          <span>Mode</span>
+          <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pop-row">
+          <span>Ukuran Arab</span>
+          <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
+            <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
+            <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
+            <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <!-- Corpus failed to load. Reading still works — the surah index is inlined, not fetched. -->
