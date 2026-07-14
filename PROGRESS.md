@@ -4,6 +4,32 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — Path B2 pilot ran for real: 666 edges, 2 quality issues found
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+Erik provided an OpenRouter key. Smoke-tested with one hand-built passage first — caught a real
+bug immediately: the `X-Title` header's em-dash made Bun's `fetch` throw "invalid header value"
+before any request reached OpenRouter (HTTP headers are ASCII-only). Fixed (plain hyphen),
+committed (`db859f4`), then ran the full 165-passage pilot for real.
+
+**165/165 passages, 0 failures, 666 validated edges.** ABOUT_TOPIC 313, MENTIONS 187, EXPLAINS
+93, THEMATICALLY_LINKED_TO 26, NARRATIVE_OF 20, HAS_CONTEXT 16, REFERENCES 11. Avg confidence
+0.83. Read actual samples, not just counts — mostly grounded, but two real issues: (1) some
+Entity/Topic labels came out in English despite Indonesian source passages, breaking Nur's
+Indonesian-only discipline; (2) a few HAS_CONTEXT edges look like "virtue of reciting" notes
+rather than genuine occasion-of-revelation. Also flagged: 93 EXPLAINS edges were extracted even
+though B1 already builds those for free (deterministic) — a cost question worth Erik's call
+before any larger run. Full detail in `.scratch/nur-phase2-trust-and-depth/issues/
+09b-knowledge-graph-b2-derived.md`.
+
+All 666 edges sit at `review_status: "auto"` in `data/review/graph-extraction.json`
+(gitignored) — nothing shipped near the app. Waiting on Erik: read a slice himself, decide on the
+English-label fix and the EXPLAINS question, then design the auto → human_pending →
+scholar_verified promotion workflow against real data instead of a hypothetical.
+
+---
+
 ## 2026-07-15 (even later) — Path B2 plumbing: OpenRouter, ready but not run
 
 **Anchor:** same as prior checkpoint (local only — no remote).
