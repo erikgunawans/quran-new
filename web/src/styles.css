@@ -419,6 +419,27 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .tafsir-slot { padding: 0 1.1rem 1.1rem; }
 .tafsir-loading { color: var(--ink-3); font-size: var(--step--1); padding: 0.5rem 0; }
 
+/* ── related verses — Path B2's smallest honest slice, T2/auto, navigation only ─────────────
+   Attribution stays visible (matching the readings above) so this reads as a sourced pointer,
+   not something Nur itself is asserting. */
+.related {
+  padding: 0.85rem 1.1rem; border-top: 1px solid var(--line);
+}
+.related-label {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 0.5rem;
+}
+.related-link {
+  display: inline-flex; align-items: baseline; gap: 0.4rem;
+  color: var(--primary); font-size: var(--step--1); font-weight: 500;
+  text-decoration: none; border-bottom: 1px solid var(--primary-line);
+  transition: border-color var(--t);
+}
+.related-link:hover { border-color: var(--primary); }
+.related-ref { font-variant-numeric: tabular-nums; font-weight: 600; }
+.related-source { color: var(--ink-3); font-size: 0.75rem; margin-top: 0.3rem; }
+.related-item + .related-item { margin-top: 0.6rem; }
+
 /* the meaning-changed caution — never decorative */
 .caution {
   display: flex; gap: 0.6rem; padding: 0.75rem 1rem; align-items: flex-start;

@@ -8,6 +8,7 @@
  */
 import { hasAudio, nowPlaying } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
+import { RELATED_VERSES } from "./related-verses.ts";
 import { lazyTafsirEl } from "./tafsir.ts";
 
 export const esc = (s: string) =>
@@ -58,6 +59,34 @@ export const FLAGGED: Record<string, string> = {
   "94:6":
     "Sama seperti ayat sebelumnya. Al-Qur'an mengulang ayat ini — pengulangan itu sendiri adalah penegasan.",
 };
+
+/**
+ * "Related verses" — Path B2's smallest honest slice (see `build-related-verses.ts`). T2/auto
+ * per the graph spec's own tiering: a navigation pointer, never a doctrinal claim in Nur's own
+ * voice — which is why this names its source explicitly, the same "attribution is design, not
+ * fine print" discipline the readings above already follow, rather than presenting the link as
+ * something Nur itself asserts.
+ */
+function relatedEl(ref: string): string {
+  const related = RELATED_VERSES[ref];
+  if (!related?.length) return "";
+
+  return `
+    <div class="related">
+      <p class="related-label">Terhubung secara tematik</p>
+      ${related
+        .map(
+          (r) => `
+        <div class="related-item">
+          <a class="related-link" href="#/surah/${r.ref.split(":")[0]}#${r.ref.split(":")[1]}">
+            <span class="related-ref">${esc(r.ref)}</span> · ${esc(r.surah_name)}
+          </a>
+          <p class="related-source">menurut ${esc(r.source)}</p>
+        </div>`,
+        )
+        .join("")}
+    </div>`;
+}
 
 function readingEl(r: Reading, lead: boolean): string {
   const label = lead ? "Terjemah makna" : "Terjemah harfiah";
@@ -122,6 +151,8 @@ export function verseEl(v: VerseCard): string {
       ${flag ? `<div class="caution"><b aria-hidden="true">${ICON_WARNING}</b><span>${flag}</span></div>` : ""}
 
       ${v.extra ?? (v.lazyTafsir ? lazyTafsirEl(v.surah, v.ayah) : "")}
+
+      ${relatedEl(v.ref)}
 
       <div class="verse-acts">
         ${

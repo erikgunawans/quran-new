@@ -1,6 +1,6 @@
 # 09b — Knowledge graph, Path B2: the LLM-derived layer
 
-Status: parked — T1 doctrinal review unstaffed (deliberate, not a gap); T2 population usable as-is
+Status: parked (T1, unstaffed) + shipped (T2 slice — related verses, see below)
 Type: new capability
 Priority: P2
 
@@ -180,8 +180,37 @@ creates new Entity nodes describing historical/narrative claims, closer in kind 
 Entity creation" row than to T2's topic-tagging predicates. Left unclassified, not silently
 assigned.
 
-**Not yet decided, and not urgent:** whether to actually *use* the T2 population for anything
-(e.g. richer thematic browse, retrieval ranking) — that's a feature decision, separate from this
-review pass, and untouched here.
+**2026-07-15 (later) — shipped the smallest honest slice of the T2 population: "related verses."**
+Asked Erik whether to spend the T2 data on theme-browser enrichment or retrieval ranking;
+recommended theme-browser (additive, doesn't touch the trust-critical chat-answer path) over
+ranking (spec-sanctioned but riskier to verify). He approved.
+
+Scoped narrower than "wire in ABOUT_TOPIC/MENTIONS/THEMATICALLY_LINKED_TO" — read all 26
+`THEMATICALLY_LINKED_TO` edges first. 22 were same-surah adjacency (a passage spanning several
+ayahs generates a link for every pair — a reader already sees these together in continuous
+reading, so surfacing them as a special "connection" would be noise). Only the **4 cross-surah
+edges** are genuine concept-to-concept navigation, and all 4 read as solid on inspection — direct
+textual echoes in the evidence_span (e.g. 2:153 and 57:4 both carry the exact phrase "He is with
+you wherever you are"; 2:154's passage literally says "refer to Surat Al-Ahzab 33:44").
+
+**Shipped:** `src/app/build-related-verses.ts` (`bun run app:related`) reads
+`data/review/graph-extraction.json`, keeps only cross-surah `THEMATICALLY_LINKED_TO` edges not
+`review_status: "rejected"`, and generates `web/src/related-verses.ts` (inlined, 4 entries).
+Graceful no-op (empty index, not a build failure) if the pilot was never run — same property
+`build-themes.ts` already has relative to `data/`. `verse.ts`'s `verseEl()` looks the current
+ref up in `RELATED_VERSES` (same pattern as the existing `FLAGGED` caution lookup) and renders a
+"Terhubung secara tematik" block naming the source tafsir explicitly — T2 per the spec's own
+tiering (auto, navigation only, never a doctrinal citation in Nur's voice), so it's presented as
+a sourced pointer, not an assertion.
+
+Verified live (Interceptor): the block renders only on the 4 linked verses, not elsewhere;
+clicking through from 2:153 → 57:4 correctly switches to the reading surface, hides chat, and
+renders Al-Hadid with 57:4 present. `bun test` 226/226, `bun run typecheck` clean, `bun run
+verify` 24/24 — nothing in the retrieval or corpus-integrity path touched.
+
+This is deliberately tiny (4 links) — a real slice of issue 07's original ask, not a finished
+feature. A full corpus run of the extractor (still an open, costed decision — see above) would
+likely yield a much richer network; this pilot-scale slice exists to see whether the pattern is
+worth that investment before committing to it.
 
 ## Comments
