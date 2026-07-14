@@ -43,7 +43,7 @@ before adding new surface area.
 | 04 | Crisis-path keyword detection | fix (P0, safety) | done | — |
 | 05 | Recitation audio on the reading surface | new capability | done (MVP, 22 ayahs) | — |
 | 06 | Tafsir "choose your lens" toggle | new capability | done | — |
-| 07 | Concept/thematic cross-linking (surface the graph) | new capability, big bet | needs-triage | design spike before engineering commit |
+| 07 | Concept/thematic cross-linking (surface the graph) | new capability, big bet | done (Path A) | — (Path B, the full graph, remains unbuilt and un-ruled-on) |
 | 08 | Visual (image) share cards | enhancement | ready-for-agent | unblocked 2026-07-14 — 01–03, 06 shipped |
 
 Items 01–03 are the direct continuation of `PROGRESS.md`'s existing "Next, in order" list — this

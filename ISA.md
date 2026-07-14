@@ -333,6 +333,20 @@ including a real optimistic-UI bug caught and fixed in 05's playback toggle, and
 verification gap (Interceptor cannot satisfy Chrome's autoplay gesture policy, so audible
 playback itself wasn't confirmable through this tooling — recommend a real-device spot-check).
 
+**2026-07-15 — Issue 07 resolved as a spike before a build, revealing the "graph" premise was
+wrong.** Issue 07 assumed Nur "already has the attributed-graph foundation" from `docs/design/
+quran-graphrag.html`. It doesn't — that spec's real knowledge graph (LLM triple-extraction,
+entity linking, scholar-reviewed predicate schema) was never built; `src/ingest/` has zero
+concept extraction. What's real is smaller: 55 curated verses tagged with 12 emotional themes
+(`src/review/problem-verses.ts`), already powering chat retrieval. Building the actual graph
+means introducing an LLM into `bun run ingest`, which has been **deliberately zero-LLM and
+deterministic since Phase 1** — that is a standing-invariant decision, squarely Erik's to make,
+not implied by "the spec already exists." Erik ruled Path A: surface the existing lexicon as a
+browsable index (`#/tema`), cheaply, now — explicitly not the full graph, which remains open and
+unbuilt. No new ISC cycle opened, same rationale as the two entries above. Full detail in the
+matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
+07-concept-cross-linking.md`.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.

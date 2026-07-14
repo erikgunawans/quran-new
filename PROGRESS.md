@@ -4,6 +4,64 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 — Issue 07 resolved as a spike, then Path A shipped: browse by theme
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### The spike, before any code
+
+Issue 07 assumed Nur "already has the attributed-graph foundation." It doesn't. The original
+`docs/design/quran-graphrag.html` spec's real knowledge graph (LLM triple-extraction over tafsir,
+entity linking, scholar-reviewed predicate schema) was never built — `src/ingest/` has zero
+concept extraction. What exists is smaller and already shipped: 55 hand-curated verses tagged
+with 1 of 12 emotional themes (`src/review/problem-verses.ts`), already used to score chat
+retrieval. Building the real graph means putting an LLM into an ingest pipeline that has been
+deliberately zero-LLM since Phase 1 — a standing-invariant decision, not a scoping detail.
+
+**Erik ruled: Path A** — surface the existing lexicon as a browsable index, cheaply, now. The
+full graph (Path B) stays open and unbuilt.
+
+### What shipped
+
+New `#/tema` and `#/tema/{slug}` routes, a third nav tab. `src/app/build-themes.ts` (`bun run
+app:themes`, wired into `bun run build`) generates an inlined `web/src/theme-index.ts` from
+`problem-verses.ts` — zero dependency on `data/`, so it builds in any worktree. `web/src/
+themes.ts` renders the theme list (zero network) and, per theme, fetches each verse from the
+SAME per-surah shard the reading surface already uses — no new data path, no duplicated corpus,
+no risk of the honesty contract (both translations + attribution, always) forking between
+surfaces. Mid-implementation, caught a first draft writing a THIRD duplicated copy/share click
+handler (main.ts and read.ts already each have one) — refactored to reuse read.ts's existing
+`onRead` map via two small exports (`registerReadCard`, `clearReadCards`) instead.
+
+### Verification
+
+Unlike issues 01 and 05, this feature has **no dependency on the missing `corpus.json`** in this
+worktree — verified live (Interceptor), completely, not partially: all 12 themes list with
+correct counts (55 total, matching `problem-verses.ts` exactly), a theme's real verses load with
+correct Arabic/both translations/attribution/why-caption pulled from the real shard files, a bad
+slug shows an honest "not found" (not a blank page), nav highlighting is mutually exclusive
+across Tanya/Baca/Tema, and `#/baca` itself is unaffected (regression check on the shared `#read`
+container both surfaces render into). The copy button reached the real `copyVerse()` call
+(confirmed structurally) — the clipboard write itself failed on `Document is not focused`, the
+same automation-only limitation already logged twice this phase (issues 02 and 05), not a wiring
+defect.
+
+`bun run typecheck` clean (root + web). `bun test` 72/72 in `web/src/`.
+
+### Where Phase 2 stands now
+
+All 8 items in `.scratch/nur-phase2-trust-and-depth/PRD.md` are `done`: 01–06 fully, 07 as
+Path A (Path B intentionally still open), 08 unblocked and `ready-for-agent` whenever picked up.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched this session.
+- **Zero-LLM ingest pipeline** — untouched; Path B (the real knowledge graph) would be the first
+  thing to break this, and remains an open, un-ruled-on decision, not a default.
+
+---
+
 ## 2026-07-14 (latest) — Phase 2 issues 04 and 05 shipped: the crisis path, and a first taste of recitation
 
 **Anchor:** same as prior checkpoint (local only — no remote).

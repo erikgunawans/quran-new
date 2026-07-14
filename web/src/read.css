@@ -139,6 +139,29 @@
 #read .srow:hover .srow-n,
 #read .srow:focus-visible .srow-n { color: var(--primary); }
 
+/* ── theme browsing (Path A, issue 07) — same list language as the surah index ────── */
+#read .theme-list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+#read .trow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  transition: background var(--t);
+}
+#read .trow:hover { background: var(--surface); }
+#read .trow:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: var(--r); }
+#read .trow-name { color: var(--ink); font-weight: 500; }
+#read .trow:hover .trow-name { color: var(--primary); }
+#read .trow-count { font-size: var(--step--1); color: var(--ink-3); white-space: nowrap; }
+
 #read .no-hit {
   margin-top: 1.5rem;
   padding: 0.85rem 1rem;

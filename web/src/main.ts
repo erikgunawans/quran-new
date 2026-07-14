@@ -6,6 +6,7 @@ import { toggleAudio } from "./audio.ts";
 import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { copyVerse, shareVerse } from "./share.ts";
+import { renderTheme, renderThemeIndex } from "./themes.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -357,14 +358,10 @@ function showChat() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(reading: boolean) {
-  const tanya = $<HTMLAnchorElement>("#nav-tanya");
-  const baca = $<HTMLAnchorElement>("#nav-baca");
-  for (const [el, on] of [
-    [tanya, !reading],
-    [baca, reading],
-  ] as const) {
-    if (on) el.setAttribute("aria-current", "page");
+function markNav(mode: "tanya" | "baca" | "tema") {
+  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema") };
+  for (const [key, el] of Object.entries(links)) {
+    if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
   }
 }
@@ -372,9 +369,10 @@ function markNav(reading: boolean) {
 async function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
+  const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
 
   if (m) {
-    markNav(true);
+    markNav("baca");
     chatView.hidden = true;
     readView.hidden = false;
     await renderSurah(readView, Number(m[1]), m[2] ? Number(m[2]) : undefined);
@@ -382,14 +380,30 @@ async function route() {
   }
 
   if (hash === "#/baca") {
-    markNav(true);
+    markNav("baca");
     chatView.hidden = true;
     readView.hidden = false;
     renderIndex(readView);
     return;
   }
 
-  markNav(false);
+  if (t) {
+    markNav("tema");
+    chatView.hidden = true;
+    readView.hidden = false;
+    await renderTheme(readView, t[1]!);
+    return;
+  }
+
+  if (hash === "#/tema") {
+    markNav("tema");
+    chatView.hidden = true;
+    readView.hidden = false;
+    renderThemeIndex(readView);
+    return;
+  }
+
+  markNav("tanya");
   showChat();
 }
 
