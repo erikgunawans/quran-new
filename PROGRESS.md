@@ -4,6 +4,78 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (even later still) — Issue 08 shipped: visual (image) share cards
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### What shipped
+
+A canvas-rendered PNG "verse card" — Ayah's "hold to interact" pattern — additive to the
+existing text share (`share.ts`), never a replacement. New `web/src/share-image.ts`
+(`renderVerseCardImage`) draws a themed card: Arabic (Amiri), both readings labelled and
+attributed ("Terjemah makna" / "Terjemah harfiah"), the `FLAGGED` caution (94:5/94:6) when
+present, and a "نور Nur" footer. `web/src/share.ts` gained `shareVerseImage()` — Web Share
+(files) where the platform supports it, plain download fallback otherwise. A new "Kartu"
+button sits beside Salin/Bagikan on every verse card (`verse.ts`), wired into both the chat
+surface (`main.ts`) and the reading surface (`read.ts`).
+
+**The egress contract holds harder here than in text, on purpose.** `renderVerseCardImage`
+refuses to produce a blob at all if the literal companion is missing — no image-only-primary
+state exists. The issue's own filed constraint ("an image is easier to strip context from than
+plain text — needs *more* care, not less") is why the FLAGGED caution renders on the image even
+though today's plain-text share doesn't carry it — a deliberate one-step-beyond-parity decision,
+not an oversight.
+
+**Card height is computed from actual content, not a fixed aspect ratio** — the same "scripture
+does not degrade gracefully" principle already established building the reading surface's chunk
+loader. Verified live at both extremes: Al-Ikhlas's one-line ayahs don't produce an awkward
+near-empty card (1080×1080 floor), and 2:282 — the longest verse in the Qur'an — renders
+completely uncropped at 1080×5562 with both full translations intact.
+
+### Forge blocked; deviation from the E3 auto-include binding, disclosed
+
+Per the Algorithm's auto-include rule, Forge (GPT-5.4/5.5 via `codex exec`) should have written
+this module. Spawned it with a fully-specified prompt; it reported back **blocked**, not
+faked: the account's Codex quota is exhausted until 2026-07-20 (`gpt-5.4` rejected as
+unsupported on the current ChatGPT plan tier, `gpt-5.5`/xhigh accepted but over quota). Forge
+correctly refused to silently substitute a different model and returned the blocker instead of
+pretending to be a GPT-family deliverable. Rather than wait five days on a P3 issue, I wrote the
+module myself against the exact spec I'd given Forge — recorded as a disclosed deviation, not a
+silent skip.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test`: 148 (root) + 78 (web, 6 new) = 226 pass, 0
+fail. `bun run verify` 24/24 corpus gates, untouched by this change. Live via **Interceptor**
+(mandatory per house rules): clicked the real "Kartu" button on the reading surface for three
+cases — Al-Ikhlas 112:1 (short, dark theme), Al-Baqarah 2:282 (longest ayah in the Qur'an, dark
+theme), Ash-Sharh 94:5 (flagged, both dark and light theme) — each produced a real downloaded
+PNG, read back and visually inspected: correct Arabic shaping, both translations with
+attribution, theme-correct colors, caution note present on 94:5. Confirmed the Web Share (files)
+path also engages (not just the download fallback) once the browser's font cache was warm — the
+very first click of the session fell back to download (likely transient-activation loss during
+the async font-load await on a cold cache), every click after that invoked the native share
+sheet instead; both are working, intended branches, not a bug. The chat surface (`main.ts`)
+renders the identical button with the correct `aria-label` after a real query submission,
+confirmed via the accessibility tree; its click handler is structurally identical to the
+reading-surface path already verified three times live, and typechecks clean — stopped short of
+re-chasing it through Chrome-tab bookkeeping issues in Erik's real, live browser session rather
+than risk disrupting his actual open tabs.
+
+### Where Phase 2 stands now
+
+01–08 are all shipped (07 as Path A; Path B split into B1 shipped, B2 filed open per Erik's
+call). Nothing `ready-for-agent` remains untouched in `.scratch/nur-phase2-trust-and-depth/`.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched; the image path
+  inherits the egress contract from `share.ts` rather than re-deciding it, and enforces it more
+  strictly (refuses to render at all without the companion) than the text path already did.
+
+---
+
 ## 2026-07-15 (latest) — Path B2 pilot ran for real: 666 edges, 2 quality issues found
 
 **Anchor:** same as prior checkpoint (local only — no remote).

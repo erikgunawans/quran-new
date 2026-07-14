@@ -1,8 +1,13 @@
 # 08 — Visual (image) share cards
 
-Status: ready-for-agent
+Status: done
 Type: enhancement
 Priority: P3
+
+**2026-07-15 — Shipped.** `web/src/share-image.ts` (canvas-rendered PNG card) + `shareVerseImage()`
+in `share.ts`, wired as a new "Kartu" button beside Salin/Bagikan on every verse card. See
+`PROGRESS.md`'s matching checkpoint and `ISA.md` § Decisions for full detail, including a
+disclosed Forge quota-blocker deviation.
 
 **2026-07-14 — Unblocked.** 01–03 and 06 all shipped this session (see `PROGRESS.md`), so the
 UI this issue would build against is now stable. Moved from `needs-triage` to `ready-for-agent`.

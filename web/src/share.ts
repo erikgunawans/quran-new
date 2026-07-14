@@ -21,6 +21,7 @@
  * A verse that reaches someone else should be passable onward without becoming a lie.
  * Indonesians share in WhatsApp, so the payload is plain text that reads well as plain text.
  */
+import { renderVerseCardImage } from "./share-image.ts";
 import type { VerseCard } from "./verse.ts";
 
 /** Format a verse for the outside world. Plain text, WhatsApp-shaped, honestly labelled. */
@@ -84,4 +85,45 @@ function legacyCopy(text: string): boolean {
   } finally {
     ta.remove();
   }
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export type ImageShareOutcome = "shared" | "downloaded" | "failed";
+
+/**
+ * Carry a verse out as a rendered image — Ayah's "hold to interact" pattern, ADDITIVE to
+ * `shareVerse()`/`copyVerse()` above, never a replacement for them. `renderVerseCardImage`
+ * itself already refuses to produce a blob when the literal companion is missing, so this
+ * function inherits the egress contract rather than re-checking it.
+ */
+export async function shareVerseImage(v: VerseCard): Promise<ImageShareOutcome> {
+  const blob = await renderVerseCardImage(v);
+  if (!blob) return "failed";
+
+  const filename = `nur-${v.ref.replace(":", "-")}.png`;
+  const file = new File([blob], filename, { type: "image/png" });
+
+  if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: `QS ${v.surah_name} ${v.ref}`, text: shareText(v) });
+      return "shared";
+    } catch (err) {
+      // The user dismissing the share sheet is not a failure — say nothing and stop.
+      if (err instanceof DOMException && err.name === "AbortError") return "shared";
+      // Anything else: fall through to a plain download rather than leave them with nothing.
+    }
+  }
+
+  downloadBlob(blob, filename);
+  return "downloaded";
 }

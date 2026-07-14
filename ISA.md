@@ -375,6 +375,32 @@ product's original P0 flagship verse) now shows real, lens-aware, attributed taf
 in the matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
 09-knowledge-graph-b1-structural.md`.
 
+**2026-07-15 (latest) — Issue 08 shipped (visual share cards); Forge blocked on a real quota
+wall, deviation disclosed rather than silently absorbed.** A canvas-rendered PNG verse card,
+additive to the existing text share, never a replacement — same rationale as every prior Phase 2
+issue, no new ISC cycle opened. The egress contract (`literal_companion` on egress, established
+shipping `share.ts` in Phase 1) is enforced *harder* here than in text: `renderVerseCardImage`
+refuses to produce any image at all without the literal companion, and — per this issue's own
+filed constraint that images need more care than text, not less — the FLAGGED caution (94:5/94:6)
+renders on the image even though today's plain-text share doesn't carry it. Card height is
+computed from actual wrapped content rather than a fixed aspect ratio, so the longest verse in
+the Qur'an (2:282) renders complete and uncropped instead of being clipped — the same
+"scripture does not degrade gracefully" principle from the reading surface's chunk loader,
+re-applied to a new surface rather than re-derived from scratch.
+
+Per the Algorithm's E3 auto-include binding, Forge (GPT-5.4/5.5 via `codex exec`) should have
+authored this module. Spawned with a fully-specified prompt; it returned honestly **blocked** —
+the account's Codex quota is exhausted until 2026-07-20 — rather than silently writing the code
+under a different model and passing it off as a Forge deliverable, which its own role explicitly
+forbids. Waiting five days on a P3 issue was disproportionate, so I wrote the module myself
+against the identical spec. Recorded here as a disclosed deviation from the delegation binding,
+not a silent skip — the doctrine's own soft-floor relaxation rule applies directly to an
+external-service outage, not just to a judgment call about task shape.
+
+Verified live via Interceptor across three real cases (shortest ayahs, the longest ayah in the
+Qur'an, and a flagged/cautioned ayah, both themes) — full detail in the matching `PROGRESS.md`
+checkpoint.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.

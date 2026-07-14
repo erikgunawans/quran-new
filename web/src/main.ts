@@ -5,7 +5,7 @@ import { CRISIS_RESOURCE, detectCrisis } from "./crisis.ts";
 import { toggleAudio } from "./audio.ts";
 import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
-import { copyVerse, shareVerse } from "./share.ts";
+import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, getLens, sortStacks, tafsirEl, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
@@ -378,21 +378,43 @@ document.addEventListener("click", (e) => {
   }
 
   const card = onScreen.get(act.dataset["ref"] ?? "");
-  if (!card || (kind !== "copy" && kind !== "share")) return;
+  if (!card || (kind !== "copy" && kind !== "share" && kind !== "image")) return;
 
   void (async () => {
-    const ok = kind === "copy" ? ((await copyVerse(card)) ? "copied" : "failed") : await shareVerse(card);
+    const ok =
+      kind === "copy"
+        ? ((await copyVerse(card)) ? "copied" : "failed")
+        : kind === "share"
+          ? await shareVerse(card)
+          : await shareVerseImage(card);
     const label = act.querySelector("span:last-child") ?? act;
     const original = act.dataset["label"] ?? act.textContent!.trim();
     act.dataset["label"] = original;
 
     act.classList.toggle("ok", ok !== "failed");
-    label.textContent = ok === "failed" ? " Gagal menyalin" : ok === "shared" ? " Dibagikan" : " Tersalin";
-    say(ok === "failed" ? "Gagal menyalin ayat." : "Ayat tersalin, lengkap dengan sumbernya.");
+    label.textContent =
+      ok === "failed"
+        ? kind === "image"
+          ? " Gagal membuat kartu"
+          : " Gagal menyalin"
+        : ok === "shared"
+          ? " Dibagikan"
+          : ok === "downloaded"
+            ? " Terunduh"
+            : " Tersalin";
+    say(
+      ok === "failed"
+        ? kind === "image"
+          ? "Gagal membuat kartu gambar."
+          : "Gagal menyalin ayat."
+        : kind === "image"
+          ? "Kartu gambar ayat siap."
+          : "Ayat tersalin, lengkap dengan sumbernya.",
+    );
 
     setTimeout(() => {
       act.classList.remove("ok");
-      label.textContent = " " + original.replace(/^[⧉↗]\s*/, "");
+      label.textContent = " " + original.replace(/^[⧉↗▦]\s*/, "");
     }, 1800);
   })();
 });

@@ -28,7 +28,7 @@ import {
   type ShardVerse,
   type SurahMeta,
 } from "./quran.ts";
-import { copyVerse, shareVerse } from "./share.ts";
+import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
 
 // ── how much scripture arrives at once ───────────────────────────────────────
@@ -446,7 +446,7 @@ export function bindActs(): void {
     if (!act || !act.closest("#read")) return;
 
     const kind = act.dataset["act"];
-    if (kind !== "copy" && kind !== "share") return;
+    if (kind !== "copy" && kind !== "share" && kind !== "image") return;
 
     const card = onRead.get(act.dataset["ref"] ?? "");
     if (!card) return;
@@ -469,8 +469,13 @@ const labelNode = (act: HTMLButtonElement): ChildNode | undefined =>
     .reverse()
     .find((node) => node.nodeType === Node.TEXT_NODE && (node.textContent ?? "").trim() !== "");
 
-async function carry(act: HTMLButtonElement, kind: "copy" | "share", card: VerseCard): Promise<void> {
-  const outcome = kind === "copy" ? ((await copyVerse(card)) ? "copied" : "failed") : await shareVerse(card);
+async function carry(act: HTMLButtonElement, kind: "copy" | "share" | "image", card: VerseCard): Promise<void> {
+  const outcome =
+    kind === "copy"
+      ? ((await copyVerse(card)) ? "copied" : "failed")
+      : kind === "share"
+        ? await shareVerse(card)
+        : await shareVerseImage(card);
 
   const label = labelNode(act);
   const original = act.dataset["label"] ?? label?.textContent?.trim() ?? "";
@@ -479,9 +484,25 @@ async function carry(act: HTMLButtonElement, kind: "copy" | "share", card: Verse
   act.classList.toggle("ok", outcome !== "failed");
   if (label) {
     label.textContent =
-      outcome === "failed" ? " Gagal menyalin" : outcome === "shared" ? " Dibagikan" : " Tersalin";
+      outcome === "failed"
+        ? kind === "image"
+          ? " Gagal membuat kartu"
+          : " Gagal menyalin"
+        : outcome === "shared"
+          ? " Dibagikan"
+          : outcome === "downloaded"
+            ? " Terunduh"
+            : " Tersalin";
   }
-  say(outcome === "failed" ? "Gagal menyalin ayat." : "Ayat tersalin, lengkap dengan sumbernya.");
+  say(
+    outcome === "failed"
+      ? kind === "image"
+        ? "Gagal membuat kartu gambar."
+        : "Gagal menyalin ayat."
+      : kind === "image"
+        ? "Kartu gambar ayat siap."
+        : "Ayat tersalin, lengkap dengan sumbernya.",
+  );
 
   setTimeout(() => {
     act.classList.remove("ok");

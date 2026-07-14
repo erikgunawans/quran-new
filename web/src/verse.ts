@@ -117,6 +117,9 @@ export function verseEl(v: VerseCard): string {
         <button class="act" data-act="share" data-ref="${v.ref}" aria-label="Bagikan ayat ${v.ref}">
           <span aria-hidden="true">↗</span> Bagikan
         </button>
+        <button class="act" data-act="image" data-ref="${v.ref}" aria-label="Buat kartu gambar ayat ${v.ref}">
+          <span aria-hidden="true">▦</span> Kartu
+        </button>
         ${
           v.continueTo
             ? `<a class="act go" href="#/surah/${v.surah}#${v.ayah}" data-act="read" data-surah="${v.surah}">
