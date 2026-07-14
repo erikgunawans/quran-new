@@ -4,6 +4,41 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## Checkpoint 2026-07-15 (later still) — deployed to Cloud Run for a demo
+
+- **Session:** Erik asked to deploy Nur to Google Cloud "for demo purposes." Nothing in `ISA.md`
+  had ever named a deploy target before — the app was always local-only, no git remote. Checked
+  before creating anything: active gcloud project (`new-axiara-shadow-ai-detector`) was unrelated,
+  so asked which project + hosting approach. Erik chose: new project, Cloud Run.
+- **Blocker 1 — billing quota.** Created `nur-demo` project; linking the billing account failed
+  ("Cloud billing quota exceeded" — too many projects already on the one billing account). Asked
+  Erik; he chose to reuse `story-maker-demo` (already billed, already has two other Cloud Run
+  services) instead. Deleted the now-useless `nur-demo` project.
+- **Blocker 2 — Cloud Build source-upload permission.** `gcloud run deploy --source .` failed:
+  the project's default compute service account has zero IAM roles (org hardening, deliberate —
+  no automatic Editor grant). Worked around by building the image locally with `docker build
+  --platform linux/amd64`, pushing directly to the Artifact Registry repo Cloud Run had already
+  auto-created, then `gcloud run deploy --image=...` — avoids needing to grant that service
+  account anything.
+- **Blocker 3 — public access.** `--allow-unauthenticated` silently failed to bind `allUsers` at
+  deploy time. Confirmed live (403 to anonymous `curl`). Asked Erik whether to make it public —
+  he said yes — but the actual `allUsers` grant was refused by GCP itself: `axiara.ai` has an
+  org-level domain-restricted-sharing policy neither my account nor project-level IAM can
+  override. Reported this honestly instead of finding a workaround that would defeat the org's
+  own security control. Asked again; Erik chose named-user access instead. Granted
+  `roles/run.invoker` to `erik@axiara.ai` (succeeded); `supriatna.erik.gunawan@gmail.com` failed
+  the same org-domain check (not an `axiara.ai` identity) — flagged, not silently dropped.
+- **Live:** `https://nur-892935233226.asia-southeast2.run.app` — 200 with an authenticated
+  request (verified: full HTML, JS/CSS assets, and `corpus.json` all serve correctly), 403 to
+  anonymous requests by design. Viewable while signed into `erik@axiara.ai`.
+- **Files added:** `Dockerfile` (nginx:alpine serving `web/dist`), `nginx.conf` (port 8080, no
+  SPA rewrite needed — Nur routes entirely by URL hash, which never reaches the server).
+- **Cost note:** Cloud Run scales to zero when idle — this should cost close to nothing for demo
+  traffic, but it's the first billed resource this project has that's Nur-specific; worth a
+  glance next time a GCP bill lands.
+- **Next:** if the gmail account needs access too, that requires an org-policy exception from
+  whoever administers the `axiara.ai` Workspace — not something fixable from this session.
+
 ## Checkpoint 2026-07-15 (later) — Cycle 2 opened: mobile-first UI redesign, chat centerpiece
 
 - **Session:** Erik asked for the UI to be much improved, mobile-first, with "the generative AI
