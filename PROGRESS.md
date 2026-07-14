@@ -4,6 +4,71 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (session end) — Merged with main's independent adversarial-review pass
+
+**Anchor:** `main` @ `1dd9240` (local only — no remote)
+
+### What happened
+
+Asked to merge the Phase 2 worktree branch (issues 01–09b: retrieval fix, thread persistence,
+crisis path, tafsir lens, theme browsing, recitation audio, knowledge graph B1 structural + B2
+OpenRouter-derived) into `main`. Main turned out to have 4 commits of its own — a separate
+session's adversarial-review pass (14 numbered defects, 180 tests, 31 gates) that had
+independently rebuilt overlapping ground: its own `crisis.ts`, `thread.ts`, `explain.ts`,
+`announce.ts`, plus real fixes the worktree branch never had (actual `CacheStorage` invalidation,
+corpus-version query strings, browser-output integrity gates, a `#live` race-condition fix).
+
+Two decisions needed before touching anything, both made explicitly:
+
+1. **Crisis-path policy** — main's version replaces the entire answer (no verse, ever) when
+   crisis language is detected; the worktree branch showed the resource alongside the normal
+   verse. Directly opposite behaviors for the same safety-critical feature. **Ruled: replace.**
+2. **Merge strategy for the rest of the overlap** — main's implementations preferred wholesale.
+   They came from the more thorough pass: main's `thread.ts` never persists a crisis exchange to
+   `localStorage` (a real privacy gap the worktree branch had — a shared phone would surface
+   someone's crisis message to the next person who opened the app), and `announce.ts` fixes a
+   race condition on the `#live` region neither branch's author had caught before.
+
+9 conflicts resolved by hand, including two real defects the line-based auto-merge produced
+*without* flagging as conflicts — a duplicate `const MIN_SCORE` in `retrieve.ts` that would not
+have compiled, and an orphaned `#info-panel` popover in `main.ts` referencing DOM that no longer
+existed. Caught by reading the auto-merged files, not by trusting a clean `git merge` exit code.
+
+Found one real gap during live verification, not before: chat's direct ref lookup (asking
+"18:10") wasn't wired to Path B1's lazy tafsir loading. Fixed.
+
+A second commit (`1dd9240`) landed three fixes that were made and verified live during merge
+resolution but never `git add`ed before the merge commit — caught by diffing the working tree
+against the merge commit's own claims, not by assuming the commit matched what actually happened.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test` 220/220 across 12 files. `bun run verify`
+31/31 gates. Live-verified via Interceptor post-merge: crisis path replaces correctly and is
+never written to storage; a normal exchange persists and restores across reload with the "clear
+conversation" control appearing; the explain dialog opens from the header icon with main's richer
+2:156 comparison; the tafsir lens toggle reorders a lazily-loaded stack correctly while leaving
+the translation pair untouched; theme browsing and audio playback both intact.
+
+### A standing note for future sessions in this repo
+
+This session ran in a **separate git worktree** from `main`'s working directory
+(`.claude/worktrees/moonlit-strolling-panda`), while another session worked directly in `main`'s
+own checkout and diverged independently over the same ground. Worth knowing before assuming a
+worktree branch is the only place work is happening on this repo — check `git log main..HEAD` and
+`git log HEAD..main` both ways before any future merge.
+
+### Standing constraints
+
+- **No remote.** Commits stay local; there is nothing to push. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — never weakened.
+- **No generative model in the retrieval path** — reaffirmed this session (Path B's LLM stays
+  build-time only, never in the live answer path).
+- Disk on this machine fluctuated 711 MB–15 GB free across the session (shared machine) — worth
+  checking before any future large build (`bun run ingest`, `bun run app:graph`).
+
+---
+
 ## 2026-07-15 (latest) — Path B2 pilot ran for real: 666 edges, 2 quality issues found
 
 **Anchor:** same as prior checkpoint (local only — no remote).
