@@ -101,6 +101,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       const card = fromShard(v, t.surah, displayName(t.surah));
       card.continueTo = true; // the peak gets a landing
       card.animate = animate;
+      card.lazyTafsir = true; // Path B1 — a direct ref lookup gets the same tafsir access reading/themes do
       return `<p class="said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` + mount(card);
     }
 

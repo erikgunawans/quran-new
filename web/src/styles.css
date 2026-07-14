@@ -177,17 +177,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icon-btn:active { background: var(--line); }
 .icon-btn svg { width: 18px; height: 18px; }
 
-/* the "why two translations" affordance — reachable every session, never in the way */
-.info-pop { position: relative; }
-.info-pop .pop {
-  position: absolute; top: calc(100% + 0.5rem); right: 0; z-index: 30;
-  width: min(300px, 82vw); background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--r-lg); padding: 0.9rem 1rem; box-shadow: var(--shadow-pop);
-  font-size: var(--step--1); color: var(--ink-2);
-}
-.info-pop .pop p + p { margin-top: 0.6rem; }
-.info-pop .pop b { color: var(--ink); }
-
 /* ── chat ──────────────────────────────────────────────────────────── */
 .thread { display: flex; flex-direction: column; gap: 1.5rem; padding-top: 2rem; }
 
@@ -200,25 +189,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .hello p { color: var(--ink-2); max-width: 34ch; text-wrap: pretty; }
 
-/* the two-translation concept, explained once, opt-in, never a modal */
-.explainer {
-  margin-top: 1.5rem; max-width: 44ch;
-  border: 1px dashed var(--line-strong); border-radius: var(--r);
-}
-.explainer summary {
-  padding: 0.7rem 1rem; cursor: pointer; list-style: none;
-  color: var(--ink-2); font-size: var(--step--1); font-weight: 500;
-  display: flex; align-items: center; gap: 0.5rem;
-}
-.explainer summary::-webkit-details-marker { display: none; }
-.explainer summary::after {
-  content: ""; width: 6px; height: 6px; margin-left: auto;
-  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg); transition: transform var(--t);
-}
-.explainer[open] summary::after { transform: rotate(-135deg); }
-.explainer p { padding: 0 1rem; margin: 0 0 0.85rem; color: var(--ink-2); font-size: var(--step--1); text-wrap: pretty; }
-.explainer p b { color: var(--ink); }
 .seeds { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.75rem; }
 .seed {
   padding: 0.55rem 0.9rem; border: 1px solid var(--line);
@@ -240,19 +210,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* Nur speaking — never in a scholar's voice */
 .said { color: var(--ink-2); margin-bottom: 1.25rem; max-width: 68ch; text-wrap: pretty; }
 .said strong { color: var(--ink); font-weight: 600; }
-
-/* the crisis path — warm, not alarming. supportive, not clinical. always alongside, never instead. */
-.crisis {
-  margin-bottom: 1.25rem; padding: 1.1rem 1.25rem;
-  background: var(--primary-wash); border: 1px solid var(--primary-line);
-  border-radius: var(--r-lg); max-width: 68ch;
-}
-.crisis p { color: var(--ink-2); text-wrap: pretty; }
-.crisis p + p { margin-top: 0.55rem; }
-.crisis-title { color: var(--ink); font-weight: 600; font-size: var(--step-1); }
-.crisis-hotline { color: var(--ink); font-size: var(--step-1); }
-.crisis-hotline b { color: var(--primary); }
-.crisis-note { color: var(--ink-3); font-size: var(--step--1); }
 
 /* ── the verse: the light source ───────────────────────────────────── */
 .verse {
