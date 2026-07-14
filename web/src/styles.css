@@ -367,6 +367,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--ink-3); font-size: var(--step--1);
 }
 
+/* Path B1 — tafsir loading lazily, on the surfaces covering the full corpus */
+.tafsir-slot { padding: 0 1.1rem 1.1rem; }
+.tafsir-loading { color: var(--ink-3); font-size: var(--step--1); padding: 0.5rem 0; }
+
 /* the meaning-changed caution — never decorative */
 .caution {
   display: flex; gap: 0.6rem; padding: 0.75rem 1rem;

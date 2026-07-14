@@ -109,7 +109,11 @@ export async function renderTheme(mount: HTMLElement, slug: string): Promise<voi
     const meta = surahMeta(v.surah);
     try {
       const ayah = await loadAyah(v.surah, v.ayah);
-      const card: VerseCard = { ...fromShard(ayah, v.surah, meta?.tl ?? `Surah ${v.surah}`), why: v.why };
+      const card: VerseCard = {
+        ...fromShard(ayah, v.surah, meta?.tl ?? `Surah ${v.surah}`),
+        why: v.why,
+        lazyTafsir: true,
+      };
       registerReadCard(card);
       container.insertAdjacentHTML("beforeend", verseEl(card));
     } catch (err) {

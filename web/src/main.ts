@@ -6,6 +6,7 @@ import { toggleAudio } from "./audio.ts";
 import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { copyVerse, shareVerse } from "./share.ts";
+import { applyLens, bindLazyTafsir, getLens, sortStacks, tafsirEl, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
@@ -27,69 +28,6 @@ const say = (msg: string) => {
   live.textContent = msg;
 };
 
-// ── the tafsir lens ──────────────────────────────────────────────────────────
-//
-// Four scholars, none ranked above another (ISA.md § Principles: "Plurality is warmth, not
-// hedging"). A LENS is not a ranking — it is a reader-chosen VIEWING ORDER over voices that all
-// remain fully present and attributed. It must never become a filter that hides one, and never
-// silently default to anything but "as shipped" until the reader opts in themselves.
-type TafsirLens = "all" | "classical" | "contemporary";
-const LENS_KEY = "nur:lens";
-
-function getLens(): TafsirLens {
-  const v = localStorage.getItem(LENS_KEY);
-  return v === "classical" || v === "contemporary" ? v : "all";
-}
-
-/** Chronology only, derived from the `era` string already shipped with every source — never
- * conflated with `authority_tier`, which answers a different question (doctrinal weight). */
-function eraRank(era: string): number {
-  if (era.startsWith("Classical")) return 0;
-  if (era.startsWith("Modern")) return 1;
-  return 2; // Contemporary, or unlabelled — treated as newest
-}
-
-function lensControl(lens: TafsirLens): string {
-  const opt = (value: TafsirLens, label: string) =>
-    `<button type="button" data-lens="${value}" aria-pressed="${lens === value}">${label}</button>`;
-  return `<div class="lens" role="group" aria-label="Urutan tampilan tafsir">
-            ${opt("all", "Semua")}
-            ${opt("classical", "Klasik dulu")}
-            ${opt("contemporary", "Kontemporer dulu")}
-          </div>`;
-}
-
-/**
- * Re-order every tafsir stack ALREADY on screen. This never removes or hides a scholar — it
- * moves existing `.scholar` nodes within their own `.sources` block, so attribution, tier
- * labels, and the foreign-language note travel with them unchanged. Does NOT touch storage —
- * see `applyLens` for the reader-initiated action that does.
- */
-function sortStacks(lens: TafsirLens): void {
-  for (const stack of document.querySelectorAll<HTMLElement>(".sources")) {
-    const scholars = Array.from(stack.querySelectorAll<HTMLElement>(".scholar"));
-    const sorted = [...scholars].sort((a, b) => {
-      if (lens === "all") return Number(a.dataset["order"]) - Number(b.dataset["order"]);
-      const ra = Number(a.dataset["eraRank"]);
-      const rb = Number(b.dataset["eraRank"]);
-      return lens === "classical" ? ra - rb : rb - ra;
-    });
-    // Re-appending an already-attached node MOVES it — no re-parse, no loss of any node state.
-    for (const el of sorted) stack.append(el);
-
-    for (const btn of stack.querySelectorAll<HTMLButtonElement>("[data-lens]")) {
-      btn.setAttribute("aria-pressed", String(btn.dataset["lens"] === lens));
-    }
-  }
-}
-
-/** The reader explicitly chose a lens — persist it (same pattern as `nur:theme`/`nur:ar`, which
- * only write on an explicit click, never on boot) and re-sort what's on screen now. */
-function applyLens(lens: TafsirLens): void {
-  localStorage.setItem(LENS_KEY, lens);
-  sortStacks(lens);
-}
-
 // ── the crisis path ──────────────────────────────────────────────────────────
 //
 // Shown ALONGSIDE whatever Nur would otherwise say (Erik's ruling, 2026-07-14), never in place
@@ -103,47 +41,6 @@ function crisisEl(): string {
     <p class="crisis-hotline"><b>${esc(CRISIS_RESOURCE.hotline)}</b> — <b>${esc(CRISIS_RESOURCE.phone)}</b></p>
     <p class="crisis-note">${esc(CRISIS_RESOURCE.note)}</p>
   </div>`;
-}
-
-// ── rendering ────────────────────────────────────────────────────────────────
-function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }[] }): string {
-  if (!v.tafsir.length) {
-    return `<div class="silence">Belum ada tafsir terverifikasi untuk ayat ini di korpus kami. Kami memilih diam daripada mengarang.</div>`;
-  }
-
-  const lens = getLens();
-  // `order` is the ORIGINAL (as-shipped) position — kept as a data attribute so "Semua" can
-  // restore it later without needing the source array again.
-  const withRank = v.tafsir.map((t, order) => ({ t, order, rank: eraRank(voices.get(t.source_id)?.era ?? "") }));
-  const ordered =
-    lens === "all"
-      ? withRank
-      : [...withRank].sort((a, b) => (lens === "classical" ? a.rank - b.rank : b.rank - a.rank));
-
-  const stack = ordered
-    .map(({ t, order, rank }) => {
-      const src = voices.get(t.source_id);
-      // An English tafsir shown to an Indonesian reader is the exact wound this product exists
-      // to heal. It may still appear — dropping a scholar is worse than showing him — but it is
-      // labelled, so nobody is left thinking the fault is theirs for not understanding it.
-      const foreign = t.lang !== "id";
-      return `
-        <div class="scholar${foreign ? " foreign" : ""}" data-order="${order}" data-era-rank="${rank}">
-          <div class="who">
-            <span class="by"><b>${esc(src?.author ?? t.source_id)}</b></span>
-            <span class="tier">${esc(src?.era ?? "")} · tier ${src?.authority_tier ?? "?"}</span>
-            ${foreign ? `<span class="lang-warn">teks bahasa Inggris — belum ada terjemahannya</span>` : ""}
-          </div>
-          <p class="txt"${foreign ? ' lang="en"' : ""}>${esc(t.text)}</p>
-        </div>`;
-    })
-    .join("");
-
-  return `<details class="sources">
-            <summary>Lihat ${v.tafsir.length} ulama membahas ayat ini</summary>
-            ${lensControl(lens)}
-            ${stack}
-          </details>`;
 }
 
 function mount(card: VerseCard, turnCards?: VerseCard[]): string {
@@ -305,7 +202,7 @@ async function ask(question: string) {
                 primary: h.verse.primary,
                 companion: h.verse.companion,
                 why: h.verse.why,
-                extra: tafsirEl(h.verse),
+                extra: tafsirEl(h.verse.tafsir, voices),
                 continueTo: true,
               };
               return mount(card, turnCards);
@@ -588,6 +485,8 @@ async function bootCorpus(): Promise<void> {
 }
 
 (() => {
+  bindLazyTafsir();
+
   const savedTheme = localStorage.getItem("nur:theme");
   if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;
 

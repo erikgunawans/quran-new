@@ -43,8 +43,10 @@ before adding new surface area.
 | 04 | Crisis-path keyword detection | fix (P0, safety) | done | — |
 | 05 | Recitation audio on the reading surface | new capability | done (MVP, 22 ayahs) | — |
 | 06 | Tafsir "choose your lens" toggle | new capability | done | — |
-| 07 | Concept/thematic cross-linking (surface the graph) | new capability, big bet | done (Path A) | — (Path B, the full graph, remains unbuilt and un-ruled-on) |
+| 07 | Concept/thematic cross-linking (surface the graph) | new capability, big bet | done (Path A) | — |
 | 08 | Visual (image) share cards | enhancement | ready-for-agent | unblocked 2026-07-14 — 01–03, 06 shipped |
+| 09 | Knowledge graph Path B1 — structural (EXPLAINS/AUTHORED_BY) | new capability | done | — |
+| 09b | Knowledge graph Path B2 — derived (Entity/Topic/thematic links) | new capability, needs real decisions | needs-info | LLM access model, extraction scope, review workflow — see issue 09 |
 
 Items 01–03 are the direct continuation of `PROGRESS.md`'s existing "Next, in order" list — this
 research just confirms they're the right next three, not a new discovery. Item 04 was already

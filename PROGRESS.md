@@ -4,6 +4,86 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (later) — Path B, split honestly: B1 (structural graph) shipped, B2 (LLM-derived) stays open
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### The check-in before writing code
+
+Erik asked for "Path B" — the real knowledge graph from `docs/design/quran-graphrag.html`, not
+issue 07's Path A shortcut. Read the full spec before touching anything: it bundles TWO very
+different systems. (1) A build-time knowledge graph — LLM extraction over tafsir, closed
+predicate schema, scholar-reviewed. (2) A live serving architecture — real backend (Neo4j/
+Postgres), query router, vector+graph retrieval, reranker, AND a **generative LLM answering
+live**. (2) directly contradicts `ISA.md`'s locked constraint ("No generative model in the
+retrieval path") and assumes a live server Nur has never had (it's a 100% static site). Flagged
+this before writing anything — Erik confirmed: (1) only, never touching the live answer path.
+
+### The schema itself splits by cost
+
+`docs/design/quran-graphrag.html`'s 16 predicates: 5 are pure structure, already fully expressed
+by the existing ref-oracle/shard architecture (`PART_OF`, `TRANSLATES`, `PRECEDES` — building
+these would just relabel data already there). Two more (`EXPLAINS`, `AUTHORED_BY`) are also
+zero-LLM — they're the *known* structure of the tafsir corpus, just not yet browsable across the
+full 6,236 ayahs (today tafsir only shows for the 55 curated verses, only in chat). The remaining
+5 (`MENTIONS`, `ABOUT_TOPIC`, `THEMATICALLY_LINKED_TO`, `NARRATIVE_OF`, `SUBTOPIC_OF`) genuinely
+need an LLM. Split into B1 (built this session) and B2 (stays open — see below).
+
+### A blocker, resolved with a check-in first
+
+`data/` didn't exist in this worktree — same gap that partially blocked issues 01 and 05, now
+blocking B1 too, since it needs the raw tafsir corpus. Disk had been fluctuating 2.4–15 GB free
+all session (clearly a shared machine). Asked before running anything expensive; Erik approved.
+**Ran `bun run ingest`: 24/24 gates, 230 MB, 6.1 GB still free after.** Also ran `bun run
+app:corpus` — as a side effect, `corpus.json` now exists in this worktree for the first time this
+phase, which quietly fixes every "couldn't verify live, corpus.json missing" caveat logged in the
+01, 05, and 06 checkpoints. `bun test` went from 129/132 to **132/132** — the 3 failures logged in
+every prior Phase 2 checkpoint are gone, not worked around.
+
+### B1 shipped
+
+Measured before designing: a per-surah tafsir bundle is up to 9.3 MB (surah 7) — same bandwidth
+violation already caught building recitation audio, same fix (per-ayah, not per-surah; worst case
+118 KB). New `bun run app:graph` emits `web/public/tafsir/{surah}/{ayah}.json` (6,236 files,
+gitignored — 105 MB of regenerable content, same treatment as `corpus.json`). New shared
+`web/src/tafsir.ts` (the lens machinery from issue 06 moved out of `main.ts` once a third surface
+needed it) adds LAZY loading — tafsir fetches only when a reader opens the disclosure for that
+specific verse, never eagerly for a whole surah. Reading surface and theme browser both now show
+real tafsir across the full corpus, not just the 55 curated verses.
+
+**Verified live: 18:10** — the exact verse the original P0 bug denied existed, never part of the
+curated 55 — now shows real tafsir from 3 scholars, lens-toggle-aware, correctly attributed. Chat's
+original eager path re-verified unaffected by the refactor. Crisis-path detection re-verified
+working. One tooling quirk found and isolated (not a bug): `interceptor act` doesn't trigger
+native `<details>` toggle, though plain buttons work fine all session — confirmed via `eval`
+`.click()` that the actual code is correct.
+
+### B2 — genuinely still open, not quietly decided
+
+Entity/Topic extraction and the 3 remaining derived predicates need a real LLM, and this repo has
+zero LLM API integration today. Three real decisions before any of it gets built: LLM access
+model (a real API key vs. supervised in-session extraction), extraction scope (18,707 passages is
+a real cost — recommend a bounded pilot first, same reasoning as every MVP-scoped item this
+phase), and the review workflow the spec itself mandates (`review_status`: auto → human_pending →
+scholar_verified). Filed as issue 09b.
+
+### Verification
+
+`bun run ingest` 24/24, `bun run verify` 24/24 (re-run after this session, confirming nothing in
+the ingest pipeline was touched by graph-building). `bun test` 132/132. `bun run typecheck`
+clean. Live-verified via Interceptor as above.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- **No generative model in the retrieval path** — reaffirmed, not just preserved: B1 is 100%
+  build-time, and B2 (if built) must stay that way too, per Erik's explicit ruling this session.
+- `data/` now exists in this worktree (230 MB) — still gitignored, still regenerable via
+  `bun run ingest`. `web/public/tafsir/` (105 MB) is a new gitignored artifact, regenerable via
+  `bun run app:graph`.
+
+---
+
 ## 2026-07-15 — Issue 07 resolved as a spike, then Path A shipped: browse by theme
 
 **Anchor:** same as prior checkpoint (local only — no remote).

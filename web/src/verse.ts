@@ -8,6 +8,7 @@
  */
 import { hasAudio, nowPlaying } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
+import { lazyTafsirEl } from "./tafsir.ts";
 
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -57,8 +58,13 @@ export interface VerseCard {
   companion: Reading | null;
   /** Curation note. Chat shows it; the reading surface does not (it is per-question context). */
   why?: string;
-  /** Extra HTML dropped in below the readings — the tafsir stack, in chat only. */
+  /** Extra HTML dropped in below the readings — the tafsir stack, pre-loaded (chat's 55 curated
+   * verses only). Takes priority over `lazyTafsir` if both are somehow set. */
   extra?: string;
+  /** Path B1: fetch tafsir on demand when the reader opens the disclosure, instead of it being
+   * pre-loaded. Covers the full 6,236-ayah corpus (the reading surface, theme browser) where
+   * `extra` isn't already known. Ignored if `extra` is set. */
+  lazyTafsir?: boolean;
   /** Offer "read the rest of this surah". The emotional peak needs somewhere to land. */
   continueTo?: boolean;
 }
@@ -92,7 +98,7 @@ export function verseEl(v: VerseCard): string {
 
       ${flag ? `<div class="caution"><b>⚠</b><span>${flag}</span></div>` : ""}
 
-      ${v.extra ?? ""}
+      ${v.extra ?? (v.lazyTafsir ? lazyTafsirEl(v.surah, v.ayah) : "")}
 
       <div class="verse-acts">
         ${

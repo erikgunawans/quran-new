@@ -273,9 +273,10 @@ const oopsEl = (msg: string, retry: boolean): string => `
     ${retry ? `<button class="act read-retry" type="button">Coba lagi</button>` : ""}
   </div>`;
 
-/** Build one card and register it, so its copy/share buttons can find it later. */
+/** Build one card and register it, so its copy/share buttons can find it later. Path B1: tafsir
+ * loads lazily here (the full corpus, not chat's pre-loaded 55) — see tafsir.ts. */
 const cardEl = (v: ShardVerse, n: number, name: string): string => {
-  const card = fromShard(v, n, name);
+  const card = { ...fromShard(v, n, name), lazyTafsir: true };
   onRead.set(card.ref, card);
   return verseEl(card);
 };

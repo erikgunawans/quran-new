@@ -347,6 +347,34 @@ unbuilt. No new ISC cycle opened, same rationale as the two entries above. Full 
 matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
 07-concept-cross-linking.md`.
 
+**2026-07-15 (later) — Erik asked for Path B; found it conflicts with a locked Constraint; split
+it; shipped the half that doesn't.** `docs/design/quran-graphrag.html`'s full architecture
+bundles a build-time knowledge graph WITH a live serving stack whose generation layer is a
+**generative LLM answering in real time** — direct contradiction of this ISA's own § Constraints
+("No generative model in the retrieval path. Nur never answers in a scholar's voice. Do not
+weaken."), and it assumes a live backend server this 100%-static product has never had. Surfaced
+this before writing any code. Erik confirmed: build-time graph only, the live/generative half
+stays rejected.
+
+The 16-predicate schema itself splits by cost: `PART_OF`/`TRANSLATES`/`PRECEDES` are pure
+relabeling of structure the ref-oracle/shard architecture already expresses (built nothing for
+these — no reader-facing gain). `EXPLAINS`/`AUTHORED_BY` are zero-LLM but genuinely new (tafsir
+browsable across the full corpus, not just the 55 curated verses) — shipped as **Path B1**.
+`MENTIONS`/`ABOUT_TOPIC`/`THEMATICALLY_LINKED_TO`/`NARRATIVE_OF`/`SUBTOPIC_OF` need a real LLM —
+**Path B2**, filed open (issue 09b), not built: this repo has zero LLM API integration, and
+extraction scope/access-model/review-workflow are real decisions, not implementation details.
+
+B1 required `bun run ingest`, never run in this worktree before — asked before running it (disk
+had been fluctuating 2.4–15 GB free all session), Erik approved, ran clean (24/24 gates, 230 MB).
+Also measured before designing storage: a per-surah tafsir bundle can be 9.3 MB (surah 7) — the
+SAME reader's-bandwidth lesson from Path B1's audio session, re-confirmed independently rather
+than assumed to still hold. Per-ayah shards instead (worst case 118 KB), gitignored like
+`corpus.json` (105 MB, regenerable via `bun run app:graph`), lazy-fetched on first `<details>`
+open — never eagerly for a whole surah. Verified live: 18:10 (never in the curated 55, the
+product's original P0 flagship verse) now shows real, lens-aware, attributed tafsir. Full detail
+in the matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
+09-knowledge-graph-b1-structural.md`.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.
