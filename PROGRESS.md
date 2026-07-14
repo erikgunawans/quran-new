@@ -62,6 +62,21 @@ reading-surface path already verified three times live, and typechecks clean —
 re-chasing it through Chrome-tab bookkeeping issues in Erik's real, live browser session rather
 than risk disrupting his actual open tabs.
 
+### Two things the advisor caught at the commitment boundary, worth stating plainly
+
+**The FLAGGED caution now appears on the image but still doesn't appear on the plain-text
+share** (`shareText()` in `share.ts`, unchanged this session). That's an intentional asymmetry —
+the issue's own filed constraint said images need *more* care than text, not that text needed
+less — but it means the older text path is arguably under-serving the exact two verses (94:5,
+94:6) this product has gone out of its way to caution about everywhere else. Not fixed here
+(out of scope for issue 08, and `shareText()` is an established, previously-shipped Phase-1
+path); flagging so it doesn't get silently resolved by accident in either direction. Erik's call.
+
+**Forge's Codex quota is exhausted until 2026-07-20, not just for this issue.** Whatever else
+gets routed to Forge in the next five days will hit the same wall — this session absorbed it by
+writing issue 08's module directly, but that's a per-task workaround, not a fix. Worth knowing
+before assuming Forge is available for anything else this week.
+
 ### Where Phase 2 stands now
 
 01–08 are all shipped (07 as Path A; Path B split into B1 shipped, B2 filed open per Erik's
