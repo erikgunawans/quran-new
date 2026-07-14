@@ -4,6 +4,42 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## Checkpoint 2026-07-15 (latest) — Path B2 review + "related verses" shipped
+
+- **Session:** Picked Path B2 back up after the Cloud Run deploy. Read the actual 666-edge pilot
+  output directly instead of the aggregate summary — found the English-label leak was narrower
+  than reported (12.6%, only Indonesian-source edges; Ibn Kathir's English labels are correct,
+  it's an English source) and `EXPLAINS` was 100% redundant with B1's free structural coverage,
+  not just "possibly." Erik ruled on both. Then discovered the review-promotion "workflow" wasn't
+  actually undecided — `docs/design/quran-graphrag.html` § Stage 06 already specifies a tiered
+  T0-T3 policy; the real gap was staffing (T1 doctrinal predicates need two independent scholars).
+  Erik confirmed: unstaffed, parked deliberately.
+- **Shipped — extraction fixes:** dropped `EXPLAINS` from `ALLOWED_PREDICATES`/the system prompt
+  (`src/review/graph-extraction.ts`); added a source-language-matching instruction (fixes the
+  leak without degrading Ibn Kathir's correctly-English output); purged the 93 stale `EXPLAINS`
+  edges and rejected 4 weak `HAS_CONTEXT` edges (with reasons) from
+  `data/review/graph-extraction.json`. 573 edges remain.
+- **Shipped — "related verses":** asked Erik whether to spend the T2 (non-doctrinal) population
+  on theme-browser enrichment or retrieval ranking; recommended the former (additive, doesn't
+  touch the trust-critical chat path), he agreed. Read all 26 `THEMATICALLY_LINKED_TO` edges by
+  hand — 22 were same-surah adjacency (noise, a reader already sees these together), 4 were
+  genuine cross-surah concept links, all verified solid against their evidence_span. New
+  `bun run app:related` script generates `web/src/related-verses.ts` (inlined, graceful no-op
+  without pilot data); `verseEl()` renders a sourced "Terhubung secara tematik" pointer, same
+  lookup pattern as the existing `FLAGGED` caution. Live-verified click-through (2:153 → Al-Hadid
+  57:4) via Interceptor.
+- **Files changed:** `src/review/graph-extraction.ts`, `src/app/build-related-verses.ts` (new),
+  `web/src/related-verses.ts` (new, generated), `web/src/verse.ts`, `web/src/styles.css`,
+  `package.json`, `.scratch/nur-phase2-trust-and-depth/issues/09b-knowledge-graph-b2-derived.md`.
+  Three commits: `20607b7`, `ef1b504`, `6460c59`.
+- **Tests:** `bun run typecheck` clean, `bun test` 226/226, `bun run verify` 24/24 — unchanged
+  throughout, retrieval/corpus-integrity path never touched.
+- **Next:** the retrieval-ranking use of T2 data is still open (deliberately not built this
+  session — flagged as higher-risk, worth trusting the "related verses" pattern first). A
+  `--full` corpus run of the Path B2 extractor remains an open, costed decision. T1 doctrinal
+  review stays parked until real scholar capacity exists. The two deferred UI verifications
+  (ISC-78/79, real device + real narrow viewport) from the earlier mobile pass are still open.
+
 ## Checkpoint 2026-07-15 (later still) — deployed to Cloud Run for a demo
 
 - **Session:** Erik asked to deploy Nur to Google Cloud "for demo purposes." Nothing in `ISA.md`
