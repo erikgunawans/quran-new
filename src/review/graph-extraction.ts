@@ -9,8 +9,12 @@
  * already established for a different kind of human-reviewed queue.
  */
 
+// EXPLAINS deliberately excluded: B1 (src/app/build-graph.ts) already produces it structurally,
+// zero-LLM, for every one of the 18,707 tafsir passages in the corpus — not just this pilot's
+// 55-verse sample. The pilot run confirmed all 93 LLM-extracted EXPLAINS edges were a strict
+// subset of what B1 already has for free; keeping it here would just be paying for duplicate
+// data on every future run.
 export const ALLOWED_PREDICATES = [
-  "EXPLAINS",
   "REFERENCES",
   "ABROGATES",
   "HAS_CONTEXT",
@@ -39,10 +43,11 @@ export interface ExtractedEdge extends ValidatedEdge {
 
 export const SYSTEM_PROMPT = `You extract knowledge-graph edges from Islamic exegetical text (tafsir commentary).
 You may ONLY use these predicates:
-  EXPLAINS, REFERENCES, ABROGATES, HAS_CONTEXT, MENTIONS, ABOUT_TOPIC, THEMATICALLY_LINKED_TO, NARRATIVE_OF
+  REFERENCES, ABROGATES, HAS_CONTEXT, MENTIONS, ABOUT_TOPIC, THEMATICALLY_LINKED_TO, NARRATIVE_OF
 
 RULES
   - For every edge you MUST quote the exact evidence_span from the passage — copy it verbatim, do not paraphrase or translate it.
+  - Write every "label" in the SAME LANGUAGE as the passage you are reading. If the passage is in Indonesian, the label is in Indonesian. If the passage is in English, the label is in English. Never translate the label into a different language than the source passage — a reader comparing the label to its evidence_span must see one consistent language, not a mix.
   - If the passage does not support an edge, omit it.
   - NEVER infer a relationship the text does not explicitly state.
   - NEVER assert the ruling or meaning of a verse as settled fact — you are extracting what THIS SOURCE says, not adjudicating truth.

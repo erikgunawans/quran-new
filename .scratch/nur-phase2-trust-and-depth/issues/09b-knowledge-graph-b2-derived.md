@@ -1,6 +1,6 @@
 # 09b — Knowledge graph, Path B2: the LLM-derived layer
 
-Status: needs-info (pilot ran successfully — waiting on Erik's review + 2 quality decisions)
+Status: needs-info (both quality decisions ruled on 2026-07-15; review-promotion workflow still open)
 Type: new capability
 Priority: P2
 
@@ -113,5 +113,48 @@ All 666 edges sit at `review_status: "auto"` in `data/review/graph-extraction.js
    and the `EXPLAINS`-redundancy question before running anything larger than this pilot.
 5. The review-promotion workflow (`auto` → `human_pending` → `scholar_verified`) — still entirely
    undecided, now that there's real data to design it against instead of a hypothetical.
+
+## Review session (2026-07-15) — real numbers, not just the pilot summary
+
+Read the actual 666 edges rather than re-stating the earlier aggregate. Findings were more
+precise than the original flags:
+
+**English-label leak — narrower than reported.** Raw heuristic hit 200/629 labeled edges (32%),
+but 121 of those are from Ibn Kathir, a genuinely English-language source in this corpus
+(`lang: "en"` in `sources.ts`, already shown as English to readers). Labeling an Ibn Kathir
+passage in English is correct, not a defect. The real leak is **79/629 (12.6%)** — English labels
+pulled from As-Sa'di and Al-Mukhtasar, both `lang: "id"` sources — concentrated in `ABOUT_TOPIC`
+and `EXPLAINS`. Root cause: the extraction prompt never specified a label language at all.
+
+**Ruling:** fixed at the prompt level, not with a blanket "always Indonesian" rule (which would
+have degraded Ibn Kathir's correctly-English output). `SYSTEM_PROMPT` in
+`src/review/graph-extraction.ts` now says: label in the same language as the source passage.
+
+**`EXPLAINS` redundancy — confirmed at 100%, not "possibly."** All 93 `EXPLAINS` edges (52 unique
+ayahs) duplicate what B1 (`src/app/build-graph.ts`) already produces structurally, zero-LLM, for
+every one of the 18,707 tafsir passages in the corpus — not just this pilot's 55-verse sample.
+**Ruling:** dropped `EXPLAINS` from `ALLOWED_PREDICATES` and the system prompt entirely. The 93
+existing edges were purged from `data/review/graph-extraction.json` (they represented a predicate
+that's no longer valid to extract, not data worth keeping in a review queue).
+
+**`HAS_CONTEXT` — read all 16, not "a few."** ~10-12 are genuine occasion-of-revelation content
+(Battle of Uhud, the Najran delegation, Abu Bakr's oath re: the ifk incident). 4 were weak enough
+to reject outright rather than defer to scholar review: *"Reciting these two ayahs at night"*
+(virtue-of-recitation, not an occasion), *"Makkiyah surah"* (a classification fact), *"Prophet
+Muhammad"* (too vague to be usable), *"Address to jinn and mankind"* (describes the verse's
+audience, not its context). Marked `review_status: "rejected"` with a `rejection_reason` each,
+left in the file rather than deleted — same discipline as the divergence review queue: rejection
+is a recorded judgment, not a silent drop.
+
+**Current state of `data/review/graph-extraction.json`:** 573 edges (666 − 93 purged `EXPLAINS`),
+569 at `review_status: "auto"`, 4 at `"rejected"`. `bun test` (10/10, `graph-extraction.test.ts`)
+and `bun run typecheck` both clean after the prompt/vocabulary change.
+
+**Still open — the review-promotion workflow itself.** Proposed but not yet ruled on: `auto` →
+`human_pending` (Erik or another vetted reader thinks it's plausible) → `scholar_verified` (a
+named scholar confirmed it — the only status that could ever justify shipping an edge to
+`web/public` on some future surface), with `rejected` as a fourth terminal state (now precedented
+by the 4 `HAS_CONTEXT` edges above). Needs Erik's sign-off before any edge moves past `auto`, and
+before a `--full` corpus run is worth considering — the pilot only covers the 55 curated verses.
 
 ## Comments
