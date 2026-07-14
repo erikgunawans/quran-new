@@ -4,6 +4,89 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — `/impeccable` polish pass: icon consistency + a real motion-robustness bug
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+Erik asked for the UI to feel "fresh, friendly, but still aesthetic." Checked first rather than
+guessing: `DESIGN.md` explicitly rejects the wellness-app pivot ("cream/sage/calm — Headspace
+with a verse in it") as equally wrong as the gold-arabesque cliché, so this stayed a **polish
+pass within the existing identity**, confirmed with Erik before touching anything — not a
+register change.
+
+### A real bug, found by chasing what looked like a screenshot artifact
+
+Investigating visual quality, `interceptor screenshot` rendered the chat surface's Arabic text
+as a blank box — reproduced 3× including on a completely fresh tab/query, looking like a real
+defect. Cross-checked with an independent capture path (`interceptor macos screenshot`, real OS
+compositing, not the extension's tab-capture API): **the live page renders correctly.** The
+screenshot tool has its own bug with this specific content, unrelated to the app.
+
+But the investigation surfaced something real anyway: every entrance animation in this codebase
+(`animation: ... both`) used `both`, which back-fills the invisible `from`-keyframe the instant
+an element exists — *before* the animation engine has run a single frame. A tab backgrounded
+mid-load (app-switch, screen lock — routine on the mid-range Android this product targets) can
+leave that animation never-started, and `both` then leaves the content stuck invisible
+indefinitely. This is a named anti-pattern in impeccable's own motion guidance ("reveal
+animations must enhance an already-visible default... transitions pause on hidden tabs... the
+reveal never fires and the section ships blank") — not a hypothetical, a documented failure mode
+I had just watched something resembling. Changed `both` → `forwards` in all three instances
+(`styles.css`'s `.verse[data-new] .ar` rise/fade, `read.css`'s `.surah-head`/`.bismillah`
+read-in, `.verse.landed`'s highlight) — zero visual change in the working case (the `to`
+keyframe already matches each element's natural unanimated style), but the never-started case
+now shows real content instead of nothing.
+
+### Icon consistency
+
+The header (info, theme toggle, send) already uses crisp SVG icons; the verse-card actions
+(copy, share, the new Kartu button, play/pause) used plain Unicode glyphs (⧉ ↗ ▦ ▶ ⏸) — the
+"feels slightly off" signal a fluent user of well-made tools would notice, per the Product
+register's own slop test. Replaced all five with inline SVG matching the header's exact
+convention (viewBox 24, stroke 1.7, round caps/joins), in `verse.ts` — the one shared renderer
+behind chat, reading, *and* theme browsing, so the fix reaches all three surfaces from one file.
+
+**Found a second, more concrete bug the same way**: the caution icon (⚠, U+26A0) renders in
+full-color emoji presentation on most platforms, which **ignores** `.caution b`'s
+`color: var(--caution)` entirely — the amber styling this app's own caution system depends on
+was silently not applying. Replaced with an SVG using `stroke="currentColor"`, which *does*
+inherit CSS color. Verified live: the icon's computed `stroke` now reads `oklch(0.76 0.14 55)`
+in dark mode and `oklch(0.52 0.135 55)` in light mode — correctly tracking the token in both
+themes, which the emoji never did.
+
+### A privacy note, disclosed
+
+`interceptor macos screenshot` captures whatever tab is frontmost in Erik's real, live Chrome —
+not necessarily the tab I'm scripting. It twice grabbed unrelated tabs: once an unrelated
+Story-Maker app, once a live Google AI Studio API-keys dashboard showing real key identifiers
+and project names. Both screenshots were deleted immediately, not read further, not retained.
+Switched to the extension-scoped `interceptor screenshot` (correctly bound to the tab I
+control) for the rest of the session.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test`: 226 pass (148 root + 78 web), 0 fail —
+unchanged, this session touched no test-covered logic paths, only markup/CSS. Live-verified via
+Interceptor: new SVG action icons render correctly (cropped from a real capture); caution icon's
+`stroke` computed value confirmed matching `--caution` in both themes; play/pause icon-swap DOM
+mechanics confirmed working (couldn't confirm through an actual play click — same synthetic-click
+autoplay-policy limitation already logged for issue 05 in this file).
+
+### Honest scope note
+
+This was one focused, high-confidence pass (motion robustness + icon consistency across the
+shared verse renderer), not an exhaustive screen-by-screen audit of chat/reading/themes. Erik
+asked for "whole app," and this reaches all three surfaces structurally (one shared component),
+but a deeper pass on any single surface — the theme browser specifically got no dedicated look
+this session — is still open if wanted.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched; this session was
+  markup/CSS only, nothing in the corpus or retrieval layer.
+
+---
+
 ## 2026-07-15 (even later still) — Issue 08 shipped: visual (image) share cards
 
 **Anchor:** same as prior checkpoint (local only — no remote).

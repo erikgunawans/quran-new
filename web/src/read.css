@@ -36,11 +36,14 @@
 }
 
 /* Motion in the reading flow is state-carrying and cheap: it lands on the
-   two chrome elements, never on 286 lines of scripture. */
+   two chrome elements, never on 286 lines of scripture.
+   `forwards`, not `both` — see styles.css's `.rise` comment: `both` back-fills the invisible
+   FROM state before the animation has run a single frame, so a backgrounded tab at load can
+   leave the surah header (or, on the chat surface, the Arabic itself) stuck invisible forever. */
 @media (prefers-reduced-motion: no-preference) {
   #read .surah-head,
   #read .bismillah {
-    animation: read-in 420ms var(--ease) both;
+    animation: read-in 420ms var(--ease) forwards;
   }
   @keyframes read-in {
     from { opacity: 0; transform: translateY(4px); }
@@ -229,10 +232,12 @@
 
 #read .verses { display: flex; flex-direction: column; gap: 1rem; }
 
-/* arriving at the ayah you came for — it says "here", then settles */
+/* arriving at the ayah you came for — it says "here", then settles.
+   `forwards`, matching the fix above — lower stakes here (a missed highlight, not hidden
+   scripture), but the same failure mode, so the same discipline applies everywhere it appears. */
 #read .verse.landed { border-color: var(--primary-line); }
 @media (prefers-reduced-motion: no-preference) {
-  #read .verse.landed { animation: land 1.8s var(--ease) both; }
+  #read .verse.landed { animation: land 1.8s var(--ease) forwards; }
   @keyframes land {
     0%, 45% { background: var(--primary-wash); }
     100%    { background: var(--surface); }

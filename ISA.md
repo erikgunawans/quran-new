@@ -401,6 +401,25 @@ Verified live via Interceptor across three real cases (shortest ayahs, the longe
 Qur'an, and a flagged/cautioned ayah, both themes) — full detail in the matching `PROGRESS.md`
 checkpoint.
 
+**2026-07-15 (even later) — `/impeccable` polish pass; confirmed intent before touching a
+carefully-argued design system.** Erik asked for the UI to feel "fresh, friendly, but still
+aesthetic." `DESIGN.md` explicitly names and rejects the wellness-app pivot as equally wrong as
+the gold-arabesque cliché — exactly the drift "friendly" requests tend toward — so this was
+checked with Erik before any edit, and confirmed as polish-within-identity, not a register
+change. Two real, verified fixes came out of it, both recorded in the matching `PROGRESS.md`
+checkpoint: (1) every CSS entrance animation used `animation: ... both`, a named anti-pattern
+(impeccable's own motion guidance: "reveal animations must enhance an already-visible default")
+that can leave content permanently invisible if the animation never starts (backgrounded tab at
+load) — changed to `forwards` everywhere it appears, zero visual change in the working case; (2)
+the `⚠` caution icon renders as a full-color emoji on most platforms, silently ignoring
+`color: var(--caution)` — replaced with an SVG using `stroke="currentColor"`, verified to
+correctly track the token in both themes (computed `stroke` differs by theme now; the emoji
+never did). Also unified the verse-card action icons (copy/share/Kartu/play) to SVG matching the
+header's existing icon language, closing a "feels slightly off" gap the Product register's own
+slop test names directly. No new ISC cycle opened — same rationale as every Phase 2 entry above,
+scoped markup/CSS work against already-locked Principles/Constraints, not new ideal-state
+articulation.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.

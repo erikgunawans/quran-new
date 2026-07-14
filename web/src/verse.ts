@@ -13,6 +13,29 @@ import { lazyTafsirEl } from "./tafsir.ts";
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+/**
+ * Verse-action icons, matching the header's own icon language (viewBox 24, stroke 1.7,
+ * round caps/joins — see index.html's info/theme-toggle icons) instead of the platform-default
+ * glyph shapes a Unicode character renders as. A font's ⧉/↗/▦ can differ enough between OS and
+ * browser to read as slightly off; an inline SVG draws exactly the same line everywhere.
+ */
+const ICON_COPY =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const ICON_SHARE =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>';
+const ICON_IMAGE =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.4" fill="currentColor" stroke="none"/><path d="m21 15-4.5-4.5a1.5 1.5 0 0 0-2.1 0L6 19"/></svg>';
+const ICON_PLAY = '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M7 4.5v15l13-7.5Z" fill="currentColor"/></svg>';
+const ICON_PAUSE =
+  '<svg viewBox="0 0 24 24" width="14" height="14"><rect x="6" y="4" width="4.5" height="16" rx="1" fill="currentColor"/><rect x="13.5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/></svg>';
+/**
+ * Not the ⚠ character — most platforms render U+26A0 in full-color emoji presentation, which
+ * ignores `.caution b`'s `color: var(--caution)` entirely. An SVG with `stroke="currentColor"`
+ * is the only way this icon actually carries the caution token in both themes.
+ */
+const ICON_WARNING =
+  '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2 20h20L12 3.5Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></svg>';
+
 export interface Reading {
   text: string;
   translator: string;
@@ -96,7 +119,7 @@ export function verseEl(v: VerseCard): string {
       ${v.primary ? readingEl(v.primary, true) : ""}
       ${v.companion ? readingEl(v.companion, false) : ""}
 
-      ${flag ? `<div class="caution"><b>⚠</b><span>${flag}</span></div>` : ""}
+      ${flag ? `<div class="caution"><b aria-hidden="true">${ICON_WARNING}</b><span>${flag}</span></div>` : ""}
 
       ${v.extra ?? (v.lazyTafsir ? lazyTafsirEl(v.surah, v.ayah) : "")}
 
@@ -106,19 +129,19 @@ export function verseEl(v: VerseCard): string {
             ? (() => {
                 const playing = nowPlaying() === v.ref;
                 return `<button class="act play" data-act="play" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}" aria-pressed="${playing}" aria-label="${playing ? "Jeda" : "Dengarkan"} ayat ${v.ref}">
-                  <span aria-hidden="true">${playing ? "⏸" : "▶"}</span> ${playing ? "Jeda" : "Dengar"}
+                  <span aria-hidden="true">${playing ? ICON_PAUSE : ICON_PLAY}</span> ${playing ? "Jeda" : "Dengar"}
                 </button>`;
               })()
             : ""
         }
         <button class="act" data-act="copy" data-ref="${v.ref}" aria-label="Salin ayat ${v.ref}">
-          <span aria-hidden="true">⧉</span> Salin
+          <span aria-hidden="true">${ICON_COPY}</span> Salin
         </button>
         <button class="act" data-act="share" data-ref="${v.ref}" aria-label="Bagikan ayat ${v.ref}">
-          <span aria-hidden="true">↗</span> Bagikan
+          <span aria-hidden="true">${ICON_SHARE}</span> Bagikan
         </button>
         <button class="act" data-act="image" data-ref="${v.ref}" aria-label="Buat kartu gambar ayat ${v.ref}">
-          <span aria-hidden="true">▦</span> Kartu
+          <span aria-hidden="true">${ICON_IMAGE}</span> Kartu
         </button>
         ${
           v.continueTo
@@ -143,7 +166,7 @@ function playLabelNode(btn: HTMLButtonElement): ChildNode | undefined {
 /** Update one play button's icon/label/aria state in place. */
 export function setPlayButton(btn: HTMLButtonElement, playing: boolean): void {
   const icon = btn.querySelector("span[aria-hidden]");
-  if (icon) icon.textContent = playing ? "⏸" : "▶";
+  if (icon) icon.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
   const label = playLabelNode(btn);
   if (label) label.textContent = playing ? " Jeda" : " Dengar";
   btn.setAttribute("aria-pressed", String(playing));

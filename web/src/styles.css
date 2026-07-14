@@ -286,10 +286,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   letter-spacing: normal;
 }
 
-/* the one permitted flourish: the word rises into light. once, on the hero. */
+/* the one permitted flourish: the word rises into light. once, on the hero.
+   `forwards`, never `both` — `both` back-fills the FROM keyframe (invisible, blurred) the
+   instant the element exists, even before the animation engine has run a single frame. A tab
+   backgrounded mid-load (app-switch, screen lock — routine on the mid-range Android this
+   product targets) can leave a CSS animation never-started, and `both` then leaves the verse
+   permanently invisible. `forwards` shows the element's real, visible, unanimated style until
+   the animation genuinely begins, so scripture is never gated behind motion that might not run. */
 @media (prefers-reduced-motion: no-preference) {
   .verse[data-new] .ar {
-    animation: rise 620ms var(--ease) both;
+    animation: rise 620ms var(--ease) forwards;
   }
   @keyframes rise {
     from { opacity: 0; filter: blur(7px); transform: translateY(6px); }
@@ -297,7 +303,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .verse[data-new] .ar { animation: fade 240ms ease both; }
+  .verse[data-new] .ar { animation: fade 240ms ease forwards; }
   @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
 }
 
@@ -373,11 +379,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* the meaning-changed caution — never decorative */
 .caution {
-  display: flex; gap: 0.6rem; padding: 0.75rem 1rem;
+  display: flex; gap: 0.6rem; padding: 0.75rem 1rem; align-items: flex-start;
   background: var(--caution-wash); border-top: 1px solid var(--line);
   color: var(--ink-2); font-size: var(--step--1);
 }
-.caution b { color: var(--caution); font-weight: 600; }
+.caution b { display: flex; color: var(--caution); font-weight: 600; padding-top: 0.15em; }
 
 /* ── composer ──────────────────────────────────────────────────────── */
 .composer {
