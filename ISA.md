@@ -292,6 +292,32 @@ name. Accepted knowingly, not overlooked.
 Both are recorded here so the decision has a name on it rather than riding in as a silent side effect
 of a P0 sharding fix.
 
+**2026-07-14 — Engagement research adopted; Phase 2 filed, not merged into this ISA's Criteria.**
+Ran `/Research` (Standard mode, 4 cross-checked agents) against `PRODUCT.md`/`DESIGN.md`/
+`PROGRESS.md` on what would make Nur more compelling without violating its own doctrine. Headline
+finding: streak/badge/guilt mechanics are evidence-linked to compulsive use (arXiv:2203.16175) and
+this product already rejects them (§ Principles, "Silence over fabrication") — confirmation, not
+new information. The substantive finding is that the research independently re-derived the same
+priority order already sitting in `PROGRESS.md`'s "Next, in order" list (min-score threshold,
+thread persistence, terjemah makna/harfiah explainer, crisis-path detection), which is a stronger
+signal than either source alone, plus three genuinely new items (recitation audio, tafsir lens
+toggle, concept cross-linking) that extend rather than fight the existing shard architecture.
+Filed as `.scratch/nur-phase2-trust-and-depth/PRD.md` with 8 issues, not merged into this ISA's
+`## Criteria` — this ISA's `task`/`phase`/`progress` frontmatter describes the now-*complete*
+Phase 1 cycle (59/59), and per the ID-stability rule, a new build cycle gets its own ISCs when
+work actually starts on it (`Skill(ISA, "scaffold" or "append")`), not hand-appended speculatively
+ahead of triage. Two items (crisis-path resource, recitation audio source/hosting) are blocked on
+Erik's ruling, same pattern as the attribution-risk decision above.
+
+**2026-07-14 (later) — Phase 2 issues 01–03 shipped without opening a new ISC cycle.** Three
+`ready-for-agent` issues from the PRD above (min-score threshold, thread persistence, the
+two-translation explainer) were small and independent enough to implement directly rather than
+formally scaffolding a Phase 2 ISA cycle first — see `PROGRESS.md`'s matching checkpoint for the
+full change list and verification detail (including what could and couldn't be verified in this
+worktree, since `data/` was never ingested here). Recorded here, not as new ISCs, because these
+were bug-fix-scale changes against already-locked principles, not new ideal-state articulation —
+`ISA.md` § Constraints and § Principles were the test, and nothing here required relaxing them.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.

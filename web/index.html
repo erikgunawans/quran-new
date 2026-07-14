@@ -34,6 +34,18 @@
       <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
     </div>
 
+    <div class="info-pop">
+      <button class="icon-btn" id="info" aria-haspopup="true" aria-expanded="false" aria-controls="info-panel" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+      <div class="pop" id="info-panel" role="dialog" aria-label="Kenapa ada dua terjemahan?" hidden>
+        <p><b>Terjemah harfiah</b> menerjemahkan Al-Qur'an apa adanya, kata per kata. <b>Terjemah makna</b> menerjemahkan maksudnya, supaya lebih mudah dipahami.</p>
+        <p>Keduanya bisa terdengar berbeda — makanya Nur selalu menampilkan berdua, lengkap dengan nama penerjemahnya, biar kamu yang menilai sendiri.</p>
+      </div>
+    </div>
+
     <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
         <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
@@ -58,6 +70,12 @@
           <button class="seed">al kahfi</button>
         </div>
         <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+
+        <details class="explainer">
+          <summary>Kenapa ada dua terjemahan di setiap ayat?</summary>
+          <p><b>Terjemah harfiah</b> menerjemahkan kata Al-Qur'an apa adanya, kata per kata — ini yang biasa kamu temui. <b>Terjemah makna</b> menerjemahkan maksudnya, supaya kalimatnya benar-benar bisa dipahami, bukan sekadar dibaca.</p>
+          <p>Nur menampilkan keduanya berdampingan di setiap ayat, lengkap dengan nama penerjemahnya masing-masing — bukan salah satunya dianggap "lebih benar."</p>
+        </details>
       </section>
     </main>
   </section>

@@ -24,21 +24,93 @@ const say = (msg: string) => {
   live.textContent = msg;
 };
 
+// ── the tafsir lens ──────────────────────────────────────────────────────────
+//
+// Four scholars, none ranked above another (ISA.md § Principles: "Plurality is warmth, not
+// hedging"). A LENS is not a ranking — it is a reader-chosen VIEWING ORDER over voices that all
+// remain fully present and attributed. It must never become a filter that hides one, and never
+// silently default to anything but "as shipped" until the reader opts in themselves.
+type TafsirLens = "all" | "classical" | "contemporary";
+const LENS_KEY = "nur:lens";
+
+function getLens(): TafsirLens {
+  const v = localStorage.getItem(LENS_KEY);
+  return v === "classical" || v === "contemporary" ? v : "all";
+}
+
+/** Chronology only, derived from the `era` string already shipped with every source — never
+ * conflated with `authority_tier`, which answers a different question (doctrinal weight). */
+function eraRank(era: string): number {
+  if (era.startsWith("Classical")) return 0;
+  if (era.startsWith("Modern")) return 1;
+  return 2; // Contemporary, or unlabelled — treated as newest
+}
+
+function lensControl(lens: TafsirLens): string {
+  const opt = (value: TafsirLens, label: string) =>
+    `<button type="button" data-lens="${value}" aria-pressed="${lens === value}">${label}</button>`;
+  return `<div class="lens" role="group" aria-label="Urutan tampilan tafsir">
+            ${opt("all", "Semua")}
+            ${opt("classical", "Klasik dulu")}
+            ${opt("contemporary", "Kontemporer dulu")}
+          </div>`;
+}
+
+/**
+ * Re-order every tafsir stack ALREADY on screen. This never removes or hides a scholar — it
+ * moves existing `.scholar` nodes within their own `.sources` block, so attribution, tier
+ * labels, and the foreign-language note travel with them unchanged. Does NOT touch storage —
+ * see `applyLens` for the reader-initiated action that does.
+ */
+function sortStacks(lens: TafsirLens): void {
+  for (const stack of document.querySelectorAll<HTMLElement>(".sources")) {
+    const scholars = Array.from(stack.querySelectorAll<HTMLElement>(".scholar"));
+    const sorted = [...scholars].sort((a, b) => {
+      if (lens === "all") return Number(a.dataset["order"]) - Number(b.dataset["order"]);
+      const ra = Number(a.dataset["eraRank"]);
+      const rb = Number(b.dataset["eraRank"]);
+      return lens === "classical" ? ra - rb : rb - ra;
+    });
+    // Re-appending an already-attached node MOVES it — no re-parse, no loss of any node state.
+    for (const el of sorted) stack.append(el);
+
+    for (const btn of stack.querySelectorAll<HTMLButtonElement>("[data-lens]")) {
+      btn.setAttribute("aria-pressed", String(btn.dataset["lens"] === lens));
+    }
+  }
+}
+
+/** The reader explicitly chose a lens — persist it (same pattern as `nur:theme`/`nur:ar`, which
+ * only write on an explicit click, never on boot) and re-sort what's on screen now. */
+function applyLens(lens: TafsirLens): void {
+  localStorage.setItem(LENS_KEY, lens);
+  sortStacks(lens);
+}
+
 // ── rendering ────────────────────────────────────────────────────────────────
 function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }[] }): string {
   if (!v.tafsir.length) {
     return `<div class="silence">Belum ada tafsir terverifikasi untuk ayat ini di korpus kami. Kami memilih diam daripada mengarang.</div>`;
   }
 
-  const stack = v.tafsir
-    .map((t) => {
+  const lens = getLens();
+  // `order` is the ORIGINAL (as-shipped) position — kept as a data attribute so "Semua" can
+  // restore it later without needing the source array again.
+  const withRank = v.tafsir.map((t, order) => ({ t, order, rank: eraRank(voices.get(t.source_id)?.era ?? "") }));
+  const ordered =
+    lens === "all"
+      ? withRank
+      : [...withRank].sort((a, b) => (lens === "classical" ? a.rank - b.rank : b.rank - a.rank));
+
+  const stack = ordered
+    .map(({ t, order, rank }) => {
       const src = voices.get(t.source_id);
       // An English tafsir shown to an Indonesian reader is the exact wound this product exists
       // to heal. It may still appear — dropping a scholar is worse than showing him — but it is
       // labelled, so nobody is left thinking the fault is theirs for not understanding it.
       const foreign = t.lang !== "id";
       return `
-        <div class="scholar${foreign ? " foreign" : ""}">
+        <div class="scholar${foreign ? " foreign" : ""}" data-order="${order}" data-era-rank="${rank}">
           <div class="who">
             <span class="by"><b>${esc(src?.author ?? t.source_id)}</b></span>
             <span class="tier">${esc(src?.era ?? "")} · tier ${src?.authority_tier ?? "?"}</span>
@@ -51,13 +123,72 @@ function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }
 
   return `<details class="sources">
             <summary>Lihat ${v.tafsir.length} ulama membahas ayat ini</summary>
+            ${lensControl(lens)}
             ${stack}
           </details>`;
 }
 
-function mount(card: VerseCard): string {
+function mount(card: VerseCard, turnCards?: VerseCard[]): string {
   onScreen.set(card.ref, card);
+  turnCards?.push(card);
   return verseEl(card);
+}
+
+// ── thread persistence ──────────────────────────────────────────────────────
+//
+// Verified live: 2 messages in the thread → reload → 0. Every exchange is stored as its own
+// turn — the question plus the ALREADY-RENDERED answer HTML and the verse cards it mounted — so
+// restoring on load replays exactly what happened without refetching anything or depending on
+// the corpus (or the network) being available again.
+interface ThreadTurn {
+  q: string;
+  html: string;
+  cards: VerseCard[];
+}
+const THREAD_KEY = "nur:thread";
+/** A session that never ends would grow localStorage without bound. 40 exchanges is plenty of
+ * scrollback and stays well under any realistic storage quota. */
+const MAX_THREAD_TURNS = 40;
+let threadHistory: ThreadTurn[] = [];
+
+function saveThread() {
+  try {
+    localStorage.setItem(THREAD_KEY, JSON.stringify(threadHistory.slice(-MAX_THREAD_TURNS)));
+  } catch {
+    // Quota exceeded or storage disabled (private browsing). Persistence is a nicety here —
+    // the thread still works for the rest of this session, it just won't survive a reload.
+  }
+}
+
+/** Returns true if a saved thread was found and restored. */
+function restoreThread(): boolean {
+  let saved: ThreadTurn[];
+  try {
+    const raw = localStorage.getItem(THREAD_KEY);
+    if (!raw) return false;
+    saved = JSON.parse(raw) as ThreadTurn[];
+  } catch {
+    return false;
+  }
+  if (!Array.isArray(saved) || !saved.length) return false;
+
+  $("#hello")?.remove();
+  for (const turn of saved) {
+    const me = document.createElement("div");
+    me.className = "msg me";
+    me.textContent = turn.q;
+    thread.append(me);
+
+    const answer = document.createElement("div");
+    answer.className = "msg nur";
+    answer.innerHTML = turn.html;
+    thread.append(answer);
+
+    for (const card of turn.cards) onScreen.set(card.ref, card);
+  }
+  threadHistory = saved;
+  showChat();
+  return true;
 }
 
 function skeleton(): HTMLElement {
@@ -102,6 +233,8 @@ async function ask(question: string) {
 
   const answer = document.createElement("div");
   answer.className = "msg nur";
+  /** Cards mounted THIS turn, so the persisted history can repopulate `onScreen` on restore. */
+  const turnCards: VerseCard[] = [];
 
   // Reference resolution is LOCAL — the surah index is inlined, not fetched. Nur can tell the
   // truth about what the Qur'an contains even with no network at all.
@@ -121,7 +254,8 @@ async function ask(question: string) {
       const v = await loadAyah(ref.surah.n, ref.ayah);
       const card = fromShard(v, ref.surah.n, ref.surah.tl);
       card.continueTo = true; // the peak gets a landing
-      answer.innerHTML = `<p class="said">Ini ${esc(ref.surah.tl)} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card);
+      answer.innerHTML =
+        `<p class="said">Ini ${esc(ref.surah.tl)} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card, turnCards);
       say(`${ref.surah.tl} ${ref.surah.n}:${ref.ayah} ditampilkan.`);
     } else {
       // Not a reference — a question. Now, and only now, retrieval may come up empty.
@@ -153,7 +287,7 @@ async function ask(question: string) {
                 extra: tafsirEl(h.verse),
                 continueTo: true,
               };
-              return mount(card);
+              return mount(card, turnCards);
             })
             .join("");
         say(
@@ -172,6 +306,9 @@ async function ask(question: string) {
       <button class="act retry" data-retry="${esc(q)}">Coba lagi</button></div>`;
     say(msg);
   }
+
+  threadHistory.push({ q, html: answer.innerHTML, cards: turnCards });
+  saveThread();
 
   loading.remove();
   thread.append(answer);
@@ -278,6 +415,12 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  const lensBtn = el.closest<HTMLButtonElement>("[data-lens]");
+  if (lensBtn) {
+    applyLens(lensBtn.dataset["lens"] as TafsirLens);
+    return;
+  }
+
   const act = el.closest<HTMLButtonElement>("[data-act]");
   if (!act) return;
   const kind = act.dataset["act"];
@@ -311,6 +454,35 @@ $("#size").addEventListener("click", (e) => {
   localStorage.setItem("nur:ar", key);
   for (const b of $("#size").querySelectorAll("button")) {
     b.setAttribute("aria-pressed", String(b === btn));
+  }
+});
+
+// ── the "why two translations" popover ───────────────────────────────────────
+//
+// The two-translation concept is the entire reason Nur exists, but nothing in the UI ever
+// explained it — the labels ("Terjemah makna" / "Terjemah harfiah") assumed the reader already
+// knew why there were two. The #hello explainer covers the first visit; this covers every visit
+// after the greeting is gone.
+const infoBtn = $<HTMLButtonElement>("#info");
+const infoPanel = $<HTMLElement>("#info-panel");
+infoBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const open = infoPanel.hidden;
+  infoPanel.hidden = !open;
+  infoBtn.setAttribute("aria-expanded", String(open));
+});
+document.addEventListener("click", (e) => {
+  if (infoPanel.hidden) return;
+  if (e.target === infoBtn || infoBtn.contains(e.target as Node)) return;
+  if (infoPanel.contains(e.target as Node)) return;
+  infoPanel.hidden = true;
+  infoBtn.setAttribute("aria-expanded", "false");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !infoPanel.hidden) {
+    infoPanel.hidden = true;
+    infoBtn.setAttribute("aria-expanded", "false");
+    infoBtn.focus();
   }
 });
 
@@ -371,6 +543,12 @@ async function bootCorpus(): Promise<void> {
     }
   }
 
+  restoreThread();
+  // A restored card's tafsir stack was baked with whatever lens was active when it was FIRST
+  // saved. If the reader's saved lens preference has since changed, re-sort on load so every
+  // stack on screen (restored or not) reflects the reader's current choice — WITHOUT writing to
+  // storage ourselves; boot only ever reads a preference, same as the theme/size restore above.
+  sortStacks(getLens());
   void route();
   void bootCorpus();
 })();

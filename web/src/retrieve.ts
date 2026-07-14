@@ -100,6 +100,17 @@ export interface Hit {
  * embedding black box, no confidence theatre. If the score is low we say we're unsure —
  * we do not dress up a weak match as an answer.
  */
+/**
+ * A verse needs more than one weak, incidental word hit to ship as a confident answer.
+ *
+ * "gimana cara sholat tahajud" used to return a Gratitude verse on the strength of the single
+ * word "cara" (score 2) — the honest-silence copy exists precisely for this case and was never
+ * reached because the old bar was `score > 0`. A direct ref (100) or any theme hit (10+) clears
+ * this easily; a lone incidental keyword (2) does not. Two independent keyword hits (4) still
+ * clears it — the bar is "more than one weak signal," not "no keyword matches allowed."
+ */
+const MIN_SCORE = 4;
+
 export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
   const q = norm(question);
   if (!q) return [];
@@ -143,7 +154,7 @@ export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
   });
 
   const ranked = scored
-    .filter((h) => h.score > 0)
+    .filter((h) => h.score >= MIN_SCORE)
     .sort((a, b) => b.score - a.score || a.verse.surah - b.verse.surah);
 
   // Diversify by theme.
