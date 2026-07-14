@@ -84,7 +84,7 @@ const LEXICON: Record<string, string[]> = {
   Family: ["orang tua","ibu","ayah","bapak","anak","keluarga","suami","istri","nikah","cerai","pasangan"],
 };
 
-const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+export const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
 
 export interface Hit {
   verse: Verse;

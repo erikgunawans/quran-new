@@ -1,10 +1,12 @@
 import "./styles.css";
 import "./read.css";
 import { compose, retrieve, type Corpus, type Hit, type Voice } from "./retrieve.ts";
+import { CRISIS_RESOURCE, detectCrisis } from "./crisis.ts";
+import { toggleAudio } from "./audio.ts";
 import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { copyVerse, shareVerse } from "./share.ts";
-import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
+import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
@@ -85,6 +87,21 @@ function sortStacks(lens: TafsirLens): void {
 function applyLens(lens: TafsirLens): void {
   localStorage.setItem(LENS_KEY, lens);
   sortStacks(lens);
+}
+
+// ── the crisis path ──────────────────────────────────────────────────────────
+//
+// Shown ALONGSIDE whatever Nur would otherwise say (Erik's ruling, 2026-07-14), never in place
+// of it — so this is prepended to the answer, not a replacement branch. role="alert" is
+// deliberate: this must reach a screen-reader user immediately, not wait on the polite #live
+// region the rest of `say()` uses.
+function crisisEl(): string {
+  return `<div class="crisis" role="alert">
+    <p class="crisis-title">${esc(CRISIS_RESOURCE.title)}</p>
+    <p>${esc(CRISIS_RESOURCE.body)}</p>
+    <p class="crisis-hotline"><b>${esc(CRISIS_RESOURCE.hotline)}</b> — <b>${esc(CRISIS_RESOURCE.phone)}</b></p>
+    <p class="crisis-note">${esc(CRISIS_RESOURCE.note)}</p>
+  </div>`;
 }
 
 // ── rendering ────────────────────────────────────────────────────────────────
@@ -235,6 +252,9 @@ async function ask(question: string) {
   answer.className = "msg nur";
   /** Cards mounted THIS turn, so the persisted history can repopulate `onScreen` on restore. */
   const turnCards: VerseCard[] = [];
+  // Checked on the RAW question, before any ref/retrieval branching below — a crisis phrase
+  // matters regardless of whether the rest of the message also happens to look like a verse ref.
+  const crisis = detectCrisis(q);
 
   // Reference resolution is LOCAL — the surah index is inlined, not fetched. Nur can tell the
   // truth about what the Qur'an contains even with no network at all.
@@ -305,6 +325,14 @@ async function ask(question: string) {
     answer.innerHTML = `<div class="oops"><p>${esc(msg)}</p>
       <button class="act retry" data-retry="${esc(q)}">Coba lagi</button></div>`;
     say(msg);
+  }
+
+  // Prepended here, after the try/catch, so it applies uniformly to every branch above (a real
+  // ayah, a bad ref, a retrieval hit, honest silence, even a fetch error) without duplicating
+  // the check into each one. Whatever Nur would otherwise say still follows — it is never
+  // replaced.
+  if (crisis) {
+    answer.innerHTML = crisisEl() + answer.innerHTML;
   }
 
   threadHistory.push({ q, html: answer.innerHTML, cards: turnCards });
@@ -424,6 +452,20 @@ document.addEventListener("click", (e) => {
   const act = el.closest<HTMLButtonElement>("[data-act]");
   if (!act) return;
   const kind = act.dataset["act"];
+
+  if (kind === "play") {
+    const surah = Number(act.dataset["surah"]);
+    const ayah = Number(act.dataset["ayah"]);
+    const ref = act.dataset["ref"] ?? "";
+    void (async () => {
+      const { playing, previous, failed } = await toggleAudio(surah, ayah, ref);
+      if (previous) resetPlayButton(previous);
+      setPlayButton(act, playing);
+      say(failed ? "Gagal memutar audio. Coba lagi." : playing ? `Memutar ayat ${ref}.` : "Jeda.");
+    })();
+    return;
+  }
+
   const card = onScreen.get(act.dataset["ref"] ?? "");
   if (!card || (kind !== "copy" && kind !== "share")) return;
 

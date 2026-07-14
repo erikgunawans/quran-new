@@ -1,6 +1,6 @@
 # 04 — Crisis-path keyword detection
 
-Status: needs-info
+Status: done
 Type: fix (safety, P0)
 Priority: P0
 
@@ -19,22 +19,44 @@ independently in `PROGRESS.md` before this research ran, and it remains the top-
 item regardless of what the research adds. Filing it here to keep all Phase 2 work in one place,
 not because the research changed its priority.
 
-## Why this is blocked
+## Erik's ruling (2026-07-14)
 
-This is not an engineering-scoped decision. It needs Erik's ruling on:
-1. Which resource to serve (PROGRESS.md names Kemenkes SEJIWA / 119 ext. 8 as the candidate —
-   needs confirmation this is current/correct, and any additional resources to include).
-2. What the detected response should say and do (show the resource alongside or instead of a
-   verse match? Always? Only when confidence is high?).
-3. False-positive tolerance — Indonesian slang for distress is broad; over-triggering on
-   hyperbole ("mau mati aja rasanya" as a mundane complaint) vs under-triggering on real
-   ideation is a judgment call with real consequences either way.
+1. Resource: **Kemenkes SEJIWA / 119 ext. 8** — confirmed.
+2. Response: **alongside** the normal verse match, never instead of it.
+3. False-positive tolerance: not explicitly ruled — resolved by inference from #2. Since the
+   resource never replaces the normal answer, the cost of a false positive is low (an extra,
+   true, caring message), so detection defaults to broad/inclusive rather than narrow. Flagging
+   this inference here rather than treating it as silently decided — revisit if it over-triggers
+   in practice.
 
-## What unblocks this
+## Implementation
 
-Erik's ruling on the three points above. Once ruled, this becomes a standard ready-for-agent
-issue: keyword/phrase detection layered before retrieval, routes to a dedicated response path
-independent of the verse-matching score, tested against both the real reproduced case and
-plausible near-misses (to catch under- and over-triggering).
+- [x] Phrase-based detection (not single-word — "mati" alone is far too broad), catches the
+      exact reproduced case plus common Indonesian phrasings of suicidal ideation.
+- [x] Runs on the raw question, independent of ref-parsing/retrieval — triggers regardless of
+      what else the message contains or whether retrieval finds anything.
+- [x] Resource shown ALONGSIDE whatever Nur would otherwise say (prepended, not a replacement
+      branch) — verified live: real query, corpus.json unavailable (this worktree's existing
+      limitation), crisis banner appeared FIRST followed by the normal (in this case, honest
+      error) response.
+- [x] `role="alert"` on the banner — reaches assistive tech immediately, not gated behind the
+      polite `#live` region the rest of `say()` uses.
+- [x] Regression: verified live that an ordinary ref lookup (`18:10`) does NOT trigger the
+      banner — no false positive on normal use.
+- [x] Unit tests (`web/src/crisis.test.ts`) cover the exact reported case, common phrasings,
+      case/punctuation insensitivity, and explicit non-triggers (ordinary distress language,
+      unrelated mentions of death) to guard against both under- and over-triggering drift.
+- [x] `bun test` (69/69 in `web/src/`) + `bun run typecheck` clean.
 
 ## Comments
+
+**2026-07-14 — Implemented.** New `web/src/crisis.ts` (phrase lexicon + `detectCrisis()` +
+`CRISIS_RESOURCE` data) and `web/src/crisis.test.ts` (6 tests). Exported `norm()` from
+`retrieve.ts` for reuse rather than duplicating the normalization helper. `main.ts`: computes
+`detectCrisis(q)` once at the top of `ask()` (before ref/retrieval branching — a crisis phrase
+matters regardless of what else the message contains), then prepends `crisisEl()` to
+`answer.innerHTML` right before it's committed to history/DOM — a single insertion point that
+applies uniformly to every existing branch (real ayah, bad ref, retrieval hit, honest silence,
+fetch error) without duplicating the check into each one. `styles.css`: `.crisis` styled warm
+(primary-green wash, not alarm-red) and prominent but not clinical, matching the product's "light
+emerging from dark" voice rather than a scary error banner.

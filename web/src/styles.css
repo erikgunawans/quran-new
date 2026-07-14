@@ -241,6 +241,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .said { color: var(--ink-2); margin-bottom: 1.25rem; max-width: 68ch; text-wrap: pretty; }
 .said strong { color: var(--ink); font-weight: 600; }
 
+/* the crisis path — warm, not alarming. supportive, not clinical. always alongside, never instead. */
+.crisis {
+  margin-bottom: 1.25rem; padding: 1.1rem 1.25rem;
+  background: var(--primary-wash); border: 1px solid var(--primary-line);
+  border-radius: var(--r-lg); max-width: 68ch;
+}
+.crisis p { color: var(--ink-2); text-wrap: pretty; }
+.crisis p + p { margin-top: 0.55rem; }
+.crisis-title { color: var(--ink); font-weight: 600; font-size: var(--step-1); }
+.crisis-hotline { color: var(--ink); font-size: var(--step-1); }
+.crisis-hotline b { color: var(--primary); }
+.crisis-note { color: var(--ink-3); font-size: var(--step--1); }
+
 /* ── the verse: the light source ───────────────────────────────────── */
 .verse {
   border: 1px solid var(--line); border-radius: var(--r-lg);
@@ -505,6 +518,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .act.ok { color: var(--primary); border-color: var(--primary-line); background: var(--primary-wash); }
 .act.go { margin-inline-start: auto; color: var(--ink); border-color: var(--primary-line); }
 .act.go:hover { background: var(--primary-wash); }
+.act.play[aria-pressed="true"] { color: var(--primary); border-color: var(--primary-line); background: var(--primary-wash); }
 
 /* ── foreign-language tafsir ─────────────────────────────────────────────────
    Ibn Kathir is only available to us in ENGLISH, shown to Indonesian readers. That is the exact

@@ -6,6 +6,7 @@
  * surface with its attribution or its literal companion quietly missing, because there is
  * only one renderer and it always draws both.
  */
+import { hasAudio, nowPlaying } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
 
 export const esc = (s: string) =>
@@ -94,6 +95,16 @@ export function verseEl(v: VerseCard): string {
       ${v.extra ?? ""}
 
       <div class="verse-acts">
+        ${
+          hasAudio(v.surah, v.ayah)
+            ? (() => {
+                const playing = nowPlaying() === v.ref;
+                return `<button class="act play" data-act="play" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}" aria-pressed="${playing}" aria-label="${playing ? "Jeda" : "Dengarkan"} ayat ${v.ref}">
+                  <span aria-hidden="true">${playing ? "⏸" : "▶"}</span> ${playing ? "Jeda" : "Dengar"}
+                </button>`;
+              })()
+            : ""
+        }
         <button class="act" data-act="copy" data-ref="${v.ref}" aria-label="Salin ayat ${v.ref}">
           <span aria-hidden="true">⧉</span> Salin
         </button>
@@ -109,4 +120,30 @@ export function verseEl(v: VerseCard): string {
         }
       </div>
     </article>`;
+}
+
+/** The word on the button, and only the word — the icon span stays untouched. Text lives in a
+ * TEXT NODE, not the icon span; swapping the wrong node is exactly the "Salin Salin"-class bug
+ * copy/share already have to guard against elsewhere. */
+function playLabelNode(btn: HTMLButtonElement): ChildNode | undefined {
+  return Array.from(btn.childNodes)
+    .reverse()
+    .find((node) => node.nodeType === Node.TEXT_NODE && (node.textContent ?? "").trim() !== "");
+}
+
+/** Update one play button's icon/label/aria state in place. */
+export function setPlayButton(btn: HTMLButtonElement, playing: boolean): void {
+  const icon = btn.querySelector("span[aria-hidden]");
+  if (icon) icon.textContent = playing ? "⏸" : "▶";
+  const label = playLabelNode(btn);
+  if (label) label.textContent = playing ? " Jeda" : " Dengar";
+  btn.setAttribute("aria-pressed", String(playing));
+  btn.setAttribute("aria-label", `${playing ? "Jeda" : "Dengarkan"} ayat ${btn.dataset["ref"] ?? ""}`);
+}
+
+/** Only one ayah plays at a time — when a NEW one starts, whichever button was showing "Jeda"
+ * needs to flip back to "Dengar", wherever on the page it happens to be (chat or reading). */
+export function resetPlayButton(ref: string): void {
+  const btn = document.querySelector<HTMLButtonElement>(`[data-act="play"][data-ref="${CSS.escape(ref)}"]`);
+  if (btn) setPlayButton(btn, false);
 }

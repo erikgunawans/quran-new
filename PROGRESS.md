@@ -4,6 +4,78 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-14 (latest) — Phase 2 issues 04 and 05 shipped: the crisis path, and a first taste of recitation
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### Erik's rulings this session
+
+- **04 — Kemenkes SEJIWA / 119 ext. 8**, shown ALONGSIDE the normal answer, never instead of it.
+- **05 — Syaikh Mishary Rashid Alafasy.** Hosting was already decided (self-host, shard-style).
+
+### 04 — the crisis path exists now
+
+New `web/src/crisis.ts`: phrase-based detection (not single-word — "mati" alone is far too
+broad), catches the exact reproduced case ("aku gak sanggup bayar utang, pengen mati aja") and
+common Indonesian phrasings, verified NOT to trigger on ordinary distress language or unrelated
+mentions of death. Wired into `main.ts`'s `ask()` at a single insertion point that applies to
+every existing response branch uniformly. Verified live: real query → crisis banner appears
+first, normal answer still follows; an ordinary ref lookup produces no banner.
+
+### 05 — recitation audio, MVP scope
+
+**A real design correction, not just an implementation:** the ruling said "self-host, shard-style,
+per-surah" — but `curl -I` against a per-surah source showed Al-Baqarah alone is **115 MB as one
+file**. `ISA.md`'s reader's-bandwidth principle rules that out outright. Switched to **per-ayah**
+files instead (everyayah.com, Alafasy_64kbps) — same self-hosting principle, correctly sized,
+reuses the lazy-fetch pattern the text shards already use. Recorded as a deviation-with-reason in
+issue 05, not a silent scope change.
+
+Shipped: Al-Fatiha + Al-Ikhlas + Al-Falaq + An-Nas (22 ayahs, ~1.0 MB, real audio,
+downloaded, sha256-pinned via new `bun run app:audio`). Full 6,236-ayah coverage is thousands of
+individual fetches against a third-party host — deliberately NOT attempted this session; `hasAudio()`
+tells the truth about exactly what's available, same "truth oracle" discipline as the surah index.
+
+**A real bug caught, not glossed over:** an early version of the play/pause toggle updated the
+button OPTIMISTICALLY, before `audio.play()`'s promise had actually resolved — so a rejected
+play left the button lying, stuck on "Jeda" with nothing playing. Found by clicking the same
+button twice and watching it not toggle off; fixed by making the toggle `async` and awaiting the
+real result before touching the UI.
+
+**A verification limit, disclosed rather than assumed away:** could not confirm AUDIBLE playback
+through Interceptor — `a.play()` consistently rejects with Chrome's `NotAllowedError` (autoplay
+gesture policy) on synthetic clicks, isolated as a tooling limitation (not a file/code defect —
+the mp3 was independently verified valid via `curl -I`, and the code follows the standard correct
+pattern of calling `.play()` synchronously inside a real click handler). Same class of limitation
+already hit verifying the copy button's clipboard write in the 02 checkpoint. Recommend a
+real-device spot-check before treating this as fully closed.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test` 72/72 in `web/src/` (new: `crisis.test.ts`
+6/6, `audio.test.ts` 3/3). Live-verified via Interceptor: crisis banner (positive + negative
+cases), play-button rendering/toggling/cross-reset on both the reading surface and chat, "only
+one ayah plays at a time" behavior. Root-level `bun test`/`bun run verify` still blocked on the
+same missing `data/`/`corpus.json` gap as every prior checkpoint this phase — unrelated to
+either change.
+
+### Next, in order
+
+1. All of Phase 2's originally-scoped items (01–06, 08 unblocked) are now shipped. `07` (concept
+   cross-linking) remains `needs-triage` — wants a design spike, not code.
+2. Real-device spot-check on 05's audio playback, since Interceptor couldn't confirm it audibly.
+3. Scaling 05 beyond the 22-ayah MVP sample, if/when Erik wants it — its own ingest run.
+4. `bun run ingest` in this worktree, still not done, still optional — only needed if Erik wants
+   the corpus gates runnable here.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched this session.
+- No streaks, badges, leaderboards, or completion-percentage mechanics.
+
+---
+
 ## 2026-07-14 (even later) — Phase 2 issue 06 shipped: the tafsir lens toggle
 
 **Anchor:** same as prior checkpoint (local only — no remote).

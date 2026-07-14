@@ -318,6 +318,21 @@ worktree, since `data/` was never ingested here). Recorded here, not as new ISCs
 were bug-fix-scale changes against already-locked principles, not new ideal-state articulation —
 `ISA.md` § Constraints and § Principles were the test, and nothing here required relaxing them.
 
+**2026-07-14 (latest) — Phase 2 issues 04 and 05 shipped; 05 deviated from its own hosting
+ruling for a Principles-driven reason.** Erik ruled: crisis resource = Kemenkes SEJIWA/119 ext.8,
+shown alongside not instead; reciter = Alafasy. 04 shipped as scoped. 05's ruling said
+"self-host, shard-style, PER-SURAH" — but measuring a real per-surah source put Al-Baqarah at 115
+MB as one file, which the reader's-bandwidth principle above rules out on its own terms. Switched
+to per-ayah instead, self-hosted, same principle, correctly sized — a deviation made FOR the
+ruling's own underlying reason once new information (the actual file size) surfaced, not a
+unilateral override. Shipped as a 22-ayah MVP sample (Al-Fatiha, Al-Ikhlas, Al-Falaq, An-Nas),
+not the full 6,236-ayah corpus — that scale of ingest is a separate future run. Neither issue
+opened a new ISC cycle, same rationale as the entry above. Full detail in the matching
+`PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/04-*.md` / `05-*.md`,
+including a real optimistic-UI bug caught and fixed in 05's playback toggle, and a disclosed
+verification gap (Interceptor cannot satisfy Chrome's autoplay gesture policy, so audible
+playback itself wasn't confirmable through this tooling — recommend a real-device spot-check).
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.
