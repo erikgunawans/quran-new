@@ -1,6 +1,6 @@
 # 09b — Knowledge graph, Path B2: the LLM-derived layer
 
-Status: needs-info (both quality decisions ruled on 2026-07-15; review-promotion workflow still open)
+Status: parked — T1 doctrinal review unstaffed (deliberate, not a gap); T2 population usable as-is
 Type: new capability
 Priority: P2
 
@@ -150,11 +150,38 @@ is a recorded judgment, not a silent drop.
 569 at `review_status: "auto"`, 4 at `"rejected"`. `bun test` (10/10, `graph-extraction.test.ts`)
 and `bun run typecheck` both clean after the prompt/vocabulary change.
 
-**Still open — the review-promotion workflow itself.** Proposed but not yet ruled on: `auto` →
-`human_pending` (Erik or another vetted reader thinks it's plausible) → `scholar_verified` (a
-named scholar confirmed it — the only status that could ever justify shipping an edge to
-`web/public` on some future surface), with `rejected` as a fourth terminal state (now precedented
-by the 4 `HAS_CONTEXT` edges above). Needs Erik's sign-off before any edge moves past `auto`, and
-before a `--full` corpus run is worth considering — the pilot only covers the 55 curated verses.
+**The review-promotion workflow was never actually undecided — I'd missed that it's already
+fully specified.** `docs/design/quran-graphrag.html` § Stage 06 / Part Three defines a tiered
+policy, not a flat `auto → human_pending → scholar_verified` queue:
+
+| Tier | Predicates | Gate | Ever citable? |
+|---|---|---|---|
+| T0 | Structural (B1's `EXPLAINS`) | none — deterministic | Yes |
+| T1 | `ABROGATES`, `HAS_CONTEXT`, `REFERENCES`, new Entity creation | **two independent scholars must agree** — never auto-promotable regardless of confidence | Only after promotion |
+| T2 | `ABOUT_TOPIC`, `MENTIONS`, `THEMATICALLY_LINKED_TO` @ high confidence | sampled audit (~300 edges, ≥95% precision) | No — ranking only, never quoted |
+| T3 | below `τ_low`, or unpromoted doctrinal edges | blocked | No |
+
+**2026-07-15 (later) — asked Erik directly: T1 needs real scholar hours. Unstaffed, confirmed.**
+Per the spec's own "Decisions to pin before build" section, this was always flagged as a staffing/
+governance gap, not an engineering one — and `ISA.md` Out of Scope already excludes "fatwa,
+ruling, or arbitration between scholars," so building T1 promotion tooling with no reviewer to
+use it would just be inventory nobody can act on. **Ruling: T1 predicates (`ABROGATES`,
+`HAS_CONTEXT`, `REFERENCES`) stay at `auto`/unreviewed indefinitely — parked, not blocked-on-me.**
+The 4 `HAS_CONTEXT` rejections earlier this session were schema-fit checks (does this even look
+like an occasion of revelation), not a T1 doctrinal ruling — noted so nobody later mistakes that
+for scholar review having happened.
+
+**T2 predicates need no scholar and are already in their correct terminal state.** `ABOUT_TOPIC`
+(313), `MENTIONS` (187), `THEMATICALLY_LINKED_TO` (26) sit at `review_status: "auto"`, which per
+the table above is already the right resting state for ranking-only use — no promotion step
+exists for T2, only an optional sampled-precision audit before trusting the population broadly.
+`NARRATIVE_OF` (20) isn't named in either tier in the spec; flagging rather than guessing — it
+creates new Entity nodes describing historical/narrative claims, closer in kind to T1's "new
+Entity creation" row than to T2's topic-tagging predicates. Left unclassified, not silently
+assigned.
+
+**Not yet decided, and not urgent:** whether to actually *use* the T2 population for anything
+(e.g. richer thematic browse, retrieval ranking) — that's a feature decision, separate from this
+review pass, and untouched here.
 
 ## Comments
