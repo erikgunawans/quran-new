@@ -12,8 +12,12 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json",
     "review:build": "bun run src/review/build-comparison.ts",
     "app:corpus": "bun run src/app/build-corpus.ts",
+    "app:audio": "bun run src/app/build-audio.ts",
+    "app:themes": "bun run src/app/build-themes.ts",
+    "app:graph": "bun run src/app/build-graph.ts",
+    "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
-    "build": "bun run app:corpus && vite build web"
+    "build": "bun run app:corpus && bun run app:themes && vite build web"
   },
   "devDependencies": {
     "@types/bun": "latest",

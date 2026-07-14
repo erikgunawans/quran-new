@@ -311,6 +311,89 @@ name. Accepted knowingly, not overlooked.
 Both are recorded here so the decision has a name on it rather than riding in as a silent side effect
 of a P0 sharding fix.
 
+**2026-07-14 — Engagement research adopted; Phase 2 filed, not merged into this ISA's Criteria.**
+Ran `/Research` (Standard mode, 4 cross-checked agents) against `PRODUCT.md`/`DESIGN.md`/
+`PROGRESS.md` on what would make Nur more compelling without violating its own doctrine. Headline
+finding: streak/badge/guilt mechanics are evidence-linked to compulsive use (arXiv:2203.16175) and
+this product already rejects them (§ Principles, "Silence over fabrication") — confirmation, not
+new information. The substantive finding is that the research independently re-derived the same
+priority order already sitting in `PROGRESS.md`'s "Next, in order" list (min-score threshold,
+thread persistence, terjemah makna/harfiah explainer, crisis-path detection), which is a stronger
+signal than either source alone, plus three genuinely new items (recitation audio, tafsir lens
+toggle, concept cross-linking) that extend rather than fight the existing shard architecture.
+Filed as `.scratch/nur-phase2-trust-and-depth/PRD.md` with 8 issues, not merged into this ISA's
+`## Criteria` — this ISA's `task`/`phase`/`progress` frontmatter describes the now-*complete*
+Phase 1 cycle (59/59), and per the ID-stability rule, a new build cycle gets its own ISCs when
+work actually starts on it (`Skill(ISA, "scaffold" or "append")`), not hand-appended speculatively
+ahead of triage. Two items (crisis-path resource, recitation audio source/hosting) are blocked on
+Erik's ruling, same pattern as the attribution-risk decision above.
+
+**2026-07-14 (later) — Phase 2 issues 01–03 shipped without opening a new ISC cycle.** Three
+`ready-for-agent` issues from the PRD above (min-score threshold, thread persistence, the
+two-translation explainer) were small and independent enough to implement directly rather than
+formally scaffolding a Phase 2 ISA cycle first — see `PROGRESS.md`'s matching checkpoint for the
+full change list and verification detail (including what could and couldn't be verified in this
+worktree, since `data/` was never ingested here). Recorded here, not as new ISCs, because these
+were bug-fix-scale changes against already-locked principles, not new ideal-state articulation —
+`ISA.md` § Constraints and § Principles were the test, and nothing here required relaxing them.
+
+**2026-07-14 (latest) — Phase 2 issues 04 and 05 shipped; 05 deviated from its own hosting
+ruling for a Principles-driven reason.** Erik ruled: crisis resource = Kemenkes SEJIWA/119 ext.8,
+shown alongside not instead; reciter = Alafasy. 04 shipped as scoped. 05's ruling said
+"self-host, shard-style, PER-SURAH" — but measuring a real per-surah source put Al-Baqarah at 115
+MB as one file, which the reader's-bandwidth principle above rules out on its own terms. Switched
+to per-ayah instead, self-hosted, same principle, correctly sized — a deviation made FOR the
+ruling's own underlying reason once new information (the actual file size) surfaced, not a
+unilateral override. Shipped as a 22-ayah MVP sample (Al-Fatiha, Al-Ikhlas, Al-Falaq, An-Nas),
+not the full 6,236-ayah corpus — that scale of ingest is a separate future run. Neither issue
+opened a new ISC cycle, same rationale as the entry above. Full detail in the matching
+`PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/04-*.md` / `05-*.md`,
+including a real optimistic-UI bug caught and fixed in 05's playback toggle, and a disclosed
+verification gap (Interceptor cannot satisfy Chrome's autoplay gesture policy, so audible
+playback itself wasn't confirmable through this tooling — recommend a real-device spot-check).
+
+**2026-07-15 — Issue 07 resolved as a spike before a build, revealing the "graph" premise was
+wrong.** Issue 07 assumed Nur "already has the attributed-graph foundation" from `docs/design/
+quran-graphrag.html`. It doesn't — that spec's real knowledge graph (LLM triple-extraction,
+entity linking, scholar-reviewed predicate schema) was never built; `src/ingest/` has zero
+concept extraction. What's real is smaller: 55 curated verses tagged with 12 emotional themes
+(`src/review/problem-verses.ts`), already powering chat retrieval. Building the actual graph
+means introducing an LLM into `bun run ingest`, which has been **deliberately zero-LLM and
+deterministic since Phase 1** — that is a standing-invariant decision, squarely Erik's to make,
+not implied by "the spec already exists." Erik ruled Path A: surface the existing lexicon as a
+browsable index (`#/tema`), cheaply, now — explicitly not the full graph, which remains open and
+unbuilt. No new ISC cycle opened, same rationale as the two entries above. Full detail in the
+matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
+07-concept-cross-linking.md`.
+
+**2026-07-15 (later) — Erik asked for Path B; found it conflicts with a locked Constraint; split
+it; shipped the half that doesn't.** `docs/design/quran-graphrag.html`'s full architecture
+bundles a build-time knowledge graph WITH a live serving stack whose generation layer is a
+**generative LLM answering in real time** — direct contradiction of this ISA's own § Constraints
+("No generative model in the retrieval path. Nur never answers in a scholar's voice. Do not
+weaken."), and it assumes a live backend server this 100%-static product has never had. Surfaced
+this before writing any code. Erik confirmed: build-time graph only, the live/generative half
+stays rejected.
+
+The 16-predicate schema itself splits by cost: `PART_OF`/`TRANSLATES`/`PRECEDES` are pure
+relabeling of structure the ref-oracle/shard architecture already expresses (built nothing for
+these — no reader-facing gain). `EXPLAINS`/`AUTHORED_BY` are zero-LLM but genuinely new (tafsir
+browsable across the full corpus, not just the 55 curated verses) — shipped as **Path B1**.
+`MENTIONS`/`ABOUT_TOPIC`/`THEMATICALLY_LINKED_TO`/`NARRATIVE_OF`/`SUBTOPIC_OF` need a real LLM —
+**Path B2**, filed open (issue 09b), not built: this repo has zero LLM API integration, and
+extraction scope/access-model/review-workflow are real decisions, not implementation details.
+
+B1 required `bun run ingest`, never run in this worktree before — asked before running it (disk
+had been fluctuating 2.4–15 GB free all session), Erik approved, ran clean (24/24 gates, 230 MB).
+Also measured before designing storage: a per-surah tafsir bundle can be 9.3 MB (surah 7) — the
+SAME reader's-bandwidth lesson from Path B1's audio session, re-confirmed independently rather
+than assumed to still hold. Per-ayah shards instead (worst case 118 KB), gitignored like
+`corpus.json` (105 MB, regenerable via `bun run app:graph`), lazy-fetched on first `<details>`
+open — never eagerly for a whole surah. Verified live: 18:10 (never in the curated 55, the
+product's original P0 flagship verse) now shows real, lens-aware, attributed tafsir. Full detail
+in the matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issues/
+09-knowledge-graph-b1-structural.md`.
+
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.

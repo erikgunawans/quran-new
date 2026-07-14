@@ -26,6 +26,7 @@
     <nav class="nav" aria-label="Utama">
       <a class="nav-link" href="#/" id="nav-tanya">Tanya</a>
       <a class="nav-link" href="#/baca" id="nav-baca">Baca</a>
+      <a class="nav-link" href="#/tema" id="nav-tema">Tema</a>
     </nav>
 
     <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
@@ -33,6 +34,14 @@
       <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
       <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
     </div>
+
+    <!-- Persistent access to the SAME explainer #hello nudges toward once — explain.ts's
+         openExplainer() dialog, not a separate popover, so there's one explainer, not two. -->
+    <button class="icon-btn" id="info" data-explain="open" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
 
     <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">

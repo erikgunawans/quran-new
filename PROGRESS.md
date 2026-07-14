@@ -4,6 +4,466 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — Path B2 pilot ran for real: 666 edges, 2 quality issues found
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+Erik provided an OpenRouter key. Smoke-tested with one hand-built passage first — caught a real
+bug immediately: the `X-Title` header's em-dash made Bun's `fetch` throw "invalid header value"
+before any request reached OpenRouter (HTTP headers are ASCII-only). Fixed (plain hyphen),
+committed (`db859f4`), then ran the full 165-passage pilot for real.
+
+**165/165 passages, 0 failures, 666 validated edges.** ABOUT_TOPIC 313, MENTIONS 187, EXPLAINS
+93, THEMATICALLY_LINKED_TO 26, NARRATIVE_OF 20, HAS_CONTEXT 16, REFERENCES 11. Avg confidence
+0.83. Read actual samples, not just counts — mostly grounded, but two real issues: (1) some
+Entity/Topic labels came out in English despite Indonesian source passages, breaking Nur's
+Indonesian-only discipline; (2) a few HAS_CONTEXT edges look like "virtue of reciting" notes
+rather than genuine occasion-of-revelation. Also flagged: 93 EXPLAINS edges were extracted even
+though B1 already builds those for free (deterministic) — a cost question worth Erik's call
+before any larger run. Full detail in `.scratch/nur-phase2-trust-and-depth/issues/
+09b-knowledge-graph-b2-derived.md`.
+
+All 666 edges sit at `review_status: "auto"` in `data/review/graph-extraction.json`
+(gitignored) — nothing shipped near the app. Waiting on Erik: read a slice himself, decide on the
+English-label fix and the EXPLAINS question, then design the auto → human_pending →
+scholar_verified promotion workflow against real data instead of a hypothetical.
+
+---
+
+## 2026-07-15 (even later) — Path B2 plumbing: OpenRouter, ready but not run
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+Erik chose OpenRouter for Path B2's LLM access. Built the plumbing, ran nothing for real (no key
+yet): `.env`/`.gitignore` wired up (this repo had never handled a secret before — `.env` wasn't
+even gitignored until now), `src/ingest/openrouter.ts` (plain fetch, no SDK, matching this repo's
+existing style), `src/review/graph-extraction.ts` (the spec's exact 8-predicate closed vocabulary
++ system prompt + a validator that automatically rejects any edge whose evidence_span isn't a
+real substring of the source passage — 10 unit tests, no network needed), and
+`src/app/build-graph-derived.ts` (`bun run app:graph:derived`, default scope = the same 55
+curated verses issue 07's Path A already uses, `--full` for the whole corpus but not the
+default). Verified the model slug and pricing against OpenRouter's live catalog rather than
+guessing from memory (`anthropic/claude-sonnet-5`, $2/M in, $10/M out — pilot scope should cost
+well under $2). Dry-ran the pilot with no key set: correctly resolved 165 passages, failed each
+one gracefully with a clear message, wrote a valid empty output file — confirms the whole
+pipeline is sound except the one part that needs Erik's key.
+
+Every edge this produces, once run for real, lands in `data/review/graph-extraction.json`
+(gitignored) at `review_status: "auto"` — same discipline as `data/review/divergence.json`.
+Nothing from this pipeline reaches `web/public` without a human step in between, and the LLM call
+only ever happens in this one build-time script — never anywhere under `web/`.
+
+`bun test` 142/142 (10 new). `bun run typecheck` clean.
+
+### Next
+
+Waiting on Erik: paste an OpenRouter API key, confirm the model/pilot scope, then
+`bun run app:graph:derived` produces real candidate edges for review.
+
+---
+
+## 2026-07-15 (later) — Path B, split honestly: B1 (structural graph) shipped, B2 (LLM-derived) stays open
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### The check-in before writing code
+
+Erik asked for "Path B" — the real knowledge graph from `docs/design/quran-graphrag.html`, not
+issue 07's Path A shortcut. Read the full spec before touching anything: it bundles TWO very
+different systems. (1) A build-time knowledge graph — LLM extraction over tafsir, closed
+predicate schema, scholar-reviewed. (2) A live serving architecture — real backend (Neo4j/
+Postgres), query router, vector+graph retrieval, reranker, AND a **generative LLM answering
+live**. (2) directly contradicts `ISA.md`'s locked constraint ("No generative model in the
+retrieval path") and assumes a live server Nur has never had (it's a 100% static site). Flagged
+this before writing anything — Erik confirmed: (1) only, never touching the live answer path.
+
+### The schema itself splits by cost
+
+`docs/design/quran-graphrag.html`'s 16 predicates: 5 are pure structure, already fully expressed
+by the existing ref-oracle/shard architecture (`PART_OF`, `TRANSLATES`, `PRECEDES` — building
+these would just relabel data already there). Two more (`EXPLAINS`, `AUTHORED_BY`) are also
+zero-LLM — they're the *known* structure of the tafsir corpus, just not yet browsable across the
+full 6,236 ayahs (today tafsir only shows for the 55 curated verses, only in chat). The remaining
+5 (`MENTIONS`, `ABOUT_TOPIC`, `THEMATICALLY_LINKED_TO`, `NARRATIVE_OF`, `SUBTOPIC_OF`) genuinely
+need an LLM. Split into B1 (built this session) and B2 (stays open — see below).
+
+### A blocker, resolved with a check-in first
+
+`data/` didn't exist in this worktree — same gap that partially blocked issues 01 and 05, now
+blocking B1 too, since it needs the raw tafsir corpus. Disk had been fluctuating 2.4–15 GB free
+all session (clearly a shared machine). Asked before running anything expensive; Erik approved.
+**Ran `bun run ingest`: 24/24 gates, 230 MB, 6.1 GB still free after.** Also ran `bun run
+app:corpus` — as a side effect, `corpus.json` now exists in this worktree for the first time this
+phase, which quietly fixes every "couldn't verify live, corpus.json missing" caveat logged in the
+01, 05, and 06 checkpoints. `bun test` went from 129/132 to **132/132** — the 3 failures logged in
+every prior Phase 2 checkpoint are gone, not worked around.
+
+### B1 shipped
+
+Measured before designing: a per-surah tafsir bundle is up to 9.3 MB (surah 7) — same bandwidth
+violation already caught building recitation audio, same fix (per-ayah, not per-surah; worst case
+118 KB). New `bun run app:graph` emits `web/public/tafsir/{surah}/{ayah}.json` (6,236 files,
+gitignored — 105 MB of regenerable content, same treatment as `corpus.json`). New shared
+`web/src/tafsir.ts` (the lens machinery from issue 06 moved out of `main.ts` once a third surface
+needed it) adds LAZY loading — tafsir fetches only when a reader opens the disclosure for that
+specific verse, never eagerly for a whole surah. Reading surface and theme browser both now show
+real tafsir across the full corpus, not just the 55 curated verses.
+
+**Verified live: 18:10** — the exact verse the original P0 bug denied existed, never part of the
+curated 55 — now shows real tafsir from 3 scholars, lens-toggle-aware, correctly attributed. Chat's
+original eager path re-verified unaffected by the refactor. Crisis-path detection re-verified
+working. One tooling quirk found and isolated (not a bug): `interceptor act` doesn't trigger
+native `<details>` toggle, though plain buttons work fine all session — confirmed via `eval`
+`.click()` that the actual code is correct.
+
+### B2 — genuinely still open, not quietly decided
+
+Entity/Topic extraction and the 3 remaining derived predicates need a real LLM, and this repo has
+zero LLM API integration today. Three real decisions before any of it gets built: LLM access
+model (a real API key vs. supervised in-session extraction), extraction scope (18,707 passages is
+a real cost — recommend a bounded pilot first, same reasoning as every MVP-scoped item this
+phase), and the review workflow the spec itself mandates (`review_status`: auto → human_pending →
+scholar_verified). Filed as issue 09b.
+
+### Verification
+
+`bun run ingest` 24/24, `bun run verify` 24/24 (re-run after this session, confirming nothing in
+the ingest pipeline was touched by graph-building). `bun test` 132/132. `bun run typecheck`
+clean. Live-verified via Interceptor as above.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- **No generative model in the retrieval path** — reaffirmed, not just preserved: B1 is 100%
+  build-time, and B2 (if built) must stay that way too, per Erik's explicit ruling this session.
+- `data/` now exists in this worktree (230 MB) — still gitignored, still regenerable via
+  `bun run ingest`. `web/public/tafsir/` (105 MB) is a new gitignored artifact, regenerable via
+  `bun run app:graph`.
+
+---
+
+## 2026-07-15 — Issue 07 resolved as a spike, then Path A shipped: browse by theme
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### The spike, before any code
+
+Issue 07 assumed Nur "already has the attributed-graph foundation." It doesn't. The original
+`docs/design/quran-graphrag.html` spec's real knowledge graph (LLM triple-extraction over tafsir,
+entity linking, scholar-reviewed predicate schema) was never built — `src/ingest/` has zero
+concept extraction. What exists is smaller and already shipped: 55 hand-curated verses tagged
+with 1 of 12 emotional themes (`src/review/problem-verses.ts`), already used to score chat
+retrieval. Building the real graph means putting an LLM into an ingest pipeline that has been
+deliberately zero-LLM since Phase 1 — a standing-invariant decision, not a scoping detail.
+
+**Erik ruled: Path A** — surface the existing lexicon as a browsable index, cheaply, now. The
+full graph (Path B) stays open and unbuilt.
+
+### What shipped
+
+New `#/tema` and `#/tema/{slug}` routes, a third nav tab. `src/app/build-themes.ts` (`bun run
+app:themes`, wired into `bun run build`) generates an inlined `web/src/theme-index.ts` from
+`problem-verses.ts` — zero dependency on `data/`, so it builds in any worktree. `web/src/
+themes.ts` renders the theme list (zero network) and, per theme, fetches each verse from the
+SAME per-surah shard the reading surface already uses — no new data path, no duplicated corpus,
+no risk of the honesty contract (both translations + attribution, always) forking between
+surfaces. Mid-implementation, caught a first draft writing a THIRD duplicated copy/share click
+handler (main.ts and read.ts already each have one) — refactored to reuse read.ts's existing
+`onRead` map via two small exports (`registerReadCard`, `clearReadCards`) instead.
+
+### Verification
+
+Unlike issues 01 and 05, this feature has **no dependency on the missing `corpus.json`** in this
+worktree — verified live (Interceptor), completely, not partially: all 12 themes list with
+correct counts (55 total, matching `problem-verses.ts` exactly), a theme's real verses load with
+correct Arabic/both translations/attribution/why-caption pulled from the real shard files, a bad
+slug shows an honest "not found" (not a blank page), nav highlighting is mutually exclusive
+across Tanya/Baca/Tema, and `#/baca` itself is unaffected (regression check on the shared `#read`
+container both surfaces render into). The copy button reached the real `copyVerse()` call
+(confirmed structurally) — the clipboard write itself failed on `Document is not focused`, the
+same automation-only limitation already logged twice this phase (issues 02 and 05), not a wiring
+defect.
+
+`bun run typecheck` clean (root + web). `bun test` 72/72 in `web/src/`.
+
+### Where Phase 2 stands now
+
+All 8 items in `.scratch/nur-phase2-trust-and-depth/PRD.md` are `done`: 01–06 fully, 07 as
+Path A (Path B intentionally still open), 08 unblocked and `ready-for-agent` whenever picked up.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched this session.
+- **Zero-LLM ingest pipeline** — untouched; Path B (the real knowledge graph) would be the first
+  thing to break this, and remains an open, un-ruled-on decision, not a default.
+
+---
+
+## 2026-07-14 (latest) — Phase 2 issues 04 and 05 shipped: the crisis path, and a first taste of recitation
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### Erik's rulings this session
+
+- **04 — Kemenkes SEJIWA / 119 ext. 8**, shown ALONGSIDE the normal answer, never instead of it.
+- **05 — Syaikh Mishary Rashid Alafasy.** Hosting was already decided (self-host, shard-style).
+
+### 04 — the crisis path exists now
+
+New `web/src/crisis.ts`: phrase-based detection (not single-word — "mati" alone is far too
+broad), catches the exact reproduced case ("aku gak sanggup bayar utang, pengen mati aja") and
+common Indonesian phrasings, verified NOT to trigger on ordinary distress language or unrelated
+mentions of death. Wired into `main.ts`'s `ask()` at a single insertion point that applies to
+every existing response branch uniformly. Verified live: real query → crisis banner appears
+first, normal answer still follows; an ordinary ref lookup produces no banner.
+
+### 05 — recitation audio, MVP scope
+
+**A real design correction, not just an implementation:** the ruling said "self-host, shard-style,
+per-surah" — but `curl -I` against a per-surah source showed Al-Baqarah alone is **115 MB as one
+file**. `ISA.md`'s reader's-bandwidth principle rules that out outright. Switched to **per-ayah**
+files instead (everyayah.com, Alafasy_64kbps) — same self-hosting principle, correctly sized,
+reuses the lazy-fetch pattern the text shards already use. Recorded as a deviation-with-reason in
+issue 05, not a silent scope change.
+
+Shipped: Al-Fatiha + Al-Ikhlas + Al-Falaq + An-Nas (22 ayahs, ~1.0 MB, real audio,
+downloaded, sha256-pinned via new `bun run app:audio`). Full 6,236-ayah coverage is thousands of
+individual fetches against a third-party host — deliberately NOT attempted this session; `hasAudio()`
+tells the truth about exactly what's available, same "truth oracle" discipline as the surah index.
+
+**A real bug caught, not glossed over:** an early version of the play/pause toggle updated the
+button OPTIMISTICALLY, before `audio.play()`'s promise had actually resolved — so a rejected
+play left the button lying, stuck on "Jeda" with nothing playing. Found by clicking the same
+button twice and watching it not toggle off; fixed by making the toggle `async` and awaiting the
+real result before touching the UI.
+
+**A verification limit, disclosed rather than assumed away:** could not confirm AUDIBLE playback
+through Interceptor — `a.play()` consistently rejects with Chrome's `NotAllowedError` (autoplay
+gesture policy) on synthetic clicks, isolated as a tooling limitation (not a file/code defect —
+the mp3 was independently verified valid via `curl -I`, and the code follows the standard correct
+pattern of calling `.play()` synchronously inside a real click handler). Same class of limitation
+already hit verifying the copy button's clipboard write in the 02 checkpoint. Recommend a
+real-device spot-check before treating this as fully closed.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test` 72/72 in `web/src/` (new: `crisis.test.ts`
+6/6, `audio.test.ts` 3/3). Live-verified via Interceptor: crisis banner (positive + negative
+cases), play-button rendering/toggling/cross-reset on both the reading surface and chat, "only
+one ayah plays at a time" behavior. Root-level `bun test`/`bun run verify` still blocked on the
+same missing `data/`/`corpus.json` gap as every prior checkpoint this phase — unrelated to
+either change.
+
+### Next, in order
+
+1. All of Phase 2's originally-scoped items (01–06, 08 unblocked) are now shipped. `07` (concept
+   cross-linking) remains `needs-triage` — wants a design spike, not code.
+2. Real-device spot-check on 05's audio playback, since Interceptor couldn't confirm it audibly.
+3. Scaling 05 beyond the 22-ayah MVP sample, if/when Erik wants it — its own ingest run.
+4. `bun run ingest` in this worktree, still not done, still optional — only needed if Erik wants
+   the corpus gates runnable here.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched this session.
+- No streaks, badges, leaderboards, or completion-percentage mechanics.
+
+---
+
+## 2026-07-14 (even later) — Phase 2 issue 06 shipped: the tafsir lens toggle
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### What shipped
+
+`web/src/main.ts` + `styles.css` — a "Semua / Klasik dulu / Kontemporer dulu" control on every
+tafsir stack. It **reorders**, never filters: all 3 reference voices (Ibn Kathir, As-Sa'di,
+Al-Mukhtasar) stay fully attributed and present in every state. Order is derived from each
+source's `era` string only — deliberately not from `authority_tier`, which answers a different
+question (doctrinal weight, not chronology) and would have been a real doctrine conflation to
+reuse here. Default state is byte-identical to today's as-shipped order until the reader clicks
+something.
+
+### Verification
+
+- `bun run typecheck` clean, `bun test` 120/123 (same 3 pre-existing missing-`data/` failures as
+  the prior checkpoint, unrelated to this change).
+- Live (Interceptor): chat retrieval — the only place tafsir stacks render today — needs
+  `corpus.json`, which this worktree still doesn't have, so verification injected markup
+  byte-identical to `tafsirEl()`'s real output and dispatched genuine `interceptor act` clicks
+  (not `eval`-triggered) on the real rendered buttons, exercising the actual unmodified
+  event-delegation handler. Confirmed all three lens states reorder correctly, attribution/text
+  count never changes (3 in, 3 out, every time), and the choice survives a real reload.
+- **Caught a real bug during self-verification, not after**: an early draft called
+  `applyLens(getLens())` at boot to re-sort restored-thread cards against the reader's saved
+  preference, but `applyLens` unconditionally wrote to `localStorage` — so a visitor who never
+  touched the control would get `nur:lens` silently written on their very first load, breaking
+  the write-only-on-explicit-action parity every other preference in this app follows
+  (`nur:theme`, `nur:ar`). Found by checking `localStorage` directly rather than trusting the
+  code was correct; fixed by splitting into `sortStacks()` (DOM-only, boot-safe) and `applyLens()`
+  (storage write, click-only).
+
+### Next, in order
+
+1. **[P0] Crisis-path detection** — still blocked on Erik's ruling.
+2. **[P1] Recitation audio** — hosting decided; reciter/source still open.
+3. `bun run ingest` in this worktree, if Erik wants the corpus gates runnable here — still not
+   done, still out of scope for UI-layer work.
+4. `07` (concept cross-linking) and `08` (visual share cards) remain `needs-triage` — no session
+   spent on them yet.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched this session; the
+  lens toggle deliberately never reaches the translation-pair rendering path.
+- No streaks, badges, leaderboards, or completion-percentage mechanics.
+
+---
+
+## 2026-07-14 (later) — Phase 2 issues 01–03 shipped: retrieval honesty, thread persistence, the two-translation explainer
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+### What shipped
+
+**01 — Minimum-score threshold.** `web/src/retrieve.ts` — `.filter((h) => h.score > 0)` →
+`.filter((h) => h.score >= MIN_SCORE)` with `MIN_SCORE = 4`. A direct ref (100) or any theme hit
+(≥10) still clears it; a single incidental keyword (2) no longer does. Reproduces and locks the
+exact reported failure ("gimana cara sholat tahajud" → 2:152 on the word "cara" alone) in a new
+`web/src/retrieve.test.ts` against a synthetic corpus.
+
+**02 — Thread persistence.** `web/src/main.ts` — every exchange is now pushed as `{ q, html,
+cards }` to `localStorage["nur:thread"]` (capped at 40 turns) and replayed on boot via
+`restoreThread()`. Deliberately stores the already-rendered answer + card data rather than
+re-running retrieval on load, so a restored thread shows exactly what the user actually saw, and
+restoration has no dependency on `corpus.json` or the network at all.
+
+**03 — The two-translation explainer.** `web/index.html` + `styles.css` + `main.ts` — a collapsed
+explainer inside `#hello` (first thing a new visitor can read) plus a persistent header "ⓘ"
+popover (`#info`/`#info-panel`) reachable from every screen, every session. Two short sentences,
+Indonesian, states neither rendering is "more correct" — consistent with `ISA.md` §
+Principles ("Plurality is warmth, not hedging").
+
+### Verification
+
+- `bun run typecheck` — clean (root + web).
+- `bun test` — 120 pass (4 of them new, in `retrieve.test.ts`). 3 pre-existing failures are
+  unrelated `ENOENT`s on `data/raw/quran-data.xml` and `web/public/corpus.json` — this worktree
+  never ran `bun run ingest` / `bun run app:corpus` (both gitignored build artifacts). Confirmed
+  via `git status` that nothing in the ingest pipeline was touched this session.
+- `bun run verify` (24/24 corpus gates) — **could not run**, same missing-`data/` reason. None of
+  this session's changes are in the ingest/corpus path, so they cannot have affected these gates,
+  but the gate itself is unverified in this worktree. Flagging rather than claiming a false green.
+- Live verification via **Interceptor** (mandatory per house rules, not agent-browser): opened the
+  dev server, confirmed the info popover toggles correctly with the right copy, confirmed the
+  `#hello` explainer renders, sent a ref query (`18:10` — works without `corpus.json`, since ref
+  resolution is inlined), reloaded, confirmed the exchange persisted with working attribution and
+  a correctly re-wired copy button (`onScreen` lookup succeeded post-restore). Screenshots weren't
+  available (Chrome window was minimized — a known Interceptor limitation only the user can
+  clear); verification instead used the accessibility tree and `eval` against live DOM/
+  `localStorage` state, which is a direct rather than visual confirmation.
+- 01 could not be verified against a live chat query end-to-end, because chat retrieval needs
+  `corpus.json`, which this worktree doesn't have built. The unit test reproduces the exact
+  reported bug against a synthetic corpus instead — logically equivalent, not a live substitute.
+
+### What's left in this worktree before the P0/P1 corpus gates can run again
+
+`bun run ingest` (needs `data/raw/quran-data.xml` and friends — ~230 MB, network-dependent) and
+`bun run app:corpus` were never run here. Not done this session — out of scope for three small UI/
+retrieval fixes, and a call on whether it's worth doing in this worktree vs. the main checkout
+belongs to Erik, not an assumption to make silently.
+
+### Next, in order
+
+1. **[P0] Crisis-path detection** — still blocked; Erik explicitly deferred the resource ruling
+   this session (`.scratch/nur-phase2-trust-and-depth/issues/04-crisis-path-detection.md`).
+2. **[P1] Recitation audio** — hosting decided (self-host, shard-style); reciter/source is the
+   remaining blocker (`issues/05-recitation-audio.md`).
+3. **[P2] Tafsir lens toggle** — `ready-for-agent`, next up when there's a session for it
+   (`issues/06-tafsir-lens-toggle.md`).
+4. `bun run ingest` in this worktree, if Erik wants the corpus gates runnable here.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — **never weakened**; none of
+  this session's changes touch the corpus or ingest layer.
+- No streaks, badges, leaderboards, or completion-percentage mechanics.
+
+---
+
+## 2026-07-14 — Engagement research run; Phase 2 filed to the tracker
+
+**Anchor:** same as prior checkpoint (local only — no remote); no code changed this session.
+
+### What happened
+
+Ran `/Research` (Standard mode) against `PRODUCT.md` / `DESIGN.md` / `PROGRESS.md`: what would
+make Nur more compelling and increase desire to learn the Qur'an, without breaking the product's
+own no-gamification doctrine. Result cross-checked what was already known against new evidence
+rather than surfacing a pivot — see `ISA.md` § Decisions (2026-07-14 entry) for the full reasoning.
+
+**Confirmed, not discovered:** the four "Next, in order" items already at the top of this file
+(min-score threshold, thread persistence, terjemah makna/harfiah explainer, crisis-path
+detection) are exactly what the research independently flagged as highest-leverage. Nothing here
+changes that list's order.
+
+**New, added as Phase 2 candidates:** recitation audio (already an open item above, now with
+research backing it as category table-stakes, not just a nice-to-have), a tafsir "choose your
+lens" filter (addresses decision-paralysis across the 4 tafsir voices without ranking them —
+doctrine stays intact), and concept/thematic cross-linking surfacing the graph `docs/design/
+quran-graphrag.html` already specs (flagged `[LOW]` confidence by the research itself — filed as
+a design spike, not a build commitment).
+
+**Explicitly rejected, logged so it doesn't get re-proposed:** streaks, leaderboards, badges,
+completion percentages, guilt nudges. `PRODUCT.md` already forbids these; the research supplies
+the evidence (arXiv:2203.16175 on Duolingo-style compulsive use) for why that doctrine is correct,
+not a reason to reconsider it.
+
+### Filed
+
+`.scratch/nur-phase2-trust-and-depth/PRD.md` + 8 issues, triaged:
+- `ready-for-agent`: min-score threshold, thread persistence, terjemah-makna/harfiah explainer,
+  tafsir lens toggle.
+- `needs-info` (blocked on Erik): crisis-path resource/response, recitation audio source + hosting.
+- `needs-triage`: concept cross-linking (design spike first), visual share cards (lower priority,
+  sequence after the lens toggle).
+
+### Next, in order
+
+Unchanged from the prior checkpoint — this session added scope, it did not reprioritize:
+
+1. **[P0] Crisis-path detection** — still blocked on Erik's ruling on the resource.
+2. **[P1] Explain terjemah makna vs terjemah harfiah** — now `ready-for-agent`
+   (`.scratch/nur-phase2-trust-and-depth/issues/03-explain-terjemah-makna-harfiah.md`).
+3. **[P1] Minimum-score threshold** — now `ready-for-agent`
+   (`.scratch/nur-phase2-trust-and-depth/issues/01-min-score-threshold.md`).
+4. **[P1] Thread persistence across reload** — now `ready-for-agent`
+   (`.scratch/nur-phase2-trust-and-depth/issues/02-thread-persistence.md`).
+
+### Erik ruled this session
+
+- **Crisis-path resource (issue 04): deferred, not decided.** Stays `needs-info`. Do not pick a
+  resource unilaterally — wait for an explicit ruling before writing any crisis-detection code.
+- **Recitation audio hosting (issue 05): self-host, shard-style**, per-surah fetch, same pattern
+  as `web/public/surah/{n}.json`. Reciter/source selection is the only remaining blocker on that
+  issue — see `.scratch/nur-phase2-trust-and-depth/issues/05-recitation-audio.md`.
+
+### Standing constraints
+
+- **No remote.** Commits stay local. **bun/bunx only. TypeScript only.**
+- `data/` is gitignored and regenerable via `bun run ingest`.
+- Gates: **119 tests · typecheck clean (root + web) · 24/24 corpus gates** — unchanged, no code
+  touched this session.
+- `literal_iff_canonical`, `primary_voice`, `literal_companion` — **never weaken these.**
+- No streaks, badges, leaderboards, or completion-percentage mechanics — **now backed by cited
+  evidence, not just house style.**
+
+---
+
 ## 2026-07-14 — The crisis path, and 14 defects from an adversarial review
 
 **Anchor:** `main` @ `25785aa` (local only — this repo has no remote)

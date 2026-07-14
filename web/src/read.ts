@@ -54,6 +54,19 @@ const claim = (): number => ++token;
 /** Verses currently on the reading surface, so copy/share can find one by ref. */
 const onRead = new Map<string, VerseCard>();
 
+/** Register a card rendered by a DIFFERENT surface that shares this DOM container (e.g.
+ * themes.ts, which renders into #read too) — so the ONE copy/share handler below (bindActs)
+ * covers it without a second, duplicated click listener. */
+export function registerReadCard(card: VerseCard): void {
+  onRead.set(card.ref, card);
+}
+
+/** Same reason: a surface sharing #read needs to clear stale cards on its own navigations too,
+ * not just read.ts's own renderIndex()/renderSurah(). */
+export function clearReadCards(): void {
+  onRead.clear();
+}
+
 /** One owner for the live region — see announce.ts. */
 const say = announce;
 
@@ -260,9 +273,10 @@ const oopsEl = (msg: string, retry: boolean): string => `
     ${retry ? `<button class="act read-retry" type="button">Coba lagi</button>` : ""}
   </div>`;
 
-/** Build one card and register it, so its copy/share buttons can find it later. */
+/** Build one card and register it, so its copy/share buttons can find it later. Path B1: tafsir
+ * loads lazily here (the full corpus, not chat's pre-loaded 55) — see tafsir.ts. */
 const cardEl = (v: ShardVerse, n: number, name: string): string => {
-  const card = fromShard(v, n, name);
+  const card = { ...fromShard(v, n, name), lazyTafsir: true };
   onRead.set(card.ref, card);
   return verseEl(card);
 };
@@ -418,7 +432,9 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
 // an interpretation cannot leave this app dressed as scripture.
 let bound = false;
 
-function bindActs(): void {
+/** Idempotent — safe to call from any surface sharing #read (themes.ts included) without
+ * risking a duplicate listener; only the FIRST call actually attaches anything. */
+export function bindActs(): void {
   if (bound) return;
   bound = true;
 

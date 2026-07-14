@@ -1,14 +1,17 @@
 import "./styles.css";
 import "./read.css";
 import { announce } from "./announce.ts";
+import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
-import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
-import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
+import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse } from "./share.ts";
-import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
+import { applyLens, bindLazyTafsir, tafsirEl, type TafsirLens } from "./tafsir.ts";
+import { renderTheme, renderThemeIndex } from "./themes.ts";
+import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
+import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
@@ -45,35 +48,9 @@ const remember = (card: VerseCard) => {
 const say = announce;
 
 // ── rendering ────────────────────────────────────────────────────────────────
-function tafsirEl(v: { tafsir: { source_id: string; text: string; lang: string }[] }): string {
-  if (!v.tafsir.length) {
-    return `<div class="silence">Belum ada tafsir terverifikasi untuk ayat ini di korpus kami. Kami memilih diam daripada mengarang.</div>`;
-  }
-
-  const stack = v.tafsir
-    .map((t) => {
-      const src = voices.get(t.source_id);
-      // An English tafsir shown to an Indonesian reader is the exact wound this product exists
-      // to heal. It may still appear — dropping a scholar is worse than showing him — but it is
-      // labelled, so nobody is left thinking the fault is theirs for not understanding it.
-      const foreign = t.lang !== "id";
-      return `
-        <div class="scholar${foreign ? " foreign" : ""}">
-          <div class="who">
-            <span class="by"><b>${esc(src?.author ?? t.source_id)}</b></span>
-            <span class="tier">${esc(src?.era ?? "")} · tier ${src?.authority_tier ?? "?"}</span>
-            ${foreign ? `<span class="lang-warn">teks bahasa Inggris — belum ada terjemahannya</span>` : ""}
-          </div>
-          <p class="txt"${foreign ? ' lang="en"' : ""}>${esc(t.text)}</p>
-        </div>`;
-    })
-    .join("");
-
-  return `<details class="sources">
-            <summary>Lihat ${v.tafsir.length} ulama membahas ayat ini</summary>
-            ${stack}
-          </details>`;
-}
+// tafsirEl() lives in tafsir.ts now — it needs to be shared with the reading surface and theme
+// browser too, and it carries the lens (issue 06) and lazy-loading (Path B1) this inline version
+// never had.
 
 function mount(card: VerseCard): string {
   remember(card);
@@ -158,7 +135,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               primary: v.primary,
               companion: v.companion,
               why: v.why,
-              extra: tafsirEl(v),
+              extra: tafsirEl(v.tafsir, voices),
               continueTo: true,
               animate,
             }),
@@ -284,14 +261,10 @@ function showChat() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(reading: boolean) {
-  const tanya = $<HTMLAnchorElement>("#nav-tanya");
-  const baca = $<HTMLAnchorElement>("#nav-baca");
-  for (const [el, on] of [
-    [tanya, !reading],
-    [baca, reading],
-  ] as const) {
-    if (on) el.setAttribute("aria-current", "page");
+function markNav(mode: "tanya" | "baca" | "tema") {
+  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema") };
+  for (const [key, el] of Object.entries(links)) {
+    if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
   }
 }
@@ -299,9 +272,10 @@ function markNav(reading: boolean) {
 async function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
+  const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
 
   if (m) {
-    markNav(true);
+    markNav("baca");
     chatView.hidden = true;
     readView.hidden = false;
     await renderSurah(readView, Number(m[1]), m[2] ? Number(m[2]) : undefined);
@@ -309,14 +283,30 @@ async function route() {
   }
 
   if (hash === "#/baca") {
-    markNav(true);
+    markNav("baca");
     chatView.hidden = true;
     readView.hidden = false;
     renderIndex(readView);
     return;
   }
 
-  markNav(false);
+  if (t) {
+    markNav("tema");
+    chatView.hidden = true;
+    readView.hidden = false;
+    await renderTheme(readView, t[1]!);
+    return;
+  }
+
+  if (hash === "#/tema") {
+    markNav("tema");
+    chatView.hidden = true;
+    readView.hidden = false;
+    renderThemeIndex(readView);
+    return;
+  }
+
+  markNav("tanya");
   showChat();
 }
 
@@ -386,9 +376,29 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  const lensBtn = el.closest<HTMLButtonElement>("[data-lens]");
+  if (lensBtn) {
+    applyLens(lensBtn.dataset["lens"] as TafsirLens);
+    return;
+  }
+
   const act = el.closest<HTMLButtonElement>("[data-act]");
   if (!act) return;
   const kind = act.dataset["act"];
+
+  if (kind === "play") {
+    const surah = Number(act.dataset["surah"]);
+    const ayah = Number(act.dataset["ayah"]);
+    const ref = act.dataset["ref"] ?? "";
+    void (async () => {
+      const { playing, previous, failed } = await toggleAudio(surah, ayah, ref);
+      if (previous) resetPlayButton(previous);
+      setPlayButton(act, playing);
+      say(failed ? "Gagal memutar audio. Coba lagi." : playing ? `Memutar ayat ${ref}.` : "Jeda.");
+    })();
+    return;
+  }
+
   const card = onScreen.get(act.dataset["ref"] ?? "");
   if (!card || (kind !== "copy" && kind !== "share")) return;
 
@@ -421,6 +431,9 @@ $("#size").addEventListener("click", (e) => {
     b.setAttribute("aria-pressed", String(b === btn));
   }
 });
+
+// The "why two translations" affordance now opens explain.ts's dialog (data-explain="open" on
+// #info, wired into the [data-explain] handler above) — one explainer, not a second popover.
 
 // ── theme — both modes are first-class ───────────────────────────────────────
 $("#theme").addEventListener("click", () => {
@@ -470,6 +483,8 @@ async function bootCorpus(): Promise<void> {
 }
 
 (() => {
+  bindLazyTafsir();
+
   const savedTheme = localStorage.getItem("nur:theme");
   if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;
 
