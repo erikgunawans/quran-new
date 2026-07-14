@@ -43,7 +43,8 @@ export async function complete(messages: ChatMessage[], opts: CompletionOptions 
       "Content-Type": "application/json",
       // OpenRouter's own attribution headers — optional, harmless, not a real referrer check.
       "HTTP-Referer": "https://github.com/erikgunawans/quran-new",
-      "X-Title": "Nur — knowledge graph extraction (build-time only)",
+      // ASCII only — an em-dash here throws "invalid header value" at the fetch layer.
+      "X-Title": "Nur - knowledge graph extraction (build-time only)",
     },
     body: JSON.stringify({
       model,
