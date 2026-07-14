@@ -4,6 +4,39 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## Checkpoint 2026-07-15 (session sync)
+
+- **Session:** Resumed Phase 2 work. Shipped issue 08 (visual/image share cards) end-to-end,
+  then ran an `/impeccable` polish pass on the shared verse-card renderer at Erik's request.
+- **Branch:** `worktree-moonlit-strolling-panda` (local only, no remote)
+- **Done:**
+  - Issue 08 — canvas-rendered PNG verse cards (`share-image.ts`), wired into chat + reading
+    surfaces, egress contract enforced harder than the text-share path. Forge blocked on a real
+    Codex quota wall (until 2026-07-20); wrote the module directly instead of waiting, disclosed
+    in `ISA.md`.
+  - Polish pass: fixed a real motion bug (`animation: ... both` → `forwards` everywhere — content
+    could get stuck invisible if backgrounded mid-load); fixed the caution icon silently ignoring
+    its own color token (emoji → SVG with `currentColor`); unified verse-card action icons to SVG
+    matching the header's style.
+  - `.scratch/nur-phase2-trust-and-depth/`: issue 08 marked done, PRD table updated. All 8 Phase 2
+    issues now shipped.
+- **Files changed:** 3 commits this session — `feat(nur): issue 08`, `docs(nur): issue 08
+  checkpoint`, `polish(nur): fix invisible-on-interrupt entrance animations, unify verse-card
+  icons`. New: `web/src/share-image.ts`, `web/src/share-image.test.ts`. Modified: `share.ts`,
+  `verse.ts`, `main.ts`, `read.ts`, `styles.css`, `read.css`, `ISA.md`, `PROGRESS.md`,
+  `.scratch/nur-phase2-trust-and-depth/{PRD.md,issues/08-visual-share-cards.md}`.
+- **Tests:** `bun run typecheck` clean (root + web). `bun test`: 226 pass (148 root + 78 web), 0
+  fail. `bun run verify`: 24/24 corpus gates.
+- **Next:** Erik's own call — the Path B2 pilot edge review (666 edges,
+  `data/review/graph-extraction.json`) and its two follow-on decisions (English-label leak,
+  redundant EXPLAINS predicate) are his to make, not something to guess at. Also open: scholar-
+  board sign-off on tafsir sources, verify the Tafsiriyah translation against a published edition,
+  the text-share/image-share caution asymmetry flagged this session, Forge's quota outage until
+  2026-07-20, and (if wanted) a deeper polish pass on the theme browser specifically — it got no
+  dedicated look this session.
+
+---
+
 ## 2026-07-15 (latest) — `/impeccable` polish pass: icon consistency + a real motion-robustness bug
 
 **Anchor:** same as prior checkpoint (local only — no remote).
