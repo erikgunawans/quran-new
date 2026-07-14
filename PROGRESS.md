@@ -4,6 +4,38 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (even later) — Path B2 plumbing: OpenRouter, ready but not run
+
+**Anchor:** same as prior checkpoint (local only — no remote).
+
+Erik chose OpenRouter for Path B2's LLM access. Built the plumbing, ran nothing for real (no key
+yet): `.env`/`.gitignore` wired up (this repo had never handled a secret before — `.env` wasn't
+even gitignored until now), `src/ingest/openrouter.ts` (plain fetch, no SDK, matching this repo's
+existing style), `src/review/graph-extraction.ts` (the spec's exact 8-predicate closed vocabulary
++ system prompt + a validator that automatically rejects any edge whose evidence_span isn't a
+real substring of the source passage — 10 unit tests, no network needed), and
+`src/app/build-graph-derived.ts` (`bun run app:graph:derived`, default scope = the same 55
+curated verses issue 07's Path A already uses, `--full` for the whole corpus but not the
+default). Verified the model slug and pricing against OpenRouter's live catalog rather than
+guessing from memory (`anthropic/claude-sonnet-5`, $2/M in, $10/M out — pilot scope should cost
+well under $2). Dry-ran the pilot with no key set: correctly resolved 165 passages, failed each
+one gracefully with a clear message, wrote a valid empty output file — confirms the whole
+pipeline is sound except the one part that needs Erik's key.
+
+Every edge this produces, once run for real, lands in `data/review/graph-extraction.json`
+(gitignored) at `review_status: "auto"` — same discipline as `data/review/divergence.json`.
+Nothing from this pipeline reaches `web/public` without a human step in between, and the LLM call
+only ever happens in this one build-time script — never anywhere under `web/`.
+
+`bun test` 142/142 (10 new). `bun run typecheck` clean.
+
+### Next
+
+Waiting on Erik: paste an OpenRouter API key, confirm the model/pilot scope, then
+`bun run app:graph:derived` produces real candidate edges for review.
+
+---
+
 ## 2026-07-15 (later) — Path B, split honestly: B1 (structural graph) shipped, B2 (LLM-derived) stays open
 
 **Anchor:** same as prior checkpoint (local only — no remote).

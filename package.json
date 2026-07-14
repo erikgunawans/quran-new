@@ -15,6 +15,7 @@
     "app:audio": "bun run src/app/build-audio.ts",
     "app:themes": "bun run src/app/build-themes.ts",
     "app:graph": "bun run src/app/build-graph.ts",
+    "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "dev": "vite web --port 5173",
     "build": "bun run app:corpus && bun run app:themes && vite build web"
   },
