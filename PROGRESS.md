@@ -4,6 +4,57 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-16 (latest) — the P2 "last read" bookmark shipped ("Lanjutkan baca")
+
+Anchor: `origin/main` was `f6836e9`; this session commits `71170b2` (single branch `main`, single
+worktree, clean — `git worktree list` showed no strays at start). Ran the full Algorithm at E3.
+
+**What shipped.** The last-read bookmark — the P2 the deep-link routing fix (`4aea757`) was built to
+enable. Three parts:
+- **`web/src/bookmark.ts`** (new) — persists `{surah, ayah, at}` under `nur:baca`. **NO TTL** (unlike
+  the 12h `thread.ts` — a reading position is a coordinate, not a confession; FirstPrinciples ruled
+  the thread's expiry an *assumption* not a hard constraint), **separate key** (burning the
+  conversation never burns the bookmark), bounds-validated via `surahMeta().ayahs`, **debounced 400ms**,
+  storage-safe. Forge (E3 mandate) independently authored the module + a 20-test suite; it landed on
+  disk and matched my `read.ts` wiring's API, so the reconcile was clean.
+- **`read.ts renderSurah`** — ONE `IntersectionObserver` tracks the top-most visible ayah (min of a
+  persistent visible-`Set`, top-band `rootMargin`), observing each lazy chunk as it mounts.
+- **`read.ts renderIndex` + `read.css`** — an accent-washed "Lanjutkan baca" card (Indonesian surah
+  name + ayah, `#/surah/N#A`), shown only when a valid bookmark exists.
+
+**The advisor earned its cost (Rule 2).** It caught a real, timing-dependent race a green suite would
+NOT: `stopTracking()` disconnected the observer but left the *pending debounced write* armed, so
+leaving a surah within 400ms could land a stale `{18,47}` over the next surah's position. Fixed with
+`cancelBookmark()` (drop pending, keep committed) in the same teardown as `disconnect()`; added the
+regression test `the navigation race`. 185/185 web tests, typecheck clean.
+
+**Verified live (Interceptor), honestly split.** Surface + routing proven in real Chrome: the card
+renders "Lanjutkan baca Al-Kahfi · ayat 10", is absent with no bookmark, and clicking it lands on
+18:10 (`.landed` fired). BUT the observer's live *firing* could not be probed — **the Chrome window is
+still minimized**, so `document.visibilityState === "hidden"` and the browser suspends the rendering
+lifecycle: IntersectionObserver callbacks never fire (confirmed: `nur:baca=null` after landing, 110
+verses rendered, `scrollY=0`). Same environment limit as ISC-98/99 and last session's rAF issue.
+ISC-110/111 are `[DEFERRED-VERIFY]` with a follow-up; ISA now `116/120`, phase `complete`.
+
+### Next, in order
+1. **Erik verifies the bookmark in a VISIBLE window** — open a surah, scroll, confirm
+   `localStorage["nur:baca"]` advances (clears the ISC-110/111 deferral). Same visible-window need as
+   the still-open constellation aesthetic ruling and ISC-98/99 device checks — one un-minimize unblocks
+   all of them.
+2. Open question for Erik: also surface "Lanjutkan baca" on the `#hello` chat home (cold-open), or
+   keep it on the Baca index only? Left as a deliberate non-decision.
+3. Still open from before: wire `indeks-tematik.csv` into the retrieval lexicon; the constellation
+   aesthetic ruling; SEJIWA crisis-channel sanity check before wider release.
+
+### Standing constraints (unchanged)
+- Single branch `main`, single primary worktree, synced with `origin/main`. `.claude/worktrees/`
+  self-repopulates — `git worktree list` at session start.
+- bun/bunx for the app; `corepack pnpm` only for third-party plugin builds (never npm/npx).
+- `literal_iff_canonical` / `primary_voice` / `literal_companion` — never weakened.
+- `data/` + `web/src/.ua/` + browser artifacts are gitignored, regenerable.
+
+---
+
 ## 2026-07-15 (latest) — codebase knowledge graph, Indeks Tematik verified complete, 3D constellation of the content
 
 Continuation. After the critique fixes, Erik shifted from the app to the *knowledge*.
