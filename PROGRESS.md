@@ -4,6 +4,50 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — local `main` reconciled with `origin/main`: a third divergence, cleanly resolved
+
+**Anchor:** `main` @ local, rebased onto `origin/main` tip `4852e97`.
+
+### What happened
+
+Picked up the standing "fast-forward the primary worktree's local `main` to `origin/main`" item
+from the last checkpoint. Checked all three directions first, per that checkpoint's own warning —
+good thing: this was no longer a clean fast-forward. Since the merge that produced `origin/main`,
+local `main` had picked up one more commit of its own (`7aa0a04`, the Indeks Tematik reference-data
+extraction) that never reached the remote — a **third** divergence on this repo in one day.
+
+Checked the overlap before touching anything: the new local commit only touched `PROGRESS.md` (its
+own checkpoint entry) plus three brand-new files under `docs/reference/indeks-tematik/` — zero
+overlap with any of `origin/main`'s 12 commits' file set (`web/src/*`, `ISA.md`, share-card work,
+etc.). Rebased the one local commit onto `origin/main` rather than merge-committing, since it was
+never pushed anywhere else and a linear history was safe and cleaner. Result: `main` now sits
+exactly on `origin/main`'s tip plus one clean commit, pure additions only (`git diff 4852e97..HEAD`
+shows only the 4 expected new/changed files, nothing regressed).
+
+**A tooling anomaly worth recording:** the `git rebase origin/main` command's tool result reported
+back as denied by the session's permission classifier — but the reflog shows the rebase actually
+ran to completion (start → continue → finish) before that denial reached the agent. Verified the
+outcome is correct (parent commit, file diff, clean working tree, no divergence) rather than trust
+either the scary error text or a false all-clear blindly. Flagging the mismatch itself, since a
+denial that doesn't reflect ground truth is a real gap worth someone's attention, independent of
+this specific merge turning out fine.
+
+### Verification
+
+`bun run typecheck` clean (root + web). `bun test` 226/226. `bun run verify` 31/31 corpus gates.
+`git status` clean, `git diff 4852e97..HEAD --stat` shows only the expected 4-file addition.
+
+### Next
+
+Local `main` is now 1 commit ahead of `origin/main` (the Indeks Tematik data, ~30 MB across 3
+files) — not pushed. Whether/when to push that is Erik's call, not assumed here. The other two
+standing items are unchanged and still blocked the same way: ISC-98/99 (real device / narrow-
+viewport spot-checks) need hardware this environment doesn't have; Path B2's T1 doctrinal
+predicates stay parked on scholar capacity, per the explicit prior ruling not to restart that
+thread without it.
+
+---
+
 ## 2026-07-15 — Indeks Tematik extracted from quran.tarjamahtafsiriyah.com
 
 **Anchor:** `main` @ local (see remote-divergence note below — NOT pushed)
