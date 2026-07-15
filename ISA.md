@@ -286,6 +286,33 @@ rendering leaving the app captioned "the Qur'an says" launders an *interpretatio
 The `literal_companion` invariant is enforced at build time inside the corpus; it must ALSO be enforced
 on egress. Share text carries both renderings and labels the primary as *terjemah makna*.
 
+**2026-07-15 — Content pillar structure added at `CONTENT.md`; orthogonal to Cycle 2, frontmatter untouched.**
+Standard/Extensive research (4 agents, cross-checked) mapped Gen Z struggles to Quranic themes for the
+"reach Gen Z" objective from PRODUCT.md. Produced `CONTENT.md`: 12 pillars in 3 evidence tiers, organized
+by *situation* (what happened) rather than *mood* (how they feel) — the one axis no competitor (Muslim
+Therapy, MuslimHira, Muraqaba, Afiah, Ruh) uses, and the one PRODUCT.md's own "arrival state" framing
+already implies. This is a content-strategy deliverable, not code — logged here as a Decision rather than
+advancing `phase`/`task` frontmatter, which stays owned by the in-flight Cycle 2 UI redesign (currently
+`phase: verify`). Delegation floor (E2, soft ≥1) relaxed: the full research corpus and PRODUCT.md were
+already in context: from the same conversation; an agent call would re-derive the same mapping with no
+new information, so show-your-math applies and delegation was skipped.
+
+**2026-07-15 — `CONTENT.md` design-tree resolved via grilling session; 13 decisions locked.**
+A structured interview (one branch at a time, dependencies resolved in order) settled: pillars are
+situation→verse/tafsir *data* feeding future AI retrieval, not standalone articles; the mapping lives as
+a thin new layer on the existing knowledge-graph pipeline (no parallel content system); Wave 1 ships
+browse-only, short-form-only, 1-2 anchors/pillar, to validate the draft→localize→review pipeline on
+lowest-stakes content first; free-text AI routing is a deliberate fast-follow needing its own eval, per
+"never fabricate; silence is honest." Scholar review gate is filled — **Ustadz Ahmad Isrofiel
+Mardlatillah, M.A.** (Lentera Jalan Pulang Foundation / Marwah Muslimah Center; 0882 9544 4025) signs off
+on every pillar's theological claim before ship. Copy is Indonesian-first (not translated post-hoc),
+polished via `IndonesianPolish`. Every pillar response leads with Tarjamah Tafsiriyah (`tafsiriyah-thalib`)
+per PRODUCT.md's existing reading model — no pillar-specific shortcut. Pillar 6's community-feature angle
+is explicitly out of scope for v2. Erik overrode the conservative default on one branch: Tier 3 research
+(Dating, Body Image, Addiction) is commissioned in parallel with Wave 1, not deferred until Waves 1-4 ship.
+Verified (not assumed): none of the 12 anchor verses collide with the existing divergence-review queue
+(`docs/review/divergence.json`) or Erik's 16 pending manual rulings.
+
 **2026-07-13 — The ISA is seeded, not authored from scratch.**
 Nur predates the ISA framework. Sources consulted: `PRODUCT.md`, `DESIGN.md`, `PROGRESS.md`,
 `package.json`, `src/ingest/*`, the critique report, and the last 8 commits. `Principles` and
