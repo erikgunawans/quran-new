@@ -4,6 +4,61 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 — Indeks Tematik extracted from quran.tarjamahtafsiriyah.com
+
+**Anchor:** `main` @ local (see remote-divergence note below — NOT pushed)
+
+### What happened
+
+Erik invoked `/printing-press <the-tarjamah-tafsiriyah-site>`, then redirected to the real ask:
+**get the Indeks Tematik (thematic index) content.** No CLI was generated — he needed the data.
+
+The site is a Vite SPA; the thematic index is **embedded client-side** (variable-referenced JS
+object literals, no data API). Pulled the bundle, built a symbol table, resolved the references,
+and validated against the live page (Ibadah › Shalat first entries match exactly).
+
+**Result: 13 categories · 2,451 verse-entries · 108 distinct surahs.** Three formats in
+`docs/reference/indeks-tematik/`:
+- `indeks-tematik.md` (184 KB) — readable category → subtopic → entries
+- `indeks-tematik.csv` (334 KB) — flat rows with parsed `surah_name, surah, ayah_start, ayah_end, multi, ref`
+- `indeks-tematik.json` (795 KB) — structured tree
+
+### Bonus finding — Nur's honesty oracle caught 4 broken source refs
+
+Cross-checked all 2,451 refs against Nur's inlined surah index. **Four point at ayahs that do not
+exist** (ayah number exceeds surah length) — typos in the source site's own thematic index:
+`Al-Anfal 8:96` (75 ayahs), `Al-Anfal 8:77`, `Al-Fath 48:59` (29 ayahs), `Hud 11:161` (123 ayahs).
+
+### Directly useful for Nur
+
+This index maps ~2,450 topics → verses in the exact Tafsiriyah edition Nur uses — a far richer
+seed source than the 55 `problem-verses`. E.g. a 280-verse "Rahasia Kejiwaan Manusia" (psychology)
+branch that maps onto Nur's grief/anxiety/debt themes. Candidate next step: wire the CSV into the
+retrieval lexicon as themed seed verses.
+
+### ⚠ Remote divergence — RESOLVED 2026-07-15 by rebase (see top-of-session checkpoint when added)
+
+At the time this commit was authored the divergence was still open. It was later resolved: Erik
+ruled **rebase**, and commit `7aa0a04` (this checkpoint) was replayed onto `origin/main`
+(`4852e97`, the `worktree-moonlit-strolling-panda` line — /ship, main merge, new remote). Original
+note preserved below for the record:
+- Local `main` (`4aaf3e6`) had **no upstream** and carried Path B2 / OpenRouter work from another
+  worktree that this session never saw.
+- `origin/main` = `4852e97`, the HEAD of parallel branch `worktree-moonlit-strolling-panda`.
+- The two had **diverged**. Documented multi-worktree pattern — checked both merge directions.
+- **Nothing was pushed** at authoring time. Reconciliation was Erik's call, made after.
+
+### Also this session
+
+- `/doctor` cleanup (global config, not this repo): disabled 210 unused skills (~16k tokens/session),
+  3 plugins, 2 MCP servers; removed a stale Homebrew claude-code (2.1.126); switched default
+  permission mode to auto; disabled the placeholder PRINCIPAL_TELOS import; resolved a browse-rule
+  contradiction. Backup at `~/.claude/doctor-backup-20260714-034352/`.
+- Earlier in session: crisis path, thread persistence, the terjemah-makna explainer, and the
+  14 adversarial-review fixes (all already checkpointed 2026-07-14).
+
+---
+
 ## Checkpoint 2026-07-15 (even latest) — `/ship`: a real remote, and a real merge
 
 - **Session:** Ran `/ship`. Its premise (push, open a PR) had no target — this repo never had a
@@ -364,6 +419,8 @@ call). Nothing `ready-for-agent` remains untouched in `.scratch/nur-phase2-trust
 - `literal_iff_canonical`, `primary_voice`, `literal_companion` — untouched; the image path
   inherits the egress contract from `share.ts` rather than re-deciding it, and enforces it more
   strictly (refuses to render at all without the companion) than the text path already did.
+
+---
 
 ## 2026-07-15 (session end) — Merged with main's independent adversarial-review pass
 
