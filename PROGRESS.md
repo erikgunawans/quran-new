@@ -4,6 +4,73 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — codebase knowledge graph, Indeks Tematik verified complete, 3D constellation of the content
+
+Continuation. After the critique fixes, Erik shifted from the app to the *knowledge*.
+
+**Codebase knowledge graph (understand-anything).** Ran `/understand` on `web/src` (28 files).
+Built the plugin core via `corepack pnpm` (pnpm wasn't installed; corepack is node-native — no npm).
+Dispatched the skill's own subagents (project-scanner → 4 file-analyzers → assemble-reviewer →
+architecture-analyzer → tour-builder). Result: **94 nodes · 193 edges · 6 layers · 12-step tour**,
+0 validation issues. Graph at `web/src/.ua/knowledge-graph.json` (gitignored, regenerable). The
+analysis surfaced on its own that `crisis.ts` runs before retrieval and crisis exchanges are
+**type-level** excluded from `thread.ts` persistence (the `Turn` union has no crisis variant).
+Dashboard served locally (`corepack pnpm exec vite`, not npx). NB: understand-anything's
+`.claude/worktrees/` self-populates — checked/consolidated worktrees this session (see nur-state).
+
+**Indeks Tematik — verified COMPLETE against the live source.** Erik asked if we captured all of
+the Tafsiriyah thematic index. Verified empirically against the current source SPA bundle
+(`quran.tarjamahtafsiriyah.com/assets/index-*.js`): **13 categories · 42 subtopics · 2,451 entries
+· 108 surahs · 2,538 verse citations** — the 2,538 matches the bundle's "QS." markers exactly.
+Found the one nuance: 75 entries cite multiple verses; the original `parsed{}` field only resolved
+the FIRST, leaving **87 secondary refs** in raw text unstructured. Now parsed for the graph.
+Nothing missing.
+
+**3D constellation of the content (NOT the codebase).** Erik wanted a visually-good knowledge
+graph of the *knowledge*. Built an interactive force-directed constellation: 13 category hubs on a
+Fibonacci sphere, 1,554 verse-stars, **494 cross-theme bridge verses** (4:29, 2:185, 33:33 each
+span 6 of 13 categories). Iterated across three asks: 2D → rotatable 3D (`d3-force-3d` + octree,
+canvas perspective projection, orbit/zoom/auto-spin) → **artistic "luminous cosmos"** (additive
+light bloom so dense clusters radiate, curved glowing filaments, a central *nūr* light-source,
+drifting starfield dust, depth-fog, vignette; committed fully to dark). Self-contained (inlines
+d3 + d3-binarytree + d3-octree + d3-force-3d, CSP-safe), pre-settles synchronously.
+- **File:** `docs/reference/indeks-tematik/peta-tematik.html` (605 KB).
+- **Shareable Artifact (same URL across all three iterations):**
+  `https://claude.ai/code/artifact/3cacadd5-45e9-4e2d-8866-5e066b595b29`
+- Two real bugs caught + fixed en route: a missing `</script>` (the wrapper's trailing tags leaked
+  into the script and killed it — found via tag-balance check) and rAF-suspended-while-minimized
+  (fixed by pre-settling the layout synchronously so it paints even in a background tab).
+
+### ⚠ Verification caveat that ran through all of it
+
+**Chrome window stayed minimized the entire session**, so `requestAnimationFrame` and screenshots
+were unavailable. Everything visual was verified via the DOM/canvas pixel layer (render present,
+z-spread real, rotation reprojects, brightness distribution) — NOT by eye. The live motion + the
+"is the glow too hazy or just right" judgment are **unconfirmed**; Erik needs to open it in a
+visible browser and rule on the aesthetic. This also produced two low satisfaction signals earlier
+(a dashboard-URL claim before verifying data was live; a codebase-vs-knowledge-graph mismatch) —
+both corrected same-session.
+
+### Next, in order
+
+1. **Erik to eyeball the constellation** in a visible browser and rule: more/less bloom, orbit
+   speed, palette, start angle. Machinery's in place; taste tweaks are quick.
+2. Wire `docs/reference/indeks-tematik/indeks-tematik.csv` (now fully parsed, incl. 87 secondary
+   refs) into the retrieval lexicon as themed seed verses — far richer than the 55 problem-verses.
+3. The still-open P2 from the critique: "last read" bookmark (the deep-link routing fix enables it).
+4. Verify SEJIWA crisis channels (119 ext 8 · WA 0811-3855-472 · healing119.id) before wider release.
+
+### Standing constraints
+
+- **Single branch `main`, single primary worktree**, synced with `origin/main`. `.claude/worktrees/`
+  self-repopulates (understand-anything, prior sessions) — check `git worktree list` at session start.
+- bun/bunx for the app; `corepack pnpm` only for third-party plugin builds (never npm/npx).
+- `literal_iff_canonical` / `primary_voice` / `literal_companion` — never weakened (the depth
+  disclosure kept `literal_companion` as a data/ship gate; only default UI visibility changed).
+- `data/` (~230 MB) + `web/src/.ua/` + browser artifacts are gitignored, regenerable.
+
+---
+
 ## 2026-07-15 (latest) — crisis chat door, Indonesian /tema labels, and a 2nd worktree consolidation
 
 Continuation of the critique-fix session below. Erik handed over the wheel ("do what you
