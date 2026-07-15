@@ -73,7 +73,8 @@ Erik's review of the 16 divergent verses.
 ## Constraints
 
 - **bun/bunx only.** Never npm/npx. TypeScript only, never Python.
-- **No git remote.** Commits are local; nothing is pushed.
+- **Remote: `github.com/erikgunawans/nur` (private).** Added 2026-07-15 for a shareable demo,
+  reversing the earlier no-remote constraint — see Decisions.
 - **`literal_iff_canonical`** — an interpretive translation is NEVER tagged canonical. Enforced
   in `src/ingest/validate-interpretive.ts`; the build hard-fails. **Do not weaken.**
 - **`primary_voice`** — exactly one primary voice (Tarjamah Tafsiriyah).
@@ -239,7 +240,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | ISC-36..38 | live | click copy, read clipboard | attributed | `Interceptor` |
 | ISC-39..41 | regression | full suite | 63+ pass, 0 fail | `bun test` |
 | ISC-42 | anti | corpus gates | 24/24 | `bun run verify` |
-| ISC-80..77 | proposal | Erik reads the written proposal and either approves it or rules on the generative-capability gate | explicit approval/ruling in this thread | inspection + `AskUserQuestion` |
+| ISC-80..97 | proposal | Erik reads the written proposal and either approves it or rules on the generative-capability gate | explicit approval/ruling in this thread | inspection + `AskUserQuestion` |
 | ISC-84 | static | measure current `.icon-btn`/`.size button`/`.seed` dimensions in `styles.css` | exact px | `Grep` + `Read` |
 
 ## Features
@@ -253,7 +254,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | indonesian-only | Translate `why` captions; demote/label English tafsir | ISC-32..35 | — | yes |
 | shareable | Per-verse copy + Web Share with clipboard fallback | ISC-36..38 | — | yes |
 | regression-guard | Keep tests, typecheck, contrast, and corpus gates green | ISC-39..42 | all | no (final) |
-| ui-redesign-proposal | Mobile ergonomics + chat-centerpiece design proposal, plus the generative-capability decision gate | ISC-80..77 | — | no |
+| ui-redesign-proposal | Mobile ergonomics + chat-centerpiece design proposal, plus the generative-capability decision gate | ISC-80..97 | — | no |
 
 ## Decisions
 
@@ -310,12 +311,12 @@ as evidence for the broader, output-scoped intent, not just the structural one �
 composition pending his structural-vs-output ruling; generative in the retrieval path requiring an explicit
 unlock). Per the advisor and per the graphrag precedent above, a locked constraint is not relaxed by a phrase
 in conversation — any relaxation gets written into this ISA by Erik, with rationale and a fail-closed boundary,
-not inferred. The mobile-ergonomics and chat-layout work (ISC-84..76) is engine-agnostic and proceeds regardless
+not inferred. The mobile-ergonomics and chat-layout work (ISC-84..96) is engine-agnostic and proceeds regardless
 of which option Erik picks, per the advisor's "don't gate the UI work on the answer" guidance.
 
 **2026-07-15 (Cycle 2, show-your-math) — ISC floor and delegation floor relaxed for a plan-stage cycle.**
 This cycle's deliverable this turn is a written proposal (Erik's explicit ask, plus the global "Plan means
-stop" rule and the brainstorming-before-creative-work rule), not shipped code. 18 ISCs (ISC-80..77) describe
+stop" rule and the brainstorming-before-creative-work rule), not shipped code. 18 ISCs (ISC-80..97) describe
 proposal completeness and the decision gate — well under E4's soft 128-ISC floor, and no coding-delegation
 (Forge/Anvil) fired, because no production code ships until Erik approves. Both are soft floors, relaxable
 with justification: a full implementation ISC set (touch-target fixes, breakpoint CSS, header restructure,
@@ -328,9 +329,20 @@ Via `AskUserQuestion`: (1) generative-capability gate resolved to option 1 — t
 retrieval engine stays untouched this cycle, no constraint interaction, no ISA Constraint edit
 needed; (2) confirmed "please provide a good wife" was dictation noise for "a good write-up" and
 that the proposal itself was the requested deliverable. Proceeded to implement the engine-agnostic
-mobile-ergonomics and chat-composing work (ISC-84..76) on the strength of this ruling, per the
+mobile-ergonomics and chat-composing work (ISC-84..96) on the strength of this ruling, per the
 Advisor's "don't gate the UI work on the answer" guidance recorded above — the UI-only reading was
 always going to ship regardless of which option Erik picked.
+
+**2026-07-15 (later) — Constraint reversed: a remote now exists.** Erik ran `/ship`; the
+workflow's premise (push, open a PR) had no target — this repo had no git remote, ever, by
+explicit constraint above. Asked rather than silently adding one. Erik chose: create a real
+GitHub repo now, private, under his personal account (not the axiara-ai org — this stays a
+personal project). `github.com/erikgunawans/nur`, private. This surfaced a second, larger issue
+first — `main` (checked out separately in the primary worktree) had diverged with its own
+adversarial-review line, 7 commits and 7 conflicting files never seen from this worktree. That
+merge is its own entry above ("Cycle 2, show-your-math" section context) and its own commit
+(`1e31b30`) — resolving it, including a real ISC-ID collision the line-based auto-merge didn't
+flag, came before any push.
 
 ## Changelog
 
