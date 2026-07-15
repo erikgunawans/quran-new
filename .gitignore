@@ -16,3 +16,7 @@ web/public/tafsir/
 
 # agent worktrees — not part of the project
 .claude/worktrees/
+
+# understand-anything analysis output (regenerable)
+.ua/
+web/src/.ua/
