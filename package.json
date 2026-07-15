@@ -17,7 +17,7 @@
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",
-    "dev": "vite web --port 5173",
+    "dev": "bun run app:corpus && vite web --port 5173",
     "build": "bun run app:corpus && bun run app:themes && vite build web"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { findSurah, parseRef, SURAH_INDEX, surahMeta } from "./quran.ts";
+import { displayName, findSurah, parseRef, SURAH_INDEX, surahMeta } from "./quran.ts";
 import { shareText } from "./share.ts";
 import { FLAGGED, type VerseCard } from "./verse.ts";
 
@@ -192,5 +192,53 @@ describe("the caution stays rare and human-ruled", () => {
 
   test("the flag list is human-curated and stays small", () => {
     expect(Object.keys(FLAGGED).length).toBeLessThan(10);
+  });
+});
+
+describe("a clock is not a verse", () => {
+  // "2:30" is Al-Baqarah 30. It is also half past two in the morning — which is exactly when this
+  // product expects to be used. The bare N:M pattern used to silently reinterpret a person's
+  // insomnia as a citation, and the ref path skips retrieval entirely, so nothing caught it.
+  test.each([
+    "aku bangun jam 2:30 pagi",
+    "udah jam 3:15 masih gabisa tidur",
+    "tiap malam kebangun pukul 2:30",
+    "besok meeting jam 9:30 pagi",
+    "sekarang 1:20 dini hari",
+  ])("%s → NOT a verse reference", (msg) => {
+    expect(parseRef(msg).kind).toBe("not-a-ref");
+  });
+
+  test("but an explicit reference still resolves, even near time words", () => {
+    // The marker IS the intent. "QS 2:30" is unambiguous no matter what else is in the sentence.
+    const r = parseRef("tiap malam aku baca QS 2:30");
+    expect(r.kind).toBe("ayah");
+    if (r.kind !== "ayah") throw new Error("unreachable");
+    expect(r.surah.n).toBe(2);
+    expect(r.ayah).toBe(30);
+  });
+
+  test("a bare ref with no time context still works", () => {
+    expect(parseRef("2:30").kind).toBe("ayah");
+    expect(parseRef("coba buka 18:10").kind).toBe("ayah");
+  });
+});
+
+describe("surah names are spelled the way Indonesians spell them", () => {
+  test.each([
+    [2, "Al-Baqarah"],
+    [9, "At-Taubah"],
+    [1, "Al-Fatihah"],
+    [18, "Al-Kahfi"],
+    [94, "Asy-Syarh"],
+    [112, "Al-Ikhlas"],
+  ])("surah %i displays as %s", (n, name) => {
+    expect(displayName(n)).toBe(name);
+  });
+
+  test("Anti: the academic transliteration never reaches a reader", () => {
+    for (const wrong of ["Al-Baqara", "At-Tawba", "Al-Faatiha"]) {
+      expect(SURAH_INDEX.map((s) => displayName(s.n))).not.toContain(wrong);
+    }
   });
 });

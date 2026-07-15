@@ -13,3 +13,6 @@ node_modules/
 web/dist/
 web/public/corpus.json
 web/public/tafsir/
+
+# agent worktrees — not part of the project
+.claude/worktrees/

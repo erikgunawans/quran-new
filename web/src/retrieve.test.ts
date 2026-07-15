@@ -1,64 +1,61 @@
 import { describe, expect, test } from "bun:test";
-import { retrieve, type Corpus, type Verse } from "./retrieve.ts";
+import { retrieve, type Corpus } from "./retrieve.ts";
 
 /**
- * Reproduces the P1 from PROGRESS.md: "gimana cara sholat tahajud" returned 2:152 (Gratitude),
- * matched on the single word "cara". `score > 0` shipped that as a confident answer instead of
- * routing it to the honest-silence copy that already exists for exactly this case.
+ * The honesty threshold.
+ *
+ * Asked "gimana cara sholat tahajud", Nur used to return 2:152 (Gratitude) — matched on the single
+ * word `cara` ("way") — and wrap it in the full "here is a verse for you" framing. A wrong answer
+ * arrived dressed exactly like a right one, which is worse than no answer: it spends the trust the
+ * whole no-generative-model design exists to earn.
  */
 
-function verse(overrides: Partial<Verse>): Verse {
-  return {
-    id: overrides.ref ?? "x",
-    ref: "1:1",
-    surah: 1,
-    ayah: 1,
-    surah_name: "Al-Faatiha",
-    surah_ar: "الفاتحة",
-    arabic: "",
-    theme: "Hardship & ease",
-    why: "",
-    primary: { text: "", translator: "Tafsiriyah", translation_type: "interpretive" },
-    companion: { text: "", translator: "Kemenag", translation_type: "literal" },
-    tafsir: [],
-    ...overrides,
-  };
-}
+const corpus: Corpus = (await Bun.file("web/public/corpus.json").json()) as Corpus;
 
-const corpus: Corpus = {
-  corpus_version: "test",
-  sources: [],
-  themes: [],
-  verses: [
-    verse({ id: "a", ref: "94:5", surah: 94, ayah: 5, theme: "Hardship & ease" }),
-    verse({
-      id: "b",
-      ref: "2:152",
-      surah: 2,
-      ayah: 152,
-      theme: "Gratitude",
-      why: "Ada kata cara yang kebetulan cocok di sini.",
-    }),
-  ],
-};
+const refs = (q: string) => retrieve(corpus, q).map((h) => h.verse.ref);
 
-describe("retrieve — minimum-score threshold", () => {
-  test("a single incidental keyword hit does not ship as a confident answer", () => {
-    const hits = retrieve(corpus, "gimana cara sholat tahajud");
-    expect(hits.find((h) => h.verse.ref === "2:152")).toBeUndefined();
+describe("Nur answers a FEELING, not a coincidental word", () => {
+  test("'gimana cara sholat tahajud' returns nothing — `cara` is not a feeling", () => {
+    // The exact junk match that shipped. It must now reach honest silence instead.
+    expect(refs("gimana cara sholat tahajud")).toEqual([]);
   });
 
-  test("a real theme match still ships", () => {
-    const hits = retrieve(corpus, "aku lagi capek banget");
-    expect(hits.some((h) => h.verse.ref === "94:5")).toBe(true);
+  test.each([
+    "gimana cara wudhu yang benar",
+    "berapa rakaat sholat dhuha",
+    "kapan waktu sholat ashar",
+  ])("%s → honest silence, not a confident guess", (q) => {
+    expect(refs(q)).toEqual([]);
+  });
+});
+
+describe("but real feelings still land", () => {
+  test.each([
+    "aku lagi capek banget",
+    "lagi banyak utang, stress",
+    "baru kehilangan orang tua",
+    "ngerasa dosaku kebanyakan",
+    "cemas terus tiap malam",
+  ])("%s → returns at least one verse", (q) => {
+    expect(refs(q).length).toBeGreaterThan(0);
   });
 
-  test("a direct verse reference always ships regardless of keyword noise", () => {
-    const hits = retrieve(corpus, "94:5");
-    expect(hits[0]?.verse.ref).toBe("94:5");
+  test("'gimana caranya biar aku tenang' now lands on a THEME, not on luck", () => {
+    // The old critique noted this worked "only by lucky word overlap — the lexicon has no entry
+    // for tenang". It now matches the Anxiety theme properly, which is why raising the floor did
+    // not cost us the case.
+    expect(refs("gimana caranya biar aku tenang").length).toBeGreaterThan(0);
+  });
+});
+
+describe("the diversity rule still holds", () => {
+  test("someone carrying two things hears both", () => {
+    const hits = retrieve(corpus, "lagi banyak utang, stress banget");
+    const themes = new Set(hits.map((h) => h.verse.theme));
+    expect(themes.size).toBe(hits.length); // one verse per theme, never two of the same
   });
 
-  test("no match at all still returns empty, not a weak guess", () => {
-    expect(retrieve(corpus, "zzz qqq")).toEqual([]);
+  test("never returns more than 2 verses unasked", () => {
+    expect(retrieve(corpus, "sedih, cemas, utang, dosa, capek").length).toBeLessThanOrEqual(2);
   });
 });

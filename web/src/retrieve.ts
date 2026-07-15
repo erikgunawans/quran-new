@@ -63,8 +63,12 @@ const LEXICON: Record<string, string[]> = {
     "susah","sulit","berat","capek","cape","lelah","kesulitan","masalah","ujian","cobaan",
     "gak kuat","ga kuat","nggak kuat","menyerah","putus asa","hancur","terpuruk","stress","stres",
   ],
+  // The lexicon now carries the floor (MIN_SCORE = a theme hit), so a feeling that is missing here
+  // is a feeling Nur goes silent on. That is the honest failure — but it means gaps are expensive,
+  // and words people actually type must be in here, not the words a dictionary would choose.
   "Anxiety & fear": [
     "cemas","takut","khawatir","gelisah","panik","overthinking","anxiety","was-was","resah","galau","insecure",
+    "tenang","ketenangan","damai","gak tenang","ga tenang","pikiran kacau","kepikiran terus","susah tidur","insomnia",
   ],
   "Grief & loss": [
     "sedih","kehilangan","meninggal","wafat","duka","menangis","nangis","ditinggal","kematian","almarhum","rindu",
@@ -80,11 +84,34 @@ const LEXICON: Record<string, string[]> = {
   Gratitude: ["syukur","bersyukur","terima kasih","nikmat","alhamdulillah","senang"],
   "Prayer answered": ["doa","berdoa","minta","memohon","dikabulkan","munajat","dengar"],
   Mercy: ["rahmat","kasih","sayang","cinta allah","pengampun","penyayang"],
-  "Self-worth & purpose": ["tujuan","hidup","gunanya","berharga","sia-sia","hampa","kosong","buat apa","gaada arti"],
+  "Self-worth & purpose": [
+    "tujuan","hidup","gunanya","berharga","sia-sia","hampa","kosong","buat apa","gaada arti",
+    "sendirian","kesepian","sepi","gaada yang peduli","gak dianggap","gagal","gagal terus","minder",
+  ],
   Family: ["orang tua","ibu","ayah","bapak","anak","keluarga","suami","istri","nikah","cerai","pasangan"],
 };
 
-export const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+
+/**
+ * The honesty threshold.
+ *
+ * Scoring is: an explicit verse reference = 100, a theme term = 10 each, an incidental word that
+ * happens to appear somewhere in a translation = 2 each.
+ *
+ * The old floor was `score > 0`, which meant ONE incidental word was enough to answer. Asked
+ * "gimana cara sholat tahajud", Nur returned 2:152 (Gratitude) — matched on the word `cara`
+ * ("way") — and wrapped it in the full "here is a verse for you" framing. A wrong answer arrived
+ * dressed exactly like a right one, which is worse than no answer at all: it spends the trust that
+ * the whole no-generative-model design was built to earn.
+ *
+ * The floor is now a THEME hit. Nur answers when it recognises what the person is FEELING, not
+ * when a word coincidentally appears in a rendering. Word overlap still ranks — it just can no
+ * longer speak on its own.
+ *
+ * Below this line Nur says it does not know. That copy already existed and was simply unreachable.
+ */
+const MIN_SCORE = 10;
 
 export interface Hit {
   verse: Verse;
@@ -100,17 +127,6 @@ export interface Hit {
  * embedding black box, no confidence theatre. If the score is low we say we're unsure —
  * we do not dress up a weak match as an answer.
  */
-/**
- * A verse needs more than one weak, incidental word hit to ship as a confident answer.
- *
- * "gimana cara sholat tahajud" used to return a Gratitude verse on the strength of the single
- * word "cara" (score 2) — the honest-silence copy exists precisely for this case and was never
- * reached because the old bar was `score > 0`. A direct ref (100) or any theme hit (10+) clears
- * this easily; a lone incidental keyword (2) does not. Two independent keyword hits (4) still
- * clears it — the bar is "more than one weak signal," not "no keyword matches allowed."
- */
-const MIN_SCORE = 4;
-
 export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
   const q = norm(question);
   if (!q) return [];

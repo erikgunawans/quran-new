@@ -1051,3 +1051,11 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
 export const BASMALAH = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
 
 export const TOTAL_AYAHS = 6236;
+
+/**
+ * Derived from the hashes of the canonical artifacts, so it changes if and only if the scripture
+ * changes. Shard URLs carry it, and the persistent cache is keyed on it — which is what makes
+ * "cache a shard forever" safe to actually mean. Without it, a corpus rebuild would leave phones
+ * and CDNs serving the previous text indefinitely.
+ */
+export const CORPUS_VERSION = "canonical-1e2a66426f1d";

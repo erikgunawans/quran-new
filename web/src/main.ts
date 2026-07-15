@@ -1,13 +1,16 @@
 import "./styles.css";
 import "./read.css";
-import { compose, retrieve, type Corpus, type Hit, type Voice } from "./retrieve.ts";
-import { CRISIS_RESOURCE, detectCrisis } from "./crisis.ts";
+import { announce } from "./announce.ts";
 import { toggleAudio } from "./audio.ts";
-import { loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
+import { crisisReply, detectCrisis } from "./crisis.ts";
+import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
+import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
+import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
-import { applyLens, bindLazyTafsir, getLens, sortStacks, tafsirEl, type TafsirLens } from "./tafsir.ts";
+import { applyLens, bindLazyTafsir, tafsirEl, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
+import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -17,93 +20,41 @@ const form = $<HTMLFormElement>("#composer");
 const input = $<HTMLTextAreaElement>("#q");
 const send = $<HTMLButtonElement>("#send");
 const app = $<HTMLElement>("#app");
-const live = $<HTMLElement>("#live");
 
 let corpus: Corpus | null = null;
 let voices = new Map<string, Voice>();
-/** Every verse currently on screen, so copy/share can find it by ref. */
+
+/**
+ * Verses currently in the chat thread, so copy/share can find one by ref.
+ *
+ * Bounded. This used to grow forever — one entry per verse ever rendered, never cleared, in a
+ * thread that also grows forever, on the mid-range Android in the brief. Only the most recent
+ * exchanges are reachable by tapping anyway, so holding the rest was pure leak.
+ */
+const MAX_CARDS = 60;
 const onScreen = new Map<string, VerseCard>();
 
-const say = (msg: string) => {
-  live.textContent = msg;
+const remember = (card: VerseCard) => {
+  onScreen.delete(card.ref); // re-inserting moves it to the end — Map preserves insertion order
+  onScreen.set(card.ref, card);
+  while (onScreen.size > MAX_CARDS) {
+    const oldest = onScreen.keys().next().value;
+    if (oldest === undefined) break;
+    onScreen.delete(oldest);
+  }
 };
 
-// ── the crisis path ──────────────────────────────────────────────────────────
-//
-// Shown ALONGSIDE whatever Nur would otherwise say (Erik's ruling, 2026-07-14), never in place
-// of it — so this is prepended to the answer, not a replacement branch. role="alert" is
-// deliberate: this must reach a screen-reader user immediately, not wait on the polite #live
-// region the rest of `say()` uses.
-function crisisEl(): string {
-  return `<div class="crisis" role="alert">
-    <p class="crisis-title">${esc(CRISIS_RESOURCE.title)}</p>
-    <p>${esc(CRISIS_RESOURCE.body)}</p>
-    <p class="crisis-hotline"><b>${esc(CRISIS_RESOURCE.hotline)}</b> — <b>${esc(CRISIS_RESOURCE.phone)}</b></p>
-    <p class="crisis-note">${esc(CRISIS_RESOURCE.note)}</p>
-  </div>`;
-}
+/** One owner for the live region — see announce.ts. */
+const say = announce;
 
-function mount(card: VerseCard, turnCards?: VerseCard[]): string {
-  onScreen.set(card.ref, card);
-  turnCards?.push(card);
+// ── rendering ────────────────────────────────────────────────────────────────
+// tafsirEl() lives in tafsir.ts now — it needs to be shared with the reading surface and theme
+// browser too, and it carries the lens (issue 06) and lazy-loading (Path B1) this inline version
+// never had.
+
+function mount(card: VerseCard): string {
+  remember(card);
   return verseEl(card);
-}
-
-// ── thread persistence ──────────────────────────────────────────────────────
-//
-// Verified live: 2 messages in the thread → reload → 0. Every exchange is stored as its own
-// turn — the question plus the ALREADY-RENDERED answer HTML and the verse cards it mounted — so
-// restoring on load replays exactly what happened without refetching anything or depending on
-// the corpus (or the network) being available again.
-interface ThreadTurn {
-  q: string;
-  html: string;
-  cards: VerseCard[];
-}
-const THREAD_KEY = "nur:thread";
-/** A session that never ends would grow localStorage without bound. 40 exchanges is plenty of
- * scrollback and stays well under any realistic storage quota. */
-const MAX_THREAD_TURNS = 40;
-let threadHistory: ThreadTurn[] = [];
-
-function saveThread() {
-  try {
-    localStorage.setItem(THREAD_KEY, JSON.stringify(threadHistory.slice(-MAX_THREAD_TURNS)));
-  } catch {
-    // Quota exceeded or storage disabled (private browsing). Persistence is a nicety here —
-    // the thread still works for the rest of this session, it just won't survive a reload.
-  }
-}
-
-/** Returns true if a saved thread was found and restored. */
-function restoreThread(): boolean {
-  let saved: ThreadTurn[];
-  try {
-    const raw = localStorage.getItem(THREAD_KEY);
-    if (!raw) return false;
-    saved = JSON.parse(raw) as ThreadTurn[];
-  } catch {
-    return false;
-  }
-  if (!Array.isArray(saved) || !saved.length) return false;
-
-  $("#hello")?.remove();
-  for (const turn of saved) {
-    const me = document.createElement("div");
-    me.className = "msg me";
-    me.textContent = turn.q;
-    thread.append(me);
-
-    const answer = document.createElement("div");
-    answer.className = "msg nur";
-    answer.innerHTML = turn.html;
-    thread.append(answer);
-
-    for (const card of turn.cards) onScreen.set(card.ref, card);
-  }
-  threadHistory = saved;
-  showChat();
-  return true;
 }
 
 // The composing label is real content (announced to screen readers via #live in ask()), not
@@ -120,6 +71,100 @@ function skeleton(): HTMLElement {
 
 const scrollDown = () =>
   requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }));
+
+// ── the one renderer ─────────────────────────────────────────────────────────
+//
+// Live answers and restored answers are drawn by THIS function and nothing else. That is what makes
+// persistence safe: we store what Nur *decided* (a ref, a set of hits, a bounds error) and rebuild
+// the markup from today's code. Stash the rendered HTML instead and a previous build's mistakes —
+// the English captions, the old chip markup — would resurrect from disk months later.
+//
+// `animate` is off on replay: a restored thread should be *there*, already, the way you left it.
+// Nineteen verses fading in one after another on a cold open is theatre, and it is not the truth.
+async function renderTurn(t: Turn, animate = true): Promise<string> {
+  switch (t.kind) {
+    case "no-such-surah":
+      return `<p class="said">Surah ${t.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
+
+    case "no-such-ayah": {
+      const m = surahMeta(t.surah);
+      return `<p class="said">Surah ${esc(displayName(t.surah))} cuma punya <b>${m?.ayahs ?? "?"} ayat</b>, jadi ayat ${t.ayah} tidak ada. Mau buka surahnya?</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+
+    case "surah": {
+      const m = surahMeta(t.surah);
+      return `<p class="said">Ini surah ${esc(displayName(t.surah))} — ${m?.ayahs ?? "?"} ayat.</p>
+        <div class="verse-acts"><a class="act go" href="#/surah/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+
+    case "ayah": {
+      // The verse is real. We have it. There is no world in which we deny it.
+      const v = await loadAyah(t.surah, t.ayah);
+      const card = fromShard(v, t.surah, displayName(t.surah));
+      card.continueTo = true; // the peak gets a landing
+      card.animate = animate;
+      card.lazyTafsir = true; // Path B1 — a direct ref lookup gets the same tafsir access reading/themes do
+      return `<p class="said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` + mount(card);
+    }
+
+    case "silence":
+      return `
+        <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
+        <div class="silence">
+          Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.
+          Coba ceritakan dengan kata lain — atau sebutkan surah dan ayatnya langsung, misalnya <b>18:10</b>.
+        </div>`;
+
+    case "hits": {
+      if (!corpus) throw new Error("corpus");
+      const verses = t.refs.map((r) => corpus!.verses.find((v) => v.ref === r)).filter((v) => v !== undefined);
+      if (!verses.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
+
+      const lead = compose(
+        verses.map((v) => ({ verse: v, score: 1, matched: [] })),
+        t.q,
+      );
+
+      return (
+        `<p class="said">${lead}</p>` +
+        verses
+          .map((v) =>
+            mount({
+              ref: v.ref,
+              surah: v.surah,
+              ayah: v.ayah,
+              surah_name: v.surah_name,
+              arabic: v.arabic,
+              primary: v.primary,
+              companion: v.companion,
+              why: v.why,
+              extra: tafsirEl(v.tafsir, voices),
+              continueTo: true,
+              animate,
+            }),
+          )
+          .join("")
+      );
+    }
+  }
+}
+
+function announceTurn(t: Turn): void {
+  switch (t.kind) {
+    case "ayah":
+      say(`${displayName(t.surah)} ${t.surah}:${t.ayah} ditampilkan.`);
+      break;
+    case "silence":
+      say("Belum ada ayat yang cocok. Nur tidak mengarang jawaban.");
+      break;
+    case "hits":
+      say(`${t.refs.length} ayat ditemukan: ${t.refs.join(", ")}.`);
+      break;
+    default:
+      break;
+  }
+}
 
 // ── ask ──────────────────────────────────────────────────────────────────────
 //
@@ -151,81 +196,52 @@ async function ask(question: string) {
   say("Nur sedang menyusun jawaban.");
   // Retrieval here is a local, synchronous corpus lookup — no network round-trip. Without a
   // floor, the composing state mounts and gets swapped for the answer in the same tick, before
-  // the browser ever paints it: a "distinguishable composing state" that nobody actually sees.
-  // MIN_COMPOSING_MS holds the state on screen for one real beat (within DESIGN.md's 150-250ms
-  // motion band) — never added to genuinely slow paths (a shard fetch), only floors the instant
-  // ones, so the state reads as intentional rhythm rather than an artificial delay tax.
+  // the browser ever paints it. MIN_COMPOSING_MS holds it on screen for one real beat (within
+  // DESIGN.md's 150-250ms motion band) — never added to genuinely slow paths (a shard fetch),
+  // only floors the instant ones, so it reads as intentional rhythm, not an artificial delay.
   const composingStarted = Date.now();
 
   const answer = document.createElement("div");
   answer.className = "msg nur";
-  /** Cards mounted THIS turn, so the persisted history can repopulate `onScreen` on restore. */
-  const turnCards: VerseCard[] = [];
-  // Checked on the RAW question, before any ref/retrieval branching below — a crisis phrase
-  // matters regardless of whether the rest of the message also happens to look like a verse ref.
+
+  // ── before anything else ──────────────────────────────────────────────────
+  //
+  // Crisis check runs FIRST — before reference parsing, before retrieval, before Nur gets to be
+  // clever. "aku gak sanggup bayar utang, pengen mati aja" used to match on `utang` and come back
+  // with a verse about loan terms. The app answered the topic and missed the person.
+  //
+  // Nothing gets to answer ahead of this. And nothing about it is written to disk — see thread.ts.
   const crisis = detectCrisis(q);
+  if (crisis) {
+    loading.remove();
+    answer.innerHTML = crisisReply();
+    thread.append(answer);
+    scrollDown();
+    say("Nur menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
+    return; // NOT remembered. Deliberately. A shared phone must not out him in the morning.
+  }
 
   // Reference resolution is LOCAL — the surah index is inlined, not fetched. Nur can tell the
   // truth about what the Qur'an contains even with no network at all.
   const ref = parseRef(q);
 
   try {
-    if (ref.kind === "no-such-surah") {
-      answer.innerHTML = `<p class="said">Surah ${ref.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
-    } else if (ref.kind === "no-such-ayah") {
-      answer.innerHTML = `<p class="said">Surah ${esc(ref.surah.tl)} cuma punya <b>${ref.surah.ayahs} ayat</b>, jadi ayat ${ref.ayah} tidak ada. Mau buka surahnya?</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(ref.surah.tl)} →</a></div>`;
-    } else if (ref.kind === "surah") {
-      answer.innerHTML = `<p class="said">Ini surah ${esc(ref.surah.tl)} — ${ref.surah.ayahs} ayat.</p>
-        <div class="verse-acts"><a class="act go" href="#/surah/${ref.surah.n}">Baca ${esc(ref.surah.tl)} →</a></div>`;
-    } else if (ref.kind === "ayah") {
-      // The verse is real. We have it. There is no world in which we deny it.
-      const v = await loadAyah(ref.surah.n, ref.ayah);
-      const card = fromShard(v, ref.surah.n, ref.surah.tl);
-      card.continueTo = true; // the peak gets a landing
-      answer.innerHTML =
-        `<p class="said">Ini ${esc(ref.surah.tl)} ${ref.surah.n}:${ref.ayah}.</p>` + mount(card, turnCards);
-      say(`${ref.surah.tl} ${ref.surah.n}:${ref.ayah} ditampilkan.`);
-    } else {
-      // Not a reference — a question. Now, and only now, retrieval may come up empty.
-      if (!corpus) throw new Error("corpus");
-      const hits: Hit[] = retrieve(corpus, q);
+    const turn: Turn =
+      ref.kind === "no-such-surah"
+        ? { q, kind: "no-such-surah", surah: ref.surah }
+        : ref.kind === "no-such-ayah"
+          ? { q, kind: "no-such-ayah", surah: ref.surah.n, ayah: ref.ayah }
+          : ref.kind === "surah"
+            ? { q, kind: "surah", surah: ref.surah.n }
+            : ref.kind === "ayah"
+              ? { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah }
+              : turnFromHits(q, corpus ? retrieve(corpus, q) : []);
 
-      if (!hits.length) {
-        answer.innerHTML = `
-          <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
-          <div class="silence">
-            Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.
-            Coba ceritakan dengan kata lain — atau sebutkan surah dan ayatnya langsung, misalnya <b>18:10</b>.
-          </div>`;
-        say("Belum ada ayat yang cocok. Nur tidak mengarang jawaban.");
-      } else {
-        answer.innerHTML =
-          `<p class="said">${compose(hits, q)}</p>` +
-          hits
-            .map((h) => {
-              const card: VerseCard = {
-                ref: h.verse.ref,
-                surah: h.verse.surah,
-                ayah: h.verse.ayah,
-                surah_name: h.verse.surah_name,
-                arabic: h.verse.arabic,
-                primary: h.verse.primary,
-                companion: h.verse.companion,
-                why: h.verse.why,
-                extra: tafsirEl(h.verse.tafsir, voices),
-                continueTo: true,
-              };
-              return mount(card, turnCards);
-            })
-            .join("");
-        say(
-          `${hits.length} ayat ditemukan. ${hits
-            .map((h) => `${h.verse.ref}, terjemah makna oleh ${h.verse.primary?.translator ?? "?"}`)
-            .join(". ")}`,
-        );
-      }
-    }
+    if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
+
+    answer.innerHTML = await renderTurn(turn);
+    announceTurn(turn);
+    rememberTurn(turn);
   } catch (err) {
     const msg =
       err instanceof ShardError
@@ -236,17 +252,6 @@ async function ask(question: string) {
     say(msg);
   }
 
-  // Prepended here, after the try/catch, so it applies uniformly to every branch above (a real
-  // ayah, a bad ref, a retrieval hit, honest silence, even a fetch error) without duplicating
-  // the check into each one. Whatever Nur would otherwise say still follows — it is never
-  // replaced.
-  if (crisis) {
-    answer.innerHTML = crisisEl() + answer.innerHTML;
-  }
-
-  threadHistory.push({ q, html: answer.innerHTML, cards: turnCards });
-  saveThread();
-
   const MIN_COMPOSING_MS = 260;
   const elapsed = Date.now() - composingStarted;
   if (elapsed < MIN_COMPOSING_MS) {
@@ -255,6 +260,7 @@ async function ask(question: string) {
 
   loading.remove();
   thread.append(answer);
+  showClearControl();
   scrollDown();
 }
 
@@ -371,6 +377,22 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  if (el.closest("#nur-clear")) {
+    clearThread();
+    thread.querySelectorAll(".msg, .thread-tools").forEach((n) => n.remove());
+    onScreen.clear();
+    say("Percakapan dihapus.");
+    location.reload(); // back to the empty state, cleanly
+    return;
+  }
+
+  const ex = el.closest<HTMLElement>("[data-explain]");
+  if (ex) {
+    if (ex.dataset["explain"] === "open") openExplainer();
+    else closeExplainer();
+    return;
+  }
+
   const lensBtn = el.closest<HTMLButtonElement>("[data-lens]");
   if (lensBtn) {
     applyLens(lensBtn.dataset["lens"] as TafsirLens);
@@ -449,41 +471,24 @@ $("#size").addEventListener("click", (e) => {
   }
 });
 
-// ── the "why two translations" popover ───────────────────────────────────────
-//
-// The two-translation concept is the entire reason Nur exists, but nothing in the UI ever
-// explained it — the labels ("Terjemah makna" / "Terjemah harfiah") assumed the reader already
-// knew why there were two. The #hello explainer covers the first visit; this covers every visit
-// after the greeting is gone.
-const infoBtn = $<HTMLButtonElement>("#info");
-const infoPanel = $<HTMLElement>("#info-panel");
-infoBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const open = infoPanel.hidden;
-  infoPanel.hidden = !open;
-  infoBtn.setAttribute("aria-expanded", String(open));
-});
-document.addEventListener("click", (e) => {
-  if (infoPanel.hidden) return;
-  if (e.target === infoBtn || infoBtn.contains(e.target as Node)) return;
-  if (infoPanel.contains(e.target as Node)) return;
-  infoPanel.hidden = true;
-  infoBtn.setAttribute("aria-expanded", "false");
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !infoPanel.hidden) {
-    infoPanel.hidden = true;
-    infoBtn.setAttribute("aria-expanded", "false");
-    infoBtn.focus();
-  }
+// The "why two translations" affordance now opens explain.ts's dialog (data-explain="open" on
+// #info, wired into the [data-explain] handler above) — one explainer, not a second popover.
+
+// ── theme — both modes are first-class ───────────────────────────────────────
+$("#theme").addEventListener("click", () => {
+  const cur =
+    document.documentElement.dataset["theme"] ??
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset["theme"] = next;
+  localStorage.setItem("nur:theme", next);
 });
 
 // ── the "tampilan" (display) sheet — theme + Arabic size, collapsed on phones ────────────────
 //
 // Below the tablet breakpoint (styles.css) the panel becomes a real dropdown/sheet; at tablet+
 // CSS keeps it always visible inline, so this toggle only matters on the widths where the
-// trigger itself is shown. Same open/close pattern as the info popover above, deliberately —
-// one interaction model for every header disclosure, not two.
+// trigger itself is shown.
 const displayBtn = $<HTMLButtonElement>("#display-trigger");
 const displayPanel = $<HTMLElement>("#display-panel");
 displayBtn.addEventListener("click", (e) => {
@@ -507,15 +512,25 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// ── theme — both modes are first-class ───────────────────────────────────────
-$("#theme").addEventListener("click", () => {
-  const cur =
-    document.documentElement.dataset["theme"] ??
-    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset["theme"] = next;
-  localStorage.setItem("nur:theme", next);
-});
+// ── keyboard-aware composer ──────────────────────────────────────────────────
+//
+// `.composer` is `position: fixed; bottom: 0`. iOS Safari resizes the *visual* viewport when
+// the on-screen keyboard opens but leaves the *layout* viewport (what `fixed` anchors to)
+// alone — a documented WebKit quirk. `visualViewport` is the standards-track fix: when it
+// resizes, pin the composer to its actual bottom edge instead of trusting `position: fixed` to
+// react on its own. No-ops everywhere the API is unsupported or the offset is zero (desktop, no
+// keyboard open). DEFERRED-VERIFY (ISC-98 in ISA.md): needs a real-device spot-check.
+function bindKeyboardAwareComposer() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const bar = $<HTMLElement>("#composer-bar");
+  const reposition = () => {
+    const offset = window.innerHeight - vv.height - vv.offsetTop;
+    bar.style.transform = offset > 0 ? `translateY(-${offset}px)` : "";
+  };
+  vv.addEventListener("resize", reposition);
+  vv.addEventListener("scroll", reposition);
+}
 
 // ── boot ─────────────────────────────────────────────────────────────────────
 //
@@ -533,7 +548,9 @@ async function bootCorpus(): Promise<void> {
   send.disabled = true;
 
   try {
-    const res = await fetch("/corpus.json");
+    // Versioned, for the same reason the shards are: without it, a corpus rebuild leaves every
+    // CDN and every phone serving the previous scripture until some cache decides to expire.
+    const res = await fetch(`/corpus.json?v=${CORPUS_VERSION}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     corpus = (await res.json()) as Corpus;
     voices = new Map(corpus.sources.map((s) => [s.id, s]));
@@ -552,29 +569,6 @@ async function bootCorpus(): Promise<void> {
   }
 }
 
-// ── keyboard-aware composer ──────────────────────────────────────────────────
-//
-// `.composer` is `position: fixed; bottom: 0`. iOS Safari resizes the *visual* viewport when
-// the on-screen keyboard opens but leaves the *layout* viewport (what `fixed` anchors to)
-// alone — a documented WebKit quirk, not a bug in this code — so a naively-fixed bar can end up
-// floating above the keyboard with a gap, or hidden beneath it. `visualViewport` is the
-// standards-track fix: when it resizes, pin the composer to its actual bottom edge instead of
-// trusting `position: fixed` to react on its own. No-ops everywhere the API is unsupported or
-// the offset is zero (desktop, no keyboard open) — DEFERRED-VERIFY: Interceptor cannot open a
-// real iOS on-screen keyboard, so this needs a spot-check on a physical device (same disclosed
-// gap as the audio-playback verification in Phase 2 issue 05).
-function bindKeyboardAwareComposer() {
-  const vv = window.visualViewport;
-  if (!vv) return;
-  const bar = $<HTMLElement>("#composer-bar");
-  const reposition = () => {
-    const offset = window.innerHeight - vv.height - vv.offsetTop;
-    bar.style.transform = offset > 0 ? `translateY(-${offset}px)` : "";
-  };
-  vv.addEventListener("resize", reposition);
-  vv.addEventListener("scroll", reposition);
-}
-
 (() => {
   bindLazyTafsir();
   bindKeyboardAwareComposer();
@@ -590,15 +584,65 @@ function bindKeyboardAwareComposer() {
     }
   }
 
-  restoreThread();
-  // A restored card's tafsir stack was baked with whatever lens was active when it was FIRST
-  // saved. If the reader's saved lens preference has since changed, re-sort on load so every
-  // stack on screen (restored or not) reflects the reader's current choice — WITHOUT writing to
-  // storage ourselves; boot only ever reads a preference, same as the theme/size restore above.
-  sortStacks(getLens());
+  // A reader who has already had the concept explained does not need the nudge again.
+  if (hasExplained()) document.getElementById("nur-explain-hint")?.classList.add("seen");
+
+  // Shards from a previous corpus version are no longer this scripture. Drop them.
+  void evictStaleCaches();
+
   void route();
-  void bootCorpus();
+  void bootCorpus().then(restoreThread);
 })();
+
+/**
+ * Put the conversation back.
+ *
+ * Runs after the corpus lands, because `hits` turns need it to re-render. Ref turns would work
+ * without it — the surah index is inlined — but restoring half a conversation is worse than
+ * restoring it a beat later.
+ *
+ * Rendered through the same `renderTurn()` the live path uses, with `animate` off: a restored
+ * thread should simply BE there, the way you left it. Nineteen verses fading in on a cold open is
+ * theatre, not memory.
+ */
+async function restoreThread(): Promise<void> {
+  const turns = loadThread();
+  if (!turns.length) return;
+
+  $("#hello")?.remove();
+  showChat();
+
+  for (const t of turns) {
+    const me = document.createElement("div");
+    me.className = "msg me";
+    me.textContent = t.q;
+    thread.append(me);
+
+    const answer = document.createElement("div");
+    answer.className = "msg nur";
+    try {
+      answer.innerHTML = await renderTurn(t, false);
+    } catch {
+      // A shard we cannot reach (offline, never cached). Say so; do not resurrect a blank bubble.
+      answer.innerHTML = `<div class="oops"><p>Ayat ini tidak bisa dimuat sekarang — koneksimu sedang tidak stabil.</p>
+        <button class="act retry" data-retry="${esc(t.q)}">Coba lagi</button></div>`;
+    }
+    thread.append(answer);
+  }
+
+  showClearControl();
+  say(`Percakapan sebelumnya dipulihkan — ${turns.length} pertanyaan.`);
+  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight }));
+}
+
+/** The user can always burn it. Shown only when there is something to burn. */
+function showClearControl(): void {
+  if (!hasThread() || document.getElementById("nur-clear")) return;
+  const bar = document.createElement("div");
+  bar.className = "thread-tools";
+  bar.innerHTML = `<button class="linkish" id="nur-clear">Hapus percakapan</button>`;
+  thread.prepend(bar);
+}
 
 // Keep the reading surface reachable even before the corpus lands.
 export { surahMeta, app };

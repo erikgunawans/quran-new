@@ -29,17 +29,13 @@
       <a class="nav-link" href="#/tema" id="nav-tema">Tema</a>
     </nav>
 
-    <div class="info-pop">
-      <button class="icon-btn" id="info" aria-haspopup="true" aria-expanded="false" aria-controls="info-panel" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/>
-        </svg>
-      </button>
-      <div class="pop" id="info-panel" role="dialog" aria-label="Kenapa ada dua terjemahan?" hidden>
-        <p><b>Terjemah harfiah</b> menerjemahkan Al-Qur'an apa adanya, kata per kata. <b>Terjemah makna</b> menerjemahkan maksudnya, supaya lebih mudah dipahami.</p>
-        <p>Keduanya bisa terdengar berbeda — makanya Nur selalu menampilkan berdua, lengkap dengan nama penerjemahnya, biar kamu yang menilai sendiri.</p>
-      </div>
-    </div>
+    <!-- Persistent access to the SAME explainer #hello nudges toward once — explain.ts's
+         openExplainer() dialog, not a separate popover, so there's one explainer, not two. -->
+    <button class="icon-btn" id="info" data-explain="open" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
 
     <!-- theme + Arabic size: inline controls on tablet/desktop; on phones they collapse behind
          one trigger (below the tablet breakpoint in styles.css) so the header row doesn't carry
@@ -90,11 +86,12 @@
         </div>
         <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
 
-        <details class="explainer">
-          <summary>Kenapa ada dua terjemahan di setiap ayat?</summary>
-          <p><b>Terjemah harfiah</b> menerjemahkan kata Al-Qur'an apa adanya, kata per kata — ini yang biasa kamu temui. <b>Terjemah makna</b> menerjemahkan maksudnya, supaya kalimatnya benar-benar bisa dipahami, bukan sekadar dibaca.</p>
-          <p>Nur menampilkan keduanya berdampingan di setiap ayat, lengkap dengan nama penerjemahnya masing-masing — bukan salah satunya dianggap "lebih benar."</p>
-        </details>
+        <!-- The core concept, offered BEFORE it becomes confusing. Every verse shows two
+             translations that say different things; a first-timer had no way to learn why. -->
+        <p class="explain-hint" id="nur-explain-hint">
+          Setiap ayat ditampilkan dengan <b>dua terjemahan</b> yang kadang berbeda.
+          <button class="linkish" data-explain="open">Kenapa? →</button>
+        </p>
       </section>
     </main>
   </section>

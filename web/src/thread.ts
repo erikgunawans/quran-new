@@ -1,0 +1,123 @@
+/**
+ * The conversation, remembered.
+ *
+ * Casey gets a WhatsApp message mid-read, switches away, comes back — and everything was gone.
+ * Verified: 2 messages before reload, 0 after. On the exact mid-range Android this product targets,
+ * where switching apps is not an edge case but the normal way a phone is used.
+ *
+ * THE DESIGN: PERSIST THE DECISION, RE-DERIVE THE PRESENTATION.
+ *
+ * The obvious fix is to stash the rendered HTML. It is wrong three ways: it freezes stale markup
+ * (a previous build's English captions would resurrect from disk), it writes scripture into
+ * localStorage for no reason, and it cannot be re-rendered when the code changes. So we store only
+ * what Nur *concluded* — a ref, a set of hits, a bounds error — and rebuild the DOM through the
+ * same renderer the live path uses. Restored markup is therefore always current markup.
+ *
+ * THE PART THAT IS NOT ABOUT CONVENIENCE:
+ *
+ * A crisis exchange is NEVER written to disk. Not truncated, not encrypted, not "probably fine" —
+ * never written.
+ *
+ * Rifqi types "aku gak sanggup bayar utang, pengen mati aja" at 2am. He gets the helpline. He
+ * closes the app. In the morning his sister borrows the phone — shared phones are the norm on this
+ * device profile, not an edge case — opens Nur, and his own words are sitting there on the screen,
+ * restored, in his own handwriting.
+ *
+ * He disclosed that to Nur. He did not disclose it to whoever picks up the phone next. A memory
+ * feature that outs him is not a feature. This is why persistence is opt-out by content, and why
+ * the whole thread expires, and why there is a button to burn it.
+ */
+import type { Hit } from "./retrieve.ts";
+
+const KEY = "nur:thread";
+
+/**
+ * How long a conversation stays on the phone.
+ *
+ * Twelve hours: long enough that leaving the app and coming back after work still works, short
+ * enough that last night's grief is not waiting on the screen when someone else opens it tomorrow.
+ * "Come back to the verse that held you" is a real need, but the answer to it is a bookmark — an
+ * explicit, chosen act — not a chat log that quietly refuses to end.
+ */
+const TTL_MS = 12 * 60 * 60 * 1000;
+
+/** Keep the thread bounded. Nobody scrolls back past this, and localStorage is not a database. */
+const MAX_TURNS = 20;
+
+/**
+ * What Nur decided. Never what Nur drew.
+ *
+ * Note there is no `crisis` variant. That is deliberate and load-bearing: the type system makes it
+ * impossible to persist a crisis exchange, because there is no shape to put it in.
+ */
+export type Turn =
+  | { q: string; kind: "ayah"; surah: number; ayah: number }
+  | { q: string; kind: "surah"; surah: number }
+  | { q: string; kind: "no-such-surah"; surah: number }
+  | { q: string; kind: "no-such-ayah"; surah: number; ayah: number }
+  | { q: string; kind: "hits"; refs: string[] }
+  | { q: string; kind: "silence" };
+
+interface Stored {
+  v: 1;
+  at: number;
+  turns: Turn[];
+}
+
+const now = () => Date.now();
+
+function read(): Stored | null {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Stored;
+    if (s.v !== 1 || !Array.isArray(s.turns)) return null;
+
+    // Expired. Erase it rather than leave it lying around for the next person to open the app.
+    if (now() - s.at > TTL_MS) {
+      clearThread();
+      return null;
+    }
+    return s;
+  } catch {
+    // Corrupt or unavailable (private mode). A broken thread must never break the app.
+    return null;
+  }
+}
+
+function write(turns: Turn[]): void {
+  try {
+    const s: Stored = { v: 1, at: now(), turns: turns.slice(-MAX_TURNS) };
+    localStorage.setItem(KEY, JSON.stringify(s));
+  } catch {
+    // Quota, private mode, disabled storage. Persistence is an enhancement; the app works without it.
+  }
+}
+
+/** Everything Nur remembers of this conversation. Empty if expired, cleared, or never started. */
+export const loadThread = (): Turn[] => read()?.turns ?? [];
+
+/**
+ * Remember one exchange.
+ *
+ * Crisis turns are simply never handed to this function (see main.ts), and the `Turn` type has no
+ * variant that could hold one. Two locks on the same door, because this is the one that matters.
+ */
+export function rememberTurn(turn: Turn): void {
+  write([...loadThread(), turn]);
+}
+
+/** Burn it. Called by the user pressing "Hapus percakapan", and by expiry. */
+export function clearThread(): void {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* nothing to do, and nothing worth telling the reader about */
+  }
+}
+
+export const hasThread = (): boolean => loadThread().length > 0;
+
+/** Build the persistable record of a retrieval answer. */
+export const turnFromHits = (q: string, hits: Hit[]): Turn =>
+  hits.length ? { q, kind: "hits", refs: hits.map((h) => h.verse.ref) } : { q, kind: "silence" };

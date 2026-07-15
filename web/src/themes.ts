@@ -19,15 +19,15 @@
  * `registerReadCard()` rather than keeping a separate map — so read.ts's existing copy/share
  * handler covers this surface too, instead of a third, duplicated click listener.
  */
-import { loadAyah, ShardError, surahMeta } from "./quran.ts";
+import { announce } from "./announce.ts";
+import { displayName, loadAyah, ShardError } from "./quran.ts";
 import { bindActs, clearReadCards, registerReadCard } from "./read.ts";
 import { THEME_INDEX } from "./theme-index.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
 
-const say = (msg: string): void => {
-  const live = document.getElementById("live");
-  if (live) live.textContent = msg;
-};
+/** One owner for the live region — see announce.ts. Was a private say() here; that was exactly
+ * the race condition announce.ts exists to fix (main.ts and read.ts each had one too). */
+const say = announce;
 
 export const slugify = (theme: string): string =>
   theme
@@ -106,11 +106,10 @@ export async function renderTheme(mount: HTMLElement, slug: string): Promise<voi
   // Sequential, not Promise.all — each ayah paints as soon as it's ready instead of the whole
   // theme waiting on its slowest fetch, and it never issues more than one request at a time.
   for (const v of group.verses) {
-    const meta = surahMeta(v.surah);
     try {
       const ayah = await loadAyah(v.surah, v.ayah);
       const card: VerseCard = {
-        ...fromShard(ayah, v.surah, meta?.tl ?? `Surah ${v.surah}`),
+        ...fromShard(ayah, v.surah, displayName(v.surah)),
         why: v.why,
         lazyTafsir: true,
       };
