@@ -4,6 +4,47 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## Checkpoint 2026-07-15 (even latest) — `/ship`: a real remote, and a real merge
+
+- **Session:** Ran `/ship`. Its premise (push, open a PR) had no target — this repo never had a
+  git remote, by explicit `ISA.md` constraint. Asked rather than adding one silently. Erik chose:
+  create a real GitHub repo now (private, personal account, not the axiara-ai org).
+- **Found first, before touching anything:** `main` — checked out separately in the primary
+  worktree — had diverged with 7 commits this worktree never saw: an accessibility live-region
+  fix (`announce.ts`), an onboarding explainer (`explain.ts`), thread persistence refactored with
+  a real privacy fix (crisis exchanges never persist), and browser-output validation gates
+  (`validate-browser.ts`) — a separate "adversarial review, 14 findings" session. 9 files
+  overlapped with today's work. Not something to push through as a `/ship` formality — did the
+  merge carefully instead, file by file.
+- **A real defect the auto-merge didn't flag:** main's 14 adversarial-review criteria and this
+  session's Cycle 2 criteria in `ISA.md` both independently claimed `ISC-60` through `ISC-75` —
+  a genuine ID collision in non-overlapping file regions, invisible to a line-based diff.
+  Renumbered Cycle 2 to `ISC-80..99` (main's range ships already, `[x]`; Cycle 2 was still live).
+  Also caught and fixed a partial-renumbering miss of my own: range notation like `ISC-64..76`
+  only had its first number remapped by the bulk-rename script (the second lacks the `ISC-`
+  prefix) — found by grep, fixed, verified zero duplicate/malformed IDs remain.
+- **`web/src/main.ts` — took main's file wholesale, re-grafted this session's additions.** Main's
+  version is a genuine architectural rewrite (a `Turn`-based renderer persisting structured
+  decisions, not raw HTML) — too deep to hand-merge line by line safely. Re-added: the visual
+  share-card button (issue 08 was never on main), the composing-state floor, the Tampilan mobile
+  toggle, and the `visualViewport` keyboard-aware composer.
+- **Verified thoroughly before pushing:** `bun run typecheck` clean, `bun test` 226/226 across 13
+  files, `bun run verify` 31/31 gates (main's 7 new browser-artifact gates included), `bun run
+  build` succeeds. Live-verified via Interceptor: composing state, crisis path now REPLACES the
+  answer (main's ruling — ISA.md previously said "alongside") and is never persisted, the explain
+  dialog opens, the Tampilan panel toggles, related-verses still links through, the image-share
+  button is present, a direct ref lookup (18:10) still renders.
+- **Pushed:** `github.com/erikgunawans/nur` (private), `main` branch. Confirmed no `data/`
+  directory and no secrets/credentials leaked into the pushed tree.
+- **Files:** merge commit `1e31b30` (7 conflicts resolved), `00e4700` (ISA fixes). Full trail in
+  `ISA.md` § Decisions.
+- **Next:** the local `main` branch in the primary worktree checkout hasn't been fast-forwarded
+  to this reconciled state — that's a separate, deliberate step for whoever's working there next,
+  not forced from this worktree. Everything else from the last checkpoint (ISC-98/99 device
+  checks, Path B2 T1 review, retrieval-ranking use of T2 data) is still open, unchanged.
+
+---
+
 ## Checkpoint 2026-07-15 (even latest) — merged with main's independent adversarial-review line
 
 Two sessions diverged on this repo — this worktree (mobile UI redesign, Cloud Run deploy, the
