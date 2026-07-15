@@ -277,6 +277,17 @@ function showChat() {
   readView.hidden = true;
 }
 
+/**
+ * Is the reader standing in the chat door, or a reading door?
+ *
+ * Mirrors route()'s match set. Used so a restored thread doesn't reveal chat over the top of a
+ * reading surface route() already mounted from the initial hash (share links, bookmarks, reload).
+ */
+function isChatRoute(): boolean {
+  const h = location.hash;
+  return !(/^#\/surah\/\d/.test(h) || /^#\/tema(?:\/|$)/.test(h) || h === "#/baca");
+}
+
 /** Tell the reader — and the screen reader — which door they are standing in. */
 function markNav(mode: "tanya" | "baca" | "tema") {
   const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema") };
@@ -610,7 +621,12 @@ async function restoreThread(): Promise<void> {
   if (!turns.length) return;
 
   $("#hello")?.remove();
-  showChat();
+  // Reveal chat only if the reader is actually on the chat route. On a cold load onto a deep link
+  // (#/surah/N, #/tema/X, #/baca) route() has already mounted the reading surface; forcing
+  // showChat() here would stomp it — silently snapping every returning visitor (anyone with a
+  // saved thread) back to chat, breaking share, bookmark, and reload for the very links this app
+  // generates ("Baca lanjutan →"). Let route() own visibility; rebuild the thread DOM underneath.
+  if (isChatRoute()) showChat();
 
   for (const t of turns) {
     const me = document.createElement("div");
