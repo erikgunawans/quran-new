@@ -1,12 +1,12 @@
 ---
 project: Nur
-task: "Cycle 2 — mobile-first UI redesign + merge with main's adversarial-review line (Cycle 1: Fix the three P0s and two P1s from the 20/40 critique, complete; Adversarial review, 14 findings, complete)"
-effort: E4
-phase: verify
-progress: 94/96
+task: "Last-read bookmark (P2 from the $impeccable critique) — persist surah:ayah, surface 'Lanjutkan baca' (prior: Cycle 2 mobile-first UI redesign, complete 94/96; Cycle 1 P0/P1 fixes + adversarial review, complete)"
+effort: E3
+phase: complete
+progress: 116/120
 mode: build
 started: 2026-07-13
-updated: 2026-07-15
+updated: 2026-07-16
 ---
 
 # Nur — Ideal State Artifact
@@ -226,6 +226,35 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [ ] ISC-98: [NEW] Real device / real-iOS spot-check of the `visualViewport` composer mitigation (ISC-87's deferred half) — not yet run
 - [ ] ISC-99: [NEW] A genuine narrow-viewport (≤375px) live probe of the mobile header/panel/breakpoints — Interceptor in this environment has no viewport-resize or CDP device-emulation capability and no OS window-resize permission; verified instead via forced CSS override + computed-style checks at desktop width, which confirms the panel/positioning rules render correctly but not that the `47.9rem`/`26rem` triggers fire at real narrow widths (the media-query thresholds themselves were read from source, not exercised live)
 
+### Last-read bookmark — "Lanjutkan baca" (opened 2026-07-15, P2 from the $impeccable critique)
+
+*The deep-link routing fix (`4aea757`) is the enabler: `#/surah/N#A` already lands on the exact ayah. `thread.ts:40` already named the design — "the answer to it is a bookmark, an explicit chosen act, not a chat log that quietly refuses to end."*
+
+- [x] ISC-100: `web/src/bookmark.ts` exists and exports `saveBookmark`, `loadBookmark`, `clearBookmark` — verified by Read + 21 green tests
+- [x] ISC-101: A stored bookmark contains only `{surah, ayah, at}` — test asserts the raw JSON matches `^\{"v":1,"surah":18,"ayah":10,"at":\d+\}$`, no `<`, no Arabic
+- [x] ISC-102: `loadBookmark()` returns `null` for corrupt JSON and never throws — test "corrupt JSON yields null, not a throw" passes
+- [x] ISC-103: `loadBookmark()`/`saveBookmark()`/`clearBookmark()` swallow a throwing localStorage — three storage-throw tests (get/set/remove) pass
+- [x] ISC-104: `loadBookmark()` rejects an out-of-bounds surah (surah 0, 115) → `null` on both save and load — tests pass
+- [x] ISC-105: `loadBookmark()` rejects an ayah outside the surah's real count (18:111, Al-Kahf has 110) via `surahMeta().ayahs` → `null` — tests pass
+- [x] ISC-106: The bookmark persists under key `nur:baca` — test asserts the key
+- [x] ISC-107: Anti: saving a bookmark leaves a pre-set `nur:thread` byte-identical — test "nur:thread stays untouched" passes
+- [x] ISC-108: NO TTL — test "a bookmark from 30 days ago still loads" passes (aged `at`, still returned)
+- [x] ISC-109: `saveBookmark` debounced/coalesced — test "rapid saves coalesce to the latest position" passes (2:1 then 2:255 → 2:255)
+- [DEFERRED-VERIFY] ISC-110: scrolling updates the persisted position via IntersectionObserver — CODE verified (grep-confirmed wiring, min-over-persistent-`Set` the advisor validated, per-chunk `observe()`); LIVE firing could NOT be probed because the Chrome window is minimized → `document.visibilityState === "hidden"` → the browser suspends the rendering lifecycle so IO callbacks do not fire (confirmed live: `hidden=true`, `scrollY=0`, `nur:baca=null` after landing; same environment limit as ISC-98/99 and last session's rAF-while-minimized issue). FOLLOW-UP: Erik scrolls a surah in a NON-minimized window and confirms `localStorage["nur:baca"]` advances.
+- [DEFERRED-VERIFY] ISC-111: opening `#/surah/N#A` records `N:A` — the LANDING half verified live (deep-link `#/surah/18#10` renders Al-Kahf, `.verse[data-ref="18:10"]` present, `.landed` fires); the RECORD half shares ISC-110's hidden-document deferral (same FOLLOW-UP)
+- [x] ISC-112: Anti: `saveBookmark` is called from exactly ONE site — `read.ts:111`, the `renderSurah` observer callback; grep confirms it appears in no other module (not `main.ts`, not `themes.ts`)
+- [x] ISC-113: Leaving a surah disconnects the observer AND cancels the pending debounced write — `stopTracking()` (calls `disconnect()` + `cancelBookmark()`) fires at `renderSurah` entry, `renderIndex` entry, and inside `startTracking`; grep-confirmed
+- [x] ISC-114: With a bookmark set, `renderIndex` shows a "Lanjutkan baca" entry linking to `#/surah/{surah}#{ayah}` — LIVE: `.resume` exists, `href="#/surah/18#10"`
+- [x] ISC-115: The resume entry names the surah in Indonesian — LIVE: text = "Lanjutkan baca Al-Kahfi · ayat 10 →", not a raw ref
+- [x] ISC-116: No bookmark → no resume entry — LIVE: after clearing `nur:baca` and a fresh `renderIndex`, `.resume` is absent and all 114 rows render
+- [x] ISC-117: Clicking the resume entry lands on the exact ayah — LIVE: `.resume.click()` → `hash=#/surah/18#10`, read surface shown, `.verse[data-ref="18:10"]` present, surah = Al-Kahfi, `.landed` fired
+- [x] ISC-118: Anti: a crisis exchange never creates a bookmark — structural: the crisis branch in `main.ts ask()` returns before any navigation, and `saveBookmark` exists only on the reading surface (ISC-112); no code path connects them
+- [x] ISC-119: Anti: no scripture is ever written to `nur:baca` — test asserts the raw JSON contains no `<` and no Arabic (`/[؀-ۿ]/`)
+- [x] ISC-120: `web/src/bookmark.test.ts` covers save/load/clear/cancel, bounds, corrupt JSON, no-TTL, key isolation, storage-throw paths — 21 pass, 0 fail
+- [x] ISC-121: `bun test web/src` green — 185 pass, 0 fail (was 164; +21 bookmark tests)
+- [x] ISC-122: `bun run typecheck` clean — `tsc --noEmit` root + `web/tsconfig.json`, exit 0
+- [x] ISC-123: Live probe (surface + routing) — seeded a valid bookmark, drove real Chrome: resume card renders, names Al-Kahfi · ayat 10, click routes to `#/surah/18#10` and lands on the verse; the scroll→observer→write half shares the ISC-110/111 hidden-document deferral
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -248,6 +277,12 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | ISC-42 | anti | corpus gates | 24/24 | `bun run verify` |
 | ISC-80..97 | proposal | Erik reads the written proposal and either approves it or rules on the generative-capability gate | explicit approval/ruling in this thread | inspection + `AskUserQuestion` |
 | ISC-84 | static | measure current `.icon-btn`/`.size button`/`.seed` dimensions in `styles.css` | exact px | `Grep` + `Read` |
+| ISC-100..109 | unit | `bookmark.ts` — save/load/clear, bounds, corrupt JSON, no-TTL, key isolation, debounce | all pass | `bun test` |
+| ISC-101,119 | anti | grep the written `nur:baca` JSON for markup/scripture | 0 hits | `bun test` (regex) |
+| ISC-110..113 | live | scroll a surah, read back `nur:baca`; leave and confirm no stale write | position tracks | `Interceptor` + localStorage read |
+| ISC-114..117 | live | with a bookmark set, open `#/baca`, click "Lanjutkan baca" | lands on ayah | `Interceptor` |
+| ISC-118 | anti | trace: crisis path returns before reading surface; never calls `saveBookmark` | structural | `Grep` + `Read` |
+| ISC-120..122 | regression | full web suite + typecheck | ≥164 pass, 0 fail, tsc clean | `bun test` + `tsc` |
 
 ## Features
 
@@ -261,6 +296,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | shareable | Per-verse copy + Web Share with clipboard fallback | ISC-36..38 | — | yes |
 | regression-guard | Keep tests, typecheck, contrast, and corpus gates green | ISC-39..42 | all | no (final) |
 | ui-redesign-proposal | Mobile ergonomics + chat-centerpiece design proposal, plus the generative-capability decision gate | ISC-80..97 | — | no |
+| last-read-bookmark | `bookmark.ts` persists surah:ayah; `renderSurah` tracks position via IntersectionObserver; `renderIndex` surfaces "Lanjutkan baca" | ISC-100..123 | reading-surface, ref-oracle | no |
 
 ## Decisions
 
@@ -397,7 +433,50 @@ expanding reveals the companion and lazily loads the tafsir; 94:5 opens by defau
 companion both visible. `verse.ts` owns the disclosure now (dead `tafsirEl`/`lazyTafsirEl`
 removed); 162/162 web tests (6 new in `verse.test.ts`), typecheck clean.
 
+**2026-07-16 — Last-read bookmark: no TTL, separate key, and the debounce/navigation race.**
+The P2 from the $impeccable critique. Three rulings worth recording:
+- **No TTL, separate `nur:baca` key (FirstPrinciples · Challenge).** The sibling `thread.ts` expires
+  in 12h because a grief disclosure on a shared phone can out a vulnerable reader. Transplanting that
+  TTL to a reading bookmark was classified as an *unvalidated assumption*, not a hard constraint: a
+  position (`surah:ayah`) is a coordinate, not a confession. Expiring it would break the one feature
+  `thread.ts:40` already said should replace the never-ending log. So: no TTL, independent key, so
+  burning the conversation never burns the bookmark (ISC-107/108). The advisor independently agreed
+  the asymmetry is correct.
+- **The advisor caught a real race (Rule 2 earned its cost).** `stopTracking()` disconnected the
+  scroll observer on navigation but did NOT cancel the already-scheduled debounced write — so leaving
+  surah 18 within the 400ms window could let a stale `{18,47}` write land *after* arrival and clobber
+  the new surah's position. Fix: `cancelBookmark()` (drop pending, keep committed) in the same
+  teardown as `disconnect()`. Added a regression test (`the navigation race`). A green suite would NOT
+  have caught this — it is timing-dependent.
+- **Surface as an explicit entry point, not an auto-jump.** "restore on load" is honored by showing
+  "Lanjutkan baca" on the reading index (`loadBookmark()` at `renderIndex`), not by dumping the reader
+  mid-surah on cold open. This is the "explicit, chosen act" the product philosophy names. Whether to
+  ALSO surface it on the `#hello` chat home is left for Erik — a deliberate non-decision, not an omission.
+- **ISC floor show-your-math (soft, E3 ≥32).** The natural granular count for this single-surface
+  feature is 24 genuine binary probes (ISC-100..123). Padding to 32 would manufacture phantom criteria;
+  the floor is soft, so the honest count stands.
+
 ## Changelog
+
+**2026-07-16 — A scroll observer cannot be verified in a hidden document.**
+
+- **conjectured:** That the last-read position tracker (IntersectionObserver in `renderSurah`) could
+  be fully live-verified through Interceptor, the way the surface and routing were — driving real
+  Chrome, scrolling, and reading back `localStorage["nur:baca"]`.
+- **refuted by:** The live probe. With the Chrome window minimized, `document.visibilityState` is
+  `"hidden"`, the browser suspends the rendering lifecycle, and IntersectionObserver callbacks never
+  fire — `nur:baca` stayed `null` after landing on 18:10 despite 110 verses rendered and `scrollY=0`.
+  This is the SAME class of environment limit as ISC-98/99 (no real narrow viewport) and last
+  session's rAF-while-minimized bug in the constellation.
+- **learned:** IntersectionObserver-, rAF-, and screenshot-based verification all share one
+  precondition — a *composited* surface. A minimized window fails all three identically. The correct
+  response is to split the ISC: verify everything that does NOT need the rendering lifecycle (the
+  module via unit tests, the wiring via grep, the surface + routing via seeded-state live probes) and
+  mark ONLY the lifecycle-dependent half `[DEFERRED-VERIFY]` with a concrete follow-up — never claim
+  the whole loop is proven.
+- **criterion now:** ISC-110/111 carry `[DEFERRED-VERIFY]` + a named follow-up (scroll a surah in a
+  non-minimized window, confirm `nur:baca` advances); ISC-114..117 + 123-surface are `[x]` on live
+  Interceptor evidence.
 
 **2026-07-13 — The divergence metric cannot be a caution.**
 

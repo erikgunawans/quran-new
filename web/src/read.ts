@@ -30,6 +30,7 @@ import {
   type SurahMeta,
 } from "./quran.ts";
 import { announce } from "./announce.ts";
+import { cancelBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
 
@@ -69,6 +70,62 @@ export function clearReadCards(): void {
 
 /** One owner for the live region — see announce.ts. */
 const say = announce;
+
+// ── the last-read bookmark ─────────────────────────────────────────────────────
+//
+// As the reader moves down a surah, remember where they are, so "Lanjutkan baca" on the index can
+// send them back. The write itself (debounced, validated, no-TTL) lives in bookmark.ts; this is only
+// the eyes that watch the scroll.
+//
+// ONE observer per render, disconnected the moment the reader leaves. A per-chunk observer would
+// swarm on a 286-ayah surah, and an observer left running after navigation would keep writing
+// positions into a surah nobody is reading — a stale-write leak on exactly the phone we care about.
+let tracker: IntersectionObserver | null = null;
+
+/**
+ * Stop watching. Called whenever a new reading surface mounts, so no observer outlives its surah.
+ *
+ * Also cancels any pending debounced write: disconnecting stops NEW positions, but a write already
+ * scheduled before navigation would otherwise land afterwards and stamp the old surah's ayah onto
+ * the one the reader just opened. Teardown must close both doors.
+ */
+function stopTracking(): void {
+  tracker?.disconnect();
+  tracker = null;
+  cancelBookmark();
+}
+
+/**
+ * Watch a surah's verses and record the topmost one in view.
+ *
+ * `rootMargin` pulls the root's bottom up to 25% of the viewport, so a verse "intersects" only while
+ * it sits in the top band — i.e. the thing you are actually reading, not everything on screen. Among
+ * the band, the topmost verse is simply the one with the smallest ayah number (verses render in
+ * order), so we never touch geometry: keep a set of visible ayahs and save their minimum. saveBookmark
+ * is debounced, so firing it on every intersection change is free.
+ */
+function startTracking(surah: number): void {
+  stopTracking();
+  const visible = new Set<number>();
+  tracker = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const ayah = Number((e.target as HTMLElement).dataset["ref"]?.split(":")[1]);
+        if (!Number.isFinite(ayah)) continue;
+        if (e.isIntersecting) visible.add(ayah);
+        else visible.delete(ayah);
+      }
+      if (visible.size) saveBookmark(surah, Math.min(...visible));
+    },
+    { rootMargin: "0px 0px -75% 0px", threshold: 0 },
+  );
+}
+
+/** Hand the newly-appended cards to the tracker. Idempotent per element — IO.observe ignores repeats. */
+function observeVerses(cards: Iterable<Element>): void {
+  if (!tracker) return;
+  for (const c of cards) tracker.observe(c);
+}
 
 const reduced = (): boolean => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -149,6 +206,18 @@ const indexRow = (s: SurahMeta): string => `
 export function renderIndex(mount: HTMLElement): void {
   claim(); // any surah still chunking in the background belongs to a view we are leaving
   onRead.clear();
+  stopTracking(); // the index has no verses to watch
+
+  // "Lanjutkan baca" — only when there is a real place to return to. loadBookmark already validated
+  // it against the inlined index, so this link can never point at a verse that does not exist.
+  const bm = loadBookmark();
+  const resume = bm
+    ? `<a class="resume" href="#/surah/${bm.surah}#${bm.ayah}">
+        <span class="resume-k">Lanjutkan baca</span>
+        <span class="resume-w">${esc(displayName(bm.surah))} · ayat ${bm.ayah}</span>
+        <span class="resume-go" aria-hidden="true">→</span>
+      </a>`
+    : "";
 
   mount.innerHTML = `
     <div class="read-index">
@@ -156,6 +225,8 @@ export function renderIndex(mount: HTMLElement): void {
         <h1>Baca Al-Qur'an</h1>
         <p>Seratus empat belas surah, semuanya ada di sini. Buka yang mana pun — Al-Kahfi di hari Jumat, atau apa pun yang kamu butuhkan malam ini.</p>
       </header>
+
+      ${resume}
 
       <div class="find">
         <label class="sr" for="surah-cari">Cari surah berdasarkan nama atau nomor</label>
@@ -289,6 +360,7 @@ const cardEl = (v: ShardVerse, n: number, name: string): string => {
 export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: number): Promise<void> {
   const mine = claim();
   onRead.clear();
+  stopTracking(); // leaving wherever we were — no observer outlives its surah, even on the error paths below
   bindActs();
 
   const meta = surahMeta(n);
@@ -361,6 +433,10 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   const verses = body.querySelector<HTMLDivElement>("#verses");
   if (!verses) return;
 
+  // Start watching the scroll now that there are verses to watch, and hand it the opening batch.
+  startTracking(n);
+  observeVerses(verses.children);
+
   say(`${displayName(meta.n)} terbuka. ${meta.ayahs} ayat.`);
 
   // ── landing on the ayah the user came for ─────────────────────────────────
@@ -392,7 +468,9 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
     // would re-parse and re-create every ayah already on the page, every time.
     const tpl = document.createElement("template");
     tpl.innerHTML = batch.map((v) => cardEl(v, n, displayName(n))).join("");
+    const added = Array.from(tpl.content.children); // element refs survive the move into `verses`
     verses.append(tpl.content);
+    observeVerses(added);
 
     tryLand();
 
@@ -411,7 +489,9 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
         .slice(rendered)
         .map((v) => cardEl(v, n, displayName(n)))
         .join("");
+      const restAdded = Array.from(rest.content.children);
       verses.append(rest.content);
+      observeVerses(restAdded);
     }
   };
   idle(step);

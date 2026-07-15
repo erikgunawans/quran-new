@@ -66,6 +66,39 @@
   text-wrap: pretty;
 }
 
+/* "Lanjutkan baca" — the one door back to where the reader stopped. Accent-washed so it reads as an
+   invitation, not a row: it is the first thing a returning reader should see, above the full list. */
+#read .resume {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1.05rem;
+  background: var(--primary-wash);
+  border: 1px solid var(--primary-line);
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  transition: background var(--t), border-color var(--t);
+}
+#read .resume:hover { background: color-mix(in oklch, var(--primary-wash), var(--primary) 8%); }
+#read .resume:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#read .resume-k {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: 0.01em;
+}
+#read .resume-w {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#read .resume-go { color: var(--primary); font-size: 1.1rem; line-height: 1; }
+
 #read .find-in {
   width: 100%;
   font: var(--step-0) / 1.5 var(--f-ui);
