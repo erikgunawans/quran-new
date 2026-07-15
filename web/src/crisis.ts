@@ -17,7 +17,8 @@
  *
  *   1. ACKNOWLEDGE THE PERSON, NOT THE TOPIC. No verse leads. A person saying they want to die is
  *      not asking for a citation, and handing them one is a way of not listening.
- *   2. GIVE A REAL, REACHABLE RESOURCE. A human being who answers a phone in Indonesia, tonight.
+ *   2. GIVE A REAL, REACHABLE RESOURCE. A human being who picks up — by phone or by chat — in
+ *      Indonesia, tonight. One service (SEJIWA), two doors, so a call at 2am is never the only way.
  *   3. DO NOT PREACH, DO NOT RULE. Nur has no standing to tell someone their despair is a sin.
  *      The most harmful thing this app could do is make a person at their lowest feel judged by
  *      God's own book. Scripture is offered gently, second, and only as comfort — never as verdict.
@@ -85,11 +86,18 @@ export function detectCrisis(input: string): CrisisSignal | null {
 }
 
 /**
- * Indonesia's national mental-health line.
+ * Indonesia's national mental-health service.
  *
- * SEJIWA, operated by Kementerian Kesehatan: dial 119, then extension 8. Free, 24 hours.
- * This number is a real-world commitment and is deliberately the ONLY one we name — a list of
- * options is a decision to make, and a person in crisis should not be made to choose.
+ * SEJIWA / Healing119, operated by Kementerian Kesehatan: dial 119, then extension 8. Free, 24
+ * hours, no registration, confidential.
+ *
+ * We still name ONE service, not a menu of competing organisations — a person in crisis should not
+ * be made to choose between providers. But that one service answers through two doors, and we name
+ * both: the phone, and CHAT (WhatsApp / healing119.id). The phone is offered first, but a call at
+ * 2am is a real barrier for the young person this exists for, and the hotline is documented as not
+ * always quickly answered — so the same Kemenkes counsellors are reachable by chat. Both channels
+ * verified against Kemenkes' own Healing119.id materials (2026-07-15). Erik: sanity-check before
+ * this reaches anyone.
  */
 export const HELPLINE = {
   name: "SEJIWA (Kemenkes)",
@@ -97,6 +105,10 @@ export const HELPLINE = {
   ext: "8",
   tel: "tel:119",
   note: "gratis, 24 jam",
+  waDisplay: "0811-3855-472",
+  wa: "https://wa.me/628113855472",
+  web: "https://healing119.id",
+  webDisplay: "healing119.id",
 } as const;
 
 /**
@@ -122,6 +134,10 @@ export function crisisReply(): string {
         </a>
         <span class="crisis-meta">${HELPLINE.name} · ${HELPLINE.note}</span>
       </p>
+
+      <p class="crisis-alt">Kalau nelpon terasa terlalu berat malam ini, orang yang sama juga siap
+      lewat chat — <a href="${HELPLINE.wa}">WhatsApp ${HELPLINE.waDisplay}</a> atau
+      <a href="${HELPLINE.web}" target="_blank" rel="noopener noreferrer">${HELPLINE.webDisplay}</a>.</p>
 
       <p class="crisis-close">Kalau ada orang terdekat yang bisa kamu hubungi malam ini — kakak,
       teman, siapa pun — hubungi dia juga. Aku tetap di sini kalau kamu mau lanjut cerita atau

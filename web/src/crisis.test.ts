@@ -84,6 +84,22 @@ describe("what Nur says when it fires", () => {
     expect(reply).toContain("SEJIWA");
   });
 
+  test("offers the SAME service through a second door — chat — not just a phone call", () => {
+    // The hotline is documented as not always quickly answered, and a call at 2am is a real barrier
+    // for the young person this exists for. The same Kemenkes counsellors are reachable by chat;
+    // both channels must be present so the phone is never the only way in.
+    expect(reply).toContain(HELPLINE.wa); // wa.me deep link
+    expect(reply).toContain(HELPLINE.waDisplay); // human-readable WhatsApp number
+    expect(reply).toContain(HELPLINE.web); // healing119.id
+  });
+
+  test("the phone stays the primary CTA; chat is the calmer alternative BELOW it, never a menu", () => {
+    const iPhone = reply.indexOf("crisis-cta");
+    const iChat = reply.indexOf("crisis-alt");
+    expect(iPhone).toBeGreaterThanOrEqual(0);
+    expect(iChat).toBeGreaterThan(iPhone); // order: emergency call leads, chat follows
+  });
+
   test("Anti: it does NOT render scripture", () => {
     // A person saying they want to die is not asking for a citation.
     //
