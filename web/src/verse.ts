@@ -2,14 +2,17 @@
  * The verse card — the one place scripture is rendered.
  *
  * Chat and the reading surface both draw through here. That is not just DRY: it is what
- * guarantees the honesty contract holds everywhere. A verse cannot appear in the reading
- * surface with its attribution or its literal companion quietly missing, because there is
- * only one renderer and it always draws both.
+ * guarantees the honesty contract holds everywhere. The interpretive primary (Terjemah makna)
+ * reads open; the literal companion (Terjemah harfiah) and the tafsir stack live one tap away
+ * inside the depth disclosure — depth on demand (DESIGN principle 4), never depth removed. The
+ * companion is always PRESENT in the card (and always ships in the corpus — the `literal_companion`
+ * data gate), so "read both" is always reachable; for the handful of verses where the primary is
+ * flagged as diverging (94:5), the disclosure renders OPEN so the comparison the caution asks for
+ * is visible without a tap.
  */
 import { hasAudio, nowPlaying } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
 import { RELATED_VERSES } from "./related-verses.ts";
-import { lazyTafsirEl } from "./tafsir.ts";
 
 /**
  * Escape for HTML — including single quotes.
@@ -123,6 +126,36 @@ function readingEl(r: Reading, lead: boolean): string {
     </div>`;
 }
 
+/**
+ * The depth disclosure — everything but the interpretive primary.
+ *
+ * Terjemah makna reads open above this; here live the literal companion (Terjemah harfiah) and the
+ * tafsir stack, one tap away. `flagged` verses (94:5/94:6) open by default so the caution's "baca
+ * keduanya" stays honest. Lazy verses carry `data-lazy-tafsir` on THIS element — bindLazyTafsir
+ * fills the `.tafsir-slot` inside on first open; chat's curated verses pass their stack html
+ * directly. The tafsir keeps its `.sources` wrapper so tafsir.ts's lens `sortStacks()` still
+ * finds it and the foreign-language / tier labels travel unchanged.
+ */
+function depthEl(v: VerseCard, flagged: boolean): string {
+  const lazy = v.tafsirStack == null && v.lazyTafsir === true;
+  const tafsir =
+    v.tafsirStack != null
+      ? `<div class="sources">${v.tafsirStack}</div>`
+      : lazy
+        ? `<div class="sources"><div class="tafsir-slot"></div></div>`
+        : "";
+
+  if (!v.companion && !tafsir) return "";
+
+  const lazyAttrs = lazy ? ` data-lazy-tafsir data-surah="${v.surah}" data-ayah="${v.ayah}"` : "";
+  return `
+    <details class="depth"${flagged ? " open" : ""}${lazyAttrs}>
+      <summary>Terjemah harfiah &amp; tafsir ulama</summary>
+      ${v.companion ? readingEl(v.companion, false) : ""}
+      ${tafsir}
+    </details>`;
+}
+
 export interface VerseCard {
   ref: string;
   surah: number;
@@ -133,12 +166,12 @@ export interface VerseCard {
   companion: Reading | null;
   /** Curation note. Chat shows it; the reading surface does not (it is per-question context). */
   why?: string;
-  /** Extra HTML dropped in below the readings — the tafsir stack, pre-loaded (chat's 55 curated
-   * verses only). Takes priority over `lazyTafsir` if both are somehow set. */
-  extra?: string;
-  /** Path B1: fetch tafsir on demand when the reader opens the disclosure, instead of it being
-   * pre-loaded. Covers the full 6,236-ayah corpus (the reading surface, theme browser) where
-   * `extra` isn't already known. Ignored if `extra` is set. */
+  /** Pre-loaded tafsir STACK html (chat's 55 curated verses only, from `corpus.json`). Rendered
+   * inside the depth disclosure, below the literal companion. Takes priority over `lazyTafsir`. */
+  tafsirStack?: string;
+  /** Path B1: fetch tafsir on demand when the reader opens the depth disclosure, instead of it
+   * being pre-loaded. Covers the full 6,236-ayah corpus (the reading surface, theme browser) where
+   * the stack isn't already known. Ignored if `tafsirStack` is set. */
   lazyTafsir?: boolean;
   /** Offer "read the rest of this surah". The emotional peak needs somewhere to land. */
   continueTo?: boolean;
@@ -179,11 +212,10 @@ export function verseEl(v: VerseCard): string {
       <p class="ar" dir="rtl" lang="ar">${esc(v.arabic)}</p>
 
       ${v.primary ? readingEl(v.primary, true) : ""}
-      ${v.companion ? readingEl(v.companion, false) : ""}
 
       ${flag ? `<div class="caution"><b aria-hidden="true">${ICON_WARNING}</b><span>${flag}</span></div>` : ""}
 
-      ${v.extra ?? (v.lazyTafsir ? lazyTafsirEl(v.surah, v.ayah) : "")}
+      ${depthEl(v, Boolean(flag))}
 
       ${relatedEl(v.ref)}
 

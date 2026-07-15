@@ -23,7 +23,7 @@ The Qur'an is read at 2am and on the commute. Day and night are both first-class
 
 The official Indonesian translation is *harfiyah* — literal. It renders words, not meaning. At 2:156, the verse recited at every Muslim death, it leaves the Arabic **untranslated**: a grieving person reads *"Inna lillaahi wa innaa ilaihi raaji'uun"* and understands nothing.
 
-Nur leads with a **meaning-based rendering** (Tarjamah Tafsiriyah) so the verse lands — and keeps the literal translation permanently alongside so nothing is hidden. Underneath sits a knowledge graph of attributed tafsir (Ibn Kathir, As-Sa'di, Al-Mukhtasar), and an AI that answers questions **only from cited sources**.
+Nur leads with a **meaning-based rendering** (Tarjamah Tafsiriyah) so the verse lands — and keeps the literal translation one tap away, never hidden: it ships with every verse and expands in place, so nothing is lost and nothing is imposed. Underneath sits a knowledge graph of attributed tafsir (Ibn Kathir, As-Sa'di, Al-Mukhtasar), and an AI that answers questions **only from cited sources**.
 
 Success: a person arrives with a problem, leaves having *understood* a verse, and can see exactly who said what and why. Not converted. Not lectured. **Reached.**
 

@@ -88,6 +88,7 @@ Every interactive element ships **default, hover, focus, active, disabled, loadi
 - **Depth:** hairline borders. **Never** border + wide shadow on the same element.
 - **Attribution chip:** the signature component. Every rendering names its source *inline, in the reading surface*, not in a tooltip. Attribution is design, not fine print.
 - **Source stack:** the plural view — four scholars, each named, each quoted, none ranked above another in the visual hierarchy. The system attributes; it never arbitrates.
+- **Depth disclosure:** the verse leads with the interpretive primary (*terjemah makna*) alone; the literal companion (*terjemah harfiah*) and the source stack collapse into one *depth* toggle below it — depth on demand (principle 4), never depth removed. The companion always ships and is one tap away; verses flagged as diverging (94:5) render the disclosure **open** so "baca keduanya" is honest without a tap.
 - **Skeletons**, never spinners in content.
 - **Empty states teach.** The chat's empty state shows real questions in real language (*"aku lagi capek banget"*), not "Ask me anything."
 

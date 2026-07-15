@@ -8,7 +8,7 @@ import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, Shar
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
-import { applyLens, bindLazyTafsir, tafsirEl, type TafsirLens } from "./tafsir.ts";
+import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
@@ -48,9 +48,9 @@ const remember = (card: VerseCard) => {
 const say = announce;
 
 // ── rendering ────────────────────────────────────────────────────────────────
-// tafsirEl() lives in tafsir.ts now — it needs to be shared with the reading surface and theme
-// browser too, and it carries the lens (issue 06) and lazy-loading (Path B1) this inline version
-// never had.
+// The tafsir stack lives in tafsir.ts now — shared with the reading surface and theme browser, and
+// carrying the lens (issue 06) and lazy-loading (Path B1) this inline version never had. verseEl()
+// folds it (and the literal companion) into the depth disclosure below the interpretive primary.
 
 function mount(card: VerseCard): string {
   remember(card);
@@ -139,7 +139,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               primary: v.primary,
               companion: v.companion,
               why: v.why,
-              extra: tafsirEl(v.tafsir, voices),
+              tafsirStack: tafsirStackHtml(v.tafsir, voices),
               continueTo: true,
               animate,
             }),

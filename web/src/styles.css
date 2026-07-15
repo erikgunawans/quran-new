@@ -331,22 +331,31 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .reading .txt { color: var(--ink); line-height: 1.7; text-wrap: pretty; max-width: 68ch; }
 .reading.companion .txt { color: var(--ink-2); }
 
-/* ── the source stack: four scholars, none ranked above another ────── */
-.sources { border-top: 1px solid var(--line); }
-.sources > summary {
+/* ── the depth disclosure: everything but the interpretive primary ──────────────
+   Terjemah makna reads open above; the literal companion (Terjemah harfiah) and the tafsir stack
+   live one tap inside here — depth on demand, never depth removed. The companion still ships with
+   every verse (the literal_companion data gate); flagged-divergent verses (94:5) render it OPEN so
+   the caution's "baca keduanya" is honest without a tap. */
+.depth { border-top: 1px solid var(--line); }
+.depth > summary {
   padding: 0.8rem 1.1rem; cursor: pointer; list-style: none;
-  color: var(--ink-3); font-size: var(--step--1);
+  color: var(--ink-3); font-size: var(--step--1); font-weight: 500;
   display: flex; align-items: center; gap: 0.5rem;
   transition: color var(--t);
 }
-.sources > summary::-webkit-details-marker { display: none; }
-.sources > summary:hover { color: var(--ink); }
-.sources > summary::after {
+.depth > summary::-webkit-details-marker { display: none; }
+.depth > summary:hover { color: var(--ink); }
+.depth > summary::after {
   content: ""; width: 6px; height: 6px; margin-left: auto;
   border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg); transition: transform var(--t);
 }
-.sources[open] > summary::after { transform: rotate(-135deg); }
+.depth[open] > summary::after { transform: rotate(-135deg); }
+
+/* ── the source stack: four scholars, none ranked above another ──────────────────
+   Now nested inside .depth; the wrapper keeps its class so the lens sortStacks() still finds it. A
+   hairline separates the literal companion above from the scholars below. */
+.sources { border-top: 1px solid var(--line); }
 
 /* the lens — a viewing ORDER, never a filter. all four voices stay reachable in every state. */
 .lens { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0 1.1rem 0.8rem; }

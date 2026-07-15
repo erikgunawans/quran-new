@@ -79,7 +79,13 @@ Erik's review of the 16 divergent verses.
   in `src/ingest/validate-interpretive.ts`; the build hard-fails. **Do not weaken.**
 - **`primary_voice`** — exactly one primary voice (Tarjamah Tafsiriyah).
 - **`literal_companion`** — the build FAILS if the interpretive primary ships without Kemenag
-  alongside it. **Do not weaken.**
+  alongside it. This is a **data/ship invariant** (`validate-browser.ts` → `shipped_literal_companion`;
+  egress in `share.ts`), and it is **not weakened** by presentation. As of 2026-07-15 the literal
+  companion (and the tafsir stack) render collapsed inside the verse's *depth* disclosure — one tap
+  below the interpretive primary — rather than eagerly visible; flagged-divergent verses (94:5/94:6)
+  render the disclosure OPEN so the caution's "baca keduanya" stays honest. The companion is always
+  PRESENT in the card and always SHIPS in the corpus; only its default visibility changed. **Do not
+  weaken the data/ship guarantee.**
 - **No generative model in the retrieval path.** Nur never answers in a scholar's voice.
 - **Sources are sha256-pinned** (`src/ingest/sources.lock.json`); checksum drift hard-fails.
 - The 113 MB tafsir corpus never reaches a phone. Only Arabic + the two translations ship.
@@ -343,6 +349,26 @@ adversarial-review line, 7 commits and 7 conflicting files never seen from this 
 merge is its own entry above ("Cycle 2, show-your-math" section context) and its own commit
 (`1e31b30`) — resolving it, including a real ISC-ID collision the line-based auto-merge didn't
 flag, came before any push.
+
+**2026-07-15 — Presentation ruling: the verse card leads with the interpretive primary alone;
+the literal companion and tafsir move behind a *depth* disclosure.** Erik ruled on how a verse
+should read by default: **Arabic → Muhammad Thalib's *terjemah makna*, and nothing else visible.**
+The Kemenag *terjemah harfiah* and the full tafsir stack (Ibn Kathir, As-Sa'di, Al-Mukhtasar) now
+render collapsed inside one `<details class="depth">` below the primary — "Terjemah harfiah &
+tafsir ulama" — one tap away, not gone. This is a deliberate move toward DESIGN principle 4 ("meet
+them where they are, then go deeper — depth one tap away") and away from the earlier "both
+renderings eagerly in front of every reader" presentation.
+
+Flagged before implementing that this touches `literal_companion`. Resolution: the invariant is a
+**data/ship gate** (`validate-browser.ts` → `shipped_literal_companion`), and it stays fully
+intact — the companion still ships with every verse and still travels on egress (`share.ts`);
+`bun run verify` gates unchanged. Only *default UI visibility* changed. The one real interaction —
+the 94:5/94:6 caution says "baca keduanya" (read both) — is preserved by rendering the depth
+disclosure **OPEN** for flagged-divergent verses, so the companion the caution points at is
+visible without a tap. Verified live (Interceptor): ordinary verse collapses to Arabic + makna;
+expanding reveals the companion and lazily loads the tafsir; 94:5 opens by default with caution +
+companion both visible. `verse.ts` owns the disclosure now (dead `tafsirEl`/`lazyTafsirEl`
+removed); 162/162 web tests (6 new in `verse.test.ts`), typecheck clean.
 
 ## Changelog
 

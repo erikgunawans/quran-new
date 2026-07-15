@@ -4,6 +4,48 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — `$impeccable critique`, the deep-link fix, and the verse-card depth ruling
+
+Ran `/impeccable critique` on Nur (31/40 → 33/40 after the first fix). Detector clean (one
+`single-font` false positive — Amiri + Inter is the correct two-script pairing). Screenshots
+blocked both runs — the Chrome window stayed minimized, and Interceptor has no programmatic
+un-minimize; assessment ran on the a11y tree + extracted text + full CSS + code.
+
+**Confirmed + fixed live — deep-link routing was clobbered by thread restore** (`4aea757`).
+`restoreThread()` called `showChat()` unconditionally, so any returning visitor cold-loading or
+reloading a deep link (`#/surah/N`, `#/tema/X`, `#/baca`) was snapped back to chat — breaking
+share, bookmark, and reload for the very links the app generates. Guarded behind `isChatRoute()`.
+Verified: cold `#/surah/1` mounts the surah; root `#/` still restores the conversation.
+
+**Then Erik ruled on verse presentation:** default view is **Arabic → Muhammad Thalib's terjemah
+makna, nothing else.** The Kemenag terjemah harfiah and the tafsir stack now collapse into one
+*depth* disclosure ("Terjemah harfiah & tafsir ulama") below the primary — one tap away, not gone.
+Flagged before building that this touches `literal_companion`; it's a **data/ship gate**
+(`validate-browser.ts`), left fully intact — the companion still ships with every verse and on
+egress. Only default visibility changed. The 94:5/94:6 "baca keduanya" caution is preserved by
+rendering the disclosure **open** for those flagged verses. Full reasoning in `ISA.md` § Decisions.
+
+`verse.ts` now owns the disclosure (dead `tafsirEl`/`lazyTafsirEl` removed; chat passes
+`tafsirStackHtml` as `tafsirStack`, lazy surfaces emit a `.tafsir-slot` inside the depth). Verified
+live via Interceptor: ordinary verse collapses to Arabic + makna; expanding reveals the companion
+and lazily loads the tafsir stack; 94:5 opens by default with caution + companion visible. Doctrine
+reconciled in PRODUCT.md, DESIGN.md, ISA.md. `bun run typecheck` clean; `bun test web/src` 162/162
+(6 new in `verse.test.ts`). Frontend-only — the corpus/ingest/browser-artifact `verify` surface is
+untouched.
+
+### Still open (from the critique, in priority order)
+
+1. **[P1] English theme labels on /tema** — 12 English category names ("Grief & loss") + franken
+   slugs (`hardship-dan-ease`) still shipped; the product's own named anti-reference. `$impeccable
+   clarify` (Indonesian translations proposed in-session, awaiting Erik's OK).
+2. **[P1] Crisis banner phone-only** — add WhatsApp `0811-3855-472` + healing119.id to the 119/8
+   CTA (the line is documented as slow to answer). `$impeccable harden`.
+3. **[P2] "Last read" bookmark** — the deep-link fix now makes it viable. `$impeccable onboard`.
+4. Restore the Chrome window from the Dock to unblock real screenshots + an NVDA/VoiceOver a11y
+   pass in the next critique round.
+
+---
+
 ## 2026-07-15 (latest) — local `main` reconciled with `origin/main`: a third divergence, cleanly resolved
 
 **Anchor:** `main` @ local, rebased onto `origin/main` tip `4852e97`.

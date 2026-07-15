@@ -127,23 +127,11 @@ export function tafsirStackHtml(tafsir: TafsirPassage[], voices: Map<string, Voi
   return `${lensControl(lens)}${stack}`;
 }
 
-/** EAGER: tafsir already known (chat's 55 curated verses, from corpus.json). */
-export function tafsirEl(tafsir: TafsirPassage[], voices: Map<string, Voice>): string {
-  if (!tafsir.length) return tafsirStackHtml(tafsir, voices);
-  return `<details class="sources">
-            <summary>Lihat ${tafsir.length} ulama membahas ayat ini</summary>
-            ${tafsirStackHtml(tafsir, voices)}
-          </details>`;
-}
-
-/** LAZY: tafsir NOT yet known — renders the disclosure immediately (so a reader can always try),
- * fetches only when actually opened. Covers the full corpus, not just the curated 55. */
-export function lazyTafsirEl(surah: number, ayah: number): string {
-  return `<details class="sources" data-lazy-tafsir data-surah="${surah}" data-ayah="${ayah}">
-    <summary>Lihat ulama yang membahas ayat ini</summary>
-    <div class="tafsir-slot"></div>
-  </details>`;
-}
+// The verse card (verse.ts) now owns the disclosure: it folds the literal companion and the tafsir
+// into one `depth` <details> below the interpretive primary. Both the eager path (chat passes
+// `tafsirStackHtml()` output as `tafsirStack`) and the lazy path (verse.ts emits a `.tafsir-slot`
+// inside a `data-lazy-tafsir` depth element, filled by `loadAndRenderTafsir` below) render through
+// `tafsirStackHtml()` — so the lens and the honest-silence copy stay identical across surfaces.
 
 // ── fetching (Path B1 shards) ────────────────────────────────────────────────
 
@@ -204,7 +192,7 @@ async function loadAndRenderTafsir(details: HTMLDetailsElement): Promise<void> {
 let bound = false;
 
 /** Idempotent. Wires the `toggle`-triggered fetch and its retry button — call once, from
- * anywhere, before any `lazyTafsirEl()` output can appear on the page. */
+ * anywhere, before any `data-lazy-tafsir` depth disclosure can appear on the page. */
 export function bindLazyTafsir(): void {
   if (bound) return;
   bound = true;
