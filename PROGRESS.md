@@ -4,6 +4,37 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-15 (latest) — crisis chat door, Indonesian /tema labels, and a 2nd worktree consolidation
+
+Continuation of the critique-fix session below. Erik handed over the wheel ("do what you
+recommend, I'll follow it"); executed the two remaining P1s in recommended order.
+
+- **Crisis banner now offers chat, not just a slow phone line** (`b884943`). The path named only
+  "Telepon 119 → 8"; the number is real (SEJIWA/Kemenkes) but the hotline is documented as not
+  always quickly answered, and a call at 2am is a real barrier for the founding persona. Added the
+  SAME Kemenkes service through a second door — WhatsApp `0811-3855-472` + `healing119.id` (both
+  verified against Kemenkes' own Healing119.id materials). Still ONE service, two doors; phone
+  stays the primary CTA, chat is the calmer alternative below it. Anti-scripture/anti-preach rules
+  re-verified. Live-verified the founding sentence fires it correctly. **Erik: sanity-check the
+  channels before wider release.**
+- **/tema speaks Indonesian** (`8d95ad9`). Shipped English category names ("Grief & loss") with
+  franken slugs ("hardship-dan-ease") — the product's own named anti-reference. The English theme
+  strings are INTERNAL retrieval keys (join `verse.theme` → `LEXICON` in retrieve.ts), so they stay
+  English; added `THEME_LABELS` (Indonesian) in problem-verses.ts and translate only in the
+  generator. theme-index.ts (display-only) now carries Indonesian labels + clean slugs. Zero
+  retrieval risk; live-verified all 12 labels + a theme page loading. **Erik (native speaker):
+  eyeball the 12 translations.**
+- **Second worktree consolidation** (`37389a4` picked up the stray). A new worktree
+  `worktree-witty-squishing-trinket` self-appeared (another session's "content pillar structure for
+  Gen Z engagement" → `CONTENT.md`, Wave 1 drafts), forked from the routing fix and merged into
+  `main` (`6c07038`). Verified the merge was clean (my crisis/depth/routing files byte-identical,
+  main = superset, nothing stranded), then removed the worktree+branch. **`.claude/worktrees/`
+  keeps self-populating — checking `git worktree list` at session start is now standing practice.**
+
+Session gate state: `main = origin/main`, single branch/worktree, `typecheck` clean, web 164/164,
+root 192/192. Still open: the P2 "last read" bookmark (the deep-link fix makes it viable); a fresh
+`$impeccable critique` to confirm the score (both P1s now fixed → expect ~35+).
+
 ## 2026-07-15 (latest) — `$impeccable critique`, the deep-link fix, and the verse-card depth ruling
 
 Ran `/impeccable critique` on Nur (31/40 → 33/40 after the first fix). Detector clean (one
