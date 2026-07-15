@@ -19,7 +19,7 @@
  *
  *   bun run app:themes
  */
-import { PROBLEM_VERSES, type Theme } from "../review/problem-verses.ts";
+import { PROBLEM_VERSES, THEME_LABELS, type Theme } from "../review/problem-verses.ts";
 
 const OUT_TS = "web/src/theme-index.ts";
 
@@ -30,8 +30,10 @@ for (const v of PROBLEM_VERSES) {
   if (!order.includes(v.theme)) order.push(v.theme);
 }
 
+// `theme` in the generated index is the READER-FACING label (Indonesian). The English `Theme` key
+// stays internal to retrieval scoring (web/src/retrieve.ts) and never ships to the browse UI.
 const grouped = order.map((theme) => ({
-  theme,
+  theme: THEME_LABELS[theme],
   verses: PROBLEM_VERSES.filter((v) => v.theme === theme).map((v) => ({
     surah: v.ref[0],
     ayah: v.ref[1],

@@ -20,7 +20,7 @@ export interface ThemeGroup {
 
 export const THEME_INDEX: readonly ThemeGroup[] = [
   {
-    "theme": "Hardship & ease",
+    "theme": "Kesulitan & kelapangan",
     "verses": [
       {
         "surah": 94,
@@ -61,7 +61,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Anxiety & fear",
+    "theme": "Cemas & takut",
     "verses": [
       {
         "surah": 13,
@@ -102,7 +102,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Grief & loss",
+    "theme": "Duka & kehilangan",
     "verses": [
       {
         "surah": 2,
@@ -143,7 +143,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Patience",
+    "theme": "Kesabaran",
     "verses": [
       {
         "surah": 2,
@@ -178,7 +178,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Forgiveness & despair",
+    "theme": "Ampunan & putus asa",
     "verses": [
       {
         "surah": 39,
@@ -219,7 +219,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Provision & debt",
+    "theme": "Rezeki & utang",
     "verses": [
       {
         "surah": 65,
@@ -260,7 +260,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Trust in God",
+    "theme": "Tawakal",
     "verses": [
       {
         "surah": 3,
@@ -289,7 +289,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Gratitude",
+    "theme": "Syukur",
     "verses": [
       {
         "surah": 14,
@@ -312,7 +312,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Prayer answered",
+    "theme": "Doa yang dikabulkan",
     "verses": [
       {
         "surah": 2,
@@ -341,7 +341,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Mercy",
+    "theme": "Rahmat & kasih sayang",
     "verses": [
       {
         "surah": 7,
@@ -364,7 +364,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Self-worth & purpose",
+    "theme": "Harga diri & makna hidup",
     "verses": [
       {
         "surah": 95,
@@ -387,7 +387,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Family",
+    "theme": "Keluarga",
     "verses": [
       {
         "surah": 30,

@@ -30,6 +30,30 @@ export type Theme =
   | "Self-worth & purpose"
   | "Family";
 
+/**
+ * Indonesian display labels for the browse surface (/tema).
+ *
+ * The `Theme` values above are INTERNAL KEYS: they join `verse.theme` to the retrieval `LEXICON`
+ * in `web/src/retrieve.ts` and must stay stable and English — renaming them would silently break
+ * chat scoring. These labels are what a reader actually SEES. Keeping the two separate lets the
+ * browse UI speak Indonesian (the whole point of this app) without touching the scoring keys.
+ * `build-themes.ts` emits these into the generated `theme-index.ts`; retrieval never reads them.
+ */
+export const THEME_LABELS: Record<Theme, string> = {
+  "Hardship & ease": "Kesulitan & kelapangan",
+  "Anxiety & fear": "Cemas & takut",
+  "Grief & loss": "Duka & kehilangan",
+  Patience: "Kesabaran",
+  "Forgiveness & despair": "Ampunan & putus asa",
+  "Provision & debt": "Rezeki & utang",
+  "Trust in God": "Tawakal",
+  Gratitude: "Syukur",
+  "Prayer answered": "Doa yang dikabulkan",
+  Mercy: "Rahmat & kasih sayang",
+  "Self-worth & purpose": "Harga diri & makna hidup",
+  Family: "Keluarga",
+};
+
 export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   // ── Hardship & ease — the most-reached-for verses in the Qur'an ───────────
   { ref: [94, 5], theme: "Hardship & ease", why: "Ayat penghiburan — bersama kesulitan ada kemudahan" },
