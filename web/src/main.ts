@@ -4,6 +4,7 @@ import { announce } from "./announce.ts";
 import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
+import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
@@ -183,7 +184,7 @@ async function ask(question: string) {
   const q = question.trim();
   if (!q) return;
 
-  $("#hello")?.remove();
+  leaveLanding();
   showChat();
 
   const me = document.createElement("div");
@@ -340,6 +341,39 @@ async function route() {
 }
 
 window.addEventListener("hashchange", () => void route());
+
+// ── the landing ──────────────────────────────────────────────────────────────
+// The chat box is the main attraction, so on the empty state it sits INSIDE the hero —
+// between the invitation and the seeds — rather than docked at the bottom of the screen.
+// It cannot be placed there by CSS alone: `#composer-bar` is a body-level sibling of `.app`,
+// so no amount of `order` can interleave it with the hero's own children. We move the node.
+//
+// Ordering matters on the way out too: the composer must leave the hero BEFORE the hero is
+// removed, or it gets destroyed along with it and the user loses the input mid-question.
+function enterLanding(): void {
+  const hero = $("#hello");
+  const bar = $<HTMLElement>("#composer-bar");
+  if (!hero || !bar) return;
+  hero.querySelector(".seeds")?.before(bar);
+  document.documentElement.dataset.landing = "";
+
+  const la = $<HTMLElement>("#greet-la");
+  if (la) stopGreeting = mountGreeting(la);
+}
+
+let stopGreeting: (() => void) | null = null;
+
+function leaveLanding(): void {
+  const hero = $("#hello");
+  const bar = $<HTMLElement>("#composer-bar");
+  if (bar && hero?.contains(bar)) document.body.append(bar);
+  stopGreeting?.();
+  stopGreeting = null;
+  delete document.documentElement.dataset.landing;
+  hero?.remove();
+}
+
+if ($("#hello")) enterLanding();
 
 // ── composer ─────────────────────────────────────────────────────────────────
 form.addEventListener("submit", (e) => {

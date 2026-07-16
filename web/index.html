@@ -3,22 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#131a17" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1a16" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f9f6" media="(prefers-color-scheme: light)">
 <meta name="description" content="New-Quranku — Al-Qur'an dengan terjemah makna yang bisa kamu pahami. Setiap sumber disebutkan namanya.">
 <title>New-Quranku</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Latin stays quiet. -->
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Fraunces speaks only where
+     the app addresses the reader; Plus Jakarta Sans carries everything else. -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="app" id="app">
   <header class="top">
     <a class="mark" href="#/" aria-label="New-Quranku — beranda">
-      <span class="dot" aria-hidden="true"></span>
+      <span class="emblem" aria-hidden="true">ق</span>
       <span class="latin">New-Quranku</span>
     </a>
 
@@ -73,7 +74,13 @@
   <section id="chat">
     <main class="thread" id="thread">
       <section class="hello" id="hello">
-        <h1>Ada apa hari ini?</h1>
+        <!-- The app notices what time it is for you. Arabic first — it is the greeting a
+             Muslim already knows, not decoration. The Latin line is written by greet.ts. -->
+        <div class="greet">
+          <div class="greet-ar" dir="rtl" lang="ar">ٱلسَّلَامُ عَلَيْكُمْ</div>
+          <p class="greet-la" id="greet-la"></p>
+        </div>
+        <h1>Ada apa <em>hari ini?</em></h1>
         <p>Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.</p>
         <div class="seeds">
           <button class="seed">aku lagi capek banget</button>

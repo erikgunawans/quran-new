@@ -49,81 +49,114 @@ const contrast = (fg: [number, number, number], bg: [number, number, number]) =>
 const ok = (L: number, C: number, h: number) => oklchToRgb(L, C, h);
 
 // ── the actual tokens from styles.css ────────────────────────────────
-const DARK = {
-  bg: ok(0.158, 0.012, 155),
-  surface: ok(0.205, 0.016, 155),
-  surface2: ok(0.255, 0.018, 155),
-  ink: ok(0.975, 0.004, 95),
-  ink2: ok(0.78, 0.008, 155),
-  ink3: ok(0.64, 0.01, 155),
-  primary: ok(0.68, 0.115, 150),
-  caution: ok(0.76, 0.14, 55),
+
+/**
+ * The brand colors are theme-INVARIANT: only the bg/surface/ink axis flips between registers.
+ * One emerald means "you can do this" in both, and the white-on-action math is proved once.
+ */
+const BRAND = {
+  /** the ONE bright surface — actions only. Carries white text, so AA pins its lightness. */
+  action: ok(0.532, 0.112, 163),
+  /** the far stop of the action gradient. A gradient must pass at BOTH ends, not on average. */
+  action2: ok(0.542, 0.092, 188),
+  actionInk: ok(1.0, 0.0, 0),
+  /** weight without shouting: prayer sidebar, resume bar, ayah badges */
+  forest: ok(0.375, 0.073, 166),
+  /** decorative only — never text, so it has no AA duty */
+  clay: ok(0.586, 0.091, 49),
 };
 
 const LIGHT = {
-  bg: ok(1.0, 0.0, 0),
-  surface: ok(0.978, 0.004, 155),
-  surface2: ok(0.955, 0.006, 155),
-  ink: ok(0.185, 0.018, 155),
-  ink2: ok(0.42, 0.014, 155),
-  ink3: ok(0.53, 0.012, 155),
-  primary: ok(0.4, 0.106, 150),
+  bg: ok(0.978, 0.007, 160),
+  surface: ok(1.0, 0.0, 0),
+  surface2: ok(0.955, 0.017, 165),
+  ink: ok(0.219, 0.024, 167),
+  ink2: ok(0.416, 0.021, 169),
+  ink3: ok(0.509, 0.021, 166),
+  primary: ok(0.416, 0.083, 165),
   caution: ok(0.52, 0.135, 55),
+};
+
+const DARK = {
+  bg: ok(0.175, 0.018, 165),
+  surface: ok(0.225, 0.02, 165),
+  surface2: ok(0.275, 0.022, 165),
+  ink: ok(0.97, 0.006, 160),
+  ink2: ok(0.8, 0.012, 165),
+  ink3: ok(0.68, 0.014, 165),
+  primary: ok(0.76, 0.128, 165),
+  caution: ok(0.78, 0.14, 55),
 };
 
 const AA_BODY = 4.5;
 const AA_LARGE = 3.0;
+/** WCAG 1.4.11: UI components and graphical objects need 3:1, not 4.5:1. */
+const AA_NONTEXT = 3.0;
 
-describe("WCAG AA — dark theme (the 2am room)", () => {
-  const t = DARK;
-  const cases: [string, [number, number, number], [number, number, number], number][] = [
-    ["scripture (ink on bg)", t.ink, t.bg, AA_LARGE],
-    ["scripture on surface", t.ink, t.surface, AA_LARGE],
-    ["body prose (ink2 on bg)", t.ink2, t.bg, AA_BODY],
-    ["body prose on surface", t.ink2, t.surface, AA_BODY],
-    ["labels (ink3 on bg)", t.ink3, t.bg, AA_BODY],
-    ["labels on surface", t.ink3, t.surface, AA_BODY],
-    ["placeholder (ink3 on surface2)", t.ink3, t.surface2, AA_BODY],
-    ["primary link on bg", t.primary, t.bg, AA_BODY],
-    ["primary on surface2", t.primary, t.surface2, AA_BODY],
-    ["caution on surface", t.caution, t.surface, AA_BODY],
-  ];
-  for (const [name, fg, bg, need] of cases) {
-    test(`${name} ≥ ${need}:1`, () => {
-      const r = contrast(fg, bg);
-      expect(r).toBeGreaterThanOrEqual(need);
+type Theme = typeof LIGHT;
+
+const surfaceCases = (t: Theme): [string, [number, number, number], [number, number, number], number][] => [
+  ["scripture (ink on bg)", t.ink, t.bg, AA_LARGE],
+  ["scripture on surface", t.ink, t.surface, AA_LARGE],
+  ["body prose (ink2 on bg)", t.ink2, t.bg, AA_BODY],
+  ["body prose on surface", t.ink2, t.surface, AA_BODY],
+  ["labels (ink3 on bg)", t.ink3, t.bg, AA_BODY],
+  ["labels on surface", t.ink3, t.surface, AA_BODY],
+  ["placeholder (ink3 on surface2)", t.ink3, t.surface2, AA_BODY],
+  ["primary link on bg", t.primary, t.bg, AA_BODY],
+  ["primary on surface", t.primary, t.surface, AA_BODY],
+  ["primary on surface2 (the wash)", t.primary, t.surface2, AA_BODY],
+  ["caution on surface", t.caution, t.surface, AA_BODY],
+];
+
+for (const [register, tokens] of [
+  ["light — the default register", LIGHT],
+  ["dark — the 2am room", DARK],
+] as const) {
+  describe(`WCAG AA — ${register}`, () => {
+    for (const [name, fg, bg, need] of surfaceCases(tokens)) {
+      test(`${name} ≥ ${need}:1`, () => {
+        expect(contrast(fg, bg)).toBeGreaterThanOrEqual(need);
+      });
+    }
+
+    test("the action surface is distinguishable from the page ≥ 3:1", () => {
+      // WCAG 1.4.11 — a button the eye cannot find is not a button.
+      expect(contrast(BRAND.action, tokens.bg)).toBeGreaterThanOrEqual(AA_NONTEXT);
     });
-  }
+  });
+}
+
+/**
+ * The regression this file exists for. Bright emerald is the actions-only color and it carries
+ * white TEXT — the chat bubble (the reader's own words) and the primary CTA. Three design passes
+ * audited --ink-3 and never audited this, and it sat at 3.33:1: a fail. The action's lightness is
+ * therefore pinned by contrast, not taste. Brightening it "to pop more" must fail here first.
+ */
+describe("WCAG AA — the action color carries white text", () => {
+  test("white on action ≥ 4.5:1 (chat bubble, CTA)", () => {
+    expect(contrast(BRAND.actionInk, BRAND.action)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+
+  test("white on the FAR stop of the action gradient ≥ 4.5:1", () => {
+    // A gradient passes at both ends or it does not pass. Text sits over the whole sweep.
+    expect(contrast(BRAND.actionInk, BRAND.action2)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+
+  test("white on forest ≥ 4.5:1 (prayer sidebar, resume bar, ayah badge)", () => {
+    expect(contrast(BRAND.actionInk, BRAND.forest)).toBeGreaterThanOrEqual(AA_BODY);
+  });
 });
 
-describe("WCAG AA — light theme (the commute)", () => {
-  const t = LIGHT;
-  const cases: [string, [number, number, number], [number, number, number], number][] = [
-    ["scripture (ink on bg)", t.ink, t.bg, AA_LARGE],
-    ["scripture on surface", t.ink, t.surface, AA_LARGE],
-    ["body prose (ink2 on bg)", t.ink2, t.bg, AA_BODY],
-    ["body prose on surface", t.ink2, t.surface, AA_BODY],
-    ["labels (ink3 on bg)", t.ink3, t.bg, AA_BODY],
-    ["labels on surface", t.ink3, t.surface, AA_BODY],
-    ["placeholder (ink3 on surface2)", t.ink3, t.surface2, AA_BODY],
-    ["primary link on bg", t.primary, t.bg, AA_BODY],
-    ["primary on surface2", t.primary, t.surface2, AA_BODY],
-    ["caution on surface", t.caution, t.surface, AA_BODY],
-  ];
-  for (const [name, fg, bg, need] of cases) {
-    test(`${name} ≥ ${need}:1`, () => {
-      const r = contrast(fg, bg);
-      expect(r).toBeGreaterThanOrEqual(need);
-    });
-  }
-});
-
-test("the ink is the brightest thing in the dark room — nūr, structurally", () => {
-  // The scripture must out-luminance every chrome color. If a UI element ever glows brighter
-  // than the verse, the design has inverted its own thesis.
+test("in the dark room, scripture out-luminates every piece of chrome", () => {
+  // If a UI element ever glows brighter than the verse, the design has inverted its own thesis.
   const inkL = luminance(DARK.ink);
   for (const [name, c] of Object.entries(DARK)) {
     if (name === "ink") continue;
+    expect(luminance(c)).toBeLessThan(inkL);
+  }
+  for (const [name, c] of Object.entries(BRAND)) {
+    if (name === "actionInk") continue; // white text ON a brand surface, not chrome
     expect(luminance(c)).toBeLessThan(inkL);
   }
 });

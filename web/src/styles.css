@@ -1,38 +1,58 @@
 /* ════════════════════════════════════════════════════════════════════
-   Nur — نور
-   The interface is the room. The scripture is the light source.
-   No gold. No filigree. The drama is luminance, not ornament.
+   New-Quranku
+   Light is the register. Scripture owns the width. Structure, not filigree.
+   Bright emerald is ACTIONS ONLY; deep forest carries weight; no gold, ever.
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── DARK: the 2am room (default emotional register) ───────────────── */
+/* ── LIGHT: the default register ───────────────────────────────────── */
 :root {
-  --bg:          oklch(0.158 0.012 155);
-  --surface:     oklch(0.205 0.016 155);
-  --surface-2:   oklch(0.255 0.018 155);
-  --line:        oklch(0.305 0.016 155);
-  --line-strong: oklch(0.380 0.018 155);
+  --bg:          oklch(0.978 0.007 160);   /* pale green-white, not paper-white */
+  --surface:     oklch(1.000 0.000 0);     /* the card */
+  --surface-2:   oklch(0.955 0.017 165);   /* the wash */
+  --line:        oklch(0.927 0.010 165);
+  --line-strong: oklch(0.889 0.017 163);
 
-  --ink:   oklch(0.975 0.004 95);   /* the light — faintly warm, lamplight */
-  --ink-2: oklch(0.780 0.008 155);
-  --ink-3: oklch(0.640 0.010 155);
+  --ink:   oklch(0.219 0.024 167);
+  --ink-2: oklch(0.416 0.021 169);
+  --ink-3: oklch(0.509 0.021 166);
 
-  --primary:       oklch(0.680 0.115 150);
-  --primary-ink:   oklch(0.180 0.020 150);
-  --primary-wash:  oklch(0.680 0.115 150 / 0.14);
-  --primary-line:  oklch(0.680 0.115 150 / 0.40);
+  /* primary = the READABLE emerald: links, labels, pressed states, icons.
+     Deep enough to carry body text on --surface (8.2:1). */
+  --primary:       oklch(0.416 0.083 165);
+  --primary-ink:   oklch(1.000 0.000 0);
+  --primary-wash:  oklch(0.955 0.017 165);
+  --primary-line:  oklch(0.627 0.129 165 / 0.45);
 
-  --caution:      oklch(0.760 0.140 55);
-  --caution-wash: oklch(0.760 0.140 55 / 0.12);
+  /* action = the ONE bright surface, reserved for what the reader can DO (send, CTA,
+     their own words, the mark). It carries white text, so its lightness is pinned by
+     WCAG AA (4.94:1) — not by taste. Going brighter fails the contrast test, by design. */
+  --action:      oklch(0.532 0.112 163);
+  --action-2:    oklch(0.542 0.092 188);
+  --action-grad: linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%);
+  --action-ink:  oklch(1.000 0.000 0);
 
-  --glow: 0 0 40px oklch(0.975 0.004 95 / 0.10), 0 0 90px oklch(0.975 0.004 95 / 0.05);
-  --shadow-pop: 0 8px 28px oklch(0.10 0.01 155 / 0.55);
+  /* forest = weight without shouting. Prayer sidebar, resume bar, ayah badges. */
+  --forest:      oklch(0.375 0.073 166);
+  --forest-grad: linear-gradient(145deg, oklch(0.375 0.073 166) 0%, oklch(0.370 0.058 195) 60%, oklch(0.365 0.060 235) 100%);
+
+  /* clay = the only spark. Decorative rules and accents; never body text. */
+  --clay: oklch(0.586 0.091 49);
+
+  /* the ambient light behind everything — dimmer in the dark room, never absent */
+  --wash-1: oklch(0.627 0.129 165 / 0.08);
+  --wash-2: oklch(0.542 0.092 188 / 0.05);
+
+  --caution:      oklch(0.520 0.135 55);
+  --caution-wash: oklch(0.520 0.135 55 / 0.10);
+
+  --glow: none;
+  --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
 
   --f-ar: "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
-  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* display: one characterful voice for the Latin hero + section titles. Instrument Serif — elegant,
-     high-contrast, calm; a single weight (~35KB, swap-loaded) so the low-bandwidth floor holds. The
-     UI body stays Inter; this speaks only where the app addresses the reader directly. */
-  --f-display: "Instrument Serif", "Amiri", Georgia, serif;
+  --f-ui: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* display: Fraunces — the one characterful voice, for the hero and section titles only.
+     The UI body stays Plus Jakarta Sans; this speaks where the app addresses the reader. */
+  --f-display: "Fraunces", Georgia, serif;
 
   --step--1: 0.833rem;
   --step-0:  1rem;
@@ -41,8 +61,16 @@
   --step-3:  1.728rem;
   --step-4:  2.074rem;
 
-  --r:    8px;
-  --r-lg: 12px;
+  /* 4pt spacing scale — rhythm comes from a defined set, never arbitrary numbers */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
+
+  --r:       14px;
+  --r-lg:    16px;
+  --r-input: 18px;
+
+  --sh-sm: 0 1px 2px oklch(0.30 0.04 160 / 0.05);
+  --sh:    0 1px 3px oklch(0.30 0.04 160 / 0.06), 0 4px 10px oklch(0.30 0.04 160 / 0.04);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --t:    200ms var(--ease);
@@ -56,65 +84,72 @@
   /* user-scalable scripture, independent of UI */
   --ar-size: 2.1rem;
 
-  color-scheme: dark;
-}
-
-/* ── LIGHT: the commute. Composed, not inverted. ───────────────────── */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg:          oklch(1.000 0.000 0);   /* pure white — no hidden warmth */
-    --surface:     oklch(0.978 0.004 155);
-    --surface-2:   oklch(0.955 0.006 155);
-    --line:        oklch(0.905 0.008 155);
-    --line-strong: oklch(0.845 0.010 155);
-
-    --ink:   oklch(0.185 0.018 155);
-    --ink-2: oklch(0.420 0.014 155);
-    --ink-3: oklch(0.530 0.012 155);
-
-    --primary:      oklch(0.400 0.106 150);
-    --primary-ink:  oklch(0.995 0.002 150);
-    --primary-wash: oklch(0.400 0.106 150 / 0.09);
-    --primary-line: oklch(0.400 0.106 150 / 0.32);
-
-    --caution:      oklch(0.520 0.135 55);
-    --caution-wash: oklch(0.520 0.135 55 / 0.10);
-
-    --glow: none;
-    --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
-
-    color-scheme: light;
-  }
-}
-:root[data-theme="dark"]  { color-scheme: dark; }
-:root[data-theme="light"] {
-  --bg: oklch(1.000 0.000 0); --surface: oklch(0.978 0.004 155);
-  --surface-2: oklch(0.955 0.006 155); --line: oklch(0.905 0.008 155);
-  --line-strong: oklch(0.845 0.010 155);
-  --ink: oklch(0.185 0.018 155); --ink-2: oklch(0.420 0.014 155); --ink-3: oklch(0.530 0.012 155);
-  --primary: oklch(0.400 0.106 150); --primary-ink: oklch(0.995 0.002 150);
-  --primary-wash: oklch(0.400 0.106 150 / 0.09); --primary-line: oklch(0.400 0.106 150 / 0.32);
-  --caution: oklch(0.520 0.135 55); --caution-wash: oklch(0.520 0.135 55 / 0.10);
-  --glow: none; --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
   color-scheme: light;
 }
+
+/* ── DARK: the 2am room. Composed, not inverted. ────────────────────
+   Only the bg/surface/ink axis flips. The brand colors — --action, --forest, --clay —
+   are theme-INVARIANT: one emerald means "you can do this" in both registers, and the
+   white-on-action AA math holds without being re-proved per theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          oklch(0.175 0.018 165);
+    --surface:     oklch(0.225 0.020 165);
+    --surface-2:   oklch(0.275 0.022 165);
+    --line:        oklch(0.320 0.018 165);
+    --line-strong: oklch(0.395 0.020 165);
+
+    --ink:   oklch(0.970 0.006 160);
+    --ink-2: oklch(0.800 0.012 165);
+    --ink-3: oklch(0.680 0.014 165);
+
+    --primary:      oklch(0.760 0.128 165);
+    --primary-ink:  oklch(0.180 0.020 165);
+    --primary-wash: oklch(0.760 0.128 165 / 0.14);
+    --primary-line: oklch(0.760 0.128 165 / 0.42);
+
+    --caution:      oklch(0.780 0.140 55);
+    --caution-wash: oklch(0.780 0.140 55 / 0.12);
+
+    --wash-1: oklch(0.627 0.129 165 / 0.10);
+    --wash-2: oklch(0.542 0.092 188 / 0.07);
+
+    --glow: none;
+    --shadow-pop: 0 8px 28px oklch(0.10 0.01 165 / 0.55);
+
+    --sh-sm: 0 1px 2px oklch(0.08 0.01 165 / 0.40);
+    --sh:    0 1px 3px oklch(0.08 0.01 165 / 0.45), 0 4px 10px oklch(0.08 0.01 165 / 0.35);
+
+    color-scheme: dark;
+  }
+}
+/* Explicit choice beats the OS. Light needs no block — it IS :root. */
+:root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] {
-  --bg: oklch(0.158 0.012 155); --surface: oklch(0.205 0.016 155);
-  --surface-2: oklch(0.255 0.018 155); --line: oklch(0.305 0.016 155);
-  --line-strong: oklch(0.380 0.018 155);
-  --ink: oklch(0.975 0.004 95); --ink-2: oklch(0.780 0.008 155); --ink-3: oklch(0.640 0.010 155);
-  --primary: oklch(0.680 0.115 150); --primary-ink: oklch(0.180 0.020 150);
-  --primary-wash: oklch(0.680 0.115 150 / 0.14); --primary-line: oklch(0.680 0.115 150 / 0.40);
-  --caution: oklch(0.760 0.140 55); --caution-wash: oklch(0.760 0.140 55 / 0.12);
-  --glow: 0 0 40px oklch(0.975 0.004 95 / 0.10), 0 0 90px oklch(0.975 0.004 95 / 0.05);
-  --shadow-pop: 0 8px 28px oklch(0.10 0.01 155 / 0.55);
+  --bg: oklch(0.175 0.018 165); --surface: oklch(0.225 0.020 165);
+  --surface-2: oklch(0.275 0.022 165); --line: oklch(0.320 0.018 165);
+  --line-strong: oklch(0.395 0.020 165);
+  --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
+  --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
+  --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
+  --caution: oklch(0.780 0.140 55); --caution-wash: oklch(0.780 0.140 55 / 0.12);
+  --wash-1: oklch(0.627 0.129 165 / 0.10); --wash-2: oklch(0.542 0.092 188 / 0.07);
+  --glow: none; --shadow-pop: 0 8px 28px oklch(0.10 0.01 165 / 0.55);
+  --sh-sm: 0 1px 2px oklch(0.08 0.01 165 / 0.40);
+  --sh:    0 1px 3px oklch(0.08 0.01 165 / 0.45), 0 4px 10px oklch(0.08 0.01 165 / 0.35);
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 
 body {
-  background: var(--bg);
+  /* ambient emerald washes — the room has a light source, but it stays behind the content */
+  background:
+    radial-gradient(50% 40% at 12% -5%, var(--wash-1), transparent 60%),
+    radial-gradient(46% 36% at 100% 10%, var(--wash-2), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--ink-2);
   font-family: var(--f-ui);
   font-size: var(--step-0);
@@ -137,7 +172,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 /* ── shell ─────────────────────────────────────────────────────────── */
+/* 46rem is a MEASURE, not a layout choice — it is how wide prose stays readable, and the
+   thread and reading surface must not exceed it. The landing is not prose: it carries the
+   band, which needs real width. So the landing widens and the reading column does not. */
 .app { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 8rem; }
+:root[data-landing] .app { max-width: 1120px; padding-inline: var(--s-6); }
 
 .top {
   position: sticky; top: 0; z-index: var(--z-sticky);
@@ -148,28 +187,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-bottom: 1px solid var(--line);
 }
 
-/* the wordmark: a lamp. luminance, not a logo. */
-.mark { display: flex; align-items: center; gap: 0.55rem; margin-right: auto; }
-.mark .dot {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 0 12px var(--ink), 0 0 24px oklch(0.975 0.004 95 / 0.5);
-}
-:root[data-theme="light"] .mark .dot,
-:root:not([data-theme="dark"]) .mark .dot { box-shadow: none; background: var(--primary); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .mark .dot {
-    background: var(--ink);
-    box-shadow: 0 0 12px var(--ink), 0 0 24px oklch(0.975 0.004 95 / 0.5);
-  }
-}
-.mark .name {
-  font-family: var(--f-ar); font-size: var(--step-2); color: var(--ink);
-  line-height: 1; letter-spacing: 0;
+/* the wordmark: the mark is an action surface — it takes you home — so it earns the emerald. */
+.mark { display: flex; align-items: center; gap: 11px; margin-right: auto; }
+.mark .emblem {
+  width: 34px; height: 34px; border-radius: 11px;
+  background: var(--action-grad); color: var(--action-ink);
+  display: grid; place-items: center;
+  font-family: var(--f-ar); font-size: 19px; line-height: 1;
 }
 .mark .latin {
-  font-size: var(--step--1); color: var(--ink-3); letter-spacing: 0.12em;
-  text-transform: uppercase; font-weight: 500;
+  font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em;
 }
 
 .icon-btn {
@@ -227,24 +254,55 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── chat ──────────────────────────────────────────────────────────── */
 .thread { display: flex; flex-direction: column; gap: 1.5rem; padding-top: 2rem; }
 
-/* empty state teaches, in real language */
-.hello { padding: 3.75rem 0 1rem; }
+/* empty state teaches, in real language — and it is the landing. Centered, because the
+   chat box is the main attraction and everything here points at it. */
+.hello {
+  padding: var(--s-8) var(--s-5) var(--s-5);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+/* the greeting: Arabic first, then the app notices what time it is for you */
+.greet { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); margin-bottom: 18px; }
+.greet-ar {
+  font-family: var(--f-ar); font-size: 30px; line-height: 1.5;
+  color: var(--primary); direction: rtl;
+  text-shadow: 0 0 22px var(--primary-line);
+}
+.greet-la { font-size: 14.5px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.01em; }
+@media (prefers-reduced-motion: no-preference) {
+  .greet-ar {
+    animation: greet-in 1s var(--ease) both, greet-breathe 3s ease-in-out 0.9s infinite;
+  }
+  @keyframes greet-in { from { opacity: 0; transform: translateY(-7px); } to { opacity: 1; transform: none; } }
+  @keyframes greet-breathe {
+    0%, 100% { opacity: 1;    text-shadow: 0 0 22px var(--primary-line); }
+    50%      { opacity: 0.62; text-shadow: 0 0 10px transparent; }
+  }
+}
+
 .hello h1 {
   font-family: var(--f-display);
-  font-size: 2.6rem; font-weight: 400; color: var(--ink);
-  letter-spacing: -0.005em; line-height: 1.08; text-wrap: balance;
-  margin-bottom: 0.7rem;
+  font-size: clamp(40px, 5.6vw, 64px); font-weight: 500; color: var(--ink);
+  letter-spacing: -0.02em; line-height: 1.04; text-wrap: balance;
+  max-width: 16ch; margin-bottom: var(--s-4);
 }
-.hello p { color: var(--ink-2); max-width: 36ch; text-wrap: pretty; line-height: 1.55; }
+.hello h1 em { font-style: italic; color: var(--primary); }
+.hello p {
+  color: var(--ink-2); max-width: 44ch; text-wrap: pretty; line-height: 1.55;
+  font-size: clamp(16px, 1.7vw, 18.5px);
+}
 
-.seeds { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.75rem; }
+.seeds {
+  display: flex; flex-wrap: wrap; gap: 9px; justify-content: center;
+  max-width: 640px; margin-top: var(--s-4);
+}
 .seed {
   display: inline-flex; align-items: center; min-height: 44px;
-  padding: 0.55rem 0.9rem; border: 1px solid var(--line);
-  border-radius: 999px; color: var(--ink-2); font-size: var(--step--1);
-  transition: border-color var(--t), color var(--t), background var(--t);
+  padding: 10px 16px; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 999px; color: var(--ink-2); font-size: 14px; font-weight: 600;
+  transition: border-color var(--t), color var(--t), transform var(--t);
 }
-.seed:hover { border-color: var(--primary-line); color: var(--ink); background: var(--primary-wash); }
+.seed:hover { border-color: var(--action); color: var(--primary); transform: translateY(-1px); }
 .seed:active { transform: translateY(1px); }
 
 .msg.me {
@@ -286,32 +344,23 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   direction: rtl;
   text-align: right;
   color: var(--ink);
-  padding: 2.4rem 1.15rem;
+  padding: 18px 26px 26px;
   text-shadow: var(--glow);
   /* NEVER letter-spacing on Arabic — it breaks the joins */
   letter-spacing: normal;
 }
 
-/* the one permitted flourish, re-cast for sakīnah: the ayat SETTLES into stillness — it descends
-   from just above and comes to rest, the calm the app exists to bring rendered as motion. Fires once,
-   on the hero ayat only. `forwards`, never `both` — `both` back-fills the FROM keyframe (invisible,
-   blurred) the instant the element exists, even before the animation engine runs a frame. A tab
-   backgrounded mid-load (app-switch, screen lock — routine on the mid-range Android this product
-   targets) can leave a CSS animation never-started, and `both` then leaves the verse permanently
-   invisible. `forwards` shows the element's real, visible, unanimated style until the animation
-   genuinely begins, so scripture is never gated behind motion that might not run. */
-@media (prefers-reduced-motion: no-preference) {
-  .verse[data-new] .ar {
-    animation: settle 760ms var(--ease) forwards;
-  }
-  @keyframes settle {
-    from { opacity: 0; filter: blur(6px); transform: translateY(-11px); }
-    to   { opacity: 1; filter: blur(0);   transform: none; }
-  }
-}
+/* A new ayat arrives, it does not perform. The only motion is a fade.
+   `forwards`, never `both` — `both` back-fills the FROM keyframe (invisible) the instant the
+   element exists, even before the animation engine runs a frame. A tab backgrounded mid-load
+   (app-switch, screen lock — routine on the mid-range Android this product targets) can leave a
+   CSS animation never-started, and `both` then leaves the verse permanently invisible. `forwards`
+   shows the element's real, visible, unanimated style until the animation genuinely begins, so
+   scripture is never gated behind motion that might not run. */
+.verse[data-new] .ar { animation: fade 320ms ease forwards; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .verse[data-new] .ar { animation: fade 240ms ease forwards; }
-  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+  .verse[data-new] .ar { animation-duration: 1ms; }
 }
 
 /* ── readings: attribution IS the design ──────────────────────────── */
@@ -447,7 +496,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .send {
   display: grid; place-items: center; width: 36px; height: 36px;
-  border-radius: var(--r); background: var(--primary); color: var(--primary-ink);
+  border-radius: var(--r); background: var(--action-grad); color: var(--action-ink);
   transition: opacity var(--t), transform var(--t);
   flex-shrink: 0;
 }
@@ -455,6 +504,36 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .send:active:not(:disabled) { transform: scale(0.95); }
 .send:disabled { opacity: 0.35; cursor: not-allowed; }
 .send svg { width: 17px; height: 17px; }
+
+/* ── the landing composer: the main attraction ─────────────────────────
+   On the empty state the chat box is not a utility bar at the bottom of the screen — it is
+   the thing the page is built around. main.ts moves the node into the hero; these rules
+   un-dock it. Everything here is scoped to [data-landing], so the docked bar above stays
+   the single definition of the conversational state. */
+:root[data-landing] .composer {
+  position: static; padding: 0; background: none; width: 100%;
+  display: flex; justify-content: center;
+  margin: var(--s-2) 0 0;
+}
+:root[data-landing] .composer form {
+  width: 100%; max-width: 700px;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: var(--r-input);
+  box-shadow: 0 2px 6px oklch(0.30 0.04 160 / 0.06), 0 14px 34px oklch(0.45 0.10 165 / 0.12);
+  padding: 9px 9px 9px 22px;
+  align-items: center; gap: var(--s-3);
+}
+:root[data-landing] .composer form:focus-within {
+  border-color: var(--primary-line);
+  box-shadow: 0 2px 6px oklch(0.30 0.04 160 / 0.06), 0 16px 40px oklch(0.45 0.10 165 / 0.16),
+              0 0 0 4px var(--primary-wash);
+}
+:root[data-landing] .composer textarea { font-size: 17.5px; padding: 14px 0; }
+:root[data-landing] .send { width: 52px; height: 52px; border-radius: 13px; }
+:root[data-landing] .send svg { width: 22px; height: 22px; }
+/* the docked bar reserves 8rem of scroll runway it does not need on the landing */
+:root[data-landing] .app { padding-bottom: var(--s-8); }
 
 /* ── composing — the chat surface names its own rhythm, no typewriter gimmick ────────────── */
 .composing {
