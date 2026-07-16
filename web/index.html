@@ -99,6 +99,14 @@
           <button class="linkish" data-explain="open">Kenapa? →</button>
         </p>
       </section>
+
+      <!-- The band: scripture owns the width, prayer is a utility sidebar. The asymmetry is
+           the point — a 50/50 split would say the two carry equal weight. Both are painted
+           by JS (band.ts) because both depend on the corpus and on the reader's clock. -->
+      <div class="band" id="band" hidden>
+        <section class="aod" id="aod" aria-labelledby="aod-label"></section>
+        <aside class="prayer" id="prayer" aria-label="Waktu salat"></aside>
+      </div>
     </main>
   </section>
 

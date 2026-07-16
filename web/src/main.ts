@@ -4,6 +4,7 @@ import { announce } from "./announce.ts";
 import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
+import { mountBand } from "./band.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
@@ -359,9 +360,16 @@ function enterLanding(): void {
 
   const la = $<HTMLElement>("#greet-la");
   if (la) stopGreeting = mountGreeting(la);
+
+  // The band is the landing's identity anchor, but it is not the reason the reader came:
+  // it loads a shard and asks for geolocation, so it must never block the chat box.
+  void mountBand().then((stop) => {
+    stopBand = stop;
+  });
 }
 
 let stopGreeting: (() => void) | null = null;
+let stopBand: (() => void) | null = null;
 
 function leaveLanding(): void {
   const hero = $("#hello");
@@ -369,6 +377,8 @@ function leaveLanding(): void {
   if (bar && hero?.contains(bar)) document.body.append(bar);
   stopGreeting?.();
   stopGreeting = null;
+  stopBand?.();
+  stopBand = null;
   delete document.documentElement.dataset.landing;
   hero?.remove();
 }

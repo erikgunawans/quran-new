@@ -976,3 +976,91 @@ dialog.explain article { padding: 26px 28px 28px; }
 }
 .thread-tools .linkish { color: var(--ink-3); font-weight: 500; }
 .thread-tools .linkish:hover { color: var(--caution); }
+
+/* ── the band ──────────────────────────────────────────────────────────
+   1.55fr / 1fr, not 50/50. The asymmetry IS the statement: scripture owns the width and
+   prayer is a utility beside it. An even split would say they carry equal weight. */
+.band {
+  display: grid; grid-template-columns: 1.55fr 1fr;
+  gap: var(--s-5); align-items: start; margin-top: var(--s-8);
+  width: 100%; text-align: left;
+}
+@media (max-width: 900px) { .band { grid-template-columns: 1fr; gap: var(--s-4); } }
+
+/* the daily ayah */
+.aod {
+  position: relative; border-radius: 22px; overflow: hidden;
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--line); box-shadow: var(--sh);
+  text-align: center; height: 100%;
+}
+/* girih: an 8-point star tessellation. Structure, not filigree — the geometry Islamic
+   architecture uses to fill a plane, tiled at 54px so it reads as a field, not a motif. */
+.girih {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.08;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54"><g fill="none" stroke="%230f9468" stroke-width="1"><polygon points="27,5 49,27 27,49 5,27"/><rect x="11.9" y="11.9" width="30.2" height="30.2"/></g></svg>');
+  background-size: 54px 54px; background-repeat: repeat;
+}
+.aod-inner { position: relative; padding: 34px 28px 30px; }
+.aod-label {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--primary); margin-bottom: 6px;
+}
+.aod-label .i { width: 15px; height: 15px; stroke-width: 2; fill: none; stroke: currentColor; }
+.aod-rule { width: 38px; height: 2px; background: var(--clay); opacity: 0.55; margin: var(--s-3) auto 22px; border-radius: 2px; }
+.aod-ar {
+  font-family: var(--f-ar); font-size: clamp(30px, 4.4vw, 44px); line-height: 1.95;
+  direction: rtl; color: var(--ink); max-width: 20ch; margin: 0 auto;
+}
+.aod-makna {
+  font-family: var(--f-display); font-weight: 400; font-style: italic;
+  font-size: clamp(18px, 2.2vw, 23px); color: var(--ink);
+  max-width: 34ch; margin: var(--s-5) auto 0; line-height: 1.5;
+}
+.aod-src { margin-top: 18px; font-size: 13.5px; color: var(--ink-2); }
+.aod-src b { color: var(--ink); font-weight: 700; }
+.aod-foot { display: flex; align-items: center; justify-content: center; gap: var(--s-5); margin-top: 22px; flex-wrap: wrap; }
+.aod-ref {
+  font-weight: 800; font-size: 14px; color: var(--primary); background: var(--primary-wash);
+  padding: 7px 14px; border-radius: 999px; font-variant-numeric: tabular-nums;
+}
+.aod-link { font-size: 14px; font-weight: 600; color: var(--primary); text-decoration: none; }
+.aod-link:hover { text-decoration: underline; }
+
+/* prayer: forest carries the weight so it never outshouts the scripture beside it */
+.prayer {
+  border-radius: var(--r-lg); background: var(--forest-grad); color: oklch(1 0 0);
+  padding: var(--s-5); box-shadow: 0 8px 24px oklch(0.45 0.10 165 / 0.18);
+  position: relative; overflow: hidden;
+}
+.prayer::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 110% at 100% 0%, oklch(1 0 0 / 0.13), transparent 55%);
+}
+.p-body { position: relative; }
+.p-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-4); }
+.p-date { display: flex; align-items: center; gap: var(--s-3); }
+.p-ico { width: 42px; height: 42px; border-radius: 12px; background: oklch(1 0 0 / 0.18); display: grid; place-items: center; flex: none; }
+.p-date b { font-size: 18px; font-weight: 700; display: block; }
+.p-date small { opacity: 0.9; font-size: 13px; }
+.p-time .clock { font-size: 25px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.prayer .i { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.p-ico .i { width: 20px; height: 20px; }
+.p-next {
+  margin: var(--s-4) 0; background: oklch(1 0 0 / 0.15); border-radius: 11px;
+  padding: 11px 15px; font-size: 14px;
+}
+.p-next b { font-weight: 700; }
+.p-list { display: flex; flex-direction: column; gap: var(--s-1); list-style: none; padding: 0; }
+.p-row { display: flex; align-items: center; gap: var(--s-3); background: oklch(1 0 0 / 0.09); border-radius: 10px; padding: 10px 12px; }
+.p-row.on { background: oklch(1 0 0); color: var(--forest); }
+.p-row .nm { font-size: 13.5px; font-weight: 600; }
+.p-row .tm { margin-left: auto; font-size: 14.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.p-src { margin-top: var(--s-3); font-size: 12px; opacity: 0.85; }
+.p-src b { font-weight: 700; }
+.p-empty { margin: var(--s-4) 0; font-size: 14px; line-height: 1.55; opacity: 0.92; }
+.p-ask {
+  width: 100%; min-height: 44px; border-radius: 11px;
+  background: oklch(1 0 0); color: var(--forest); font-weight: 700; font-size: 14px;
+}
