@@ -8,7 +8,82 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — the ⚠ REWRITE PENDING banners are gone; DESIGN.md is now GENERATED
+## 2026-07-17 (latest) — F-1 answered: Peta Tematik SHIPPED, and the index turned out to be wrong in four places
+
+Erik: *"confirmed by ustadz ahmad that since it's ok to display indeks tematik"*. The gate lifted.
+Commit `03998ed` on `main`. 424 tests (was 386), typecheck + build clean, live-probed headless.
+
+### The permission, in full
+
+**F-1 = yes** (display the Indeks Tematik). **F-2** — no preference stated, so our proposed attribution
+ships: *"Indeks Tematik oleh Ustadz Muhammad Thalib"* + link, on every Peta page, body size, in the
+reading flow. **F-4** — no exclusions, all 2,451 entries. **F-3** was already closed by Erik's ruling
+that family consent suffices; Ustadz Ahmad *is* the family answering, so it was not re-asked.
+
+### What shipped
+
+- **`src/app/build-peta.ts`** (`bun run app:peta`, Forge-authored, 15 mutation-proven tests) — emits
+  `web/public/peta/index.json` (1,555 B) + 13 lazy shards (max 104 KB). Every count re-derived from
+  source at test time, never asserted. Refuses to write a truncated set; refuses if a 5th unresolvable
+  ref appears. **Both guards verified by breaking the source myself, not by trusting the report.**
+- **`web/src/peta.ts`** (21 tests) — `#/peta` → 13 category cards; `#/peta/<slug>` → subtopics +
+  entries. Entries are **index ROWS, not verse cards**: "Perintah dan Larangan" alone has 626 entries,
+  and 626 shard fetches is the patchy-4G failure PRODUCT.md names. Rows link to the reading surface
+  that already exists. **Consequence worth keeping: this surface renders no scripture, so
+  `literal_companion` cannot be violated here at all.**
+- **Bridges** — "Ayat ini muncul di N tema", derived from the data, linking to the other categories.
+- **`isChatRoute` now knows `#/peta`.** It is the single source of truth for reading-door vs chat-door;
+  omitting it docks the landing over the Peta surface. That is the regression class that already
+  shipped once. Its own comment warns that hand-maintained mirrors drift — it was right.
+
+### The thing F-1 did not answer
+
+**Four of 2,633 citations point at ayahs that do not exist:** `8:96` and `8:77` (Al-Anfal has 75),
+`48:59` (Al-Fath has 29), `11:161` (Hud has 123). Checked against the raw `.md`/`.csv` — **our parser
+is byte-faithful; the typos are the published source's.**
+
+Permission to *display* is not permission to *correct*. Three moves were available, two forbidden by
+our own rules: **correcting** them (8:96→8:66 is plausible — Al-Anfal 8:66 is literally about enemy
+strength — which is exactly what makes it fabrication in a scholar's name) or **dropping** them
+(silently editing the work we promised only to display). Chosen: **show his sentence, refuse to
+linkify a ref we cannot resolve, name the gap, ask him.** ISC-163..169 make it mechanical; a test
+fails if 8:96 ever renders as 8:66.
+
+**Every count-based test was green through all of this** — 2,451/2,451, 2,633/2,633. A parity test
+only compares our copy to their copy; it cannot see that their copy points nowhere.
+
+### What the advisor caught that 424 green tests could not
+
+1. **We conflated the website with the book.** Our source is a vendored extraction of
+   quran.tarjamahtafsiriyah.com, not Thalib's printed index — so we do not know *whose* typo it is.
+   F-5 reworded to ask rather than assume.
+2. **The bridges and links are OUR derivative work on a page bearing HIS name.** UU 28/2014's
+   integrity right makes preventing misattribution our duty → the seam is now named on both routes.
+3. **The shards are a scrapeable dataset that travels without our pages** → `source` embedded in every
+   payload, not just index.json. DOM-only attribution falls off the moment the data does.
+Rejected one advisor claim: it said "your session has no ISA.md" — `--auto-state` just didn't find it.
+
+### Open — awaiting the ustadz, not agent-workable
+
+- **F-5** — are the four refs typos, and whose? (a) what does the original say, (b) may they stay as
+  they are now, or (c) hide them pending certainty.
+- **F-6** — is shipping the index as downloadable JSON acceptable, and the standing offer to remove it.
+
+### Next
+
+1. **`METHODS` still has NO picker UI** — unchanged, still the highest-value open item. `band.ts`
+   hardcodes KEMENAG; the plurality claim in `ISA.md` § Decisions is true of the module, false of the
+   product. Wire a toggle or correct the claim.
+2. Validate prayer times against bimasislam.kemenag.go.id (3+ cities, different elevations).
+3. GPS altitude feeds the horizon dip; the `>0` guard misses the plausible-but-wrong positive.
+4. `esc()` still defined 3× (verse.ts exports one WITH the `'` escape; band.ts + tafsir.ts re-implement
+   without). `peta.ts` imports the real one and a test enforces it — the other two remain.
+5. Not ported: "Akses cepat" row; verse card / reading surface / theme browser inherit tokens but were
+   never individually re-cut.
+
+---
+
+## 2026-07-17 — the ⚠ REWRITE PENDING banners are gone; DESIGN.md is now GENERATED
 
 Erik's answers closed three open items. Commits `1f9cfcf` on `main`, pushed. 386 tests, typecheck +
 build clean.
