@@ -307,13 +307,14 @@ harus datang lebih dulu dari keduanya.
 - Kami **tidak** mengubah satu pun kalimat penjelas, dan **tidak** menyusun entri baru atas nama beliau.
 - Aplikasi kami tetap gratis dan tidak memasang iklan pada bagian ini.
 
-**Yang mohon Ustadz putuskan:**
+**Yang mohon Ustadz putuskan.** Kami memandang izin dari keluarga sudah memadai, sehingga kami datang
+langsung kepada Ustadz. Bila ternyata ada pihak lain yang juga berhak menentukan, cukup Ustadz sebutkan.
 
 | Pertanyaan | Penilaian |
 |---|---|
 | F-1. Bolehkah New-Quranku memuat Indeks Tematik ini di dalam aplikasi? | |
 | F-2. Jika boleh — bentuk penyebutan sumber seperti apa yang Ustadz kehendaki? | |
-| F-3. Apakah izin ini cukup dari keluarga, atau perlu melalui Majelis Mujahidin Indonesia sebagai lembaga? | |
+| F-3. Jika ada pihak lain yang perlu ikut memberi izin atas karya ini, mohon Ustadz beri tahu kami. | |
 | F-4. Adakah entri yang menurut Ustadz tidak layak ditampilkan lepas dari konteks aslinya? | |
 
 > Selama F-1 belum dijawab, bagian "Peta Tematik" **tidak dibangun dan tidak diluncurkan**. Aplikasi

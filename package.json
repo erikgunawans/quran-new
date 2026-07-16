@@ -14,6 +14,7 @@
     "app:corpus": "bun run src/app/build-corpus.ts",
     "app:audio": "bun run src/app/build-audio.ts",
     "app:themes": "bun run src/app/build-themes.ts",
+    "app:design": "bun run src/app/build-design-doc.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",

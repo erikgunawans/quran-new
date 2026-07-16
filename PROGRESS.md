@@ -132,6 +132,12 @@ the **bridges**: *"Ayat ini muncul di 6 tema"* on a verse card — the graph as 
 already ships, not a separate destination. A light 2D map is a later opt-in layer, so bandwidth is the
 reader's choice.
 
+**Erik's rulings (2026-07-17):** the **Indeks Tematik sits BESIDE the existing `/tema`, it does not
+replace it** — the 12-theme/55-verse lexicon stays (it feeds chat retrieval scoring, so replacing it
+would touch the retrieval path; "Peta Tematik" is a second, browsable door). And **family consent is
+enough** — no Majelis Mujahidin Indonesia route; Section F now asks Ustadz Ahmad Isrofiel directly and
+only invites him to name another party if one exists.
+
 **BUILD IS HELD — do not build this without checking F-1.** Using Thalib's translation is one thing;
 republishing his team's entire 2,451-entry index is materially bigger. Erik routed it to the scholar
 conversation: **Section F** added to `.scratch/nur-knowledge-capability/SCHOLAR-REVIEW-PACKAGE.id.md`
