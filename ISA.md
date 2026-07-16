@@ -56,7 +56,8 @@ drops. It always knows the verse is real, because knowing *that* costs 9.7 KB.
 
 Not in this ideal state: audio and recitation (acknowledged as a real gap for the "Islamic"
 brief, but a separate body of work); a generative model in the retrieval path; user accounts,
-sync, or any server-side session; a native mobile app; fatwa, ruling, or arbitration between
+sync, or any server-side session (reaffirmed 2026-07-17 — "Masuk" was proposed and deferred to
+its own session; the app stays local-only until Erik decides what an account is FOR); a native mobile app; fatwa, ruling, or arbitration between
 scholars; any Arabic-language UI surface; search over tafsir full-text (the 113 MB tafsir corpus
 stays server-side and is not shipped to the browser); the per-verse override table pending
 Erik's review of the 16 divergent verses.
@@ -300,6 +301,41 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | last-read-bookmark | `bookmark.ts` persists surah:ayah; `renderSurah` tracks position via IntersectionObserver; `renderIndex` surfaces "Lanjutkan baca" | ISC-100..123 | reading-surface, ref-oracle | no |
 
 ## Decisions
+
+**2026-07-17 — Prayer times ship with TWO methods named, because plurality is not only about translation.**
+Kemenag holds Subuh at −20° (Tim Falakiyah, reaffirmed 21 Dec 2020, still held Dec 2025); Muhammadiyah
+holds −18° (Munas Tarjih ke-31, 2020). Kemenag's statement was a direct rebuttal; the split is live and
+unresolved. The delta is **~8 minutes of Subuh** — for tens of millions of people, the difference between
+a valid prayer and an invalid one. The tempting move is to ship the state standard silently as "the"
+prayer times. That would violate `## Principles`: *"Plurality is warmth, not hedging. Show that scholars
+differ, name them, trust the reader."* The realisation is that this principle was never about
+translation specifically — it is about **any question where scholars differ and the app is tempted to
+pick for the reader**. So `METHODS` ships both, each carrying an `authority` string rendered in the
+prayer card. Same rule, new surface. `literal_iff_canonical` has a sibling now: no method is "the" method.
+
+**2026-07-17 — "Masuk" (accounts) stays out of scope; prayer times do not need it.**
+Erik chose the maximal scope including auth. Surfaced that his own `## Out of Scope` bans *"user
+accounts, sync, or any server-side session"*, and that the app is 100% static by construction — the
+reason `thread.ts` expires in 12h and the bookmark does not is that a reading position is a coordinate,
+not a confession. The Vision is a person arriving at 2am carrying something; accounts would put that on
+a server with a subpoena surface and a breach surface. Erik chose design + prayer times now, Masuk as
+its own session. Prayer times are client-side (geolocation + astronomy), so no conflict. The greeting's
+optional name therefore lives in `localStorage` only — personalisation without identity.
+
+**2026-07-17 — refined: the action color's lightness is a contrast constraint, not a taste choice.**
+Three `$impeccable` passes audited `--ink-3` and never audited the action color. White on the preview's
+bright emerald (`#12a074`) is **3.33:1** — a WCAG AA failure — and it carries *text* (the chat bubble,
+the CTA). Pinned to the brightest AA-passing value (4.94:1). `contrast.test.ts` asserts it at **both**
+stops of the gradient: a gradient passes at both ends or it does not pass. Brightening the emerald "to
+pop more" must now fail a test first.
+
+**2026-07-17 — the daily ayah is curated by FULL TEXT, never by remembered fragment.**
+The first pool shipped QS 65:2 as "ayat untukmu hari ini". 65:2 entire is a ruling on divorce, iddah and
+witnesses; the line it was chosen for is only its tail. A screenshot caught it. Rule now encoded in
+tests: a verse must **stand alone AND console when read whole** — "contains a comforting fragment" is
+not sufficient. If a verse only works cropped, it does not belong; cropping scripture to fit a mood is
+the fabrication this app exists to refuse. (2:216 opens on fighting, 40:60 ends in Jahannam, 13:28
+begins mid-sentence — all excluded by name.)
 
 **2026-07-13 — Shard the corpus; reject the 4 MB blob.**
 The critique prescribed "load all 6,236 verses + both translations (~4MB)". Applying FirstPrinciples

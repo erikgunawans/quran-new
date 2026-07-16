@@ -8,7 +8,98 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-16 (latest) — the design direction: found it, and got eyes to verify it
+## 2026-07-17 (latest) — direction locked, ported into the real app; prayer times shipped
+
+Anchor: `origin/main` was `68527eb`; this session commits `4792626` (the port) and `dc8173e` (the band).
+Erik **locked the design direction** and chose the maximal scope ("prayer times + Masuk").
+
+### The pushback that changed the scope
+
+Erik picked "Masuk" — but **his own ISA `## Out of Scope` bans it**: *"user accounts, sync, or any
+server-side session"*. The app is 100% static (vite + TS, no deps, no backend, nginx in a Dockerfile);
+everything a reader does stays on their device, which is why `thread.ts` expires in 12h and the bookmark
+doesn't. The Vision paragraph is *"A person arrives at 2am carrying something"* — "Masuk" would mean a
+server Erik owns starts holding Indonesian Muslims' worst nights tied to an identity. Surfaced that;
+Erik chose **design + prayer times now, Masuk as its own session**. Prayer times are client-side, so
+no ISA conflict.
+
+### What shipped
+
+- **The token port.** Light is now the default register and dark the override — an inversion of the
+  dark-first stylesheet. The preview's design is mapped onto the app's **existing semantic tokens**
+  (`--bg`/`--surface`/`--ink`/`--primary`), not a parallel `--emerald`/`--card` vocabulary, so ~1,200
+  lines of existing CSS inherit the design from `:root`. One token system, not two.
+- **Brand colors are theme-INVARIANT** (`--action`, `--forest`, `--clay`); only bg/surface/ink flips.
+  One emerald means "you can do this" in both registers, and the AA math is proved once.
+- **A real WCAG failure the three `$impeccable` passes missed.** They audited `--ink-3` and never
+  audited the action color: **white on the preview's bright emerald is 3.33:1**, and it carries *text*
+  (the chat bubble, the CTA). The action gradient is now pinned at the brightest AA-passing value
+  (4.94:1) — its lightness is a contrast constraint, not taste. `contrast.test.ts` proves it at **both**
+  gradient stops (a gradient passes at both ends or it doesn't pass).
+- **The chat box is the hero.** `main.ts` moves `#composer-bar` into `#hello` on the landing (CSS alone
+  can't interleave a body-level sibling with the hero's children) and moves it back out *before* the
+  hero is removed, so the input is never destroyed mid-question.
+- **Sakīnah slice deleted**: Instrument Serif, `--f-display`, the rise→settle keyframe, `.ar` padding.
+  Fonts are Fraunces + Plus Jakarta Sans + Amiri.
+- **Greeting** (`greet.ts`) is time-aware and **nameless by default** — at 2am it asks *"Belum bisa
+  tidur?"*, never "selamat pagi". Any name lives only in localStorage. A greeting never costs an identity.
+- **Prayer times** (`prayer.ts`, client-side): astronomy core by Forge, which chose a **typed absence**
+  over NaN so no caller can render invented times — "silence over fabrication" applied to astronomy.
+
+### The thing worth remembering: plurality applies to prayer times too
+
+Research confirmed against Kemenag primary sources: **Subuh −20°**, Isya −18°, Shafi'i Asr (factor 1),
+ihtiyati **+2 to all, −2 to Syuruq** (Syuruq is a *deadline* that closes Subuh — caution there means
+earlier; a flipped sign would tell someone their window is open after it shut), horizon dip on
+**Maghrib/Syuruq only** (the other four are angle/shadow-defined; applying dip to all six would
+silently corrupt four prayers).
+
+But **Muhammadiyah uses −18°** — a live, unresolved split, ~**8 minutes** of Subuh, i.e. the difference
+between a valid prayer and an invalid one for tens of millions. **The app does not pick a winner.**
+The same principle that governs its two translations — *"Plurality is warmth, not hedging. Show that
+scholars differ, name them, trust the reader"* — governs the two angles. Both ship; both name their
+authority in the card.
+
+### The bug the screenshot caught
+
+The first curated pool was written from **remembered fragments** and served **QS 65:2** as "ayat untukmu
+hari ini". 65:2 entire is a ruling on **divorce, iddah and witnesses**; the beloved "Dia beri jalan
+keluar" is only its tail. Someone at 2am carrying grief would have been handed divorce law — the exact
+failure the curation exists to prevent. The preview got away with it by showing a hand-cropped *excerpt*
+labelled 65:2-3; the real corpus serves whole verses. Every entry was re-picked by reading its full text
+(2:216 opens on fighting, 40:60 ends in Jahannam, 13:28 starts mid-sentence) with a test naming each
+exclusion. **Rule: stand alone AND console when read WHOLE — not "contains a comforting fragment".**
+
+### Process failure, honestly
+
+I put **Forge and myself on the same files with no isolation**. Forge deleted `prayer.test.ts` mid-edit,
+then restored its own version over my research-driven changes (it diagnosed my horizon-dip as "an orphan
+corrupting the file"). I stopped it and re-applied. The Algorithm's ISOLATION GATE exists for exactly
+this and I skipped it — parallel write-agents need `isolation: "worktree"`.
+
+### State
+
+303 tests pass, typecheck clean. Light + dark both screenshot-verified. **NB: `--headless=old` now also
+hangs on exit** (the live clock) — the PNG still lands, so `timeout 60 … ; Read the PNG` works fine.
+
+### Next
+
+1. **Not yet ported**: "Akses cepat" (Lanjutkan baca / Mushaf / Tematik / Audio) — the preview's row
+   under the band. The verse card, reading surface and theme browser inherit the tokens but were not
+   individually re-cut against the preview.
+2. **Prayer times are consistent, NOT validated.** Jakarta computes 04:44/12:00/15:22/17:54/19:08,
+   within ~2 min of the preview's Bekasi mock — but that mock was invented by me, not sourced. Real
+   validation = bimasislam.kemenag.go.id published schedules, 3+ cities at different elevations
+   (Jakarta ~8m, Bandung ~768m, Malang ~450m). Until then the ±2 min claim is unproven.
+3. The ihtiyati "+2 exactly" traces to a single origin (RHI's criteria page), not a Kemenag primary
+   document — direction solid, exact value [MED].
+4. **Masuk** — its own session: what is an account FOR, which backend, and rewrite Out of Scope with Erik.
+5. A UI to set the local name (the greeting's seam exists, nothing sets it).
+6. `PRODUCT.md` / `DESIGN.md` still carry ⚠ REWRITE PENDING banners.
+
+---
+
+## 2026-07-16 — the design direction: found it, and got eyes to verify it
 
 The whole session's second half was **visual direction**, and it took several misses to land.
 
