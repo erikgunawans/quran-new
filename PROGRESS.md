@@ -8,7 +8,79 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — the audit pass: five more real defects, all with green tests
+## 2026-07-17 (latest) — the ⚠ REWRITE PENDING banners are gone; DESIGN.md is now GENERATED
+
+Erik's answers closed three open items. Commits `1f9cfcf` on `main`, pushed. 386 tests, typecheck +
+build clean.
+
+### Erik's rulings
+
+- **(a) Family consent is enough.** No Majelis Mujahidin Indonesia route. Section F of the scholar
+  package now asks Ustadz Ahmad Isrofiel directly; F-3 became an invitation rather than a question
+  (*"Bila ternyata ada pihak lain yang juga berhak menentukan, cukup Ustadz sebutkan"*). **F-1 still
+  gates the Peta Tematik build** — Erik chose the ROUTE; only the ustadz can give the permission.
+- **(d) Indeks Tematik sits BESIDE `/tema`, does not replace it.** Right call for a non-obvious reason:
+  the 12-theme/55-verse lexicon **feeds chat retrieval scoring**, so replacing it would touch the
+  retrieval path. A second door costs nothing.
+- **(c) left blank** — ISC-98/99 + ISC-110/111 stay open (need a real device / non-minimized Chrome).
+
+### (b) The banner was wrong about one of the two docs
+
+**PRODUCT.md was barely damaged — 4 surgical edits.** Principles #2–#5 (word-is-image,
+attribution-is-design, meet-them-then-go-deeper, never-fabricate) were all intact and were *strengthened*
+this session. Users / Purpose / Brand Personality / Accessibility survived the rename because they were
+never about the name. Only two spots broke:
+- **Principle #1's durable core SURVIVED.** *"The scripture out-shouts the interface, never the reverse"*
+  is a hierarchy, not a colour scheme — `contrast.test.ts` still enforces it. Only the "make the room
+  dark" clause died. It was a clause deletion, not a rewrite.
+- **Anti-reference #1 re-aimed** (Erik's ruling): it banned *"emerald-and-gold — guessable from the
+  category alone"* while the app is now emerald by his deliberate choice. **The cliché is ornament, not
+  green.** Gold stays banned outright. The doc now says plainly: we are in the QuranKu family on purpose
+  and earn our place by rigour, not by refusing the category's colour.
+
+**DESIGN.md was a spec of a design that no longer existed.** Reading it first (per the rule) caught two
+lies beyond the known ones: a **`≤12px` radius rule the app had stopped obeying** (ships 14/16/18 — the
+`$impeccable` critique found the real tell was 22–26px), and **`--canonical` / `--interpretive` — tokens
+specified in the doc and NEVER BUILT**. Plus the known: hue-155 dark-first tokens, Inter, the "2am room"
+thesis.
+
+**Root cause: it hand-copied values that already lived in `styles.css`.** Every oklch triple existed
+twice — once where the browser reads it, once where a human reads it — and only the browser's copy was
+ever true.
+
+### The fix: generated, then guarded
+
+- **`src/app/build-design-doc.ts`** + **`bun run app:design`** emits the token tables from `styles.css`
+  into the `<!-- GENERATED:tokens -->` block (55 tokens). Same rule `theme-index.ts` already set:
+  **values are GENERATED, never typed twice.** Rationale stays hand-written above the block — reasons
+  cannot be derived from a stylesheet. The generator refuses to write a truncated doc (<20 tokens).
+- **`web/src/design-doc.test.ts` (8 tests)** — because generation alone does not help when the failure
+  mode is *forgetting to re-run it*. Checks on every run: every `:root` token appears with its ACTUAL
+  value · no invented tokens · **no gold** (hue 70–100 at chroma >0.05) · the stated radius scale is the
+  one that ships · the named fonts are the real ones (and Instrument Serif / Inter cannot creep back) ·
+  **font weights are variable RANGES, not static cuts** (548 KB vs 414 KB for an Indonesian reader).
+  **Verified to FAIL on all three drifts**: a changed token value, a smuggled gold token, a reverted
+  static weight list.
+
+### Next
+
+1. **`METHODS` still has NO picker UI** — the highest-value open item, and the one place the docs still
+   promise what the app does not do. Kemenag + Muhammadiyah both ship with an `authority` string, but
+   `band.ts` hardcodes KEMENAG and no call site passes `params`. The plurality claim in `ISA.md`
+   § Decisions is **true of the module, false of the product**. Wire a toggle or correct the claim.
+2. **Add ISCs for the shipped work** — the ISA's 120 ISCs are from the bookmark session and cover NONE
+   of the design port, prayer times, band, greet, landing, or the doc generator. It still reads
+   `phase: complete`. Either add them or stop citing 116/120.
+3. Validate prayer times against bimasislam.kemenag.go.id (3+ cities, different elevations).
+4. GPS altitude feeds the horizon dip; the `>0` guard misses the real error mode (plausible-but-wrong
+   positive). Kemenag uses surveyed city elevation.
+5. Not ported: "Akses cepat" row; verse card / reading surface / theme browser inherit tokens but were
+   never individually re-cut.
+6. `esc()` defined 3× (verse.ts exports one WITH the `'` escape; band.ts + tafsir.ts re-implement without).
+
+---
+
+## 2026-07-17 — the audit pass: five more real defects, all with green tests
 
 Erik asked for "a thorough and complete check … to ensure there is nothing wrong or no miss like what
 we had just now." There was. **The two earlier misses were one habit, and it was still running.**
