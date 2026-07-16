@@ -8,6 +8,98 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-17 (latest) — the audit pass: five more real defects, all with green tests
+
+Erik asked for "a thorough and complete check … to ensure there is nothing wrong or no miss like what
+we had just now." There was. **The two earlier misses were one habit, and it was still running.**
+Commits `486493b` (fixes) on `main`, pushed. 378 tests, typecheck + build clean.
+
+### The pool was wrong AGAIN — and the "fix" was the same mistake
+
+**65:2 → 65:3 was not a fix.** 65:3 is the same At-Talaq divorce ruling one verse down, and its Arabic
+opens `وَيَرْزُقْهُ` — a bare waw coordinated onto 65:2. The app's OWN Kemenag literal (`c`) renders it
+*"Dan memberinya rezeki…"*: a verb with no subject, a pronoun with no antecedent. It reads standalone
+ONLY in Thalib's gloss (`p`), which silently supplies what the Arabic lacks. **Reading the gloss caused
+the bug; reading the gloss again "fixed" it.** Then a test was written certifying it.
+
+**7 of the 10 shipped verses failed.** The three that matter most:
+- **94:5 was in the app's OWN `FLAGGED` registry** (`verse.ts:74`) — Thalib reads it as a description of
+  life, Kemenag as the promise *"sesudah kesulitan ada kemudahan"*, *"Perbedaannya nyata — baca keduanya."*
+  The comment quoted the **flattened** rendering as if it were the consolation. `verse.ts` forces the
+  caution OPEN for exactly this verse; the daily card showed neither caution nor companion.
+- **15:49 ends on a comma** — it is the mercy half of a PAIR. **15:50 is *"dan sungguh siksa-Ku sangat
+  pedih."*** Serving 49 alone hides half of what the passage says.
+- **2:286** closes on defeating the disbelievers. 2:155/16:127/29:69 are waw fragments.
+
+**Pool rebuilt to 8, each read whole:** 93:3, 93:6, 94:1, 2:153, 2:157, 64:11, 10:62, 46:13. A short
+8-day cycle is the price of only shipping verses that survive both the gate and a reading.
+
+### The test was theatre — now it is a property gate
+
+The old `band.test.ts` was a **denylist of seven refs someone had already thought of**. It never opened
+the corpus, so it certified 65:3 as "the verse that stands alone" while disqualifying 13:28 for a defect
+65:3 shares, and passed 94:5 while FLAGGED named it. It now **re-derives every entry from
+`web/public/surah/*.json`**: FLAGGED · bare-waw opening · lowercase/"Dan" opening · unfinished sentence
+(trailing comma / unclosed quote) · harsh content anywhere · length. **Verified to FAIL on each real
+miss** (65:3→bare waw, 94:5→FLAGGED, 15:49→comma, 2:286→"siksa", 13:28→lowercase). It **cannot** decide
+whether a verse consoles — that is judgment, and the file says so.
+
+### Three more, each with green tests
+
+- **The card broke `literal_companion`.** `share.ts` calls shipping the primary alone *"the sharpest
+  theological risk in the whole product"*; share-image refuses to paint a PNG without the companion. The
+  daily card — the most screenshotted surface in the app — emitted primary-alone, walking around the
+  build gate, share.ts AND share-image via the camera button. Now renders both.
+- **"Berikutnya: Syuruq"** — for the whole Subuh window the card told readers their next prayer was
+  sunrise, when sunrise is when Subuh **expires**. `prayer.ts` knew (Syuruq's ihtiyati is negative
+  *because* it is a deadline) but the type flattened deadline and prayer, so `nextPrayer` never learned
+  it. Added `isPrayer()` + `DEADLINES`; Syuruq still shows in the list, never as "next".
+- **`hidden` on `.band` was inert** — an author `display: grid` always out-argues the UA
+  `[hidden]{display:none}`, so the band painted empty from first paint. **`read.css:122` already carries
+  this exact warning** for the surah list. Guarded; prayer card now paints date/clock instantly with an
+  honest *"Mencari lokasi kamu…"* instead of an empty box for the up-to-8s geolocation fix.
+
+### Also fixed this session (pre-audit)
+
+- **Routing regression I introduced**: the composer was stranded inside the hidden `#chat` on `#/baca`
+  (the chat input had been reachable from every route before the port), and `data-landing` leaked, inflating
+  the 46rem reading MEASURE to the landing's 1120px. Root cause: the landing was wired as an EVENT
+  ("asked a question") not a STATE ("standing in the empty chat door"). Extracted to **`landing.ts`**
+  (`syncLanding(hash)` — one call, both directions) + **24 tests via happy-dom**, verified to fail (6/24)
+  on the reintroduced bug. `main.ts` was DOM-heavy and structurally untestable — that is *why* it shipped.
+- **Fonts**: requesting 5 static weights where Inter was one variable font. **548 KB → 414 KB** for an
+  Indonesian reader (measured, latin+arabic subsets). Weights are now variable RANGES; adding a weight
+  inside the range is free, adding to a list is not.
+- **Forest gradient** now contrast-tested at all 3 stops (9.85–10.52:1), like the action gradient.
+
+### ⚠ The ISA is stale — read this before trusting it
+
+`ISA.md` says `phase: complete, progress: 116/120`. **Those 120 ISCs are from the bookmark session and
+cover NONE of this session's work** — the design port, prayer times, the band, greet.ts, landing.ts have
+no ISCs at all. Per-slice: Data layer 11/11 · P0-a 8/8 · P0-b 7/7 · P0-c 5/5 · P1-a 4/4 · P1-b 3/3 ·
+IterativeDepth 18/18 · Regression 4/4 · Adversarial 16/16 · **UI Cycle 2 18/20 (2 open)** · **Bookmark
+22/24 (2 deferred)**. Next session should either add ISCs for the shipped work or stop citing 116/120.
+
+### Still open (unchanged by this pass)
+
+1. **`METHODS` is not user-reachable.** Kemenag + Muhammadiyah both ship and both name an authority, but
+   the card hardcodes Kemenag and there is **no picker UI**. The plurality claim in `ISA.md` § Decisions
+   is **true of the module and false of the product** — either wire a toggle or correct the claim.
+2. **Prayer times are consistent, NOT validated.** Jakarta computes 04:44/12:00/15:22/17:54/19:08. Real
+   validation = bimasislam.kemenag.go.id published schedules, 3+ cities at different elevations
+   (Jakarta ~8m, Bandung ~768m, Malang ~450m). The ±2min claim is unproven until then.
+3. **GPS altitude feeds the horizon dip.** The `>0` guard catches NaN/negatives but not the real error
+   mode — a plausible-but-wrong positive (WGS84 ellipsoidal height, ±10–50m, storey height indoors),
+   which can shift Maghrib ~1.3 min and eat the +2 ihtiyati. Kemenag uses surveyed city elevation.
+4. **Not ported**: "Akses cepat" row; the verse card / reading surface / theme browser inherit the tokens
+   but were never individually re-cut against the preview.
+5. `esc()` is now defined 3× (verse.ts exports one; band.ts + tafsir.ts re-implement it without the `'`
+   escape verse.ts documented). Not exploitable today — all attributes are double-quoted — but verse.ts
+   wrote a paragraph warning about exactly this and band.ts re-broke it.
+6. ihtiyati "+2 exactly" traces to a single origin (RHI), not a Kemenag primary document — [MED].
+
+---
+
 ## 2026-07-17 — "Peta Tematik" designed and DEFERRED pending permission (F-1)
 
 Erik: *"I want to have the knowledge graph ... in the webapps. It will be a specific section."*
