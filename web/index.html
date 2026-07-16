@@ -11,8 +11,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Fraunces speaks only where
-     the app addresses the reader; Plus Jakarta Sans carries everything else. -->
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+     the app addresses the reader; Plus Jakarta Sans carries everything else.
+
+     Weights are requested as VARIABLE RANGES (400..800), never as a list of static cuts. The
+     reader's bandwidth is a moral constraint, and this is where that gets decided: asking for
+     `wght@400;500;600;700;800` ships five separate files per subset — 548 KB for an Indonesian
+     reader (latin+arabic). The same weights as one variable range cost 414 KB. Measured, not
+     assumed. Adding a weight to this list is never free; adding it inside the range is. -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..500;1,9..144,400..500&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
 </head>
 <body>
 

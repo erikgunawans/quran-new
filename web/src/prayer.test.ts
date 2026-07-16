@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   KEMENAG,
   METHODS,
+  isPrayer,
   MUHAMMADIYAH,
   type CalcParams,
   equationOfTime,
@@ -285,5 +286,38 @@ describe("elevation — horizon dip, and only where it belongs", () => {
       const got = prayerTimes(EQUINOX_DAY, { ...JAKARTA, elevation: bad }, KEMENAG, UTC_PLUS_7);
       expect(slotAt(got, "maghrib").getTime()).toBe(slotAt(sea, "maghrib").getTime());
     }
+  });
+});
+
+describe("Syuruq is a deadline, not a prayer", () => {
+  const at = (hhmm: string) => new Date(`2026-07-17T${hhmm}:00+07:00`);
+  const times = (now: Date) => prayerTimes(now, JAKARTA, KEMENAG, UTC_PLUS_7);
+
+  test("nextPrayer never answers 'Syuruq'", () => {
+    // The bug this catches: for the WHOLE Subuh window the card said "Berikutnya: Syuruq" —
+    // telling a reader at 05:00 that sunrise is what they are next due to pray, when sunrise is
+    // the moment Subuh EXPIRES and salat becomes forbidden. A reader who defers to it misses Subuh.
+    for (const hhmm of ["00:30", "04:00", "04:30", "05:00", "05:30", "06:30", "12:30", "16:00", "19:30", "23:00"]) {
+      const n = nextPrayer(at(hhmm), times(at(hhmm)));
+      expect(n, `no next prayer at ${hhmm}`).not.toBeNull();
+      expect(n!.prayer.name, `at ${hhmm} the card would say "Berikutnya: Syuruq"`).not.toBe("syuruq");
+    }
+  });
+
+  test("between Subuh and sunrise, the next prayer is Dzuhur — not sunrise", () => {
+    const n = nextPrayer(at("05:00"), times(at("05:00")));
+    expect(n!.prayer.name).toBe("dzuhur");
+  });
+
+  test("isPrayer distinguishes the two kinds", () => {
+    expect(isPrayer("syuruq")).toBe(false);
+    for (const p of ["subuh", "dzuhur", "ashar", "maghrib", "isya"] as const) {
+      expect(isPrayer(p)).toBe(true);
+    }
+  });
+
+  test("Syuruq still appears in the list — it is the Subuh limit, worth seeing", () => {
+    // Skipping it in "what's next" must not delete it from the schedule.
+    expect(times(at("05:00")).some((s) => s.name === "syuruq")).toBe(true);
   });
 });

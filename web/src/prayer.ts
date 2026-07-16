@@ -8,6 +8,22 @@
 
 export type PrayerName = "subuh" | "syuruq" | "dzuhur" | "ashar" | "maghrib" | "isya";
 
+/**
+ * Syuruq is not a prayer. It is the moment Subuh EXPIRES and salat becomes forbidden.
+ *
+ * This file already knew that — the ihtiyati sign for Syuruq is negative *because* it is a
+ * deadline, where caution means earlier rather than later. But `PrayerName` flattened deadline
+ * and prayer into one type, so the knowledge never reached `nextPrayer`, which happily announced
+ * "Berikutnya: Syuruq" for the whole Subuh window — telling a reader at 05:00 that sunrise is
+ * what they are next due to pray. A reader who defers to that misses Subuh entirely.
+ */
+const DEADLINES: ReadonlySet<PrayerName> = new Set(["syuruq"]);
+
+/** Is this something you PRAY, or a limit you must beat? */
+export function isPrayer(name: PrayerName): boolean {
+  return !DEADLINES.has(name);
+}
+
 export type Coords = {
   lat: number;
   lon: number;
@@ -293,11 +309,15 @@ export function prayerTimes(
   ];
 }
 
+/**
+ * The next thing the reader is due to PRAY — never a deadline. Syuruq still appears in the list
+ * (it is the Subuh limit and worth seeing); it is simply never the answer to "what's next?".
+ */
 export function nextPrayer(
   now: Date,
   times: PrayerSlot[],
 ): { prayer: PrayerTime; msUntil: number } | null {
-  const timedSlots = times.filter(timed);
+  const timedSlots = times.filter(timed).filter((p) => isPrayer(p.name));
   if (!timedSlots.length) return null;
 
   for (const prayer of timedSlots) {

@@ -62,6 +62,9 @@ const BRAND = {
   actionInk: ok(1.0, 0.0, 0),
   /** weight without shouting: prayer sidebar, resume bar, ayah badges */
   forest: ok(0.375, 0.073, 166),
+  /** --forest-grad sweeps green → teal → blue under white text. Every stop is a text background. */
+  forestGrad60: ok(0.37, 0.058, 195),
+  forestGrad100: ok(0.365, 0.06, 235),
   /** decorative only — never text, so it has no AA duty */
   clay: ok(0.586, 0.091, 49),
 };
@@ -145,6 +148,15 @@ describe("WCAG AA — the action color carries white text", () => {
 
   test("white on forest ≥ 4.5:1 (prayer sidebar, resume bar, ayah badge)", () => {
     expect(contrast(BRAND.actionInk, BRAND.forest)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+
+  test("white on EVERY stop of the forest gradient ≥ 4.5:1", () => {
+    // The prayer sidebar's whole surface is a green→teal→blue sweep carrying white text: the
+    // date, the clock, the prayer names, the times. Testing only the 0% stop would repeat the
+    // exact blind spot that let the action color ship at 3.33:1 — one stop is not a gradient.
+    for (const stop of [BRAND.forest, BRAND.forestGrad60, BRAND.forestGrad100]) {
+      expect(contrast(BRAND.actionInk, stop)).toBeGreaterThanOrEqual(AA_BODY);
+    }
   });
 });
 

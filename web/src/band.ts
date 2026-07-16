@@ -20,29 +20,41 @@ import { KEMENAG, nextPrayer, prayerTimes, type CalcParams, type Coords, type Pr
 /**
  * Verses that meet a person where a hard day leaves them.
  *
- * Every entry here was chosen by reading its FULL interpretive text in the corpus, not by
- * remembering a famous phrase inside it. That distinction is the whole point, and getting it
- * wrong is easy: the beloved "Dia beri jalan keluar" line lives in the tail of 65:2, but 65:2
- * entire is a ruling on divorce, iddah and witnesses — hand that to someone at 2am under the
- * heading "ayat untukmu hari ini" and the app has misread them badly. Likewise 2:216 opens on
- * the obligation to fight, 40:60 ends in Jahannam, and 13:28 begins mid-sentence ("yaitu
- * mereka yang…"), grammatically dependent on the verse before it.
+ * This pool has now been wrong TWICE, the same way both times, so the reasoning is written down.
  *
- * The rule: the verse must stand alone AND console when read whole. Not "contains a comforting
- * fragment". If a verse only works cropped, it does not belong here — cropping scripture to fit
- * a mood is the fabrication this app exists to refuse.
+ * First it shipped QS 65:2 — chosen for the beloved "Dia beri jalan keluar" in its tail, while
+ * 65:2 entire is a ruling on divorce, iddah and witnesses. The "fix" was 65:3, which is WORSE
+ * disguised: it is the same At-Talaq ruling one verse further down, and its Arabic opens on a
+ * bare waw (`وَيَرْزُقْهُ`) coordinated onto 65:2 — the app's own Kemenag literal renders it
+ * "Dan memberinya rezeki…", a verb with no subject and a pronoun with no antecedent. It reads as
+ * standalone ONLY in the interpretive gloss, which silently supplies the missing subject. Reading
+ * the gloss is what caused the bug; reading the gloss again is what "fixed" it.
+ *
+ * Both misses share one root: judging a verse by a remembered phrase instead of the shipped data.
+ * So the pool is no longer trusted to be right by inspection — `band.test.ts` re-derives every
+ * entry from `web/public/surah/*.json` on every run and fails on:
+ *   - FLAGGED (verse.ts) — where the primary diverges from the literal. 94:5 was in this pool
+ *     while the app's own registry says Thalib reads it as a description of life and Kemenag as
+ *     the promise "sesudah kesulitan ada kemudahan". We were quoting the divergence as comfort.
+ *   - an Arabic bare-waw opening, or a rendering that opens lowercase / on "Dan" — a fragment.
+ *   - a sentence that does not finish in its own verse (trailing comma, unclosed quotation).
+ *     15:49 ("Aku Maha Pengampun lagi Maha Penyayang,") is the mercy half of a PAIR — 15:50 is
+ *     "dan sungguh siksa-Ku sangat pedih." Serving 49 alone hides half of what it says.
+ *   - harsh content anywhere, including the tail (2:286 closes on defeating the disbelievers).
+ *
+ * What the test CANNOT decide is whether a verse consoles. That is judgment, made by reading each
+ * one whole. The test guards the mechanical failures; it does not certify the meaning. Eight
+ * verses is a short cycle — that is the price of only shipping ones that survive both.
  */
-const POOL: readonly (readonly [number, number])[] = [
-  [65, 3], // rezeki dari arah yang tidak disangka-sangka; cukuplah Allah menjadi penjamin
+export const POOL: readonly (readonly [number, number])[] = [
   [93, 3], // "Tuhanmu tidak meninggalkanmu. Tuhanmu juga tidak membencimu."
-  [94, 5], // "Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan."
-  [2, 286], // "Allah tidak membebani seseorang melebihi kemampuannya."
-  [39, 53], // "janganlah kalian putus asa dari rahmat Allah"
-  [2, 153], // sabar dan shalat; "rahmat Allah selalu menyertai"
-  [16, 127], // "bersabarlah… janganlah kamu bersedih… jangan merasa tertekan"
-  [29, 69], // "niscaya akan Kami bukakan jalan-jalan keluar dari kesulitan mereka"
-  [64, 11], // "siapa saja yang beriman kepada Allah, pasti hatinya akan mendapat hidayah"
-  [2, 155], // diuji dengan cobaan — "berilah kabar gembira kepada orang-orang yang ikhlas"
+  [93, 6], // "bukankah Tuhanmu mendapati kamu dahulu sebagai anak yatim, lalu Dia melindungimu?"
+  [94, 1], // "bukankah Kami telah menjadikan dadamu lapang?"
+  [2, 153], // sabar dan shalat — "rahmat Allah selalu menyertai orang-orang yang ikhlas"
+  [2, 157], // "Kaum mukmin mendapatkan rahmat dan kasih sayang dari Tuhan mereka."
+  [64, 11], // "bencana… hanyalah dengan izin Allah… hatinya akan mendapat hidayah"
+  [10, 62], // "kekasih Allah tidak mempunyai rasa takut… dan rasa sedih"
+  [46, 13], // "Tuhan kami adalah Allah" + istiqamah — "tidak takut… tidak merasa sedih"
 ];
 
 /** Days since epoch in LOCAL time — the pick must turn over at the reader's midnight, not UTC's. */
@@ -87,9 +99,16 @@ export async function renderAyahOfDay(host: HTMLElement, now: Date = new Date())
   try {
     const v = await loadAyah(surah, ayah);
     const makna = v.p;
+    const literal = v.c;
     // The block's whole claim is "here is a verse you can understand". Without the interpretive
     // reading there is no claim to make, so it does not render at all.
     if (!makna) return false;
+    // `literal_companion` is an egress invariant, not a chat-view detail: the interpretive primary
+    // may never appear without the Kemenag literal beside it. The build gate enforces it in the
+    // corpus, share.ts on copy, share-image.ts on the PNG — and this card is the most
+    // screenshotted surface in the app. Rendering the primary alone here would walk around all
+    // three through the camera button every phone already has.
+    if (!literal) return false;
 
     host.innerHTML = `
       <div class="girih" aria-hidden="true"></div>
@@ -101,7 +120,11 @@ export async function renderAyahOfDay(host: HTMLElement, now: Date = new Date())
         <div class="aod-rule" aria-hidden="true"></div>
         <p class="aod-ar" dir="rtl" lang="ar">${esc(v.ar)}</p>
         <p class="aod-makna">${esc(makna.text)}</p>
-        <p class="aod-src">Tarjamah Makna oleh <b>${esc(makna.translator)}</b></p>
+        <p class="aod-src">Terjemah makna oleh <b>${esc(makna.translator)}</b></p>
+        <details class="aod-lit">
+          <summary>Terjemah harfiah <b>${esc(literal.translator)}</b></summary>
+          <p>${esc(literal.text)}</p>
+        </details>
         <p class="aod-foot">
           <span class="aod-ref">QS. ${surah} : ${ayah}</span>
           <a class="aod-link" href="#/baca/${surah}/${ayah}">Baca &amp; tafsirnya →</a>
@@ -119,7 +142,9 @@ export async function renderAyahOfDay(host: HTMLElement, now: Date = new Date())
 type Located =
   | { kind: "ok"; coords: Coords }
   | { kind: "denied" }
-  | { kind: "unavailable" };
+  | { kind: "unavailable" }
+  /** the permission prompt is open, or the fix is slow — up to 8s of it */
+  | { kind: "locating" };
 
 export function locate(timeoutMs = 8_000): Promise<Located> {
   if (!("geolocation" in navigator)) return Promise.resolve({ kind: "unavailable" });
@@ -186,6 +211,13 @@ export function renderPrayer(
       </div>
     </div>`;
 
+  if (located.kind === "locating") {
+    // The date and clock are already true and cost nothing — show them rather than an empty box
+    // for the up-to-8s the geolocation fix can take.
+    host.innerHTML = shell(`${head}<p class="p-empty">Mencari lokasi kamu…</p>`);
+    return;
+  }
+
   if (located.kind !== "ok") {
     // No location, no times. The app says which, and does not invent a city.
     const why =
@@ -220,12 +252,16 @@ export async function mountBand(now: () => Date = () => new Date()): Promise<() 
   const prayer = document.getElementById("prayer");
   if (!band || !aod || !prayer) return () => {};
 
+  // Paint what is already true — the date, the Hijri date, the clock — before anything awaits.
+  // The band was previously revealed only after BOTH the shard fetch and an up-to-8s geolocation
+  // fix resolved, so it sat empty on screen the whole time.
+  renderPrayer(prayer, { kind: "locating" }, now());
+  band.hidden = false;
+
   const hasAyah = await renderAyahOfDay(aod, now());
   if (!hasAyah) aod.remove();
 
-  const located = await locate();
-  renderPrayer(prayer, located, now());
-  band.hidden = false;
+  renderPrayer(prayer, await locate(), now());
 
   const id = setInterval(() => {
     const el = document.getElementById("p-clock");

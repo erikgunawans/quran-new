@@ -5,6 +5,7 @@ import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
+import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { renderIndex, renderSurah } from "./read.ts";
@@ -185,7 +186,7 @@ async function ask(question: string) {
   const q = question.trim();
   if (!q) return;
 
-  leaveLanding();
+  endLanding();
   showChat();
 
   const me = document.createElement("div");
@@ -276,19 +277,16 @@ const chatView = $<HTMLElement>("#chat");
 const readView = $<HTMLElement>("#read");
 
 function showChat() {
+  syncLanding(location.hash);
   chatView.hidden = false;
   readView.hidden = true;
 }
 
-/**
- * Is the reader standing in the chat door, or a reading door?
- *
- * Mirrors route()'s match set. Used so a restored thread doesn't reveal chat over the top of a
- * reading surface route() already mounted from the initial hash (share links, bookmarks, reload).
- */
-function isChatRoute(): boolean {
-  const h = location.hash;
-  return !(/^#\/surah\/\d/.test(h) || /^#\/tema(?:\/|$)/.test(h) || h === "#/baca");
+/** Sync FIRST: hiding #chat while the composer is still inside it is what stranded the input. */
+function showRead() {
+  syncLanding(location.hash);
+  chatView.hidden = true;
+  readView.hidden = false;
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
@@ -307,32 +305,28 @@ async function route() {
 
   if (m) {
     markNav("baca");
-    chatView.hidden = true;
-    readView.hidden = false;
+    showRead();
     await renderSurah(readView, Number(m[1]), m[2] ? Number(m[2]) : undefined);
     return;
   }
 
   if (hash === "#/baca") {
     markNav("baca");
-    chatView.hidden = true;
-    readView.hidden = false;
+    showRead();
     renderIndex(readView);
     return;
   }
 
   if (t) {
     markNav("tema");
-    chatView.hidden = true;
-    readView.hidden = false;
+    showRead();
     await renderTheme(readView, t[1]!);
     return;
   }
 
   if (hash === "#/tema") {
     markNav("tema");
-    chatView.hidden = true;
-    readView.hidden = false;
+    showRead();
     renderThemeIndex(readView);
     return;
   }
@@ -344,46 +338,32 @@ async function route() {
 window.addEventListener("hashchange", () => void route());
 
 // ── the landing ──────────────────────────────────────────────────────────────
-// The chat box is the main attraction, so on the empty state it sits INSIDE the hero —
-// between the invitation and the seeds — rather than docked at the bottom of the screen.
-// It cannot be placed there by CSS alone: `#composer-bar` is a body-level sibling of `.app`,
-// so no amount of `order` can interleave it with the hero's own children. We move the node.
 //
-// Ordering matters on the way out too: the composer must leave the hero BEFORE the hero is
-// removed, or it gets destroyed along with it and the user loses the input mid-question.
-function enterLanding(): void {
-  const hero = $("#hello");
-  const bar = $<HTMLElement>("#composer-bar");
-  if (!hero || !bar) return;
-  hero.querySelector(".seeds")?.before(bar);
-  document.documentElement.dataset.landing = "";
+// dock/undock/destroy live in landing.ts so the two rules they enforce are testable — this
+// file is DOM-heavy and side-effectful at import, which is exactly why the routing regression
+// they now guard could not be caught here. The router owns dock/undock; only a question destroys.
 
+let stopGreeting: (() => void) | null = null;
+let stopBand: (() => void) | null = null;
+
+// The greeting and band belong to the hero and live as long as it does — mounted once, not on
+// every route pass. The band loads a shard and asks for geolocation, so it must never block the
+// chat box; and re-mounting it on each Tanya↔Baca trip would re-do both for nothing.
+if ($("#hello")) {
   const la = $<HTMLElement>("#greet-la");
   if (la) stopGreeting = mountGreeting(la);
-
-  // The band is the landing's identity anchor, but it is not the reason the reader came:
-  // it loads a shard and asks for geolocation, so it must never block the chat box.
   void mountBand().then((stop) => {
     stopBand = stop;
   });
 }
 
-let stopGreeting: (() => void) | null = null;
-let stopBand: (() => void) | null = null;
-
-function leaveLanding(): void {
-  const hero = $("#hello");
-  const bar = $<HTMLElement>("#composer-bar");
-  if (bar && hero?.contains(bar)) document.body.append(bar);
+function endLanding(): void {
+  destroyLanding();
   stopGreeting?.();
   stopGreeting = null;
   stopBand?.();
   stopBand = null;
-  delete document.documentElement.dataset.landing;
-  hero?.remove();
 }
-
-if ($("#hello")) enterLanding();
 
 // ── composer ─────────────────────────────────────────────────────────────────
 form.addEventListener("submit", (e) => {
@@ -675,7 +655,7 @@ async function restoreThread(): Promise<void> {
   // showChat() here would stomp it — silently snapping every returning visitor (anyone with a
   // saved thread) back to chat, breaking share, bookmark, and reload for the very links this app
   // generates ("Baca lanjutan →"). Let route() own visibility; rebuild the thread DOM underneath.
-  if (isChatRoute()) showChat();
+  if (isChatRoute(location.hash)) showChat();
 
   for (const t of turns) {
     const me = document.createElement("div");

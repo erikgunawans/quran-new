@@ -980,6 +980,11 @@ dialog.explain article { padding: 26px 28px 28px; }
 /* ── the band ──────────────────────────────────────────────────────────
    1.55fr / 1fr, not 50/50. The asymmetry IS the statement: scripture owns the width and
    prayer is a utility beside it. An even split would say they carry equal weight. */
+/* An author `display` rule always out-argues the UA stylesheet's [hidden] { display: none }, so
+   `<div class="band" hidden>` was inert and the band painted empty on every load. read.css:122
+   already carries this exact warning for the surah list — the hazard was documented before I
+   walked into it. Any element here with both an explicit display and a hidden attribute needs this. */
+.band[hidden] { display: none; }
 .band {
   display: grid; grid-template-columns: 1.55fr 1fr;
   gap: var(--s-5); align-items: start; margin-top: var(--s-8);
@@ -988,6 +993,10 @@ dialog.explain article { padding: 26px 28px 28px; }
 @media (max-width: 900px) { .band { grid-template-columns: 1fr; gap: var(--s-4); } }
 
 /* the daily ayah */
+/* Until the shard arrives the card has no content, and an empty bordered white box is just a
+   hole in the page. Drop the chrome rather than draw a container around nothing — the cell keeps
+   its grid track, so nothing shifts when the ayah lands. */
+.aod:empty { background: none; border: none; box-shadow: none; }
 .aod {
   position: relative; border-radius: 22px; overflow: hidden;
   background: linear-gradient(180deg, var(--surface), var(--surface-2));
