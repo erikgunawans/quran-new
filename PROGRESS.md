@@ -8,7 +8,77 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-16 (latest) — renamed Nur → New-Quranku (full rebrand, data-safe)
+## 2026-07-16 (latest) — the design direction: found it, and got eyes to verify it
+
+The whole session's second half was **visual direction**, and it took several misses to land.
+
+**The misses, honestly.** Erik ran `/frontend-design`; I proposed a "Sakīnah" thesis (dark, cinematic, Instrument Serif, a
+descend-and-settle motion) and shipped a slice into the real app. **Erik saw it and hated it** ("hideous"). Root cause:
+the old `Nur` design deliberately rejected the mainstream bright-emerald look (`PRODUCT.md` anti-reference #1 is literally
+"emerald-and-gold, guessable from the category"), and my direction pulled *further* from Erik's actual taste.
+
+**The unlock: Erik's reference.** He gave <https://quran.tarjamahtafsiriyah.com/> (QuranKu) — which also explains the
+name: **New-Quranku = the new QuranKu**. His taste: bright/light, vivid green, gradients, soft rounded cards, generous
+whitespace, prayer times, quick-access. The opposite of the retired Nur aesthetic. Direction re-aimed accordingly.
+
+**The second unlock: I can finally SEE.** The whole session I was blind (minimized Chrome → `visibilityState: hidden` →
+`interceptor screenshot` times out at 15s). Fixed by rendering in **headless Chrome** — no visible window needed:
+`"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=old --disable-gpu --hide-scrollbars \
+  --user-data-dir=<tmp> --window-size=1300,3300 --screenshot=<out.png> http://localhost:5173/preview.html`
+then `Read` the PNG. **NB: `--headless=new` + `--virtual-time-budget` HANGS** (the page's live-clock `setInterval` never
+lets virtual time drain) — use `--headless=old`. This immediately paid for itself: I caught a broken girih pattern
+(collapsed to SVG's default 300×150 viewport) myself instead of shipping it to Erik.
+
+**What exists now: `web/preview.html`** — a standalone design-direction preview (served at `/preview.html`), deliberately
+NOT the real app, so iteration cost nothing. The agreed language:
+- **Light, full-viewport**, ambient emerald radial washes; content max 1120px.
+- **Chat box is the hero** (Erik: "the chat box should be one of the main attractions… that's where the drama is").
+- **Personal + time-aware greeting**: Arabic `ٱلسَّلَامُ عَلَيْكُمْ` (Amiri) with a slow 3s "breathing" glow animation,
+  above a live JS greeting ("Selamat malam, Erik"; at 2am → "Belum bisa tidur, Erik?").
+- **"Ayat untukmu hari ini"** — the identity anchor: large Amiri ayat on a subtle 8-point-star girih tessellation
+  (CSS-tiled background; structure not filigree, per PRODUCT.md principle #2).
+- **Prayer times** (live clock, Hijri date, next-prayer, 5 prayers) + **Akses cepat** (Lanjutkan baca / Mushaf / Tematik / Audio).
+- Type: **Fraunces** (display) + **Plus Jakarta Sans** (UI) + **Amiri** (Arabic).
+
+**Then three `$impeccable` passes, each verified by screenshot:**
+- `critique` → **27/40**. Caught my own codex tells: ghost-cards (1px border + 40–70px shadow), over-round (22–26px),
+  identical card grid, emoji-as-icons, and `--ink-3` failing WCAG AA.
+- `polish` → fixed all of it: contrast now **5.39:1**, a real inline-SVG line-icon sprite (zero emoji), 16px radii,
+  defined ≤10px shadows, "Akses cepat" de-uniformed.
+- `critique` again → **32/40**. Remaining: monochrome flatness + prayer card outshouting the stars + centered-stack monotony.
+- `colorize` → **tonal emerald system**: bright emerald **reserved for actions only** (grep-verified: 4 sites — send, CTA,
+  bubble, logo); new **deep forest** for weight (prayer, resume, badges); **gold removed** (brand bans green+gold) and
+  replaced by a restrained **clay** spark.
+- `layout` → **asymmetric band** (1.55fr/1fr): the ayat owns the width, the prayer card became a narrow sidebar with a
+  vertical prayer list. Plus a 4pt spacing scale. The centered-stack monotony is gone.
+
+### ⚠ State of the real app (read before porting)
+
+**The design language lives ONLY in `web/preview.html`. The real app was never ported.** Worse: `web/index.html` +
+`web/src/styles.css` still carry the **abandoned Sakīnah slice** (Instrument Serif in the font link, `--f-display`,
+`.hello h1` display face, `rise`→`settle` keyframe, `.ar` padding). Tests are green (190/190) but that styling is
+**off-direction** — the port should replace it, not build on it.
+
+### Next, in order
+
+1. **Port `preview.html`'s design language into the real app** — tokens (emerald tonal system + 4pt scale), the chat hero,
+   the featured-ayat block, the verse card, reading surface, theme browser; then a matching dark mode. Keep 190/190 +
+   typecheck green, and update `contrast.test.ts` to the new tokens. Delete the Sakīnah leftovers as part of it.
+2. Optional preview polish first: `$impeccable clarify` (detector's only real hit: **5 em-dashes** in body copy).
+3. Prayer-times + "Masuk" are **net-new scope** (geolocation + calc; the app has no auth/backend) — decide before porting.
+4. `PRODUCT.md` / `DESIGN.md` still carry ⚠ REWRITE PENDING banners — the نور/light positioning needs Erik's editorial rewrite.
+
+### Standing constraints (unchanged)
+
+- Single branch `main`, single worktree, synced with `origin/main` (github.com/erikgunawans/nur).
+- bun/bunx for the app; `corepack pnpm` only for third-party plugin builds (never npm/npx).
+- `literal_iff_canonical` / `primary_voice` / `literal_companion` — never weakened.
+- `data/` + `web/src/.ua/` + browser artifacts gitignored/regenerable.
+- **Erik's machine hit 100% disk** mid-session (a 15KB write failed with ENOSPC). `~/Downloads` is **17GB**. Now ~14Gi free.
+
+---
+
+## 2026-07-16 — renamed Nur → New-Quranku (full rebrand, data-safe)
 
 Full rebrand done in the order that protects users and scripture. On `main`, tests green, live-verified.
 

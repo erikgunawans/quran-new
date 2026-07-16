@@ -29,6 +29,10 @@
 
   --f-ar: "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
   --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* display: one characterful voice for the Latin hero + section titles. Instrument Serif — elegant,
+     high-contrast, calm; a single weight (~35KB, swap-loaded) so the low-bandwidth floor holds. The
+     UI body stays Inter; this speaks only where the app addresses the reader directly. */
+  --f-display: "Instrument Serif", "Amiri", Georgia, serif;
 
   --step--1: 0.833rem;
   --step-0:  1rem;
@@ -224,13 +228,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .thread { display: flex; flex-direction: column; gap: 1.5rem; padding-top: 2rem; }
 
 /* empty state teaches, in real language */
-.hello { padding: 3rem 0 1rem; }
+.hello { padding: 3.75rem 0 1rem; }
 .hello h1 {
-  font-size: var(--step-4); font-weight: 600; color: var(--ink);
-  letter-spacing: -0.025em; line-height: 1.15; text-wrap: balance;
-  margin-bottom: 0.6rem;
+  font-family: var(--f-display);
+  font-size: 2.6rem; font-weight: 400; color: var(--ink);
+  letter-spacing: -0.005em; line-height: 1.08; text-wrap: balance;
+  margin-bottom: 0.7rem;
 }
-.hello p { color: var(--ink-2); max-width: 34ch; text-wrap: pretty; }
+.hello p { color: var(--ink-2); max-width: 36ch; text-wrap: pretty; line-height: 1.55; }
 
 .seeds { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.75rem; }
 .seed {
@@ -281,25 +286,26 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   direction: rtl;
   text-align: right;
   color: var(--ink);
-  padding: 1.9rem 1.1rem;
+  padding: 2.4rem 1.15rem;
   text-shadow: var(--glow);
   /* NEVER letter-spacing on Arabic — it breaks the joins */
   letter-spacing: normal;
 }
 
-/* the one permitted flourish: the word rises into light. once, on the hero.
-   `forwards`, never `both` — `both` back-fills the FROM keyframe (invisible, blurred) the
-   instant the element exists, even before the animation engine has run a single frame. A tab
-   backgrounded mid-load (app-switch, screen lock — routine on the mid-range Android this
-   product targets) can leave a CSS animation never-started, and `both` then leaves the verse
-   permanently invisible. `forwards` shows the element's real, visible, unanimated style until
-   the animation genuinely begins, so scripture is never gated behind motion that might not run. */
+/* the one permitted flourish, re-cast for sakīnah: the ayat SETTLES into stillness — it descends
+   from just above and comes to rest, the calm the app exists to bring rendered as motion. Fires once,
+   on the hero ayat only. `forwards`, never `both` — `both` back-fills the FROM keyframe (invisible,
+   blurred) the instant the element exists, even before the animation engine runs a frame. A tab
+   backgrounded mid-load (app-switch, screen lock — routine on the mid-range Android this product
+   targets) can leave a CSS animation never-started, and `both` then leaves the verse permanently
+   invisible. `forwards` shows the element's real, visible, unanimated style until the animation
+   genuinely begins, so scripture is never gated behind motion that might not run. */
 @media (prefers-reduced-motion: no-preference) {
   .verse[data-new] .ar {
-    animation: rise 620ms var(--ease) forwards;
+    animation: settle 760ms var(--ease) forwards;
   }
-  @keyframes rise {
-    from { opacity: 0; filter: blur(7px); transform: translateY(6px); }
+  @keyframes settle {
+    from { opacity: 0; filter: blur(6px); transform: translateY(-11px); }
     to   { opacity: 1; filter: blur(0);   transform: none; }
   }
 }
