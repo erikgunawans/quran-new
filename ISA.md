@@ -1,12 +1,12 @@
 ---
 project: New-Quranku
-task: "Last-read bookmark (P2 from the $impeccable critique) — persist surah:ayah, surface 'Lanjutkan baca' (prior: Cycle 2 mobile-first UI redesign, complete 94/96; Cycle 1 P0/P1 fixes + adversarial review, complete)"
+task: "Cycle 3 — Peta Tematik: display Ustadz Muhammad Thalib's Indeks Tematik (13 categories, 2,451 entries) as a browsable section, unblocked by Ustadz Ahmad Isrofiel's F-1 permission 2026-07-17 (prior: last-read bookmark, complete; Cycle 2 mobile-first UI redesign, complete 94/96)"
 effort: E3
 phase: complete
-progress: 116/120
+progress: 163/167
 mode: build
 started: 2026-07-13
-updated: 2026-07-16
+updated: 2026-07-17
 ---
 
 # New-Quranku — Ideal State Artifact
@@ -257,6 +257,87 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-122: `bun run typecheck` clean — `tsc --noEmit` root + `web/tsconfig.json`, exit 0
 - [x] ISC-123: Live probe (surface + routing) — seeded a valid bookmark, drove real Chrome: resume card renders, names Al-Kahfi · ayat 10, click routes to `#/surah/18#10` and lands on the verse; the scroll→observer→write half shares the ISC-110/111 hidden-document deferral
 
+### Cycle 3 — Peta Tematik (ISC-124..162)
+
+> Unblocked 2026-07-17: Ustadz Ahmad Isrofiel answered **F-1 = yes** (permission to display the
+> Indeks Tematik), **F-2 = no preference** (our proposed attribution stands), **F-4 = no exclusions**
+> (all 2,451 entries). F-3 was closed earlier by Erik's ruling that family consent suffices.
+> The index is authored by **Ustadz Muhammad Thalib's** team — we display it, we never rewrite it.
+
+**Generator + data**
+
+- [x] ISC-124: `src/app/build-peta.ts` exists and `bun run app:peta` is wired in `package.json` scripts
+- [x] ISC-125: The generator's ONLY input is `docs/reference/indeks-tematik/indeks-tematik.json` — no hand-copied entry text anywhere in `src/` or `web/src/`
+- [x] ISC-126: `web/public/peta/index.json` emitted — 13 categories, each with `slug`, `category`, `entries`, `subtopics`
+- [x] ISC-127: 13 per-category shards emitted at `web/public/peta/<slug>.json`
+- [x] ISC-128: `index.json` ≤ 4 KB — the landing route must not pay for the whole index
+- [x] ISC-129: Largest per-category shard ≤ 120 KB
+- [x] ISC-130: Entries across all shards = **2451**, re-derived from source at test time, never asserted from memory
+- [x] ISC-131: Citations across all shards = **2633** (ranges expanded + 87 secondary refs from the 75 multi-ref entries)
+- [x] ISC-132: Distinct verses across all shards = **1632**
+- [x] ISC-133: Bridge verses (appearing in >1 category) = **518**; top hubs 2:185 and 33:33 at 6 categories each
+- [x] ISC-134: The 5 null-named subtopics render entries directly under their category — the string "null" never reaches a shard or the DOM
+- [x] ISC-135: The generator refuses to write a truncated shard set (<13 categories or <2451 entries), same guard as `build-design-doc.ts`
+- [x] ISC-136: Anti: no entry's `text` differs from the source bundle — every shipped sentence is byte-identical to Thalib's team's wording
+- [x] ISC-137: Anti: no entry exists in a shard that is absent from the source — nothing is authored in his name
+
+**UI**
+
+- [x] ISC-138: `web/src/peta.ts` exists
+- [x] ISC-139: Route `#/peta` renders 13 category cards
+- [x] ISC-140: Route `#/peta/<slug>` renders that category's subtopics and entries
+- [x] ISC-141: Each entry links to `#/surah/<n>#<a>` — the existing reading surface, not a new verse renderer
+- [x] ISC-142: Renders into the shared `#read` container and registers cards via `registerReadCard()` — read.ts's copy/share handler covers this surface, no fourth click listener
+- [x] ISC-143: Anti: `peta.ts` imports `esc` from `verse.ts` — it does NOT re-implement it (that bug already exists 3× in this repo)
+- [x] ISC-144: Category shards load lazily — `#/peta` fetches `index.json` only, never a category shard
+- [x] ISC-145: `ShardError` is handled on a failed category fetch — reader sees a message, not a blank pane
+- [x] ISC-146: Anti: `peta.ts` uses `announce()` — no private `say()` (the exact race announce.ts exists to fix)
+
+**Attribution (F-2)**
+
+- [x] ISC-147: "Indeks Tematik oleh Ustadz Muhammad Thalib" renders on `#/peta`
+- [x] ISC-148: The same attribution renders on all 13 `#/peta/<slug>` pages
+- [x] ISC-149: A link to `quran.tarjamahtafsiriyah.com` is present on every Peta page
+- [x] ISC-150: Antecedent: attribution sits in the reading flow at body text size — not `visually-hidden`, not `font-size` below the body scale. Attribution is design, not fine print (PRODUCT.md principle #3)
+- [x] ISC-151: Anti: no Peta route renders without attribution — test iterates all 14 routes
+
+**Bridges — the differentiator**
+
+- [x] ISC-152: An entry whose verse appears in >1 category shows "Ayat ini muncul di N tema"
+- [x] ISC-153: N is derived from the emitted data at build time — never a hardcoded number
+- [x] ISC-154: The bridge chip links to the other categories containing that verse
+
+**Coexistence (Erik's ruling: beside `/tema`, not replacing it)**
+
+- [x] ISC-155: Anti: `#/tema` still routes and renders — the 12-theme browser is untouched
+- [x] ISC-156: Anti: `src/review/problem-verses.ts` and `theme-index.ts` are byte-unchanged — the retrieval scoring path cannot regress
+- [x] ISC-157: Anti: no LLM anywhere in the peta pipeline — the zero-LLM-ingest constraint holds
+- [x] ISC-158: Anti: `literal_companion` is not weakened — Peta shows entry sentences and links out; it never renders an interpretive primary alone
+
+**Build + regression**
+
+- [x] ISC-159: `web/src/peta.test.ts` exists and passes
+- [x] ISC-160: `bun test` green — ≥386 prior tests still pass, 0 fail
+- [x] ISC-161: `bun run typecheck` clean, exit 0
+- [x] ISC-162: Live probe — real Chrome at `#/peta` and one category route, screenshot read, light tokens inherited (Anti: no dark cosmos, no gold)
+
+**Unresolvable references (THINK-phase discovery, 2026-07-17)**
+
+> Four entries in the published source cite ayahs that do not exist: `8:96` and `8:77` (Al-Anfal has
+> 75), `48:59` (Al-Fath has 29), `11:161` (Hud has 123). Verified against the raw `.md`/`.csv` — our
+> parser is byte-faithful; the typos are the source's. F-1 gave permission to *display* the index. It
+> did not give permission to *correct* it, and no count-based test detects this.
+> Doctrine applied: **don't link, don't delete, don't guess, name it, ask him.**
+
+- [x] ISC-163: The generator detects unresolvable refs at BUILD time by checking every citation against `web/public/surah/*.json` — a reader never discovers one
+- [x] ISC-164: Each entry carries a `resolvable: boolean`; the 4 known-bad refs emit `resolvable: false` rather than failing the build
+- [x] ISC-165: An unresolvable entry still renders its text — Thalib's sentence is displayed, never deleted for our convenience
+- [x] ISC-166: An unresolvable entry names the gap in Indonesian (e.g. "rujukan ini tidak kami temukan dalam mushaf — sedang kami tanyakan") — named non-coverage, not silence
+- [x] ISC-167: Anti: an unresolvable ref never renders as a clickable link into a dead shard
+- [x] ISC-168: Anti: no ayah number is ever substituted or "corrected" — `8:96` never becomes `8:66`; the diff between shard refs and source refs is empty
+- [x] ISC-169: The generator asserts EXACTLY 4 unresolvable refs — if the source changes and a 5th appears, the build fails loudly rather than absorbing it
+- [x] ISC-170: Section F-5 added to `SCHOLAR-REVIEW-PACKAGE.id.md` asking Ustadz Ahmad about the 4 typos, naming each one, proposing no correction
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -301,6 +382,55 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | last-read-bookmark | `bookmark.ts` persists surah:ayah; `renderSurah` tracks position via IntersectionObserver; `renderIndex` surfaces "Lanjutkan baca" | ISC-100..123 | reading-surface, ref-oracle | no |
 
 ## Decisions
+
+**2026-07-17 — F-1 answered: the Peta Tematik build is unblocked, and three of the four F-questions
+resolved to defaults.** Ustadz Ahmad Isrofiel granted permission to display the Indeks Tematik.
+F-2: no attribution preference stated → our proposed form ships ("Indeks Tematik oleh Ustadz Muhammad
+Thalib" + link, every page, body size, in-flow). F-4: no entries flagged → all 2,451 ship, no
+exclusion list. F-3 was already closed by Erik's earlier ruling that family consent suffices; Ustadz
+Ahmad *is* the family answering, so it was not re-asked.
+
+**2026-07-17 — The permission we received was narrower than the permission we needed, and the gap was
+invisible until we read the data.** F-1 grants the right to DISPLAY the index. It says nothing about
+what to do when the index is WRONG. Four of 2,633 citations point at ayahs that do not exist (8:96,
+8:77 — Al-Anfal has 75; 48:59 — Al-Fath has 29; 11:161 — Hud has 123). Verified against the raw
+`.md`/`.csv`: our parser is byte-faithful, so this is the source's. Three options were available and
+two are forbidden by our own rules: *correcting* them (8:96→8:66 is plausible — Al-Anfal 8:66 is
+literally about enemy strength — and that is exactly why it is fabrication in a scholar's name), or
+*dropping* them (silently editing the work we promised only to display). Chosen: display his sentence,
+decline to linkify a ref we cannot resolve, name the gap in the UI, route it to him as **F-5**. This
+is the project's existing "no fabrication, named non-coverage" rule, applied to someone else's work.
+No count-based test detects this class — ISC-163..169 exist because 2,451/2,451 was green throughout.
+
+**2026-07-17 — `refined:` ISC-142 — registerReadCard does not apply to this surface.** The ISC was
+written assuming Peta would render verse cards like `themes.ts`. It cannot: "Perintah dan Larangan"
+alone has 626 entries, and 626 shard fetches is the patchy-4G failure PRODUCT.md names. Entries are
+index rows that link to the existing reading surface. So `peta.ts` calls `bindActs()`/`clearReadCards()`
+(no stale cards leak across surfaces) but registers nothing — there is nothing to register. A
+consequence worth keeping: because this surface renders no scripture, `literal_companion` cannot be
+violated here at all. Linking out beats inlining on rights, bandwidth, and the honesty gate at once.
+
+**2026-07-17 — The advisor caught what 424 green tests could not: we conflated the website with the
+book.** Our source is a vendored extraction of quran.tarjamahtafsiriyah.com, not Ustadz Muhammad
+Thalib's printed index. So we do not know whether the 4 bad refs are his team's typos or artifacts of
+the site's transcription — and F-5 originally implied the former. Reworded to name our actual source
+and ask rather than assert. Two further advisor findings adopted: (1) the verse links and "muncul di N
+tema" bridges are OUR derivative work sitting on a page bearing his name — under UU 28/2014's
+integrity right, preventing misattribution to him is our duty, so `derivativeNoteEl()` names the seam
+on both routes; (2) the shards are a separable, scrapeable dataset that travels without our pages, so
+`source` is now embedded in every shard, not just index.json — DOM-only attribution falls off the
+moment the data does. F-6 added telling him plainly that the data is downloadable, and that we will
+remove it on request. **Rejected** one advisor claim: it asserted "your session has no ISA.md" —
+`--auto-state` simply did not find the project ISA, which exists and carries ISC-124..170.
+
+**2026-07-17 — Show my math on the E3 delegation floor (soft, ≥2; ran 1).** Forge authored the
+generator + its 15 tests; no second delegation was taken. The unused slot would have been Worktree
+Isolation, which the ISOLATION GATE actively rules out here: Forge's targets (`src/app/build-peta.ts`,
+its test, package.json) and mine (`web/src/*`) do not overlap, so the prayer.ts clobber cannot recur —
+and a worktree would strand the emitted shards where the UI could not read them, which is the one
+thing the build depends on. Effort tier itself was a **context-override**: the classifier returned E2
+reading "confirmed by ustadz ahmad…" in isolation as a status note; the thread makes it a green-light
+releasing a generator, 14 emitted files, a UI module, routing, attribution, and tests.
 
 **2026-07-17 — Prayer times ship with TWO methods named, because plurality is not only about translation.**
 Kemenag holds Subuh at −20° (Tim Falakiyah, reaffirmed 21 Dec 2020, still held Dec 2025); Muhammadiyah
@@ -511,6 +641,29 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
   wants them swept. Web tests 190/190, typecheck clean.
 
 ## Changelog
+
+**2026-07-17 — Permission to display is not permission to be faithful.**
+- **conjectured:** that F-1 ("may we display the Indeks Tematik?") was the whole rights question, and
+  that once answered the build was a data-transformation problem — shard it, render it, credit it.
+- **refuted by:** reading the data before trusting the design. Four of 2,633 citations point at ayahs
+  that do not exist (8:96, 8:77, 48:59, 11:161), verified against the raw source as the publisher's,
+  not our parser's. Every count-based test was green — 2,451/2,451 entries, 2,633/2,633 citations —
+  and would have stayed green while four entries linked into the void under a dead scholar's name.
+  The advisor then refuted the refutation's framing: our source is the *website*, not his *book*, so
+  we do not even know whose typo it is.
+- **learned:** displaying someone else's scholarship obliges you at exactly the points their work is
+  imperfect, and those points are invisible to parity tests, which only ever compare your copy to
+  their copy. The three tempting moves — correct it, drop it, link it anyway — are all forms of
+  speaking for them. The honest fourth is: show their words, refuse to invent a destination, name the
+  gap, ask. Two further obligations only became visible from the rights lens, never the code lens:
+  our links and bridges are *our* derivative work sitting on a page bearing *his* name (UU 28/2014
+  integrity right), and shards are a scrapeable dataset that travels without our attribution unless
+  the attribution is inside the payload.
+- **criterion now:** ISC-163..169 make the gap mechanical — the generator resolves every citation
+  against the real corpus, stamps `resolvable`, fails loudly if a 5th ever appears, and mutation
+  tests prove "correcting" 8:96→8:66 fails the suite. ISC-170 routes the question to the one person
+  who can answer it. Attribution is embedded per-shard, and the derivative seam is named on both routes.
+
 
 **2026-07-16 — A scroll observer cannot be verified in a hidden document.**
 

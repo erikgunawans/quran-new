@@ -313,3 +313,81 @@
   #read .find-in,
   #read .back { transition: none; }
 }
+
+/* ── Peta Tematik ────────────────────────────────────────────────────────────
+ *
+ * Ustadz Muhammad Thalib's Indeks Tematik, displayed by permission (F-1, 2026-07-17).
+ * Inherits the app's semantic tokens (--bg/--surface/--ink/--primary) rather than
+ * introducing a parallel vocabulary, so light/dark flips for free and the locked
+ * direction cannot fork here. No new colour is invented on this surface.
+ */
+
+/* Attribution is DESIGN, not fine print (PRODUCT.md). Body size, in the reading flow,
+ * above the content it credits. Do not shrink, hide, or footer-ise this. */
+#read .peta-credit {
+  margin: 0.75rem 0 0;
+  font-size: var(--step-0);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+#read .peta-credit strong { color: var(--ink); font-weight: 600; }
+#read .peta-credit a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+
+#read .peta-sub { margin: 2rem 0 0; }
+#read .peta-sub-name {
+  margin: 0 0 0.75rem;
+  font-size: var(--step-1);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+#read .peta-entries { list-style: none; margin: 0; padding: 0; }
+
+#read .peta-entry {
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--line);
+}
+#read .peta-entry:last-child { border-bottom: 0; }
+
+#read .peta-text {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+#read .peta-refs { margin: 0.35rem 0 0; font-size: var(--step--1); }
+
+#read .peta-ref {
+  color: var(--primary);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+#read .peta-ref:hover { text-decoration: underline; }
+#read .peta-ref:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+
+/* An unresolvable reference: the published index cites an ayah that is not in the mushaf.
+ * It is deliberately NOT a link and deliberately NOT hidden — we name the gap instead of
+ * inventing a destination or deleting a scholar's line. */
+#read .peta-ref-unresolved { color: var(--ink-3); cursor: help; }
+#read .peta-unresolved-note { font-style: italic; }
+
+#read .peta-bridge {
+  margin: 0.35rem 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+#read .peta-bridge-link { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+#read .peta-bridge-link:hover { color: var(--primary); }
+
+/* Our editorial layer, named. The links and bridges are ours; the sentences and taxonomy are
+ * Ustadz Muhammad Thalib's. Quieter than the credit — it is a clarification, not the credit
+ * itself — but present on every Peta route. */
+#read .peta-derivative {
+  margin: 0.4rem 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  line-height: 1.5;
+  max-width: 60ch;
+}

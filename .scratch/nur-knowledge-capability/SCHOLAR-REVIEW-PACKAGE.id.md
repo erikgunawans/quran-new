@@ -312,13 +312,82 @@ langsung kepada Ustadz. Bila ternyata ada pihak lain yang juga berhak menentukan
 
 | Pertanyaan | Penilaian |
 |---|---|
-| F-1. Bolehkah New-Quranku memuat Indeks Tematik ini di dalam aplikasi? | |
-| F-2. Jika boleh — bentuk penyebutan sumber seperti apa yang Ustadz kehendaki? | |
-| F-3. Jika ada pihak lain yang perlu ikut memberi izin atas karya ini, mohon Ustadz beri tahu kami. | |
-| F-4. Adakah entri yang menurut Ustadz tidak layak ditampilkan lepas dari konteks aslinya? | |
+| F-1. Bolehkah New-Quranku memuat Indeks Tematik ini di dalam aplikasi? | **Boleh** — dijawab Ustadz Ahmad Isrofiel, 17 Juli 2026 |
+| F-2. Jika boleh — bentuk penyebutan sumber seperti apa yang Ustadz kehendaki? | Tidak ada permintaan khusus — kami memakai bentuk yang kami usulkan di atas |
+| F-3. Jika ada pihak lain yang perlu ikut memberi izin atas karya ini, mohon Ustadz beri tahu kami. | Cukup dari keluarga |
+| F-4. Adakah entri yang menurut Ustadz tidak layak ditampilkan lepas dari konteks aslinya? | Tidak ada — seluruh 2.451 entri boleh ditampilkan |
 
-> Selama F-1 belum dijawab, bagian "Peta Tematik" **tidak dibangun dan tidak diluncurkan**. Aplikasi
-> saat ini tetap berjalan dengan 55 ayat pilihan yang sudah ada, tanpa indeks ini.
+> **F-1 sudah dijawab pada 17 Juli 2026, dan bagian "Peta Tematik" sudah kami bangun.**
+> Penyebutan sumber yang kami pakai, persis seperti yang diusulkan di atas:
+> *"Indeks Tematik oleh **Ustadz Muhammad Thalib**"*, dengan tautan ke quran.tarjamahtafsiriyah.com,
+> di **setiap** halaman Peta Tematik — di dalam alur bacaan, seukuran teks biasa, bukan tulisan
+> kecil di pojok halaman.
+
+---
+
+## Bagian F-5 — Empat rujukan yang tidak kami temukan dalam mushaf
+
+**Ini bukan koreksi. Ini pertanyaan.** Ketika menyiapkan Indeks Tematik untuk ditampilkan, kami
+mencocokkan setiap rujukan ayat dengan mushaf. Dari 2.633 rujukan, **2.629 cocok**. Empat rujukan
+menunjuk ke nomor ayat yang tidak ada dalam surahnya:
+
+| Entri | Rujukan sebagaimana termuat di situs | Dalam mushaf |
+|---|---|---|
+| "Lawan lebih kuat" | QS. Al-Anfal, **8:96** | Al-Anfal hanya sampai ayat 75 |
+| "Khianat" | QS. Al-Anfal, **8:77** | Al-Anfal hanya sampai ayat 75 |
+| "Kekalahan" | QS. Al-Fath, **48:59** | Al-Fath hanya sampai ayat 29 |
+| "Mengelola sumber daya alam untuk kemakmuran seluruh rakyat" | QS. Hud, **11:161** | Hud hanya sampai ayat 123 |
+
+**Dari mana kami membacanya, dan apa yang belum kami ketahui.** Keempat rujukan di atas kami baca
+dari **halaman quran.tarjamahtafsiriyah.com**, bukan dari kitab cetaknya. Karena itu kami belum tahu
+apakah selisih ini berasal dari indeks susunan tim Ustadz Muhammad Thalib sendiri, atau muncul saat
+indeks itu dipindahkan ke situs. **Kami tidak ingin menyimpulkannya sendiri** — Ustadz yang memiliki
+naskah aslinya, dan hanya beliau yang dapat memastikan.
+
+**Yang kami lakukan — dan yang sengaja tidak kami lakukan.** Izin yang Ustadz berikan adalah izin
+**menampilkan** indeks ini, bukan izin **mengubahnya**. Karena itu:
+
+- Kami **tidak menebak** nomor ayat yang dimaksud. Untuk "Lawan lebih kuat", misalnya, QS. Al-Anfal
+  8:66 memang berbicara tentang kekuatan lawan, dan 96 bisa saja tertukar dari 66 — tetapi menduga
+  lalu menuliskannya berarti kami mengarang atas nama Ustadz Muhammad Thalib. Itu tidak kami lakukan.
+- Kami **tidak menghapus** keempat entri itu. Kalimatnya tetap tampil utuh sebagaimana tertulis.
+- Kami juga **tidak mendiamkannya**. Pada keempat entri itu nomor ayatnya tidak kami jadikan tautan,
+  dan di sebelahnya kami tuliskan terus terang: *"rujukan ini tidak kami temukan dalam mushaf —
+  sedang kami tanyakan"*.
+
+**Yang mohon Ustadz putuskan:**
+
+| Pertanyaan | Penilaian |
+|---|---|
+| F-5a. Bila Ustadz berkenan memeriksa naskah aslinya — berapa nomor ayat yang tertulis di sana? | |
+| F-5b. Bila Ustadz belum dapat memastikan, bolehkah keempatnya tetap tampil seperti sekarang — kalimatnya utuh, rujukannya tidak kami tautkan, dan kami sebutkan terus terang? | |
+| F-5c. Atau Ustadz lebih memilih keempat entri itu kami sembunyikan dulu sampai ada kepastian? | |
+
+---
+
+## Bagian F-6 — Dua hal yang perlu kami sampaikan terus terang
+
+Bukan pertanyaan izin, melainkan dua hal yang menurut kami wajib Ustadz ketahui sejak awal.
+
+**Pertama: mana yang karya Ustadz Muhammad Thalib, dan mana yang tambahan kami.** Kalimat-kalimat
+entri dan susunan kategorinya sepenuhnya karya tim beliau. Sedangkan **tautan ke ayat** dan
+keterangan **"ayat ini muncul di sekian tema"** adalah tambahan kami — hasil hitungan kami sendiri,
+bukan bagian dari indeks aslinya. Karena keduanya tampil di halaman yang memuat nama beliau, kami
+sebutkan pemisahnya di setiap halaman, supaya pembaca tidak menisbahkan pekerjaan kami kepada beliau.
+
+**Kedua: bentuk datanya.** Agar aplikasi tetap ringan di jaringan yang lambat, indeks ini kami muat
+sebagai berkas data (format JSON) yang diambil aplikasi saat dibuka. Konsekuensinya jujur kami
+sampaikan: **berkas itu dapat diunduh dan disalin orang lain**, terlepas dari halaman kami. Kami
+sudah menyertakan nama dan sumber Ustadz Muhammad Thalib **di dalam setiap berkasnya**, sehingga
+penyebutan sumber ikut terbawa. Namun kami tidak dapat menjanjikan tidak ada yang menyalahgunakannya.
+
+| Pertanyaan | Penilaian |
+|---|---|
+| F-6a. Apakah bentuk penyajian seperti ini — indeks sebagai berkas data yang dapat terunduh — Ustadz izinkan? | |
+| F-6b. Bila suatu saat Ustadz ingin menariknya kembali, kami akan menghapusnya. Cukup Ustadz kabari kami. | |
+
+> Selama F-5 belum dijawab, keempat entri itu tetap tampil dengan catatan seperti di atas. Tidak ada
+> satu pun nomor ayat yang kami ubah.
 
 ---
 

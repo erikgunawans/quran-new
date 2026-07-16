@@ -62,7 +62,12 @@ export function isLandingDocked(doc: Document = document): boolean {
  * mirror that drifts. Exported so both the router and the thread-restore path read the same table.
  */
 export function isChatRoute(hash: string): boolean {
-  return !(/^#\/surah\/\d/.test(hash) || /^#\/tema(?:\/|$)/.test(hash) || hash === "#/baca");
+  return !(
+    /^#\/surah\/\d/.test(hash) ||
+    /^#\/tema(?:\/|$)/.test(hash) ||
+    /^#\/peta(?:\/|$)/.test(hash) ||
+    hash === "#/baca"
+  );
 }
 
 /**

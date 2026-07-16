@@ -169,7 +169,17 @@ describe("syncLanding — driven by the route, in BOTH directions", () => {
     expect(isLandingDocked()).toBe(false); // and the 46rem reading measure is restored
   });
 
-  const readingRoutes = ["#/baca", "#/tema", "#/tema/sabar", "#/surah/18", "#/surah/18#10"];
+  const readingRoutes = [
+    "#/baca",
+    "#/tema",
+    "#/tema/sabar",
+    "#/surah/18",
+    "#/surah/18#10",
+    // Peta Tematik — a reading door. Omitting these is how the landing would dock over the
+    // Peta surface: exactly the drift this function's own comment warns about.
+    "#/peta",
+    "#/peta/keluarga",
+  ];
   for (const hash of readingRoutes) {
     test(`${hash} is a reading door — composer at body level, measure intact`, () => {
       syncLanding("#/");

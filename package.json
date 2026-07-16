@@ -14,12 +14,13 @@
     "app:corpus": "bun run src/app/build-corpus.ts",
     "app:audio": "bun run src/app/build-audio.ts",
     "app:themes": "bun run src/app/build-themes.ts",
+    "app:peta": "bun run src/app/build-peta.ts",
     "app:design": "bun run src/app/build-design-doc.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
-    "build": "bun run app:corpus && bun run app:themes && vite build web"
+    "build": "bun run app:corpus && bun run app:themes && bun run app:peta && vite build web"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",

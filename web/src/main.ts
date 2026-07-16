@@ -8,6 +8,7 @@ import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
+import { renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
@@ -302,6 +303,7 @@ async function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
+  const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
 
   if (m) {
     markNav("baca");
@@ -328,6 +330,22 @@ async function route() {
     markNav("tema");
     showRead();
     renderThemeIndex(readView);
+    return;
+  }
+
+  // Peta Tematik sits BESIDE /tema, deliberately — the 12-theme lexicon also feeds chat
+  // retrieval scoring, so replacing it would touch the retrieval path for a browsing win.
+  if (p) {
+    markNav("tema");
+    showRead();
+    await renderPetaCategory(readView, p[1]!);
+    return;
+  }
+
+  if (hash === "#/peta") {
+    markNav("tema");
+    showRead();
+    await renderPetaIndex(readView);
     return;
   }
 
