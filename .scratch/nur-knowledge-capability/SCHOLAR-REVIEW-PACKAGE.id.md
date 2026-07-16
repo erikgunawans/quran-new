@@ -279,6 +279,48 @@ Agar persetujuan Ustadz jelas batasnya dan jujur, New-Quranku secara tegas **tid
 
 ---
 
+## F. Izin menampilkan Indeks Tematik  *(pertanyaan izin, bukan pertanyaan keilmuan)*
+
+**Ini satu-satunya bagian yang bukan meminta penilaian keilmuan Ustadz, melainkan izin.** Kami
+memisahkannya justru karena kedudukan Ustadz di sini berbeda: pada Bagian A kami sengaja tidak meminta
+Ustadz menilai keutamaan terjemahan ayahanda sendiri — pertanyaan itu kami sampaikan kepada ulama lain
+yang tidak memiliki kaitan pribadi dengan karya tersebut. Untuk urusan izin, keadaannya justru
+terbalik: keluarga dan penerus karya Ustadz Muhammad Thalib-lah pihak yang paling berhak menjawab.
+
+**Yang ingin kami muat.** Selain terjemahan yang sudah disebut di Bagian A, situs
+quran.tarjamahtafsiriyah.com memuat sebuah **Indeks Tematik**: 13 kategori, 2.451 entri, mencakup 1.632
+ayat. Setiap entri bukan sekadar nomor ayat, melainkan **satu kalimat penjelas** — misalnya
+"Menghilangkan cahaya iman dari hati orang munafik — QS. Al-Baqarah, 2:17". Kalimat-kalimat itulah hasil
+kerja tim Ustadz Muhammad Thalib, dan justru di situlah nilainya.
+
+**Mengapa kami meminta izin, bukan sekadar mencantumkan sumber.** Izin memakai terjemahannya sudah
+kami sampaikan di Bagian A. **Menampilkan ulang seluruh indeksnya di dalam aplikasi kami adalah
+permintaan yang jauh lebih besar.** Kami tidak ingin memakainya lebih dulu, lalu meminta izin belakangan.
+Bagi kami, menyebut sumber itu bagian dari rancangan, bukan tulisan kecil di pojok halaman — dan izin
+harus datang lebih dulu dari keduanya.
+
+**Rencana penyajiannya, apa adanya:**
+- Indeks ini menjadi satu bagian tersendiri bernama **"Peta Tematik"** — pembaca menelusuri kategori,
+  lalu subtopik, lalu sampai ke ayatnya.
+- Setiap halaman menyebutkan sumbernya: **"Indeks Tematik oleh Ustadz Muhammad Thalib"**, dengan tautan ke
+  quran.tarjamahtafsiriyah.com.
+- Kami **tidak** mengubah satu pun kalimat penjelas, dan **tidak** menyusun entri baru atas nama beliau.
+- Aplikasi kami tetap gratis dan tidak memasang iklan pada bagian ini.
+
+**Yang mohon Ustadz putuskan:**
+
+| Pertanyaan | Penilaian |
+|---|---|
+| F-1. Bolehkah New-Quranku memuat Indeks Tematik ini di dalam aplikasi? | |
+| F-2. Jika boleh — bentuk penyebutan sumber seperti apa yang Ustadz kehendaki? | |
+| F-3. Apakah izin ini cukup dari keluarga, atau perlu melalui Majelis Mujahidin Indonesia sebagai lembaga? | |
+| F-4. Adakah entri yang menurut Ustadz tidak layak ditampilkan lepas dari konteks aslinya? | |
+
+> Selama F-1 belum dijawab, bagian "Peta Tematik" **tidak dibangun dan tidak diluncurkan**. Aplikasi
+> saat ini tetap berjalan dengan 55 ayat pilihan yang sudah ada, tanpa indeks ini.
+
+---
+
 ## Persetujuan
 
 | Bagian | Penilaian (Setuju / Tandai / Perlu catatan) | Catatan |
@@ -288,6 +330,7 @@ Agar persetujuan Ustadz jelas batasnya dan jujur, New-Quranku secara tegas **tid
 | C — Aturan perilaku | | |
 | D — Jalur krisis | | |
 | E — Batasan | | |
+| F — Izin Indeks Tematik | | |
 
 _Ustadz Ahmad Isrofiel Mardlatillah — tanda tangan / tanggal:_ ________________________
 
