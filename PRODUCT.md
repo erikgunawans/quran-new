@@ -1,5 +1,10 @@
 # Product
 
+> ⚠️ **REWRITE PENDING (2026-07-16):** The app was renamed **Nur → New-Quranku** and the نور/light
+> identity was retired. This doc's positioning is built on the "Nūr = light" metaphor (see "Light
+> emerging from dark", 24:35 below) — it needs Erik's editorial rewrite, not a mechanical find-replace.
+> Left intact deliberately so the light-framing isn't half-mangled.
+
 **Nur** (نور — *light*)
 
 ## Register

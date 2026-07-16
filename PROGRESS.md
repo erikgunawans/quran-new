@@ -2,6 +2,37 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+> **Note (2026-07-16):** The app was **renamed from "Nur" to "New-Quranku"** and the نور/light identity
+> retired (Erik's call). Earlier checkpoints below still say "Nur" — that is history, kept as-is per the
+> append-only rule. From here on the product is New-Quranku.
+
+---
+
+## 2026-07-16 (latest) — renamed Nur → New-Quranku (full rebrand, data-safe)
+
+Full rebrand done in the order that protects users and scripture. On `main`, tests green, live-verified.
+
+- **Data migration, not deletion (the real risk).** The saved-data keys — `nur:thread`, `nur:baca`,
+  `nur:theme`, `nur:ar`, `nur:lens`, `nur:explained` — hold a returning reader's conversation, last-read
+  bookmark, and settings. Renaming them blind would have wiped every existing user's data. New
+  `web/src/migrate-storage.ts` runs FIRST at boot and copies each `nur:*` key to `newquranku:*` once, then
+  drops the old (idempotent, storage-safe, **5 tests**). Shard cache `nur-quran-` → `newquranku-quran-`
+  (regenerable; `evictStaleCaches` now cleans the old prefix too).
+- **Scripture protected.** A blind `s/Nur/New-Quranku/` would have corrupted **Surah An-Nur (24)** and
+  "Nūr" (24:35). Every rename was word-boundary-guarded and grep-verified against surah names.
+- **User-facing rename:** logo/title/meta/aria (dropped the نور Arabic mark → plain "New-Quranku"
+  wordmark), the composing label, screen-reader announcements, the explainer copy, and the share
+  attribution + share-image. Internal CSS/DOM ids (`.nur`, `#nur-clear`) left as invisible implementation.
+- **Docs:** ISA (title, tagline, + a Decisions entry), the scholar review package (both EN + ID), PLAN,
+  CONTENT — all renamed. `PRODUCT.md`/`DESIGN.md` (the light-identity positioning) **flagged for Erik's
+  rewrite**, not mechanically mangled. Code comments still say "Nur" (internal narrative; harmless).
+- **Live-verified (Interceptor):** seeded old `nur:baca`+`nur:theme`, full reload → `newquranku:baca` holds
+  the migrated bookmark, `nur:baca` gone, wordmark + title read "New-Quranku". 190/190 web tests, typecheck clean.
+
+**Still open for Erik:** rewrite the `PRODUCT.md`/`DESIGN.md` light-metaphor positioning under the new
+name; say the word to also sweep "Nur" from code comments. (Plus the prior open items: the scholar reviews
+Section C behavior rules + C-2 dialogues; wire the Tematik; the last-read observer live-scroll check.)
+
 ---
 
 ## 2026-07-16 (latest) — the P2 "last read" bookmark shipped ("Lanjutkan baca")

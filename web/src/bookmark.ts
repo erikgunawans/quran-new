@@ -11,7 +11,7 @@
  */
 import { surahMeta } from "./quran.ts";
 
-const KEY = "nur:baca";
+const KEY = "newquranku:baca";
 const DEBOUNCE_MS = 400;
 
 export type Bookmark = {

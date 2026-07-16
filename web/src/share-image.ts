@@ -205,7 +205,7 @@ export async function renderVerseCardImage(v: VerseCard): Promise<Blob | null> {
   }
 
   blocks.push({
-    lines: ["نور Nur — dibagikan lewat Nur"],
+    lines: ["New-Quranku — dibagikan lewat New-Quranku"],
     font: uiFont(400, 22),
     lineHeight: 32,
     color: ink3,

@@ -48,7 +48,7 @@ function markup(): string {
 
         <p class="explain-lead">
           Al-Qur'an turun dalam bahasa Arab. Menerjemahkannya <b>selalu</b> berarti memilih — dan
-          ada dua cara memilih. Nur menampilkan keduanya, supaya kamu bisa melihat sendiri.
+          ada dua cara memilih. New-Quranku menampilkan keduanya, supaya kamu bisa melihat sendiri.
         </p>
 
         <div class="explain-kinds">
@@ -85,7 +85,7 @@ function markup(): string {
         </div>
 
         <p class="explain-why">
-          Itu sebabnya Nur menaruh <b>terjemah makna di depan</b>: supaya ayatnya sampai. Dan tetap
+          Itu sebabnya New-Quranku menaruh <b>terjemah makna di depan</b>: supaya ayatnya sampai. Dan tetap
           menampilkan <b>terjemah harfiah di bawahnya</b>: supaya tidak ada yang disembunyikan dari
           kamu.
         </p>
@@ -95,7 +95,7 @@ function markup(): string {
           <p>Kadang justru sebaliknya. Di <b>QS 94:5</b>, terjemah harfiah membacanya sebagai janji —
           <i>sesudah kesulitan ada kemudahan</i> — sementara terjemah makna melunakkannya jadi
           gambaran umum kehidupan. Di ayat itu, terjemah harfiah yang lebih tepat.</p>
-          <p>Nur memberitahumu kalau itu terjadi. Kami tidak menyembunyikan kelemahan sumber kami
+          <p>New-Quranku memberitahumu kalau itu terjadi. Kami tidak menyembunyikan kelemahan sumber kami
           sendiri — dan itulah kenapa keduanya selalu ditampilkan. <b>Kamu yang menilai.</b></p>
         </div>
 
@@ -124,7 +124,7 @@ export function openExplainer(): void {
   const d = ensure();
   if (!d.open) d.showModal();
   try {
-    localStorage.setItem("nur:explained", "1");
+    localStorage.setItem("newquranku:explained", "1");
   } catch {
     /* private mode — the panel still works, it just asks again next time */
   }
@@ -138,7 +138,7 @@ export function closeExplainer(): void {
 /** Has this reader already been told? Drives the nudge on the empty state, nothing else. */
 export const hasExplained = (): boolean => {
   try {
-    return localStorage.getItem("nur:explained") === "1";
+    return localStorage.getItem("newquranku:explained") === "1";
   } catch {
     return false;
   }

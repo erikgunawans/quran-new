@@ -22,8 +22,8 @@ const localStorageMock: LocalStorageMock = {
 };
 (globalThis as { localStorage?: unknown }).localStorage = localStorageMock;
 
-const KEY = "nur:baca";
-const THREAD_KEY = "nur:thread";
+const KEY = "newquranku:baca";
+const THREAD_KEY = "newquranku:thread";
 
 const waitForDebounce = (): Promise<void> =>
   new Promise((resolve) => {
@@ -66,7 +66,7 @@ describe("Casey switches away and comes back", () => {
     expect(raw).not.toMatch(/[؀-ۿ]/);
   });
 
-  test("the key is nur:baca, and nur:thread stays untouched", () => {
+  test("the key is newquranku:baca, and newquranku:thread stays untouched", () => {
     store.set(THREAD_KEY, "keep-this-thread");
 
     saveBookmark(2, 286);

@@ -1,6 +1,6 @@
 # Content
 
-**Nur** — نور
+**New-Quranku** — نور
 
 ## Register
 
@@ -10,7 +10,7 @@ product
 
 Every competitor found (Muslim Therapy, MuslimHira, Muraqaba, Afiah, Ruh) maps verses to *mood* — calm, anxious, sad. This is the wellness-app move by another name: a feelings-tagger with scripture attached.
 
-Nur maps to **situation**: the thing that actually happened. Got laid off. Parent won't accept a choice. Missed prayer for the fortieth day and stopped trying. Bullied for wearing hijab. This is what "personal psychologist from a religious point of view" (the founding brief) actually requires — a psychologist asks *what happened*, not just *how do you feel*.
+New-Quranku maps to **situation**: the thing that actually happened. Got laid off. Parent won't accept a choice. Missed prayer for the fortieth day and stopped trying. Bullied for wearing hijab. This is what "personal psychologist from a religious point of view" (the founding brief) actually requires — a psychologist asks *what happened*, not just *how do you feel*.
 
 This also matches PRODUCT.md's own framing of arrival state (*carrying something* / *curious but locked out*) — the pillar structure below is that framing, extended into content architecture. It is not a new idea layered on top; it is the existing product identity made operational.
 
@@ -23,7 +23,7 @@ Each pillar has:
 - **Evidence** — confidence level from research (`[HIGH]` / `[MED]` / `[LOW-NEEDS-RESEARCH]`)
 - **Quranic anchor** — the verse(s)/concept(s), attributed, never arbitrated
 - **What NOT to do** — the failure mode this pillar is most likely to fall into
-- **Format** — which of Nur's existing surfaces this pillar uses first
+- **Format** — which of New-Quranku's existing surfaces this pillar uses first
 
 Pillars are tiered by launch priority, not importance — Tier 3 topics matter as much to users, they're just under-evidenced and would ship on guesswork today.
 
@@ -46,7 +46,7 @@ The mapping lives as a **new, thin layer on the existing knowledge-graph pipelin
    **Reviewer: Ustadz Ahmad Isrofiel Mardlatillah, M.A.** (Lentera Jalan Pulang Foundation / Marwah Muslimah Center, Cibubur — runs a recurring Tadabbur Al-Qur'an series). Contact: 0882 9544 4025.
 5. **Coverage bar for Wave 1:** ship with the 1-2 anchor verses already drafted per pillar — thin-but-reviewed beats wide-but-unreviewed. A broader verse set (5-10 per pillar) is a v2 depth pass, needed only once free-text retrieval (above) becomes a real workstream.
 
-**Primary rendering rule:** every pillar response — the actual text a user reads when Nur answers their situation — leads with the **Tarjamah Tafsiriyah (Ustadz Muhammad Thalib, `tafsiriyah-thalib` in `src/ingest/sources.ts`)** rendering, with the literal translation kept alongside, not primary. This is not a pillar-specific exception; it's PRODUCT.md's whole-app reading model applied without a shortcut here.
+**Primary rendering rule:** every pillar response — the actual text a user reads when New-Quranku answers their situation — leads with the **Tarjamah Tafsiriyah (Ustadz Muhammad Thalib, `tafsiriyah-thalib` in `src/ingest/sources.ts`)** rendering, with the literal translation kept alongside, not primary. This is not a pillar-specific exception; it's PRODUCT.md's whole-app reading model applied without a shortcut here.
 
 **Checked, not assumed:** none of the 12 pillars' anchor verses collide with the existing divergence-review queue (`docs/review/divergence.json`, 1,224 mechanically-flagged verses) or the 16 verses awaiting Erik's manual ruling. No new blocker introduced against that pending review.
 
@@ -58,7 +58,7 @@ The mapping lives as a **new, thin layer on the existing knowledge-graph pipelin
 **Situation:** Missed prayer for weeks. Stopped reading. Feels like it's too late to come back, so doesn't try.
 **Evidence:** `[HIGH]` — named by research as the single most overlooked struggle across all four competitors; ISPU data ties stigma directly to Muslim youth avoiding help.
 **Quranic anchor:** *"Say: O My servants who have transgressed against themselves, do not despair of the mercy of Allah"* (39:53) — tawbah as ongoing return, not a one-time failure state.
-**What NOT to do:** Do not gamify this. No streaks, no "you haven't opened Nur in 12 days," no guilt-shaped copy anywhere near this pillar — this is the one place the anti-streak-shaming principle in PRODUCT.md is load-bearing, not decorative.
+**What NOT to do:** Do not gamify this. No streaks, no "you haven't opened New-Quranku in 12 days," no guilt-shaped copy anywhere near this pillar — this is the one place the anti-streak-shaming principle in PRODUCT.md is load-bearing, not decorative.
 **Format:** A dedicated re-entry surface, separate from onboarding, that a lapsed user lands on directly — not a lecture, an open door.
 
 ### 2. Identity Between Two Worlds
@@ -170,5 +170,5 @@ All open questions from the first draft of this document are now resolved:
 - **Primary rendering:** Tarjamah Tafsiriyah (Thalib, `tafsiriyah-thalib`) leads every pillar response; literal translation stays companion, never dropped.
 - **Pillar 6 (Alone in a Full Feed):** community/connection feature explicitly out of scope for v2; content ships honestly without implying one exists.
 - **Tier 3 timing:** research commissioned in parallel with Wave 1.
-- **Success signal:** completion (did they read to the end) + 7-day return (did they come back to Nur at all) — diagnostic pair, not a pass/fail number, no numeric target set yet.
+- **Success signal:** completion (did they read to the end) + 7-day return (did they come back to New-Quranku at all) — diagnostic pair, not a pass/fail number, no numeric target set yet.
 - **Divergence-queue check:** verified none of the 12 anchor verses collide with the existing 1,224-verse mechanical flag list or Erik's 16 pending manual rulings.

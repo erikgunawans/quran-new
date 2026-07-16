@@ -28,7 +28,7 @@ export interface TafsirPassage {
 // remain fully present and attributed. It must never become a filter that hides one, and never
 // silently default to anything but "as shipped" until the reader opts in themselves.
 export type TafsirLens = "all" | "classical" | "contemporary";
-const LENS_KEY = "nur:lens";
+const LENS_KEY = "newquranku:lens";
 
 export function getLens(): TafsirLens {
   const v = localStorage.getItem(LENS_KEY);

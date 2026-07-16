@@ -1,5 +1,9 @@
 # Design
 
+> ⚠️ **REWRITE PENDING (2026-07-16):** Renamed **Nur → New-Quranku**, نور/light identity retired. Any
+> copy or visual rationale leaning on the "light/cahaya" metaphor needs Erik's rewrite. Left intact so
+> the identity framing isn't half-mangled by a find-replace.
+
 **Nur** — نور
 
 ## Theme

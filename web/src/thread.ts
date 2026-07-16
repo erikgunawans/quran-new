@@ -29,7 +29,7 @@
  */
 import type { Hit } from "./retrieve.ts";
 
-const KEY = "nur:thread";
+const KEY = "newquranku:thread";
 
 /**
  * How long a conversation stays on the phone.

@@ -10,6 +10,7 @@ import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
+import { migrateStorage } from "./migrate-storage.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
@@ -62,7 +63,7 @@ function mount(card: VerseCard): string {
 function skeleton(): HTMLElement {
   const el = document.createElement("div");
   el.className = "msg nur";
-  el.innerHTML = `<p class="composing"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Nur sedang menyusun jawaban…</p>
+  el.innerHTML = `<p class="composing"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>New-Quranku sedang menyusun jawaban…</p>
     <div class="skeleton" aria-hidden="true">
     <div class="sk-line short"></div><div class="sk-line ar"></div>
     <div class="sk-line"></div><div class="sk-line short"></div></div>`;
@@ -156,7 +157,7 @@ function announceTurn(t: Turn): void {
       say(`${displayName(t.surah)} ${t.surah}:${t.ayah} ditampilkan.`);
       break;
     case "silence":
-      say("Belum ada ayat yang cocok. Nur tidak mengarang jawaban.");
+      say("Belum ada ayat yang cocok. New-Quranku tidak mengarang jawaban.");
       break;
     case "hits":
       say(`${t.refs.length} ayat ditemukan: ${t.refs.join(", ")}.`);
@@ -193,7 +194,7 @@ async function ask(question: string) {
   const loading = skeleton();
   thread.append(loading);
   scrollDown();
-  say("Nur sedang menyusun jawaban.");
+  say("New-Quranku sedang menyusun jawaban.");
   // Retrieval here is a local, synchronous corpus lookup — no network round-trip. Without a
   // floor, the composing state mounts and gets swapped for the answer in the same tick, before
   // the browser ever paints it. MIN_COMPOSING_MS holds it on screen for one real beat (within
@@ -217,7 +218,7 @@ async function ask(question: string) {
     answer.innerHTML = crisisReply();
     thread.append(answer);
     scrollDown();
-    say("Nur menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
+    say("New-Quranku menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
     return; // NOT remembered. Deliberately. A shared phone must not out him in the morning.
   }
 
@@ -476,7 +477,7 @@ $("#size").addEventListener("click", (e) => {
   if (!btn) return;
   const key = btn.dataset["size"] as keyof typeof SIZES;
   document.documentElement.style.setProperty("--ar-size", SIZES[key]);
-  localStorage.setItem("nur:ar", key);
+  localStorage.setItem("newquranku:ar", key);
   for (const b of $("#size").querySelectorAll("button")) {
     b.setAttribute("aria-pressed", String(b === btn));
   }
@@ -492,7 +493,7 @@ $("#theme").addEventListener("click", () => {
     (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   const next = cur === "dark" ? "light" : "dark";
   document.documentElement.dataset["theme"] = next;
-  localStorage.setItem("nur:theme", next);
+  localStorage.setItem("newquranku:theme", next);
 });
 
 // ── the "tampilan" (display) sheet — theme + Arabic size, collapsed on phones ────────────────
@@ -581,13 +582,17 @@ async function bootCorpus(): Promise<void> {
 }
 
 (() => {
+  // FIRST — before anything reads storage: carry a returning reader's saved thread, bookmark, theme,
+  // and size across the Nur → New-Quranku key rename, so the rebrand does not wipe their data.
+  migrateStorage();
+
   bindLazyTafsir();
   bindKeyboardAwareComposer();
 
-  const savedTheme = localStorage.getItem("nur:theme");
+  const savedTheme = localStorage.getItem("newquranku:theme");
   if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;
 
-  const savedSize = localStorage.getItem("nur:ar") as keyof typeof SIZES | null;
+  const savedSize = localStorage.getItem("newquranku:ar") as keyof typeof SIZES | null;
   if (savedSize) {
     document.documentElement.style.setProperty("--ar-size", SIZES[savedSize]);
     for (const b of $("#size").querySelectorAll("button")) {

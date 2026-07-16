@@ -1,5 +1,5 @@
 ---
-project: Nur
+project: New-Quranku
 task: "Last-read bookmark (P2 from the $impeccable critique) — persist surah:ayah, surface 'Lanjutkan baca' (prior: Cycle 2 mobile-first UI redesign, complete 94/96; Cycle 1 P0/P1 fixes + adversarial review, complete)"
 effort: E3
 phase: complete
@@ -9,10 +9,11 @@ started: 2026-07-13
 updated: 2026-07-16
 ---
 
-# Nur — Ideal State Artifact
+# New-Quranku — Ideal State Artifact
 
-> **نور** — *light*. A chat-first Qur'an reading app for Indonesian Muslims, over a
+> **New-Quranku** — a chat-first Qur'an reading app for Indonesian Muslims, over a
 > deterministic, gated, attributed corpus. This file is the system of record.
+> *(Renamed from "Nur" on 2026-07-16; the نور/light identity was retired — see Decisions.)*
 
 ## Problem
 
@@ -21,12 +22,12 @@ At 2:156, the verse recited at every Muslim death, Kemenag leaves the Arabic **u
 a grieving person reads *"Inna lillaahi wa innaa ilaihi raaji'uun"* and understands nothing.
 The person concludes the fault is theirs. It isn't.
 
-Nur was built to fix that, and the corpus half is done and gated — 114 surahs, 6,236 ayahs,
+New-Quranku was built to fix that, and the corpus half is done and gated — 114 surahs, 6,236 ayahs,
 24 integrity gates, sha256-pinned sources. But the app half scored **20/40** in critique, and
 the failures are not cosmetic:
 
 1. **It tells users a real verse does not exist.** Only 55 of 6,236 verses ship to the browser.
-   Ask for `18:10` — a real ayah in Al-Kahf — and Nur says *"Aku belum menemukan ayat yang
+   Ask for `18:10` — a real ayah in Al-Kahf — and New-Quranku says *"Aku belum menemukan ayat yang
    benar-benar cocok."* The "honest silence" copy becomes a **lie by omission**. For a scripture
    app this is the trust-destroying failure. (Reproduced: `.impeccable/evidence/p0-denies-18-10-BEFORE.png`)
 2. **You cannot read the Qur'an in it.** No surah list, no verse navigation, no continuous
@@ -62,7 +63,7 @@ Erik's review of the 16 divergent verses.
 
 ## Principles
 
-- **Silence over fabrication.** Where the corpus is silent, Nur is silent — and says so plainly.
+- **Silence over fabrication.** Where the corpus is silent, New-Quranku is silent — and says so plainly.
 - **But silence must be true.** "I don't have it" and "it does not exist" are different sentences,
   and conflating them is the worst thing a scripture app can do.
 - **Attribution is design, not fine print.** Every rendering names its source in the reading surface.
@@ -86,14 +87,14 @@ Erik's review of the 16 divergent verses.
   render the disclosure OPEN so the caution's "baca keduanya" stays honest. The companion is always
   PRESENT in the card and always SHIPS in the corpus; only its default visibility changed. **Do not
   weaken the data/ship guarantee.**
-- **No generative model in the retrieval path.** Nur never answers in a scholar's voice.
+- **No generative model in the retrieval path.** New-Quranku never answers in a scholar's voice.
 - **Sources are sha256-pinned** (`src/ingest/sources.lock.json`); checksum drift hard-fails.
 - The 113 MB tafsir corpus never reaches a phone. Only Arabic + the two translations ship.
 - **Disk is tight.** `data/` (~230 MB) is gitignored and regenerable via `bun run ingest`.
 
 ## Goal
 
-Nur can be *read*, not just queried: every one of the 6,236 ayahs is reachable by reference and
+New-Quranku can be *read*, not just queried: every one of the 6,236 ayahs is reachable by reference and
 by browse, no real verse is ever denied, network failure produces a visible retry rather than a
 dead app, the UI speaks only Indonesian, and any verse can be carried out of the app — all without
 shipping more than ~35 KB on the median read, and without weakening a single corpus integrity gate.
@@ -154,7 +155,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 
 - [x] ISC-36: Every verse card exposes a copy control that writes ref + Arabic + both renderings + attribution
 - [x] ISC-37: Web Share API is used where available, with clipboard as the fallback
-- [x] ISC-38: Antecedent: the copied text is attributed — a verse leaving Nur still names who translated it
+- [x] ISC-38: Antecedent: the copied text is attributed — a verse leaving New-Quranku still names who translated it
 
 ### Discovered at THINK (IterativeDepth — 4 lenses)
 
@@ -215,7 +216,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-87: The proposal addresses the iOS Safari fixed-composer/on-screen-keyboard interaction risk with a named mitigation — `visualViewport` reposition implemented; live device confirmation is `[DEFERRED-VERIFY]` (Interceptor has no real iOS keyboard, same gap as Phase 2 issue 05's audio verification)
 - [x] ISC-88: The proposal adds at least one responsive breakpoint beyond the existing single 30rem breakpoint, covering small-phone (<375px) and tablet/desktop (≥768px) distinctly — implemented
 - [x] ISC-89: The proposal keeps `.app`'s existing 46rem max-width philosophy or explicitly justifies changing it — kept, just wider gutters ≥768px
-- [x] ISC-90: The proposal specifies a "Nur is composing" state distinguishable from the current instant skeleton-to-answer swap, without violating the "no typewriter gimmick" motion doctrine — implemented, and a real bug caught in verification (see Decisions) required a follow-up fix
+- [x] ISC-90: The proposal specifies a "New-Quranku is composing" state distinguishable from the current instant skeleton-to-answer swap, without violating the "no typewriter gimmick" motion doctrine — implemented, and a real bug caught in verification (see Decisions) required a follow-up fix
 - [x] ISC-91: The proposal restructures the header's icon-button cluster for thumb-reach on mobile without removing any existing function (theme toggle, size control, info popover, nav) — implemented as a "Tampilan" overflow group below 768px, inline above it
 - [x] ISC-92: The proposal specifies a mobile treatment for the info popover (current anchored popover risks edge-clipping on narrow viewports) — implemented (bottom-sheet anchor below 26rem, shared with the new display panel)
 - [x] ISC-93: Anti: the proposal introduces no new color token, no gold, no wellness-app register shift — checked against `DESIGN.md`'s "What this is not" list; only existing tokens (`--surface`, `--line`, `--shadow-pop`, `--r-lg`) reused
@@ -319,7 +320,7 @@ verses instead of *gating the ship*. Recorded because it is a deliberate risk tr
 
 **2026-07-13 — Inline the index; the truth oracle costs zero network.**
 Discovered via IterativeDepth (constraint-inversion lens). 9.7 KB of surah metadata gzips to ~4 KB.
-Inlined into the JS bundle, Nur can prove `18:10` is a real ayah with **no fetch at all** — offline,
+Inlined into the JS bundle, New-Quranku can prove `18:10` is a real ayah with **no fetch at all** — offline,
 on a dead connection, on first cold open. Honesty becomes the cheapest path rather than the costliest.
 
 **2026-07-13 — Share payloads must carry the interpretive label.**
@@ -356,25 +357,25 @@ Verified (not assumed): none of the 12 anchor verses collide with the existing d
 (`docs/review/divergence.json`) or Erik's 16 pending manual rulings.
 
 **2026-07-13 — The ISA is seeded, not authored from scratch.**
-Nur predates the ISA framework. Sources consulted: `PRODUCT.md`, `DESIGN.md`, `PROGRESS.md`,
+New-Quranku predates the ISA framework. Sources consulted: `PRODUCT.md`, `DESIGN.md`, `PROGRESS.md`,
 `package.json`, `src/ingest/*`, the critique report, and the last 8 commits. `Principles` and
 `Constraints` are lifted from constraints already enforced in code (the 24 gates), not invented.
 
 **2026-07-15 (Cycle 2 opened) — "Generative AI chat capability" is not assumed to mean relaxing the locked constraint.**
 Erik's request centered "the generative AI chat capability" in a UI-improvement ask. `ISA.md` §Constraints
-already says "No generative model in the retrieval path. Nur never answers in a scholar's voice. Do not weaken,"
+already says "No generative model in the retrieval path. New-Quranku never answers in a scholar's voice. Do not weaken,"
 re-affirmed as recently as the Path B2 graphrag ruling (2026-07-15, above). Ran `FirstPrinciples/Challenge`:
 classified "a chat-shaped UI" as a pure interaction-design choice (soft, no constraint interaction), "Erik wants
 literal LLM-generated answers replacing retrieval" as an unvalidated assumption nothing in the message actually
 states, and the locked no-generative rule itself as hard/immovable pending Erik's own ruling. Then ran an
 `Advisor` consult (Rule 2, commitment boundary) before committing to a plan. The advisor caught a real hazard —
 its `--auto-state` flag pulled in a stale ISA from an unrelated project (`entos-connector-registry-design`),
-not Nur — but that hazard didn't propagate into this decision because Nur's actual constraint text was already
+not New-Quranku — but that hazard didn't propagate into this decision because New-Quranku's actual constraint text was already
 read verbatim from this file earlier in the session, not recalled from state. The advisor's substantive finding
 was better than my own framing: not an (a) UI-only / (b) full-unlock binary, but a third reading — "generative
 composition strictly downstream of deterministic retrieval" — whose legality turns on whether the locked
 constraint is *structural* (no model decides which āyah is shown) or *output-scoped* (no model-generated prose
-reaches the user at all). The constraint's own second sentence ("Nur never answers in a scholar's voice") reads
+reaches the user at all). The constraint's own second sentence ("New-Quranku never answers in a scholar's voice") reads
 as evidence for the broader, output-scoped intent, not just the structural one — so this is not decided here.
 **Recorded and NOT ruled on:** three options are put to Erik (UI/UX-only engine-unchanged; downstream generative
 composition pending his structural-vs-output ruling; generative in the retrieval path requiring an explicit
@@ -456,6 +457,23 @@ The P2 from the $impeccable critique. Three rulings worth recording:
   feature is 24 genuine binary probes (ISC-100..123). Padding to 32 would manufacture phantom criteria;
   the floor is soft, so the honest count stands.
 
+**2026-07-16 — Renamed Nur → New-Quranku; retired the نور/light identity.**
+Erik's call. Full rebrand, done in the right order to protect users and scripture:
+- **Data safety (migration, not deletion).** The saved-data keys were the risk — `nur:thread`,
+  `nur:baca`, `nur:theme`, `nur:ar`, `nur:lens`, `nur:explained` hold a returning reader's conversation,
+  last-read bookmark, and settings. Renaming them blind would have wiped every existing user's data. So
+  `migrate-storage.ts` runs first at boot and copies each `nur:*` key to `newquranku:*` once, then drops
+  the old — idempotent, storage-safe, 5 tests. Shard cache `nur-quran-` → `newquranku-quran-` (regenerable;
+  `evictStaleCaches` now also cleans the old prefix).
+- **Scripture protected.** A blind `s/Nur/New-Quranku/` would have corrupted **Surah An-Nur (24)** and
+  "Nūr" (24:35). Every rename was word-boundary-guarded and grep-verified against surah names — never touched.
+- **Identity dropped.** The نور (light) wordmark and the Arabic mark were removed from the logo, title,
+  and share image; wordmark is now plain "New-Quranku". The light/cahaya *positioning* copy in `PRODUCT.md`
+  and `DESIGN.md` (e.g. "Light emerging from dark — Nūr is the Qur'an's metaphor for itself, 24:35") is
+  **flagged for Erik to rewrite**, not mechanically mangled — it needs an editorial hand, not a sed.
+- Code comments still say "Nur" as the internal persona (harmless narrative); left untouched unless Erik
+  wants them swept. Web tests 190/190, typecheck clean.
+
 ## Changelog
 
 **2026-07-16 — A scroll observer cannot be verified in a hidden document.**
@@ -525,7 +543,7 @@ of a P0 sharding fix.
 
 **2026-07-14 — Engagement research adopted; Phase 2 filed, not merged into this ISA's Criteria.**
 Ran `/Research` (Standard mode, 4 cross-checked agents) against `PRODUCT.md`/`DESIGN.md`/
-`PROGRESS.md` on what would make Nur more compelling without violating its own doctrine. Headline
+`PROGRESS.md` on what would make New-Quranku more compelling without violating its own doctrine. Headline
 finding: streak/badge/guilt mechanics are evidence-linked to compulsive use (arXiv:2203.16175) and
 this product already rejects them (§ Principles, "Silence over fabrication") — confirmation, not
 new information. The substantive finding is that the research independently re-derived the same
@@ -565,7 +583,7 @@ verification gap (Interceptor cannot satisfy Chrome's autoplay gesture policy, s
 playback itself wasn't confirmable through this tooling — recommend a real-device spot-check).
 
 **2026-07-15 — Issue 07 resolved as a spike before a build, revealing the "graph" premise was
-wrong.** Issue 07 assumed Nur "already has the attributed-graph foundation" from `docs/design/
+wrong.** Issue 07 assumed New-Quranku "already has the attributed-graph foundation" from `docs/design/
 quran-graphrag.html`. It doesn't — that spec's real knowledge graph (LLM triple-extraction,
 entity linking, scholar-reviewed predicate schema) was never built; `src/ingest/` has zero
 concept extraction. What's real is smaller: 55 curated verses tagged with 12 emotional themes
@@ -582,7 +600,7 @@ matching `PROGRESS.md` checkpoint and `.scratch/nur-phase2-trust-and-depth/issue
 it; shipped the half that doesn't.** `docs/design/quran-graphrag.html`'s full architecture
 bundles a build-time knowledge graph WITH a live serving stack whose generation layer is a
 **generative LLM answering in real time** — direct contradiction of this ISA's own § Constraints
-("No generative model in the retrieval path. Nur never answers in a scholar's voice. Do not
+("No generative model in the retrieval path. New-Quranku never answers in a scholar's voice. Do not
 weaken."), and it assumes a live backend server this 100%-static product has never had. Surfaced
 this before writing any code. Erik confirmed: build-time graph only, the live/generative half
 stays rejected.
@@ -653,11 +671,11 @@ articulation.
 
 **2026-07-15 (Cycle 2) — a "distinguishable composing state" is not distinguishable if it never paints.**
 
-- **conjectured:** That adding a `.composing` "Nur sedang menyusun jawaban…" element ahead of the
+- **conjectured:** That adding a `.composing` "New-Quranku sedang menyusun jawaban…" element ahead of the
   skeleton would satisfy ISC-90 — a felt beat before the answer, matching what a chat product is
   expected to do.
 - **refuted by:** Live verification via Interceptor. Clicking a seed and immediately inspecting
-  the DOM showed the answer already fully rendered — the `.composing` element was gone. Nur's
+  the DOM showed the answer already fully rendered — the `.composing` element was gone. New-Quranku's
   retrieval (`retrieve(corpus, q)`) is a synchronous, local, in-memory lookup with no `await` on
   the semantic-match path; the skeleton mounts and gets replaced in the same synchronous tick,
   before the browser ever gets a frame to paint it. The one code path that DOES have a real async
@@ -712,7 +730,7 @@ All probes run against the live app in real Chrome (Interceptor), not inspection
   0 fail — unchanged from the pre-cycle baseline in `PROGRESS.md`.
 
 **P0-a — a real ayah is never denied**
-- ISC-14: live — asked `18:10`; Nur returned "Ini Al-Kahf 18:10" with Arabic, both renderings, both translators named. Before: *"Tidak ada ayat yang cocok."* (evidence: `.impeccable/evidence/p0-denies-18-10-BEFORE.png`)
+- ISC-14: live — asked `18:10`; New-Quranku returned "Ini Al-Kahf 18:10" with Arabic, both renderings, both translators named. Before: *"Tidak ada ayat yang cocok."* (evidence: `.impeccable/evidence/p0-denies-18-10-BEFORE.png`)
 - ISC-15: live — `18:999` → "Surah Al-Kahf cuma punya 110 ayat, jadi ayat 999 tidak ada. Mau buka surahnya?"
 - ISC-16: live — `115:1` → "Surah 115 tidak ada. Al-Qur'an punya 114 surah."
 - ISC-44: live — Al-Kahf rendered in full **with `corpus.json` returning 404**. The inlined index means a network failure cannot take the Qur'an away.
@@ -729,7 +747,7 @@ All probes run against the live app in real Chrome (Interceptor), not inspection
 - Surah 18: unnumbered header + 18:1 correctly begins `ٱلْحَمْدُ لِلَّهِ` (not the basmalah). Surah 9: no basmalah. Surah 1: no header, basmalah IS ayah 1, 7 ayahs. 1/9/18/36/114 all complete.
 
 **Egress (ISC-56/57/58)**
-- Live `shareText(94:5)` emits both renderings, the interpretive one labelled *Terjemah makna* with its translator, and Kemenag's literal beneath it. The known-defective 94:5 rendering **cannot leave Nur unaccompanied**.
+- Live `shareText(94:5)` emits both renderings, the interpretive one labelled *Terjemah makna* with its translator, and Kemenag's literal beneath it. The known-defective 94:5 rendering **cannot leave New-Quranku unaccompanied**.
 - ISC-54: the 94:5 caution renders in the reading surface, not only chat.
 
 **Regression (ISC-39..42)**

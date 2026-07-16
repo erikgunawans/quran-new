@@ -30,7 +30,7 @@ describe("Casey switches to WhatsApp and comes back", () => {
 
   test("it stores the DECISION, never the rendered HTML", () => {
     rememberTurn({ q: "18:10", kind: "ayah", surah: 18, ayah: 10 });
-    const raw = store.get("nur:thread")!;
+    const raw = store.get("newquranku:thread")!;
 
     // No markup, and no scripture. A previous build's mistakes must not resurrect from disk.
     expect(raw).not.toContain("<");
@@ -69,7 +69,7 @@ describe("Anti: a crisis exchange is NEVER written to disk", () => {
     // …crisis turn is never handed to rememberTurn — main.ts returns first…
     rememberTurn({ q: "al kahfi", kind: "surah", surah: 18 });
 
-    const raw = store.get("nur:thread") ?? "";
+    const raw = store.get("newquranku:thread") ?? "";
     expect(raw).not.toContain("pengen mati");
     expect(raw).not.toContain("mati aja");
     expect(loadThread().map((t) => t.q)).toEqual(["lagi banyak utang, stress", "al kahfi"]);
@@ -84,26 +84,26 @@ describe("the conversation ends", () => {
     clearThread();
     expect(hasThread()).toBe(false);
     expect(loadThread()).toEqual([]);
-    expect(store.get("nur:thread")).toBeUndefined();
+    expect(store.get("newquranku:thread")).toBeUndefined();
   });
 
   test("it expires on its own — last night's grief is not on screen tomorrow", () => {
     rememberTurn({ q: "baru kehilangan orang tua", kind: "hits", refs: ["2:156"] });
 
     // Age it 13 hours (TTL is 12).
-    const s = JSON.parse(store.get("nur:thread")!) as { at: number };
+    const s = JSON.parse(store.get("newquranku:thread")!) as { at: number };
     s.at = Date.now() - 13 * 60 * 60 * 1000;
-    store.set("nur:thread", JSON.stringify(s));
+    store.set("newquranku:thread", JSON.stringify(s));
 
     expect(loadThread()).toEqual([]);
-    expect(store.get("nur:thread")).toBeUndefined(); // and it is erased, not just hidden
+    expect(store.get("newquranku:thread")).toBeUndefined(); // and it is erased, not just hidden
   });
 
   test("a thread from an hour ago is still there", () => {
     rememberTurn({ q: "cemas terus", kind: "hits", refs: ["13:28"] });
-    const s = JSON.parse(store.get("nur:thread")!) as { at: number };
+    const s = JSON.parse(store.get("newquranku:thread")!) as { at: number };
     s.at = Date.now() - 60 * 60 * 1000;
-    store.set("nur:thread", JSON.stringify(s));
+    store.set("newquranku:thread", JSON.stringify(s));
 
     expect(loadThread()).toHaveLength(1);
   });
@@ -111,12 +111,12 @@ describe("the conversation ends", () => {
 
 describe("it never breaks the app", () => {
   test("corrupt storage yields an empty thread, not a crash", () => {
-    store.set("nur:thread", "{not json");
+    store.set("newquranku:thread", "{not json");
     expect(loadThread()).toEqual([]);
   });
 
   test("a thread from a future schema version is ignored", () => {
-    store.set("nur:thread", JSON.stringify({ v: 99, at: Date.now(), turns: [{ q: "x", kind: "??" }] }));
+    store.set("newquranku:thread", JSON.stringify({ v: 99, at: Date.now(), turns: [{ q: "x", kind: "??" }] }));
     expect(loadThread()).toEqual([]);
   });
 });

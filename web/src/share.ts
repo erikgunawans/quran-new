@@ -35,7 +35,7 @@ export function shareText(v: VerseCard): string {
     lines.push(`Terjemah harfiah (${v.companion.translator}):`, v.companion.text, "");
   }
 
-  lines.push("— dibagikan lewat Nur");
+  lines.push("— dibagikan lewat New-Quranku");
   return lines.join("\n");
 }
 

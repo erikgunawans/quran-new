@@ -254,7 +254,7 @@ const inflight = new Map<number, Promise<Shard>>();
  * degradation, not a failure — we fall back to network-only and say nothing, because a reader who
  * can still read does not need to hear about our storage layer.
  */
-const CACHE_NAME = `nur-quran-${CORPUS_VERSION}`;
+const CACHE_NAME = `newquranku-quran-${CORPUS_VERSION}`;
 const shardUrl = (n: number) => `/surah/${n}.json?v=${CORPUS_VERSION}`;
 
 const cacheStore = async (): Promise<Cache | null> => {
@@ -272,7 +272,11 @@ export async function evictStaleCaches(): Promise<void> {
     if (!("caches" in globalThis)) return;
     const keys = await caches.keys();
     await Promise.all(
-      keys.filter((k) => k.startsWith("nur-quran-") && k !== CACHE_NAME).map((k) => caches.delete(k)),
+      // Clean stale shard caches under the current prefix — and any left over from the old `nur-quran-`
+      // name after the New-Quranku rename (regenerable, so they just re-download once).
+      keys
+        .filter((k) => (k.startsWith("newquranku-quran-") || k.startsWith("nur-quran-")) && k !== CACHE_NAME)
+        .map((k) => caches.delete(k)),
     );
   } catch {
     /* a cache we cannot clean is not a reason to stop the reader */
