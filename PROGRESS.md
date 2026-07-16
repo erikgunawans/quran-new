@@ -8,7 +8,50 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — direction locked, ported into the real app; prayer times shipped
+## 2026-07-17 — "Peta Tematik" designed and DEFERRED pending permission (F-1)
+
+Erik: *"I want to have the knowledge graph ... in the webapps. It will be a specific section."*
+
+**Three different things here get called "the knowledge graph."** Named them before recommending:
+`web/src/.ua/knowledge-graph.json` is 94 nodes of the **codebase** (a dev tool, not about the Qur'an);
+the GraphRAG extraction is **LLM-derived and unshippable** (T1 doctrinal predicates parked pending two
+independent scholars — only 4 hand-verified edges ship today); the **Indeks Tematik** is the one he wants.
+
+**Recommendation: ship the data, not the artifact.** Do NOT port `peta-tematik.html`. Two reasons, both
+his own rules: (1) it is a **dark luminous cosmos** (`#111a16`, white stars on black) — the retired Nur
+aesthetic he called hideous, and it would be a black hole in the light app he just locked; (2) it is
+**590 KB, 581 KB of it script** (d3 + d3-force-3d) running a 3D force sim — the exact thing PRODUCT.md
+calls a product failure on patchy 4G.
+
+**The asset was never the visualisation — it is the provenance.** The Indeks Tematik is authored by
+**Ustadz Muhammad Thalib's** team (from quran.tarjamahtafsiriyah.com, Erik's own reference site) — the
+*same scholar as the app's primary translation*. Human-authored, so it can ship where the GraphRAG cannot.
+It also exposes that `/tema` today is **12 themes / 55 verses**, and its own generated header admits it is
+*"the cheap, honest version … rather than committing to the full knowledge graph."*
+
+**Verified the numbers rather than trusting memory** (the 65:2 lesson): **13 categories, 2,451 entries,
+2,633 citations, 1,632 distinct verses, 518 cross-theme bridges.** Top hubs: **2:185** and **33:33** in
+**6 categories** each. (Memory said "1,554 stars / 494 bridges / 4:29" — stale, from the pre-fix parse.)
+
+**Agreed design (Erik chose):** *index-first, map opt-in.* Section **"Peta Tematik"**: 13 category cards →
+subtopic → entries → verse. **Shard it exactly like the corpus** (~2 KB category index + 13 lazy
+per-category shards, ~60 KB each) — the pattern that already beat the 4 MB blob 400×. The differentiator is
+the **bridges**: *"Ayat ini muncul di 6 tema"* on a verse card — the graph as connective tissue between what
+already ships, not a separate destination. A light 2D map is a later opt-in layer, so bandwidth is the
+reader's choice.
+
+**BUILD IS HELD — do not build this without checking F-1.** Using Thalib's translation is one thing;
+republishing his team's entire 2,451-entry index is materially bigger. Erik routed it to the scholar
+conversation: **Section F** added to `.scratch/nur-knowledge-capability/SCHOLAR-REVIEW-PACKAGE.id.md`
+(`f6633dc`), framed explicitly as a *permission* question, not a scholarly one — Section A deliberately
+avoids asking Ustadz Ahmad Isrofiel to judge his own father's translation, but on **rights the conflict
+inverts** and the family is exactly who should answer. F-1 gates the build; F-3 asks whether family
+consent suffices or it must go through Majelis Mujahidin Indonesia. Until F-1 is answered the app keeps
+its 55 curated verses.
+
+---
+
+## 2026-07-17 — direction locked, ported into the real app; prayer times shipped
 
 Anchor: `origin/main` was `68527eb`; this session commits `4792626` (the port) and `dc8173e` (the band).
 Erik **locked the design direction** and chose the maximal scope ("prayer times + Masuk").
