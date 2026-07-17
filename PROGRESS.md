@@ -8,7 +8,94 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — the thematic MAP: chord → 3D cosmos, deployed and on the domain
+## 2026-07-18 (latest) — the generative companion: live in prod, guardrailed, point-never-author
+
+The session opened as a resume (added **Cycle 4** cosmos ISCs — ISC-171..189 — retroactively
+tracking `build-peta-3d.ts`/`peta-cosmos.ts`, which had shipped with no criteria; commit `0809bd6`).
+Then Erik pivoted: *"improve the generative AI experience… we don't create new surah, new first
+level… still the user can have a good experience when they ask about their problems."* That became
+**Cycle 5** (ISC-190..206), and it is now **live at <https://new-quranku.axiara.ai>**.
+
+### The ruling (Erik's, decided in discussion)
+
+- **Wrap, not replace.** The model wraps `retrieve()`. Retrieval stays the source of truth for WHICH
+  verses and their byte-exact text; the model understands the input and writes the framing.
+- **Rung 1 (companion), not rung 2 (interpreter).** The model speaks in the app's own voice —
+  present, names the feeling, refuses to fix. It does NOT explain what verses mean.
+- **The bright line: point, never author.** "Para ulama membaca ayat ini tentang rahmat — kata-kata
+  mereka ada di bawah" (allowed) vs "ayat ini artinya kamu harus sabar" (blocked).
+- **A wall, not a prompt.** Safety lives on the model's OUTPUT, where it can't reach past it —
+  justified by this repo's own history (band.ts shipped the wrong verse twice; the source misremembers
+  4 ayahs). On any violation, the deterministic hand-written opener ships: degradation to honesty.
+
+### What shipped
+
+- **`web/src/compose-guard.ts`** — the egress WALL. Two hard walls (no Arabic, no verse reference) +
+  an authoring heuristic ("ayat ini artinya…", "Allah menyuruh…", rulings). `safeCompose` falls back.
+- **`web/src/compose-contract.ts`** — the composer: `composeFraming` + `FRAMING_SYSTEM_PROMPT`. The
+  model is **blind** — its context is `{question, theme, themeCount}` only, never verse text/refs.
+- **`web/src/theme-understand.ts`** — the input understander: `understandThemes` + closed-set
+  `guardThemes` (recognize a feeling, never invent a category) + `THEME_SYSTEM_PROMPT`.
+- **`web/src/retrieve.ts`** — additive `modelThemes` param unioned into scoring; keyword pass
+  untouched and keeps precedence; model-only themes carry honest `(dari ceritamu)` provenance.
+- **`web/src/compose-live.ts` / `theme-live.ts`** — browser calls to `/api/compose` / `/api/classify`
+  with timeouts; any failure throws → deterministic fallback (safe even before the Worker deployed).
+- **`worker/`** — the edge Worker pulled into the repo as version-controlled source: proxy
+  (Host-rewrite to Cloud Run) + `/api/compose` + `/api/classify`. **The SAME wall runs server-side**
+  (imports `web/src` guards) so browser and edge can't drift, and prompt-injection is stripped on
+  egress. Model: **DeepSeek V4 Flash via OpenRouter** ($0.09/$0.18 per M — pennies at this scale),
+  with a `provider` param to A/B SEA-LION.
+
+### The model call, keys, and a security incident
+
+App is 100% static (nginx over `web/dist`), so runtime keys **cannot** live in the app — they live as
+**Cloudflare Worker secrets** (`wrangler secret put`), never in `web/src`, never in git. The
+build-time `OPENROUTER_API_KEY` in `.env` (offline `src/ingest/openrouter.ts`) is separate.
+
+**Incident:** Erik pasted his OpenRouter key in plaintext as a shell argument (wrong `wrangler secret
+put` form). Flagged immediately, told him to rotate. He revoked it and stored a fresh one — **verified
+dead**: `GET openrouter.ai/api/v1/key` on the exposed key → `401 "User not found"`. A junk secret
+named after the key was deleted. App runs on the new key.
+
+### Two optimizations (both live)
+
+- **Skip the classifier on keyword-hits** — `main.ts` calls `/api/classify` only when
+  `keywordThemeHits(q)` is empty. Most messages hit a keyword and pay zero model latency; the model is
+  spent only on misses. Verified live: "aku capek banget" fired only `/api/compose`.
+- **Retry compose once on a wall-reject** — the Worker regenerates (temp 0.7, stochastic) before
+  returning null. Verified live; under sparse traffic the framing rate is ~100%.
+
+### Verified live (Interceptor + curl, prod)
+
+- Compose: "aku capek banget, utang numpuk, pengen nyerah" → framing *"Capek banget, ya…"* renders
+  ABOVE verses 2:214 + 2:280, zero Arabic/refs in the framing. Point-never-author holds in prod.
+- Understander: keyword-miss "aku merasa makin jauh dari Tuhan" → classify *Forgiveness & despair* →
+  **39:53 Az-Zumar** *("jangan berputus asa dari rahmat Allah")* — silence turned into the perfect ayah.
+
+### The one thrash — and the lesson
+
+Tried to fix a **false-silence** (classifier returns `[]` ~40% on the hardest borderline phrases,
+hiding a verse that exists — violates "silence must be true"). Two eager prompt retunes + few-shot
+made it WORSE (a `[]` few-shot example primed the model to over-produce `[]` at temp 0.2). **Reverted
+to known-good** (`09a65d0`), kept both optimizations. Repeated measurements were also polluted by
+OpenRouter **rate-limiting my burst testing** (429 → `[]`/`null`, indistinguishable from real output).
+**Lesson, recorded in the ISA:** never tune an LLM classifier by live-deploy trial-and-error — build
+an offline eval harness (20–30 phrases, tune locally, deploy once) first. The false-silence refinement
+is deferred to that.
+
+Note: the classifier is stochastic but **pure-upside** where it runs — it fires only on keyword-misses
+(the old app went silent on those anyway), so a `[]` is no worse than before and a hit is a bonus.
+
+### Deploy state
+
+- Worker `new-quranku-proxy` version `dfb5dca4` (reverted classifier). App **`nur-00009-6gl`**, 100%
+  traffic, bundle `index-B7ujfJ4n.js`, healthy (200). ISA **Cycle 5 at 199/204**.
+- Commits `ace4bc4`…`046e5e6` (17 this session). METHODS picker, app.axiara.ai 500, prayer-time
+  validation, and cosmos 60fps remain open from prior checkpoints (untouched this session).
+
+---
+
+## 2026-07-17 — the thematic MAP: chord → 3D cosmos, deployed and on the domain
 
 Three commits since the last checkpoint (`1dd8f3c`, `0debe3a`, `0e00c93`), all live at
 **<https://new-quranku.axiara.ai/#/peta>** (revision `nur-00004-pgx`). The subdomain itself was
