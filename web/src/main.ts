@@ -13,6 +13,8 @@ import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
+import { understandThemes } from "./theme-understand.ts";
+import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
@@ -234,6 +236,15 @@ async function ask(question: string) {
   const ref = parseRef(q);
 
   try {
+    // On the question path (not a direct reference), let the model recognise the feeling first —
+    // it catches what the keyword lexicon misses ("ngerasa Tuhan udah nyerah sama aku"). Guarded to
+    // the closed corpus theme set, additive to retrieval's keyword pass, and it degrades to [] on
+    // any failure so retrieval is never worse than before. Only awaited when we're going to retrieve.
+    const modelThemes =
+      ref.kind === "not-a-ref" && corpus
+        ? await understandThemes(q, corpus.themes, liveThemeModel, () => [])
+        : [];
+
     const turn: Turn =
       ref.kind === "no-such-surah"
         ? { q, kind: "no-such-surah", surah: ref.surah }
@@ -243,7 +254,7 @@ async function ask(question: string) {
             ? { q, kind: "surah", surah: ref.surah.n }
             : ref.kind === "ayah"
               ? { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah }
-              : turnFromHits(q, corpus ? retrieve(corpus, q) : []);
+              : turnFromHits(q, corpus ? retrieve(corpus, q, 2, modelThemes) : []);
 
     if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
 

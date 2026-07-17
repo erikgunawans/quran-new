@@ -113,6 +113,11 @@ const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").r
  */
 const MIN_SCORE = 10;
 
+/** Marker pushed into a Hit's `matched` when a theme was recognised by the model rather than typed
+ * as a keyword — honest provenance instead of a faked word. (`matched` is not surfaced in the UI
+ * today, but the value stays truthful in case it ever is.) */
+export const MODEL_THEME_MATCH = "(dari ceritamu)";
+
 export interface Hit {
   verse: Verse;
   score: number;
@@ -127,10 +132,19 @@ export interface Hit {
  * embedding black box, no confidence theatre. If the score is low we say we're unsure —
  * we do not dress up a weak match as an answer.
  */
-export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
+export function retrieve(
+  corpus: Corpus,
+  question: string,
+  limit = 2,
+  // Themes the input understander recognised in the person's words (already guarded to the closed
+  // corpus set). ADDITIVE ONLY: the keyword pass below is untouched and keeps precedence; model
+  // themes only reach a verse the keywords missed. Empty by default → identical to before.
+  modelThemes: readonly string[] = [],
+): Hit[] {
   const q = norm(question);
   if (!q) return [];
   const qWords = new Set(q.split(" ").filter((w) => w.length > 2));
+  const modelThemeSet = new Set(modelThemes);
 
   // 1. Which emotional theme is this person in?
   const themeScore = new Map<string, string[]>();
@@ -155,6 +169,13 @@ export function retrieve(corpus: Corpus, question: string, limit = 2): Hit[] {
     if (themeHits?.length) {
       score += 10 * themeHits.length;
       matched.push(...themeHits);
+    } else if (modelThemeSet.has(verse.theme)) {
+      // Keywords missed this theme but the model recognised it in what the person wrote — the whole
+      // reason the understander exists ("ngerasa Tuhan udah nyerah sama aku" hits no keyword).
+      // Credit it like one keyword theme hit (reaches MIN_SCORE), and record honest provenance
+      // rather than a faked word. Keyword themes still outrank it because they can stack (×count).
+      score += 10;
+      matched.push(MODEL_THEME_MATCH);
     }
 
     // 3. Word overlap with the renderings themselves
