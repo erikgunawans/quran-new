@@ -1,0 +1,28 @@
+# Why this file exists.
+#
+# `gcloud run deploy --source .` has no .gcloudignore of its own to read, so it silently falls
+# back to .gitignore. .gitignore excludes `web/dist/` — correct, it is a build artifact — but
+# web/dist is the ONE thing the Dockerfile needs (`COPY web/dist /usr/share/nginx/html`). The
+# build context therefore arrived without it and `COPY` failed with a bare "exit status 1".
+# Every tool behaved correctly; the combination did not. This file breaks that fallback.
+#
+# It is also an allowlist, not a blocklist. The container is nginx over static files, so the
+# build context needs exactly three things. Shipping src/, test/, docs/, node_modules/ and .git
+# to Cloud Build achieves nothing except a slower build and a larger attack surface.
+#
+# Run `bun run build` before deploying — this file uploads web/dist, it does not create it.
+
+# Ignore everything...
+*
+
+# ...except what the Dockerfile actually reads.
+!Dockerfile
+!nginx.conf
+
+# `!web/` is needed to descend into the directory at all, but on its own it also re-includes
+# web/'s other children (preview.html, tsconfig.json, .DS_Store). Re-ignore them, then carve
+# dist back out. Order matters: gitignore semantics apply last-match-wins, per path depth.
+!web/
+web/*
+!web/dist/
+!web/dist/**
