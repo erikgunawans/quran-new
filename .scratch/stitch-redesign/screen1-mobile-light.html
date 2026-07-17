@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuranKu - Landing Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "on-error-container": "#93000a",
+                  "tertiary": "#7f522d",
+                  "secondary-fixed-dim": "#a3d0be",
+                  "on-primary": "#ffffff",
+                  "clay-accent": "#9c6b44",
+                  "on-tertiary": "#ffffff",
+                  "primary-fixed-dim": "#63dcab",
+                  "error-container": "#ffdad6",
+                  "surface": "#ffffff",
+                  "secondary-fixed": "#bfecda",
+                  "on-primary-fixed": "#002115",
+                  "on-tertiary-fixed": "#2f1500",
+                  "surface-container-highest": "#dee4de",
+                  "on-secondary-fixed": "#002117",
+                  "on-secondary": "#ffffff",
+                  "surface-variant": "#dee4de",
+                  "primary-container": "#00855f",
+                  "background": "#f5fbf5",
+                  "surface-container": "#e9efe9",
+                  "inverse-on-surface": "#ecf2ec",
+                  "action-emerald": "#12a074",
+                  "inverse-surface": "#2c322e",
+                  "on-secondary-fixed-variant": "#244e41",
+                  "primary-fixed": "#81f9c6",
+                  "on-error": "#ffffff",
+                  "surface-tint": "#006c4d",
+                  "outline-variant": "#bccac1",
+                  "bg-light": "#f7f9f8",
+                  "on-primary-container": "#f5fff7",
+                  "forest-green": "#2a5446",
+                  "secondary": "#3c6658",
+                  "outline": "#6d7a72",
+                  "surface-container-low": "#eff5ef",
+                  "on-tertiary-container": "#fffbff",
+                  "on-secondary-container": "#416b5c",
+                  "tertiary-fixed-dim": "#f6ba8d",
+                  "tertiary-fixed": "#ffdcc4",
+                  "surface-dim": "#d5dcd6",
+                  "on-tertiary-fixed-variant": "#663d1a",
+                  "on-surface-variant": "#3d4a43",
+                  "surface-container-lowest": "#ffffff",
+                  "error": "#ba1a1a",
+                  "primary": "#00694a",
+                  "surface-container-high": "#e4eae4",
+                  "on-surface": "#171d1a",
+                  "tertiary-container": "#9b6a43",
+                  "on-background": "#171d1a",
+                  "inverse-primary": "#63dcab",
+                  "secondary-container": "#bcead7",
+                  "ink-primary": "#1a2421",
+                  "surface-bright": "#f5fbf5",
+                  "on-primary-fixed-variant": "#005139"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "s-6": "32px",
+                  "s-4": "16px",
+                  "unit": "4px",
+                  "s-2": "8px",
+                  "max-landing": "1120px",
+                  "s-5": "24px",
+                  "s-3": "12px",
+                  "s-1": "4px",
+                  "max-prose": "46rem"
+          },
+          "fontFamily": {
+                  "data-num": [
+                          "Plus Jakarta Sans", "sans-serif"
+                  ],
+                  "ui-label": [
+                          "Plus Jakarta Sans", "sans-serif"
+                  ],
+                  "display-md": [
+                          "Fraunces", "serif"
+                  ],
+                  "display-lg": [
+                          "Fraunces", "serif"
+                  ],
+                  "scripture-ar": [
+                          "Amiri", "serif"
+                  ],
+                  "ui-body": [
+                          "Plus Jakarta Sans", "sans-serif"
+                  ],
+                  "display-lg-mobile": [
+                          "Fraunces", "serif"
+                  ]
+          },
+          "fontSize": {
+                  "data-num": [
+                          "14px",
+                          {
+                                  "fontWeight": "500"
+                          }
+                  ],
+                  "ui-label": [
+                          "13px",
+                          {
+                                  "lineHeight": "1.0",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "display-md": [
+                          "28px",
+                          {
+                                  "lineHeight": "1.3",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "display-lg": [
+                          "33px",
+                          {
+                                  "lineHeight": "1.2",
+                                  "letterSpacing": "-0.02em",
+                                  "fontWeight": "700"
+                          }
+                  ],
+                  "scripture-ar": [
+                          "34px",
+                          {
+                                  "lineHeight": "1.6",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "ui-body": [
+                          "16px",
+                          {
+                                  "lineHeight": "1.6",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "display-lg-mobile": [
+                          "24px",
+                          {
+                                  "lineHeight": "1.2",
+                                  "fontWeight": "700"
+                          }
+                  ]
+          }
+        },
+      },
+    }
+  </script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&amp;family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      background-color: #f4f9f6;
+    }
+    
+    .girih-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='54' height='54' viewBox='0 0 54 54' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M27 0L54 27L27 54L0 27L27 0ZM27 4.2L4.2 27L27 49.8L49.8 27L27 4.2Z' fill='%2300694a' fill-opacity='0.08'/%3E%3C/svg%3E");
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.7; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    .animate-breathe {
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    .fade-in-verse {
+      animation: fadeInVerse 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInVerse {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-24 md:pb-0">
+<!-- Desktop TopAppBar (Hidden on mobile) -->
+<header class="hidden md:flex justify-between items-center px-s-4 h-16 w-full sticky top-0 bg-surface border-b border-outline-variant/30 z-50">
+<div class="flex items-center gap-s-4">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button>
+<h1 class="font-display-md text-display-md text-forest-green">QuranKu</h1>
+</div>
+<nav class="flex gap-s-6">
+<a class="text-primary font-ui-label text-ui-label border-b-2 border-primary py-4" href="#">Tanya</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-ui-label text-ui-label py-4" href="#">Baca</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-ui-label text-ui-label py-4" href="#">Tema</a>
+</nav>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+</header>
+<!-- Mobile Top Header (Brand only, no nav) -->
+<header class="md:hidden flex justify-center items-center px-s-4 h-16 w-full sticky top-0 bg-transparent z-40">
+<h1 class="font-display-md text-display-md text-forest-green">QuranKu</h1>
+</header>
+<main class="max-w-max-landing mx-auto px-s-4 md:px-s-6 pt-s-6 md:pt-12 flex flex-col md:grid md:grid-cols-12 md:gap-s-6 lg:gap-12 pb-16">
+<!-- Left Column: Hero Composer & Seeds -->
+<div class="md:col-span-7 flex flex-col gap-s-6">
+<!-- Greeting -->
+<div class="flex flex-col gap-s-2 text-center md:text-left">
+<h2 class="font-scripture-ar text-scripture-ar text-forest-green animate-breathe" dir="rtl">ٱلسَّلَامُ عَلَيْكُمْ</h2>
+<p class="font-ui-body text-ui-body text-outline">Selamat dini hari, mari bicara.</p>
+</div>
+<!-- Invitation -->
+<div class="flex flex-col gap-s-3 mt-s-4">
+<h3 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-ink-primary">
+          Ada apa <span class="text-primary">hari ini</span>?
+        </h3>
+<p class="font-ui-body text-ui-body text-on-surface-variant max-w-prose">
+          Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.
+        </p>
+</div>
+<!-- Composer Hero -->
+<div class="relative w-full mt-s-2">
+<textarea class="w-full bg-surface border border-outline-variant/50 rounded-[18px] p-s-4 pr-16 font-ui-body text-ui-body text-on-surface placeholder:text-outline-variant focus:ring-1 focus:ring-primary focus:border-primary shadow-sm resize-none h-32" placeholder="Tulis ceritamu di sini..."></textarea>
+<button class="absolute bottom-4 right-4 w-10 h-10 bg-action-emerald text-on-primary rounded-full flex items-center justify-center shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<!-- Hint -->
+<p class="font-ui-body text-[13px] text-outline italic">
+        Atau sebutkan langsung surah dan ayatnya — 18:10, yasin, 2:255.
+      </p>
+<!-- Seeds -->
+<div class="flex flex-wrap gap-s-2 mt-s-2">
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm">aku lagi capek banget</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm">lagi banyak utang, stress</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm">baru kehilangan orang tua</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm">ngerasa dosaku kebanyakan</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm">cemas terus tiap malam</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant/30 rounded-full font-ui-label text-ui-label text-primary hover:bg-surface-container-low transition-colors shadow-sm">al kahfi</button>
+</div>
+</div>
+<!-- Right Column: Daily Ayah & Prayer Card -->
+<div class="md:col-span-5 flex flex-col gap-s-6 mt-12 md:mt-0">
+<!-- Daily Ayah Card -->
+<div class="relative bg-surface rounded-[14px] p-s-5 md:p-s-6 shadow-sm border border-outline-variant/30 overflow-hidden fade-in-verse">
+<!-- Girih Background -->
+<div class="absolute inset-0 girih-pattern z-0 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-s-6">
+<div class="flex justify-between items-center">
+<span class="font-ui-label text-ui-label text-primary uppercase tracking-wider text-[11px]">Ayat Harian</span>
+<span class="font-data-num text-data-num text-outline">94:5</span>
+</div>
+<!-- Arabic -->
+<div class="font-scripture-ar text-[40px] leading-[1.8] text-ink-primary text-right mb-4" dir="rtl">
+            فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+          </div>
+<!-- Meaning -->
+<div class="flex flex-col gap-s-2 border-l-2 border-primary/20 pl-4">
+<p class="font-display-md text-[20px] md:text-[24px] leading-relaxed text-on-surface">
+              "Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan."
+            </p>
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1 w-fit mt-1">
+<span class="material-symbols-outlined text-[14px] text-outline">history_edu</span>
+<span class="font-ui-label text-[11px] text-outline">Ustadz Muhammad Thalib</span>
+</div>
+</div>
+<!-- Literal Companion -->
+<div class="flex flex-col gap-s-2 bg-bg-light p-s-4 rounded-lg mt-2">
+<p class="font-ui-body text-[15px] text-on-surface-variant">
+              "Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"
+            </p>
+<div class="inline-flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[14px] text-outline">menu_book</span>
+<span class="font-ui-label text-[11px] text-outline">Kemenag RI</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Prayer Card -->
+<div class="bg-forest-green rounded-[14px] p-s-5 shadow-sm border border-outline-variant/20 flex flex-col gap-s-4 text-on-primary relative overflow-hidden">
+<!-- Subtle accent gradient -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-fixed/10 rounded-full blur-2xl"></div>
+<div class="flex justify-between items-end relative z-10">
+<div class="flex flex-col">
+<span class="font-ui-label text-[12px] text-primary-fixed-dim uppercase tracking-wider">Menuju Maghrib</span>
+<span class="font-data-num text-[28px] font-semibold tracking-tight mt-1 tabular-nums">01:42:15</span>
+</div>
+<div class="flex flex-col items-end text-right">
+<span class="font-ui-body text-[14px] text-on-primary">Jakarta</span>
+<span class="font-data-num text-[14px] text-on-primary/70 mt-1 tabular-nums">17:54</span>
+</div>
+</div>
+<div class="w-full h-[1px] bg-on-primary/10 my-2 relative z-10"></div>
+<div class="flex justify-between items-center relative z-10">
+<div class="flex flex-col items-center gap-1 opacity-50">
+<span class="font-ui-label text-[10px]">Subuh</span>
+<span class="font-data-num text-[13px] tabular-nums">04:30</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-50">
+<span class="font-ui-label text-[10px]">Dzuhur</span>
+<span class="font-data-num text-[13px] tabular-nums">11:50</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-50">
+<span class="font-ui-label text-[10px]">Ashar</span>
+<span class="font-data-num text-[13px] tabular-nums">15:10</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary-fixed font-semibold">
+<span class="font-ui-label text-[10px]">Maghrib</span>
+<span class="font-data-num text-[13px] tabular-nums">17:54</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-50">
+<span class="font-ui-label text-[10px]">Isya</span>
+<span class="font-data-num text-[13px] tabular-nums">19:05</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center h-[72px] px-s-4 bg-surface border-t border-outline-variant/20 shadow-[0_-4px_16px_rgba(0,0,0,0.02)]">
+<a class="flex flex-col items-center justify-center text-primary font-semibold hover:text-primary-container transition-all active:opacity-80 gap-1 w-16" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-ui-label text-[11px]">Tanya</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary-container transition-all active:opacity-80 gap-1 w-16" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-ui-label text-[11px]">Baca</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary-container transition-all active:opacity-80 gap-1 w-16" href="#">
+<span class="material-symbols-outlined">palette</span>
+<span class="font-ui-label text-[11px]">Tema</span>
+</a>
+</nav>
+</body></html>

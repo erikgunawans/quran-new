@@ -25,7 +25,7 @@
  * is why linking out beats inlining.
  */
 import { announce } from "./announce.ts";
-import { bindMap, chordSvg, type PetaBonds } from "./peta-map.ts";
+import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "./peta-cosmos.ts";
 import { bindActs, clearReadCards } from "./read.ts";
 import { esc } from "./verse.ts";
 
@@ -115,24 +115,43 @@ const backEl = (): string =>
 let indexCache: PetaIndex | undefined;
 const shardCache = new Map<string, PetaShard>();
 
-let bondsCache: PetaBonds | undefined;
+let cosmosCache: Cosmos | undefined;
+/** The running animation. Held module-level so navigating away can stop the rAF loop — a
+ * forgotten 60fps canvas loop is a battery bug the reader never sees and always pays for. */
+let cosmosHandle: CosmosHandle | undefined;
 
 /** Test-only. Module-level caches survive between tests in the same file, which silently turns
  * "did this route fetch?" assertions into no-ops. Exported so the tests can be honest rather
  * than ordered-just-so. Nothing in the app calls this. */
 export function resetPetaCache(): void {
   indexCache = undefined;
-  bondsCache = undefined;
+  cosmosCache = undefined;
+  cosmosHandle?.destroy();
+  cosmosHandle = undefined;
   shardCache.clear();
 }
 
-/** The map's data. 4.8 KB, fetched ONLY when the reader opts in — see peta-map.ts. */
-async function loadBonds(): Promise<PetaBonds> {
-  if (bondsCache) return bondsCache;
-  const res = await fetch("/peta/bonds.json");
+/** The map's data: 46 KB of baked 3D coordinates. Fetched ONLY when the reader opts in.
+ * The layout was solved at build time (src/app/build-peta-3d.ts) so no physics library ships. */
+/**
+ * Stop the animation.
+ *
+ * The canvas is destroyed by innerHTML the moment the reader routes away, but requestAnimationFrame
+ * does NOT stop with it — the loop keeps running against a detached node, burning a phone battery
+ * for a picture nobody is looking at. The router calls this on every navigation away from Peta.
+ * Idempotent.
+ */
+export function destroyCosmos(): void {
+  cosmosHandle?.destroy();
+  cosmosHandle = undefined;
+}
+
+async function loadCosmos(): Promise<Cosmos> {
+  if (cosmosCache) return cosmosCache;
+  const res = await fetch("/peta/cosmos.json");
   if (!res.ok) throw new Error(`Gagal memuat peta (${res.status}).`);
-  bondsCache = (await res.json()) as PetaBonds;
-  return bondsCache;
+  cosmosCache = (await res.json()) as Cosmos;
+  return cosmosCache;
 }
 
 async function loadIndex(): Promise<PetaIndex> {
@@ -190,6 +209,7 @@ function bridgeEl(entry: PetaEntry, index: PetaIndex): string {
 export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
   bindActs();
   clearReadCards();
+  destroyCosmos();
 
   let index: PetaIndex;
   try {
@@ -212,8 +232,8 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
 
       <div class="peta-map-wrap">
         <button class="peta-map-toggle" type="button" aria-expanded="false" aria-controls="peta-map-slot">
-          Lihat peta hubungan antartema
-          <span class="peta-map-hint">${t.bridges.toLocaleString("id-ID")} ayat muncul di lebih dari satu tema</span>
+          Lihat peta tematik 3D
+          <span class="peta-map-hint">${t.verses.toLocaleString("id-ID")} ayat, ${t.bridges.toLocaleString("id-ID")} di antaranya menghubungkan lebih dari satu tema</span>
         </button>
         <div id="peta-map-slot" class="peta-map-slot" hidden></div>
       </div>
@@ -229,7 +249,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
       </ul>
     </div>`;
 
-  bindMapToggle(mount, index);
+  bindMapToggle(mount);
   say(`Peta Tematik — ${t.categories} kategori tersedia.`);
 }
 
@@ -240,7 +260,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
  * codebase has already been bitten by (read.css:122, and the band shipping painted-empty). The
  * slot is styled with `display:none` on `[hidden]` explicitly in read.css.
  */
-function bindMapToggle(mount: HTMLElement, index: PetaIndex): void {
+function bindMapToggle(mount: HTMLElement): void {
   const btn = mount.querySelector<HTMLButtonElement>(".peta-map-toggle");
   const slot = mount.querySelector<HTMLDivElement>("#peta-map-slot");
   if (!btn || !slot) return;
@@ -262,12 +282,38 @@ function bindMapToggle(mount: HTMLElement, index: PetaIndex): void {
     if (loaded) return;
     slot.innerHTML = `<p class="peta-map-loading">Memuat peta…</p>`;
     try {
-      const bonds = await loadBonds();
-      slot.innerHTML = chordSvg(index, bonds);
-      const svg = slot.querySelector("svg");
-      if (svg) bindMap(svg);
+      // 46 KB, fetched here and nowhere else. A reader who never opens the map pays nothing —
+      // which is the only reason a 3D star field belongs in an app built for patchy 4G.
+      const cosmos = await loadCosmos();
+      slot.innerHTML = `
+        <div class="pc-frame">
+          <canvas class="pc-canvas" aria-label="Peta tematik 3D: ${cosmos.meta.verses} ayat mengelilingi ${cosmos.meta.cats} kategori. Seret untuk memutar, gulir untuk memperbesar, klik bintang untuk membuka ayat."></canvas>
+          <div class="pc-hud">
+            <label class="pc-check"><input type="checkbox" class="pc-auto" checked> Putar otomatis</label>
+            <label class="pc-check"><input type="checkbox" class="pc-bridges"> Hanya ayat penghubung</label>
+          </div>
+          <p class="pc-help">seret untuk memutar · gulir untuk zoom · klik bintang untuk membuka ayat</p>
+          ${legendHtml(cosmos)}
+        </div>`;
+
+      const canvas = slot.querySelector<HTMLCanvasElement>(".pc-canvas");
+      if (!canvas) return;
+      cosmosHandle?.destroy();
+      cosmosHandle = mountCosmos(canvas, cosmos, (surah, ayah) => {
+        // A star IS a verse. Clicking one goes to the reading surface that already exists,
+        // under the literal_companion guarantee — the cosmos never renders scripture itself.
+        location.hash = `#/surah/${surah}#${ayah}`;
+      });
+
+      slot.querySelector<HTMLInputElement>(".pc-auto")?.addEventListener("change", (e) => {
+        cosmosHandle?.setAutoRotate((e.target as HTMLInputElement).checked);
+      });
+      slot.querySelector<HTMLInputElement>(".pc-bridges")?.addEventListener("change", (e) => {
+        cosmosHandle?.setBridgesOnly((e.target as HTMLInputElement).checked);
+      });
+
       loaded = true;
-      say(`Peta dimuat — ${index.categories.length} tema, ${bonds.bonds.length} hubungan.`);
+      say(`Peta 3D dimuat — ${cosmos.meta.verses} ayat, ${cosmos.meta.cats} tema.`);
     } catch (err) {
       slot.innerHTML = `<div class="oops" role="alert"><p>${esc(err instanceof Error ? err.message : "Gagal memuat peta.")}</p></div>`;
       say("Peta gagal dimuat.");
@@ -280,6 +326,7 @@ function bindMapToggle(mount: HTMLElement, index: PetaIndex): void {
 export async function renderPetaCategory(mount: HTMLElement, slug: string): Promise<void> {
   bindActs();
   clearReadCards();
+  destroyCosmos();
 
   let index: PetaIndex;
   let shard: PetaShard;

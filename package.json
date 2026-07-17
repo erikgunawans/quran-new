@@ -15,16 +15,18 @@
     "app:audio": "bun run src/app/build-audio.ts",
     "app:themes": "bun run src/app/build-themes.ts",
     "app:peta": "bun run src/app/build-peta.ts",
+    "app:peta3d": "bun run src/app/build-peta-3d.ts",
     "app:design": "bun run src/app/build-design-doc.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
-    "build": "bun run app:corpus && bun run app:themes && bun run app:peta && vite build web"
+    "build": "bun run app:corpus && bun run app:themes && bun run app:peta && bun run app:peta3d && vite build web"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",
     "@types/bun": "latest",
+    "d3-force-3d": "^3.0.6",
     "typescript": "^5.6.0",
     "vite": "^8.1.4"
   }

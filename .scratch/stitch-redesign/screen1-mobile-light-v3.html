@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>QuranKu</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Fraunces:opsz,wght@9..144,400..700&amp;family=Plus+Jakarta+Sans:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed": "#ffdcc4",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#f6ba8d",
+                        "action-emerald": "#12a074",
+                        "outline": "#6d7a72",
+                        "surface-tint": "#006c4d",
+                        "on-primary-fixed-variant": "#005139",
+                        "on-secondary-container": "#416b5c",
+                        "inverse-on-surface": "#ecf2ec",
+                        "primary-container": "#00855f",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#e9efe9",
+                        "primary-fixed": "#81f9c6",
+                        "surface-container-highest": "#dee4de",
+                        "surface-container-high": "#e4eae4",
+                        "outline-variant": "#bccac1",
+                        "surface-container-low": "#eff5ef",
+                        "primary-fixed-dim": "#63dcab",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "background": "#f4f9f6", // Token override --bg
+                        "bg-light": "#f4f9f6",
+                        "secondary-fixed-dim": "#a3d0be",
+                        "secondary": "#3c6658",
+                        "surface-bright": "#ffffff",
+                        "on-secondary-fixed": "#002117",
+                        "secondary-container": "#bcead7",
+                        "inverse-surface": "#2c322e",
+                        "forest-green": "#0a4d38", // Token override --forest
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#9b6a43",
+                        "on-surface": "#0f1e18", // Token override --ink
+                        "surface-variant": "#e6f4ed", // Token override --surface-2
+                        "secondary-fixed": "#bfecda",
+                        "surface-dim": "#d5dcd6",
+                        "clay-accent": "#a86b4a", // Token override --clay
+                        "on-background": "#0f1e18",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#63dcab",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#7f522d",
+                        "on-primary-container": "#f5fff7",
+                        "primary": "#0b5a41", // Token override --primary
+                        "surface": "#ffffff", // Token override --surface
+                        "on-tertiary-container": "#fffbff",
+                        "ink-primary": "#0f1e18",
+                        "on-secondary-fixed-variant": "#244e41",
+                        "on-primary-fixed": "#002115",
+                        "on-surface-variant": "#41504a", // Token override --ink-2
+                        "on-tertiary-fixed-variant": "#663d1a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "max-landing": "1120px",
+                        "max-prose": "46rem",
+                        "s-1": "4px",
+                        "s-3": "12px",
+                        "s-4": "16px",
+                        "s-6": "32px",
+                        "unit": "4px",
+                        "s-2": "8px",
+                        "s-5": "24px"
+                    },
+                    fontFamily: {
+                        "data-num": ["Plus Jakarta Sans"],
+                        "display-md": ["Fraunces"],
+                        "display-lg-mobile": ["Fraunces"],
+                        "scripture-ar": ["Amiri"],
+                        "ui-body": ["Plus Jakarta Sans"],
+                        "display-lg": ["Fraunces"],
+                        "ui-label": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "data-num": ["14px", { "fontWeight": "500" }],
+                        "display-md": ["28px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "scripture-ar": ["34px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "ui-body": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["33px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "ui-label": ["13px", { "lineHeight": "1.0", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom overrides per mandatory constraints */
+        :root {
+            --bg: #f4f9f6;
+            --surface: #ffffff;
+            --surface-2: #e6f4ed;
+            --line: #e1e9e5;
+            --line-strong: #d1ded7;
+            --ink: #0f1e18;
+            --ink-2: #41504a;
+            --ink-3: #5b6a63;
+            --primary: #0b5a41;
+            --action: #0c8059;
+            --action-2: #0c8079;
+            --forest: #0a4d38;
+            --clay: #a86b4a;
+        }
+
+        .bg-pattern {
+            background-color: var(--primary);
+            background-image: 
+                radial-gradient(circle at center, transparent 0, transparent 49%, var(--primary) 50%, var(--primary) 100%),
+                linear-gradient(45deg, transparent 49%, var(--surface-2) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, var(--surface-2) 50%, transparent 51%);
+            background-size: 54px 54px;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .action-bg { background-color: var(--action); }
+        .action-text { color: var(--action); }
+        .forest-bg { background-color: var(--forest); }
+        .surface-2-bg { background-color: var(--surface-2); }
+        .line-border { border-color: var(--line); }
+        .ink-3-text { color: var(--ink-3); }
+        
+        .fade-in {
+            animation: fadeIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Material Symbols Fill override */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-ui-body antialiased flex flex-col min-h-[884px] max-w-[390px] mx-auto relative md:hidden shadow-lg border-x line-border">
+<!-- TopAppBar Semantic Shell -->
+<header class="w-full sticky top-0 bg-surface border-b border-outline-variant/30 flex justify-between items-center px-s-4 h-16 z-10">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-200 p-2 -ml-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-md text-display-md text-forest-green tracking-tight font-bold">QuranKu</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-200 p-2 -mr-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col px-s-4 pt-s-6 pb-28 gap-s-6 overflow-y-auto fade-in">
+<!-- Hero Section & Composer -->
+<section class="flex flex-col gap-s-4">
+<div class="text-center flex flex-col items-center mb-s-2">
+<div class="font-scripture-ar text-scripture-ar text-primary mb-1" dir="rtl" lang="ar">
+                    ٱلسَّلَامُ عَلَيْكُمْ
+                </div>
+<div class="font-ui-label text-ui-label ink-3-text uppercase tracking-widest text-[10px]">
+                    Peace be upon you
+                </div>
+</div>
+<div class="mb-s-2">
+<h2 class="font-display-lg-mobile text-display-lg-mobile text-on-surface mb-2">
+                    Ada apa <span class="action-text italic">hari ini?</span>
+</h2>
+<p class="font-ui-body text-ui-body text-on-surface-variant">
+                    Ceritakan keluh kesahmu, temukan jawaban dari Al-Qur'an.
+                </p>
+</div>
+<!-- Chat Composer inside Hero -->
+<div class="bg-surface border line-border rounded-[18px] shadow-sm flex flex-col overflow-hidden focus-within:border-[var(--action)] focus-within:ring-1 focus-within:ring-[var(--action)] transition-all">
+<textarea class="w-full border-none resize-none bg-transparent p-s-4 text-on-surface focus:ring-0 font-ui-body text-[15px] placeholder:text-[var(--ink-3)]" placeholder="Tuliskan keluh kesahmu di sini..." rows="3"></textarea>
+<div class="flex justify-between items-center px-s-4 pb-s-3">
+<button class="text-[var(--ink-3)] hover:text-on-surface p-1 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+<button class="action-bg text-white rounded-full p-2 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px] fill-icon">send</span>
+</button>
+</div>
+</div>
+<!-- Seed Chips -->
+<div class="flex flex-wrap gap-2 mt-2">
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">aku lagi capek banget</button>
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">lagi banyak utang, stress</button>
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">baru kehilangan orang tua</button>
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">ngerasa dosaku kebanyakan</button>
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">cemas terus tiap malam</button>
+<button class="px-3 py-1.5 rounded-full border line-border bg-surface text-[13px] font-ui-body text-on-surface-variant hover:bg-[var(--surface-2)] transition-colors active:scale-95">al kahfi</button>
+</div>
+</section>
+<!-- The Band (Mobile Stack) -->
+<div class="flex flex-col gap-s-4 mt-s-2">
+<!-- Daily Ayah Card -->
+<article class="relative overflow-hidden bg-surface rounded-xl border line-border shadow-sm p-s-5">
+<!-- Geometric Background Pattern -->
+<div class="absolute inset-0 bg-pattern"></div>
+<div class="relative z-10 flex flex-col gap-s-4">
+<header class="flex justify-between items-center border-b line-border pb-2">
+<span class="font-ui-label text-ui-label text-[11px] uppercase tracking-widest text-clay-accent">Ayat Hari Ini</span>
+<span class="font-data-num text-data-num text-on-surface-variant">94:5</span>
+</header>
+<div class="font-scripture-ar text-scripture-ar text-on-surface leading-loose text-right py-4" dir="rtl" lang="ar">
+                        فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+                    </div>
+<div class="flex flex-col gap-3">
+<!-- Primary Meaning -->
+<div class="bg-[var(--surface-2)] p-s-3 rounded-lg">
+<p class="font-ui-body text-[15px] leading-relaxed text-on-surface mb-2">
+                                "Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan."
+                            </p>
+<!-- Attribution Chip -->
+<div class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface border line-border text-[11px] font-ui-label text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                Ustadz Muhammad Thalib
+                            </div>
+</div>
+<!-- Literal Companion -->
+<div class="pl-3 border-l-2 border-[var(--line-strong)]">
+<p class="font-ui-body text-[14px] leading-relaxed text-on-surface-variant mb-2 italic">
+                                "Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"
+                            </p>
+<!-- Attribution Chip -->
+<div class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface border line-border text-[11px] font-ui-label text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">account_balance</span>
+                                Kemenag RI
+                            </div>
+</div>
+</div>
+</div>
+</article>
+<!-- Prayer Card -->
+<article class="forest-bg rounded-xl p-s-4 shadow-md text-white relative overflow-hidden flex items-center justify-between">
+<div class="absolute -right-8 -top-8 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
+<div class="flex flex-col relative z-10">
+<span class="font-ui-label text-[11px] uppercase tracking-widest text-white/70 mb-1">Menuju Maghrib</span>
+<span class="font-data-num text-[28px] font-semibold tracking-tight">17:45</span>
+<span class="font-ui-label text-[12px] text-white/80 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                        Jakarta
+                    </span>
+</div>
+<div class="relative z-10 flex flex-col gap-2 font-data-num text-[13px] text-white/60 text-right">
+<div class="flex justify-end gap-3"><span class="w-12 text-left">Ashar</span> <span class="w-10">15:15</span></div>
+<div class="flex justify-end gap-3 text-white font-medium"><span class="w-12 text-left">Maghrib</span> <span class="w-10">17:45</span></div>
+<div class="flex justify-end gap-3"><span class="w-12 text-left">Isya</span> <span class="w-10">18:55</span></div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar Semantic Shell -->
+<nav class="fixed bottom-0 w-full max-w-[390px] z-50 bg-surface flex justify-around items-center h-[72px] px-s-4 border-t border-outline-variant/50 pb-safe">
+<!-- Active: Tanya (Matches Home/Chat intent) -->
+<a class="flex flex-col items-center justify-center text-primary font-semibold hover:text-primary-container transition-all active:opacity-80 transition-opacity gap-1 w-16" href="#">
+<span class="material-symbols-outlined fill-icon text-[24px]">chat_bubble</span>
+<span class="font-ui-label text-ui-label text-[11px]">Tanya</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary-container transition-all active:opacity-80 transition-opacity gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">auto_stories</span>
+<span class="font-ui-label text-ui-label text-[11px]">Baca</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary-container transition-all active:opacity-80 transition-opacity gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">palette</span>
+<span class="font-ui-label text-ui-label text-[11px]">Tema</span>
+</a>
+</nav>
+<style>
+        /* iOS safe area padding support */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom);
+                height: calc(72px + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</body></html>

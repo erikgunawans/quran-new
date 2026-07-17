@@ -462,3 +462,86 @@
 @media (prefers-reduced-motion: reduce) {
   #read .pm-bond, #read .pm-node, #read .pm-label { transition: none; }
 }
+
+/* ── Peta Tematik: the cosmos ─────────────────────────────────────────────────
+ *
+ * A DARK frame inside a light app. Erik's explicit exception, and not a style whim: luminous
+ * points need darkness to be luminous — the same design on white is grey dots. It reads as a
+ * framed object on the page (like a photograph), not as app chrome. The boundary is the frame;
+ * nothing outside it changes, and the light direction is untouched everywhere else.
+ *
+ * The 13 category hues live in peta-cosmos.ts, not here — they are canvas fills, not CSS.
+ * They are the one place the emerald discipline is deliberately relaxed: categorical colour is
+ * doing real work (it is what makes a cluster legible). No gold, per the design gate.
+ */
+#read .pc-frame {
+  position: relative;
+  background: radial-gradient(120% 100% at 50% 0%, #16211c 0%, #0d1512 60%, #0a0f0d 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+#read .pc-canvas {
+  display: block;
+  width: 100%;
+  height: min(70vh, 560px);
+  touch-action: none; /* we own drag-to-rotate; without this the page scrolls instead */
+  cursor: grab;
+}
+#read .pc-canvas:active { cursor: grabbing; }
+
+#read .pc-hud {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+#read .pc-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--step--1);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  user-select: none;
+}
+#read .pc-check input { accent-color: var(--action); min-width: 16px; min-height: 16px; }
+
+#read .pc-help {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.6rem;
+  margin: 0;
+  font-size: var(--step--2, 0.75rem);
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* The legend is real DOM, not canvas text — selectable, translatable, screen-readable. */
+#read .pc-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.3rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+#read .pc-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--step--1);
+  color: rgba(255, 255, 255, 0.8);
+  min-height: 24px;
+}
+#read .pc-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+#read .pc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#read .pc-n { color: rgba(255, 255, 255, 0.42); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 560px) {
+  #read .pc-canvas { height: 60vh; }
+  #read .pc-help { display: none; } /* no hover on touch; the hint is noise there */
+}

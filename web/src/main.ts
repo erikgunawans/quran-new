@@ -8,7 +8,7 @@ import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
-import { renderPetaCategory, renderPetaIndex } from "./peta.ts";
+import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
@@ -301,6 +301,9 @@ function markNav(mode: "tanya" | "baca" | "tema") {
 
 async function route() {
   const hash = location.hash;
+  // The cosmos runs a rAF loop. Every route that is not the Peta index must stop it, or it keeps
+  // animating a canvas that is no longer on the page. renderPetaIndex re-arms it on the way in.
+  if (hash !== "#/peta") destroyCosmos();
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);

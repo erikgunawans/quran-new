@@ -2,19 +2,32 @@
 
 > **How to use this document.** It is not one prompt. It is a **preamble** plus **six screen prompts**.
 >
-> 1. Import `DESIGN.md` through Stitch's design-system door (`create_design_system_from_design_md`),
->    then `apply_design_system` to the project. Do **not** paste the token tables as prose — hand-copied
->    token values are exactly what made DESIGN.md silently diverge from `styles.css` for months. The
->    generated block is the only copy that was ever true. Let the tool read it.
+> 1. Import `DESIGN.md` via `upload_design_md` → `create_design_system_from_design_md`, then
+>    `apply_design_system`. **This gets you the shape, not the values.** Measured 2026-07-17: Stitch does
+>    not preserve the tokens — it re-derives a Material 3 tonal palette from DESIGN.md. Only 1 of 5
+>    pinned tokens survived (`--bg`); `--primary` came back `#00694a` instead of `#0b5a41`, `--clay`
+>    `#9c6b44` instead of `#a86b4a`, and `--action`'s WCAG-pinned `#0c8059` did not appear at all.
+>    **So § TOKEN CARD is not a fallback — it is load-bearing. Paste it, every time.** The import still
+>    earns its place for type, shape, and structure; the card is what holds the colour.
 > 2. Paste **§ PREAMBLE verbatim** at the top of every screen generation. Every one. Stitch generates
 >    each screen independently and does not remember the last one.
 > 3. Then append the one § SCREEN block you want.
 >
-> **Generate the 390px mobile frame first.** The users are on mid-range Android. Desktop is the
-> adaptation, not the source.
+> **Never scope a frame with `md:hidden`, `hidden md:block`, or any breakpoint that makes the page
+> invisible at some width.** Asking for "the mobile frame" means *design at 390px* — it does not mean
+> "hide this above 768px". A generation did exactly that and produced a page that was blank on desktop.
+> Every frame renders at every width.
 >
-> § TOKEN CARD is a fallback for if Stitch's colour parser rejects `oklch()`. Hex is derived from the
-> stylesheet's oklch by conversion, not re-picked by eye.
+> **Frame order per screen — four frames, in this order:**
+> `1. mobile 390 light` → `2. mobile 390 dark` → `3. desktop 1120 light` → `4. desktop 1120 dark`.
+>
+> Mobile light is the canonical frame — the users are on mid-range Android, and light is the default
+> register. The other three are adaptations of it, and **each is composed, never derived**: do not
+> generate dark by filtering light, and do not generate desktop by stretching mobile.
+>
+> § TOKEN CARD carries the exact hex. Paste it with every screen prompt — Stitch's design-system
+> import re-derives colour rather than preserving it (measured; see note 1). Hex is converted from
+> the stylesheet's oklch, never re-picked by eye.
 
 ---
 
@@ -26,7 +39,7 @@
 
 - No gold, brass, bronze, ochre, or amber — no fill, no gradient, no rule, no hairline.
 - No crescents, domes, minarets, lanterns, prayer beads, or building silhouettes.
-- No pattern behind text except the one star field named in § 4.
+- No pattern behind text except the one star field named in § 5.
 - No border, frame, or rule around any block of Arabic.
 - No Arabic below reading size, at an angle, faded, cropped, or used as a mark or logo.
 - No photography.
@@ -48,14 +61,29 @@ Arabic type stack: `"Amiri", "Scheherazade New", "Noto Naskh Arabic", serif`. **
 stop and say so — do not substitute silently.** Uthmani diacritics break under the wrong face, and
 mis-rendered scripture is unshippable.
 
-### 3. The invariant — every screen, no exceptions
+### 3. Never rewrite the Indonesian copy
+
+**Every Indonesian string given in a § SCREEN block is final. Copy it exactly.** Do not rewrite,
+shorten, "improve", translate, or make it more formal. Do not substitute English — the app speaks
+Indonesian to Indonesians; an English line is a bug, not a nicety.
+
+This copy is the product's voice: a friend who happens to know a great deal and never makes you feel
+small. It has been written and tested. A generation that "tightened" it produced *"Ceritakan keluh
+kesahmu, temukan jawaban dari Al-Qur'an"* in place of *"Cerita saja pakai bahasa kamu sendiri. Aku
+carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa."* — shorter, and preachy, which is
+the one thing this product forbids. If a string looks long to you, that is the point of it.
+
+Same rule as § 2, different script. If you need a string that is not supplied, leave it empty and flag
+the gap.
+
+### 4. The invariant — every screen, no exceptions
 
 **Any surface that shows a verse shows both renderings.** The meaning-based rendering (*terjemah makna*)
 leads; the literal companion (*terjemah harfiah*) sits beside it or one tap beneath it. A verse card
 without its literal companion is a broken card — on any screen, in any context, including thumbnails,
 previews, and share images.
 
-### 4. Where the Islamic character comes from
+### 5. Where the Islamic character comes from
 
 Three carriers. Use them positively; there is no restraint to perform and no ornament to reintroduce.
 
@@ -88,15 +116,30 @@ on all four sides of at least one line-height. The meaning-based rendering below
 below that, at the same size as the rendering. No frame, no border around the block, no background
 pattern. The block's edges are whitespace, not a rule.
 
-### 5. Visual direction
+### 6. Visual direction
 
 **The neutrals are green, not grey.** The background is a pale green-white (`#f4f9f6`) and cards are
 white. The greenness lives in the *hue of the neutrals* and in `--forest`/`--primary` blocks that carry
 real weight — not in a saturated green page. **Never a green page with white cards floating on it.**
 
-**Light is the default register. Dark is its equal counterpart — composed, not inverted.** Only the
-background/surface/ink axis flips. `--action`, `--forest`, and `--clay` are **theme-invariant** — one
-emerald means "you can do this" in both registers. `--primary` does flip (it has to stay readable).
+**Generate every screen twice — once light, once dark.** Both are first-class: this Qur'an is read at
+2am and on the commute. Neither is a variant of the other, and **the dark register is composed, not
+inverted** — do not run a filter, do not flip lightness, do not derive it. Build it from the dark column
+of the token card.
+
+What changes between them is **only the background/surface/ink axis, plus `--primary`.** Everything else
+holds still:
+
+- `--action`, `--forest`, `--clay` are **theme-invariant** — identical hex in both registers. One emerald
+  means "you can do this" everywhere, so the white-on-action contrast is proved once instead of
+  re-proved per theme.
+- `--primary` **does** flip (`#0b5a41` → `#52cb9d`) — it has to stay readable against a dark ground.
+- Radius, spacing, type, motion, and layout are **identical**. A dark screen is the same screen in a
+  different room, not a different design.
+- **The star field stays at 8% opacity in both.** Do not brighten it in the dark register.
+
+In the dark register the scripture out-luminates every piece of chrome. Light is still the *default* —
+if a screen is generated only once, it is light.
 
 **Colour roles:**
 
@@ -120,6 +163,28 @@ emerald means "you can do this" in both registers. `--primary` does flip (it has
 | Data / refs | Plus Jakarta Sans, `tabular-nums` | Verse refs (`2:255`), clocks, counts. |
 
 Prose caps at 68ch.
+
+**Font loading — use this exact tag. Do not construct your own.**
+
+```html
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400..700&display=swap">
+```
+
+Copy it character for character. **Do not add an `ital` axis, do not add weights, do not "optimise" it.**
+This string is tested: HTTP 200, all three families, Arabic subset, `font-display: swap`, **464 KB**.
+
+Why it is given literally rather than as a rule: Google Fonts' multi-axis syntax is easy to get wrong,
+and it fails *closed*. Fraunces has two axes (`opsz`,`wght`), so every tuple must carry both —
+`9..144,400..700`, never a bare `700`. One malformed family returns **HTTP 400 for the whole
+stylesheet**, so Amiri dies with it, and the Arabic silently falls back to system serif. Mis-rendered
+scripture is unshippable, and this is the quietest way to ship it. (Measured 2026-07-17: a generation
+that hand-built this URL produced exactly that failure.)
+
+For reference — the constraint this encodes: weights are variable **ranges**, never lists of static cuts
+(`wght@400..800` costs 414 KB where `wght@400;500;600;700;800` costs 548 KB), and Amiri takes no
+`ital` axis because Arabic has no italics. An unprompted generation requested 966 KB of fonts, half of
+it unusable. The reader is on patchy 4G; this is where that gets decided.
 
 **Icons:** outline only, uniform 1.5px stroke, geometric, `--primary`. No filled or ornamental icons.
 (See the ban list.)
@@ -160,13 +225,15 @@ number. Where the corpus is silent, the app is silent and says so plainly.
 **Accessibility — hard requirements, each a test rather than an aspiration.**
 
 - **WCAG AA on every text pair, both registers.** Body ≥4.5:1, large ≥3:1.
-- **Full RTL Arabic** (`dir="rtl"`, `lang="ar"`). Never broken, reversed, or mis-shaped.
+- **Full RTL Arabic.** Every Arabic element carries BOTH `dir="rtl"` AND `lang="ar"` — the lang
+  attribute is not optional decoration: without it a screen reader reads Arabic with an Indonesian
+  voice, and the browser may pick the wrong font shaping. Never broken, reversed, or mis-shaped.
 - **Independent Arabic scaling** — the reader scales the scripture without the UI moving.
 - **Screen readers hear attribution.** The source is in the accessible name, not just visible. A blind
   reader must still know **who said what**.
 - **Touch targets ≥44px.** Low bandwidth, mid-range Android: performance is accessibility here.
 
-### 6. The product
+### 7. The product
 
 **New-Quranku** — an Indonesian Qur'an app. Users: **Indonesian Muslims, mostly Gen Z and younger
 millennials, on mid-range Android over patchy 4G.** They arrive either **carrying something** (debt,
@@ -177,7 +244,7 @@ Tone: **warm, plural, unpreachy.** A friend who knows a great deal and never mak
 not knowing it. Emotional arc: **relief, then curiosity.** The app never arbitrates between scholars, and
 its AI answers only from cited sources — never in its own voice as though it were a scholar.
 
-### 7. The Arabic you may use — copy verbatim
+### 8. The Arabic you may use — copy verbatim
 
 | Ref | Arabic | Use |
 |---|---|---|
@@ -303,9 +370,10 @@ The depth layer for the reader who got curious — the knowledge graph made visi
 
 ---
 
-## § TOKEN CARD — fallback only
+## § TOKEN CARD — paste with every screen
 
-Use only if Stitch's colour parser rejects `oklch()`. Verified: `--action` → `#0c8059` gives white
+**These values override anything the design system supplies.** Stitch re-derives its own palette from
+DESIGN.md; these are the pinned truth. Verified: `--action` → `#0c8059` gives white
 **4.94:1**, matching the pinned WCAG AA value in the stylesheet. These are a translation, not a re-pick.
 
 ### Surface & ink
@@ -365,3 +433,17 @@ Gradients (`--action-grad` 120°, `--forest-grad` 145°) carry white text across
 11. Does `--action` appear anywhere that is not something the reader can *do*? → fail.
 12. Is it a green page with white cards floating on it? → fail. (Green is the neutrals' hue, not the fill.)
 13. Does it look like Calm with a verse in it? → fail.
+13a. Is every Indonesian string byte-identical to the § SCREEN block? → if any was rewritten, shortened,
+     or replaced with English, fail.
+13b. Does <body> or any wrapper carry `md:hidden` or a breakpoint that hides the page at any width? → fail.
+14. **Dark register:** do `--action`, `--forest`, `--clay` hold the exact same hex as the light frame? →
+    if any drifted, fail. Did `--primary` flip to `#52cb9d`? → if not, fail.
+15. **Dark register:** does anything differ from the light frame other than background/surface/ink and
+    `--primary` — spacing, radius, type size, layout, star-field opacity? → fail. Same screen, different
+    room.
+16. **Dark register:** is any chrome brighter than the scripture? → fail.
+17. Does every Arabic element carry BOTH `dir="rtl"` and `lang="ar"`? → if not, fail.
+18. Is the font <link> byte-identical to the one given in § 5? → if not, fail. Verify by loading the
+    URL: it must return HTTP 200. **Do not trust `document.fonts.check()` — it tests a space character
+    and returns true even when the font fell back.** The only truth is `[...document.fonts].filter(f =>
+    f.status === "loaded")` containing Amiri, Fraunces, and Plus Jakarta Sans.
