@@ -1,9 +1,9 @@
 ---
 project: New-Quranku
-task: "Cycle 3 — Peta Tematik: display Ustadz Muhammad Thalib's Indeks Tematik (13 categories, 2,451 entries) as a browsable section, unblocked by Ustadz Ahmad Isrofiel's F-1 permission 2026-07-17 (prior: last-read bookmark, complete; Cycle 2 mobile-first UI redesign, complete 94/96)"
+task: "Cycle 4 — the 3D cosmos ISCs (ISC-171..189): retroactively track the baked-layout star field (build-peta-3d.ts + peta-cosmos.ts) that shipped in Cycle 3 without its own criteria (prior: Cycle 3 Peta Tematik index/shards/attribution, complete; last-read bookmark, complete; Cycle 2 mobile-first UI redesign, complete 94/96)"
 effort: E3
 phase: complete
-progress: 163/167
+progress: 181/186
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -338,6 +338,42 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-169: The generator asserts EXACTLY 4 unresolvable refs — if the source changes and a 5th appears, the build fails loudly rather than absorbing it
 - [x] ISC-170: Section F-5 added to `SCHOLAR-REVIEW-PACKAGE.id.md` asking Ustadz Ahmad about the 4 typos, naming each one, proposing no correction
 
+### Cycle 4 — the 3D cosmos: baked layout, zero physics shipped (2026-07-17, added 2026-07-17 resume)
+
+> The map surface (`peta.ts`, index + category routes + attribution) is covered by Cycle 3
+> (ISC-140..162). What shipped WITHOUT its own ISCs is the **3D cosmos**: the build-time layout
+> baker `src/app/build-peta-3d.ts` and the render-only client `web/src/peta-cosmos.ts`. The chord
+> diagram (`1dd8f3c`) was removed at `0debe3a` and is intentionally NOT tracked here. Cycle 4 makes
+> the shipped cosmos mechanical. Every criterion below is a single tool probe.
+
+**The layout baker (`src/app/build-peta-3d.ts`)**
+
+- [x] ISC-171: `web/public/peta/cosmos.json` exists and is ≤ `SIZE_LIMIT_BYTES` (90 KB) — the builder refuses to write a larger file
+- [x] ISC-172: the builder asserts the exact topology against the shards — 13 cats, 42 subtopics, 2,451 entries, 2,633 citations, 1,632 distinct verses, 518 bridges, 2,370 links — any drift throws at build, never ships
+- [x] ISC-173: Anti: `d3-force-3d` is a `devDependencies` entry only; `package.dependencies` never contains it — `assertDependencyBoundary()` throws at build if the physics lib leaks into prod deps
+- [x] ISC-174: the layout is deterministic — two builds (and two `computeCosmos` calls in one process) are byte-identical: a fixed-seed LCG replaces d3's internal random source and the links array is copied, not mutated
+- [x] ISC-175: every verse node carries a non-empty `catIndexes` all in `[0,13)` and finite integer coords; the normalized cloud's extreme node sits at radius 1000 within the ±1 rounding budget
+- [x] ISC-176: the cosmos build asserts EXACTLY the 4 unresolvable refs (`8:96`, `8:77`, `48:59`, `11:161`) via `assertSetEqual` — the picture cannot silently gain or lose one relative to the shards
+- [x] ISC-177: Anti: verse positions are baked integers in `cosmos.json`, not recomputed — the render path runs no force, octree, or solver
+
+**The render path (`web/src/peta-cosmos.ts`)**
+
+- [x] ISC-178: Anti: the shipped render path imports zero physics — grep of `web/src/` for `d3-force`/`forceSimulation`/`forceManyBody` finds only a code comment, no import
+- [x] ISC-179: the cosmos is opt-in — `loadCosmos()` fetches `/peta/cosmos.json` on a dedicated (cached, idempotent) path distinct from the index/category route load; the map renders without ever fetching it
+- [x] ISC-180: `prefers-reduced-motion: reduce` stops BOTH auto-rotate and twinkle — the guard reads the media query and sets `auto = false`
+- [x] ISC-181: Anti: no `createRadialGradient` allocation inside the per-star draw loop — one halo sprite per colour (14 total) is pre-rendered once and blitted via `drawImage`
+- [x] ISC-182: a drag is not a click — `pick()` fires only when the pointer moved `< 5px`, so rotating the cosmos never opens a random verse
+- [x] ISC-183: `destroy()` cancels the rAF handle AND removes every pointer/wheel/resize listener — navigating away stops the loop, no battery burn on a detached canvas
+- [x] ISC-184: Anti: position scale and radius scale are separate — star radii are sized by `persp` (≈1px on screen), never by the world `scale` ×26 that produced the saturated white blob
+- [x] ISC-185: Anti: 13 categorical hues with NO GOLD (hue 70–100 stays banned) — the cosmos is the one surface that leaves the emerald discipline, and it honors the gold gate
+- [x] ISC-186: overprinting hub labels is resolved deterministically — nearest-first draw + greedy collision-skip drops the farther label (still in the legend), never overprints both
+- [x] ISC-187: the legend is real DOM (`legendHtml`), selectable and screen-readable — not canvas text
+
+**Build + regression + the one open probe**
+
+- [x] ISC-188: `bun test` green across the peta suites (`peta-3d.test.ts`, `peta-shards.test.ts`, `web/src/peta.test.ts` — 46 pass, 0 fail) and `bun run typecheck` clean
+- [DEFERRED-VERIFY] ISC-189: the cosmos holds 60fps on a real mid-range Android. UNVERIFIABLE here — rAF is suspended while Chrome is minimized (same blocker as ISC-110/111). The glow-sprite optimization is sound by inspection (ISC-181) but unproven on-device. **Follow-up: F-COSMOS-PERF — Erik profiles `#/peta` cosmos on a physical mid-range Android; mark `[x]` only with an on-device frame-rate reading.**
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -366,6 +402,13 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | ISC-114..117 | live | with a bookmark set, open `#/baca`, click "Lanjutkan baca" | lands on ayah | `Interceptor` |
 | ISC-118 | anti | trace: crisis path returns before reading surface; never calls `saveBookmark` | structural | `Grep` + `Read` |
 | ISC-120..122 | regression | full web suite + typecheck | ≥164 pass, 0 fail, tsc clean | `bun test` + `tsc` |
+| ISC-171 | perf | `stat` cosmos.json on disk | `≤ 90 KB` (actual 45.7 KB) | `Bash` stat |
+| ISC-172,176 | data | builder assertions run against shards | exact topology, 4 unresolvable | `bun run app:peta3d` + `bun test` |
+| ISC-173,177,178 | anti | grep prod deps + `web/src` for physics | 0 imports | `node` + `rg` |
+| ISC-174,175 | unit | `peta-3d.test.ts` — determinism, coords, catIndexes | all pass | `bun test` |
+| ISC-179..187 | static | `Read`/`Grep` the render source for each invariant | present | `Grep` + `Read` |
+| ISC-188 | regression | peta suites + typecheck | 46 pass, 0 fail, tsc clean | `bun test` + `tsc` |
+| ISC-189 | perf-live | on-device frame rate at `#/peta` cosmos | `≥ 60fps` | physical Android (F-COSMOS-PERF) |
 
 ## Features
 
@@ -380,8 +423,22 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | regression-guard | Keep tests, typecheck, contrast, and corpus gates green | ISC-39..42 | all | no (final) |
 | ui-redesign-proposal | Mobile ergonomics + chat-centerpiece design proposal, plus the generative-capability decision gate | ISC-80..97 | — | no |
 | last-read-bookmark | `bookmark.ts` persists surah:ayah; `renderSurah` tracks position via IntersectionObserver; `renderIndex` surfaces "Lanjutkan baca" | ISC-100..123 | reading-surface, ref-oracle | no |
+| peta-tematik-map | `build-peta.ts` emits `index.json` + 13 category shards; `web/src/peta.ts` renders the browsable index, category routes, bridges, and attribution | ISC-124..170 | shard-builder, ref-oracle | no |
+| cosmos-baker | `src/app/build-peta-3d.ts` runs d3-force-3d once at build time, asserts topology, bakes integer coords → `cosmos.json` (46 KB); physics is a devDependency, never shipped | ISC-171..177 | peta-tematik-map | no (foundation for render) |
+| cosmos-render | `web/src/peta-cosmos.ts` — projection-only client: rotate, perspective-divide, blit glow sprites; opt-in fetch, reduced-motion aware, drag≠click, disposable | ISC-178..189 | cosmos-baker | no |
 
 ## Decisions
+
+**2026-07-17 (Cycle 4 added, resume session) — the 3D cosmos gets its own ISCs; the map surface
+already had them.** The prior checkpoint flagged `build-peta-3d.ts` / `peta-cosmos.ts` / "peta-map.ts"
+as shipped without criteria. On inspection the map renderer is `web/src/peta.ts` and it IS covered by
+Cycle 3 (ISC-140..162: routes, bridges, attribution, live probe at `#/peta`); there is no separate
+`peta-map.ts`. The genuine gap is the **cosmos** — the build-time layout baker and the render-only
+client. Added ISC-171..189 as Cycle 4. The removed chord diagram (`1dd8f3c`, reverted at `0debe3a`)
+is deliberately NOT tracked — tracking a reverted artifact would misrepresent the deployed product.
+Eighteen of the nineteen are verified this session by probe (stat, `node` deps check, `rg`, `bun test`
+46/0, source read). ISC-189 (60fps on a mid-range Android) is the lone `[DEFERRED-VERIFY]` — rAF is
+suspended in minimized Chrome, so on-device is the only honest probe; follow-up F-COSMOS-PERF is Erik's.
 
 **2026-07-17 — F-1 answered: the Peta Tematik build is unblocked, and three of the four F-questions
 resolved to defaults.** Ustadz Ahmad Isrofiel granted permission to display the Indeks Tematik.
@@ -642,6 +699,20 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
 
 ## Changelog
 
+**2026-07-17 — A shipped surface with no ISCs means the ISA under-represents the product.**
+- **conjectured:** that Cycle 3 (ISC-124..170) covered the whole Peta Tematik surface, so the ISA
+  could be cited as complete for everything reachable at `#/peta`.
+- **refuted by:** the 3D cosmos — `src/app/build-peta-3d.ts` (the build-time layout baker) and
+  `web/src/peta-cosmos.ts` (the render-only client) — shipped in the same session with zero criteria
+  of their own. Cycle 3 stops at the map/index/attribution; nothing in it probes the dependency
+  boundary, layout determinism, the zero-physics render path, or the deferred on-device frame rate.
+- **learned:** "the tests were green" and "the ISA covers this" are different claims. A green suite for
+  the map said nothing about the cosmos, because there were no cosmos criteria to be green about. The
+  ISA is only the system of record for the surfaces it actually enumerates.
+- **criterion now:** ISC-171..189 (Cycle 4) make the cosmos mechanical — 18 verified this session by
+  probe, and ISC-189 (60fps, mid-range Android) carries `[DEFERRED-VERIFY]` + follow-up F-COSMOS-PERF,
+  the same honest treatment ISC-110/111 got, rather than a green checkmark on an unmeasured claim.
+
 **2026-07-17 — Permission to display is not permission to be faithful.**
 - **conjectured:** that F-1 ("may we display the Indeks Tematik?") was the whole rights question, and
   that once answered the build was a data-transformation problem — shard it, render it, credit it.
@@ -884,6 +955,23 @@ articulation.
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.
+
+**Cycle 4 — the 3D cosmos (2026-07-17 resume).** These are build-artifact and source probes, not
+Interceptor live — the cosmos's one live claim (frame rate) is exactly the deferred one.
+- ISC-171: `stat web/public/peta/cosmos.json` → 46,764 bytes (45.7 KB), under the 90 KB `SIZE_LIMIT_BYTES`.
+- ISC-172/176: `bun test` runs `computeCosmos` against the shards; the `EXPECTED` and `EXPECTED_UNRESOLVABLE`
+  assertions in `build-peta-3d.ts` pass (13/42/2451/2633/1632/518/2370, 4 unresolvable) — 46/0.
+- ISC-173: `node -e` on `package.json` → `dependencies: {}`, `devDependencies["d3-force-3d"]: ^3.0.6`.
+- ISC-174/175: `peta-3d.test.ts` (determinism, finite coords, valid catIndexes, radius budget) green.
+- ISC-177/178: `rg 'd3-force|forceSimulation|forceManyBody' web/src/` → one comment hit, zero imports.
+- ISC-179: `web/src/peta.ts:151` — `loadCosmos()` fetches `/peta/cosmos.json` on a cached, idempotent
+  path separate from `loadIndex()`; the map route renders without it.
+- ISC-180..187: `Read web/src/peta-cosmos.ts` confirms each — reduced-motion guard (`:375`), sprite cache
+  `SPRITES`/`haloSprite` blitted (`:71,251`), `moved < 5` drag-guard (`:345`), `destroy()` teardown
+  (`:380`), separate `scale`/`persp` (`:202,239`), 13 non-gold hues (`:54`), label collision-skip
+  (`:296`), DOM `legendHtml` (`:394`).
+- ISC-188: `bun test` peta suites → 46 pass, 0 fail, 425 expect() calls.
+- ISC-189: `[DEFERRED-VERIFY]` — follow-up F-COSMOS-PERF (on-device Android frame rate).
 
 **Cycle 2 — mobile ergonomics + chat composing state**
 - ISC-84/65: static — `.icon-btn` was `width:36px;height:36px` (`styles.css:172`, pre-change),
