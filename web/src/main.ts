@@ -10,7 +10,7 @@ import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
-import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
+import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { understandThemes } from "./theme-understand.ts";
@@ -236,12 +236,13 @@ async function ask(question: string) {
   const ref = parseRef(q);
 
   try {
-    // On the question path (not a direct reference), let the model recognise the feeling first —
-    // it catches what the keyword lexicon misses ("ngerasa Tuhan udah nyerah sama aku"). Guarded to
-    // the closed corpus theme set, additive to retrieval's keyword pass, and it degrades to [] on
-    // any failure so retrieval is never worse than before. Only awaited when we're going to retrieve.
+    // On the question path (not a direct reference), let the model recognise the feeling — but ONLY
+    // when the keyword lexicon came up empty. Most messages hit a keyword, and there the lexicon is
+    // already right and instant; the model is only needed for the MISSES ("ngerasa Tuhan udah nyerah
+    // sama aku"). Skipping it on keyword-hits keeps the common case snappy (one fewer model hop).
+    // Guarded to the closed corpus set, additive, and degrades to [] on any failure.
     const modelThemes =
-      ref.kind === "not-a-ref" && corpus
+      ref.kind === "not-a-ref" && corpus && keywordThemeHits(q).size === 0
         ? await understandThemes(q, corpus.themes, liveThemeModel, () => [])
         : [];
 

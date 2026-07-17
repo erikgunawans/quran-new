@@ -89,17 +89,25 @@ async function handleCompose(request: Request, env: Env): Promise<Response> {
     (themeCount > 1 ? ` (dan ${themeCount - 1} hal lain sekaligus).` : ".") +
     `\n\nTulis satu sampai dua kalimat pendampingan, sesuai aturanmu.`;
 
-  let prose: string;
+  let prose: string | null = null;
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
-    prose = await callChatModel(cfg, FRAMING_SYSTEM_PROMPT, user, { temperature: 0.7, maxTokens: 160 });
+    // One retry on a wall-rejection. A fresh generation (temp 0.7 varies every call) usually clears
+    // the wall, lifting the live-framing rate from ~80% to ~96% WITHOUT weakening it. Retry ONLY on
+    // reject — a model error/timeout is caught below and NOT retried (it would likely just stall).
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const candidate = await callChatModel(cfg, FRAMING_SYSTEM_PROMPT, user, { temperature: 0.7, maxTokens: 160 });
+      if (guardComposeProse(candidate).ok) {
+        prose = candidate;
+        break;
+      }
+    }
   } catch {
     return json({ prose: null }, 200, request); // model/key failure → browser uses the canned opener
   }
 
-  // The wall. Unsafe output returns null; the browser substitutes the deterministic opener.
-  const verdict = guardComposeProse(prose);
-  return json({ prose: verdict.ok ? prose : null }, 200, request);
+  // prose stays null if both attempts tripped the wall → browser substitutes the deterministic opener.
+  return json({ prose }, 200, request);
 }
 
 // ── /api/classify — the theme understander (recognize, never invent) ──────────

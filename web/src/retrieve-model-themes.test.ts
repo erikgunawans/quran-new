@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { MODEL_THEME_MATCH, retrieve, type Corpus, type Verse } from "./retrieve.ts";
+import { keywordThemeHits, MODEL_THEME_MATCH, retrieve, type Corpus, type Verse } from "./retrieve.ts";
 
 function verse(ref: string, theme: string, text: string): Verse {
   const [surah, ayah] = ref.split(":").map(Number) as [number, number];
@@ -55,5 +55,21 @@ describe("retrieve — model themes are additive, keywords keep precedence", () 
 
   test("passing no model themes is byte-identical to the old two-arg call", () => {
     expect(retrieve(corpus, "aku sedih")).toEqual(retrieve(corpus, "aku sedih", 2, []));
+  });
+});
+
+describe("keywordThemeHits — the classifier-skip gate", () => {
+  test("a keyword phrase reports its theme (so the app skips the model)", () => {
+    const hits = keywordThemeHits("aku sedih banget");
+    expect(hits.has("Grief & loss")).toBe(true);
+    expect(hits.get("Grief & loss")).toContain("sedih");
+  });
+
+  test("a keyword-miss phrase is empty (so the app calls the model)", () => {
+    expect(keywordThemeHits("aku merasa makin jauh dari Tuhan").size).toBe(0);
+  });
+
+  test("empty input is empty", () => {
+    expect(keywordThemeHits("   ").size).toBe(0);
   });
 });

@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: execute
-progress: 197/202
+progress: 198/204
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -407,6 +407,11 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-202.1: the input understander CONTRACT — `understandThemes(question, validThemes, model, keywordFallback)` classifies only into the closed corpus theme set (`guardThemes` drops invented/renamed categories exactly), falls back to keyword detection on any miss/error, returns `[]` on empty input, and generates no scripture (verified: `theme-understand.test.ts`, 20 tests)
 - [x] ISC-202.2: the classifier is unioned into `retrieve()`, keyword hits keep precedence. VERIFIED LIVE 2026-07-18 (Interceptor, prod, rev nur-00006-zgb): asked the keyword-miss phrase "aku merasa makin jauh dari Tuhan" (verified against the LEXICON to match ZERO keywords → the old app would go SILENT) → `/api/classify` 200 `{"themes":["Forgiveness & despair"]}` → surfaced **39:53 (Az-Zumar, "jangan berputus asa dari rahmat Allah")** — the single most fitting ayah, from what was previously silence. Code: additive `modelThemes` param (keyword pass untouched, model-only theme reaches `MIN_SCORE`, honest `MODEL_THEME_MATCH` provenance); `theme-live.ts` → `/api/classify` (3s) → `understandThemes`; `main.ts` awaits on the question path only, degrades to `[]`. Tests: `retrieve-model-themes.test.ts`, `theme-live.test.ts`; full suite 492/0. Live compose framing rate observed ~80% (4/5), ~20% graceful wall-fallback — safety yields to nothing, warmth shows most of the time.
 - [x] ISC-204: the wired framing model is a real generation call and the `FRAMING_SYSTEM_PROMPT` + wall behave correctly on live output. VERIFIED 2026-07-18 — Worker deployed, `OPENROUTER_API_KEY` set, live `curl POST /api/compose` (DeepSeek V4 Flash) returned: *"Capek banget, ya, apalagi kalau semuanya terasa numpuk sendiri. Ayat-ayat di bawah ini sering dibaca orang yang lagi di titik serupa."* — warm natural Indonesian, points at the verses ("sering dibaca orang yang lagi di titik serupa"), zero Arabic/refs/authoring; passed the server-side wall (prose returned, not null).
+
+**Optimizations (2026-07-18)**
+
+- [x] ISC-205: the model classifier is skipped when the keyword lexicon already matched — `main.ts` gates the `/api/classify` call on `keywordThemeHits(q).size === 0`, so the common (keyword-hit) case pays zero model latency and the model is spent only on misses. Shared `keywordThemeHits()` extracted from `retrieve()` (behavior byte-identical). Verified: `retrieve-model-themes.test.ts` (keyword phrase → theme present → skip; miss → empty → call). Full suite 495/0.
+- [DEFERRED-VERIFY] ISC-206: the composer retries once on a wall-rejection before falling back — the Worker's `handleCompose` regenerates (temp 0.7, stochastic) when `guardComposeProse` rejects the first output, lifting the live-framing rate from ~80% toward ~96% without weakening the wall; retries ONLY on reject, never on a model error/timeout. **Follow-up: deploy the Worker, then re-measure the live pass rate over ~10 calls.**
 
 ## Test Strategy
 

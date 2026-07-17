@@ -132,6 +132,23 @@ export interface Hit {
  * embedding black box, no confidence theatre. If the score is low we say we're unsure —
  * we do not dress up a weak match as an answer.
  */
+/**
+ * Which emotional themes the keyword lexicon recognises in the question, mapped to the exact terms
+ * that matched (kept for the transparent "you typed this word" explanation). Shared so callers can
+ * cheaply ask "did the lexicon already understand this?" without a second scan — e.g. to skip the
+ * model classifier when it isn't needed.
+ */
+export function keywordThemeHits(question: string): Map<string, string[]> {
+  const themeScore = new Map<string, string[]>();
+  const q = norm(question);
+  if (!q) return themeScore;
+  for (const [theme, terms] of Object.entries(LEXICON)) {
+    const hits = terms.filter((t) => q.includes(t));
+    if (hits.length) themeScore.set(theme, hits);
+  }
+  return themeScore;
+}
+
 export function retrieve(
   corpus: Corpus,
   question: string,
@@ -146,12 +163,8 @@ export function retrieve(
   const qWords = new Set(q.split(" ").filter((w) => w.length > 2));
   const modelThemeSet = new Set(modelThemes);
 
-  // 1. Which emotional theme is this person in?
-  const themeScore = new Map<string, string[]>();
-  for (const [theme, terms] of Object.entries(LEXICON)) {
-    const hits = terms.filter((t) => q.includes(t));
-    if (hits.length) themeScore.set(theme, hits);
-  }
+  // 1. Which emotional theme is this person in? (Shared with callers via keywordThemeHits.)
+  const themeScore = keywordThemeHits(question);
 
   // 2. Explicit verse reference — "2:255", "surat 94 ayat 5"
   const direct = question.match(/(\d{1,3})\s*[:\.]\s*(\d{1,3})/);
