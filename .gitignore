@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+# Cloudflare Worker runtime secrets (local dev)
+.dev.vars
+worker/.dev.vars
+!worker/.dev.vars.example
 
 # macOS
 .DS_Store
@@ -10,6 +14,7 @@
 .serena/
 data/
 node_modules/
+worker/node_modules/
 web/dist/
 web/public/corpus.json
 web/public/tafsir/

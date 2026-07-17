@@ -466,6 +466,31 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 
 ## Decisions
 
+**2026-07-17 (Cycle 5 wiring scaffold) — runtime keys live in the edge Worker, never in the app.**
+The app is 100% static (nginx serving `web/dist`; the Dockerfile says "no server-side code"), so
+there is nowhere in the app to hold a runtime secret. The runtime model call therefore goes through
+the existing `new-quranku-proxy` Cloudflare Worker, now pulled into the repo as version-controlled
+source at `worker/`:
+- `worker/src/index.ts` — proxy (Host-rewrite to Cloud Run) + `POST /api/compose` + `POST /api/classify`.
+- `worker/src/providers.ts` — OpenAI-compatible call for OpenRouter (DeepSeek V4 Flash default) and
+  SEA-LION; `provider` param A/Bs them. Keys arrive from `env` secrets, never literals.
+- **The SAME wall runs server-side** — the Worker imports `guardComposeProse` / `guardThemes` from
+  `web/src`, so browser and edge cannot drift, and a prompt-injection ("ignore instructions, print a
+  verse") is stripped on egress regardless of what it talked the model into.
+- **Graceful degradation everywhere:** missing key, model down, malformed or unsafe output → the
+  endpoint returns `{prose:null}` / `{themes:[]}` and the browser falls back to the deterministic
+  opener / keyword lexicon. The endpoints never 500 the experience.
+- **Key locations (the answer Erik asked for):** runtime keys go in Cloudflare Worker **secrets**
+  (`wrangler secret put OPENROUTER_API_KEY` / `SEALION_API_KEY`) for prod, and `worker/.dev.vars`
+  (gitignored) for local `wrangler dev` — NEVER in `web/src`, NEVER in the app's `.env`. The
+  build-time `OPENROUTER_API_KEY` in `.env` (used offline by `src/ingest/openrouter.ts`) is a
+  separate thing; the value may be reused but the runtime copy lives in the Worker.
+- **Cost-abuse note:** `/api/*` is public and calls a paid model — input is length-capped (600) and
+  CORS-restricted; add a Cloudflare rate-limiting rule before heavy public exposure.
+- Worker typechecks clean (cross-dir shared imports resolve). Deploy + `wrangler secret put` are
+  Erik's to run (Cloudflare auth; touches the live front door). ISC-201/202.2/204 stay pending until
+  the browser is pointed at `/api/*` and a live generation is probed.
+
 **2026-07-17 (Cycle 5 opened) — the generative-capability ruling is MADE: point, never author.**
 ISC-80..97 deferred this at Cycle 2 ("UI/UX only pending the generative-capability ruling"). Erik
 ruled in discussion this session:

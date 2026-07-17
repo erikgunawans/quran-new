@@ -1,0 +1,26 @@
+# New-Quranku edge Worker — proxy + generative endpoints.
+#
+# VERIFY BEFORE DEPLOY: `name` and `routes` must match the Worker already serving
+# new-quranku.axiara.ai. Deploying with matching name+route UPDATES that live Worker. If unsure,
+# see README.md → "Safe path" and copy just the /api handler into your existing Worker instead.
+
+name = "new-quranku-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+
+# The live front-door route (from the 2026-07-17 subdomain setup).
+routes = [
+  { pattern = "new-quranku.axiara.ai/*", zone_name = "axiara.ai" }
+]
+
+[vars]
+# The Cloud Run origin the proxy rewrites Host to (project nur-demo, asia-southeast2).
+ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
+# Runtime model defaults (overridable). Non-secret.
+OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+# SEALION_BASE_URL = "https://api.sea-lion.ai/v1/chat/completions"
+# SEALION_MODEL = "aisingapore/Gemma-SEA-LION-v3-9B-IT"
+
+# SECRETS ARE NOT LISTED HERE — they are set out-of-band and encrypted at rest:
+#   wrangler secret put OPENROUTER_API_KEY
+#   wrangler secret put SEALION_API_KEY      # optional, only if you use the SEA-LION path

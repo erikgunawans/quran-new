@@ -1,0 +1,8 @@
+# Copy to `worker/.dev.vars` (gitignored) for local `wrangler dev`. These are the RUNTIME model
+# keys — the ones the live app uses per user request. They live ONLY here (local) and in Cloudflare
+# secrets (prod). NEVER in web/src, NEVER in the app's .env, NEVER committed.
+
+OPENROUTER_API_KEY=sk-or-...
+
+# Optional — only if you wire the SEA-LION path.
+# SEALION_API_KEY=...
