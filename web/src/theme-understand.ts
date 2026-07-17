@@ -59,6 +59,12 @@ You will be given a fixed LIST of allowed themes. Your rules:
 3. If the message expresses ANY feeling or inner state — even a subtle, unnamed, or spiritual one (feeling far from God, empty, lost, adrift, restless, unworthy) — choose the closest one or two themes; do NOT withhold. A sense of distance from God fits themes like Trust in God, Mercy, or Forgiveness & despair. Return an empty list ONLY when the message carries no emotional or spiritual weight at all — a factual question, a command, spam, or gibberish. When a feeling is present, silence is the wrong answer: the corpus has a verse for it, and returning nothing hides it.
 4. Return only the theme names, exactly as written in the list. No explanation, no scripture, no commentary.
 
+Examples (when the list contains these themes):
+- "aku merasa makin jauh dari Tuhan" → ["Trust in God","Forgiveness & despair"]
+- "hidup terasa hampa, buat apa semua ini" → ["Self-worth & purpose"]
+- "capek banget, gaji habis buat utang" → ["Hardship & ease","Provision & debt"]
+- "berapa jumlah surah dalam Al-Qur'an?" → []
+
 You are classifying a feeling into an existing shelf. You are not writing anything, not interpreting anything, and not speaking to the person.`;
 
 /**
