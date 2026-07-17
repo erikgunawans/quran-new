@@ -26,6 +26,7 @@ const INPUT_JSON = "docs/reference/indeks-tematik/indeks-tematik.json";
 const SURAH_DIR = "web/public/surah";
 const OUT_DIR = "web/public/peta";
 const OUT_INDEX = `${OUT_DIR}/index.json`;
+const OUT_BONDS = `${OUT_DIR}/bonds.json`;
 
 const SOURCE = {
   title: "Indeks Tematik",
@@ -41,6 +42,9 @@ const EXPECTED = {
   citations: 2633,
   distinctVerses: 1632,
   bridgeVerses: 518,
+  /** Category PAIRS that share at least one verse — the edges of the Peta Tematik map.
+   * 69 of the 78 possible pairs. Derived below from verseToCategories, never hand-listed. */
+  bonds: 69,
 } as const;
 
 const EXPECTED_UNRESOLVABLE = new Set(["8:96", "8:77", "48:59", "11:161"]);
@@ -385,8 +389,45 @@ if (indexBytes > INDEX_LIMIT_BYTES) {
   throw new Error(`index.json is ${indexBytes} bytes, exceeds ${INDEX_LIMIT_BYTES} byte limit`);
 }
 
+// ── bonds: which categories share verses ─────────────────────────────────────────────────
+//
+// The edges of the Peta Tematik map. Derived from verseToCategories — the same structure the
+// per-entry `bridge` arrays come from — so the map and the entry chips can never disagree.
+//
+// Emitted to its OWN file, deliberately. The map is opt-in ("Lihat peta"); a reader who never
+// taps it must not pay a byte for it. Putting these in index.json would tax every visit to
+// #/peta for a picture most readers will not open, and would push index.json past its 4 KB gate.
+const bondCount = new Map<string, number>();
+for (const slugs of verseToCategories.values()) {
+  if (slugs.size < 2) continue;
+  const arr = [...slugs].sort();
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      const key = `${arr[i]}|${arr[j]}`;
+      bondCount.set(key, (bondCount.get(key) ?? 0) + 1);
+    }
+  }
+}
+const bonds = [...bondCount.entries()]
+  .map(([key, n]) => {
+    const [a, b] = key.split("|");
+    return { a: a!, b: b!, n };
+  })
+  .sort((x, y) => y.n - x.n || x.a.localeCompare(x.b));
+
+if (bonds.length !== EXPECTED.bonds) {
+  throw new Error(`expected ${EXPECTED.bonds} category bonds, derived ${bonds.length}`);
+}
+
+const bondsBody = JSON.stringify({
+  source: SOURCE,
+  max: bonds[0]!.n,
+  bonds,
+});
+
 await mkdir(OUT_DIR, { recursive: true });
 await Bun.write(OUT_INDEX, indexBody);
+await Bun.write(OUT_BONDS, bondsBody);
 await Promise.all(shards.map((shard) => Bun.write(shard.path, shard.body)));
 
 const maxShardBytes = Math.max(...shards.map((shard) => Buffer.byteLength(shard.body)));

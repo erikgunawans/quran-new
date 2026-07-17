@@ -391,3 +391,74 @@
   line-height: 1.5;
   max-width: 60ch;
 }
+
+/* ── Peta Tematik: the map ────────────────────────────────────────────────────
+ *
+ * Opt-in. 13 categories on a ring, bonded by shared verses. Hand-rolled SVG (peta-map.ts) —
+ * d3 would cost 7.6x the entire app to draw this. Inherits :root tokens, so it flips
+ * light/dark with everything else and cannot fork the locked direction.
+ */
+
+#read .peta-map-wrap { margin: 1.5rem 0 0; }
+
+#read .peta-map-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  color: var(--primary);
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px; /* touch target — mobile-first rule from Cycle 2 */
+}
+#read .peta-map-toggle:hover { border-color: var(--primary-line); }
+#read .peta-map-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#read .peta-map-hint { font-size: var(--step--1); color: var(--ink-3); font-weight: 400; }
+
+/* An author display rule out-argues [hidden] — re-assert it. read.css:122 already learned this
+ * the hard way; the band shipped painted-empty from first load because of exactly this. */
+#read .peta-map-slot { margin: 0.75rem 0 0; }
+#read .peta-map-slot[hidden] { display: none; }
+
+#read .peta-map-loading { color: var(--ink-3); font-size: var(--step--1); padding: 1rem 0; }
+
+#read .peta-map { width: 100%; height: auto; display: block; overflow: visible; }
+
+#read .pm-bond {
+  stroke: var(--primary);
+  transition: opacity 0.18s ease, stroke 0.18s ease;
+}
+#read .pm-bond.is-dim { opacity: 0.05 !important; }
+#read .pm-bond.is-lit { opacity: 0.85 !important; stroke: var(--action); }
+
+#read .pm-node {
+  fill: var(--primary);
+  stroke: var(--bg);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: fill 0.18s ease;
+}
+#read .pm-node:hover { fill: var(--action); }
+
+#read .pm-label {
+  font-size: 11px;
+  fill: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+}
+#read .pm-label:hover { fill: var(--action); font-weight: 600; }
+
+/* The ring needs room to breathe; below ~560px the labels collide with the viewport edge. */
+@media (max-width: 560px) {
+  #read .pm-label { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #read .pm-bond, #read .pm-node, #read .pm-label { transition: none; }
+}

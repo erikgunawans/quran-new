@@ -28,6 +28,7 @@ const INDEX = await readJSON("web/public/peta/index.json");
 // The category holding a known-unresolvable ref (8:96 "Lawan lebih kuat").
 const KEJIWAAN = await readJSON("web/public/peta/rahasia-kejiwaan-manusia-dalam-al-qur-an.json");
 const KELUARGA = await readJSON("web/public/peta/keluarga.json");
+const BONDS = await readJSON("web/public/peta/bonds.json");
 
 const mockFetch = (routes: Record<string, unknown>) => {
   globalThis.fetch = (async (url: string | URL) => {
@@ -254,5 +255,80 @@ describe("coexistence and containment", () => {
     // No Arabic, and no verse cards — entries are index rows that link out.
     expect(mount.textContent).not.toMatch(/[؀-ۿ]/);
     expect(mount.querySelector(".verse")).toBeNull();
+  });
+});
+
+describe("the map — opt-in, and it must cost nothing until asked", () => {
+  test("Anti: #/peta does NOT fetch bonds.json until the reader opts in", async () => {
+    const hits: string[] = [];
+    globalThis.fetch = (async (url: string | URL) => {
+      hits.push(String(url));
+      return { ok: true, status: 200, json: async () => INDEX } as Response;
+    }) as typeof fetch;
+    await renderPetaIndex(mount);
+    expect(hits).toEqual(["/peta/index.json"]);
+    expect(hits).not.toContain("/peta/bonds.json");
+  });
+
+  test("the toggle renders, closed, with the bridge count as its hint", async () => {
+    mockFetch({ "/peta/index.json": INDEX });
+    await renderPetaIndex(mount);
+    const btn = mount.querySelector(".peta-map-toggle")!;
+    expect(btn.getAttribute("aria-expanded")).toBe("false");
+    expect(mount.querySelector<HTMLElement>("#peta-map-slot")!.hidden).toBe(true);
+    expect(btn.textContent).toContain("518");
+  });
+
+  test("clicking it fetches bonds and draws the chord — 13 nodes, 69 bonds", async () => {
+    mockFetch({ "/peta/index.json": INDEX, "/peta/bonds.json": BONDS });
+    await renderPetaIndex(mount);
+    mount.querySelector<HTMLButtonElement>(".peta-map-toggle")!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mount.querySelector(".peta-map")).not.toBeNull();
+    expect(mount.querySelectorAll(".pm-node").length).toBe(13);
+    expect(mount.querySelectorAll(".pm-bond").length).toBe(BONDS.bonds.length);
+    expect(mount.querySelector<HTMLElement>("#peta-map-slot")!.hidden).toBe(false);
+  });
+
+  test("bond widths are derived from the data, not uniform", async () => {
+    mockFetch({ "/peta/index.json": INDEX, "/peta/bonds.json": BONDS });
+    await renderPetaIndex(mount);
+    mount.querySelector<HTMLButtonElement>(".peta-map-toggle")!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    const widths = new Set(
+      [...mount.querySelectorAll(".pm-bond")].map((b) => b.getAttribute("stroke-width")),
+    );
+    expect(widths.size).toBeGreaterThan(5);
+  });
+
+  test("the strongest bond is the one the data says it is", async () => {
+    mockFetch({ "/peta/index.json": INDEX, "/peta/bonds.json": BONDS });
+    await renderPetaIndex(mount);
+    mount.querySelector<HTMLButtonElement>(".peta-map-toggle")!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    const top = BONDS.bonds.reduce((m: { n: number }, b: { n: number }) => (b.n > m.n ? b : m));
+    const el = mount.querySelector(`.pm-bond[data-a="${top.a}"][data-b="${top.b}"]`);
+    expect(el).not.toBeNull();
+    expect(el!.querySelector("title")!.textContent).toContain(`${top.n} ayat bersama`);
+  });
+
+  test("a failed bonds fetch shows a message and does not break the index", async () => {
+    mockFetch({ "/peta/index.json": INDEX });
+    await renderPetaIndex(mount);
+    mount.querySelector<HTMLButtonElement>(".peta-map-toggle")!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mount.querySelector("#peta-map-slot .oops")).not.toBeNull();
+    expect(mount.querySelectorAll(".peta-list .trow").length).toBe(13);
+  });
+
+  test("Anti: the map never invents a bond — every drawn bond exists in the data", async () => {
+    mockFetch({ "/peta/index.json": INDEX, "/peta/bonds.json": BONDS });
+    await renderPetaIndex(mount);
+    mount.querySelector<HTMLButtonElement>(".peta-map-toggle")!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    const real = new Set(BONDS.bonds.map((b: { a: string; b: string }) => `${b.a}|${b.b}`));
+    for (const el of mount.querySelectorAll<SVGPathElement>(".pm-bond")) {
+      expect(real.has(`${el.dataset.a}|${el.dataset.b}`)).toBe(true);
+    }
   });
 });

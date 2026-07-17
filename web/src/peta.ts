@@ -25,6 +25,7 @@
  * is why linking out beats inlining.
  */
 import { announce } from "./announce.ts";
+import { bindMap, chordSvg, type PetaBonds } from "./peta-map.ts";
 import { bindActs, clearReadCards } from "./read.ts";
 import { esc } from "./verse.ts";
 
@@ -114,12 +115,24 @@ const backEl = (): string =>
 let indexCache: PetaIndex | undefined;
 const shardCache = new Map<string, PetaShard>();
 
+let bondsCache: PetaBonds | undefined;
+
 /** Test-only. Module-level caches survive between tests in the same file, which silently turns
  * "did this route fetch?" assertions into no-ops. Exported so the tests can be honest rather
  * than ordered-just-so. Nothing in the app calls this. */
 export function resetPetaCache(): void {
   indexCache = undefined;
+  bondsCache = undefined;
   shardCache.clear();
+}
+
+/** The map's data. 4.8 KB, fetched ONLY when the reader opts in — see peta-map.ts. */
+async function loadBonds(): Promise<PetaBonds> {
+  if (bondsCache) return bondsCache;
+  const res = await fetch("/peta/bonds.json");
+  if (!res.ok) throw new Error(`Gagal memuat peta (${res.status}).`);
+  bondsCache = (await res.json()) as PetaBonds;
+  return bondsCache;
 }
 
 async function loadIndex(): Promise<PetaIndex> {
@@ -197,6 +210,14 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
         ${derivativeNoteEl()}
       </header>
 
+      <div class="peta-map-wrap">
+        <button class="peta-map-toggle" type="button" aria-expanded="false" aria-controls="peta-map-slot">
+          Lihat peta hubungan antartema
+          <span class="peta-map-hint">${t.bridges.toLocaleString("id-ID")} ayat muncul di lebih dari satu tema</span>
+        </button>
+        <div id="peta-map-slot" class="peta-map-slot" hidden></div>
+      </div>
+
       <ul class="theme-list peta-list">
         ${index.categories.map((c) => `
           <li>
@@ -208,7 +229,50 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
       </ul>
     </div>`;
 
+  bindMapToggle(mount, index);
   say(`Peta Tematik — ${t.categories} kategori tersedia.`);
+}
+
+/**
+ * The opt-in map. Nothing is fetched or drawn until the reader asks.
+ *
+ * `[hidden]` alone is not enough here — an author `display` rule out-argues it, which this
+ * codebase has already been bitten by (read.css:122, and the band shipping painted-empty). The
+ * slot is styled with `display:none` on `[hidden]` explicitly in read.css.
+ */
+function bindMapToggle(mount: HTMLElement, index: PetaIndex): void {
+  const btn = mount.querySelector<HTMLButtonElement>(".peta-map-toggle");
+  const slot = mount.querySelector<HTMLDivElement>("#peta-map-slot");
+  if (!btn || !slot) return;
+
+  let loaded = false;
+
+  btn.addEventListener("click", async () => {
+    const open = btn.getAttribute("aria-expanded") === "true";
+    if (open) {
+      btn.setAttribute("aria-expanded", "false");
+      slot.hidden = true;
+      say("Peta ditutup.");
+      return;
+    }
+
+    btn.setAttribute("aria-expanded", "true");
+    slot.hidden = false;
+
+    if (loaded) return;
+    slot.innerHTML = `<p class="peta-map-loading">Memuat peta…</p>`;
+    try {
+      const bonds = await loadBonds();
+      slot.innerHTML = chordSvg(index, bonds);
+      const svg = slot.querySelector("svg");
+      if (svg) bindMap(svg);
+      loaded = true;
+      say(`Peta dimuat — ${index.categories.length} tema, ${bonds.bonds.length} hubungan.`);
+    } catch (err) {
+      slot.innerHTML = `<div class="oops" role="alert"><p>${esc(err instanceof Error ? err.message : "Gagal memuat peta.")}</p></div>`;
+      say("Peta gagal dimuat.");
+    }
+  });
 }
 
 /** One category: its subtopics and entries. Lazily fetched — this is the only route that
