@@ -8,7 +8,87 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — DEPLOYED to Cloud Run, public and verified from outside
+## 2026-07-17 (latest) — the thematic MAP: chord → 3D cosmos, deployed and on the domain
+
+Three commits since the last checkpoint (`1dd8f3c`, `0debe3a`, `0e00c93`), all live at
+**<https://new-quranku.axiara.ai/#/peta>** (revision `nur-00004-pgx`). The subdomain itself was
+stood up this session — see the DNS/Worker note below.
+
+### What shipped, and the one reversal
+
+Erik: *"can we have visually nice things?"* then *"the one I really want is the 3D format with
+blinking nodes."* The bridges were data with no picture. Two builds:
+
+1. **Chord diagram** (`1dd8f3c`) — 13 categories on a ring, 69 bonds, hand-rolled SVG, +3.7 KB.
+   Found the real structural fact: **Perintah dan Larangan bonds to all 12 other categories** and
+   carries 6 of the 8 strongest. **Then REMOVED** (`0debe3a`) when Erik chose the 3D cosmos — it
+   was my idea, not his ask, and two maps is indecision. Recoverable at `1dd8f3c`.
+2. **The 3D cosmos** (`0debe3a` + intensity pass `0e00c93`) — 1,632 verse-stars around 13 hubs,
+   rotatable, twinkling, click-a-star-to-read. **The layout is solved at BUILD time**
+   (`src/app/build-peta-3d.ts`, d3-force-3d as a devDependency; `dependencies` is `{}` and grep
+   confirms no physics in the bundle) and baked into `web/public/peta/cosmos.json` (46 KB).
+   `web/src/peta-cosmos.ts` (~6 KB) only projects and draws. Opt-in: fetched only on tap.
+
+### Why the refused artifact stayed refused — and the correction
+
+`docs/reference/indeks-tematik/peta-tematik.html` is 605 KB. **301 KB of that is d3 deciding where
+dots go for a graph that never changes** — a build-time job shipped to every phone. My "too big"
+objection was half wrong; the fatal one was different: that file says **1,554 verses / 494 bridges**.
+Truth is **1,632 / 518** — it predates the parse fix that recovered 87 secondary refs. Shipping it
+would have silently dropped 78 of Ustadz Muhammad Thalib's verses from a picture bearing his name.
+Rebuilt from the shards so cosmos, entry-chips and data cannot disagree.
+
+**Design calls (Erik's):** dark frame inside the light app (luminous points need darkness; it reads
+as a framed photograph, not app chrome — nothing outside the frame changes); 13 distinct hues (no
+gold; categorical colour makes clusters legible).
+
+### Defects found by LOOKING, not by tests — every suite was green through all of them
+
+- **White blob.** Sized star radii with the world scale then ×26 to compensate → 8px discs, 1,632
+  of them, additive-blended to saturation. Position and radius need different scales.
+- **Overprinted hub labels.** 13 hubs in 3D have no guarantee of 13 non-overlapping projections.
+  Nearest-first + greedy collision-skip + depth fade.
+- **Too timid, then fixed.** Over-corrected the blob into ~1px points — correct and lifeless.
+  Intensity pass: glow-sprite halos (blitted, not 98k gradient allocs/sec), tighter clusters via
+  layout charge (`VERSE_CHARGE` −30→−18), fuller framing.
+- **Forge left its half broken** and its own tests caught it: determinism via a mutated links
+  array, a `distance` branch that never once executed, a radius invariant contradicting its own
+  comment, a test comparing a sorted array to an unsorted literal. All fixed. **codex (GPT-5.4)
+  hit the 300s wall 3× writing nothing and once falsely claimed success on a failed patch** — Forge
+  did the 40-error type sweep itself rather than trust a 4th attempt.
+
+### PERF IS UNVERIFIED — stated, not claimed
+
+The glow-sprite change is sound by inspection and renders pixel-identically, but **rAF is suspended
+while Chrome is minimized**, so frame rate is unmeasurable here (same blocker as ISC-110/111). A
+benchmark I wrote first was ALSO invalid (compared drawImage-which-rasterizes to
+createRadialGradient-which-draws-nothing). Needs a real device to confirm 60fps on mid-range Android.
+
+### The subdomain (new this session)
+
+**new-quranku.axiara.ai** → Cloudflare Worker `new-quranku-proxy` → Cloud Run. A plain proxied
+CNAME to `*.run.app` 500s (Cloud Run routes by Host header) — which is why `app.axiara.ai` is
+CURRENTLY BROKEN (500, same cause, left untouched per Erik). The Worker rewrites Host. DNS is a
+proxied placeholder AAAA `100::` (same trick as `erik.axiara.ai`) + route `new-quranku.axiara.ai/*`.
+Apex (Hostinger) untouched, verified. See [[gcp-org-constraints]] is GCP; this is Cloudflare.
+
+### ISA gap (carry forward)
+
+`build-peta-3d.ts` / `peta-cosmos.ts` / `peta-map.ts` shipped WITHOUT their own ISCs. The ISA's
+Cycle 3 (ISC-124..170) covers the index+shards+attribution+unresolvable, NOT the map/cosmos. Add a
+Cycle 4 block or stop citing the ISA as complete for this surface.
+
+### Next
+
+1. Confirm cosmos 60fps on a real mid-range Android (the one unverified claim).
+2. **Add Cycle 4 ISCs** for the map/cosmos/generator — currently untracked.
+3. `METHODS` still has NO picker UI (longest-standing open item; `band.ts` hardcodes KEMENAG).
+4. Fix `app.axiara.ai` (500) — now a 5-min copy of the new-quranku Worker.
+5. Validate prayer times against bimasislam (3+ cities).
+
+---
+
+## 2026-07-17 — DEPLOYED to Cloud Run, public and verified from outside
 
 **<https://nur-227613425590.asia-southeast2.run.app>** — project `nur-demo`, region asia-southeast2
 (Jakarta), revision `nur-00001-g9r`, 100% traffic. Commit `c54cecc` (.gcloudignore fix).
