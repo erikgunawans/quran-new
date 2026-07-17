@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tema - QuranKu</title>
+<!-- Material Symbols -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+<!-- Google Fonts -->
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#bccac1",
+                        "inverse-primary": "#63dcab",
+                        "surface": "#131f19",
+                        "surface-dim": "#0c1410",
+                        "primary-fixed-dim": "#63dcab",
+                        "on-surface-variant": "#bccac1",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-secondary-container": "#416b5c",
+                        "action-emerald": "#0c8059",
+                        "surface-container": "#09130e",
+                        "on-surface": "#f2f6f4",
+                        "on-secondary-fixed-variant": "#244e41",
+                        "on-primary-fixed-variant": "#005139",
+                        "primary-fixed": "#81f9c6",
+                        "secondary-fixed": "#bfecda",
+                        "tertiary-container": "#9b6a43",
+                        "tertiary": "#7f522d",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#4a5a51",
+                        "secondary": "#3c6658",
+                        "on-secondary": "#ffffff",
+                        "clay-accent": "#a86b4a",
+                        "surface-tint": "#52cb9d",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-on-surface": "#09130e",
+                        "surface-container-high": "#1b2a22",
+                        "inverse-surface": "#f2f6f4",
+                        "forest-green": "#0a4d38",
+                        "primary-container": "#005139",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#663d1a",
+                        "on-secondary-fixed": "#002117",
+                        "on-primary-fixed": "#002115",
+                        "on-primary": "#ffffff",
+                        "primary": "#52cb9d",
+                        "surface-bright": "#131f19",
+                        "surface-container-low": "#0d1813",
+                        "ink-primary": "#f2f6f4",
+                        "bg-light": "#09130e",
+                        "background": "#09130e",
+                        "on-primary-container": "#81f9c6",
+                        "surface-variant": "#1c2c24",
+                        "surface-container-highest": "#1c2c24",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#060b08",
+                        "error": "#ba1a1a",
+                        "on-background": "#f2f6f4",
+                        "tertiary-fixed-dim": "#f6ba8d",
+                        "secondary-fixed-dim": "#a3d0be",
+                        "tertiary-fixed": "#ffdcc4",
+                        "secondary-container": "#203a31",
+                        // Mappings based on prompt
+                        "line": "#203a31",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "14px",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "s-4": "16px",
+                        "s-5": "24px",
+                        "s-2": "8px",
+                        "s-1": "4px",
+                        "max-landing": "1120px",
+                        "s-3": "12px",
+                        "unit": "4px",
+                        "s-6": "32px",
+                        "max-prose": "46rem",
+                        "margin-desktop": "2rem"
+                    },
+                    "fontFamily": {
+                        "ui-label": ["Inter"],
+                        "data-num": ["Inter"],
+                        "display-lg": ["Poppins"],
+                        "scripture-ar": ["Amiri"],
+                        "display-md": ["Poppins"],
+                        "ui-body": ["Inter"], // Updated based on prompt
+                        "display-lg-mobile": ["Poppins"],
+                        "poppins": ["Poppins"], // Added for title
+                    },
+                    "fontSize": {
+                        "ui-label": ["13px", { "lineHeight": "1.0", "fontWeight": "600" }],
+                        "data-num": ["14px", { "fontWeight": "500" }],
+                        "display-lg": ["33px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "scripture-ar": ["34px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-md": ["28px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "ui-body": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }]
+                    },
+                    "backgroundImage": {
+                        'girih-pattern': "url(\"data:image/svg+xml,%3Csvg width='54' height='54' viewBox='0 0 54 54' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M27 0L54 27L27 54L0 27L27 0Z' fill='none' stroke='white' stroke-width='1' stroke-opacity='0.08'/%3E%3C/svg%3E\")",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            font-family: theme('fontFamily.ui-body');
+            position: relative;
+        }
+        
+        /* 8-point star girih pattern overlay as requested, minimal opacity */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: theme('backgroundImage.girih-pattern');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hover-lift {
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col items-center">
+<!-- TopNavBar -->
+<nav class="bg-surface text-primary-fixed font-headline-md text-headline-md font-body-md text-body-md border-b border-outline w-full sticky top-0 z-50 flex justify-between items-center h-16 px-margin-desktop shadow-sm">
+<div class="flex items-center gap-8">
+<a class="text-headline-md font-headline-md text-primary-fixed font-poppins font-bold text-xl tracking-tight" href="#">QuranKu</a>
+<div class="hidden md:flex gap-6 h-full items-center">
+<a class="text-on-surface-variant hover:text-primary-fixed transition-colors cursor-pointer active:opacity-70 flex h-full items-center font-ui-label text-ui-label" href="#">Tanya</a>
+<a class="text-on-surface-variant hover:text-primary-fixed transition-colors cursor-pointer active:opacity-70 flex h-full items-center font-ui-label text-ui-label" href="#">Baca</a>
+<a class="text-primary font-bold border-b-2 border-primary h-full flex items-center pt-[2px] transition-colors cursor-pointer active:opacity-70 font-ui-label text-ui-label" href="#">Tema</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex bg-surface-variant rounded-full px-2 py-1 items-center gap-2 border border-line">
+<button aria-label="Decrease Arabic font size" class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary-fixed hover:bg-surface-container-high rounded-full transition-colors">
+<span class="text-xs font-bold font-scripture-ar">A-</span>
+</button>
+<div class="w-px h-4 bg-outline-variant/30"></div>
+<button aria-label="Increase Arabic font size" class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary-fixed hover:bg-surface-container-high rounded-full transition-colors">
+<span class="text-lg font-bold font-scripture-ar">A+</span>
+</button>
+</div>
+<button aria-label="Settings" class="text-on-surface-variant hover:text-primary-fixed transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<button aria-label="Account" class="text-on-surface-variant hover:text-primary-fixed transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[1120px] px-s-4 md:px-s-6 py-12 flex flex-col gap-10">
+<!-- Header Section -->
+<header class="max-w-max-prose flex flex-col gap-4 animate-[fadeIn_320ms_cubic-bezier(0.16,1,0.3,1)]">
+<h1 class="font-poppins font-extrabold text-4xl md:text-5xl text-primary tracking-tight">Tema</h1>
+<p class="text-on-surface-variant font-ui-body text-ui-body text-lg">
+                Jelajahi ayat-ayat suci berdasarkan topik yang relevan dengan kehidupan sehari-hari.
+            </p>
+</header>
+<!-- Themes Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-[fadeIn_320ms_cubic-bezier(0.16,1,0.3,1)_0.1s_both]">
+<!-- Card 1 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-primary group-hover:bg-primary group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">12 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Ketenangan Hati</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Cari ayat-ayat yang menenangkan pikiran dan meredakan kecemasan.</p>
+</div>
+</a>
+<!-- Card 2 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-clay-accent group-hover:bg-clay-accent group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">18 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Sabar &amp; Syukur</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Belajar bagaimana Al-Qur'an mengajarkan kita menghadapi cobaan.</p>
+</div>
+</a>
+<!-- Card 3 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-secondary-fixed group-hover:bg-secondary group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">15 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Mencari Petunjuk</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Saat kamu bingung dan butuh arah yang jelas dari Sang Pencipta.</p>
+</div>
+</a>
+<!-- Card 4 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-tertiary-fixed group-hover:bg-tertiary-container group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">family_home</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">22 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Keluarga</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Pedoman membangun rumah tangga yang penuh kasih sayang dan keberkahan.</p>
+</div>
+</a>
+<!-- Card 5 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-primary-fixed group-hover:bg-forest-green group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">10 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Ekonomi Islam</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Prinsip keadilan dan keberkahan dalam mencari serta mengelola harta.</p>
+</div>
+</a>
+<!-- Card 6 -->
+<a class="group bg-surface rounded-lg border border-line p-6 flex flex-col gap-4 hover-lift focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" href="#">
+<div class="flex justify-between items-start">
+<div class="bg-surface-container-high p-3 rounded-full text-error-container group-hover:bg-error group-hover:text-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+</div>
+<span class="font-data-num text-data-num text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded-full border border-line text-xs">25 ayat</span>
+</div>
+<div>
+<h3 class="font-poppins font-bold text-xl text-on-surface mb-2 group-hover:text-primary transition-colors">Perintah dan Larangan</h3>
+<p class="text-on-surface-variant font-ui-body text-sm leading-relaxed">Memahami batasan yang menjaga kemaslahatan hidup manusia.</p>
+</div>
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest text-secondary-fixed font-label-md text-label-md py-lg border-t border-outline-variant mt-auto w-full flex flex-col md:flex-row justify-between items-center px-margin-desktop py-8 gap-4 shadow-sm">
+<div class="text-label-md font-headline-md text-primary font-poppins font-semibold">QuranKu</div>
+<div class="flex gap-6">
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Panduan</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Privasi</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Kontak</a>
+</div>
+<div class="text-on-surface-variant text-sm">
+            © 2024 QuranKu. Mathematical Serenity.
+        </div>
+</footer>
+<style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body></html>

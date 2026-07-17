@@ -1,23 +1,114 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>New-Quranku — Stitch redesign, all screens</title>
+<title>New-Quranku — redesign, all frames</title>
 <style>
   body{margin:0;background:#0f1712;color:#e6f4ed;font:14px/1.4 system-ui,sans-serif;padding:24px}
-  h1{font-size:18px;font-weight:600;margin:0 0 4px}
-  p{color:#8fa89b;margin:0 0 24px}
-  .sheet{display:flex;gap:24px;overflow-x:auto;padding-bottom:24px}
+  h1{font-size:19px;font-weight:700;margin:0 0 4px}
+  .lead{color:#8fa89b;margin:0 0 24px;max-width:70ch}
+  section{margin:0 0 40px}
+  h2{font-size:15px;font-weight:700;color:#63dcab;margin:0 0 12px;border-bottom:1px solid #2a3631;padding-bottom:6px}
+  .row{display:flex;gap:20px;align-items:flex-start;overflow-x:auto;padding-bottom:12px}
   figure{margin:0;flex:0 0 auto}
-  figcaption{margin:0 0 8px;font-weight:600;color:#63dcab}
-  .frame{width:390px;height:780px;border:1px solid #2a3631;border-radius:12px;overflow:hidden;background:#fff}
-  iframe{width:390px;height:780px;border:0}
+  figcaption{margin:0 0 6px;font-size:12px;font-weight:600;color:#9fb3aa}
+  .frame{border:1px solid #2a3631;border-radius:10px;overflow:hidden;background:#fff}
+  .missing{display:flex;align-items:center;justify-content:center;color:#5b6a63;font-size:12px;background:#131f19;border-style:dashed}
+  iframe{border:0}
 </style>
-<h1>New-Quranku — redesign, mobile light</h1>
-<p>Six screens, QuranKu-family visual language (green→gold hero, Poppins/Inter/Amiri, teal prayer card). Scroll sideways. Each frame is a real 390px render.</p>
-<div class="sheet">
-  <figure><figcaption>1 · Landing</figcaption><div class="frame"><iframe src="screen1-landing-mobile-light.html"></iframe></div></figure>
-  <figure><figcaption>2 · Chat thread</figcaption><div class="frame"><iframe src="screen2-chat-thread-mobile-light.html"></iframe></div></figure>
-  <figure><figcaption>3 · Baca (surah list)</figcaption><div class="frame"><iframe src="screen3-baca-surah-list-mobile-light.html"></iframe></div></figure>
-  <figure><figcaption>4 · Reading surface</figcaption><div class="frame"><iframe src="screen4-reading-surface-mobile-light.html"></iframe></div></figure>
-  <figure><figcaption>5 · Tema (themes)</figcaption><div class="frame"><iframe src="screen5-themes-mobile-light.html"></iframe></div></figure>
-  <figure><figcaption>6 · Peta (concept maps)</figcaption><div class="frame"><iframe src="screen6-concept-maps-mobile-light.html"></iframe></div></figure>
-</div>
+<h1>New-Quranku — redesign, all frames (24/24)</h1>
+<p class="lead">Six screens × four frames. Mobile at true 390px; desktop (1120px) scaled to fit. QuranKu-family language — green→gold hero, Poppins/Inter/Amiri, teal prayer card. Dark composed from the token card's dark column, never inverted. Prototype only — not ported to app code.</p>
+<section><h2>1 · Landing</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen1-landing-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen1-landing-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen1-landing-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen1-landing-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>
+<section><h2>2 · Chat thread</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen2-chat-thread-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen2-chat-thread-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen2-chat-thread-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen2-chat-thread-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>
+<section><h2>3 · Baca (surah list)</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen3-baca-surah-list-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen3-baca-surah-list-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen3-baca-surah-list-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen3-baca-surah-list-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>
+<section><h2>4 · Reading surface</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen4-reading-surface-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen4-reading-surface-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen4-reading-surface-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen4-reading-surface-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>
+<section><h2>5 · Tema (themes)</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen5-themes-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen5-themes-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen5-themes-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen5-themes-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>
+<section><h2>6 · Peta (concept maps)</h2><div class="row"><figure><figcaption>mobile · light</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen6-concept-maps-mobile-light.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>mobile · dark</figcaption>
+    <div class="frame" style="width:390px;height:820px">
+      <iframe src="screen6-concept-maps-mobile-dark.html" style="width:390px;height:820px;transform:scale(1);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · light</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen6-concept-maps-desktop-light.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure>
+<figure><figcaption>desktop · dark</figcaption>
+    <div class="frame" style="width:470px;height:344px">
+      <iframe src="screen6-concept-maps-desktop-dark.html" style="width:1120px;height:820px;transform:scale(0.42);transform-origin:top left"></iframe>
+    </div></figure></div></section>

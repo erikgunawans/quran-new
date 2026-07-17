@@ -8,7 +8,35 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-18 (latest) — the generative companion: live in prod, guardrailed, point-never-author
+## 2026-07-18 (latest) — UI redesign: all 24 Stitch frames generated (prototype, not ported)
+
+Continued the QuranKu-family redesign. **Prior:** 6 mobile-light screens (commit `40caa5b`), direction
+locked (green→gold hero, Poppins/Inter/Amiri, teal prayer card), gold reversed. **This session:** the
+remaining 18 frames — mobile-dark, desktop-light, desktop-dark for all 6 screens. **All 24 now exist**
+in `.scratch/stitch-redesign/`, contact sheet rebuilt (`index.html`, grouped by screen). **NOT ported
+to `web/src/`** — Erik reviews first, per his instruction.
+
+**Verified (Interceptor + self-check, 18 new frames):** Amiri/Poppins/Inter all `status==='loaded'`,
+2:156 Arabic computes to `Amiri` (not a fallback), dark primary `#52cb9d` flips on every dark frame,
+**zero `md:hidden` on body**, `lang="ar"`==`dir="rtl"` on every frame. No `designSystem` param passed;
+token card + font tag pasted in prompt, enforced deterministically in post.
+
+**Two weak frames flagged:** `screen2-chat-thread-desktop-dark` + `screen3-baca-surah-list-desktop-dark`
+dropped their Arabic (verse card / surah names) — Stitch inconsistency, not a pipeline bug; regenerate
+(delete + re-run, resumable).
+
+**Hurdles cleared (details in [[quranku-ui-redesign-state]]):** (1) Claude Code's Stitch MCP client now
+fails auth ("does not support dynamic client registration") — token/API/account all fine, so bypassed it
+with a direct-curl MCP client (gcloud bearer + `X-Goog-User-Project`); MCP config needs a proper fix.
+(2) `generate_screen_from_text` returns HTML nested at `outputComponents[0].design.screens[0].htmlCode`
+and ~20% of calls return a natural-language message instead of a screen — added tree-walk extraction +
+retry-on-message (3×). (3) Added deterministic `lang="ar"` enforcement in post (Stitch drops it ~40%).
+Pipeline scripts live in the session scratchpad (not committed): `stitch-mcp.ts`, `generate.ts`,
+`postprocess.ts`, `build-contactsheet.ts`, `serve.ts`.
+
+---
+
+## 2026-07-18 — the generative companion: live in prod, guardrailed, point-never-author
 
 The session opened as a resume (added **Cycle 4** cosmos ISCs — ISC-171..189 — retroactively
 tracking `build-peta-3d.ts`/`peta-cosmos.ts`, which had shipped with no criteria; commit `0809bd6`).

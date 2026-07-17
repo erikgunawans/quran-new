@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuranKu - Al-Baqarah</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#00855f",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f5fbf5",
+                      "primary-fixed": "#81f9c6",
+                      "action-emerald": "#12a074",
+                      "secondary-fixed": "#bfecda",
+                      "surface-container-low": "#eff5ef",
+                      "primary-fixed-dim": "#63dcab",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#7f522d",
+                      "on-primary-container": "#f5fff7",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#bcead7",
+                      "on-tertiary-fixed-variant": "#663d1a",
+                      "on-primary-fixed-variant": "#005139",
+                      "surface-container": "#e9efe9",
+                      "clay-accent": "#9c6b44",
+                      "on-primary-fixed": "#002115",
+                      "forest-green": "#2a5446",
+                      "on-tertiary-fixed": "#2f1500",
+                      "surface-container-high": "#e4eae4",
+                      "outline-variant": "#bccac1",
+                      "on-background": "#171d1a",
+                      "surface": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#3d4a43",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#416b5c",
+                      "on-surface": "#171d1a",
+                      "surface-container-highest": "#dee4de",
+                      "secondary-fixed-dim": "#a3d0be",
+                      "tertiary-fixed-dim": "#f6ba8d",
+                      "secondary": "#3c6658",
+                      "primary": "#00694a",
+                      "on-secondary-fixed-variant": "#244e41",
+                      "surface-tint": "#006c4d",
+                      "bg-light": "#f7f9f8",
+                      "inverse-primary": "#63dcab",
+                      "tertiary-container": "#9b6a43",
+                      "surface-dim": "#d5dcd6",
+                      "on-tertiary-container": "#fffbff",
+                      "on-secondary-fixed": "#002117",
+                      "surface-variant": "#dee4de",
+                      "outline": "#6d7a72",
+                      "tertiary-fixed": "#ffdcc4",
+                      "inverse-on-surface": "#ecf2ec",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f5fbf5",
+                      "ink-primary": "#1a2421",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#2c322e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "s-3": "12px",
+                      "unit": "4px",
+                      "s-1": "4px",
+                      "s-6": "32px",
+                      "max-landing": "1120px",
+                      "max-prose": "46rem",
+                      "s-5": "24px",
+                      "s-4": "16px",
+                      "s-2": "8px",
+                      "margin-desktop": "2rem"
+              },
+              "fontFamily": {
+                      "ui-label": ["Inter"],
+                      "display-lg": ["Poppins"],
+                      "display-lg-mobile": ["Poppins"],
+                      "ui-body": ["Inter"],
+                      "display-md": ["Poppins"],
+                      "data-num": ["Inter"],
+                      "scripture-ar": ["Amiri"],
+                      "poppins": ["Poppins"],
+                      "inter": ["Inter"]
+              },
+              "fontSize": {
+                      "ui-label": ["13px", {"lineHeight": "1.0", "fontWeight": "600"}],
+                      "display-lg": ["33px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "display-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "ui-body": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "display-md": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "data-num": ["14px", {"fontWeight": "500"}],
+                      "scripture-ar": ["34px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #09130e;
+            color: #f2f6f4;
+        }
+        .girih-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='54' height='54' viewBox='0 0 54 54' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M27 0l27 27-27 27L0 27 27 0zm0 10.8L10.8 27 27 43.2 43.2 27 27 10.8z' stroke='%23ffffff' stroke-width='1' fill='none' opacity='0.08'/%3E%3C/svg%3E");
+        }
+        .aod-empty {
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-lg);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .transition-cubic {
+            transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+            transition-duration: 320ms;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative girih-pattern bg-fixed">
+<!-- Top Navigation Bar -->
+<nav class="bg-[#131f19] dark:bg-[#131f19] flex justify-between items-center h-16 px-margin-desktop w-full sticky top-0 z-50 border-b border-[#2a5446] font-ui-label text-ui-label">
+<div class="flex items-center gap-s-5">
+<span class="text-display-md font-display-md text-[#52cb9d]">QuranKu</span>
+<div class="hidden md:flex gap-s-4 ml-s-6">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-[#52cb9d] transition-colors cursor-pointer transition-opacity active:opacity-70" href="#">Tanya</a>
+<a class="text-[#52cb9d] font-bold border-b-2 border-[#52cb9d] pb-1 cursor-pointer transition-opacity active:opacity-70" href="#">Baca</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-[#52cb9d] transition-colors cursor-pointer transition-opacity active:opacity-70" href="#">Tema</a>
+</div>
+</div>
+<!-- Type-size control & Trailing Actions -->
+<div class="flex items-center gap-s-4">
+<div class="hidden md:flex items-center gap-s-2 text-[#bccac1]">
+<span class="material-symbols-outlined text-[16px]">format_size</span>
+<input class="w-24 h-1 bg-[#2a5446] rounded-lg appearance-none cursor-pointer accent-[#52cb9d]" max="3" min="1" type="range" value="2"/>
+<span class="material-symbols-outlined text-[24px]">format_size</span>
+</div>
+<div class="flex gap-s-3 text-[#52cb9d]">
+<span class="material-symbols-outlined cursor-pointer hover:opacity-80 transition-opacity" data-icon="settings">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:opacity-80 transition-opacity" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="flex-1 w-full max-w-max-landing mx-auto px-4 md:px-margin-desktop py-s-6 md:py-12 flex flex-col lg:flex-row gap-12 items-start relative z-10">
+<!-- Prose Measure (Scripture/Reading) -->
+<div class="w-full max-w-max-prose mx-auto lg:mx-0 lg:flex-[1.55]">
+<!-- Hero Section: Surah Title -->
+<header class="mb-16 text-center lg:text-left">
+<h1 class="font-poppins font-extrabold text-5xl md:text-6xl text-[#52cb9d] tracking-tight mb-3">Al-Baqarah</h1>
+<p class="font-inter font-medium text-lg text-[#bccac1] tracking-wide">Surah 2 • Madaniyah</p>
+</header>
+<!-- Verse Surface -->
+<article class="bg-[#131f19] rounded-[16px] p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-[#2a5446] mb-8 group transition-cubic hover:border-[#52cb9d]/30">
+<!-- Verse Header Actions -->
+<div class="flex justify-between items-center mb-8 pb-4 border-b border-[#2a5446]/50">
+<span class="font-data-num text-sm text-[#bccac1] bg-[#2a5446]/30 px-3 py-1 rounded-full border border-[#2a5446]">2:156</span>
+<div class="flex gap-3 text-[#bccac1]">
+<button aria-label="Play audio" class="hover:text-[#52cb9d] transition-colors">
+<span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+</button>
+<button aria-label="Bookmark" class="hover:text-[#0c8059] transition-colors">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+</button>
+<button aria-label="Share" class="hover:text-[#52cb9d] transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<!-- Arabic Scripture -->
+<div class="text-right mb-10" dir="rtl" lang="ar">
+<p class="font-scripture-ar text-4xl md:text-[42px] leading-[2.2] text-[#f2f6f4]" id="arabic-text-2-156">
+                        ٱلَّذِينَ إِذَآ أَصَٰبَتْهُم مُّصِيبَةٌ قَالُوٓا۟ إِنَّا لِلَّهِ وَإِنَّآ إِلَيْهِ رَٰجِعُونَ
+                    </p>
+</div>
+<!-- Meaning-based Rendering -->
+<div class="mb-8">
+<p class="font-poppins font-medium text-xl leading-relaxed text-[#f2f6f4] mb-4">
+                        "Ketika kaum mukmin ditimpa musibah, mereka berkata: «Kami semua adalah milik Allah. Kami semua pasti kembali kepada-Nya.»"
+                    </p>
+<div class="inline-flex items-center gap-2 bg-[#00855f]/20 border border-[#00855f]/40 px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-[16px] text-[#52cb9d]" data-icon="person" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-ui-label text-xs text-[#52cb9d]">Ustadz Muhammad Thalib</span>
+</div>
+</div>
+<!-- Depth Disclosure (Kedalaman Makna) -->
+<div class="mt-6 pt-6 border-t border-[#2a5446]/50">
+<details class="group/disclosure">
+<summary class="flex items-center justify-between cursor-pointer list-none font-ui-label text-sm text-[#bccac1] hover:text-[#52cb9d] transition-colors">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="menu_book">menu_book</span>
+                                Kedalaman Makna (Literal)
+                            </span>
+<span class="material-symbols-outlined transition-transform group-open/disclosure:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="mt-4 p-5 bg-[#09130e] rounded-[14px] border border-[#2a5446]/50">
+<p class="font-inter font-normal text-base leading-relaxed text-[#bccac1] mb-4">
+                                "(yaitu) orang-orang yang apabila ditimpa musibah, mereka mengucapkan: «Inna lillaahi wa innaa ilaihi raaji'uun»."
+                            </p>
+<div class="inline-flex items-center gap-2 bg-[#2a5446]/20 border border-[#2a5446] px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-[#bccac1]" data-icon="account_balance">account_balance</span>
+<span class="font-ui-label text-xs text-[#bccac1]">Kementerian Agama Republik Indonesia</span>
+</div>
+</div>
+</details>
+</div>
+</article>
+</div>
+<!-- Utility Sidebar (Asymmetric Band 1fr) -->
+<aside class="hidden lg:block lg:flex-[1] sticky top-24">
+<div class="bg-[#131f19] rounded-[16px] p-6 border border-[#2a5446] shadow-sm">
+<h3 class="font-display-md text-xl text-[#f2f6f4] mb-4">Navigasi Surah</h3>
+<ul class="space-y-3 font-ui-body text-sm text-[#bccac1]">
+<li class="flex justify-between items-center hover:text-[#52cb9d] cursor-pointer transition-colors p-2 rounded-md hover:bg-[#2a5446]/20">
+<span>Ayat 155</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_upward">arrow_upward</span>
+</li>
+<li class="flex justify-between items-center text-[#52cb9d] bg-[#2a5446]/30 p-2 rounded-md border border-[#2a5446]/50 font-medium">
+<span>Ayat 156</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="my_location">my_location</span>
+</li>
+<li class="flex justify-between items-center hover:text-[#52cb9d] cursor-pointer transition-colors p-2 rounded-md hover:bg-[#2a5446]/20">
+<span>Ayat 157</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_downward">arrow_downward</span>
+</li>
+</ul>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest flex flex-col md:flex-row justify-between items-center px-margin-desktop mt-xl border-t border-outline-variant py-lg font-ui-label text-label-md w-full relative z-10">
+<div class="text-label-md font-headline-md text-primary mb-4 md:mb-0">
+            © 2024 QuranKu. Mathematical Serenity.
+        </div>
+<div class="flex gap-s-4">
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Panduan</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Privasi</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Kontak</a>
+</div>
+</footer>
+<script>
+        // Simple type size control logic for demonstration
+        const slider = document.querySelector('input[type="range"]');
+        const arabicText = document.getElementById('arabic-text-2-156');
+        
+        if(slider && arabicText) {
+            slider.addEventListener('input', function() {
+                const val = this.value;
+                if(val == 1) arabicText.style.fontSize = '28px';
+                if(val == 2) arabicText.style.fontSize = '34px';
+                if(val == 3) arabicText.style.fontSize = '46px';
+            });
+        }
+    </script>
+</body></html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuranKu - Chat Thread</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#bcead7",
+                    "secondary-fixed-dim": "#a3d0be",
+                    "tertiary-fixed": "#ffdcc4",
+                    "on-background": "#171d1a",
+                    "tertiary-fixed-dim": "#f6ba8d",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#dee4de",
+                    "surface-container-highest": "#dee4de",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#f5fff7",
+                    "background": "#09130e",
+                    "bg-light": "#f7f9f8",
+                    "ink-primary": "#f2f6f4",
+                    "surface-container-low": "#eff5ef",
+                    "primary": "#52cb9d",
+                    "surface-bright": "#f5fbf5",
+                    "on-tertiary-fixed-variant": "#663d1a",
+                    "on-primary-fixed": "#002115",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#002117",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#e4eae4",
+                    "primary-container": "#00855f",
+                    "inverse-surface": "#2c322e",
+                    "forest-green": "#0a4d38",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-on-surface": "#ecf2ec",
+                    "clay-accent": "#a86b4a",
+                    "surface-tint": "#0c8059",
+                    "on-secondary": "#ffffff",
+                    "secondary": "#3c6658",
+                    "outline": "#6d7a72",
+                    "on-tertiary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#7f522d",
+                    "secondary-fixed": "#bfecda",
+                    "tertiary-container": "#9b6a43",
+                    "on-secondary-fixed-variant": "#244e41",
+                    "surface-container": "#e9efe9",
+                    "on-surface": "#f2f6f4",
+                    "primary-fixed": "#81f9c6",
+                    "on-primary-fixed-variant": "#005139",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-secondary-container": "#416b5c",
+                    "action-emerald": "#0c8059",
+                    "primary-fixed-dim": "#63dcab",
+                    "on-surface-variant": "#bccac1",
+                    "surface-dim": "#131f19",
+                    "surface": "#131f19",
+                    "inverse-primary": "#63dcab",
+                    "outline-variant": "#bccac1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "s-1": "4px",
+                    "max-landing": "1120px",
+                    "s-4": "16px",
+                    "s-5": "24px",
+                    "s-2": "8px",
+                    "s-3": "12px",
+                    "max-prose": "46rem",
+                    "unit": "4px",
+                    "s-6": "32px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": [
+                            "Poppins"
+                    ],
+                    "ui-body": [
+                            "Inter"
+                    ],
+                    "scripture-ar": [
+                            "Amiri"
+                    ],
+                    "display-md": [
+                            "Poppins"
+                    ],
+                    "display-lg": [
+                            "Poppins"
+                    ],
+                    "data-num": [
+                            "Inter"
+                    ],
+                    "ui-label": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-body": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "scripture-ar": [
+                            "34px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-md": [
+                            "28px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "33px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "data-num": [
+                            "14px",
+                            {
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "ui-label": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .girih-pattern {
+            background-image: 
+                linear-gradient(45deg, rgba(82, 203, 157, 0.03) 25%, transparent 25%, transparent 75%, rgba(82, 203, 157, 0.03) 75%, rgba(82, 203, 157, 0.03)), 
+                linear-gradient(45deg, rgba(82, 203, 157, 0.03) 25%, transparent 25%, transparent 75%, rgba(82, 203, 157, 0.03) 75%, rgba(82, 203, 157, 0.03));
+            background-size: 54px 54px;
+            background-position: 0 0, 27px 27px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-ui-body min-h-screen flex flex-col md:items-center relative overflow-x-hidden antialiased girih-pattern">
+<!-- Top App Bar (Shared Component) -->
+<header class="bg-surface-dim flex items-center justify-between px-md w-full h-16 docked full-width top-0 z-10 flat no shadows text-primary-fixed-dim transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] md:max-w-max-prose sticky">
+<div class="flex items-center gap-s-3 pl-s-4">
+<button class="text-primary-fixed-dim hover:opacity-80 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-display-md text-display-md font-bold text-primary-fixed-dim tracking-tight">QuranKu</h1>
+</div>
+<div class="pr-s-4">
+<button class="text-primary-fixed-dim hover:opacity-80 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 w-full md:max-w-max-prose flex flex-col px-s-4 py-s-5 gap-s-6 pb-24">
+<!-- User Message -->
+<div class="flex justify-end fade-in" style="animation-delay: 100ms;">
+<div class="bg-action-emerald text-on-primary rounded-xl rounded-tr-sm px-s-4 py-s-3 max-w-[85%] shadow-sm">
+<p class="font-ui-body text-ui-body">aku lagi capek banget</p>
+</div>
+</div>
+<!-- AI Response -->
+<div class="flex justify-start fade-in" style="animation-delay: 200ms;">
+<div class="bg-surface-dim border border-outline-variant rounded-xl rounded-tl-sm px-s-4 py-s-4 max-w-[90%] shadow-sm text-on-surface">
+<p class="font-ui-body text-ui-body leading-relaxed">
+                    Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.
+                </p>
+</div>
+</div>
+<!-- Verse Card -->
+<article class="bg-surface-dim border border-outline-variant rounded-xl p-s-5 shadow-sm fade-in flex flex-col gap-s-5 relative overflow-hidden" style="animation-delay: 400ms;">
+<div class="flex justify-between items-center border-b border-outline-variant pb-s-3">
+<span class="font-data-num text-data-num text-primary-fixed-dim tracking-widest uppercase">ASH-SHARH 94:5</span>
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-sm">bookmark_add</span>
+</button>
+</div>
+<div class="flex flex-col gap-s-4">
+<p class="font-scripture-ar text-scripture-ar text-ink-primary text-right leading-loose" dir="rtl" lang="ar">
+                    فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+                </p>
+<p class="font-ui-body text-ui-body text-on-surface leading-relaxed">
+                    "Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"
+                </p>
+</div>
+<div class="bg-surface-container-low rounded-lg p-s-4 border border-outline-variant mt-s-2">
+<p class="font-ui-body text-sm text-on-surface-variant leading-relaxed">
+<span class="font-semibold text-on-surface block mb-1">Maka sesungguhnya beserta kesulitan ada kemudahan,</span>
+</p>
+<div class="flex flex-wrap gap-s-2 mt-s-3">
+<span class="inline-flex items-center px-2 py-1 rounded-full border border-outline-variant bg-surface-dim text-xs font-ui-label text-on-surface-variant">
+                        Terjemah Harfiah
+                    </span>
+<span class="inline-flex items-center px-2 py-1 rounded-full border border-outline-variant bg-surface-dim text-xs font-ui-label text-on-surface-variant">
+                        Tafsir Kemenag
+                    </span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-s-2">
+<button class="text-primary-fixed-dim font-ui-label text-ui-label flex items-center gap-1 hover:opacity-80 transition-opacity">
+<span>Baca Konteks</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+<div class="flex gap-s-3">
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</div>
+</article>
+</main>
+<!-- Bottom Navigation Bar (Shared Component) -->
+<nav class="bg-surface-dim border-t border-outline-variant fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 shadow-sm transition-transform duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden">
+<button class="flex flex-col items-center justify-center text-primary-fixed-dim font-bold active:scale-95 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-container-highest p-2 rounded-lg min-w-[64px]">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-ui-label text-ui-label">Tanya</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-container-highest p-2 rounded-lg min-w-[64px]">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+<span class="font-ui-label text-ui-label">Baca</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-surface-container-highest p-2 rounded-lg min-w-[64px]">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">palette</span>
+<span class="font-ui-label text-ui-label">Tema</span>
+</button>
+</nav>
+<!-- Chat Input Area (Sticky Bottom for Mobile) -->
+<div class="fixed bottom-[72px] w-full md:max-w-max-prose bg-gradient-to-t from-background via-background to-transparent pt-s-6 pb-s-4 px-s-4 z-40 md:bottom-0">
+<div class="bg-surface-dim border border-outline-variant rounded-xl flex items-center p-s-2 shadow-sm focus-within:border-primary-fixed-dim transition-colors">
+<input class="flex-1 bg-transparent border-none text-on-surface placeholder:text-on-surface-variant focus:ring-0 font-ui-body text-ui-body px-s-3" placeholder="Balas pesan..." type="text"/>
+<button class="bg-action-emerald text-on-primary rounded-lg p-2 flex items-center justify-center hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tanya QuranKu - Chat Thread</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e4eae4",
+                        "on-primary-fixed": "#002115",
+                        "on-surface-variant": "#3d4a43",
+                        "primary-fixed-dim": "#63dcab",
+                        "inverse-on-surface": "#ecf2ec",
+                        "primary": "#00694a",
+                        "on-secondary-fixed": "#002117",
+                        "on-secondary-container": "#416b5c",
+                        "tertiary-container": "#9b6a43",
+                        "on-primary-fixed-variant": "#005139",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#dee4de",
+                        "on-tertiary-fixed": "#2f1500",
+                        "outline-variant": "#bccac1",
+                        "secondary": "#3c6658",
+                        "outline": "#6d7a72",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#bcead7",
+                        "background": "#f5fbf5",
+                        "primary-fixed": "#81f9c6",
+                        "surface-variant": "#dee4de",
+                        "on-background": "#171d1a",
+                        "surface-container": "#e9efe9",
+                        "bg-light": "#f7f9f8",
+                        "surface": "#ffffff",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f5fbf5",
+                        "ink-primary": "#1a2421",
+                        "inverse-surface": "#2c322e",
+                        "surface-tint": "#006c4d",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed-variant": "#663d1a",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#a3d0be",
+                        "on-surface": "#171d1a",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#7f522d",
+                        "secondary-fixed": "#bfecda",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#eff5ef",
+                        "tertiary-fixed": "#ffdcc4",
+                        "clay-accent": "#9c6b44",
+                        "primary-container": "#00855f",
+                        "inverse-primary": "#63dcab",
+                        "on-primary-container": "#f5fff7",
+                        "forest-green": "#2a5446",
+                        "on-secondary-fixed-variant": "#244e41",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#f6ba8d",
+                        "surface-dim": "#d5dcd6",
+                        "action-emerald": "#12a074",
+                        "dark-bg": "#09130e",
+                        "dark-surface": "#131f19",
+                        "dark-primary": "#52cb9d",
+                        "dark-action": "#0c8059",
+                        "dark-text-primary": "#ffffff",
+                        "dark-text-secondary": "#a1a1aa",
+                        "dark-border": "#27272a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "max-landing": "1120px",
+                        "s-2": "8px",
+                        "s-1": "4px",
+                        "max-prose": "46rem",
+                        "s-6": "32px",
+                        "unit": "4px",
+                        "s-5": "24px",
+                        "s-4": "16px",
+                        "s-3": "12px"
+                    },
+                    "fontFamily": {
+                        "ui-label": ["Inter", "sans-serif"],
+                        "ui-body": ["Inter", "sans-serif"],
+                        "scripture-ar": ["Amiri", "serif"],
+                        "display-lg-mobile": ["Poppins", "serif"],
+                        "display-lg": ["Poppins", "serif"],
+                        "data-num": ["Inter", "sans-serif"],
+                        "display-md": ["Poppins", "serif"]
+                    },
+                    "fontSize": {
+                        "ui-label": ["13px", { "lineHeight": "1.0", "fontWeight": "600" }],
+                        "ui-body": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "scripture-ar": ["34px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display-lg": ["33px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-num": ["14px", { "fontWeight": "500" }],
+                        "display-md": ["28px", { "lineHeight": "1.3", "fontWeight": "600" }]
+                    },
+                    backgroundImage: {
+                        'girih-pattern': 'url("data:image/svg+xml,%3Csvg width=\'54\' height=\'54\' viewBox=\'0 0 54 54\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M27 0l27 27-27 27L0 27 27 0z\' fill=\'none\' stroke=\'%23ffffff\' stroke-width=\'1\' stroke-opacity=\'0.08\'/%3E%3C/svg%3E")'
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #09130e;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .girih-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width=\'54\' height=\'54\' viewBox=\'0 0 54 54\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M27 0l27 27-27 27L0 27 27 0z\' fill=\'none\' stroke=\'%23ffffff\' stroke-width=\'1\' stroke-opacity=\'0.08\'/%3E%3C/svg%3E");
+        }
+
+        .fade-in {
+            animation: fadeIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chat-container {
+            max-width: 46rem;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .message-bubble {
+            padding: 16px 20px;
+            border-radius: 16px;
+            max-width: 85%;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .message-user {
+            background-color: #0c8059;
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-ai {
+            background-color: #131f19;
+            color: #ffffff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #27272a;
+        }
+
+        .verse-card {
+            background-color: #131f19;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid #27272a;
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .verse-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 42px;
+            line-height: 1.8;
+            text-align: right;
+            direction: rtl;
+            color: #ffffff;
+        }
+
+        .verse-translation {
+            font-size: 18px;
+            color: #e4eae4;
+            line-height: 1.6;
+        }
+
+        .verse-literal {
+            font-size: 16px;
+            color: #a1a1aa;
+            line-height: 1.6;
+            border-left: 2px solid #27272a;
+            padding-left: 16px;
+        }
+
+        .attribution-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            font-weight: 500;
+            color: #a1a1aa;
+        }
+
+        .composer-dock {
+            background-color: #09130e;
+            border-top: 1px solid #27272a;
+            padding: 16px 24px 32px;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .composer-inner {
+            max-width: 46rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .composer-input {
+            width: 100%;
+            background-color: #131f19;
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            padding: 16px 56px 16px 20px;
+            color: #ffffff;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .composer-input:focus {
+            border-color: #52cb9d;
+        }
+
+        .composer-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background-color: #0c8059;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .composer-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="girih-bg">
+<!-- TopNav from JSON (Adjusted for Dark Mode & Context) -->
+<nav class="w-full top-0 bg-[#09130e] border-b border-[#27272a] sticky z-10">
+<div class="flex justify-between items-center px-6 py-4 max-w-[1120px] mx-auto">
+<div class="flex items-center gap-8">
+<!-- Brand Anchor -->
+<div class="font-display-md text-display-md font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#52cb9d] to-[#d4af37]">
+                    Tanya QuranKu
+                </div>
+<!-- Nav Links -->
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#52cb9d] font-bold border-b-2 border-[#52cb9d] pb-1 text-ui-label font-ui-label" href="#">Tanya</a>
+<a class="text-[#a1a1aa] hover:text-[#52cb9d] transition-colors duration-200 pb-1 text-ui-label font-ui-label" href="#">Baca</a>
+<a class="text-[#a1a1aa] hover:text-[#52cb9d] transition-colors duration-200 pb-1 text-ui-label font-ui-label" href="#">Tema</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#a1a1aa] hover:text-[#ffffff] transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-[#131f19] border border-[#27272a] flex items-center justify-center text-sm font-medium">
+                    U
+                </div>
+</div>
+</div>
+</nav>
+<!-- Main Chat Canvas -->
+<main class="chat-container">
+<!-- User Message -->
+<div class="message-bubble message-user fade-in">
+            aku lagi capek banget
+        </div>
+<!-- AI Response & Verse Card -->
+<div class="flex flex-col w-full fade-in" style="animation-delay: 100ms;">
+<div class="message-bubble message-ai mb-4">
+                Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.
+            </div>
+<!-- The Scripture Anchor -->
+<div class="verse-card">
+<div class="verse-arabic">
+                    فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+                </div>
+<div class="flex flex-col gap-2 border-t border-[#27272a] pt-6 mt-2">
+<div class="verse-translation">
+                        "Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"
+                    </div>
+<div>
+<span class="attribution-chip">
+<span class="material-symbols-outlined text-[14px]">menu_book</span>
+                            Ustadz Muhammad Thalib
+                        </span>
+</div>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<div class="verse-literal">
+                        "Maka sesungguhnya beserta kesulitan ada kemudahan."
+                    </div>
+<div class="pl-4">
+<span class="attribution-chip">
+<span class="material-symbols-outlined text-[14px]">g_translate</span>
+                            Kemenag RI
+                        </span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4 text-[#a1a1aa] text-sm">
+<span class="font-medium text-[#52cb9d]">Ash-Sharh 94:5</span>
+<div class="flex gap-3">
+<button class="hover:text-white transition-colors" title="Copy">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+<button class="hover:text-white transition-colors" title="Bookmark">
+<span class="material-symbols-outlined text-[20px]">bookmark_border</span>
+</button>
+<button class="hover:text-white transition-colors" title="Share">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer for composer -->
+<div class="h-8"></div>
+</main>
+<!-- Docked Composer -->
+<div class="composer-dock">
+<div class="composer-inner">
+<textarea class="composer-input" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" placeholder="Ceritakan perasaanmu atau tanyakan sesuatu..." rows="1"></textarea>
+<button class="composer-btn">
+<span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+</button>
+</div>
+<div class="text-center mt-3 text-[#a1a1aa] text-xs max-w-md mx-auto">
+            Tanya QuranKu dapat membuat kesalahan. Selalu rujuk pada tafsir ulama untuk pemahaman mendalam.
+        </div>
+</div>
+</body></html>

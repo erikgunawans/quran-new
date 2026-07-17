@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuranKu - Surah Index</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#062016",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-surface": "#121c28",
+                        "primary": "#00412d",
+                        "tertiary-container": "#7c3c38",
+                        "on-primary-container": "#89cfaf",
+                        "on-secondary-container": "#4e685b",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dfe9fa",
+                        "outline-variant": "#bfc9c2",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#236a50",
+                        "primary-container": "#0b5a41",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#3a0909",
+                        "inverse-primary": "#8fd5b5",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d1dbec",
+                        "secondary-fixed": "#cde9d9",
+                        "secondary-fixed-dim": "#b1cdbd",
+                        "primary-fixed-dim": "#8fd5b5",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#d9e3f4",
+                        "on-primary-fixed": "#002115",
+                        "outline": "#6f7973",
+                        "secondary-container": "#cae6d6",
+                        "surface-container-highest": "#d9e3f4",
+                        "tertiary": "#602623",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#27313e",
+                        "surface": "#f8f9ff",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-container-low": "#eef4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-secondary-fixed-variant": "#334c40",
+                        "secondary": "#4a6457",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed": "#aaf1d0",
+                        "on-background": "#121c28",
+                        "on-primary-fixed-variant": "#00513a",
+                        "on-surface-variant": "#3f4943",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "on-tertiary-container": "#ffaca5",
+                        "on-tertiary-fixed-variant": "#723430",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "xs": "8px",
+                        "md": "16px",
+                        "sm": "12px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "margin-mobile": "20px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "display-quran": ["Amiri", "serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-quran": ["40px", { "lineHeight": "72px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        };
+    </script>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+
+
+<style>
+        body { background-color: #f4f9f6; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .surah-hover { transition: all 0.2s ease-in-out; }
+        .surah-hover:hover { 
+            background-color: white; 
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+            border-radius: 14px;
+        }
+        .container-measure { max-width: 46rem; margin: 0 auto; }
+        /* Focus styles for input */
+        .search-input:focus-within {
+            box-shadow: 0 0 0 2px #0c8059;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased min-h-screen pb-margin-desktop">
+<!-- TopNav -->
+<header class="bg-surface dark:bg-surface-container font-headline-md text-headline-md font-body-md text-body-md full-width top-0 border-b border-outline-variant dark:border-outline flex justify-between items-center h-16 px-margin-desktop w-full sticky top-0 z-50">
+<div class="flex items-center gap-xl h-full">
+<div class="text-headline-md font-headline-md text-primary dark:text-primary-fixed">QuranKu</div>
+<nav class="hidden md:flex h-full items-center gap-lg">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors h-full flex items-center px-sm" href="#">Tanya</a>
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary h-full flex items-center px-sm" href="#">Baca</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors h-full flex items-center px-sm" href="#">Tema</a>
+</nav>
+</div>
+<div class="flex items-center gap-sm">
+<button aria-label="Settings" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-primary">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button aria-label="Account" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-primary">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="container-measure px-gutter pt-xl mt-md">
+<!-- Search Pill -->
+<div class="mb-lg">
+<div class="search-input flex items-center bg-white rounded-full px-lg py-sm shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-transparent transition-shadow h-[56px]">
+<span class="material-symbols-outlined text-outline mr-sm">search</span>
+<input class="flex-1 bg-transparent border-none outline-none font-body-md text-on-surface placeholder:text-outline-variant w-full h-full" placeholder="Cari surah atau ayat..." type="text"/>
+</div>
+</div>
+<!-- Resume Bar -->
+<a class="block bg-primary text-white rounded-[16px] px-lg py-md mb-xl hover:bg-[#096c4b] transition-colors flex items-center justify-between shadow-[0_2px_12px_rgba(0,0,0,0.08)]" href="#">
+<div class="flex flex-col">
+<span class="font-label-md text-primary-fixed-dim uppercase tracking-wider mb-base">Lanjutkan Membaca</span>
+<span class="font-headline-md text-white">Al-Baqarah (Ayat 42)</span>
+</div>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+<!-- Surah List -->
+<div class="flex flex-col gap-base">
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        2
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Al-Baqarah</h3>
+<p class="font-label-md text-on-surface-variant mt-base">286 Ayat · Madaniyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    البقرة
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        3
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Aal-i-Imraan</h3>
+<p class="font-label-md text-on-surface-variant mt-base">200 Ayat · Madaniyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    آل عمران
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        9
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">At-Tawba</h3>
+<p class="font-label-md text-on-surface-variant mt-base">129 Ayat · Madaniyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    التوبة
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        12
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Yusuf</h3>
+<p class="font-label-md text-on-surface-variant mt-base">111 Ayat · Makkiyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    يوسف
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        13
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Ar-Ra'd</h3>
+<p class="font-label-md text-on-surface-variant mt-base">43 Ayat · Madaniyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    الرعد
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        20
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Taa-Haa</h3>
+<p class="font-label-md text-on-surface-variant mt-base">135 Ayat · Makkiyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    طه
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        21
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Al-Anbiyaa</h3>
+<p class="font-label-md text-on-surface-variant mt-base">112 Ayat · Makkiyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    الأنبياء
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        41
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Fussilat</h3>
+<p class="font-label-md text-on-surface-variant mt-base">54 Ayat · Makkiyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    فصلت
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        65
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">At-Talaaq</h3>
+<p class="font-label-md text-on-surface-variant mt-base">12 Ayat · Madaniyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    الطلاق
+                </div>
+</a>
+<!-- Surah Item -->
+<a class="surah-hover group flex items-center justify-between py-md px-sm border-b border-surface-dim last:border-b-0 min-h-[72px]" href="#">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-label-md text-on-secondary-fixed group-hover:bg-primary group-hover:text-white transition-colors">
+                        94
+                    </div>
+<div>
+<h3 class="font-headline-md text-on-surface">Ash-Sharh</h3>
+<p class="font-label-md text-on-surface-variant mt-base">8 Ayat · Makkiyah</p>
+</div>
+</div>
+<div class="font-display-quran text-display-quran text-primary group-hover:text-[#0c8059] transition-colors" dir="rtl" lang="ar">
+                    الشرح
+                </div>
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest text-secondary dark:text-secondary-fixed font-label-md text-label-md full-width py-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center px-margin-desktop mt-xl">
+<div class="text-label-md font-headline-md text-primary mb-md md:mb-0">
+            © 2024 QuranKu. Mathematical Serenity.
+        </div>
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Panduan</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Privasi</a>
+<a class="text-on-surface-variant hover:underline transition-all" href="#">Kontak</a>
+</nav>
+</footer>
+</body></html>

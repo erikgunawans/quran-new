@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuranKu Concept Maps - Desktop Dark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+
+
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#81f9c6",
+                    "on-primary-fixed": "#002115",
+                    "on-tertiary-container": "#fffbff",
+                    "outline": "#6d7a72",
+                    "secondary-container": "#bcead7",
+                    "on-background": "#171d1a",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#663d1a",
+                    "surface-variant": "#dee4de",
+                    "inverse-surface": "#2c322e",
+                    "ink-primary": "#1a2421",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#00855f",
+                    "on-secondary-fixed-variant": "#244e41",
+                    "tertiary-container": "#9b6a43",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#ecf2ec",
+                    "tertiary": "#7f522d",
+                    "on-secondary-container": "#416b5c",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#63dcab",
+                    "surface-container": "#e9efe9",
+                    "secondary-fixed-dim": "#a3d0be",
+                    "forest-green": "#2a5446",
+                    "surface-container-low": "#eff5ef",
+                    "surface-tint": "#006c4d",
+                    "surface-container-high": "#e4eae4",
+                    "bg-light": "#f7f9f8",
+                    "on-surface-variant": "#3d4a43",
+                    "background": "#f5fbf5",
+                    "outline-variant": "#bccac1",
+                    "surface-dim": "#d5dcd6",
+                    "tertiary-fixed": "#ffdcc4",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#63dcab",
+                    "on-surface": "#171d1a",
+                    "on-secondary": "#ffffff",
+                    "clay-accent": "#9c6b44",
+                    "action-emerald": "#12a074",
+                    "surface": "#ffffff",
+                    "surface-bright": "#f5fbf5",
+                    "on-primary-fixed-variant": "#005139",
+                    "primary": "#00694a",
+                    "tertiary-fixed-dim": "#f6ba8d",
+                    "secondary-fixed": "#bfecda",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#002117",
+                    "surface-container-highest": "#dee4de",
+                    "secondary": "#3c6658",
+                    "on-primary-container": "#f5fff7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px",
+                    "card": "16px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "s-1": "4px",
+                    "s-4": "16px",
+                    "max-prose": "46rem",
+                    "s-6": "32px",
+                    "s-3": "12px",
+                    "s-2": "8px",
+                    "s-5": "24px",
+                    "max-landing": "1120px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Poppins"
+                    ],
+                    "ui-label": [
+                            "Inter"
+                    ],
+                    "display-lg-mobile": [
+                            "Poppins"
+                    ],
+                    "scripture-ar": [
+                            "Amiri"
+                    ],
+                    "data-num": [
+                            "Inter"
+                    ],
+                    "ui-body": [
+                            "Inter"
+                    ],
+                    "display-md": [
+                            "Poppins"
+                    ],
+                    "poppins": ["Poppins"]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "33px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-label": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "scripture-ar": [
+                            "34px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-num": [
+                            "14px",
+                            {
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "ui-body": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-md": [
+                            "28px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        :root {
+            --bg: #09130e;
+            --surface: #131f19;
+            --ink: #f2f6f4;
+            --primary: #52cb9d;
+            --action: #12a074;
+            --forest: #2a5446;
+            --clay: #9c6b44;
+            --line: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            background-image: 
+                linear-gradient(45deg, rgba(82, 203, 157, 0.03) 25%, transparent 25%, transparent 75%, rgba(82, 203, 157, 0.03) 75%, rgba(82, 203, 157, 0.03)),
+                linear-gradient(45deg, rgba(82, 203, 157, 0.03) 25%, transparent 25%, transparent 75%, rgba(82, 203, 157, 0.03) 75%, rgba(82, 203, 157, 0.03));
+            background-size: 54px 54px;
+            background-position: 0 0, 27px 27px;
+        }
+
+        .dark-card {
+            background-color: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-ui-body">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center h-16 px-6 w-full sticky top-0 z-50 bg-[#131f19] border-b border-white/10 shadow-sm">
+<div class="flex items-center space-x-8">
+<div class="text-headline-md font-poppins font-bold text-[#52cb9d]">QuranKu</div>
+<div class="hidden md:flex space-x-6">
+<a class="text-[#dee4de] hover:text-[#52cb9d] transition-colors font-ui-body font-medium" href="#">Tanya</a>
+<a class="text-[#dee4de] hover:text-[#52cb9d] transition-colors font-ui-body font-medium" href="#">Baca</a>
+<a class="text-[#52cb9d] font-bold border-b-2 border-[#52cb9d] pb-1 font-ui-body" href="#">Tema</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-[#dee4de] cursor-pointer hover:text-[#52cb9d] transition-colors">settings</span>
+<span class="material-symbols-outlined text-[#dee4de] cursor-pointer hover:text-[#52cb9d] transition-colors">account_circle</span>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-max-landing mx-auto px-6 py-12 flex flex-col md:flex-row gap-12">
+<!-- Left Column: Content Area -->
+<div class="w-full md:w-[1.55fr] max-w-max-prose">
+<header class="mb-10">
+<h1 class="text-display-lg font-poppins text-[#f2f6f4] mb-4">Peta Konsep Al-Qur'an</h1>
+<p class="text-ui-body text-[#dee4de] opacity-80 leading-relaxed">
+                    Jelajahi hubungan antar tema dan konsep dalam Al-Qur'an melalui peta pengetahuan visual.
+                </p>
+</header>
+<!-- Verse Card -->
+<div class="dark-card p-8 mb-12">
+<div class="font-scripture-ar text-scripture-ar text-[#f2f6f4] mb-6 text-right leading-loose" dir="rtl" lang="ar">
+                    فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+                </div>
+<div class="space-y-4">
+<div class="flex items-center space-x-2 text-sm text-[#52cb9d] font-medium">
+<span class="px-2 py-1 bg-[#2a5446]/30 rounded text-xs border border-[#52cb9d]/20">Qs. Asy-Syarh 94:5</span>
+</div>
+<p class="text-ui-body text-[#dee4de] leading-relaxed">
+                        Maka sesungguhnya beserta kesulitan ada kemudahan,
+                    </p>
+<div class="pt-4 border-t border-white/10 mt-4">
+<p class="text-sm text-[#dee4de]/60 italic font-medium">
+<span class="text-[#9c6b44]">Terjemah Harfiah:</span> Maka sesungguhnya beserta (al-usr) kesulitan itu (yusran) ada kemudahan.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Concept Maps Grid -->
+<h2 class="text-display-md font-poppins text-[#f2f6f4] mb-6">Peta Pengetahuan</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Ekonomi Islam</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Konsep harta, riba, sedekah, dan prinsip keadilan ekonomi dalam Islam.</p>
+</div>
+<!-- Card 2 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">rule</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Perintah dan Larangan</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Struktur hukum, kewajiban, dan batasan-batasan syariat.</p>
+</div>
+<!-- Card 3 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">self_improvement</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Membangun Pribadi Shalih</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Karakteristik mukmin, akhlak, dan pengembangan diri.</p>
+</div>
+<!-- Card 4 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Rahasia Kejiwaan Manusia</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Nafs, qalb, fitrah, dan dinamika psikologis dalam perspektif Qur'ani.</p>
+</div>
+<!-- Card 5 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Sosial</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Hubungan bermasyarakat, ukhuwah, dan penyelesaian konflik.</p>
+</div>
+<!-- Card 6 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">flight_takeoff</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Hijrah</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Konsep pergerakan spiritual dan fisik menuju kebaikan.</p>
+</div>
+<!-- Card 7 -->
+<div class="dark-card p-6 hover:border-[#52cb9d]/50 transition-colors cursor-pointer group">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-[#2a5446]/50 flex items-center justify-center text-[#52cb9d] group-hover:bg-[#52cb9d] group-hover:text-[#09130e] transition-colors">
+<span class="material-symbols-outlined">swords</span>
+</div>
+<h3 class="font-poppins font-semibold text-[#f2f6f4] text-lg">Jihad dan Perang</h3>
+</div>
+<p class="text-sm text-[#dee4de]/70 leading-relaxed">Makna perjuangan, etika konflik, dan pertahanan dalam Islam.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Utility/Context (Empty for now to maintain layout ratio) -->
+<div class="hidden md:block md:w-[1fr]">
+<!-- Placeholder for potential sidebar or utility content adhering to 1.55/1 ratio -->
+</div>
+</main>
+<!-- Footer -->
+<footer class="flex flex-col md:flex-row justify-between items-center px-6 py-8 mt-12 bg-[#131f19] border-t border-white/10 w-full">
+<div class="text-label-md font-poppins font-semibold text-[#52cb9d] mb-4 md:mb-0">
+            QuranKu
+        </div>
+<div class="text-label-md text-[#dee4de]/70">
+            © 2024 QuranKu. Mathematical Serenity.
+        </div>
+<div class="flex space-x-6 mt-4 md:mt-0">
+<a class="text-label-md text-[#dee4de]/70 hover:text-[#52cb9d] transition-colors" href="#">Panduan</a>
+<a class="text-label-md text-[#dee4de]/70 hover:text-[#52cb9d] transition-colors" href="#">Privasi</a>
+<a class="text-label-md text-[#dee4de]/70 hover:text-[#52cb9d] transition-colors" href="#">Kontak</a>
+</div>
+</footer>
+</body></html>
