@@ -31,7 +31,10 @@ const EXPECTED = {
 
 const EXPECTED_UNRESOLVABLE = new Set(["8:96", "8:77", "48:59", "11:161"]);
 const HUB_CHARGE = -3000;
-const VERSE_CHARGE = -30;
+// -18 rather than -30: less mutual repulsion between verse-stars, so a category's verses
+// gather into a legible clump instead of a diffuse haze. Cluster density is a LAYOUT property;
+// no amount of paint fixes a cloud that is spread too thin.
+const VERSE_CHARGE = -18;
 const TICK_COUNT = 400;
 const COSMOS_RADIUS = 1000;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
@@ -703,7 +706,7 @@ export function computeCosmos(graph: Graph): Cosmos {
         .distance((link: { source: ForceNode | string }) =>
           typeof link.source === "object" && link.source.kind === "cat" ? 160 : 120,
         )
-        .strength(0.8),
+        .strength(0.9),
     )
     .force("center", forceCenter(0, 0, 0));
 
