@@ -754,8 +754,34 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
   **flagged for Erik to rewrite**, not mechanically mangled — it needs an editorial hand, not a sed.
 - Code comments still say "Nur" as the internal persona (harmless narrative); left untouched unless Erik
   wants them swept. Web tests 190/190, typecheck clean.
+- **2026-07-17 — Gold gate reversed, narrowly (Erik's ruling, during the Stitch UI redesign).** The
+  blanket "no gold" is retired in favour of the line PRODUCT.md always implied: the ban was on *ornament*,
+  not the hue. Gold is now permitted in **exactly one surface** — the hero heading's green→gold type
+  gradient (`#16a249 → #f0c851`), the QuranKu-family signature. Gold *ornament* (frames, rules, hairlines,
+  filigree, any edge or decoration) stays banned outright. PRODUCT.md § Anti-references and DESIGN.md
+  "What this is not" were revised to match. **ISC-93, ISC-162, ISC-185 are NOT flipped and remain
+  verified:** none of them cover the hero heading. ISC-162/185 are about the peta cosmos, which stays
+  gold-free; ISC-93 recorded a past proposal that added no gold. All three are still true for their
+  surfaces — flipping them would falsify a verified record. The new boundary is "gold only in the hero
+  heading gradient," and it enters the test surface as a criterion when the redesign ports to the app
+  (tracked: F-GOLD-BOUNDARY), not before — the redesign is still a Stitch prototype in `.scratch/`.
 
 ## Changelog
+
+**2026-07-17 — The "no gold" rule conflated a hue with an anti-pattern.**
+- **conjectured:** that gold had to be banned outright — "No gold. Not one token." (DESIGN.md) — because
+  gold is the devotional-app cliché and any gold at all would drag the app toward filigree kitsch.
+- **refuted by:** the Stitch redesign against the live QuranKu family, whose signature is a green→gold
+  gradient *heading*. Seen rendered, gold-as-type-gradient reads as a modern wordmark, not as ornament —
+  the reader cannot mistake `background-clip:text` for a filigree frame. The failure the ban guards
+  against is ornament substituting for reverence; a type gradient is not ornament. The doc's own line
+  ("the cliché is ornament, not green") already said this; the blanket ban over-reached past it.
+- **learned:** the rule was pointed at the wrong noun. Banning the *hue* was a proxy for banning
+  *ornament*, and the proxy was lossy — it forbade a legitimate modern use to prevent an illegitimate
+  decorative one. The precise rule costs nothing the blanket rule protected: ornament is still banned.
+- **criterion now:** gold permitted only in the hero heading gradient; gold ornament banned everywhere.
+  ISC-93/162/185 stand unchanged (they cover non-hero surfaces that stay gold-free). The new boundary
+  becomes a probeable anti-criterion (F-GOLD-BOUNDARY) when the redesign ports to app code.
 
 **2026-07-17 — A shipped surface with no ISCs means the ISA under-represents the product.**
 - **conjectured:** that Cycle 3 (ISC-124..170) covered the whole Peta Tematik surface, so the ISA

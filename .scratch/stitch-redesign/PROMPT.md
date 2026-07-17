@@ -37,7 +37,10 @@
 
 ### 1. Do not draw
 
-- No gold, brass, bronze, ochre, or amber — no fill, no gradient, no rule, no hairline.
+- **Gold is allowed in ONE place only: the hero gradient heading** (green→gold, see § 6). Nowhere else.
+  No gold filigree, no gold frames, no gold rules, no gold borders, no gold ornament, no gold icons. The
+  distinction is exact: gold as a modern *type gradient* is fine; gold as *ornament* is banned. If gold
+  traces an edge, frames a card, or decorates anything, it fails.
 - No crescents, domes, minarets, lanterns, prayer beads, or building silhouettes.
 - No pattern behind text except the one star field named in § 5.
 - No border, frame, or rule around any block of Arabic.
@@ -52,7 +55,7 @@
 
 **Every Arabic string you render is supplied to you verbatim in this document. Copy it exactly,
 character for character, including every diacritic.** If a screen needs Arabic that is not supplied,
-render the Latin transliteration in Plus Jakarta Sans and flag the gap.
+render the Latin transliteration in Inter and flag the gap.
 
 Do not invent, approximate, extend, or fill Arabic text. This is a Qur'an app: invented Arabic is not a
 placeholder, it is fabricated scripture. It is the one thing this product forbids outright.
@@ -122,6 +125,21 @@ pattern. The block's edges are whitespace, not a rule.
 white. The greenness lives in the *hue of the neutrals* and in `--forest`/`--primary` blocks that carry
 real weight — not in a saturated green page. **Never a green page with white cards floating on it.**
 
+**The hero heading is a green→gold gradient — this is the app's signature.** Bold Poppins (800), the text
+itself filled with `linear-gradient(to bottom right, #16a249 0%, #f0c851 100%)` via background-clip. This
+is the one sanctioned gold: a modern type gradient, not ornament. It appears only on the main landing
+heading. Section titles elsewhere are solid `--primary`, not gradient.
+
+**Match the QuranKu family's surface language:**
+- **Frosted pill buttons** — the Navigasi/Populer-style chips are white at 50% opacity, full radius
+  (`9999px`), a faint `--line` hairline at 50% opacity, an icon on the left. Soft, floating, friendly.
+- **Cards** — white on a cool near-white ground, `16px` radius, a soft defined shadow (not the ghost-card
+  border+wide-shadow combo). The prayer card is the exception: a full **emerald→teal→cyan gradient**
+  `linear-gradient(to bottom right, #34d399 0%, #14b8a6 55%, #0891b2 100%)` with white text, a calendar
+  and clock row, prayer times, and a location line.
+- **Search pill** — full-radius, white, soft shadow, a magnifier icon and grey placeholder.
+- The overall feel is **light, rounded, green, generous** — the original QuranKu, made fresher and calmer.
+
 **Generate every screen twice — once light, once dark.** Both are first-class: this Qur'an is read at
 2am and on the commute. Neither is a variant of the other, and **the dark register is composed, not
 inverted** — do not run a filter, do not flip lightness, do not derive it. Build it from the dark column
@@ -157,10 +175,10 @@ if a screen is generated only once, it is light.
 
 | Role | Family | Notes |
 |---|---|---|
-| Scripture | **Amiri** (Naskh) | The hero. Uthmani diacritics. Large, breathing. Reader-scalable independently of the UI. |
-| Display | **Fraunces** | Speaks **only** where the app addresses the reader: the hero, section titles, the daily ayah's meaning. Nowhere else. |
-| UI + prose | **Plus Jakarta Sans** | Deliberately quiet. Good Indonesian diacritics. |
-| Data / refs | Plus Jakarta Sans, `tabular-nums` | Verse refs (`2:255`), clocks, counts. |
+| Scripture | **Amiri** (Naskh) | The hero, wherever there is Arabic. Uthmani diacritics. Large, breathing. Reader-scalable. |
+| Display | **Poppins** (700–800) | Section titles and the hero heading. The friendly geometric bold that reads as the QuranKu family. The hero heading carries the green→gold gradient. |
+| UI + prose | **Inter** | Deliberately quiet body text. Good Indonesian diacritics. |
+| Data / refs | Inter, `tabular-nums` | Verse refs (`2:255`), clocks, counts. |
 
 Prose caps at 68ch.
 
@@ -168,15 +186,17 @@ Prose caps at 68ch.
 
 ```html
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
 ```
 
 Copy it character for character. **Do not add an `ital` axis, do not add weights, do not "optimise" it.**
-This string is tested: HTTP 200, all three families, Arabic subset, `font-display: swap`, **464 KB**.
+This string is tested: HTTP 200, all three families, Arabic subset, `font-display: swap`, **631 KB**.
 
 Why it is given literally rather than as a rule: Google Fonts' multi-axis syntax is easy to get wrong,
-and it fails *closed*. Fraunces has two axes (`opsz`,`wght`), so every tuple must carry both —
-`9..144,400..700`, never a bare `700`. One malformed family returns **HTTP 400 for the whole
+and it fails *closed*. **Poppins is NOT a variable font** — it has only static weights, so it must be a LIST
+(`Poppins:wght@600;700;800`), never a range (`400..800`). A range on Poppins returns HTTP 200 but
+*silently drops Poppins* — Inter and Amiri load, Poppins falls back to system sans and the gradient
+heading looks wrong. Inter IS variable, so `Inter:wght@400..600` is correct. One malformed family returns **HTTP 400 for the whole
 stylesheet**, so Amiri dies with it, and the Arabic silently falls back to system serif. Mis-rendered
 scripture is unshippable, and this is the quietest way to ship it. (Measured 2026-07-17: a generation
 that hand-built this URL produced exactly that failure.)
@@ -197,14 +217,13 @@ element** — that combination is the ghost-card tell and reads as machine-gener
 
 - **Mobile:** a bottom tab bar, `--surface`, hairline top border. Three tabs — **Tanya** (chat),
   **Baca** (read), **Tema** (themes). Outline icons, `--primary` when active, `--ink-3` when not. Labels
-  in Plus Jakarta Sans at `0.833rem`. A minimal top bar carrying only the screen title and, on reading
+  in Inter at `0.833rem`. A minimal top bar carrying only the screen title and, on reading
   screens, the Arabic type-size control.
 - **Desktop:** the same three destinations as a top bar, left-aligned, `--surface`, hairline bottom
   border.
 
 **The attribution chip** — the signature component, so it is specified rather than left to reach for:
-full pill, `--primary-wash` fill, `--primary-line` hairline, `--primary` text at `0.833rem` Plus Jakarta
-Sans, `4px 12px` padding. It sits **inline in the reading surface, directly beneath the rendering it
+full pill, `--primary-wash` fill, `--primary-line` hairline, `--primary` text at `0.833rem` Inter, `4px 12px` padding. It sits **inline in the reading surface, directly beneath the rendering it
 attributes**, at readable size. It is never grey, never 10px, never a tooltip, never an info icon. When
 several sources are shown, each chip is visually identical — no chip is styled to outrank another.
 
@@ -262,37 +281,42 @@ Surah names, for the list on § SCREEN 3 — copy verbatim, no others:
 
 ## § SCREEN 1 — Landing (`/`)
 
-**Mobile 390px first**, then desktop at 1120px. The app's front door and its most screenshotted surface.
+**Mobile 390px first**, then desktop. The app's front door — familiar QuranKu, made fresher. It carries
+**both** a recognisable gradient heading AND the chat composer: identity on top, action right below.
 
-**The chat box is the hero.** The composer sits **inside** the hero block — between the invitation and
-the seed chips — **not docked at the bottom of the screen.** This is the most important layout fact on
-this page: the app opens with an invitation to speak, not a search bar. **On mobile with the keyboard
-open**, the hero scrolls and the composer stays in the hero — it does not reparent to a keyboard-docked
-bar. Show both states.
+**The header:** a round logo mark on the left; on the right, a search icon, a theme (moon/sun) toggle in
+a subtle bordered square, and a hamburger. Hairline bottom border. This is the original QuranKu header.
 
 Top to bottom:
 
-- **The greeting.** `ٱلسَّلَامُ عَلَيْكُمْ` in Amiri, RTL. It is the greeting a Muslim already knows,
-  not decoration. Beneath it, one quiet Latin line that notices what time it is for the reader.
-  Breathes, 3s.
-- **The invitation.** Fraunces: *"Ada apa hari ini?"*, with *"hari ini"* emphasised. Beneath it, in Plus
-  Jakarta Sans: *"Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri
-  siapa yang mengatakan apa."*
-- **The composer**, `18px` radius, send button in `--action`.
+- **The gradient hero heading** — bold Poppins 800, the text filled with the green→gold gradient
+  `linear-gradient(to bottom right, #16a249, #f0c851)` via background-clip. Two lines, large:
+  *"Al-Qur'an Tarjamah Tafsiriyah"*. This is the signature and the one sanctioned gold.
+- **The subtitle**, Inter, `--ink-2`, centered: *"Baca, pahami, dan jelajahi Al-Qur'an dengan metode
+  Tarjamah Tafsiriyah — terjemahan tafsiriyah yang lebih jelas, tepat, dan mencerahkan."*
+- **The greeting**, smaller, above or beside the composer: `ٱلسَّلَامُ عَلَيْكُمْ` in Amiri RTL, with one
+  quiet Inter line that notices the time. Breathes, 3s.
+- **The chat composer — the primary action.** A generous rounded field (`18px`), Inter placeholder
+  *"Cerita saja pakai bahasa kamu sendiri…"*, send button in `--action`. This is what replaces the
+  original's plain search bar: you don't search, you tell it what you're carrying. Directly below it,
+  the low-effort line: *"Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat
+  sendiri siapa yang mengatakan apa."*
+- **Two frosted pills**, full radius, white-50%, hairline, icon-left — matching the original's
+  Navigasi/Populer chips: *"Navigasi Al-Qur'an"* (compass icon) and *"Populer"* (bolt icon).
 - **Seed chips**, full pill. **These are the empty state, and empty states teach** — real questions in
   real language, never "Ask me anything": `aku lagi capek banget` · `lagi banyak utang, stress` ·
   `baru kehilangan orang tua` · `ngerasa dosaku kebanyakan` · `cemas terus tiap malam` · `al kahfi`.
 - **The hint line:** *"Atau sebutkan langsung surah dan ayatnya — **18:10**, **yasin**, **2:255**."*
-- **The band.** Desktop: **asymmetric, 1.55fr / 1fr** — scripture owns the width, prayer is a utility
-  beside it; a 50/50 split would claim they carry equal weight. **Mobile: stacks, ayah above prayer.**
-  - **The daily ayah** — use **94:5** (§ 7). Amiri large, the 8-point-star field behind it at 54px / 8%
-    (the only surface that gets it). The meaning-based rendering in Fraunces: *"Dalam kehidupan dunia
-    ini benar-benar ada penderitaan dan ada kesenangan."* — attributed to **Ustadz Muhammad Thalib** —
-    **and the literal companion with it**: *"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"*
-    — **Kementerian Agama Republik Indonesia**. This card once shipped without the literal companion.
-    That was a bug, on the app's most-screenshotted surface.
-  - **The prayer card**, `--forest`. Next prayer, the day's times, tabular-nums. If there is no location
-    it says so and offers to ask again. It does not guess a city.
+- **The prayer card — the original's signature widget, kept.** A full **emerald→teal→cyan gradient**
+  `linear-gradient(to bottom right, #34d399, #14b8a6, #0891b2)`, white text, `16px` radius. A calendar
+  row (*"Jumat, 17 Juli"* / hijri date), a clock row with a live countdown, a location line with a small
+  edit pencil, a *"Berikutnya: Subuh 04:42"* line, and a horizontal strip of the five prayer times with
+  small icons. If there is no location it says so and offers to ask again — it does not guess a city.
+- **The daily ayah card** — use **94:5** (§ 8). White card, Amiri large, the geometric 8-point-star
+  field behind it at 54px / 8% (the only surface that gets it). The meaning rendering in Poppins:
+  *"Dalam kehidupan dunia ini benar-benar ada penderitaan dan ada kesenangan."* — attributed to
+  **Ustadz Muhammad Thalib** — **and the literal companion with it**: *"Karena sesungguhnya sesudah
+  kesulitan itu ada kemudahan,"* — **Kementerian Agama Republik Indonesia**.
 
 ## § SCREEN 2 — Chat thread (`/`, after asking)
 
@@ -326,7 +350,7 @@ The index. 46rem measure. Mobile-first.
 - **Amiri Arabic, RTL, large**, at least one line-height of margin on all four sides, nothing behind it:
   `ٱلَّذِينَ إِذَآ أَصَٰبَتْهُم مُّصِيبَةٌ قَالُوٓا۟ إِنَّا لِلَّهِ وَإِنَّآ إِلَيْهِ رَٰجِعُونَ`
   Reader-scalable independently of the UI, via the type-size control in the top bar.
-- **The meaning-based rendering leads, alone**, in Fraunces: *"Ketika kaum mukmin ditimpa musibah,
+- **The meaning-based rendering leads, alone**, in Poppins: *"Ketika kaum mukmin ditimpa musibah,
   mereka berkata: «Kami semua adalah milik Allah. Kami semua pasti kembali kepada-Nya.»"* — attribution
   chip: **Ustadz Muhammad Thalib**.
 - **A single *depth* toggle below it**, collapsed by default, holding the **literal companion** and the
@@ -350,7 +374,7 @@ doesn't know where to look.
 
 - A grid of theme cards (single column on mobile), `14px` radius, hairline border, defined shadow — **no
   border plus wide shadow**.
-- Each card: the theme in Fraunces, a one-line plain-Indonesian description, verse count in tabular-nums.
+- Each card: the theme in Poppins, a one-line plain-Indonesian description, verse count in tabular-nums.
 - Themes are named the way a person would say them, not the way an index would.
 - The detail view lists verses using the § SCREEN 4 verse component, unchanged — **literal companion
   included**.
@@ -370,7 +394,20 @@ The depth layer for the reader who got curious — the knowledge graph made visi
 
 ---
 
-## § TOKEN CARD — paste with every screen
+## § TOKEN CARD
+
+### QuranKu-family reference (the "similar to original" colours)
+
+These four come from the live original site and are used exactly where named — not as general tokens:
+
+| Use | Value | Where |
+|---|---|---|
+| Hero gradient start | `#16a249` | green end of the hero heading gradient |
+| Hero gradient end | `#f0c851` | gold end of the hero heading gradient (the ONE sanctioned gold) |
+| Prayer gradient | `#34d399` → `#14b8a6` → `#0891b2` | the prayer card, emerald→teal→cyan |
+| Family primary | `#16a249` | the original QuranKu green; use `--primary` #0b5a41 for text/AA, this brighter one for fills/marks |
+
+ — paste with every screen
 
 **These values override anything the design system supplies.** Stitch re-derives its own palette from
 DESIGN.md; these are the pinned truth. Verified: `--action` → `#0c8059` gives white
@@ -446,4 +483,4 @@ Gradients (`--action-grad` 120°, `--forest-grad` 145°) carry white text across
 18. Is the font <link> byte-identical to the one given in § 5? → if not, fail. Verify by loading the
     URL: it must return HTTP 200. **Do not trust `document.fonts.check()` — it tests a space character
     and returns true even when the font fell back.** The only truth is `[...document.fonts].filter(f =>
-    f.status === "loaded")` containing Amiri, Fraunces, and Plus Jakarta Sans.
+    f.status === "loaded")` containing Amiri, Poppins, and Inter.

@@ -27,9 +27,13 @@ every piece of chrome. What died is only the instruction to make the room dark.
 
 ### What this is not
 
-- **No gold. Not one token.** See PRODUCT.md § Anti-references: the devotional-app cliché is *ornament*,
-  not green — arabesque wallpaper, crescents, dome silhouettes, filigree, calligraphy-as-decoration.
-  Ornament is not reverence. We are in the QuranKu family on purpose and earn our place by rigour, not
+- **No gold ornament — one gold exception, revised 2026-07-17.** See PRODUCT.md § Anti-references: the
+  devotional-app cliché is *ornament*, not green — arabesque wallpaper, crescents, dome silhouettes,
+  filigree, calligraphy-as-decoration. Ornament is not reverence. Gold is now permitted in **exactly one
+  place**: the hero heading's green→gold type gradient (`#16a249 → #f0c851`), the QuranKu-family
+  signature — gold as *typography*, never as ornament. No gold frames, rules, hairlines, or edges
+  anywhere else; the peta cosmos hues stay gold-free (ISA ISC-185). We are in the QuranKu family on
+  purpose and earn our place by rigour, not
   by refusing the category's colour.
 - **No filigree — geometry is structure.** The girih behind the daily ayah is an 8-point-star field
   tiled at 54px, 8% opacity: a plane-filling grid, which is what Islamic visual tradition is actually

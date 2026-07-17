@@ -46,9 +46,11 @@ New-Quranku never arbitrates between scholars. It shows you that Ibn Kathir and 
 
 Two reflexes, both rejected:
 
-- **The devotional-app cliché — which is ornament, not green.** Gold, arabesque wallpaper, crescent moons, mosque-dome silhouettes, gold filigree frames, calligraphy-as-decoration. **Gold is banned outright.** The failure is ornament used as a substitute for reverence: decoration standing in for the thing it decorates.
+- **The devotional-app cliché — which is ornament, not green.** Arabesque wallpaper, crescent moons, mosque-dome silhouettes, gold filigree frames, calligraphy-as-decoration. The failure is ornament used as a substitute for reverence: decoration standing in for the thing it decorates.
 
   This ban used to include "emerald" and "guessable from the category alone". It no longer does, and that is deliberate. New-Quranku is in the QuranKu family on purpose — light, vivid green, rounded cards, prayer times. Being unrecognisable was never the goal; being *unornamented* was. We earn our place in the category by rigour — a corpus that never lies about what the Qur'an contains, every source named in the reading surface, WCAG AA as a test rather than an aspiration — not by refusing the category's colour.
+
+  **On gold, revised 2026-07-17.** The ban was never on the *hue* — it was on ornament, as the line above says plainly. So the rule is now drawn where it always belonged: **gold is permitted in exactly one place, the hero heading's green→gold type gradient** (`#16a249 → #f0c851`), the QuranKu family's signature. That is gold as *typography*, a modern gradient the reader can't mistake for filigree. **Gold as ornament stays banned outright** — no gold frames, no gold rules, no gold hairlines, no gold tracing an edge or decorating a card. If gold ornaments anything, it fails. The test is unchanged; only the false conflation of "gold" with "ornament" is removed.
 - **The wellness-app cliché.** The move you make *to avoid* the first one: cream/sand ground, thin serif, sage green, infinite whitespace, breathing-exercise calm. Calm/Headspace with a verse in it. Equally predictable, and it makes the Qur'an feel like a lifestyle supplement.
 
 Also banned: anything preachy, paternal, or guilt-shaped. No streak-shaming. No "you haven't read today." Gamified guilt is the opposite of this product.

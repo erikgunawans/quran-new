@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, initial-scale=1.0" name="viewport"/>
+<title>QuranKu - Tema</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Poppins:wght@600;700;800&amp;family=Inter:wght@400..600&amp;display=swap">
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from design system -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#00513a",
+                    "surface-container-low": "#f2f4f0",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbca",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "on-tertiary-container": "#f9b08a",
+                    "tertiary-container": "#754124",
+                    "on-secondary-fixed": "#002114",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e0e3df",
+                    "secondary-fixed": "#94f6c6",
+                    "background": "#f7faf6",
+                    "surface-variant": "#e0e3df",
+                    "surface-dim": "#d8dbd7",
+                    "surface-tint": "#236a50",
+                    "on-tertiary-fixed": "#341100",
+                    "tertiary": "#5a2b0f",
+                    "secondary-fixed-dim": "#78d9ab",
+                    "surface-container": "#ecefea",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-background": "#191c1a",
+                    "on-secondary-container": "#00734f",
+                    "primary-fixed": "#aaf1d0",
+                    "on-primary-fixed": "#002115",
+                    "on-tertiary-fixed-variant": "#6c3a1d",
+                    "on-surface-variant": "#3f4943",
+                    "secondary": "#006c4a",
+                    "primary-container": "#0b5a41",
+                    "on-secondary-fixed-variant": "#005237",
+                    "secondary-container": "#94f6c6",
+                    "surface-container-high": "#e6e9e5",
+                    "outline": "#6f7973",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#8fd5b5",
+                    "inverse-primary": "#8fd5b5",
+                    "on-primary-container": "#89cfaf",
+                    "surface-bright": "#f7faf6",
+                    "surface": "#f7faf6",
+                    "inverse-surface": "#2d312f",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#bfc9c2",
+                    "on-surface": "#191c1a",
+                    "inverse-on-surface": "#eff1ed",
+                    "primary": "#00412d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "48px",
+                    "huge": "64px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Poppins"
+                    ],
+                    "display-lg": [
+                            "Poppins"
+                    ],
+                    "display-lg-mobile": [
+                            "Poppins"
+                    ],
+                    "body-lg-arabic": [
+                            "Amiri"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "display-xl": [
+                            "Poppins"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg-arabic": [
+                            "32px",
+                            {
+                                    "lineHeight": "56px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-xl": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom Shadows */
+        .shadow-level-1 {
+            box-shadow: 0 1px 3px rgba(15, 30, 24, 0.04), 0 4px 10px rgba(15, 30, 24, 0.06);
+        }
+        
+        /* Mobile Width constraint */
+        body {
+            max-width: 390px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 300, /* 1.5px stroke outline feel */
+          'GRAD' 0,
+          'opsz' 24
+        }
+        
+        .material-symbols-outlined.filled {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 300,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background pb-20">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim font-headline-md text-headline-md docked full-width top-0 flat no shadows flex items-center justify-between px-md w-full h-16 transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] sticky z-10">
+<div class="flex items-center">
+<button class="mr-4 text-on-surface-variant dark:text-outline-variant hover:opacity-80 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Tema</h1>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="px-md py-4 space-y-md">
+<!-- Search Bar -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full pl-12 pr-4 py-3 rounded-full bg-surface shadow-level-1 border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-body-md text-body-md text-on-surface placeholder-on-surface-variant transition-all duration-320" placeholder="Cari tema..." type="text"/>
+</div>
+<!-- Theme Cards List (Bento-inspired single column) -->
+<div class="space-y-sm flex flex-col">
+<!-- Card 1 -->
+<button class="w-full text-left bg-surface rounded-[14px] p-md border border-[#e1e9e5] shadow-level-1 hover:bg-surface-container-lowest transition-all duration-320 active:scale-[0.98] group flex flex-col gap-2">
+<div class="flex justify-between items-start w-full">
+<h2 class="font-headline-md text-headline-md text-primary-container group-hover:text-primary transition-colors text-xl">Ketenangan Hati</h2>
+<span class="bg-surface-container-low text-primary-container font-label-md text-label-md px-2 py-1 rounded-full tabular-nums">12 ayat</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Cari ayat-ayat yang menenangkan pikiran dan meredakan kecemasan.</p>
+<div class="w-full flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+</div>
+</button>
+<!-- Card 2 -->
+<button class="w-full text-left bg-surface rounded-[14px] p-md border border-[#e1e9e5] shadow-level-1 hover:bg-surface-container-lowest transition-all duration-320 active:scale-[0.98] group flex flex-col gap-2">
+<div class="flex justify-between items-start w-full">
+<h2 class="font-headline-md text-headline-md text-primary-container group-hover:text-primary transition-colors text-xl">Sabar &amp; Syukur</h2>
+<span class="bg-surface-container-low text-primary-container font-label-md text-label-md px-2 py-1 rounded-full tabular-nums">18 ayat</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Belajar bagaimana Al-Qur'an mengajarkan kita menghadapi cobaan dan mensyukuri nikmat.</p>
+<div class="w-full flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+</div>
+</button>
+<!-- Card 3 -->
+<button class="w-full text-left bg-surface rounded-[14px] p-md border border-[#e1e9e5] shadow-level-1 hover:bg-surface-container-lowest transition-all duration-320 active:scale-[0.98] group flex flex-col gap-2">
+<div class="flex justify-between items-start w-full">
+<h2 class="font-headline-md text-headline-md text-primary-container group-hover:text-primary transition-colors text-xl">Mencari Petunjuk</h2>
+<span class="bg-surface-container-low text-primary-container font-label-md text-label-md px-2 py-1 rounded-full tabular-nums">15 ayat</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Saat kamu bingung dan butuh arah yang jelas dari Sang Pencipta.</p>
+<div class="w-full flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+</div>
+</button>
+<!-- Card 4 -->
+<button class="w-full text-left bg-surface rounded-[14px] p-md border border-[#e1e9e5] shadow-level-1 hover:bg-surface-container-lowest transition-all duration-320 active:scale-[0.98] group flex flex-col gap-2">
+<div class="flex justify-between items-start w-full">
+<h2 class="font-headline-md text-headline-md text-primary-container group-hover:text-primary transition-colors text-xl">Keluarga</h2>
+<span class="bg-surface-container-low text-primary-container font-label-md text-label-md px-2 py-1 rounded-full tabular-nums">22 ayat</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pedoman membangun rumah tangga yang penuh kasih sayang dan keberkahan.</p>
+<div class="w-full flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+</div>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-surface-dim font-label-md text-label-md docked full-width bottom-0 border-t border-outline-variant dark:border-outline shadow-sm fixed bottom-0 w-[390px] mx-auto z-50 flex justify-around items-center px-4 py-2 left-0 right-0">
+<!-- Tanya (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-xs">Tanya</span>
+</a>
+<!-- Baca (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book">menu_book</span>
+<span class="text-xs">Baca</span>
+</a>
+<!-- Tema (Active) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold hover:bg-surface-container-low dark:hover:bg-surface-container-highest active:scale-95 transition-transform duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] p-2 rounded-lg w-16 bg-surface-container-low" href="#">
+<span class="material-symbols-outlined filled mb-1" data-icon="palette">palette</span>
+<span class="text-xs">Tema</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Peta Konsep - QuranKu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Poppins:wght@600;700;800&amp;family=Inter:wght@400..600&amp;display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#6f7973",
+                        "secondary-container": "#94f6c6",
+                        "tertiary": "#5a2b0f",
+                        "secondary-fixed-dim": "#78d9ab",
+                        "surface": "#f1fcf3",
+                        "surface-dim": "#d1ddd4",
+                        "on-secondary-container": "#00734f",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#341100",
+                        "on-surface": "#141e18",
+                        "on-primary-fixed": "#002115",
+                        "surface-variant": "#dae5dc",
+                        "on-tertiary-fixed-variant": "#6c3a1d",
+                        "tertiary-fixed": "#ffdbca",
+                        "surface-tint": "#236a50",
+                        "on-background": "#141e18",
+                        "primary-container": "#0b5a41",
+                        "on-primary-container": "#89cfaf",
+                        "inverse-primary": "#8fd5b5",
+                        "on-secondary-fixed-variant": "#005237",
+                        "primary": "#00412d",
+                        "surface-container-high": "#dfebe2",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#bfc9c2",
+                        "on-tertiary-container": "#f9b08a",
+                        "on-error-container": "#93000a",
+                        "background": "#f1fcf3",
+                        "on-primary-fixed-variant": "#00513a",
+                        "surface-container-low": "#ebf7ed",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f1fcf3",
+                        "tertiary-fixed-dim": "#ffb690",
+                        "primary-fixed": "#aaf1d0",
+                        "inverse-surface": "#28332d",
+                        "primary-fixed-dim": "#8fd5b5",
+                        "tertiary-container": "#754124",
+                        "surface-container-highest": "#dae5dc",
+                        "inverse-on-surface": "#e8f4eb",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#002114",
+                        "secondary": "#006c4a",
+                        "secondary-fixed": "#94f6c6",
+                        "on-surface-variant": "#3f4943",
+                        "error": "#ba1a1a",
+                        "surface-container": "#e5f1e8",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "14px": "14px"
+                    },
+                    "spacing": {
+                        "section-gap": "48px",
+                        "stack-lg": "32px",
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "4pt": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Poppins"],
+                        "headline-md": ["Poppins"],
+                        "headline-lg": ["Poppins"],
+                        "label-sm": ["Inter"],
+                        "display-scripture": ["Amiri"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-scripture": ["40px", { "lineHeight": "64px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    },
+                    "boxShadow": {
+                        "soft": "0 4px 10px rgba(10, 77, 56, 0.08)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f4f9f6; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #00412d 0%, #a86b4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+        .fade-in {
+            animation: fadeIn 320ms ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased bg-[#f4f9f6] flex flex-col h-screen max-w-[390px] mx-auto relative overflow-hidden shadow-2xl">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim w-full top-0 sticky flex items-center justify-between px-gutter h-16 w-full z-10 transition-colors">
+<button class="text-primary dark:text-primary-fixed hover:bg-surface-container-high transition-colors active:scale-95 transition-transform p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed font-bold tracking-tight">Peta Konsep</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto px-container-margin pb-24 pt-stack-md">
+<!-- Hero Section -->
+<div class="mb-stack-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-[800] hero-gradient mb-stack-sm leading-tight">Peta Konsep Al-Qur'an</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Jelajahi hubungan antar tema dan konsep dalam Al-Qur'an melalui peta pengetahuan visual.</p>
+</div>
+<!-- Graph View (Static mockup) -->
+<div class="mb-section-gap relative w-full h-[240px] bg-white rounded-14px shadow-soft p-gutter border border-surface-container-high flex items-center justify-center overflow-hidden">
+<!-- Decorative geometric lines -->
+<svg class="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveaspectratio="none" viewbox="0 0 300 200">
+<line stroke="#00412d" stroke-width="2" x1="150" x2="50" y1="100" y2="40"></line>
+<line stroke="#00412d" stroke-width="2" x1="150" x2="250" y1="100" y2="40"></line>
+<line stroke="#00412d" stroke-width="2" x1="150" x2="50" y1="100" y2="160"></line>
+<line stroke="#00412d" stroke-width="2" x1="150" x2="250" y1="100" y2="160"></line>
+<line stroke="#00412d" stroke-width="1" x1="50" x2="100" y1="40" y2="20"></line>
+</svg>
+<!-- Nodes -->
+<div class="absolute top-[40px] left-[50px] w-[60px] h-[60px] bg-surface-container-low rounded-full border border-primary/20 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">psychology</span>
+</div>
+<div class="absolute top-[40px] right-[50px] w-[60px] h-[60px] bg-surface-container-low rounded-full border border-primary/20 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">group</span>
+</div>
+<!-- Central Expanded Node -->
+<div class="relative z-10 w-full max-w-[280px] bg-white rounded-14px shadow-md border border-primary/10 p-gutter fade-in">
+<div class="flex items-center justify-between mb-stack-sm">
+<span class="font-label-sm text-label-sm text-tertiary">94:5</span>
+<div class="flex gap-[4px]">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-primary border border-primary/20 text-[10px] font-medium leading-none whitespace-nowrap">Kemenag RI</span>
+</div>
+</div>
+<p class="font-display-scripture text-[28px] leading-[48px] text-on-surface text-right mb-stack-sm" dir="rtl" lang="ar">
+                    فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+                </p>
+<div class="space-y-4pt">
+<p class="font-body-md text-[14px] leading-[20px] text-on-surface">Karena sesungguhnya sesudah kesulitan itu ada kemudahan,</p>
+<p class="font-body-md text-[12px] leading-[18px] text-on-surface-variant italic">Maka sesungguhnya beserta kesulitan ada kemudahan,</p>
+</div>
+</div>
+</div>
+<!-- Map List -->
+<h3 class="font-headline-md text-[18px] mb-stack-md text-on-surface font-semibold">Kategori Peta</h3>
+<div class="flex flex-col gap-stack-md">
+<!-- Card 1 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Ekonomi Islam</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Perintah dan Larangan</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">self_improvement</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Membangun Pribadi Shalih</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface leading-tight line-clamp-1">Rahasia Kejiwaan Manusia...</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Card 5 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">group</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Sosial</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Card 6 -->
+<div class="bg-white rounded-14px shadow-soft p-gutter flex items-center justify-between hover:shadow-md transition-shadow active:scale-[0.98]">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">flag</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Hijrah, Jihad dan Perang</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-2 pb-safe w-full bg-surface border-t-0 shadow-[0_-4px_10px_rgba(10,77,56,0.04)]">
+<!-- Inactive -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-colors active:scale-90 transition-all duration-200 w-full h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label-sm text-label-sm">Tanya</span>
+</button>
+<!-- Active -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-semibold hover:bg-surface-container-low transition-colors active:scale-90 transition-all duration-200 w-full h-full relative">
+<div class="absolute top-2 w-12 h-8 bg-secondary-container rounded-full opacity-50 z-[-1]"></div>
+<span class="material-symbols-outlined mb-1 text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-label-sm text-label-sm text-on-secondary-container">Baca</span>
+</button>
+<!-- Inactive -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-colors active:scale-90 transition-all duration-200 w-full h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">palette</span>
+<span class="font-label-sm text-label-sm">Tema</span>
+</button>
+</nav>
+</body></html>
