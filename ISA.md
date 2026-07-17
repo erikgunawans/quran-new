@@ -471,6 +471,8 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 
 ## Decisions
 
+**2026-07-18 (Cycle 5 tune) — the classifier is retuned eager-but-bounded: false silence violates "silence must be true".** Live testing found the classifier returned `[]` on ~40% of calls for a clear borderline feeling ("aku merasa makin jauh dari Tuhan"), producing SILENCE where 39:53 fits perfectly — a *false* silence, since the corpus holds the verse. The old `THEME_SYSTEM_PROMPT` rule 3 ("if nothing genuinely fits, return empty; a wrong theme sends the wrong verse") was too shy. Retuned: classify ANY genuine feeling (even subtle/spiritual — distance from God, emptiness), return `[]` ONLY for non-emotional input (factual/command/spam/gibberish). Tradeoff accepted: an eager classifier risks a mildly-off verse on a truly-ambiguous phrase, but (a) the framing POINTS never AUTHORS, so an off verse is "here's a verse" not a false claim about God; (b) Opt-1 means the classifier fires only on keyword-misses — exactly the unusual phrasings we want it to reach; (c) the crisis check still runs first. Prompt-teeth tests still pass. Re-verify the `[]` rate after redeploy (worker + app both import the prompt).
+
 **2026-07-17 (Cycle 5 wiring scaffold) — runtime keys live in the edge Worker, never in the app.**
 The app is 100% static (nginx serving `web/dist`; the Dockerfile says "no server-side code"), so
 there is nowhere in the app to hold a runtime secret. The runtime model call therefore goes through
