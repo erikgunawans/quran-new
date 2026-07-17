@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: execute
-progress: 194/202
+progress: 195/202
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -406,7 +406,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [DEFERRED-VERIFY] ISC-201: the live model routes through `guardComposeProse` before render, degrading to the canned opener when unsafe. CODE COMPLETE + unit-tested: `main.ts` hits-case now `await composeFraming(hits, q, liveFramingModel, compose(hits, q))`; `compose-live.ts` POSTs `/api/compose` (4s timeout) and throws on `{prose:null}`/404/error → fallback (`compose-live.test.ts`, 3 tests). Wall runs BOTH sides. Client bundles clean (88 KB). **Follow-up: F-MODEL-WIRING — deploy the Worker, then probe an intentionally-unsafe generation degrading to the opener on screen.**
 - [x] ISC-202.1: the input understander CONTRACT — `understandThemes(question, validThemes, model, keywordFallback)` classifies only into the closed corpus theme set (`guardThemes` drops invented/renamed categories exactly), falls back to keyword detection on any miss/error, returns `[]` on empty input, and generates no scripture (verified: `theme-understand.test.ts`, 20 tests)
 - [DEFERRED-VERIFY] ISC-202.2: the WIRED classifier measurably improves theme detection over the keyword `LEXICON` on messy code-switched input (e.g. "aku ngerasa Tuhan udah nyerah sama aku"), unioned into `retrieve()`'s scoring so keyword hits keep their transparent "you typed this word" explanation. **Follow-up: F-MODEL-WIRING — wire the classifier, then A/B its theme detection against the lexicon on a fixture set of real 2am phrasings.**
-- [DEFERRED-VERIFY] ISC-204: the wired framing model (`FramingModel`) is a real generation call; the `FRAMING_SYSTEM_PROMPT` + wall behave correctly against actual model output. **Follow-up: F-MODEL-WIRING — decide model/host (contract is ready; Erik chose contract-first), then probe a real generation end-to-end.**
+- [x] ISC-204: the wired framing model is a real generation call and the `FRAMING_SYSTEM_PROMPT` + wall behave correctly on live output. VERIFIED 2026-07-18 — Worker deployed, `OPENROUTER_API_KEY` set, live `curl POST /api/compose` (DeepSeek V4 Flash) returned: *"Capek banget, ya, apalagi kalau semuanya terasa numpuk sendiri. Ayat-ayat di bawah ini sering dibaca orang yang lagi di titik serupa."* — warm natural Indonesian, points at the verses ("sering dibaca orang yang lagi di titik serupa"), zero Arabic/refs/authoring; passed the server-side wall (prose returned, not null).
 
 ## Test Strategy
 
