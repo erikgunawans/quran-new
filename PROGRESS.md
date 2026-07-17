@@ -8,7 +8,77 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-17 (latest) — F-1 answered: Peta Tematik SHIPPED, and the index turned out to be wrong in four places
+## 2026-07-17 (latest) — DEPLOYED to Cloud Run, public and verified from outside
+
+**<https://nur-227613425590.asia-southeast2.run.app>** — project `nur-demo`, region asia-southeast2
+(Jakarta), revision `nur-00001-g9r`, 100% traffic. Commit `c54cecc` (.gcloudignore fix).
+
+Erik asked one question — *"check on the project slot availability"* — and every real blocker turned
+out to be something else. Recording them because each will recur.
+
+### 1. Billing slots, not project slots
+
+10 projects exist but the billing account (`012944-41677E-208592`) caps at **5 linked projects, all
+full**. That was the actual answer to his question. `gcloud billing projects list --billing-account=…`
+gives the count; the link attempt gives the cap. **I first told him it wasn't machine-readable and sent
+him to the Console — wrong, and one command away.**
+
+Freed a slot by unlinking **`new-akselerai-499021`** — verified genuinely empty first (no Cloud Run, no
+compute, no buckets, no disks, no BigQuery datasets; created 2026-06-10, never used). **`agenku-enterprise`
+would have been the wrong choice** — it holds `entos-audit-agenku-enterprise` + `entos-blob-…` buckets and
+a 50 GB disk. `nur-demo` itself was restored via `gcloud projects undelete` (it was DELETE_REQUESTED,
+within the 30-day window) — costing no new project slot.
+
+### 2. Domain-restricted sharing — the thing that killed the 2026-07 demo
+
+`constraints/iam.allowedPolicyMemberDomains` = `allowedValues: [C0222nzsa]` at org `1068735377519`
+(set 2026-03-19). It blocks `allUsers` in any IAM policy — which is exactly what a public Cloud Run
+service needs, and why the old `story-maker-demo` nur demo was only ever reachable by erik@axiara.ai.
+
+Fixed with a **project-scoped override on `nur-demo` only** (`inheritFromParent: false`, `allowAll: true`).
+**Verified the blast radius**: org policy unchanged, `axiara-akselerai-prod` still enforced at `C0222nzsa`.
+Do NOT disable this org-wide — it guards nine other projects.
+
+### 3. `automaticIamGrantsForDefaultServiceAccounts` — enforced, deliberately
+
+Also set 2026-03-19. Blocks the automatic `roles/editor` grant to default SAs, so nur-demo's
+`227613425590-compute@developer.gserviceaccount.com` had **zero roles** and 403'd reading *its own*
+uploaded source zip. **Guessed undelete fallout; checked; was wrong — it's deliberate hardening.**
+Fixed by granting that one SA `roles/cloudbuild.builds.builder` on that one project, not by
+weakening the constraint (a default SA with Editor is a standing privilege-escalation path).
+
+### 4. Our own `.gitignore` broke the build
+
+`gcloud run deploy --source .` reads **`.gitignore` when no `.gcloudignore` exists**. `.gitignore`
+excludes `web/dist/` — correct, it's a build artifact — but `web/dist` is the ONE thing
+`COPY web/dist /usr/share/nginx/html` needs. Build died with a bare `exit status 1` and an **empty
+Cloud Build log**. Every tool behaved correctly; the combination did not.
+
+`.gcloudignore` added as an **allowlist** (Dockerfile + nginx.conf + web/dist only). First cut used
+`!web/` alone, which re-included `web/src` and `web/public` — a second copy of all 114 surah shards.
+Upload 12,834 → **6,394 files**. `bun run build` must run before deploy; the file ships dist, not builds it.
+
+### Verified, not assumed
+
+- `allUsers` → `roles/run.invoker` present in the service IAM policy.
+- **Unauthenticated** curl: `/` 200 (7,631 B, 430 ms), `/peta/index.json` 200, `/surah/18.json` 200.
+- Headless Chrome on the **live URL**: Peta Tematik renders, light tokens, attribution + derivative note.
+- This is the check that silently failed last time — a service locked to the domain looks identical
+  to a working one from inside it.
+
+### Open
+
+- **F-6 is now live-and-unanswered.** The Indeks Tematik is publicly downloadable
+  (`curl …/peta/index.json` returns it), which is exactly what F-6 asks Ustadz Ahmad to approve.
+  Worth showing him before wide sharing. F-5 (the four typos) also still open.
+- **128 MB in a container.** New-Quranku is 100% static; Cloud Run is nginx wrapping files. Firebase
+  Hosting would have needed none of blockers 2–4. Revisit if this stops being a demo.
+- `new-akselerai-499021` is unlinked but not deleted — relink is `gcloud billing projects link`, subject
+  to the same 5-slot cap.
+
+---
+
+## 2026-07-17 — F-1 answered: Peta Tematik SHIPPED, and the index turned out to be wrong in four places
 
 Erik: *"confirmed by ustadz ahmad that since it's ok to display indeks tematik"*. The gate lifted.
 Commit `03998ed` on `main`. 424 tests (was 386), typecheck + build clean, live-probed headless.
