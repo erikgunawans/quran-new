@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: execute
-progress: 193/201
+progress: 194/202
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -404,7 +404,8 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-200: Anti: no generative code touches `src/ingest/` or the pinned corpus — `git diff HEAD -- src/ingest/` empty; all Cycle-5 code is `web/src/`
 - [x] ISC-203: Antecedent: `composeFraming` returns `""` on empty hits BEFORE invoking the model — silence-over-fabrication; test "no hits → silence, model never invoked" confirms the model spy is never called
 - [ ] ISC-201: the live model routes through `guardComposeProse` before render; a live probe shows an intentionally-unsafe generation degrading to the canned opener on screen (needs the wired model + UI)
-- [ ] ISC-202: the input understander improves theme detection over the keyword `LEXICON` on messy code-switched input (e.g. "aku ngerasa Tuhan udah nyerah sama aku"), feeding `retrieve()` and generating no scripture
+- [x] ISC-202.1: the input understander CONTRACT — `understandThemes(question, validThemes, model, keywordFallback)` classifies only into the closed corpus theme set (`guardThemes` drops invented/renamed categories exactly), falls back to keyword detection on any miss/error, returns `[]` on empty input, and generates no scripture (verified: `theme-understand.test.ts`, 20 tests)
+- [DEFERRED-VERIFY] ISC-202.2: the WIRED classifier measurably improves theme detection over the keyword `LEXICON` on messy code-switched input (e.g. "aku ngerasa Tuhan udah nyerah sama aku"), unioned into `retrieve()`'s scoring so keyword hits keep their transparent "you typed this word" explanation. **Follow-up: F-MODEL-WIRING — wire the classifier, then A/B its theme detection against the lexicon on a fixture set of real 2am phrasings.**
 - [DEFERRED-VERIFY] ISC-204: the wired framing model (`FramingModel`) is a real generation call; the `FRAMING_SYSTEM_PROMPT` + wall behave correctly against actual model output. **Follow-up: F-MODEL-WIRING — decide model/host (contract is ready; Erik chose contract-first), then probe a real generation end-to-end.**
 
 ## Test Strategy
@@ -459,6 +460,9 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | peta-tematik-map | `build-peta.ts` emits `index.json` + 13 category shards; `web/src/peta.ts` renders the browsable index, category routes, bridges, and attribution | ISC-124..170 | shard-builder, ref-oracle | no |
 | cosmos-baker | `src/app/build-peta-3d.ts` runs d3-force-3d once at build time, asserts topology, bakes integer coords → `cosmos.json` (46 KB); physics is a devDependency, never shipped | ISC-171..177 | peta-tematik-map | no (foundation for render) |
 | cosmos-render | `web/src/peta-cosmos.ts` — projection-only client: rotate, perspective-divide, blit glow sprites; opt-in fetch, reduced-motion aware, drag≠click, disposable | ISC-178..189 | cosmos-baker | no |
+| compose-guard | `web/src/compose-guard.ts` — egress wall: no Arabic, no verse ref (hard) + authoring heuristic; `safeCompose` degrades to the deterministic opener | ISC-190..197 | — | no (foundation) |
+| compose-contract | `web/src/compose-contract.ts` — the wrap: `composeFraming` + `FRAMING_SYSTEM_PROMPT`; model is blind to verse text/refs; falls back on no-hits/error/unsafe | ISC-198..204 | compose-guard | no |
+| theme-understand | `web/src/theme-understand.ts` — input understander: `understandThemes` + `THEME_SYSTEM_PROMPT`; classifies into the closed corpus theme set only, keyword fallback | ISC-202.1..202.2 | — | yes (mirror of compose-contract) |
 
 ## Decisions
 
