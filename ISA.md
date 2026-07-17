@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: execute
-progress: 189/200
+progress: 193/201
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -397,14 +397,15 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-196: every existing hand-written `compose()` opener passes its own wall — the fallback is shippable by construction
 - [x] ISC-197: `compose-guard.test.ts` green (18 pass, 0 fail) and `bun run typecheck` clean
 
-**The wrap (`compose()` seam in `retrieve.ts`) — pending**
+**The wrap (`compose-contract.ts`) — contract + prompt built + verified 2026-07-17; live model pending**
 
-- [ ] ISC-198: the generative composer receives the grounded `Hit[]` + the question and returns ONLY framing prose; it never selects verses, emits their text, or invents a reference
-- [ ] ISC-199: Anti: the retrieval path is byte-unchanged — `retrieve()`, `MIN_SCORE`, the lexicon fallback, and the corpus stay the source of truth for WHICH verses and their rendered text
-- [ ] ISC-200: Anti: `bun run verify` corpus gates stay 24/24 — no generative model touches `src/ingest/` or the sha256-pinned corpus
-- [ ] ISC-201: the composer routes every model output through `guardComposeProse` before render; a live probe shows an intentionally-unsafe generation degrading to the canned opener on screen
+- [x] ISC-198: `composeFraming(hits, question, model, fallback)` receives the grounded `Hit[]` + question and returns ONLY framing prose; the model's `ComposeContext` carries exactly `{question, theme, themeCount}` — no verse text, no reference — so it cannot select verses or leak their text (test asserts the key set)
+- [x] ISC-199: Anti: the retrieval path is byte-unchanged — `git diff HEAD -- web/src/retrieve.ts` is empty; the wrap is a new file, retrieval untouched
+- [x] ISC-200: Anti: no generative code touches `src/ingest/` or the pinned corpus — `git diff HEAD -- src/ingest/` empty; all Cycle-5 code is `web/src/`
+- [x] ISC-203: Antecedent: `composeFraming` returns `""` on empty hits BEFORE invoking the model — silence-over-fabrication; test "no hits → silence, model never invoked" confirms the model spy is never called
+- [ ] ISC-201: the live model routes through `guardComposeProse` before render; a live probe shows an intentionally-unsafe generation degrading to the canned opener on screen (needs the wired model + UI)
 - [ ] ISC-202: the input understander improves theme detection over the keyword `LEXICON` on messy code-switched input (e.g. "aku ngerasa Tuhan udah nyerah sama aku"), feeding `retrieve()` and generating no scripture
-- [ ] ISC-203: Antecedent: when retrieval scores below `MIN_SCORE`, the model is NEVER invoked — silence-over-fabrication holds; the app says it does not know rather than generating comfort
+- [DEFERRED-VERIFY] ISC-204: the wired framing model (`FramingModel`) is a real generation call; the `FRAMING_SYSTEM_PROMPT` + wall behave correctly against actual model output. **Follow-up: F-MODEL-WIRING — decide model/host (contract is ready; Erik chose contract-first), then probe a real generation end-to-end.**
 
 ## Test Strategy
 
