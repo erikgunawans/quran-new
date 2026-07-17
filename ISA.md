@@ -1,9 +1,9 @@
 ---
 project: New-Quranku
-task: "Cycle 4 — the 3D cosmos ISCs (ISC-171..189): retroactively track the baked-layout star field (build-peta-3d.ts + peta-cosmos.ts) that shipped in Cycle 3 without its own criteria (prior: Cycle 3 Peta Tematik index/shards/attribution, complete; last-read bookmark, complete; Cycle 2 mobile-first UI redesign, complete 94/96)"
+task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
-phase: complete
-progress: 181/186
+phase: execute
+progress: 189/200
 mode: build
 started: 2026-07-13
 updated: 2026-07-17
@@ -374,6 +374,38 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-188: `bun test` green across the peta suites (`peta-3d.test.ts`, `peta-shards.test.ts`, `web/src/peta.test.ts` — 46 pass, 0 fail) and `bun run typecheck` clean
 - [DEFERRED-VERIFY] ISC-189: the cosmos holds 60fps on a real mid-range Android. UNVERIFIABLE here — rAF is suspended while Chrome is minimized (same blocker as ISC-110/111). The glow-sprite optimization is sound by inspection (ISC-181) but unproven on-device. **Follow-up: F-COSMOS-PERF — Erik profiles `#/peta` cosmos on a physical mid-range Android; mark `[x]` only with an on-device frame-rate reading.**
 
+### Cycle 5 — the generative companion: point, never author (2026-07-17)
+
+> The ISC-80..97 generative-capability decision, DEFERRED at Cycle 2 ("UI/UX only"), is now MADE.
+> Ruling: the model **wraps** `retrieve()` — it understands messy input and writes the pastoral
+> framing in the app's own voice, but retrieval stays the source of truth for WHICH verses and
+> their text. The bright line is **point, never author**: the model may point at meaning
+> ("para ulama membaca ayat ini tentang rahmat — kata-katanya ada di bawah"), never author it
+> ("ayat ini artinya kamu harus sabar"). Enforced by an egress WALL, not a prompt — because
+> band.ts shipped the wrong verse twice and the source itself misremembers 4 ayahs, so a model
+> will too. On any violation the deterministic hand-written opener ships instead: degradation to
+> honesty, silent to the reader.
+
+**The egress wall (`web/src/compose-guard.ts`) — built + verified 2026-07-17**
+
+- [x] ISC-190: `guardComposeProse(prose)` is a pure, synchronous function returning `{ ok, violations }`; `safeCompose(prose, fallback)` returns the model prose iff it clears the wall
+- [x] ISC-191: Anti: model prose containing Arabic script is rejected (HARD wall) — scripture is rendered structurally from the corpus, never typed by the model
+- [x] ISC-192: Anti: model prose containing any verse reference — digit (`94:5`) or spelled (`QS 94:5`, `surat 94 ayat 5`) — is rejected (HARD wall); retrieval owns which verses appear
+- [x] ISC-193: Anti: authoring/ruling phrasings are rejected (heuristic layer) — "ayat ini artinya…", "Allah menyuruh kamu…", "menurut Islam…", "hukumnya wajib", "kamu harus sabar"
+- [x] ISC-194: deictic pointing WITHOUT a number ("ayat di bawah", "ayat ini tentang rahmat") passes — the bright line holds, pointing is allowed, authoring is not
+- [x] ISC-195: `safeCompose` returns the deterministic opener on ANY violation — the reader never sees an error, only a slightly less personal but honest sentence
+- [x] ISC-196: every existing hand-written `compose()` opener passes its own wall — the fallback is shippable by construction
+- [x] ISC-197: `compose-guard.test.ts` green (18 pass, 0 fail) and `bun run typecheck` clean
+
+**The wrap (`compose()` seam in `retrieve.ts`) — pending**
+
+- [ ] ISC-198: the generative composer receives the grounded `Hit[]` + the question and returns ONLY framing prose; it never selects verses, emits their text, or invents a reference
+- [ ] ISC-199: Anti: the retrieval path is byte-unchanged — `retrieve()`, `MIN_SCORE`, the lexicon fallback, and the corpus stay the source of truth for WHICH verses and their rendered text
+- [ ] ISC-200: Anti: `bun run verify` corpus gates stay 24/24 — no generative model touches `src/ingest/` or the sha256-pinned corpus
+- [ ] ISC-201: the composer routes every model output through `guardComposeProse` before render; a live probe shows an intentionally-unsafe generation degrading to the canned opener on screen
+- [ ] ISC-202: the input understander improves theme detection over the keyword `LEXICON` on messy code-switched input (e.g. "aku ngerasa Tuhan udah nyerah sama aku"), feeding `retrieve()` and generating no scripture
+- [ ] ISC-203: Antecedent: when retrieval scores below `MIN_SCORE`, the model is NEVER invoked — silence-over-fabrication holds; the app says it does not know rather than generating comfort
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -428,6 +460,32 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 | cosmos-render | `web/src/peta-cosmos.ts` — projection-only client: rotate, perspective-divide, blit glow sprites; opt-in fetch, reduced-motion aware, drag≠click, disposable | ISC-178..189 | cosmos-baker | no |
 
 ## Decisions
+
+**2026-07-17 (Cycle 5 opened) — the generative-capability ruling is MADE: point, never author.**
+ISC-80..97 deferred this at Cycle 2 ("UI/UX only pending the generative-capability ruling"). Erik
+ruled in discussion this session:
+- **Wrap, not replace.** The model wraps `retrieve()`. Retrieval stays the source of truth for
+  which verses appear and their byte-exact text; the model understands the input and writes the
+  pastoral framing. It does not become the source of truth and does not drive verse selection.
+- **Rung 1 (companion), not rung 2 (interpreter).** The model speaks only in the app's own voice —
+  present, naming the feeling, refusing to fix. It does NOT explain what verses mean. The reasoning:
+  the tafsir is already one tap away, and the only *new* thing rung 2 adds is the model *weaving* a
+  verse into a person's situation — which is exactly the fatwa-shaped act the constraints forbid.
+  The safe part of rung 2 (quoting pinned tafsir) we already have; the new part is the dangerous part.
+- **The bright line: point, never author.** "Para ulama membaca ayat ini tentang rahmat — kata-kata
+  mereka ada di bawah" (pointing, allowed) vs "ayat ini artinya kamu harus sabar" (authoring, blocked).
+- **A wall, not a prompt.** Safety lives on the model's OUTPUT (`compose-guard.ts`), where the model
+  cannot reach past it — not in instructions it can ignore. Justified by this repo's own history:
+  band.ts shipped the wrong verse twice by trusting memory over shipped data; the source index itself
+  misremembers 4 ayahs that do not exist. A model does this confidently, at scale.
+- **Degradation to honesty.** On any wall violation, `safeCompose` ships the deterministic
+  hand-written opener — the worst case is a slightly-less-personal sentence, never a betrayal.
+- **The generative pipeline is not yet in this repo.** The prod Gemini 3 / Redis / worker demo lives
+  outside `quran-new` (the "port the whole thing into the real app" note). Cycle 5's first brick —
+  the wall — is LLM-independent and shipped first; the wiring (understander + composer + which model,
+  called from where) is the open question for the next step. **Constraint line 91 ("No generative
+  model in the retrieval path") is honored by design: the model wraps retrieval's OUTPUT, never enters
+  the scoring/resolution path.**
 
 **2026-07-17 (Cycle 4 added, resume session) — the 3D cosmos gets its own ISCs; the map surface
 already had them.** The prior checkpoint flagged `build-peta-3d.ts` / `peta-cosmos.ts` / "peta-map.ts"
