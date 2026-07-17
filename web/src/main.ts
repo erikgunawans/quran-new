@@ -11,6 +11,8 @@ import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, Shar
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, retrieve, type Corpus, type Voice } from "./retrieve.ts";
+import { composeFraming } from "./compose-contract.ts";
+import { liveFramingModel } from "./compose-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { renderTheme, renderThemeIndex } from "./themes.ts";
@@ -126,10 +128,11 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       const verses = t.refs.map((r) => corpus!.verses.find((v) => v.ref === r)).filter((v) => v !== undefined);
       if (!verses.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
 
-      const lead = compose(
-        verses.map((v) => ({ verse: v, score: 1, matched: [] })),
-        t.q,
-      );
+      const hits = verses.map((v) => ({ verse: v, score: 1, matched: [] as string[] }));
+      // Live framing via the edge model, guarded, with the deterministic opener as the safety net.
+      // Until /api/compose is deployed (or if the model/wall rejects), this falls back silently —
+      // the reader always gets an honest line, and the verses below never wait on it beyond the cap.
+      const lead = await composeFraming(hits, t.q, liveFramingModel, compose(hits, t.q));
 
       return (
         `<p class="said">${lead}</p>` +
