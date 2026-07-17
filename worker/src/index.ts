@@ -134,7 +134,7 @@ async function handleClassify(request: Request, env: Env): Promise<Response> {
     `Daftar tema yang boleh dipilih (pilih HANYA dari ini, salin persis):\n` +
     valid.map((t) => `- ${t}`).join("\n") +
     `\n\nYang ditulis orang itu:\n"""${question}"""\n\n` +
-    `Pilih tema yang paling mendekati perasaan atau keadaan batinnya, kembalikan sebagai array JSON of strings (mis. ["Trust in God"]). Kembalikan [] HANYA jika ini sama sekali bukan ungkapan perasaan.`;
+    `Kembalikan tema yang cocok sebagai array JSON of strings. Jika tidak ada yang cocok, kembalikan [].`;
 
   let raw: string;
   try {
