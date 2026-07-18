@@ -225,7 +225,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
     <div class="read-index peta-index">
       <header class="read-intro">
         <h1>Peta Tematik</h1>
-        <p>${t.categories} kategori, ${t.entries.toLocaleString("id-ID")} entri, menunjuk ke ${t.verses.toLocaleString("id-ID")} ayat. Telusuri kategori, lalu subtopik, lalu sampai ke ayatnya.</p>
+        <p>Seluruh Qur'an dipetakan lewat topik: ${t.categories} kategori, ${t.entries.toLocaleString("id-ID")} entri, menunjuk ke ${t.verses.toLocaleString("id-ID")} ayat. Telusuri kategori, lalu subtopik, sampai ke ayatnya. Kalau ingin mulai dari perasaan, bukan topik, buka <b>Tema</b>.</p>
         ${creditEl(index.source)}
         ${derivativeNoteEl()}
       </header>

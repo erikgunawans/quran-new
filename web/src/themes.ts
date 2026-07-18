@@ -49,8 +49,8 @@ export function renderThemeIndex(mount: HTMLElement): void {
   mount.innerHTML = `
     <div class="read-index">
       <header class="read-intro">
-        <h1>Baca berdasarkan tema</h1>
-        <p>${THEME_INDEX.length} tema, dari ${THEME_INDEX.reduce((n, g) => n + g.verses.length, 0)} ayat yang paling sering dicari orang. Bukan daftar lengkap — kalau temanya tidak ada di sini, coba tanya lewat obrolan.</p>
+        <h1>Baca lewat perasaan</h1>
+        <p>${THEME_INDEX.length} tema perasaan — capek, cemas, kehilangan, dan lainnya — dari ${THEME_INDEX.reduce((n, g) => n + g.verses.length, 0)} ayat yang paling sering dicari orang. Bukan daftar lengkap; kalau yang kamu rasakan belum ada, ceritakan saja lewat obrolan. Untuk menjelajah topik dan konsep seluruh Qur'an, buka <b>Peta</b>.</p>
       </header>
 
       <ul class="theme-list">
