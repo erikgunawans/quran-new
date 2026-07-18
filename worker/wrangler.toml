@@ -13,8 +13,16 @@ routes = [
   { pattern = "new-quranku.axiara.ai/*", zone_name = "axiara.ai" }
 ]
 
+# Static assets — the app (web/dist) is served from Cloudflare's edge, NOT Cloud Run.
+# web/dist is the exact same static bundle Cloud Run's nginx served. SPA fallback → index.html.
+# REVERT to Cloud Run: delete this [assets] block, restore `return proxyToOrigin(...)` in index.ts.
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
 [vars]
-# The Cloud Run origin the proxy rewrites Host to (project nur-demo, asia-southeast2).
+# Retained for the (now-unused) proxy path, so reverting to Cloud Run is a one-line change.
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 # Runtime model defaults (overridable). Non-secret.
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"

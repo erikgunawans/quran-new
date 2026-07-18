@@ -113,40 +113,67 @@
 #read .find-in:focus { outline: none; border-color: var(--primary-line); background: var(--surface-2); }
 #read .find-in:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
+/* Surah index — QuranKu-family arrangement: a responsive card grid (1 → 2 → 3 columns),
+   each card a bordered 12px tile with a green number badge, the region tag (gold Makkiyah /
+   green Madaniyah — QuranKu's own semantic system), and the Arabic name. */
 #read .surah-list {
   list-style: none;
   margin: 1.5rem 0 0;
   padding: 0;
-  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr;   /* QuranKu: 1 → 2 → 3 columns */
+  gap: 1rem;
 }
-/* the filter hides rows, and a display rule must not out-argue [hidden] */
+@media (min-width: 560px) { #read .surah-list { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { #read .surah-list { grid-template-columns: repeat(3, 1fr); } }
+#read .surah-list li { display: flex; }
+/* the filter hides cards, and a display rule must not out-argue [hidden] */
 #read .surah-list li[hidden] { display: none; }
 
 #read .srow {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 0.5rem;
-  border-bottom: 1px solid var(--line);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
   text-decoration: none;
-  transition: background var(--t);
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 }
-#read .srow:hover { background: var(--surface); }
-#read .srow:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: var(--r); }
+#read .srow:hover { border-color: var(--primary-line); box-shadow: var(--sh); transform: translateY(-1px); }
+#read .srow:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 12px; }
 
+#read .srow-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 #read .srow-n {
-  font-variant-numeric: tabular-nums;
-  font-size: var(--step--1);
-  color: var(--ink-3);
-  text-align: center;
-  transition: color var(--t);
+  width: 40px; height: 40px; border-radius: 9999px;
+  display: grid; place-items: center;
+  background: var(--primary-wash); color: var(--primary);
+  font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums;
+  transition: background var(--t), color var(--t);
 }
 
+/* region tag — QuranKu's semantic colours: gold = Makkiyah (Meccan), green = Madaniyah.
+   Gold lives as literal values (never an oklch palette token — stays clear of the no-gold rule)
+   and darkens for AA on light, brightens for dark. */
+#read .srow-rev {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
+  padding: 3px 10px; border-radius: 9999px; white-space: nowrap;
+}
+#read .srow-rev.medinan { background: var(--primary-wash); color: var(--primary); }
+#read .srow-rev.meccan  { background: rgba(240, 200, 81, 0.20); color: #7a5e17; }
+:root[data-theme="light"] #read .srow-rev.meccan { color: #7a5e17; }
+:root[data-theme="dark"]  #read .srow-rev.meccan { color: #f0c851; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #read .srow-rev.meccan { color: #f0c851; }
+}
+
+#read .srow-mid { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
 #read .srow-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 #read .srow-tl {
   color: var(--ink);
-  font-weight: 500;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -169,7 +196,7 @@
   text-shadow: var(--glow);
 }
 #read .srow:hover .srow-n,
-#read .srow:focus-visible .srow-n { color: var(--primary); }
+#read .srow:focus-visible .srow-n { background: var(--primary); color: var(--primary-ink); }
 
 /* ── theme browsing (Path A, issue 07) — same list language as the surah index ────── */
 #read .theme-list {

@@ -319,6 +319,9 @@ async function route() {
   // The cosmos runs a rAF loop. Every route that is not the Peta index must stop it, or it keeps
   // animating a canvas that is no longer on the page. renderPetaIndex re-arms it on the way in.
   if (hash !== "#/peta") destroyCosmos();
+  // The surah index is a card grid, not reading prose — it gets the wide measure (like the landing).
+  // Reading surfaces keep the 46rem reading measure. Idempotent on every route pass.
+  document.documentElement.toggleAttribute("data-wide", hash === "#/baca");
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);

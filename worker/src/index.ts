@@ -27,8 +27,12 @@ export interface Env {
   OPENROUTER_API_KEY: string;
   /** Encrypted secret — `wrangler secret put SEALION_API_KEY` (optional, for the SEA-LION path). */
   SEALION_API_KEY?: string;
-  /** Plain var (wrangler.toml) — the Cloud Run origin host, e.g. nur-xx…asia-southeast2.run.app. */
+  /** Plain var (wrangler.toml) — the Cloud Run origin host, e.g. nur-xx…asia-southeast2.run.app.
+   *  Retained for the proxy path (proxyToOrigin) so reverting to Cloud Run is a one-line change. */
   ORIGIN_HOST: string;
+  /** Static-assets binding (web/dist). Serves the SPA straight from Cloudflare's edge — the app is
+   *  100% static, so this replaces the Cloud Run backend. Revert = drop [assets] + proxyToOrigin. */
+  ASSETS: { fetch(request: Request): Promise<Response> };
   OPENROUTER_MODEL?: string;
   SEALION_BASE_URL?: string;
   SEALION_MODEL?: string;
@@ -57,7 +61,10 @@ export default {
         : handleClassify(request, env);
     }
 
-    return proxyToOrigin(request, env);
+    // The app is 100% static — serve web/dist straight from Cloudflare's edge (no Cloud Run).
+    // not_found_handling = "single-page-application" makes unmatched paths return index.html.
+    // (proxyToOrigin is kept below, unused, so reverting to the Cloud Run backend is a one-liner.)
+    return env.ASSETS.fetch(request);
   },
 };
 

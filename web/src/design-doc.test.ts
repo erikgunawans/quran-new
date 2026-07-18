@@ -69,7 +69,10 @@ describe("DESIGN.md is generated from the stylesheet, not typed twice", () => {
 
 describe("the doc's own hard rules still match the code", () => {
   test("no gold — not one token", () => {
-    // PRODUCT.md § Anti-references bans it outright; DESIGN.md repeats "not one token".
+    // Gold is the QuranKu signature but only as GROUND, never a reusable palette token:
+    // the hero green→gold type gradient and the celestial background ground (PRODUCT.md, rev
+    // 2026-07-18) carry gold as literal gradient values, not as `:root` color tokens. This rule
+    // still holds the line: no gold enters the palette as a token anything on the content can pick up.
     // Gold/amber sits around hue 70–100 at meaningful chroma.
     const gold: string[] = [];
     for (const [name, value] of rootTokens()) {

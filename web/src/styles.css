@@ -1,7 +1,9 @@
 /* ════════════════════════════════════════════════════════════════════
    New-Quranku
    Light is the register. Scripture owns the width. Structure, not filigree.
-   Bright emerald is ACTIONS ONLY; deep forest carries weight; no gold, ever.
+   Bright emerald is ACTIONS ONLY; deep forest carries weight. Gold is the QuranKu signature —
+   the hero green→gold heading and the celestial background ground (see PRODUCT.md, rev 2026-07-18);
+   never gold ornament ON content: no gold frame, rule, hairline, or edge on anything the reader reads.
    ════════════════════════════════════════════════════════════════════ */
 
 /* ── LIGHT: the default register ───────────────────────────────────── */
@@ -144,18 +146,122 @@
 * { margin: 0; }
 
 body {
-  /* ambient emerald washes — the room has a light source, but it stays behind the content */
-  background:
-    radial-gradient(50% 40% at 12% -5%, var(--wash-1), transparent 60%),
-    radial-gradient(46% 36% at 100% 10%, var(--wash-2), transparent 55%),
-    var(--bg);
-  background-attachment: fixed;
+  /* Celestial background lives on fixed ::before/::after pseudos (see the CELESTIAL block below);
+     body stays transparent so those layers show through behind all content. */
+  background: transparent;
   color: var(--ink-2);
   font-family: var(--f-ui);
   font-size: var(--step-0);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100dvh;
+}
+
+/* ============================================================================
+   CELESTIAL BACKGROUND — locked 2026-07-18 (Erik). "Signs in the heavens."
+   Rich on the companion/home route (:root[data-landing]); calm behind reading.
+   Dark = night sky; light = "Soft Sky-green" dawn. Painted on fixed pseudos
+   behind ALL content (z -2 / -1); never touches layout or logic. Vars swap per
+   theme (existing dark/light selectors) and per intensity (data-landing).
+   ============================================================================ */
+html { background: var(--bg); }
+
+:root {
+  --_cres-n: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E");
+  --_cres-d: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23c9a94a' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E");
+
+  /* default = light + calm = dawn (Soft Sky-green) */
+  --cel-sky:
+    var(--_cres-d) 86% 38px / 48px 48px no-repeat,
+    radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.15), transparent 55%),
+    linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
+  --cel-stars:
+    radial-gradient(1.1px 1.1px at 22% 12%,rgba(70,110,90,.26),transparent),
+    radial-gradient(1px 1px at 68% 14%,rgba(70,110,90,.20),transparent),
+    radial-gradient(78% 66% at 50% 45%, transparent 60%, rgba(70,90,80,.10) 100%);
+}
+/* light + rich (companion home) = dawn rich */
+:root[data-landing] {
+  --cel-sky:
+    var(--_cres-d) 86% 38px / 56px 56px no-repeat,
+    radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.15), transparent 55%),
+    linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
+  --cel-stars:
+    radial-gradient(1.1px 1.1px at 22% 12%,rgba(70,110,90,.30),transparent),
+    radial-gradient(1px 1px at 68% 14%,rgba(70,110,90,.24),transparent),
+    radial-gradient(1px 1px at 45% 9%,rgba(70,110,90,.20),transparent),
+    radial-gradient(78% 66% at 50% 45%, transparent 60%, rgba(70,90,80,.10) 100%);
+}
+
+/* dark = night sky. calm base + rich on landing. Mirrors the app's two dark selectors. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --cel-sky: var(--cel-sky-nc); --cel-stars: var(--cel-stars-nc); }
+  :root:not([data-theme="light"])[data-landing] { --cel-sky: var(--cel-sky-nr); --cel-stars: var(--cel-stars-nr); }
+}
+:root[data-theme="dark"] { --cel-sky: var(--cel-sky-nc); --cel-stars: var(--cel-stars-nc); }
+:root[data-theme="dark"][data-landing] { --cel-sky: var(--cel-sky-nr); --cel-stars: var(--cel-stars-nr); }
+
+/* night recipes (referenced above) */
+:root {
+  --cel-sky-nc:
+    var(--_cres-n) 90% 40px / 66px 66px no-repeat,
+    radial-gradient(30% 26% at 78% 18%, rgba(240,200,81,.07), transparent 72%),
+    radial-gradient(120% 90% at 82% 8%, #10233f 0%, transparent 42%),
+    linear-gradient(170deg,#060a14 0%,#08111b 55%,#081611 100%);
+  --cel-stars-nc:
+    radial-gradient(1.6px 1.6px at 12% 20%,#fff,transparent),
+    radial-gradient(1.8px 1.8px at 68% 16%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 40% 30%,#dfeaff,transparent),
+    radial-gradient(1.7px 1.7px at 86% 40%,#fff,transparent),
+    radial-gradient(1px 1px at 30% 12%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 52% 40%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 78% 58%,rgba(207,224,255,.6),transparent),
+    radial-gradient(80% 70% at 50% 50%, transparent 30%, rgba(4,6,12,.7) 100%);
+  --cel-sky-nr:
+    var(--_cres-n) 88% 42px / 66px 66px no-repeat,
+    radial-gradient(38% 30% at 72% 24%, rgba(240,200,81,.10), transparent 70%),
+    radial-gradient(46% 34% at 28% 68%, rgba(22,162,73,.12), transparent 70%),
+    radial-gradient(120% 90% at 80% 12%, #12305a 0%, transparent 46%),
+    radial-gradient(120% 100% at 15% 90%, #0c2b22 0%, transparent 50%),
+    linear-gradient(165deg,#070c1a 0%,#0a1524 45%,#0a1a14 100%);
+  --cel-stars-nr:
+    radial-gradient(1.6px 1.6px at 12% 20%,#fff,transparent),
+    radial-gradient(1.8px 1.8px at 68% 16%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 40% 30%,#dfeaff,transparent),
+    radial-gradient(1.7px 1.7px at 86% 40%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 22% 60%,#fff,transparent),
+    radial-gradient(1.9px 1.9px at 58% 78%,#ffe9b0,transparent),
+    radial-gradient(1.5px 1.5px at 90% 82%,#fff,transparent),
+    radial-gradient(1px 1px at 30% 12%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 52% 40%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 78% 58%,rgba(207,224,255,.6),transparent),
+    radial-gradient(1px 1px at 16% 84%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 44% 90%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 94% 26%,rgba(255,255,255,.6),transparent),
+    radial-gradient(.7px .7px at 24% 34%,rgba(255,255,255,.35),transparent),
+    radial-gradient(.7px .7px at 62% 24%,rgba(255,255,255,.35),transparent),
+    radial-gradient(.7px .7px at 82% 72%,rgba(255,255,255,.35),transparent),
+    radial-gradient(.7px .7px at 38% 68%,rgba(255,255,255,.35),transparent),
+    radial-gradient(.7px .7px at 8% 48%,rgba(255,255,255,.35),transparent),
+    radial-gradient(70% 60% at 50% 52%, transparent 45%, rgba(4,6,12,.55) 100%);
+}
+
+/* The QuranKu signature: the hero heading's emphasis carries the green→gold TYPE gradient
+   (PRODUCT.md — gold as typography). Emerald end brightens in dark so the clip stays legible;
+   the gold end (the signature) holds. */
+:root { --hero-grad: linear-gradient(115deg, #16a249 0%, #f0c851 100%); }
+:root[data-theme="light"] { --hero-grad: linear-gradient(115deg, #16a249 0%, #f0c851 100%); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --hero-grad: linear-gradient(115deg, #34d399 0%, #f5d67a 100%); }
+}
+:root[data-theme="dark"] { --hero-grad: linear-gradient(115deg, #34d399 0%, #f5d67a 100%); }
+
+body::before { content:""; position:fixed; inset:0; z-index:-2; pointer-events:none; background: var(--cel-sky); background-attachment: fixed; }
+body::after  { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background: var(--cel-stars); }
+
+@media (prefers-reduced-motion: no-preference) {
+  body::after { animation: cel-twinkle 6s ease-in-out infinite; }
+  @keyframes cel-twinkle { 0%,100% { opacity: 1; } 50% { opacity: .82; } }
 }
 
 :focus-visible {
@@ -177,6 +283,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    band, which needs real width. So the landing widens and the reading column does not. */
 .app { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 8rem; }
 :root[data-landing] .app { max-width: 1120px; padding-inline: var(--s-6); }
+/* The surah index is a browse grid, not reading prose — it earns the wide measure too. */
+:root[data-wide] .app { max-width: 1120px; padding-inline: var(--s-6); }
 
 .top {
   position: sticky; top: 0; z-index: var(--z-sticky);
@@ -286,7 +394,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   letter-spacing: -0.02em; line-height: 1.04; text-wrap: balance;
   max-width: 16ch; margin-bottom: var(--s-4);
 }
-.hello h1 em { font-style: italic; color: var(--primary); }
+.hello h1 em {
+  font-style: italic;
+  background: var(--hero-grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
 .hello p {
   color: var(--ink-2); max-width: 44ch; text-wrap: pretty; line-height: 1.55;
   font-size: clamp(16px, 1.7vw, 18.5px);

@@ -187,12 +187,17 @@ const fold = (s: string): string =>
 const indexRow = (s: SurahMeta): string => `
   <li>
     <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
-      <span class="srow-n">${s.n}</span>
-      <span class="srow-id">
-        <span class="srow-tl">${esc(displayName(s.n))}</span>
-        <span class="srow-meta">${s.ayahs} ayat · ${revID(s.rev)}</span>
+      <span class="srow-top">
+        <span class="srow-n">${s.n}</span>
+        <span class="srow-rev ${s.rev}">${revID(s.rev)}</span>
       </span>
-      <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+      <span class="srow-mid">
+        <span class="srow-id">
+          <span class="srow-tl">${esc(displayName(s.n))}</span>
+          <span class="srow-meta">${s.ayahs} ayat</span>
+        </span>
+        <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+      </span>
     </a>
   </li>`;
 
