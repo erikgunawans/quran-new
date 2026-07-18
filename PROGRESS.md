@@ -8,7 +8,45 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-18 (latest) — reskin DEPLOYED to prod via Cloudflare edge (Cloud Run bypassed)
+## 2026-07-18 (latest) — post-deploy: surah grid, cosmos re-link, ustadz sheet, impeccable critique + fixes
+
+After the Cloudflare deploy, a run of refinements — all **live except the last commit**.
+
+**Shipped & live** (prod = Cloudflare Worker `new-quranku-proxy`, Version **`c48715cd`**):
+- **Surah index → QuranKu 3-col card grid** (`read.ts`/`read.css`): responsive 1→2→3 cols, 12px cards,
+  green number badge, semantic region tags (gold Makkiyah `#7a5e17` AA-safe / green Madaniyah), Amiri
+  name. `#/baca` widened to 1120px via `data-wide` marker (`main.ts`); reading stays 46rem.
+- **Cosmos re-linked** (`main.ts`/`index.html`): the 3D Peta Tematik (`#/peta`, 1,632 verse-stars, 13 hubs)
+  was orphaned — no nav entry. Added a "Peta" nav link + `markNav('peta')`. (It was never broken: the 3D
+  view is opt-in behind a "Lihat peta tematik 3D" toggle — 46 KB fetched only on demand, patchy-4G by design.)
+- **Celestial recede** (critique P1): rich sky (crescent + gold + twinkle) now reserved for the companion
+  home (`data-landing`) + cosmos (`data-cosmos` marker on `#/peta`); every reading/list surface recedes
+  (no crescent, no gold, cool stars, deeper vignette, NO twinkle). Reverence where you read.
+- **Landing distilled** (critique P2): seeds 6→4; removed the redundant `#nur-explain-hint` paragraph (the
+  "why two translations" explainer already lives inline on every verse card + `#info`). Calmer first screen.
+
+**Committed + pushed, NOT yet deployed** — `b508f31` (Tema/Peta clarify): keeps nav names, rewrites copy so
+`#/tema` = "Baca lewat perasaan" (feeling) and `#/peta` = whole-Qur'an-by-topic, each cross-referencing the
+other. **Deploy to ship: `bun run build && cd worker && bunx wrangler deploy`.**
+
+**Other deliverables:** ustadz curation **review sheet** (`docs/review/thematic-curation-review.md` +
+`src/review/build-curation-sheet.ts`, `bun run app:curation-sheet`) — hand to Ustadz Ahmad Isrofiel to
+expand the 55-verse thematic curation (he authors, a dev transcribes). **Impeccable critique** delivered
+(32/40; central finding: the reskin walked toward the devotional clichés the app was built to refuse —
+Erik chose "keep pretty, make it recede", now done).
+
+**Still open:** (1) deploy `b508f31`; (2) critique leftovers are deliberate trade-offs, not bugs — the
+green→gold gradient heading (documented signature) + an adaptive hero tone for grieving users (P3);
+(3) the generative **false-silence** classifier fix still deferred to an OFFLINE eval harness (never
+live prompt-poking); (4) `nur-demo` Cloud Run still split-brain "project deleted" (bypassed via Cloudflare,
+revert one-line via `ORIGIN_HOST`); (5) tooling: Interceptor **screenshots + per-route eval unreliable**
+all session (tab-routing/minimized-window) — verify via `curl` on built assets + dev-server, not prod screenshots.
+
+**All session work committed + pushed** to `origin/main` (`erikgunawans/nur`); 400 `bun test web/src` green.
+
+---
+
+## 2026-07-18 — reskin DEPLOYED to prod via Cloudflare edge (Cloud Run bypassed)
 
 The reskin is **live at <https://new-quranku.axiara.ai>** — verified: celestial + green→gold + the QuranKu
 surah grid all present in prod CSS; static shards (corpus/surah/peta) serve 200; `/api/compose` produces
