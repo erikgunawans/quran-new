@@ -64,7 +64,20 @@ export default {
     // The app is 100% static — serve web/dist straight from Cloudflare's edge (no Cloud Run).
     // not_found_handling = "single-page-application" makes unmatched paths return index.html.
     // (proxyToOrigin is kept below, unused, so reverting to the Cloud Run backend is a one-liner.)
-    return env.ASSETS.fetch(request);
+    const response = await env.ASSETS.fetch(request);
+
+    // The hashed bundles (/assets/index-<hash>.js|css) are immutable — keep them cached at the edge
+    // forever. But index.html is the SPA shell that POINTS at the current hash. If the zone edge caches
+    // the shell, a fresh deploy uploads a new bundle yet users keep getting the old shell → old bundle
+    // until the cache expires (this bit us: b508f31 uploaded, but `/` served the stale shell). Tell
+    // Cloudflare's edge to revalidate the HTML every time — browser Cache-Control and hashed assets are
+    // untouched, so every future deploy goes live at once with no manual purge.
+    if ((response.headers.get("Content-Type") ?? "").includes("text/html")) {
+      const fresh = new Response(response.body, response);
+      fresh.headers.set("Cloudflare-CDN-Cache-Control", "no-cache");
+      return fresh;
+    }
+    return response;
   },
 };
 
