@@ -306,8 +306,8 @@ function showRead() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "tema") {
-  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema") };
+function markNav(mode: "tanya" | "baca" | "tema" | "peta") {
+  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema"), peta: $<HTMLAnchorElement>("#nav-peta") };
   for (const [key, el] of Object.entries(links)) {
     if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
@@ -357,14 +357,14 @@ async function route() {
   // Peta Tematik sits BESIDE /tema, deliberately — the 12-theme lexicon also feeds chat
   // retrieval scoring, so replacing it would touch the retrieval path for a browsing win.
   if (p) {
-    markNav("tema");
+    markNav("peta");
     showRead();
     await renderPetaCategory(readView, p[1]!);
     return;
   }
 
   if (hash === "#/peta") {
-    markNav("tema");
+    markNav("peta");
     showRead();
     await renderPetaIndex(readView);
     return;
