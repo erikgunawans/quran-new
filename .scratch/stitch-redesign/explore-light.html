@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Light-mode background — restrained fixes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+<style>
+  :root{--gold:#a8802a; --ink:#15281f;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#e9ece8;color:#15281f}
+  header{padding:26px 24px 4px;text-align:center}
+  header h1{font-family:'Poppins';font-weight:800;font-size:21px;letter-spacing:-.02em}
+  header p{color:#5a6b60;font-size:12.5px;margin-top:6px;max-width:620px;margin-inline:auto;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;padding:24px;max-width:1500px;margin:0 auto}
+  .panel{border:1px solid #d8ddd6;border-radius:22px;overflow:hidden;position:relative;min-height:400px;
+         display:flex;align-items:center;justify-content:center}
+  .tag{position:absolute;top:14px;left:14px;z-index:9;background:rgba(255,255,255,.72);backdrop-filter:blur(6px);
+       border:1px solid rgba(0,0,0,.08);border-radius:999px;padding:6px 13px;font-size:11px;font-weight:600;color:#33413a}
+  .tag b{color:#8a6a1f}
+  .feel{position:absolute;bottom:0;left:0;right:0;z-index:9;font-size:11.5px;color:#3a4a42;
+        background:linear-gradient(transparent,rgba(255,255,255,.92));padding:26px 14px 12px;line-height:1.45}
+  .sky{position:absolute;inset:0}
+  .crescent{position:absolute;top:30px;right:44px;z-index:3}
+  .verse-card{position:relative;z-index:5;width:min(80%,330px);background:rgba(255,255,255,.86);backdrop-filter:blur(2px);
+    border:1px solid rgba(0,0,0,.06);border-radius:18px;padding:26px 24px;box-shadow:0 20px 50px -24px rgba(30,50,40,.35)}
+  .verse-ar{font-family:'Amiri',serif;font-size:34px;line-height:1.7;text-align:right;direction:rtl;color:#15281f;margin-bottom:16px}
+  .verse-tr{color:#3a4a42;font-size:14px;line-height:1.6;border-top:1px solid rgba(0,0,0,.08);padding-top:16px;font-style:italic}
+  .verse-ref{color:#a8802a;font-size:12px;font-weight:600;margin-top:10px;letter-spacing:.03em}
+
+  /* CURRENT (hideous) */
+  .cur .sky{background:radial-gradient(120% 80% at 80% 96%, #ffd9a8 0%, transparent 42%),linear-gradient(180deg,#2b3a63 0%,#6f6aa0 34%,#c98fa0 62%,#f3c78c 100%)}
+
+  /* 1 · Dawn Haze — pale cool top melting to warm cream */
+  .haze .sky{background:radial-gradient(95% 70% at 80% 98%, rgba(240,200,81,.16), transparent 55%),linear-gradient(180deg,#e9eff7 0%,#f4f2ec 46%,#fbf6ee 100%)}
+  .haze .stars{position:absolute;inset:0;background-image:
+    radial-gradient(1.2px 1.2px at 20% 12%,rgba(90,110,140,.35),transparent),
+    radial-gradient(1px 1px at 52% 9%,rgba(90,110,140,.28),transparent),
+    radial-gradient(1px 1px at 74% 16%,rgba(90,110,140,.25),transparent)}
+
+  /* 2 · Cream & Bloom — no sky, just luminous morning light */
+  .bloom .sky{background:
+    radial-gradient(60% 55% at 50% 40%, rgba(240,200,81,.15), transparent 62%),
+    radial-gradient(52% 50% at 16% 12%, rgba(22,162,73,.07), transparent 60%),
+    linear-gradient(160deg,#fbfaf5,#f2f6f1)}
+
+  /* 3 · Soft Sky-green — brand-leaning, pale green top to cream */
+  .green .sky{background:
+    radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.15), transparent 55%),
+    linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%)}
+  .green .stars{position:absolute;inset:0;background-image:
+    radial-gradient(1.1px 1.1px at 22% 12%,rgba(70,110,90,.3),transparent),
+    radial-gradient(1px 1px at 68% 14%,rgba(70,110,90,.24),transparent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Light-mode background — 3 restrained fixes</h1>
+  <p>Low saturation, cream/brand family, pale crescent. Same light verse card on each. Current saturated version shown first so you can see the difference.</p>
+</header>
+<div class="grid">
+
+  <div class="panel cur">
+    <span class="tag">CURRENT · <b>hideous</b></span>
+    <div class="sky"></div>
+    <svg class="crescent" width="58" height="58" viewBox="0 0 66 66"><path fill="#fff8e6" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/></svg>
+    <div class="verse-card"><div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div><div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div><div class="verse-ref">Ash-Sharh · 94:6</div></div>
+    <div class="feel"><b>The problem:</b> a full-saturation purple→peach sunset behind cream cards. Muddy, garish, fights the brand.</div>
+  </div>
+
+  <div class="panel haze">
+    <span class="tag">1 · <b>Dawn Haze</b></span>
+    <div class="sky"></div><div class="stars"></div>
+    <svg class="crescent" width="50" height="50" viewBox="0 0 66 66"><path fill="#dcc07a" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/></svg>
+    <div class="verse-card"><div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div><div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div><div class="verse-ref">Ash-Sharh · 94:6</div></div>
+    <div class="feel"><b>Dawn Haze.</b> Pale periwinkle top melting into warm cream — a real morning, barely there. A few faint stars up high, muted-gold crescent. Poetic but subtle.</div>
+  </div>
+
+  <div class="panel bloom">
+    <span class="tag">2 · <b>Cream &amp; Bloom</b></span>
+    <div class="sky"></div>
+    <svg class="crescent" width="46" height="46" viewBox="0 0 66 66"><path fill="#d9b24a" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/></svg>
+    <div class="verse-card"><div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div><div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div><div class="verse-ref">Ash-Sharh · 94:6</div></div>
+    <div class="feel"><b>Cream &amp; Bloom.</b> No sky at all — just cream with a soft gold+green light bloom behind the content and a pale crescent. Cleanest, most "expensive," safest with any UI.</div>
+  </div>
+
+  <div class="panel green">
+    <span class="tag">3 · <b>Soft Sky-green</b></span>
+    <div class="sky"></div><div class="stars"></div>
+    <svg class="crescent" width="50" height="50" viewBox="0 0 66 66"><path fill="#c9a94a" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/></svg>
+    <div class="verse-card"><div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div><div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div><div class="verse-ref">Ash-Sharh · 94:6</div></div>
+    <div class="feel"><b>Soft Sky-green.</b> Palest green top to cream, gold horizon glow — the most on-brand. Ties the light mode to your green identity without shouting.</div>
+  </div>
+
+</div>
+</body>
+</html>

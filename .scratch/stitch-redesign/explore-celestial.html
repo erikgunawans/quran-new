@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D · Celestial — refined</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+<style>
+  :root{--gold:#f0c851; --green:#16a249; --ink:#f2f6f4; --muted:#9fb2c9; --card:#111b26;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#04060c;color:var(--ink)}
+  header{padding:26px 24px 4px;text-align:center}
+  header h1{font-family:'Poppins';font-weight:800;font-size:21px;letter-spacing:-.02em}
+  header p{color:var(--muted);font-size:12.5px;margin-top:6px;max-width:640px;margin-inline:auto;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;padding:24px;max-width:1500px;margin:0 auto}
+  .panel{border:1px solid #1e2a3a;border-radius:22px;overflow:hidden;position:relative;min-height:420px;
+         display:flex;align-items:center;justify-content:center}
+  .tag{position:absolute;top:14px;left:14px;z-index:9;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+       border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 13px;font-size:11px;font-weight:600}
+  .tag b{color:var(--gold)}
+  .feel{position:absolute;bottom:0;left:0;right:0;z-index:9;font-size:11.5px;color:#c7d4e6;
+        background:linear-gradient(transparent,rgba(4,6,12,.9));padding:26px 14px 12px;line-height:1.45}
+
+  /* shared celestial layers ------------------------------------------ */
+  .sky{position:absolute;inset:0}
+  .stars,.stars2,.stars3{position:absolute;inset:0}
+  .neb{position:absolute;inset:0}
+  .crescent{position:absolute;top:30px;right:44px;z-index:3;filter:drop-shadow(0 0 22px rgba(240,200,81,.45))}
+  .vig{position:absolute;inset:0;z-index:2}
+
+  /* verse card ------------------------------------------------------- */
+  .verse-card{position:relative;z-index:5;width:min(80%,330px);background:rgba(17,27,38,.72);
+    backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:26px 24px;
+    box-shadow:0 24px 60px -22px rgba(0,0,0,.8)}
+  .verse-ar{font-family:'Amiri',serif;font-size:34px;line-height:1.7;text-align:right;direction:rtl;color:#fff;margin-bottom:16px}
+  .verse-tr{color:#dbe6f2;font-size:14px;line-height:1.6;border-top:1px solid rgba(255,255,255,.09);padding-top:16px;font-style:italic}
+  .verse-ref{color:var(--gold);font-size:12px;font-weight:600;margin-top:10px;letter-spacing:.03em}
+
+  /* a mini surah-list to stress-test legibility (calm panel) ---------- */
+  .list{position:relative;z-index:5;width:min(84%,340px);display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:12px;background:rgba(17,27,38,.55);border:1px solid rgba(255,255,255,.06);
+       border-radius:12px;padding:11px 14px}
+  .num{width:26px;height:26px;flex:none;border-radius:7px;background:rgba(240,200,81,.14);color:var(--gold);
+       font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .rname{font-weight:600;font-size:14px}
+  .rsub{color:var(--muted);font-size:11px}
+  .rar{margin-left:auto;font-family:'Amiri',serif;font-size:20px;color:#eef4ff}
+
+  /* ============ HERO (rich) ============ */
+  .hero .sky{background:
+    radial-gradient(120% 90% at 80% 12%, #12305a 0%, transparent 46%),
+    radial-gradient(120% 100% at 15% 90%, #0c2b22 0%, transparent 50%),
+    linear-gradient(165deg, #070c1a 0%, #0a1524 45%, #0a1a14 100%)}
+  .hero .neb{background:
+    radial-gradient(38% 30% at 72% 24%, rgba(240,200,81,.10), transparent 70%),
+    radial-gradient(46% 34% at 28% 68%, rgba(22,162,73,.10), transparent 70%);filter:blur(6px)}
+  .hero .stars{background-image:
+    radial-gradient(1.6px 1.6px at 12% 20%,#fff,transparent),
+    radial-gradient(1.8px 1.8px at 68% 16%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 40% 30%,#dfeaff,transparent),
+    radial-gradient(1.7px 1.7px at 86% 40%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 22% 60%,#fff,transparent),
+    radial-gradient(1.9px 1.9px at 58% 78%,#ffe9b0,transparent),
+    radial-gradient(1.5px 1.5px at 90% 82%,#fff,transparent)}
+  .hero .stars2{opacity:.6;background-image:
+    radial-gradient(1px 1px at 30% 12%,#fff,transparent),
+    radial-gradient(1px 1px at 52% 40%,#fff,transparent),
+    radial-gradient(1px 1px at 78% 58%,#cfe0ff,transparent),
+    radial-gradient(1px 1px at 16% 84%,#fff,transparent),
+    radial-gradient(1px 1px at 44% 90%,#fff,transparent),
+    radial-gradient(1px 1px at 94% 26%,#fff,transparent)}
+  .hero .stars3{opacity:.35;background-image:
+    radial-gradient(.7px .7px at 24% 34%,#fff,transparent),
+    radial-gradient(.7px .7px at 62% 24%,#fff,transparent),
+    radial-gradient(.7px .7px at 82% 72%,#fff,transparent),
+    radial-gradient(.7px .7px at 38% 68%,#fff,transparent),
+    radial-gradient(.7px .7px at 8% 48%,#fff,transparent)}
+  .hero .vig{background:radial-gradient(70% 60% at 50% 52%, transparent 45%, rgba(4,6,12,.55) 100%)}
+
+  /* ============ CALM (reading / lists) ============ */
+  .calm .sky{background:
+    radial-gradient(120% 90% at 82% 8%, #10233f 0%, transparent 42%),
+    linear-gradient(170deg, #060a14 0%, #08111b 55%, #081611 100%)}
+  .calm .stars{opacity:.5;background-image:
+    radial-gradient(1.3px 1.3px at 16% 14%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 74% 22%,#fff,transparent),
+    radial-gradient(1.1px 1.1px at 46% 84%,#cfe0ff,transparent),
+    radial-gradient(1.4px 1.4px at 88% 70%,#ffe9b0,transparent)}
+  .calm .stars2{opacity:.25;background-image:
+    radial-gradient(.8px .8px at 34% 40%,#fff,transparent),
+    radial-gradient(.8px .8px at 60% 60%,#fff,transparent),
+    radial-gradient(.8px .8px at 20% 74%,#fff,transparent)}
+  .calm .vig{background:radial-gradient(80% 70% at 50% 50%, transparent 30%, rgba(4,6,12,.7) 100%)}
+
+  /* ============ DAWN (light mode / fajr) ============ */
+  .dawn .sky{background:
+    radial-gradient(120% 80% at 80% 96%, #ffd9a8 0%, transparent 42%),
+    linear-gradient(180deg, #2b3a63 0%, #6f6aa0 34%, #c98fa0 62%, #f3c78c 100%)}
+  .dawn .stars{opacity:.5;background-image:
+    radial-gradient(1.3px 1.3px at 18% 14%,#fff,transparent),
+    radial-gradient(1.1px 1.1px at 50% 10%,#fff,transparent),
+    radial-gradient(1px 1px at 74% 20%,#fff,transparent)}
+  .dawn .crescent{filter:drop-shadow(0 0 16px rgba(255,255,255,.6))}
+  .dawn .vig{background:radial-gradient(70% 60% at 50% 45%, transparent 55%, rgba(43,58,99,.25) 100%)}
+  .dawn .verse-card{background:rgba(255,255,255,.82);border-color:rgba(0,0,0,.06)}
+  .dawn .verse-ar{color:#15281f}
+  .dawn .verse-tr{color:#3a4a42;border-top-color:rgba(0,0,0,.08)}
+  .dawn .verse-ref{color:#a8802a}
+
+  /* subtle, cheap twinkle — opacity only, off under reduced-motion */
+  @media (prefers-reduced-motion: no-preference){
+    .stars{animation:tw 4.2s ease-in-out infinite}
+    .stars3{animation:tw 6s ease-in-out infinite .8s}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.72}}
+    .calm .stars,.dawn .stars{animation-duration:6s}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>D · Celestial — refined, in 3 contexts</h1>
+  <p>Layered star field · brand indigo→forest-green sky · gold moonlight · real crescent. Rich for hero/cosmos, calm behind text, and a dawn (fajr) light-mode counterpart so the app reads celestial day and night.</p>
+</header>
+<div class="grid">
+
+  <!-- HERO -->
+  <div class="panel hero">
+    <span class="tag">D · <b>Hero / Cosmos</b> (rich)</span>
+    <div class="sky"></div><div class="neb"></div>
+    <div class="stars3"></div><div class="stars2"></div><div class="stars"></div>
+    <svg class="crescent" width="66" height="66" viewBox="0 0 66 66">
+      <path fill="#f4dd8f" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/>
+    </svg>
+    <div class="vig"></div>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel"><b>Rich.</b> Full star field, nebula bloom, crescent + glow. For the landing hero and the cosmos/peta screens — wonder and vastness.</div>
+  </div>
+
+  <!-- CALM -->
+  <div class="panel calm">
+    <span class="tag">D · <b>Reading / Lists</b> (calm)</span>
+    <div class="sky"></div>
+    <div class="stars2"></div><div class="stars"></div>
+    <div class="vig"></div>
+    <div class="list">
+      <div class="row"><span class="num">2</span><div><div class="rname">Al-Baqarah</div><div class="rsub">Sapi Betina · 286 ayat</div></div><span class="rar">البقرة</span></div>
+      <div class="row"><span class="num">3</span><div><div class="rname">Ali 'Imran</div><div class="rsub">Keluarga Imran · 200 ayat</div></div><span class="rar">آل عمران</span></div>
+      <div class="row"><span class="num">9</span><div><div class="rname">At-Tawbah</div><div class="rsub">Pengampunan · 129 ayat</div></div><span class="rar">التوبة</span></div>
+      <div class="row"><span class="num">12</span><div><div class="rname">Yusuf</div><div class="rsub">Nabi Yusuf · 111 ayat</div></div><span class="rar">يوسف</span></div>
+    </div>
+    <div class="feel"><b>Calm.</b> Same sky, far fewer/dimmer stars, deeper vignette — text stays crisp. For surah lists and long reading surfaces.</div>
+  </div>
+
+  <!-- DAWN -->
+  <div class="panel dawn">
+    <span class="tag">D · <b>Dawn / Fajr</b> (light mode)</span>
+    <div class="sky"></div>
+    <div class="stars"></div>
+    <svg class="crescent" width="58" height="58" viewBox="0 0 66 66">
+      <path fill="#fff8e6" d="M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z"/>
+    </svg>
+    <div class="vig"></div>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel"><b>Dawn.</b> The light-mode counterpart — pre-dawn indigo melting into fajr peach, a few fading stars, pale crescent. Same celestial idea, daytime.</div>
+  </div>
+
+</div>
+</body>
+</html>

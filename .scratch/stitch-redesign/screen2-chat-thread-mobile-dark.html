@@ -189,7 +189,14 @@
       min-height: max(884px, 100dvh);
     }
   </style>
-  </head>
+  <style data-celestial="night-calm">
+/* Celestial background — locked 2026-07-18. night / calm. */
+.girih-pattern,.bg-girih,.girih-bg{background:transparent!important;background-image:none!important}
+html body{background:transparent!important}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 40px / 66px 66px no-repeat,radial-gradient(30% 26% at 78% 18%, rgba(240,200,81,.07), transparent 72%),radial-gradient(120% 90% at 82% 8%, #10233f 0%, transparent 42%),linear-gradient(170deg,#060a14 0%,#08111b 55%,#081611 100%);background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1.6px 1.6px at 12% 20%,#fff,transparent),radial-gradient(1.8px 1.8px at 68% 16%,#fff,transparent),radial-gradient(1.4px 1.4px at 40% 30%,#dfeaff,transparent),radial-gradient(1.7px 1.7px at 86% 40%,#fff,transparent),radial-gradient(1px 1px at 30% 12%,rgba(255,255,255,.6),transparent),radial-gradient(1px 1px at 52% 40%,rgba(255,255,255,.6),transparent),radial-gradient(1px 1px at 78% 58%,rgba(207,224,255,.6),transparent),radial-gradient(80% 70% at 50% 50%, transparent 30%, rgba(4,6,12,.7) 100%)}
+</style>
+</head>
 <body class="bg-background text-on-surface font-ui-body min-h-screen flex flex-col md:items-center relative overflow-x-hidden antialiased girih-pattern">
 <!-- Top App Bar (Shared Component) -->
 <header class="bg-surface-dim flex items-center justify-between px-md w-full h-16 docked full-width top-0 z-10 flat no shadows text-primary-fixed-dim transition-all duration-320 ease-[cubic-bezier(0.16,1,0.3,1)] md:max-w-max-prose sticky">

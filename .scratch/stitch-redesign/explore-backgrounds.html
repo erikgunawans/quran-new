@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Background soul — 5 directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@600;700;800&family=Inter:wght@400..600&display=swap">
+<style>
+  :root{
+    --bg:#09130e; --card:#131f19; --ink:#f2f6f4; --muted:#8ba396;
+    --gold:#f0c851; --green:#16a249; --teal:#14b8a6; --line:#27272a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#050a08;color:var(--ink)}
+  header{padding:28px 24px 8px;text-align:center}
+  header h1{font-family:'Poppins';font-weight:800;font-size:22px;letter-spacing:-.02em}
+  header p{color:var(--muted);font-size:13px;margin-top:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;padding:24px;max-width:1500px;margin:0 auto}
+  .panel{border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative;min-height:340px;
+         display:flex;align-items:center;justify-content:center}
+  .tag{position:absolute;top:14px;left:14px;z-index:5;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+       border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 13px;font-size:11px;font-weight:600;letter-spacing:.02em}
+  .tag b{color:var(--gold)}
+  .feel{position:absolute;bottom:14px;left:14px;right:14px;z-index:5;font-size:11.5px;color:var(--muted);
+        background:rgba(0,0,0,.4);padding:8px 12px;border-radius:10px;line-height:1.45}
+  /* the verse card — identical across every panel */
+  .verse-card{position:relative;z-index:4;width:min(78%,320px);background:var(--card);
+    border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:26px 24px;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+  .verse-ar{font-family:'Amiri',serif;font-size:34px;line-height:1.7;text-align:right;direction:rtl;color:#fff;margin-bottom:16px}
+  .verse-tr{color:#d6e2dc;font-size:14px;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:16px;font-style:italic}
+  .verse-ref{color:var(--gold);font-size:12px;font-weight:600;margin-top:10px;letter-spacing:.03em}
+
+  /* ---------- CURRENT (for reference) ---------- */
+  .bg-current{background:var(--bg)}
+  .bg-current::before{content:"";position:absolute;inset:0;opacity:1;
+    background-image:url("data:image/svg+xml,%3Csvg width='54' height='54' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M27 0L54 27L27 54L0 27Z' fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.08'/%3E%3C/svg%3E")}
+
+  /* ---------- A · True Girih (8-fold star strapwork) ---------- */
+  .bg-girih{background:radial-gradient(120% 90% at 50% 30%, #12241b 0%, var(--bg) 70%)}
+  .bg-girih::before{content:"";position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='40,2 46.12,25.22 66.87,13.13 54.78,33.88 78,40 54.78,46.12 66.87,66.87 46.12,54.78 40,78 33.88,54.78 13.13,66.87 25.22,46.12 2,40 25.22,33.88 13.13,13.13 33.88,25.22' fill='none' stroke='%23f0c851' stroke-width='1' stroke-opacity='0.16'/%3E%3Ccircle cx='40' cy='40' r='7' fill='none' stroke='%23f0c851' stroke-width='0.7' stroke-opacity='0.10'/%3E%3C/svg%3E");
+    background-size:80px 80px}
+
+  /* ---------- B · Ghost Ayat (calligraphy watermark) ---------- */
+  .bg-ayat{background:radial-gradient(130% 100% at 30% 20%, #12241b 0%, var(--bg) 65%)}
+  .bg-ayat::before{content:"ٱقْرَأْ";position:absolute;font-family:'Amiri',serif;font-size:340px;
+    right:-40px;bottom:-120px;line-height:1;color:var(--gold);opacity:.055;direction:rtl;white-space:nowrap;transform:rotate(-4deg)}
+  .bg-ayat::after{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 45%, transparent 40%, rgba(3,8,6,.55) 100%)}
+
+  /* ---------- C · Tazhib (illuminated manuscript) ---------- */
+  .bg-tazhib{background:
+    radial-gradient(60% 55% at 12% 8%, rgba(240,200,81,.20) 0%, transparent 55%),
+    radial-gradient(50% 50% at 92% 96%, rgba(240,200,81,.12) 0%, transparent 55%),
+    linear-gradient(160deg,#14251b,#0b1610)}
+  .bg-tazhib::before{content:"";position:absolute;inset:14px;border:1.5px solid rgba(240,200,81,.28);border-radius:14px}
+  .bg-tazhib::after{content:"";position:absolute;inset:20px;border:1px solid rgba(240,200,81,.16);border-radius:11px}
+
+  /* ---------- D · Celestial (signs in the heavens) ---------- */
+  .bg-cosmos{background:
+    radial-gradient(90% 70% at 78% 18%, rgba(240,200,81,.14) 0%, transparent 45%),
+    linear-gradient(180deg,#050a12 0%, #081611 100%)}
+  .bg-cosmos::before{content:"";position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 20% 30%, #fff 50%, transparent),
+      radial-gradient(1.1px 1.1px at 65% 22%, #fff 50%, transparent),
+      radial-gradient(1.6px 1.6px at 40% 62%, #cfe6ff 50%, transparent),
+      radial-gradient(1px 1px at 82% 48%, #fff 50%, transparent),
+      radial-gradient(1.3px 1.3px at 12% 78%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 55% 85%, #fff 50%, transparent),
+      radial-gradient(1.5px 1.5px at 88% 74%, #ffe9b0 50%, transparent);
+    opacity:.85}
+  .bg-cosmos::after{content:"";position:absolute;width:70px;height:70px;top:34px;right:56px;border-radius:50%;
+    box-shadow:14px 6px 0 0 #0a1a14, 0 0 40px 8px rgba(240,200,81,.22);background:rgba(240,200,81,.9)}
+
+  /* ---------- E · Parchment & Light ---------- */
+  .bg-paper{background:
+    radial-gradient(70% 55% at 50% 42%, rgba(240,200,81,.10) 0%, transparent 60%),
+    linear-gradient(160deg,#151c17,#0d130f)}
+  .bg-paper::before{content:"";position:absolute;inset:0;mix-blend-mode:overlay;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .bg-paper::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 50%, transparent 55%, rgba(3,8,6,.45) 100%)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Background — 5 directions with soul</h1>
+  <p>Same verse card (Ash-Sharh 94:6) on each, so we judge mood + legibility together. Current diamond grid shown first for contrast.</p>
+</header>
+<div class="grid">
+
+  <div class="panel bg-current">
+    <span class="tag">CURRENT · <b>faint diamond grid</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">What we have now — a single diamond outline tiled at 8% opacity. Reads as placeholder texture, not intention.</div>
+  </div>
+
+  <div class="panel bg-girih">
+    <span class="tag">A · <b>True Girih</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">Real 8-fold star strapwork in thin gold + a soft glow behind the card. Genuine sacred geometry — classic and safe.</div>
+  </div>
+
+  <div class="panel bg-ayat">
+    <span class="tag">B · <b>Ghost Ayat</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">ٱقْرَأْ ("Read" — the first revealed word) as a giant watermark bleeding off-edge at ~5%. The scripture becomes the texture. Intimate, literary.</div>
+  </div>
+
+  <div class="panel bg-tazhib">
+    <span class="tag">C · <b>Tazhib</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">Illuminated-manuscript gold bloom in the corners + double-rule border, like a treasured physical mushaf. Warm, crafted, heritage.</div>
+  </div>
+
+  <div class="panel bg-cosmos">
+    <span class="tag">D · <b>Celestial</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">Deep night sky, faint stars, one soft crescent glow. "Signs in the heavens" — ties straight to your cosmos feature. Owns the dark mode.</div>
+  </div>
+
+  <div class="panel bg-paper">
+    <span class="tag">E · <b>Parchment &amp; Light</b></span>
+    <div class="verse-card">
+      <div class="verse-ar">فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</div>
+      <div class="verse-tr">"Karena sesungguhnya sesudah kesulitan itu ada kemudahan,"</div>
+      <div class="verse-ref">Ash-Sharh · 94:6</div>
+    </div>
+    <div class="feel">No geometry at all — warm paper grain + a soft light bloom behind the card. Tactile, human, contemplative. A companion sitting with you.</div>
+  </div>
+
+</div>
+</body>
+</html>
