@@ -3,7 +3,7 @@ import "./read.css";
 import { announce } from "./announce.ts";
 import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
-import { closeExplainer, hasExplained, openExplainer } from "./explain.ts";
+import { closeExplainer, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
@@ -665,9 +665,6 @@ async function bootCorpus(): Promise<void> {
       b.setAttribute("aria-pressed", String(b.dataset["size"] === savedSize));
     }
   }
-
-  // A reader who has already had the concept explained does not need the nudge again.
-  if (hasExplained()) document.getElementById("nur-explain-hint")?.classList.add("seen");
 
   // Shards from a previous corpus version are no longer this scripture. Drop them.
   void evictStaleCaches();
