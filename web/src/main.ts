@@ -322,6 +322,9 @@ async function route() {
   // The surah index is a card grid, not reading prose — it gets the wide measure (like the landing).
   // Reading surfaces keep the 46rem reading measure. Idempotent on every route pass.
   document.documentElement.toggleAttribute("data-wide", hash === "#/baca");
+  // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
+  // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
+  document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
