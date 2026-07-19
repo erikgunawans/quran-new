@@ -8,7 +8,31 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — "more human" bridge voice, Phase 1 (deterministic floor); DEPLOYED + LIVE
+## 2026-07-19 (latest) — offline framing-voice eval harness (Phase 2 tuning loop) built; DEPLOYED
+
+The offline harness that unblocks tuning the LIVE `FRAMING_SYSTEM_PROMPT` without ever poking prod is
+built (`1c94fcd`). Parity refactor deployed (**Version `d40af375`**, byte-identical) — `/api/compose`
+smoke-tested healthy, returns warm live prose.
+
+- **Parity refactor** — extracted `buildFramingUserMessage` + `FRAMING_PARAMS` into
+  `web/src/compose-contract.ts`; the Worker and the harness now send **byte-identical** prompts (behaviour
+  unchanged in prod).
+- **`src/eval/`** — `cases.ts` (27 real-shaped Indonesian phrases, all 12 feelings + edge cases:
+  multi-feeling, one-word, heavy-slang), `judge.ts` (LLM-as-judge on warmth/presence/humanness/fit),
+  `run.ts` (reproduces prod's 2-attempt guard loop, judges each safe output, writes a markdown report to
+  `src/eval/reports/` [git-ignored]), `README.md` (the loop). Provider-direct (OpenRouter), **never the
+  prod endpoint**; guard runs on every output. `--dry-run` needs no key (verified). `bun run eval:framing`.
+
+**To use (Erik):** `export OPENROUTER_API_KEY=<the Worker secret key>` then `bun run eval:framing` →
+read the report → edit `FRAMING_SYSTEM_PROMPT` → re-run → compare → deploy once when better. I can't run
+the live eval myself (the key is a Worker secret, not readable back).
+
+417 tests green. Phase 2 tuning is now unblocked but NOT yet done — it's Erik's loop to drive (or mine,
+once he provides the key in-session).
+
+---
+
+## 2026-07-19 — "more human" bridge voice, Phase 1 (deterministic floor); DEPLOYED + LIVE
 
 Erik: make the system's answers more human — a warmer bridge statement — without authoring any verse or
 statement. Diagnosed three tone leaks: (1) an interpretive disclaimer spoken verbatim every fallback
