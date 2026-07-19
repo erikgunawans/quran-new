@@ -290,13 +290,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: sticky; top: 0; z-index: var(--z-sticky);
   display: flex; align-items: center; gap: 0.75rem;
   padding: max(1rem, env(safe-area-inset-top)) 0 0.85rem;
+}
+/* Full-bleed bar: the header CONTENT tracks the centered .app measure (so it lines up with the
+   column below), but its background must span the whole viewport — otherwise the celestial bg
+   shows on both sides and the header reads as a floating inset panel. A 100vw band, centered
+   behind the content, gives QuranKu's clean edge-to-edge bar without a DOM wrapper. */
+.top::before {
+  content: ""; position: absolute; z-index: -1;
+  top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%);
   background: color-mix(in oklch, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 
 /* the wordmark: the mark is an action surface — it takes you home — so it earns the emerald. */
-.mark { display: flex; align-items: center; gap: 11px; margin-right: auto; }
+.mark { display: flex; align-items: center; gap: 11px; }
 .mark .emblem {
   width: 34px; height: 34px; border-radius: 11px;
   background: var(--action-grad); color: var(--action-ink);
@@ -332,6 +340,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     display: flex; align-items: center; gap: 0.35rem;
   }
   .display-pop .pop[hidden] { display: flex; }
+  /* Inline on desktop, the three 44px A-buttons read as loose letters. Group them into one
+     segmented pill so the size control reads as a single object. (Mobile keeps the 44px targets —
+     this only applies where the panel is inline.) */
+  .display-pop .size { background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 1px; }
+  .display-pop .size button { min-width: 32px; width: auto; height: 32px; border-radius: 7px; line-height: 1; }
+  .display-pop .size button[aria-pressed="true"] {
+    background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
 }
 
 /* below tablet width: the trigger appears, the panel becomes a real dropdown */
@@ -709,7 +725,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── nav ─────────────────────────────────────────────────────────────────────
    Two doors, named plainly. "Tanya" (ask) is the differentiator; "Baca" (read) is the JOB.
    Before this existed you could not open Al-Kahf on a Friday. */
+/* Balanced header: [mark] … [nav] … [actions]. Two auto margins — one before the nav, one before
+   the actions cluster (#info) — split the free space equally, so the nav sits centered between the
+   wordmark and the controls instead of crammed against them (matches QuranKu's arrangement). */
 .nav { display: flex; gap: 2px; margin-inline-start: auto; }
+#info { margin-inline-start: auto; }
 
 .nav-link {
   font: 500 var(--step--1)/1 var(--f-ui);
