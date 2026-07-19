@@ -16,5 +16,8 @@
     "noEmit": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  // src/eval imports web/src modules that need the DOM lib; it has its own config (src/eval/tsconfig.json)
+  // and is checked by its own pass in `bun run typecheck`.
+  "exclude": ["src/eval"]
 }

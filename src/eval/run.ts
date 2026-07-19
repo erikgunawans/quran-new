@@ -86,7 +86,8 @@ interface Result {
   readonly attempts: string[];
   /** index of the attempt that cleared the wall, or -1 if none (prod would fall back to canned). */
   readonly safeIndex: number;
-  readonly judgment?: Judgment;
+  /** `| undefined` is required by exactOptionalPropertyTypes — the runner assigns it unconditionally. */
+  readonly judgment?: Judgment | undefined;
 }
 
 async function generate(c: EvalCase): Promise<{ attempts: string[]; safeIndex: number }> {

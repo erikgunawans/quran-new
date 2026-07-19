@@ -1,0 +1,14 @@
+{
+  // The eval harnesses sit in src/ but import web/src modules. answer-run.ts reaches real retrieval
+  // (answer.ts → knowledge.ts → peta.ts), and peta.ts imports rendering modules that need the DOM lib.
+  // The root config has no DOM lib, so checking the evals there dragged the whole frontend in
+  // libless and produced ~90 phantom errors. They are checked here instead, with the same libs the
+  // frontend really compiles under — so the gate can still fail, it just fails honestly.
+  "extends": "../../web/tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun-types"]
+  },
+  // The inherited `exclude` from the root config names src/eval — it must not exclude this project.
+  "exclude": [],
+  "include": ["."]
+}
