@@ -12,6 +12,20 @@ const base = (over: Partial<VerseCard> = {}): VerseCard => ({
   ...over,
 });
 
+describe("verse card — the mushaf ayah-end medallion", () => {
+  test("renders the khātam medallion with the ayah number in Arabic-Indic digits", () => {
+    const html = verseEl(base({ ayah: 5 }));
+    expect(html).toContain('class="ayah-mark"');
+    expect(html).toContain("٥"); // Arabic-Indic 5
+  });
+  test("multi-digit ayah numbers convert every digit", () => {
+    expect(verseEl(base({ ayah: 286 }))).toContain("٢٨٦");
+  });
+  test("the medallion is decorative — aria-hidden so the ref is not read twice", () => {
+    expect(verseEl(base())).toContain('<span class="ayah-mark" aria-hidden="true">');
+  });
+});
+
 describe("verse card — interpretive primary reads open, everything else one tap away", () => {
   test("the primary (Terjemah makna) renders OUTSIDE the depth disclosure", () => {
     const html = verseEl(base());

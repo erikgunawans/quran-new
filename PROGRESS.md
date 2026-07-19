@@ -8,6 +8,30 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-20 (latest) — Islamic craft layer: mushaf medallions, girih, illuminated cartouche
+
+Erik ran /ui-ux-pro-max ("more aesthetic, still strong Islamic nuance"). Its generic recs (brown/amber,
+Lora/Raleway) were AGAIN off-identity — rejected, as before. Instead DEEPENED authentic Islamic craft
+WITHIN the existing identity (celestial + green→gold + Amiri + gold law), all emerald/ink line-work,
+zero gold-on-content. Built a self-contained preview first (`docs/design/islamic-craft-preview.html`,
+real tokens + Amiri, light/dark) — Erik approved all four — then ported. NOT deployed (Erik's; lands on
+BOTH editions since they share web/src).
+
+- **① Ayah medallion** (`verse.ts`) — 8-point khātam star + Arabic-Indic ayah number appended to `.ar`,
+  aria-hidden (ref already in header). Reading surface reuses verseEl → medallion carries there too.
+- **② Girih** (`styles.css`) — `.girih-divider` (khātam between hairlines) after the Basmalah; `.girih-corner`
+  accents on the cartouche. Emerald hairlines, subtle.
+- **③ Illuminated cartouche** (`read.ts` headEl + `read.css`) — surah name/meta in a double-framed cartouche
+  crowned by a khātam, `--primary-wash` fill. Mushaf surah-opening feel.
+- **④ Richer Amiri** (`read.css` `#read .ar` line-height 2.35). "Deeper sky" held CONSERVATIVE — did NOT
+  touch the global receding-celestial var system blind (risk); Erik can push for more after eyeballing.
+
+465 tests green (+3 medallion), gold-law + contrast tests still pass (all `--primary*`, no gold token),
+web typecheck clean, both builds succeed, craft verified present in the bundle. **Interceptor screenshots
+still dead — Erik must eyeball on deploy.** Deploy each edition to see it; rollback = wrangler rollback.
+
+---
+
 ## 2026-07-20 (latest) — SECOND EDITION: the AI-authoring "synthesis" variant (new-quranku-ai), NOT deployed
 
 Erik's second direction, deliberately a **180° reversal** of the app's founding law. He wants an

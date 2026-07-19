@@ -319,6 +319,40 @@
 
 #read .surah-title { margin-top: 1.5rem; text-align: center; }
 
+/* ── Islamic craft: the illuminated surah cartouche ──────────────────────────
+   The surah name + meta open inside a double-framed cartouche crowned by a khātam star, the way a
+   mushaf opens a surah. Frame + star are emerald line-work on a faint --primary-wash — no gold, no
+   heavy fill. Corner girih (.girih-corner) softens the rectangle into ornament. */
+#read .surah-title.cartouche {
+  position: relative;
+  padding: 2.2rem 1.4rem 1.5rem;
+  background: var(--primary-wash);
+  border-radius: 18px;
+  overflow: hidden;
+}
+#read .cartouche-frame {
+  position: absolute; inset: 8px;
+  border: 1.5px solid var(--primary-line); border-radius: 12px;
+}
+#read .cartouche-frame::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px solid var(--primary-line); border-radius: 9px; opacity: 0.5;
+}
+#read .cartouche-star {
+  display: inline-block; width: 34px; height: 34px; color: var(--primary);
+  position: relative; margin-bottom: 0.4rem;
+}
+#read .cartouche .surah-ar,
+#read .cartouche .surah-tl,
+#read .cartouche .surah-meta { position: relative; }
+#read .cartouche .surah-meta {
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; color: var(--primary);
+}
+
+/* ④ richer Amiri on the reading surface — more generous leading than the chat card (this is the
+   long-form reading measure, where the eye lingers). The A- size pill still drives the size. */
+#read .ar { line-height: 2.35; }
+
 #read .surah-ar {
   font-family: var(--f-ar);
   font-size: var(--step-4);

@@ -311,10 +311,26 @@ export function renderIndex(mount: HTMLElement): void {
 const backEl = (cls: string): string =>
   `<a class="back ${cls}" href="#/baca"><span aria-hidden="true">←</span> Kembali ke daftar surah</a>`;
 
+// ── Islamic craft: shared geometry ───────────────────────────────────────────
+// The 8-pointed khātam star (also the ayah medallion in verse.ts) and a quarter-girih corner motif.
+// Both stroke/fill with currentColor so they inherit the emerald line-work — never gold-on-content.
+const STAR8 =
+  "M20 2 L23.83 10.76 L32.73 7.27 L29.24 16.17 L38 20 L29.24 23.83 L32.73 32.73 L23.83 29.24 L20 38 L16.17 29.24 L7.27 32.73 L10.76 23.83 L2 20 L10.76 16.17 L7.27 7.27 L16.17 10.76 Z";
+const GIRIH_CORNER =
+  '<path fill="none" stroke="currentColor" stroke-width="1.3" d="M2 20 A18 18 0 0 1 20 2 M8 20 A12 12 0 0 1 20 8 M2 20 L20 20 L20 2"/>';
+/** A quiet section rule with a central khātam — separates the Basmalah from the verses. */
+const GIRIH_DIVIDER = `<div class="girih-divider" aria-hidden="true"><svg viewBox="0 0 40 40"><path fill="none" stroke="currentColor" stroke-width="1.4" d="${STAR8}"/></svg></div>`;
+
+// The surah name + meta sit in an illuminated cartouche (double frame + corner girih + a crowning
+// khātam), the way a mushaf opens a surah. Structural markup unchanged in substance — only wrapped.
 const headEl = (m: SurahMeta): string => `
   <header class="surah-head">
     ${backEl("back-top")}
-    <div class="surah-title">
+    <div class="surah-title cartouche">
+      <span class="cartouche-frame" aria-hidden="true"></span>
+      <svg class="girih-corner tl" viewBox="0 0 40 40" aria-hidden="true">${GIRIH_CORNER}</svg>
+      <svg class="girih-corner br" viewBox="0 0 40 40" aria-hidden="true">${GIRIH_CORNER}</svg>
+      <svg class="cartouche-star" viewBox="0 0 40 40" aria-hidden="true"><path fill="var(--primary-wash)" stroke="var(--primary-line)" stroke-width="1.2" d="${STAR8}"/></svg>
       <h1 class="surah-ar" dir="rtl" lang="ar">${esc(m.ar)}</h1>
       <p class="surah-tl">${esc(displayName(m.n))}</p>
       <p class="surah-meta">${m.ayahs} ayat · ${revID(m.rev)}</p>
@@ -420,7 +436,7 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   // already encodes that ruling; we honour it rather than re-deriving it. And loadSurah has
   // already lifted the basmalah out of the verse text, so rendering it here cannot double it.
   const bismillah = shard.bismillah
-    ? `<p class="bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</p>`
+    ? `<p class="bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</p>${GIRIH_DIVIDER}`
     : "";
 
   // If the reader came here FOR a specific ayah — tapped "Baca lanjutan" on 2:255, or opened a

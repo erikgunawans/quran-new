@@ -198,6 +198,18 @@ export const fromShard = (v: ShardVerse, surah: number, surahName: string): Vers
   companion: v.c,
 });
 
+// ── the ayah-end medallion (mushaf craft) ────────────────────────────────────
+// A traditional Qur'an marks the end of each ayah with an ornamented number. We render an
+// 8-pointed khātam star holding the ayah number in Arabic-Indic digits, appended to the Arabic
+// line. Decorative + aria-hidden: the meaningful reference already lives in the verse header, so a
+// screen reader is not made to read the number twice. Emerald line-work — never gold-on-content.
+const AR_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"] as const;
+const toArabicIndic = (n: number): string => String(n).replace(/\d/g, (d) => AR_DIGITS[Number(d)]!);
+const AYAH_STAR =
+  '<svg viewBox="0 0 40 40" aria-hidden="true"><path class="star" d="M20 2 L23.83 10.76 L32.73 7.27 L29.24 16.17 L38 20 L29.24 23.83 L32.73 32.73 L23.83 29.24 L20 38 L16.17 29.24 L7.27 32.73 L10.76 23.83 L2 20 L10.76 16.17 L7.27 7.27 L16.17 10.76 Z"/></svg>';
+const ayahMark = (ayah: number): string =>
+  `<span class="ayah-mark" aria-hidden="true">${AYAH_STAR}<span class="num">${toArabicIndic(ayah)}</span></span>`;
+
 export function verseEl(v: VerseCard): string {
   const flag = FLAGGED[v.ref];
 
@@ -209,7 +221,7 @@ export function verseEl(v: VerseCard): string {
         ${v.why ? `<span class="why">${esc(v.why)}</span>` : ""}
       </header>
 
-      <p class="ar" dir="rtl" lang="ar">${esc(v.arabic)}</p>
+      <p class="ar" dir="rtl" lang="ar">${esc(v.arabic)}${ayahMark(v.ayah)}</p>
 
       ${v.primary ? readingEl(v.primary, true) : ""}
 

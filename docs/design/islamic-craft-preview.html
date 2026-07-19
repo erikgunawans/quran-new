@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Islamic Craft Preview — New-Quranku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..500;1,9..144,400..500&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
+<style>
+  /* Real New-Quranku tokens (copied from web/src/styles.css) so this previews true-to-app. */
+  :root {
+    --bg: oklch(0.978 0.007 160); --surface: oklch(1 0 0); --surface-2: oklch(0.955 0.017 165);
+    --line: oklch(0.927 0.010 165); --line-strong: oklch(0.889 0.017 163);
+    --ink: oklch(0.219 0.024 167); --ink-2: oklch(0.416 0.021 169); --ink-3: oklch(0.509 0.021 166);
+    --primary: oklch(0.416 0.083 165); --primary-wash: oklch(0.955 0.017 165);
+    --primary-line: oklch(0.627 0.129 165 / 0.45);
+    --action: oklch(0.532 0.112 163); --action-2: oklch(0.542 0.092 188);
+    --forest: oklch(0.375 0.073 166); --clay: oklch(0.586 0.091 49);
+    --hero-a: #16a249; --hero-b: #f0c851;
+    --sky: radial-gradient(120% 100% at 50% -10%, oklch(0.985 0.010 200) 0%, oklch(0.965 0.020 165) 55%, oklch(0.945 0.028 168) 100%);
+    --f-ar: "Amiri","Scheherazade New",serif; --f-ui: "Plus Jakarta Sans",system-ui,sans-serif; --f-display: "Fraunces",Georgia,serif;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: oklch(0.175 0.018 165); --surface: oklch(0.225 0.020 165); --surface-2: oklch(0.275 0.022 165);
+    --line: oklch(0.320 0.018 165); --line-strong: oklch(0.395 0.020 165);
+    --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
+    --primary: oklch(0.760 0.128 165); --primary-wash: oklch(0.760 0.128 165 / 0.14);
+    --primary-line: oklch(0.760 0.128 165 / 0.42);
+    --forest: oklch(0.700 0.090 166); --clay: oklch(0.720 0.110 55);
+    --hero-a: #34d399; --hero-b: #f5d67a;
+    --sky: radial-gradient(120% 100% at 50% -10%, oklch(0.235 0.030 250) 0%, oklch(0.195 0.024 220) 45%, oklch(0.165 0.018 200) 100%);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink-2);
+    font: 16px/1.6 var(--f-ui); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.1rem 5rem; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+  h1 { font: 600 1.5rem/1.2 var(--f-display); color: var(--ink); margin: 0; }
+  h1 em { font-style: normal; background: linear-gradient(120deg, var(--hero-a), var(--hero-b));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .toggle { font: 600 0.8rem var(--f-ui); color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 999px; padding: 0.5rem 0.9rem; cursor: pointer; }
+  .lede { font-size: 0.95rem; color: var(--ink-3); margin: 0 0 2rem; max-width: 40ch; }
+  section.demo { margin: 0 0 2.6rem; }
+  .demo > h2 { font: 500 1.15rem var(--f-display); color: var(--ink); margin: 0 0 .3rem; }
+  .demo > .note { font-size: 0.82rem; color: var(--ink-3); margin: 0 0 1rem; }
+
+  /* ── the emerald verse card (as in the app) ─────────────────────────────── */
+  .verse { background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; box-shadow: 0 8px 28px oklch(0.20 0.01 155 / 0.08); position: relative; }
+  .verse-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .verse-head .ref { font: 600 0.8rem var(--f-ui); color: var(--primary); font-variant-numeric: tabular-nums; }
+  .verse-head .surah-name { font: 500 0.85rem var(--f-display); color: var(--ink); }
+  .verse-head .tag { margin-left: auto; font: 600 0.68rem var(--f-ui); text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--hero-b); }
+  .ar { font-family: var(--f-ar); font-size: 1.9rem; line-height: 2.15; direction: rtl; text-align: right;
+    color: var(--ink); padding: 20px 26px 22px; margin: 0; }
+  .tr { padding: 0 26px 20px; color: var(--ink-2); font-size: 1rem; }
+
+  /* ①  AYAH MEDALLION + ROSETTE — the mushaf verse-end marker ─────────────── */
+  .ayah-medallion { display: inline-grid; place-items: center; width: 1.55em; height: 1.55em;
+    vertical-align: -0.35em; margin: 0 0.15em; position: relative; }
+  .ayah-medallion svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ayah-medallion .star { fill: var(--primary-wash); stroke: var(--primary-line); stroke-width: 1; }
+  .ayah-medallion .num { position: relative; font-size: 0.42em; font-weight: 700; color: var(--primary);
+    font-family: var(--f-ar); }
+  /* the ۝ rosette style — pure glyph variant, in clay */
+  .rosette { color: var(--clay); font-family: var(--f-ar); font-size: 1.5em; vertical-align: -0.2em; }
+
+  /* ②  GIRIH — divider + corner accents ──────────────────────────────────── */
+  .girih-divider { display: flex; align-items: center; gap: 0.9rem; margin: 1.6rem 0; color: var(--primary-line); }
+  .girih-divider::before, .girih-divider::after { content: ""; height: 1px; flex: 1; background: currentColor; }
+  .girih-divider svg { width: 26px; height: 26px; color: var(--primary); flex: none; }
+  .girih-corner { position: absolute; width: 40px; height: 40px; color: var(--primary-line); opacity: 0.55; }
+  .girih-corner.tl { top: 8px; left: 8px; }
+  .girih-corner.br { bottom: 8px; right: 8px; transform: rotate(180deg); }
+  .card-plain { position: relative; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 2.2rem 1.6rem; text-align: center; color: var(--ink-2); }
+
+  /* ③  ILLUMINATED SURAH HEADER — cartouche ──────────────────────────────── */
+  .cartouche { position: relative; text-align: center; padding: 1.6rem 1.2rem 1.3rem; margin: 0 0 1rem;
+    background: var(--primary-wash); border-radius: 16px; overflow: hidden; }
+  .cartouche .frame { position: absolute; inset: 7px; border: 1.5px solid var(--primary-line);
+    border-radius: 11px; pointer-events: none; }
+  .cartouche .frame::before { content: ""; position: absolute; inset: 4px; border: 1px solid var(--primary-line);
+    border-radius: 8px; opacity: 0.5; }
+  .cartouche .surah-title { font: 500 1.6rem var(--f-display); color: var(--ink); margin: 0 0 0.15rem; position: relative; }
+  .cartouche .surah-meta { font: 600 0.72rem var(--f-ui); text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--primary); position: relative; }
+  .cartouche .bismillah { font-family: var(--f-ar); font-size: 1.6rem; color: var(--primary); margin: 0.7rem 0 0;
+    direction: rtl; position: relative; }
+  .cartouche .medallion-top { color: var(--primary); width: 34px; height: 34px; margin-bottom: 0.3rem; }
+
+  /* ④  DEEPER SKY + RICHER AMIRI — reading panel ─────────────────────────── */
+  .reading { background: var(--sky); border: 1px solid var(--line); border-radius: 16px;
+    padding: 2rem 1.4rem; position: relative; overflow: hidden; }
+  .reading::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(1.5px 1.5px at 20% 30%, oklch(1 0 0 / .5) 50%, transparent),
+                radial-gradient(1.5px 1.5px at 70% 20%, oklch(1 0 0 / .35) 50%, transparent),
+                radial-gradient(1.2px 1.2px at 85% 60%, oklch(1 0 0 / .3) 50%, transparent),
+                radial-gradient(1.2px 1.2px at 40% 75%, oklch(1 0 0 / .25) 50%, transparent);
+    opacity: 0.7; }
+  .reading .ar-big { font-family: var(--f-ar); font-size: 2.3rem; line-height: 2.35; direction: rtl;
+    text-align: center; color: var(--ink); position: relative; margin: 0; }
+  .reading .tr-big { text-align: center; color: var(--ink-2); font-size: 1.05rem; margin: 1rem 0 0;
+    position: relative; max-width: 34ch; margin-inline: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Islamic <em>Craft</em> Preview</h1>
+    <button class="toggle" id="t">☾ Dark</button>
+  </header>
+  <p class="lede">Empat lapis kerajinan Islam klasik, dibangun di atas identitas app yang sudah ada
+    (emerald oklch, Amiri, langit "āyāt"). Tak menyentuh hukum emas — semua garis emerald/tinta, bukan emas.
+    Coba di HP, terang & gelap.</p>
+
+  <!-- ① AYAH MEDALLION + ROSETTE -->
+  <section class="demo">
+    <h2>① Medali & rozet ayat</h2>
+    <p class="note">Nomor ayat dalam bintang delapan (khātam) di ujung ayat — persis mushaf cetak. Peta: ditambahkan ke akhir baris <code>.ar</code> di verse.ts.</p>
+    <article class="verse">
+      <div class="verse-head"><span class="ref">112:1</span><span class="surah-name">Al-Ikhlas</span><span class="tag">Makkiyah</span></div>
+      <p class="ar" dir="rtl" lang="ar">قُلْ هُوَ اللَّهُ أَحَدٌ<span class="ayah-medallion"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="star" d="M20 2 L23.83 10.76 L32.73 7.27 L29.24 16.17 L38 20 L29.24 23.83 L32.73 32.73 L23.83 29.24 L20 38 L16.17 29.24 L7.27 32.73 L10.76 23.83 L2 20 L10.76 16.17 L7.27 7.27 L16.17 10.76 Z"/></svg><span class="num">١</span></span></p>
+      <p class="tr">Katakanlah (Muhammad), "Dialah Allah, Yang Maha Esa."</p>
+    </article>
+    <div style="height:0.8rem"></div>
+    <article class="verse">
+      <div class="verse-head"><span class="ref">112:2</span><span class="surah-name">Al-Ikhlas</span><span class="tag">Makkiyah</span></div>
+      <p class="ar" dir="rtl" lang="ar">اللَّهُ الصَّمَدُ <span class="rosette">۝</span><span class="ayah-medallion"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="star" d="M20 2 L23.83 10.76 L32.73 7.27 L29.24 16.17 L38 20 L29.24 23.83 L32.73 32.73 L23.83 29.24 L20 38 L16.17 29.24 L7.27 32.73 L10.76 23.83 L2 20 L10.76 16.17 L7.27 7.27 L16.17 10.76 Z"/></svg><span class="num">٢</span></span></p>
+      <p class="tr">Allah tempat meminta segala sesuatu.</p>
+    </article>
+  </section>
+
+  <!-- ② GIRIH -->
+  <section class="demo">
+    <h2>② Aksen girih</h2>
+    <p class="note">Bintang-delapan berjalin sebagai pembatas bagian & sudut kartu — garis emerald/tinta tipis, bukan emas. Peta: pembatas <code>.girih-divider</code> + <code>::before</code> sudut kartu di styles.css.</p>
+    <div class="girih-divider">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" d="M20 3 L24 11 L33 7 L29 16 L37 20 L29 24 L33 33 L24 29 L20 37 L16 29 L7 33 L11 24 L3 20 L11 16 L7 7 L16 11 Z"/><path fill="none" stroke="currentColor" stroke-width="1" opacity="0.6" d="M20 9 L27 20 L20 31 L13 20 Z"/></svg>
+    </div>
+    <div class="card-plain">
+      <svg class="girih-corner tl" viewBox="0 0 40 40" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.3" d="M2 20 A18 18 0 0 1 20 2 M8 20 A12 12 0 0 1 20 8 M2 20 L20 20 L20 2"/></svg>
+      <svg class="girih-corner br" viewBox="0 0 40 40" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.3" d="M2 20 A18 18 0 0 1 20 2 M8 20 A12 12 0 0 1 20 8 M2 20 L20 20 L20 2"/></svg>
+      <p style="margin:0;font-family:var(--f-display);font-size:1.15rem;color:var(--ink)">Baca lewat perasaan</p>
+      <p style="margin:.4rem 0 0;font-size:.9rem">Aksen sudut yang tenang membingkai kartu tanpa berisik.</p>
+    </div>
+  </section>
+
+  <!-- ③ ILLUMINATED SURAH HEADER -->
+  <section class="demo">
+    <h2>③ Kepala surah beriluminasi</h2>
+    <p class="note">Kartus (cartouche) berbingkai ganda memuat nama surah + Basmalah, gaya manuskrip mushaf. Peta: blok <code>.read-intro</code> di read.ts/read.css.</p>
+    <div class="cartouche">
+      <div class="frame"></div>
+      <svg class="medallion-top" viewBox="0 0 40 40" aria-hidden="true" style="display:inline-block"><path fill="var(--primary-wash)" stroke="currentColor" stroke-width="1.2" d="M20 2 L23.83 10.76 L32.73 7.27 L29.24 16.17 L38 20 L29.24 23.83 L32.73 32.73 L23.83 29.24 L20 38 L16.17 29.24 L7.27 32.73 L10.76 23.83 L2 20 L10.76 16.17 L7.27 7.27 L16.17 10.76 Z"/></svg>
+      <p class="surah-title">Al-Ikhlas</p>
+      <p class="surah-meta">Makkiyah · 4 ayat</p>
+      <p class="bismillah" dir="rtl" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    </div>
+  </section>
+
+  <!-- ④ DEEPER SKY + RICHER AMIRI -->
+  <section class="demo">
+    <h2>④ Langit lebih dalam + Amiri lebih lapang</h2>
+    <p class="note">Permukaan baca dengan langit malam lebih dalam & Amiri lebih besar/lapang, terpusat. Peta: <code>--cel-*</code> pada permukaan baca + <code>.ar</code> di styles.css.</p>
+    <div class="reading">
+      <p class="ar-big" dir="rtl" lang="ar">قُلْ هُوَ اللَّهُ أَحَدٌ</p>
+      <p class="tr-big">Katakanlah (Muhammad), "Dialah Allah, Yang Maha Esa."</p>
+    </div>
+  </section>
+</div>
+<script>
+  const root = document.documentElement, btn = document.getElementById('t');
+  if (matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme','dark');
+  const sync = () => btn.textContent = root.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  sync();
+  btn.onclick = () => { root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); sync(); };
+</script>
+</body>
+</html>
