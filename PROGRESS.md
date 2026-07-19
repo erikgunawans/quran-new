@@ -8,6 +8,30 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-07-20 (latest) — Islamic craft + deeper reading sky LIVE on BOTH editions
+
+Both editions deployed & verified live (curl on served bundles):
+- **Principled** — new-quranku.axiara.ai (Version b36627dc, EDITION=principled, JS index-DEpE5oJL, CSS index-CZBVQCsK)
+- **Synthesis** — new-quranku-ai.axiara.ai (Version 5cd8bb40, EDITION=synthesis, JS index-BxeFNpY_, shared CSS)
+
+**Islamic craft (all 4, `/ui-ux-pro-max` request "more aesthetic + strong Islamic nuance"):** ① 8-point khātam
+ayah medallions (Arabic-Indic number, on chat + reading via shared verseEl); ② girih divider after Basmalah +
+cartouche corner accents; ③ illuminated surah cartouche (double frame + khātam); ④ **deeper reading sky** —
+`data-reading` marker (surah + theme-verse routes) swaps a deeper-but-calm night (`--cel-sky-read`/`--cel-stars-read`):
+richer midnight-blue crown + emerald floor + stronger central vignette, NO crescent/gold/twinkle. Adds a 3rd
+celestial tier: recede → reading → rich. All emerald/ink line-work — gold law intact. Preview at
+`docs/design/islamic-craft-preview.html` (Erik approved all 4). 465 tests green, contrast + gold-law pass.
+
+**Deploys done BY Alesha this session (Erik delegated "deploy it for me")** — normally Erik's via `!`.
+Rollback either: `cd worker && bunx wrangler rollback [--env synthesis]`. Interceptor screenshots dead all
+session — verified by curl on served bundles + Erik's phone eyeball.
+
+**Open (waiting on Erik):** (1) eyeball the craft + deeper sky on phone, tune depth if needed; (2) hand ustadz
+the aqidah packet (`docs/review/aqidah-*.html`, A/B/C tiers); (3) compare the two editions' ANSWERS (same look
+now) — the real principled-vs-synthesis decision; (4) Phase-2 voice tuning (needs OPENROUTER_API_KEY exported).
+
+---
+
 ## 2026-07-20 (latest) — Islamic craft layer: mushaf medallions, girih, illuminated cartouche
 
 Erik ran /ui-ux-pro-max ("more aesthetic, still strong Islamic nuance"). Its generic recs (brown/amber,
