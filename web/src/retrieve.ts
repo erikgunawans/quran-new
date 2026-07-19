@@ -94,24 +94,35 @@ const LEXICON: Record<string, string[]> = {
 const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
 
 /**
- * The honesty threshold.
+ * The honesty floor is a real SIGNAL, not an accumulated score.
  *
- * Scoring is: an explicit verse reference = 100, a theme term = 10 each, an incidental word that
- * happens to appear somewhere in a translation = 2 each.
+ * Scoring: an explicit reference = 100, a recognised feeling (theme) = 10 each, an incidental word
+ * that appears in a rendering = 2 each. A verse may be RETURNED only when it was picked by a real
+ * signal — a reference or a feeling (`qualified` in `retrieve()`). Word overlap can re-rank those
+ * verses but can never qualify one on its own.
  *
- * The old floor was `score > 0`, which meant ONE incidental word was enough to answer. Asked
- * "gimana cara sholat tahajud", Nur returned 2:152 (Gratitude) — matched on the word `cara`
- * ("way") — and wrapped it in the full "here is a verse for you" framing. A wrong answer arrived
- * dressed exactly like a right one, which is worse than no answer at all: it spends the trust that
- * the whole no-generative-model design was built to earn.
- *
- * The floor is now a THEME hit. Nur answers when it recognises what the person is FEELING, not
- * when a word coincidentally appears in a rendering. Word overlap still ranks — it just can no
- * longer speak on its own.
- *
- * Below this line Nur says it does not know. That copy already existed and was simply unreachable.
+ * Why not a numeric floor. A score floor of 10 seemed safe, but a question dense in common words —
+ * "siapakah Allah, ada di mana Allah, dan mau-Nya Allah itu apa?" — matched six fragments
+ * (`allah`,`ada`,`dan`,`nya`,`itu`,`apa`) at +2 each and cleared it, returning 2:286 wrapped in a
+ * "you're struggling" framing: a confident, tone-deaf, WRONG answer to a theology question. Two
+ * things made that possible and both are fixed below: word overlap could qualify a verse (now it
+ * can't — only a real signal does), and it matched substrings (`nya` inside `kesanggupannya`) over
+ * function words (now it matches whole content words only). A knowledge question with no feeling now
+ * reaches honest silence, which is the truthful answer for an app that finds verses by feeling.
  */
-const MIN_SCORE = 10;
+
+/** Indonesian function/filler words carry no retrieval signal; excluded so word overlap ranks on
+ * content ("sholat","utang","dosa"), never on grammar ("dan","itu","apa","yang"). */
+const OVERLAP_STOP = new Set<string>([
+  "ada", "adalah", "apa", "apakah", "atau", "akan", "aku", "dan", "dari", "dengan", "dia", "ini",
+  "itu", "juga", "kalau", "kalo", "kamu", "karena", "kita", "mau", "maka", "mereka", "nya", "pada",
+  "saja", "saya", "seperti", "untuk", "yang", "kok", "sih", "gak", "nggak", "tidak", "bisa", "buat",
+  "gimana", "kenapa", "mengapa", "siapa", "siapakah", "dimana", "kapan", "berapa", "bagaimana",
+  "tuh", "deh", "dong", "pun", "sudah", "udah", "lagi", "banget", "kayak", "gitu", "gini", "aja",
+]);
+
+/** The set of whole words in a rendering — so overlap matches words, not substrings. */
+const wordSet = (text: string): Set<string> => new Set(norm(text).split(" ").filter(Boolean));
 
 /** Marker pushed into a Hit's `matched` when a theme was recognised by the model rather than typed
  * as a keyword — honest provenance instead of a faked word. (`matched` is not surfaced in the UI
@@ -161,6 +172,7 @@ export function retrieve(
   const q = norm(question);
   if (!q) return [];
   const qWords = new Set(q.split(" ").filter((w) => w.length > 2));
+  const contentWords = new Set([...qWords].filter((w) => !OVERLAP_STOP.has(w)));
   const modelThemeSet = new Set(modelThemes);
 
   // 1. Which emotional theme is this person in? (Shared with callers via keywordThemeHits.)
@@ -169,42 +181,50 @@ export function retrieve(
   // 2. Explicit verse reference — "2:255", "surat 94 ayat 5"
   const direct = question.match(/(\d{1,3})\s*[:\.]\s*(\d{1,3})/);
 
-  const scored: Hit[] = corpus.verses.map((verse) => {
+  const scored = corpus.verses.map((verse) => {
     let score = 0;
+    // The honest floor: a verse is returnable ONLY when a real signal picked it — a reference or a
+    // recognised feeling. Word overlap below can re-rank a qualified verse, never qualify one.
+    let qualified = false;
     const matched: string[] = [];
 
     if (direct && verse.ref === `${Number(direct[1])}:${Number(direct[2])}`) {
       score += 100;
+      qualified = true;
       matched.push(verse.ref);
     }
 
     const themeHits = themeScore.get(verse.theme);
     if (themeHits?.length) {
       score += 10 * themeHits.length;
+      qualified = true;
       matched.push(...themeHits);
     } else if (modelThemeSet.has(verse.theme)) {
       // Keywords missed this theme but the model recognised it in what the person wrote — the whole
       // reason the understander exists ("ngerasa Tuhan udah nyerah sama aku" hits no keyword).
-      // Credit it like one keyword theme hit (reaches MIN_SCORE), and record honest provenance
-      // rather than a faked word. Keyword themes still outrank it because they can stack (×count).
+      // Credit it like one keyword theme hit and record honest provenance rather than a faked word.
+      // Keyword themes still outrank it because they can stack (×count).
       score += 10;
+      qualified = true;
       matched.push(MODEL_THEME_MATCH);
     }
 
-    // 3. Word overlap with the renderings themselves
-    const hay = norm(`${verse.primary?.text ?? ""} ${verse.companion?.text ?? ""} ${verse.why}`);
-    for (const w of qWords) {
-      if (hay.includes(w)) {
+    // Word overlap — RANK ONLY, whole-word, content words only. Matching the rendering's word SET
+    // (not `includes`) stops fragments scoring inside longer words ("nya" ⊄ "kesanggupannya");
+    // dropping function words stops "dan/itu/apa/ada" carrying signal. It never sets `qualified`.
+    const hayWords = wordSet(`${verse.primary?.text ?? ""} ${verse.companion?.text ?? ""} ${verse.why}`);
+    for (const w of contentWords) {
+      if (hayWords.has(w)) {
         score += 2;
         matched.push(w);
       }
     }
 
-    return { verse, score, matched: [...new Set(matched)] };
+    return { verse, score, qualified, matched: [...new Set(matched)] };
   });
 
   const ranked = scored
-    .filter((h) => h.score >= MIN_SCORE)
+    .filter((h) => h.qualified)
     .sort((a, b) => b.score - a.score || a.verse.surah - b.verse.surah);
 
   // Diversify by theme.

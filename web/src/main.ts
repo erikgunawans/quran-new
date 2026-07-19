@@ -127,8 +127,8 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       return `
         <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
         <div class="silence">
-          Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.
-          Coba ceritakan dengan kata lain — atau sebutkan surah dan ayatnya langsung, misalnya <b>18:10</b>.
+          <p>Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak — aku menemani lewat <b>perasaan</b>, bukan menjawab soal ajaran, hukum, atau arti sebuah ayat.</p>
+          <p>Kalau kamu nyari <b>topik atau konsep</b> — misalnya tentang Allah, sabar, atau rezeki — coba buka <a href="#/peta">Peta</a> atau <a href="#/tema">Tema</a>. Kalau kamu lagi <b>ngerasain sesuatu</b>, ceritakan aja pakai kata-katamu sendiri. Atau sebutkan <b>surah dan ayatnya langsung</b>, misalnya <b>18:10</b>.</p>
         </div>`;
 
     case "hits": {

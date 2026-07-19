@@ -29,6 +29,28 @@ describe("Nur answers a FEELING, not a coincidental word", () => {
   });
 });
 
+describe("a knowledge/theology question is not a feeling — honest silence, not a wrong verse", () => {
+  test("the reported bug: 'siapakah allah? ada dimana allah dan mau nya allah itu apa?' → silence", () => {
+    // Shipped a Hardship framing + 2:286, matched only on common fragments (allah/ada/dan/nya/itu/apa)
+    // scored as substrings via word overlap. Word overlap can no longer qualify a verse on its own.
+    expect(refs("siapakah allah? ada dimana allah dan mau nya allah itu apa?")).toEqual([]);
+  });
+
+  test.each([
+    "apa itu tauhid",
+    "hukum riba apa",
+    "kapan hari kiamat",
+    "siapa nabi terakhir",
+  ])("%s → honest silence (a definition/ruling is not a feeling)", (q) => {
+    expect(refs(q)).toEqual([]);
+  });
+
+  test("a verse dense in common words does not clear the floor without a feeling", () => {
+    // No emotional keyword, no reference — only function-word overlap, which must not qualify anything.
+    expect(refs("apa itu dan dari yang ada di dalam kitab ini")).toEqual([]);
+  });
+});
+
 describe("but real feelings still land", () => {
   test.each([
     "aku lagi capek banget",
