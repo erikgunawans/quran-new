@@ -56,6 +56,10 @@ export type Turn =
   | { q: string; kind: "no-such-surah"; surah: number }
   | { q: string; kind: "no-such-ayah"; surah: number; ayah: number }
   | { q: string; kind: "hits"; refs: string[] }
+  // A topic/knowledge question answered from the scholar's Indeks Tematik. Only the slug + question
+  // are stored; the sourced entries are re-derived from the KB at render time (like every other turn,
+  // the markup is rebuilt from today's code, never resurrected from disk).
+  | { q: string; kind: "knowledge"; slug: string }
   | { q: string; kind: "silence" };
 
 interface Stored {

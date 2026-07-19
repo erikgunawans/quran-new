@@ -11,6 +11,7 @@ import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, Shar
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
+import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { understandThemes } from "./theme-understand.ts";
@@ -164,7 +165,51 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
         READER_NOTE
       );
     }
+
+    case "knowledge": {
+      // Re-derived from the KB, never resurrected from disk. Null (network fail, or the topic no
+      // longer matches) degrades to the honest silence — never a blank answer.
+      const k = await retrieveKnowledge(t.q);
+      if (!k || !k.entries.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
+      return knowledgeHtml(k);
+    }
   }
+}
+
+/**
+ * A grounded knowledge answer: the scholar's own verbatim entries + verse links, cited. The app
+ * authors NOTHING here — every line is Ustadz Muhammad Thalib's, every link is ours and labelled so.
+ */
+function knowledgeHtml(k: KnowledgeAnswer): string {
+  const credit =
+    `<p class="know-credit">Indeks Tematik oleh <strong>${esc(k.source.author)}</strong> — <a href="${esc(k.source.url)}" rel="noopener noreferrer" target="_blank">quran.tarjamahtafsiriyah.com</a></p>` +
+    `<p class="know-derivative">Penautan ayat adalah tambahan kami untuk memudahkan penelusuran — bukan bagian dari indeks aslinya.</p>`;
+
+  // Broad topic, no specific line in the index — point honestly, don't invent an answer from
+  // arbitrary entries. (This is what "who is Allah?" reaches: the index is a predicate list, not a
+  // definition.) Still more helpful than a bare silence: it deep-links the exact topic.
+  if (!k.entries.length) {
+    return (
+      `<p class="said">Pertanyaan soal <b>${esc(k.category)}</b> itu luas — dan aku nggak mau ngarang. Tapi di knowledge base kami ada <b>${k.totalEntries} entri</b> soal ini, dikumpulkan <b>${esc(k.source.author)}</b>, masing-masing langsung menunjuk ke ayatnya. Coba persempit pertanyaanmu, atau telusuri langsung:</p>` +
+      `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Telusuri ${k.totalEntries} entri tentang ${esc(k.category)} di Peta →</a></p>` +
+      credit
+    );
+  }
+
+  const entries = k.entries
+    .map((e) => {
+      const cite = e.resolvable
+        ? `<a class="know-ref" href="#/surah/${e.surah}#${e.ayah}">${esc(e.ref)} →</a>`
+        : `<span class="know-ref know-ref-unresolved" title="rujukan ini tidak kami temukan dalam mushaf">${esc(e.ref)}</span>`;
+      return `<li class="know-entry"><span class="know-text">${esc(e.text)}</span>${cite}</li>`;
+    })
+    .join("");
+  return (
+    `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>` +
+    `<ul class="know-list">${entries}</ul>` +
+    `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Lihat semua ${k.totalEntries} entri tentang ${esc(k.category)} di Peta →</a></p>` +
+    credit
+  );
 }
 
 function announceTurn(t: Turn): void {
@@ -177,6 +222,9 @@ function announceTurn(t: Turn): void {
       break;
     case "hits":
       say(`${t.refs.length} ayat ditemukan: ${t.refs.join(", ")}.`);
+      break;
+    case "knowledge":
+      say("Menampilkan entri dari Indeks Tematik Ustadz Muhammad Thalib beserta ayatnya.");
       break;
     default:
       break;
@@ -253,7 +301,7 @@ async function ask(question: string) {
         ? await understandThemes(q, corpus.themes, liveThemeModel, () => [])
         : [];
 
-    const turn: Turn =
+    let turn: Turn =
       ref.kind === "no-such-surah"
         ? { q, kind: "no-such-surah", surah: ref.surah }
         : ref.kind === "no-such-ayah"
@@ -265,6 +313,14 @@ async function ask(question: string) {
               : turnFromHits(q, corpus ? retrieve(corpus, q, 2, modelThemes) : []);
 
     if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
+
+    // Knowledge fallback. A topic/theology question ("siapakah Allah?") lands on the feeling path's
+    // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
+    // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
+    if (turn.kind === "silence") {
+      const knowledge = await retrieveKnowledge(q);
+      if (knowledge) turn = { q, kind: "knowledge", slug: knowledge.slug };
+    }
 
     answer.innerHTML = await renderTurn(turn);
     announceTurn(turn);

@@ -154,7 +154,9 @@ async function loadCosmos(): Promise<Cosmos> {
   return cosmosCache;
 }
 
-async function loadIndex(): Promise<PetaIndex> {
+// Exported so the chat's knowledge path (knowledge.ts) reuses the SAME cached loaders and the same
+// source-of-truth shards — a knowledge answer surfaces the identical entries the Peta pages do.
+export async function loadIndex(): Promise<PetaIndex> {
   if (indexCache) return indexCache;
   const res = await fetch("/peta/index.json");
   if (!res.ok) throw new Error(`Gagal memuat Peta Tematik (${res.status}).`);
@@ -162,7 +164,7 @@ async function loadIndex(): Promise<PetaIndex> {
   return indexCache;
 }
 
-async function loadCategory(slug: string): Promise<PetaShard> {
+export async function loadCategory(slug: string): Promise<PetaShard> {
   const hit = shardCache.get(slug);
   if (hit) return hit;
   const res = await fetch(`/peta/${encodeURIComponent(slug)}.json`);
