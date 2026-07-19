@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-18 (latest) — post-deploy: surah grid, cosmos re-link, ustadz sheet, impeccable critique + fixes
+## 2026-07-19 (latest) — b508f31 Tema/Peta clarify DEPLOYED + LIVE; edge-cache hygiene added
+
+**`b508f31` (Tema/Peta clarify) is live.** Deployed to the Cloudflare Worker edge (`new-quranku-proxy`,
+Version **`b15372ba`**, then **`247f102e`** for the cache-hygiene fix). Verified: bare
+`https://new-quranku.axiara.ai/` serves bundle `index-zSScUM2t.js`, which contains the new copy —
+`#/tema` = **"Baca lewat perasaan"** (tema *perasaan*: capek, cemas, kehilangan → cross-refs Peta) and
+`#/peta` = **"Seluruh Qur'an dipetakan lewat topik…"** (cross-refs Tema). 400 `bun test web/src` green.
+
+**Deploy-propagation finding (important for future deploys):** right after the first deploy, bare `/`
+kept serving the OLD shell (`index-DAhAvBhN.js`, no copy) for a few minutes — `cf-cache-status: HIT`,
+no `age` header, even on hashed assets. That signature is **Cloudflare Workers Static Assets' own
+version-keyed serving cache**, NOT a zone CDN Cache Rule. It was **propagation lag that self-cleared** —
+no purge was needed (and wrangler's OAuth token lacks cache-purge perms anyway). So: after a deploy,
+give the edge a few minutes before concluding it's stale; verify against the hashed bundle the shell
+actually points at, not a cache-busted URL.
+
+**Cache hygiene (`9fb4165`, deployed):** `worker/src/index.ts` now sets
+`Cloudflare-CDN-Cache-Control: no-cache` on `text/html` responses only (the SPA shell) — hashed
+`/assets/*` stay immutable-cached, browser `Cache-Control` untouched. Correct best-practice, but its
+marginal effect is **unproven** (the Workers-Assets cache reports HIT with no `age` regardless); the real
+test is whether the next content deploy is instantly live. Harmless either way.
+
+**Still open (unchanged):** (2) hand the ustadz `docs/review/thematic-curation-review.md`; (3) generative
+false-silence → OFFLINE eval harness (still deferred, never live prompt-poking); (4) two impeccable
+leftovers (green→gold gradient heading, adaptive hero tone) — deliberate trade-offs, Erik's call;
+(5) `nur-demo` Cloud Run still split-brain (bypassed via Cloudflare, one-line revert via `ORIGIN_HOST`).
+
+---
+
+## 2026-07-18 — post-deploy: surah grid, cosmos re-link, ustadz sheet, impeccable critique + fixes
 
 After the Cloudflare deploy, a run of refinements — all **live except the last commit**.
 
