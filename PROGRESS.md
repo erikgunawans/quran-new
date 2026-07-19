@@ -8,7 +8,38 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — Ustadz review packet rendered to printable HTML
+## 2026-07-20 (latest) — aqidah: alias matching hardened + scholar-assigned answer tiers (A/B/C)
+
+Two things this session, after Erik asked what the system answers *before* the ustadz fills the KB.
+
+**1. Alias matching hardened** (`aqidah.ts`). Verified today's routing for the 7 definitional questions:
+2 → honest topic pointer (Allah, Al-Qur'an), 3 → generic silence (tauhid/iman/takwa — not topic aliases),
+2 → thin/tangential scholar entries ("di mana Allah?" → 1 maiyyah line 57:4; "siapa Muhammad?" → 4
+peripheral lines). Found a matcher bug: "siapa**kah** Nabi Muhammad?" missed because the `-kah` enclitic
+broke the substring. Fix: strip the `-kah` enclitic + match by **word-subset** (all alias words present,
+any order) instead of substring; `aliasHit()` extracted + exported + unit-tested. 444 tests green.
+
+**2. Scholar-assigned answer tiers.** Erik's point: some questions ("who is Muhammad") are settled public
+knowledge — fine for the model to *elaborate*, grounded in our verses — while others ("what is iman/tauhid",
+"where is Allah") sit on real theological fault lines. Agreed, but with a hard rule: **the scholar draws the
+line, not the model.** Added a tier the ustadz sets per question in the review sheet:
+**A** = boleh dielaborasi (model composes from *his approved verses*, he signs off one sample before it
+ships) · **B** = he authors verbatim (current path) · **C** = cukup tunjuk topik (honest pointer). This
+lightens his ask (classify + approve verses, not author every word) and is Phase B done safely — scoped by
+scholar tier, which answers the exact objection that made Erik decline Phase B before. Sheet + cover note
+updated (`build-aqidah-sheet.ts`, `aqidah-cover-note.md`); **NOTHING built for Tier A behavior yet** —
+we learn which questions are Tier A from the actual scholar first, then build the guarded model-elaboration
+path (reusing the framing eval harness) only for those.
+
+**HTML converter bugfixes** (`build-review-html.ts`): (a) multi-line list items were split into stray
+`<p>` — now fold lazy-continuation lines; (b) `joinLines` inlined per-line, so emphasis spanning a wrapped
+line (e.g. the three italic quotes in the cover note) mis-paired every asterisk after it — now join raw
+then inline once, hard breaks via a `[[BR]]` sentinel. Both bugs verified fixed across all four docs;
+zero unrendered `**` anywhere. Regenerated sheet + 4 HTML files.
+
+---
+
+## 2026-07-19 — Ustadz review packet rendered to printable HTML
 
 Erik asked to convert the notes we hand the ustadz into HTML. Built a reusable markdown→HTML converter
 **`src/review/build-review-html.ts`** (`bun run app:review-html`) that renders all four Ustadz-facing docs

@@ -45,9 +45,21 @@ const cells = (row: string): string[] =>
     .split(/(?<!\\)\|/)
     .map((c) => c.replace(/\\\|/g, "|").trim());
 
-/** Join the physical lines of one paragraph, honouring a markdown hard break (two trailing spaces). */
-const joinLines = (lines: string[]): string =>
-  lines.map((l, i) => inline(l.replace(/\s+$/, "")) + (i < lines.length - 1 && /\s{2,}$/.test(l) ? "<br>" : "")).join(" ");
+/**
+ * Join the physical lines of one paragraph into a single string, THEN inline it as a whole — so
+ * emphasis that opens on one line and closes on the next (e.g. an italic span wrapped mid-sentence)
+ * pairs correctly. A markdown hard break (two trailing spaces) becomes a <br>, carried through the
+ * inline pass as a visible [[BR]] sentinel so it survives escaping.
+ */
+const joinLines = (lines: string[]): string => {
+  const raw = lines
+    .map((l, i) => {
+      if (i === lines.length - 1) return l.trim();
+      return l.trim() + (/\s{2,}$/.test(l) ? "[[BR]]" : " ");
+    })
+    .join("");
+  return inline(raw).replace(/\[\[BR\]\]/g, "<br>");
+};
 
 /** Block-level markdown → HTML, over the constrained subset these documents use. */
 function render(md: string): string {
@@ -92,10 +104,23 @@ function render(md: string): string {
       continue;
     }
 
-    // Unordered list.
+    // Unordered list. Each item may wrap across lazy-continuation lines (indented or plain wrapped
+    // text) — fold them into the one item so inline emphasis spanning a line break still renders.
     if (/^[-*]\s+/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^[-*]\s+/.test(lines[i]!)) items.push(`<li>${inline(lines[i++]!.replace(/^[-*]\s+/, ""))}</li>`);
+      while (i < lines.length && /^[-*]\s+/.test(lines[i]!)) {
+        let text = lines[i++]!.replace(/^[-*]\s+/, "");
+        while (
+          i < lines.length &&
+          lines[i]!.trim() &&
+          !/^[-*]\s+/.test(lines[i]!) &&
+          !/^(#{1,6}\s|>|-{3,}\s*$|\*{3,}\s*$)/.test(lines[i]!) &&
+          !lines[i]!.trim().startsWith("|")
+        ) {
+          text += " " + lines[i++]!.trim();
+        }
+        items.push(`<li>${inline(text)}</li>`);
+      }
       out.push(`<ul>${items.join("")}</ul>`);
       continue;
     }
@@ -156,7 +181,7 @@ function page(title: string, body: string): string {
     padding:.1em .4em;border-radius:4px;color:var(--muted);}
   hr{border:none;border-top:1px solid var(--line);margin:2.2rem 0;}
   ul{margin:.4rem 0 1.2rem;padding-left:1.3rem;}
-  li{margin:.3rem 0;}
+  li{margin:.45rem 0;}
   blockquote{margin:1.2rem 0;padding:.9rem 1.2rem;background:var(--quote-bg);
     border-left:3px solid var(--accent-2);border-radius:0 6px 6px 0;}
   blockquote p{margin:0 0 .6rem;color:var(--body);}

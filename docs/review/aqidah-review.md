@@ -10,23 +10,29 @@ saat ini **tidak menjawab langsung**. Ia hanya menunjuk ke daftar topik, karena 
 *daftar apa yang Allah lakukan* (indeks Ustadz Muhammad Thalib), **bukan** jawaban definitif atas pertanyaan
 mendasar. Kami tidak mau aplikasi mengarang jawaban akidah sendiri — itu wewenang ulama, bukan mesin.
 
-Maka kami minta **Ustadz yang menuliskan jawabannya**. Aplikasi hanya **menampilkan persis** apa yang
-Ustadz tulis, **menautkan ayat** yang Ustadz setujui, dan **menyebut nama Ustadz** sebagai peninjau. Tidak ada
-satu kata pun yang aplikasi tambahkan ke dalam jawaban.
+Yang kami minta ringan: untuk tiap pertanyaan, Ustadz cukup **menentukan bagaimana sebaiknya dijawab** —
+dan hanya menuliskan jawaban sendiri **bila Ustadz memang ingin**. Aplikasi hanya **menampilkan persis** apa
+yang Ustadz setujui, **menautkan ayat** yang Ustadz tetapkan, dan **menyebut nama Ustadz** sebagai peninjau.
 
 ## Cara mengisi
 
-1. Untuk tiap pertanyaan, tulis **jawaban singkat** (2–5 kalimat) dengan bahasa yang mudah dipahami orang awam —
-   bukan tafsir panjang, cukup yang menjawab pertanyaan itu dengan lurus dan aman secara akidah.
-2. Tetapkan **ayat rujukan** yang menyertai jawaban. Kami sudah mengusulkan beberapa, tapi **Ustadz yang berhak**
-   mengganti atau menambah.
-3. Bila sebuah pertanyaan menurut Ustadz **sebaiknya tidak dijawab** (mis. terlalu sensitif), cukup tulis
-   *"biarkan menunjuk ke topik saja"* — aplikasi tetap memakai penunjuk topik yang ada sekarang.
-4. Boleh menambah pertanyaan lain yang menurut Ustadz sering ditanyakan orang.
+Untuk tiap pertanyaan, mohon Ustadz pilih **salah satu** dari tiga tingkat jawaban:
+
+- **A — Boleh dielaborasi.** Untuk pertanyaan yang sudah **mapan dan tidak diperdebatkan** (mis. *"siapa Nabi
+  Muhammad?"*). Aplikasi akan menyusun jawaban ringkas **hanya dari ayat yang Ustadz setujui**, dan kami
+  tunjukkan **satu contoh jawaban** untuk Ustadz setujui sebelum tayang. Untuk ini Ustadz **cukup menetapkan
+  ayatnya** — tidak perlu menulis jawaban.
+- **B — Saya tulis sendiri.** Untuk pertanyaan yang lebih **halus atau sensitif**, atau yang ingin Ustadz jawab
+  persis dengan kata-kata sendiri. Tuliskan **2–5 kalimat** dengan bahasa yang mudah dipahami orang awam.
+- **C — Cukup tunjuk topik.** Bila menurut Ustadz sebaiknya **tidak dijawab**. Aplikasi tetap menunjuk ke daftar
+  topik seperti sekarang; tidak ada yang dipaksakan.
+
+Untuk **A atau B**, tetapkan **ayat rujukannya** (kami sudah usulkan beberapa; Ustadz berhak ganti atau tambah).
+Boleh juga menambah pertanyaan lain yang menurut Ustadz sering ditanyakan orang.
 
 Setelah selesai, kembalikan lembar ini; developer yang memasukkannya ke aplikasi **persis** seperti yang Ustadz
-tulis. Selama sebuah jawaban belum Ustadz isi, aplikasi tidak menampilkan apa pun untuk pertanyaan itu — ia tetap
-menunjuk ke topik dengan jujur.
+tetapkan. Selama sebuah pertanyaan belum Ustadz isi, aplikasi tidak menjawabnya — ia tetap menunjuk ke topik
+dengan jujur.
 
 ---
 
@@ -41,18 +47,28 @@ _topik terkait: **Allah Subhanahu wa ta'ala**_
 - QS. Al-Ikhlas, 112:3
 - QS. Al-Ikhlas, 112:4
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -66,18 +82,28 @@ _topik terkait: **Allah Subhanahu wa ta'ala**_
 - QS. Al-Baqarah, 2:163
 - QS. Muhammad, 47:19
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -92,18 +118,28 @@ _topik terkait: **Allah Subhanahu wa ta'ala**_
 - QS. Al-Baqarah, 2:115
 - QS. Qaf, 50:16
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -117,18 +153,28 @@ _topik terkait: **Muhammad Shallallahu alaihi wasallam**_
 - QS. Al-Anbiya, 21:107
 - QS. Al-Fath, 48:29
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -142,18 +188,28 @@ _topik terkait: **Al-Qur’an, Taurat, Injil, dan Zabur**_
 - QS. Al-Isra, 17:9
 - QS. Al-Hijr, 15:9
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -166,18 +222,28 @@ _topik terkait: **Allah Subhanahu wa ta'ala**_
 - QS. Al-Baqarah, 2:285
 - QS. Al-Hujurat, 49:15
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 
@@ -190,18 +256,28 @@ _topik terkait: **Membangun Pribadi Shalih**_
 - QS. Al-Baqarah, 2:2
 - QS. Al-Hujurat, 49:13
 
-**Jawaban Ustadz** _(tulis dengan bahasa sederhana, 2–5 kalimat — bukan tafsir panjang, cukup yang menjawab pertanyaan ini dengan lurus):_
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
 
 > ________________________________________________________________
 >
 > ________________________________________________________________
 >
 > ________________________________________________________________
-
-**Ayat rujukan yang Ustadz setujui** _(boleh pakai usulan di atas, ganti, atau tambah):_
-
-- QS. ______ : ______
-- QS. ______ : ______
 
 ---
 

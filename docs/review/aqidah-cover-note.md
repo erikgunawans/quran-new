@@ -20,19 +20,25 @@ yang Allah lakukan* yang disusun Ustadz Muhammad Thalib — bukan jawaban atas p
 memilih diam yang jujur daripada mengarang jawaban, sebab **menjawab soal akidah itu wewenang ulama, bukan
 mesin dan bukan saya**.
 
-Karena itu saya memberanikan diri memohon sesuatu yang lebih besar dari lembar sebelumnya: **agar Ustadz
-sendiri yang menuliskan jawabannya.** Untuk tiap pertanyaan di lembar itu, cukup **2–5 kalimat** dengan
-bahasa yang mudah dipahami orang awam — bukan tafsir panjang, cukup jawaban yang lurus dan aman secara
-akidah — beserta ayat yang menyertainya. Kami sudah mengusulkan beberapa ayat sebagai rujukan awal, tetapi
-itu **hanya usulan**; Ustadz sepenuhnya berhak mengganti, menambah, atau membuangnya.
+Dan kali ini permintaannya justru **lebih ringan**. Untuk tiap pertanyaan, Ustadz tidak harus menulis
+jawaban — cukup **menentukan bagaimana sebaiknya dijawab**, dengan tiga pilihan:
+
+- **A — boleh dielaborasi:** untuk pertanyaan yang sudah **mapan dan tidak diperdebatkan** (mis. *"siapa Nabi
+  Muhammad?"*). Aplikasi menyusun jawaban ringkas **hanya dari ayat yang Ustadz setujui**, dan saya tunjukkan
+  **satu contoh jawaban** untuk Ustadz setujui sebelum tayang. Untuk ini Ustadz cukup menetapkan ayatnya.
+- **B — Ustadz tulis sendiri:** untuk yang lebih **halus atau sensitif**, atau yang ingin Ustadz jawab dengan
+  kata-kata sendiri — cukup **2–5 kalimat** yang mudah dipahami orang awam.
+- **C — cukup tunjuk topik:** bila sebaiknya **tidak dijawab**; aplikasi tetap menunjuk ke daftar topik seperti
+  sekarang.
+
+Ayat rujukannya kami usulkan sebagai awal saja; Ustadz sepenuhnya berhak mengganti, menambah, atau membuangnya.
 
 Yang perlu Ustadz yakini: **aplikasi tidak menambahkan satu kata pun** ke dalam jawaban Ustadz. Yang
 tampil di layar adalah tulisan Ustadz **persis apa adanya**, ayat yang Ustadz setujui, dan nama Ustadz
 sebagai peninjau di bawahnya. Tidak ada tafsir dari kami.
 
-Dua hal untuk menenangkan Ustadz. Pertama, bila menurut Ustadz ada pertanyaan yang **sebaiknya tidak
-dijawab** — misalnya terlalu sensitif — cukup Ustadz tulis *"biarkan menunjuk ke topik saja"*, dan aplikasi
-tetap memakai penunjuk topik seperti sekarang; tidak ada yang dipaksakan. Kedua, satu pertanyaan —
+Dua hal untuk menenangkan Ustadz. Pertama, **tidak ada pertanyaan yang wajib dijawab** — pilihan **C**
+selalu tersedia, dan aplikasi tetap diam dengan jujur untuk pertanyaan itu. Kedua, satu pertanyaan —
 *"di mana Allah?"* — sudah saya tandai sebagai **pertanyaan sensitif (soal istiwa')** di lembar itu, dan
 saya sengaja tidak mengusulkan sikap apa pun di sana. Sikap yang benar sepenuhnya saya serahkan kepada
 Ustadz.
