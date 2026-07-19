@@ -231,27 +231,100 @@ export function retrieve(
  * rules, never says "Islam teaches that…". The scripture and the named scholars do the
  * speaking; Nur only holds the door open.
  */
-// `_question` is deliberately unused today: composition is theme-driven, and Nur must not appear
-// to "reply" to the words themselves. It stays in the signature because this is the seam where a
-// generative model would slot in — and even then it may only phrase what retrieval already
-// grounded. (This unused param went unnoticed for a session because typecheck never covered web/.)
-export function compose(hits: Hit[], _question: string): string {
+/**
+ * The deterministic openers — the app's own companion voice, shown when the live framing model is
+ * unavailable or its output was rejected by the wall. Each feeling now has a FEW variants (not one
+ * canned line), in the "Berat, ya" register the system prompt praises: present, warm, 2am Indonesian
+ * that names the feeling and POINTS to the verses — never authoring meaning, never a ruling. The
+ * interpretive disclaimer is no longer bolted onto every line; it lives as quiet chrome under the
+ * verses (main.ts READER_NOTE), so honesty stays present without being preached every turn.
+ *
+ * compose-openers.test.ts asserts every variant here clears compose-guard, so a careless edit that
+ * slips a reference or a fatwa-shaped phrase in fails CI rather than reaching a reader.
+ */
+export const OPENERS: Record<string, readonly string[]> = {
+  "Hardship & ease": [
+    "Berat, ya. Ada ayat yang sering dibaca orang pas lagi seberat ini.",
+    "Lagi susah banget, ya. Ini yang sering dipegang orang waktu rasanya nggak ada jalan.",
+    "Capek, ya, nahan semuanya sendirian. Ada ayat yang sering dibaca orang di titik seperti ini.",
+  ],
+  "Anxiety & fear": [
+    "Rasa cemas itu nyata, dan kamu nggak harus pura-pura kuat sekarang.",
+    "Takut itu wajar, kok. Ini yang sering dibaca orang waktu pikirannya nggak mau berhenti.",
+    "Lagi nggak tenang, ya. Ada ayat yang sering dipegang orang pas malam terasa panjang.",
+  ],
+  "Grief & loss": [
+    "Turut berduka, ya. Ini yang sering dibaca orang waktu kehilangan.",
+    "Kehilangan itu berat, dan nggak ada yang bisa buru-buru. Ada ayat yang sering menemani orang di saat seperti ini.",
+    "Aku ikut sedih. Ini yang sering dipegang orang waktu ada yang pergi.",
+  ],
+  Patience: [
+    "Sabar itu nggak berarti diam nahan sendiri. Ada ayat yang sering dibaca orang soal ini.",
+    "Lagi disuruh nunggu sama keadaan, ya. Ini yang sering dipegang orang waktu harus bertahan.",
+    "Capek buat terus sabar, ya. Ada ayat yang sering dibaca orang pas rasanya udah mentok.",
+  ],
+  "Forgiveness & despair": [
+    "Kamu nggak sedang bicara sama hakim. Ini ayat tentang pintu yang tetap terbuka.",
+    "Ngerasa udah kelewatan, ya. Ada ayat yang sering dibaca orang waktu ngerasa nggak pantas dimaafin.",
+    "Lagi ngerasa jauh, ya. Ini yang sering dipegang orang pas ngerasa udah nggak ada harapan.",
+  ],
+  "Provision & debt": [
+    "Soal rezeki dan utang — yang bikin susah tidur, ya. Ada ayat yang sering dibaca orang di titik ini.",
+    "Lagi kepikiran uang terus, ya. Ini yang sering dipegang orang waktu napasnya sesak sama kebutuhan.",
+    "Berat, ya, mikirin yang harus dibayar. Ada ayat yang sering dibaca orang soal ini.",
+  ],
+  "Trust in God": [
+    "Lagi bingung harus ke mana, ya. Ini yang sering dijadikan pegangan orang waktu nggak tahu arah.",
+    "Susah buat pasrah pas semuanya belum jelas, ya. Ada ayat yang sering dibaca orang di saat seperti ini.",
+    "Lagi berat buat percaya semua bakal baik-baik aja. Ini yang sering dipegang orang waktu itu.",
+  ],
+  Gratitude: [
+    "Kadang syukur itu justru paling susah pas lagi banyak yang kurang. Ini yang sering dibaca orang soal itu.",
+    "Lagi pengen inget hal-hal yang masih baik, ya. Ada ayat yang sering dipegang orang soal syukur.",
+    "Di tengah semuanya, masih ada yang bisa disyukuri, ya. Ini yang sering dibaca orang tentang itu.",
+  ],
+  "Prayer answered": [
+    "Lagi nunggu doa dijawab, ya — dan diamnya kadang bikin ragu. Ada ayat yang sering dibaca orang soal ini.",
+    "Ngerasa doa kayak nggak kedengeran, ya. Ini yang sering dipegang orang waktu itu.",
+    "Soal doa — apakah didengar. Ada ayat yang sering dibaca orang pas lagi nunggu.",
+  ],
+  Mercy: [
+    "Lagi butuh diingetin kalau kamu nggak sendirian, ya. Ini yang sering dibaca orang tentang rahmat.",
+    "Kadang yang paling dibutuhin cuma rasa dikasihani, ya. Ada ayat yang sering dipegang orang soal itu.",
+    "Tentang rahmat — yang sering dibaca orang pas lagi ngerasa berat sendirian.",
+  ],
+  "Self-worth & purpose": [
+    "Lagi ngerasa nggak berharga, ya. Ada ayat yang sering dibaca orang pas ngerasa kayak gitu.",
+    "Ngerasa kayak nggak ada gunanya, ya. Ini yang sering dipegang orang di titik ini.",
+    "Lagi nyari alasan buat ngelanjutin, ya. Ada ayat yang sering dibaca orang soal ini.",
+  ],
+  Family: [
+    "Soal keluarga — kadang yang paling dekat sekaligus yang paling bikin capek. Ada ayat yang sering dipegang orang di titik ini.",
+    "Lagi berat sama urusan keluarga, ya. Ini yang sering dibaca orang soal itu.",
+    "Keluarga itu rumit — bisa jadi tempat pulang sekaligus tempat luka. Ada ayat yang sering dibaca orang soal ini.",
+  ],
+};
+
+const OPENER_DEFAULT: readonly string[] = [
+  "Ini ayat yang paling dekat sama yang kamu rasain.",
+  "Ada ayat yang mungkin nyambung sama yang kamu ceritain.",
+];
+
+/** Pick a variant by a stable hash of the question, so the SAME question always yields the SAME
+ * opener — a restored thread reads exactly the way it was left — while different questions vary. */
+function pickOpener(variants: readonly string[], seed: string): string {
+  if (variants.length <= 1) return variants[0] ?? "";
+  let h = 0;
+  for (let i = 0; i < seed.length; i += 1) h = (Math.imul(h, 31) + seed.charCodeAt(i)) | 0;
+  return variants[Math.abs(h) % variants.length]!;
+}
+
+// `question` seeds ONLY which pre-written, theme-appropriate variant is chosen — never what it says.
+// New-Quranku still does not "reply" to the words; it just doesn't repeat one canned line either. This
+// is the seam where the live generative model slots in (compose-live.ts); the wall and this honest
+// fallback are what make that safe.
+export function compose(hits: Hit[], question: string): string {
   if (!hits.length) return "";
   const theme = hits[0]!.verse.theme;
-  const opener: Record<string, string> = {
-    "Hardship & ease": "Berat, ya. Ada ayat yang sering dibaca orang saat sedang seperti ini.",
-    "Anxiety & fear": "Rasa cemas itu nyata, dan Al-Qur'an tidak menyuruhmu pura-pura kuat.",
-    "Grief & loss": "Turut berduka. Ini ayat yang dibaca banyak orang ketika kehilangan.",
-    Patience: "Sabar bukan berarti diam saja. Ini yang disebut Al-Qur'an tentang itu.",
-    "Forgiveness & despair": "Kamu tidak sedang bicara dengan hakim. Ini ayat tentang pintu yang tetap terbuka.",
-    "Provision & debt": "Soal rezeki dan utang, Al-Qur'an bicara cukup langsung.",
-    "Trust in God": "Saat bingung harus ke mana, ini yang sering dijadikan pegangan.",
-    Gratitude: "Ini ayat tentang syukur.",
-    "Prayer answered": "Tentang doa — apakah didengar.",
-    Mercy: "Tentang rahmat Allah.",
-    "Self-worth & purpose": "Kalau sedang merasa tidak berharga, ini ayatnya.",
-    Family: "Tentang keluarga.",
-  };
-  const lead = opener[theme] ?? "Ini ayat yang paling dekat dengan yang kamu tanyakan.";
-  return `${lead} Aku tidak menafsirkan — <strong>silakan baca sendiri, dan lihat siapa yang mengatakan apa.</strong>`;
+  return pickOpener(OPENERS[theme] ?? OPENER_DEFAULT, question);
 }

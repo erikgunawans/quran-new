@@ -81,6 +81,12 @@ function skeleton(): HTMLElement {
 const scrollDown = () =>
   requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }));
 
+// The honesty note — the app points at scripture, it never interprets. It used to be bolted onto
+// every fallback opener as a spoken sentence, which read as a preached footer; now it lives here as
+// quiet chrome UNDER an answer's verses, present on every answer (live or fallback) without being
+// said out loud each turn.
+const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — baca sendiri, dan lihat siapa yang mengatakan apa.</p>`;
+
 // ── the one renderer ─────────────────────────────────────────────────────────
 //
 // Live answers and restored answers are drawn by THIS function and nothing else. That is what makes
@@ -154,7 +160,8 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               animate,
             }),
           )
-          .join("")
+          .join("") +
+        READER_NOTE
       );
     }
   }
