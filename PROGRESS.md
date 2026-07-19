@@ -8,7 +8,17 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — browse measure widened to near-full-viewport; DEPLOYED + LIVE
+## 2026-07-19 (latest) — landing hero spacing fixed (description cleared from composer); DEPLOYED + LIVE
+
+Erik circled the landing subtitle: cramped, sitting inside the composer's 34px-blur shadow. Landing
+rhythm rebalanced (all `[data-landing]`/`.hello`/`.seeds` scoped — docked composer untouched):
+description→composer **8px → 48px** (`--s-2`→`--s-7`, ~28px clear after the glow), heading→description
+16px→24px, composer→seeds 16px→24px. Measured live: gaps 24/48/24px. Committed `6778be2`, deployed
+**Version `d5650b27`** (CSS `index-POe9oDJU.css`), verified live. 400 tests green.
+
+---
+
+## 2026-07-19 — browse measure widened to near-full-viewport; DEPLOYED + LIVE
 
 Erik: "make the browse width wider, closer to full viewport." `data-wide` (Baca/Tema/Peta) went from
 1120px to **`min(1680px, 95vw)`** — side margins drop ~73px → ~25px on a 1280 screen, capped at 1680px
