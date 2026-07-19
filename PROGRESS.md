@@ -8,7 +8,26 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — landing hero spacing fixed (description cleared from composer); DEPLOYED + LIVE
+## 2026-07-19 (latest) — mobile UX pass (ui-ux-pro-max audit); DEPLOYED + LIVE
+
+Erik ran the `ui-ux-pro-max` skill ("improve for web + mobile"). Its generic recommendation (brown/amber,
+Lora/Raleway, newsletter pattern) was **deliberately NOT applied** — it would erase the deliberate
+celestial / green→gold / Amiri-Fraunces identity. Used the skill as a checklist audit instead; the app
+already passes most items (global `cursor:pointer`, focus-visible everywhere, reduced-motion handled,
+AA contrast test suite, 44px touch targets on mobile). Real gaps were mobile polish after the recent
+desktop-focused redesigns:
+- **Browse gutters** — `data-wide`/`data-landing` had a flat `--s-6` (32px) padding that out-specified the
+  mobile `.app` rule, cramping cards on small phones. Now `clamp(1rem, 4vw, --s-6)`: ~16px at 375px,
+  32px on desktop (verified unchanged).
+- **Landing hero on phones** — the 48px desktop gaps pushed seeds below the fold; `@media (max-width:30rem)`
+  tightens hero padding + composer/seed gaps so composer + seeds stay on the first screen.
+Committed `36c3793`, deployed **Version `884972f0`**, verified live. 400 tests green. **Mobile breakpoints
+were reasoned from CSS + math, NOT visually tested** (Interceptor screenshots blocked all session by the
+minimized automation window) — Erik should test on a real phone.
+
+---
+
+## 2026-07-19 — landing hero spacing fixed (description cleared from composer); DEPLOYED + LIVE
 
 Erik circled the landing subtitle: cramped, sitting inside the composer's 34px-blur shadow. Landing
 rhythm rebalanced (all `[data-landing]`/`.hello`/`.seeds` scoped — docked composer untouched):
