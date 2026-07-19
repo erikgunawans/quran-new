@@ -282,10 +282,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    thread and reading surface must not exceed it. The landing is not prose: it carries the
    band, which needs real width. So the landing widens and the reading column does not. */
 .app { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 8rem; }
-:root[data-landing] .app { max-width: 1120px; padding-inline: var(--s-6); }
+/* padding-inline scales with the viewport: a slim gutter on phones (so cards aren't cramped by a
+   flat 32px), opening to the full --s-6 on desktop. A fixed --s-6 out-specified the mobile .app rule
+   and left small phones with too much side padding. */
+:root[data-landing] .app { max-width: 1120px; padding-inline: clamp(1rem, 4vw, var(--s-6)); }
 /* The browse grids (Baca/Tema/Peta) are not reading prose — they run near the full viewport so the
    card grid fills the width. Capped at 1680px so the grid doesn't sprawl on very large monitors. */
-:root[data-wide] .app { max-width: min(1680px, 95vw); padding-inline: var(--s-6); }
+:root[data-wide] .app { max-width: min(1680px, 95vw); padding-inline: clamp(1rem, 4vw, var(--s-6)); }
 
 .top {
   position: sticky; top: 0; z-index: var(--z-sticky);
@@ -733,6 +736,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (max-width: 30rem) {
   :root { --ar-size: 1.75rem; }
   .verse-head .why { display: none; }
+  /* the hero rhythm is tuned for desktop; on a phone those gaps run tall and push the seeds below the
+     fold. Tighten the vertical scale so composer + seeds stay on the first screen. */
+  .hello { padding-top: var(--s-6); }
+  :root[data-landing] .composer { margin-top: var(--s-5); }
+  .hello h1 { margin-bottom: var(--s-4); }
+  .seeds { margin-top: var(--s-4); }
 }
 
 /* compact phones (iPhone SE class, <375px) — the 480px tier above already shrinks the
