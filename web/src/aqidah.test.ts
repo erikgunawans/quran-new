@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { AQIDAH, aqidahById, aqidahRef, isReviewed, matchAqidah, type AqidahEntry } from "./aqidah.ts";
+import { aliasHit, AQIDAH, aqidahById, aqidahRef, isReviewed, matchAqidah, type AqidahEntry } from "./aqidah.ts";
+
+const aliasesOf = (id: string) => AQIDAH.find((e) => e.id === id)!.aliases;
 
 // A helper to build a reviewed entry from a pending stub, so tests exercise the matched path without
 // putting any authored theology into the shipped module (which must stay pending until the ustadz).
@@ -47,32 +49,42 @@ describe("module integrity", () => {
   });
 });
 
-describe("matchAqidah — conservative phrase matching on a REVIEWED entry", () => {
-  const stub = AQIDAH.find((e) => e.id === "siapa-allah")!;
-  const live = reviewed(stub, "Allah adalah Tuhan Yang Maha Esa. (contoh untuk pengujian)");
-
-  // matchAqidah reads the module array, so test its logic via a hand-rolled scan over a live entry.
-  const matchAgainst = (entries: AqidahEntry[], q: string): AqidahEntry | null => {
-    const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
-    for (const e of entries) {
-      if (!isReviewed(e)) continue;
-      for (const a of e.aliases) if (norm(q).includes(norm(a))) return e;
-    }
-    return null;
-  };
-
-  test("a reviewed entry matches its alias phrases (whole-phrase, case/punctuation-insensitive)", () => {
-    expect(matchAgainst([live], "Siapakah Allah?")?.id).toBe("siapa-allah");
-    expect(matchAgainst([live], "allah itu siapa sih")?.id).toBe("siapa-allah");
+describe("aliasHit — the enclitic-robust matcher (tested directly, review-independent)", () => {
+  test("the -kah enclitic no longer breaks a match (the reported bug)", () => {
+    // "siapakah Nabi Muhammad?" — the "kah" sits between "siapa" and "nabi", so a plain substring
+    // match on "siapa nabi muhammad" missed it. Enclitic-stripping fixes it.
+    expect(aliasHit("siapakah Nabi Muhammad?", aliasesOf("siapa-muhammad"))).toBe(true);
+    expect(aliasHit("siapakah Allah?", aliasesOf("siapa-allah"))).toBe(true);
+    expect(aliasHit("apakah tauhid itu?", aliasesOf("apa-itu-tauhid"))).toBe(true);
+    expect(aliasHit("di manakah Allah?", aliasesOf("di-mana-allah"))).toBe(true);
   });
 
-  test("an unrelated question does not match", () => {
-    expect(matchAgainst([live], "aku lagi capek banget")).toBeNull();
-    expect(matchAgainst([live], "apa hukum riba")).toBeNull();
+  test("the apostrophe form of Al-Qur'an matches (tokenises to 'al qur an')", () => {
+    expect(aliasHit("apa itu Al-Qur'an?", aliasesOf("apa-itu-alquran"))).toBe(true);
+    expect(aliasHit("alquran itu apa sih", aliasesOf("apa-itu-alquran"))).toBe(true);
   });
 
-  test("a pending stub never matches even if its alias appears", () => {
-    expect(matchAgainst([stub], "siapakah allah")).toBeNull();
+  test("common phrasings hit their entry", () => {
+    expect(aliasHit("nabi muhammad itu siapa", aliasesOf("siapa-muhammad"))).toBe(true);
+    expect(aliasHit("allah itu siapa", aliasesOf("siapa-allah"))).toBe(true);
+    expect(aliasHit("dimana allah sekarang", aliasesOf("di-mana-allah"))).toBe(true);
+  });
+
+  test("unrelated questions never match", () => {
+    expect(aliasHit("aku lagi capek banget", aliasesOf("siapa-allah"))).toBe(false);
+    expect(aliasHit("apa hukum riba", aliasesOf("apa-itu-tauhid"))).toBe(false);
+    expect(aliasHit("", aliasesOf("siapa-allah"))).toBe(false);
+  });
+});
+
+describe("matchAqidah — routes only when an entry is actually reviewed", () => {
+  test("a pending lane never matches (degrades to the honest pointer)", () => {
+    // AQIDAH ships all-pending; a hand-reviewed fixture proves the matched path, without committing
+    // any authored answer into the shipped module.
+    const live = reviewed(AQIDAH.find((e) => e.id === "siapa-allah")!, "Contoh jawaban untuk pengujian.");
+    expect(matchAqidah("siapakah Allah?")).toBeNull(); // shipped lane: pending
+    expect(isReviewed(live)).toBe(true); // the fixture would match if it were in the lane
+    expect(aliasHit("siapakah Allah?", live.aliases)).toBe(true);
   });
 });
 

@@ -34,7 +34,7 @@ export interface AqidahEntry {
   readonly topic: string | null;
   /** The canonical broad question — shown to the ustadz on the review sheet. */
   readonly question: string;
-  /** Normalized-phrase variants a user might type. Conservative: matched as whole phrases. */
+  /** Match keys: each is a set of words that must all appear in the question (order-independent). */
   readonly aliases: readonly string[];
   /** Candidate verse anchors we propose. The ustadz may replace or extend these — not binding. */
   readonly suggestedRefs: readonly AqidahRef[];
@@ -59,7 +59,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "siapa-allah",
     topic: "allah-subhanahu-wa-ta-ala",
     question: "Siapakah Allah?",
-    aliases: ["siapa allah", "siapakah allah", "allah itu siapa", "allah siapa", "kenal allah"],
+    aliases: ["siapa allah", "allah itu siapa", "kenal allah"],
     suggestedRefs: [{ surah: 112, ayah: 1 }, { surah: 112, ayah: 2 }, { surah: 112, ayah: 3 }, { surah: 112, ayah: 4 }],
     answer: "",
     refs: [],
@@ -68,7 +68,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "apa-itu-tauhid",
     topic: "allah-subhanahu-wa-ta-ala",
     question: "Apa itu tauhid (mengesakan Allah)?",
-    aliases: ["apa itu tauhid", "arti tauhid", "makna tauhid", "mengesakan allah", "tauhid itu apa"],
+    aliases: ["tauhid", "mengesakan allah"],
     suggestedRefs: [{ surah: 112, ayah: 1 }, { surah: 2, ayah: 163 }, { surah: 47, ayah: 19 }],
     answer: "",
     refs: [],
@@ -77,7 +77,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "di-mana-allah",
     topic: "allah-subhanahu-wa-ta-ala",
     question: "Di mana Allah?",
-    aliases: ["di mana allah", "dimana allah", "allah ada di mana", "allah dimana", "tempat allah"],
+    aliases: ["di mana allah", "dimana allah", "tempat allah"],
     // Deliberately sparse — this touches a contested position (istiwa'). We propose nothing beyond
     // the two least-disputed verses and defer the stance entirely to the ustadz.
     suggestedRefs: [{ surah: 2, ayah: 115 }, { surah: 50, ayah: 16 }],
@@ -89,7 +89,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "siapa-muhammad",
     topic: "muhammad-shallallahu-alaihi-wasallam",
     question: "Siapakah Nabi Muhammad?",
-    aliases: ["siapa muhammad", "siapa nabi muhammad", "siapakah muhammad", "nabi muhammad siapa", "muhammad itu siapa"],
+    aliases: ["nabi muhammad", "siapa muhammad", "muhammad itu siapa"],
     suggestedRefs: [{ surah: 33, ayah: 40 }, { surah: 21, ayah: 107 }, { surah: 48, ayah: 29 }],
     answer: "",
     refs: [],
@@ -98,7 +98,9 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "apa-itu-alquran",
     topic: "al-qur-an-taurat-injil-dan-zabur",
     question: "Apa itu Al-Qur'an?",
-    aliases: ["apa itu al quran", "apa itu alquran", "apa itu quran", "al quran itu apa", "alquran itu apa"],
+    // Cover all three spellings: norm("Al-Qur'an") → tokens {al,qur,an}; "alquran" → {alquran};
+    // "quran"/"al quran" → {quran}. Word-subset needs each spelling represented as its own alias.
+    aliases: ["quran", "alquran", "al qur an"],
     suggestedRefs: [{ surah: 2, ayah: 2 }, { surah: 17, ayah: 9 }, { surah: 15, ayah: 9 }],
     answer: "",
     refs: [],
@@ -107,7 +109,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "apa-itu-iman",
     topic: "allah-subhanahu-wa-ta-ala",
     question: "Apa itu iman?",
-    aliases: ["apa itu iman", "arti iman", "makna iman", "iman itu apa"],
+    aliases: ["iman"],
     suggestedRefs: [{ surah: 2, ayah: 285 }, { surah: 49, ayah: 15 }],
     answer: "",
     refs: [],
@@ -116,7 +118,7 @@ export const AQIDAH: readonly AqidahEntry[] = [
     id: "apa-itu-takwa",
     topic: "membangun-pribadi-shalih",
     question: "Apa itu takwa?",
-    aliases: ["apa itu takwa", "arti takwa", "makna takwa", "takwa itu apa"],
+    aliases: ["takwa"],
     suggestedRefs: [{ surah: 2, ayah: 2 }, { surah: 49, ayah: 13 }],
     answer: "",
     refs: [],
@@ -137,16 +139,38 @@ export function aqidahRef(r: AqidahRef): { ref: string; resolvable: boolean } {
 export const aqidahById = (id: string): AqidahEntry | null => AQIDAH.find((e) => e.id === id) ?? null;
 
 /**
+ * Strip Indonesian's interrogative/emphatic enclitic `-kah` so "siapakah" matches an alias built on
+ * "siapa", "apakah"→"apa", "dimanakah"→"dimana". Only fires on a ≥3-letter stem + word-final "kah",
+ * so "allah" (no "kah") and short words are untouched. This is why "siapakah Nabi Muhammad?" — where
+ * the "kah" sat between "siapa" and "nabi" — previously slipped past a plain substring match.
+ */
+const stripKah = (s: string): string => s.replace(/([a-z]{3,})kah\b/g, "$1");
+
+/** Enclitic-stripped whole-word token set of a phrase — the unit alias matching works over. */
+const tokens = (s: string): Set<string> => new Set(stripKah(norm(s)).split(/[\s-]+/).filter(Boolean));
+
+/**
+ * Does the question hit any of these aliases? Word-SUBSET, not substring: an alias matches when every
+ * one of its words is present in the question (order-independent, tolerant of inserted words). This
+ * is why the alias "siapa allah" matches "siapa Allah?", "siapakah Allah?", and "Allah itu siapa?"
+ * alike — substring matching was order-sensitive and missed some. Exported so the logic is testable
+ * independent of whether the shipped lane happens to be reviewed yet.
+ */
+export const aliasHit = (question: string, aliases: readonly string[]): boolean => {
+  const q = tokens(question);
+  if (q.size === 0) return false;
+  return aliases.some((a) => {
+    const aw = [...tokens(a)];
+    return aw.length > 0 && aw.every((w) => q.has(w));
+  });
+};
+
+/**
  * Match a broad definitional question to a REVIEWED aqidah entry, or null. Conservative: an alias
- * phrase must appear whole in the normalized question, and pending (unreviewed) stubs never match —
- * so an unfilled lane simply returns null and the caller's honest pointer stands.
+ * must appear in the question, and pending (unreviewed) stubs never match — so an unfilled lane
+ * simply returns null and the caller's honest pointer stands.
  */
 export function matchAqidah(question: string): AqidahEntry | null {
-  const q = norm(question);
-  if (!q) return null;
-  for (const e of AQIDAH) {
-    if (!isReviewed(e)) continue;
-    for (const a of e.aliases) if (q.includes(norm(a))) return e;
-  }
+  for (const e of AQIDAH) if (isReviewed(e) && aliasHit(question, e.aliases)) return e;
   return null;
 }
