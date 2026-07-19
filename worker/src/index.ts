@@ -18,7 +18,7 @@
  * The endpoints never 500 the user experience.
  */
 import { guardComposeProse } from "../../web/src/compose-guard.ts";
-import { FRAMING_SYSTEM_PROMPT } from "../../web/src/compose-contract.ts";
+import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
 
@@ -103,11 +103,7 @@ async function handleCompose(request: Request, env: Env): Promise<Response> {
   const themeCount = typeof body.themeCount === "number" ? body.themeCount : 1;
   if (!question || !theme) return json({ prose: null }, 200, request);
 
-  const user =
-    `Yang baru saja ditulis orang itu:\n"""${question}"""\n\n` +
-    `Perasaan yang terdeteksi: ${theme}` +
-    (themeCount > 1 ? ` (dan ${themeCount - 1} hal lain sekaligus).` : ".") +
-    `\n\nTulis satu sampai dua kalimat pendampingan, sesuai aturanmu.`;
+  const user = buildFramingUserMessage({ question, theme, themeCount });
 
   let prose: string | null = null;
   try {
@@ -116,7 +112,7 @@ async function handleCompose(request: Request, env: Env): Promise<Response> {
     // the wall, lifting the live-framing rate from ~80% to ~96% WITHOUT weakening it. Retry ONLY on
     // reject — a model error/timeout is caught below and NOT retried (it would likely just stall).
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const candidate = await callChatModel(cfg, FRAMING_SYSTEM_PROMPT, user, { temperature: 0.7, maxTokens: 160 });
+      const candidate = await callChatModel(cfg, FRAMING_SYSTEM_PROMPT, user, FRAMING_PARAMS);
       if (guardComposeProse(candidate).ok) {
         prose = candidate;
         break;

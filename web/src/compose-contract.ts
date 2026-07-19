@@ -68,6 +68,28 @@ Good examples (match this register exactly):
 Bad example (never do this — it authors meaning): "Ayat ini artinya Allah menyuruh kamu untuk bersabar dan hukumnya wajib."`;
 
 /**
+ * The framing call's sampling params — ONE definition shared by the Worker (prod) and the offline
+ * eval harness (`src/eval/`), so tuning the prompt offline reflects exactly what ships. temp 0.7
+ * gives the warmth room to vary; 160 tokens is a sentence or two, never an essay.
+ */
+export const FRAMING_PARAMS = { temperature: 0.7, maxTokens: 160 } as const;
+
+/**
+ * Build the exact user message the framing model receives — the person's words plus the feeling
+ * retrieval detected, never a verse. Shared by prod and the eval harness so a prompt change tuned
+ * offline transfers 1:1; if this and the Worker's call drifted, the eval would be measuring a
+ * different prompt than the one that ships.
+ */
+export function buildFramingUserMessage(ctx: ComposeContext): string {
+  return (
+    `Yang baru saja ditulis orang itu:\n"""${ctx.question}"""\n\n` +
+    `Perasaan yang terdeteksi: ${ctx.theme}` +
+    (ctx.themeCount > 1 ? ` (dan ${ctx.themeCount - 1} hal lain sekaligus).` : ".") +
+    `\n\nTulis satu sampai dua kalimat pendampingan, sesuai aturanmu.`
+  );
+}
+
+/**
  * Build the model's context from the grounded hits and the raw question. Returns null when there
  * is nothing to frame — the caller treats that as silence, never as a reason to invent one.
  */
