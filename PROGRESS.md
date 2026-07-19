@@ -8,7 +8,17 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — artistic browse indexes (Baca/Tema/Peta) + back-to-top FAB; DEPLOYED + LIVE
+## 2026-07-19 (latest) — browse measure widened to near-full-viewport; DEPLOYED + LIVE
+
+Erik: "make the browse width wider, closer to full viewport." `data-wide` (Baca/Tema/Peta) went from
+1120px to **`min(1680px, 95vw)`** — side margins drop ~73px → ~25px on a 1280 screen, capped at 1680px
+on large monitors. Grids switched to `auto-fill minmax` so they add columns instead of stretching cards:
+on 1280, Tema 3→4, Peta 2→3, Baca 3→4 columns (surah 260 / theme 240 / peta 330 minimums). Committed
+`3b9227a`, deployed **Version `5555038b`** (CSS `index-BgZiBl1e.css`), verified live. 400 tests green.
+
+---
+
+## 2026-07-19 — artistic browse indexes (Baca/Tema/Peta) + back-to-top FAB; DEPLOYED + LIVE
 
 Erik: the Baca title is poorly formatted; Tema and Peta are "so plain, not impressive"; use the full
 horizontal width and fix the logo/section placement; add a floating back-to-top button on every page.
