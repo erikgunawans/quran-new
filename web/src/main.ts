@@ -517,6 +517,10 @@ async function route() {
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
+  // Verse-reading surfaces (a surah, a theme's verses) get a DEEPER — but still calm — night sky, so
+  // the scripture glows against it. Distinct from the RICH sky (crescent/gold/twinkle) reserved for
+  // the companion home + cosmos: reading gets depth and reverence, never decoration. Idempotent.
+  document.documentElement.toggleAttribute("data-reading", Boolean(m) || Boolean(t));
 
   if (m) {
     markNav("baca");

@@ -179,6 +179,13 @@ html { background: var(--bg); }
     radial-gradient(1px 1px at 70% 16%,rgba(70,110,90,.12),transparent),
     radial-gradient(86% 72% at 50% 46%, transparent 62%, rgba(70,90,80,.08) 100%);
 }
+/* light + reading = a DEEPER dawn sky (verses read against more depth), still calm: no crescent,
+   no gold, no twinkle. A touch more present than the whisper-pale default recede. */
+:root[data-reading] {
+  --cel-sky:
+    radial-gradient(120% 80% at 50% 0%, #d8e7e6 0%, transparent 55%),
+    linear-gradient(180deg,#e2ede8 0%,#eef5f0 52%,#fbfbf6 100%);
+}
 /* light + rich (companion home + cosmos) = dawn rich: crescent + gold */
 :root[data-landing],
 :root[data-cosmos] {
@@ -202,6 +209,11 @@ html { background: var(--bg); }
 :root[data-theme="dark"] { --cel-sky: var(--cel-sky-nc); --cel-stars: var(--cel-stars-nc); }
 :root[data-theme="dark"][data-landing],
 :root[data-theme="dark"][data-cosmos] { --cel-sky: var(--cel-sky-nr); --cel-stars: var(--cel-stars-nr); }
+/* dark + reading = the DEEPER night (still calm — no crescent/gold/twinkle) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-reading] { --cel-sky: var(--cel-sky-read); --cel-stars: var(--cel-stars-read); }
+}
+:root[data-theme="dark"][data-reading] { --cel-sky: var(--cel-sky-read); --cel-stars: var(--cel-stars-read); }
 
 /* night recipes (referenced above) */
 :root {
@@ -215,6 +227,18 @@ html { background: var(--bg); }
     radial-gradient(1px 1px at 72% 20%,rgba(207,224,255,.38),transparent),
     radial-gradient(1px 1px at 44% 78%,rgba(255,255,255,.30),transparent),
     radial-gradient(84% 76% at 50% 50%, transparent 26%, rgba(4,6,12,.74) 100%);
+  /* night READING: deeper than the calm recede — a richer midnight blue crowning the column and a
+     faint emerald floor, over a darker base, with a stronger central vignette that gathers the light
+     onto the verses. NO crescent, NO gold, NO twinkle — depth, not decoration. The reverent read. */
+  --cel-sky-read:
+    radial-gradient(130% 95% at 50% 0%, #123056 0%, transparent 52%),
+    radial-gradient(90% 55% at 50% 100%, rgba(16,64,48,.30), transparent 62%),
+    linear-gradient(174deg,#03060e 0%,#050d0a 56%,#051410 100%);
+  --cel-stars-read:
+    radial-gradient(1.3px 1.3px at 16% 14%,rgba(255,255,255,.40),transparent),
+    radial-gradient(1px 1px at 72% 20%,rgba(207,224,255,.34),transparent),
+    radial-gradient(1px 1px at 44% 82%,rgba(255,255,255,.28),transparent),
+    radial-gradient(88% 80% at 50% 48%, transparent 22%, rgba(2,4,10,.82) 100%);
   --cel-sky-nr:
     var(--_cres-n) 88% 42px / 66px 66px no-repeat,
     radial-gradient(38% 30% at 72% 24%, rgba(240,200,81,.10), transparent 70%),
