@@ -26,13 +26,13 @@ bahasa yang mudah dipahami orang awam — bukan tafsir panjang, cukup jawaban ya
 akidah — beserta ayat yang menyertainya. Kami sudah mengusulkan beberapa ayat sebagai rujukan awal, tetapi
 itu **hanya usulan**; Ustadz sepenuhnya berhak mengganti, menambah, atau membuangnya.
 
-Yang perlu Ustadz yakini: **aplikasi tidak akan menambahkan satu kata pun** ke dalam jawaban Ustadz. Yang
+Yang perlu Ustadz yakini: **aplikasi tidak menambahkan satu kata pun** ke dalam jawaban Ustadz. Yang
 tampil di layar adalah tulisan Ustadz **persis apa adanya**, ayat yang Ustadz setujui, dan nama Ustadz
 sebagai peninjau di bawahnya. Tidak ada tafsir dari kami.
 
 Dua hal untuk menenangkan Ustadz. Pertama, bila menurut Ustadz ada pertanyaan yang **sebaiknya tidak
 dijawab** — misalnya terlalu sensitif — cukup Ustadz tulis *"biarkan menunjuk ke topik saja"*, dan aplikasi
-akan tetap memakai penunjuk topik seperti sekarang; tidak ada yang dipaksakan. Kedua, satu pertanyaan —
+tetap memakai penunjuk topik seperti sekarang; tidak ada yang dipaksakan. Kedua, satu pertanyaan —
 *"di mana Allah?"* — sudah saya tandai sebagai **pertanyaan sensitif (soal istiwa')** di lembar itu, dan
 saya sengaja tidak mengusulkan sikap apa pun di sana. Sikap yang benar sepenuhnya saya serahkan kepada
 Ustadz.

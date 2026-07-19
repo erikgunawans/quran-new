@@ -6,11 +6,11 @@
 ## Apa ini
 
 Saat seseorang bertanya hal mendasar di aplikasi — *"siapakah Allah?"*, *"apa itu tauhid?"* — New-Quranku
-saat ini **tidak menjawab langsung**. Ia hanya menunjuk ke daftar topik, karena knowledge base kami berisi
+saat ini **tidak menjawab langsung**. Ia hanya menunjuk ke daftar topik, karena kumpulan rujukan kami berisi
 *daftar apa yang Allah lakukan* (indeks Ustadz Muhammad Thalib), **bukan** jawaban definitif atas pertanyaan
-mendasar. Kami tidak mau aplikasi mengarang jawaban akidah sendiri — itu wewenang ulama, bukan kode.
+mendasar. Kami tidak mau aplikasi mengarang jawaban akidah sendiri — itu wewenang ulama, bukan mesin.
 
-Maka kami minta **Ustadz yang menuliskan jawabannya**. Aplikasi hanya akan **menampilkan persis** apa yang
+Maka kami minta **Ustadz yang menuliskan jawabannya**. Aplikasi hanya **menampilkan persis** apa yang
 Ustadz tulis, **menautkan ayat** yang Ustadz setujui, dan **menyebut nama Ustadz** sebagai peninjau. Tidak ada
 satu kata pun yang aplikasi tambahkan ke dalam jawaban.
 
@@ -21,7 +21,7 @@ satu kata pun yang aplikasi tambahkan ke dalam jawaban.
 2. Tetapkan **ayat rujukan** yang menyertai jawaban. Kami sudah mengusulkan beberapa, tapi **Ustadz yang berhak**
    mengganti atau menambah.
 3. Bila sebuah pertanyaan menurut Ustadz **sebaiknya tidak dijawab** (mis. terlalu sensitif), cukup tulis
-   *"biarkan menunjuk ke topik saja"* — aplikasi akan tetap memakai penunjuk topik yang ada sekarang.
+   *"biarkan menunjuk ke topik saja"* — aplikasi tetap memakai penunjuk topik yang ada sekarang.
 4. Boleh menambah pertanyaan lain yang menurut Ustadz sering ditanyakan orang.
 
 Setelah selesai, kembalikan lembar ini; developer yang memasukkannya ke aplikasi **persis** seperti yang Ustadz
