@@ -15,6 +15,9 @@ import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
 import { aqidahById, aqidahRef, matchAqidah, type AqidahEntry } from "./aqidah.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
+import { isSynthesis } from "./mode.ts";
+import { synthesizeAnswer } from "./answer.ts";
+import { liveAnswerModel } from "./answer-live.ts";
 import { understandThemes } from "./theme-understand.ts";
 import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
@@ -88,6 +91,11 @@ const scrollDown = () =>
 // quiet chrome UNDER an answer's verses, present on every answer (live or fallback) without being
 // said out loud each turn.
 const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — baca sendiri, dan lihat siapa yang mengatakan apa.</p>`;
+
+// The SYNTHESIS edition's honesty label (new-quranku-ai only). An authored answer must never read as
+// a fatwa or as a scholar's words — this quiet chrome under it says plainly what it is: machine-made,
+// grounded in the verses shown, and no substitute for a real scholar.
+const AI_NOTE = `<p class="reader-note ai-note">Jawaban ini disusun oleh AI berdasarkan ayat-ayat di atas — bukan fatwa, dan bukan kata-kata seorang ulama. Untuk kepastian, tanyakan kepada ustadz.</p>`;
 
 // ── the one renderer ─────────────────────────────────────────────────────────
 //
@@ -182,7 +190,47 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       if (!e || !e.answer.trim() || !e.refs.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
       return aqidahHtml(e);
     }
+
+    case "ai": {
+      // The synthesis edition's authored answer. Prose is REPLAYED verbatim from the stored turn (it
+      // was model-generated once and guarded then); the verses re-render as cards from the corpus.
+      if (!corpus) throw new Error("corpus");
+      return aiHtml(t.prose, t.refs, animate);
+    }
   }
+}
+
+/**
+ * Render a SYNTHESIS answer: the model's guarded prose, the grounding verses as cards, and the AI
+ * label. The prose already cleared answer-guard (no Arabic, only grounded citations) — here it is
+ * only HTML-escaped and split into paragraphs; the app authors nothing new at render time.
+ */
+function aiHtml(prose: string, refs: readonly string[], animate: boolean): string {
+  const verses = refs.map((r) => corpus!.verses.find((v) => v.ref === r)).filter((v) => v !== undefined);
+  const paras = prose
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p class="said ai-said">${esc(p)}</p>`)
+    .join("");
+  const cards = verses
+    .map((v) =>
+      mount({
+        ref: v.ref,
+        surah: v.surah,
+        ayah: v.ayah,
+        surah_name: v.surah_name,
+        arabic: v.arabic,
+        primary: v.primary,
+        companion: v.companion,
+        why: v.why,
+        tafsirStack: tafsirStackHtml(v.tafsir, voices),
+        continueTo: true,
+        animate,
+      }),
+    )
+    .join("");
+  return paras + cards + AI_NOTE;
 }
 
 /**
@@ -274,6 +322,9 @@ function announceTurn(t: Turn): void {
     case "aqidah":
       say("Menampilkan jawaban yang ditinjau Ustadz Ahmad Isrofiel Mardlatillah beserta ayatnya.");
       break;
+    case "ai":
+      say("Menampilkan jawaban yang disusun AI berdasarkan ayat-ayatnya. Bukan fatwa.");
+      break;
     default:
       break;
   }
@@ -362,10 +413,23 @@ async function ask(question: string) {
 
     if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
 
+    // SYNTHESIS edition (new-quranku-ai only). For any question, let the model author a grounded
+    // answer from what retrieval found. On ANY failure — nothing to ground, model down, or the guard
+    // rejected the output — synthesizeAnswer returns null and we fall straight through to the
+    // principled resolution below, so this edition is never worse than the trustworthy one.
+    let synthesized = false;
+    if (isSynthesis() && ref.kind === "not-a-ref" && corpus) {
+      const ai = await synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
+      if (ai) {
+        turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
+        synthesized = true;
+      }
+    }
+
     // Knowledge fallback. A topic/theology question ("siapakah Allah?") lands on the feeling path's
     // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
     // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
-    if (turn.kind === "silence") {
+    if (!synthesized && turn.kind === "silence") {
       // Reviewed-aqidah first: a broad definitional question ("siapakah Allah?") gets the ustadz's
       // own reviewed answer when one exists. Until the review sheet is filled, this returns null and
       // the knowledge path's honest topic pointer stands — so the lane is pure upside, never a

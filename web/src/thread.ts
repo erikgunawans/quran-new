@@ -64,6 +64,11 @@ export type Turn =
   // question are stored; the ustadz's verbatim answer + verses are re-derived from the module at
   // render time — never resurrected from disk, like every other turn.
   | { q: string; kind: "aqidah"; id: string }
+  // The SYNTHESIS edition's AI-authored answer (new-quranku-ai only). UNLIKE every other turn, the
+  // prose is STORED, not re-derived: it is a non-deterministic model output, so regenerating on
+  // restore would show different words than the reader first saw. The refs re-render as cards from
+  // the corpus. Never produced by the principled build.
+  | { q: string; kind: "ai"; prose: string; refs: string[] }
   | { q: string; kind: "silence" };
 
 interface Stored {

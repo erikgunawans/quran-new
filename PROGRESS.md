@@ -8,7 +8,49 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — aqidah: alias matching hardened + scholar-assigned answer tiers (A/B/C)
+## 2026-07-20 (latest) — SECOND EDITION: the AI-authoring "synthesis" variant (new-quranku-ai), NOT deployed
+
+Erik's second direction, deliberately a **180° reversal** of the app's founding law. He wants an
+alternative that answers **DeepSeek-style** — the *model authors* a substantive answer to any question,
+**grounded in the verses/KB we retrieved** — to run **side by side** with the principled app and compare.
+Decided via AskUserQuestion: address **new-quranku-ai.axiara.ai**, scope **full chatbot (everything)**,
+answers **labelled AI-composed + grounded**.
+
+**One codebase, two apps, via a build flag** (`web/src/mode.ts`, `VITE_ANSWER_MODE=synthesis`). The
+principled deploy is byte-for-byte untouched; the synthesis build flips `main.ts`'s answer path.
+
+**Two rails held even while authoring** (this is what makes it defensible for an Islamic app):
+1. **Grounded only** — `answer.ts` gathers grounding from the SAME retrieval the principled app uses
+   (`retrieve()` verses + `retrieveKnowledge()` KB entries); the model sees only that. The egress guard
+   (`answer-guard.ts`) rejects any citation NOT in the grounding (hallucinated-ref = fabrication) and any
+   Arabic. On ANY failure — no grounding, model down, guard reject — `synthesizeAnswer` returns null and
+   the app **falls back to the principled behaviour**, so the synthesis edition is never worse.
+2. **Honest about itself** — every answer carries a label (`AI_NOTE`): *disusun AI, berdasarkan ayat di
+   atas, bukan fatwa, bukan kata-kata ulama*. NEVER attributed to Ustadz Thalib or Ahmad Isrofiel.
+
+**Pieces:** `mode.ts`, `answer-contract.ts` (SYNTHESIS_SYSTEM_PROMPT + grounding message, shared w/ any
+eval), `answer-guard.ts` (arabic + ref-whitelist), `answer-live.ts` (client → `/api/answer`), `answer.ts`
+(orchestrator), persist-safe `ai` turn in `thread.ts` (stores prose — it's non-deterministic), `main.ts`
+render (`aiHtml`) + synthesis branch, `styles.css` (`.ai-note`). Worker: `/api/answer` handler with the
+SAME guard on egress + **EDITION gate** (endpoint stays dark unless `EDITION=synthesis`, so the principled
+deploy can't author even via direct POST) + CORS for the new origin + bounded grounding input.
+`worker/wrangler.toml` gains `[env.synthesis]` (name `new-quranku-ai-proxy`, route `new-quranku-ai.axiara.ai/*`).
+**462 tests green** (+18: answer-guard, answer-contract), web typecheck clean, BOTH builds succeed, mode
+flag verified to change the bundle.
+
+**DEPLOY (Erik — both are separate, principled untouched):**
+- Principled (as always): `! bun run build && cd worker && bunx wrangler deploy`
+- Synthesis (new): `! VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy --env synthesis`
+- One-time for synthesis: `cd worker && bunx wrangler secret put OPENROUTER_API_KEY --env synthesis`
+  and add a **proxied placeholder AAAA `new-quranku-ai` → 100::** on the axiara.ai Cloudflare zone.
+Rollback synthesis only: `cd worker && bunx wrangler rollback --env synthesis`.
+
+**NOT yet verified live** (needs Erik's deploy + key): the actual model answers + guard behaviour in prod.
+Recommend a curl smoke on `/api/answer` after deploy, and eyeballing a few answers for grounding fidelity.
+
+---
+
+## 2026-07-20 — aqidah: alias matching hardened + scholar-assigned answer tiers (A/B/C)
 
 Two things this session, after Erik asked what the system answers *before* the ustadz fills the KB.
 

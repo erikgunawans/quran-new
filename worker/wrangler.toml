@@ -26,9 +26,40 @@ not_found_handling = "single-page-application"
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 # Runtime model defaults (overridable). Non-secret.
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+# This is the trustworthy edition — /api/answer (the authoring endpoint) stays dark here.
+EDITION = "principled"
 # SEALION_BASE_URL = "https://api.sea-lion.ai/v1/chat/completions"
 # SEALION_MODEL = "aisingapore/Gemma-SEA-LION-v3-9B-IT"
 
 # SECRETS ARE NOT LISTED HERE — they are set out-of-band and encrypted at rest:
 #   wrangler secret put OPENROUTER_API_KEY
 #   wrangler secret put SEALION_API_KEY      # optional, only if you use the SEA-LION path
+
+# ── env: synthesis — the AI-authoring alternative (new-quranku-ai.axiara.ai) ──────────────────────
+#
+# A SEPARATE Worker + route, SAME codebase. Its front-end assets are built with VITE_ANSWER_MODE=
+# synthesis so main.ts takes the /api/answer path; the principled deploy above is untouched.
+# wrangler env blocks do NOT inherit top-level [assets]/[vars], so both are redeclared here.
+#
+# DEPLOY (Erik, both are separate one-liners):
+#   Principled : bun run build                       && cd worker && bunx wrangler deploy
+#   Synthesis  : VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy --env synthesis
+# SECRET (once): cd worker && bunx wrangler secret put OPENROUTER_API_KEY --env synthesis
+# DNS (once): add a PROXIED placeholder AAAA `new-quranku-ai` → 100:: on the axiara.ai zone (same
+#   trick as new-quranku); the route below then binds the Worker to the hostname.
+[env.synthesis]
+name = "new-quranku-ai-proxy"
+routes = [
+  { pattern = "new-quranku-ai.axiara.ai/*", zone_name = "axiara.ai" }
+]
+
+[env.synthesis.assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[env.synthesis.vars]
+ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
+OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+# The AI-authoring edition — this var unlocks /api/answer on this deploy only.
+EDITION = "synthesis"

@@ -464,6 +464,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   text-wrap: pretty;
 }
 
+/* Synthesis edition (new-quranku-ai): the AI-authored answer + its honesty label. The label is a
+   touch more present than the reader-note — it must be readable, not fine print, since it is the
+   one thing telling the reader this answer is machine-made and not a fatwa. */
+.ai-said { text-wrap: pretty; }
+.ai-note {
+  color: var(--ink-2);
+  border-top-color: var(--primary);
+}
+
 /* ── the verse: the light source ───────────────────────────────────── */
 .verse {
   border: 1px solid var(--line); border-radius: var(--r-lg);

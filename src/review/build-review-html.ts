@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+export {}; // top-level await needs this file to be a module (it has no imports of its own)
 /**
  * Render the Ustadz-facing review documents (markdown) into self-contained, PRINTABLE HTML.
  *

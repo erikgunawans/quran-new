@@ -20,6 +20,14 @@
 import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
+import { allowedRefsFrom, guardAnswerProse } from "../../web/src/answer-guard.ts";
+import {
+  ANSWER_PARAMS,
+  buildAnswerUserMessage,
+  SYNTHESIS_SYSTEM_PROMPT,
+  type GroundingEntry,
+  type GroundingVerse,
+} from "../../web/src/answer-contract.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
 
 export interface Env {
@@ -36,29 +44,37 @@ export interface Env {
   OPENROUTER_MODEL?: string;
   SEALION_BASE_URL?: string;
   SEALION_MODEL?: string;
+  /** Which edition this deploy is — "synthesis" unlocks /api/answer. Absent/"principled" keeps the
+   *  authoring endpoint dark, so the trustworthy deploy can never author even via a direct POST. */
+  EDITION?: string;
 }
 
 /** Cap the prompt surface: a companion line needs a sentence, not an essay, and an uncapped body is
  * a cost-abuse and prompt-stuffing vector on a public endpoint. */
 const MAX_QUESTION_LEN = 600;
 
-/** Origins allowed to call the API cross-origin (prod app + local vite/wrangler dev). */
+/** Origins allowed to call the API cross-origin (both prod editions + local vite/wrangler dev). */
 const ALLOWED_ORIGINS = new Set([
   "https://new-quranku.axiara.ai",
+  "https://new-quranku-ai.axiara.ai",
   "http://localhost:5173",
   "http://localhost:8787",
 ]);
+
+/** Bound the synthesis grounding: a public endpoint must cap how much it will feed the model. */
+const MAX_GROUNDING_ITEMS = 8;
+const MAX_GROUNDING_TEXT = 800;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === "/api/compose" || url.pathname === "/api/classify") {
+    if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
-      return url.pathname === "/api/compose"
-        ? handleCompose(request, env)
-        : handleClassify(request, env);
+      if (url.pathname === "/api/compose") return handleCompose(request, env);
+      if (url.pathname === "/api/answer") return handleAnswer(request, env);
+      return handleClassify(request, env);
     }
 
     // The app is 100% static — serve web/dist straight from Cloudflare's edge (no Cloud Run).
@@ -124,6 +140,75 @@ async function handleCompose(request: Request, env: Env): Promise<Response> {
 
   // prose stays null if both attempts tripped the wall → browser substitutes the deterministic opener.
   return json({ prose }, 200, request);
+}
+
+// ── /api/answer — the SYNTHESIS edition's authored answer (new-quranku-ai) ────
+//
+// The MODEL authors here (the opposite of /api/compose), but only from grounding the caller supplies,
+// and the SAME guard the browser runs (answer-guard) runs here on egress: no Arabic, and every cited
+// reference must be one of the grounding refs. A rejected or failed generation returns {answer:null}
+// and the browser falls back to the principled behaviour. One retry on a guard reject, like compose.
+
+interface AnswerBody {
+  question?: unknown;
+  verses?: unknown;
+  entries?: unknown;
+  provider?: unknown;
+}
+
+/** Coerce + bound the grounding the browser sent. A public endpoint trusts nothing about its size. */
+function sanitizeGrounding(raw: unknown, withName: boolean): (GroundingVerse | GroundingEntry)[] {
+  if (!Array.isArray(raw)) return [];
+  const out: (GroundingVerse | GroundingEntry)[] = [];
+  for (const item of raw.slice(0, MAX_GROUNDING_ITEMS)) {
+    if (!item || typeof item !== "object") continue;
+    const o = item as Record<string, unknown>;
+    const ref = typeof o.ref === "string" ? o.ref.slice(0, 40) : "";
+    const text = typeof o.text === "string" ? o.text.slice(0, MAX_GROUNDING_TEXT) : "";
+    if (!ref || !text) continue;
+    if (withName) out.push({ ref, surah_name: typeof o.surah_name === "string" ? o.surah_name.slice(0, 60) : "", text });
+    else out.push({ ref, text });
+  }
+  return out;
+}
+
+async function handleAnswer(request: Request, env: Env): Promise<Response> {
+  // The authoring endpoint exists in one codebase but must only be live on the synthesis edition.
+  // On the principled deploy EDITION is unset → this returns null and the app authors nothing.
+  if (env.EDITION !== "synthesis") return json({ answer: null }, 200, request);
+
+  let body: AnswerBody;
+  try {
+    body = (await request.json()) as AnswerBody;
+  } catch {
+    return json({ answer: null }, 400, request);
+  }
+
+  const question = asBoundedString(body.question);
+  const verses = sanitizeGrounding(body.verses, true) as GroundingVerse[];
+  const entries = sanitizeGrounding(body.entries, false) as GroundingEntry[];
+  if (!question || (verses.length === 0 && entries.length === 0)) return json({ answer: null }, 200, request);
+
+  const user = buildAnswerUserMessage({ question, verses, entries });
+  const allowed = allowedRefsFrom([...verses.map((v) => v.ref), ...entries.map((e) => e.ref)]);
+
+  let answer: string | null = null;
+  try {
+    const cfg = resolveProvider(providerOf(body.provider), env);
+    // One retry on a guard reject (a fresh generation usually clears it), exactly like compose. A
+    // model error/timeout is caught below and NOT retried.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const candidate = (await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, ANSWER_PARAMS))?.trim();
+      if (candidate && guardAnswerProse(candidate, allowed).ok) {
+        answer = candidate;
+        break;
+      }
+    }
+  } catch {
+    return json({ answer: null }, 200, request); // model/key failure → browser falls back to principled
+  }
+
+  return json({ answer }, 200, request);
 }
 
 // ── /api/classify — the theme understander (recognize, never invent) ──────────
