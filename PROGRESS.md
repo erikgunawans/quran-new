@@ -8,7 +8,38 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — header redesign: full-bleed bar + centered nav + size pill; DEPLOYED + LIVE
+## 2026-07-19 (latest) — artistic browse indexes (Baca/Tema/Peta) + back-to-top FAB; DEPLOYED + LIVE
+
+Erik: the Baca title is poorly formatted; Tema and Peta are "so plain, not impressive"; use the full
+horizontal width and fix the logo/section placement; add a floating back-to-top button on every page.
+Done in one commit (`3367792`), **deployed + verified live** (Version **`7ee42754`**, bundles
+`index-rERuvdUM.js` / `index-C917Ng7O.css`).
+
+**What changed** (`read.ts`, `themes.ts`, `peta.ts`, `main.ts`, `index.html`, `read.css`, `styles.css`):
+- **Wide measure for Tema + Peta** — `data-wide` now covers `#/baca`, `#/tema`, `#/peta` (main.ts route).
+  The header logo moves from ~260px indented to **105px** (the wide-column edge, matching Baca); grids
+  fill the viewport. Verse-reading surfaces (a surah, a theme/category's verses) keep the 46rem measure.
+- **Plain lists → a unified card grid** — Tema (3-col) and Peta (2-col, for long category names) are now
+  cards echoing the surah tiles: numbered round badge, display-serif (Fraunces) name, green→gold top
+  edge that lights on hover, arrow that slides. `.trow` kept inside `.theme-list`/`.peta-list` so the
+  count assertions hold; **`peta-credit` + `peta-derivative` attribution untouched** (verified live).
+- **Section heroes** — `.read-intro h1` is now a hero: Fraunces, `clamp(30–46px)`, with the green→gold
+  signature `em` (matches the landing's `.hello h1 em`). "Baca **Al-Qur'an**" / "Baca lewat **perasaan**"
+  / "Peta **Tematik**".
+- **Back-to-top FAB** (`#to-top`, every page) — fixed bottom-right, **above** the docked composer (bottom
+  5.25rem so it never overlaps), appears past ~420px of scroll (`main.ts initToTop`), smooth-scrolls to
+  top + returns focus to the wordmark. Enhancement-only (stays `hidden` without JS).
+
+**Verified numerically via Interceptor `eval`** (screenshots STILL blocked — automation Chrome window
+minimized all session): Tema 1120px/3-col/12 cards, Peta 1120px/2-col/13 cards + attribution present,
+hero `em` gradient (background-clip:text) on all three, FAB unhidden + toggles `.is-visible` past 420px
+(the frozen-opacity reading was the minimized-window paint-freeze — with transition removed it snaps to
+opacity 1/transform none, proving the rule), dark-mode cards correct. 400 `bun test web/src` green.
+**Erik should eyeball prod visually** — I could not screenshot. Rollback = `cd worker && bunx wrangler rollback`.
+
+---
+
+## 2026-07-19 — header redesign: full-bleed bar + centered nav + size pill; DEPLOYED + LIVE
 
 Erik flagged the top panel as poorly arranged (floating inset bar, everything crammed right) vs.
 QuranKu's clean edge-to-edge header. Fixed in `web/src/styles.css` (`4619af8`), **deployed + verified
