@@ -20,6 +20,7 @@
   "app:curation-sheet": "bun run src/review/build-curation-sheet.ts",
   "app:aqidah-sheet": "bun run src/review/build-aqidah-sheet.ts",
   "app:review-html": "bun run src/review/build-review-html.ts",
+  "smoke:answer": "bun run worker/smoke-answer.ts",
   "eval:framing": "bun run src/eval/run.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
