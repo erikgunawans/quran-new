@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lembar Tinjauan Kurasi Tematik — New-Quranku</title>
+<style>
+  :root{
+    --bg:#fbfaf7;--surface:#ffffff;--ink:#1a1a17;--body:#33322d;--muted:#6b6a63;
+    --line:#e6e3db;--accent:#16a249;--accent-2:#b8891b;--quote-bg:#f4f2ec;--blank:#9a9890;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#16150f;--surface:#1d1c15;--ink:#f3f1e8;--body:#d9d6cb;--muted:#9a988c;
+    --line:#2c2a22;--accent:#34d399;--accent-2:#e0b64f;--quote-bg:#201e17;--blank:#6a685e;
+    color-scheme:dark;}}
+  :root[data-theme="light"]{--bg:#fbfaf7;--surface:#ffffff;--ink:#1a1a17;--body:#33322d;--muted:#6b6a63;
+    --line:#e6e3db;--quote-bg:#f4f2ec;--blank:#9a9890;color-scheme:light;}
+  :root[data-theme="dark"]{--bg:#16150f;--surface:#1d1c15;--ink:#f3f1e8;--body:#d9d6cb;--muted:#9a988c;
+    --line:#2c2a22;--quote-bg:#201e17;--blank:#6a685e;color-scheme:dark;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--body);
+    font:16px/1.7 Georgia,"Times New Roman",serif;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .sheet{max-width:44rem;margin:0 auto;padding:3rem 1.5rem 5rem;}
+  .hint{max-width:44rem;margin:1rem auto -1rem;padding:0 1.5rem;font:13px/1.5 system-ui,sans-serif;color:var(--muted);}
+  h1,h2,h3{color:var(--ink);line-height:1.25;font-weight:700;}
+  h1{font-size:1.9rem;margin:0 0 1.5rem;letter-spacing:-.01em;}
+  h2{font-size:1.35rem;margin:2.4rem 0 .8rem;padding-top:.4rem;}
+  h3{font-size:1.1rem;margin:1.6rem 0 .6rem;}
+  h2 em,h1 em{font-style:normal;color:var(--accent);}
+  p{margin:0 0 1rem;}
+  a{color:var(--accent);text-underline-offset:2px;}
+  strong{color:var(--ink);font-weight:700;}
+  code{font:.9em ui-monospace,"Courier New",monospace;background:var(--quote-bg);
+    padding:.1em .4em;border-radius:4px;color:var(--muted);}
+  hr{border:none;border-top:1px solid var(--line);margin:2.2rem 0;}
+  ul{margin:.4rem 0 1.2rem;padding-left:1.3rem;}
+  li{margin:.3rem 0;}
+  blockquote{margin:1.2rem 0;padding:.9rem 1.2rem;background:var(--quote-bg);
+    border-left:3px solid var(--accent-2);border-radius:0 6px 6px 0;}
+  blockquote p{margin:0 0 .6rem;color:var(--body);}
+  blockquote p:last-child{margin:0;}
+  table{width:100%;border-collapse:collapse;margin:1rem 0 1.6rem;font-size:.95rem;}
+  th,td{border:1px solid var(--line);padding:.55rem .7rem;text-align:left;vertical-align:top;}
+  th{background:var(--quote-bg);color:var(--ink);font-weight:700;}
+  .blank{display:inline-block;min-width:8ch;border-bottom:1.5px solid var(--blank);
+    height:1.25em;vertical-align:baseline;margin:0 .15em;}
+  @media print{
+    :root{--bg:#fff;--surface:#fff;--ink:#000;--body:#1a1a1a;--muted:#555;--line:#bbb;
+      --quote-bg:#f4f2ec;--accent:#0a6b30;--accent-2:#8a6512;--blank:#777;color-scheme:light;}
+    .hint{display:none;}
+    .sheet{max-width:none;padding:0;}
+    h2{page-break-after:avoid;}
+    blockquote,table,li{page-break-inside:avoid;}
+    a{color:#000;text-decoration:none;}
+  }
+</style>
+</head>
+<body>
+<p class="hint">Dokumen ini bisa dicetak (Print → Save as PDF) untuk diisi dengan tangan, atau dibaca langsung di layar.</p>
+<main class="sheet">
+<h1>Lembar Tinjauan Kurasi Tematik — New-Quranku</h1>
+<blockquote><p><strong>Untuk:</strong> Ustadz Ahmad Isrofiel Mardlatillah<br> <strong>Dibuat otomatis</strong> dari <code>src/review/problem-verses.ts</code> — jangan diedit di kode; cukup isi lembar ini.</p></blockquote>
+<h2>Apa ini</h2>
+<p>New-Quranku mengelompokkan ayat berdasarkan <strong>apa yang sedang dirasakan</strong> pembaca saat membuka aplikasi (mis. sedang cemas, kehilangan, terlilit utang). Saat ini ada <strong>55 ayat</strong> dalam <strong>12 tema</strong> — dipilih dengan tangan, untuk <strong>kelembutan pastoral</strong>, bukan kelengkapan tafsir.</p>
+<p>Kami ingin menambah cakupannya, tapi <strong>memilih ayat mana untuk perasaan mana adalah wewenang Ustadz</strong>, bukan kode. Aplikasi ini tidak pernah menafsirkan — ia hanya <strong>menunjukkan</strong> ayat dan <strong>menyebut sumbernya</strong>.</p>
+<h2>Cara mengisi</h2>
+<p>1. Untuk tiap tema, lihat ayat yang sudah ada beserta catatan singkat <em>"kenapa seseorang membuka ayat ini"</em>. 2. Bila ada yang kurang pas, tulis di kolom <strong>Catatan Ustadz</strong> (mis. "hapus", "kurang tepat", "sudah pas"). 3. Tambahkan ayat baru di bagian <strong>Usulan tambahan</strong>: cukup tulis <strong>surah:ayat</strong> dan <strong>satu kalimat alasan</strong>    dengan gaya yang sama — bukan tafsir, tapi <em>kenapa orang dalam keadaan itu meraih ayat ini</em>. 4. Sasaran longgar: sekitar <strong>15 ayat per tema</strong> (sekarang baru 3–6). Ustadz yang menentukan    berapa yang pas — lebih baik sedikit tapi tepat daripada banyak tapi dipaksakan.</p>
+<p>Setelah selesai, kembalikan lembar ini; developer yang akan memasukkannya ke aplikasi persis seperti yang Ustadz tulis. Tidak ada yang diubah tanpa persetujuan Ustadz.</p>
+<hr>
+<h2>1. Kesulitan &amp; kelapangan  </h2>
+<p><code>Hardship &amp; ease</code> · 6 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 94:5</td><td>Ayat penghiburan — bersama kesulitan ada kemudahan</td><td></td></tr><tr><td>QS 94:6</td><td>Diulang dua kali — itu yang membuatnya janji, bukan kebetulan</td><td></td></tr><tr><td>QS 65:7</td><td>Allah akan memberi kemudahan setelah kesulitan</td><td></td></tr><tr><td>QS 2:286</td><td>Allah tidak membebani seseorang melebihi kesanggupannya</td><td></td></tr><tr><td>QS 65:2</td><td>Jalan keluar bagi orang yang bertakwa</td><td></td></tr><tr><td>QS 2:214</td><td>"Kapan datang pertolongan Allah?" — jeritan orang yang diuji</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>2. Cemas &amp; takut  </h2>
+<p><code>Anxiety &amp; fear</code> · 6 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 13:28</td><td>Hati menjadi tenang dengan mengingat Allah</td><td></td></tr><tr><td>QS 3:139</td><td>Jangan lemah, jangan bersedih</td><td></td></tr><tr><td>QS 9:40</td><td>"Jangan sedih — Allah bersama kita"</td><td></td></tr><tr><td>QS 20:46</td><td>"Jangan takut. Aku bersama kalian, mendengar dan melihat"</td><td></td></tr><tr><td>QS 41:30</td><td>Para malaikat: "jangan takut, jangan bersedih"</td><td></td></tr><tr><td>QS 2:112</td><td>Tidak ada rasa takut pada mereka, dan mereka tidak bersedih hati</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>3. Duka &amp; kehilangan  </h2>
+<p><code>Grief &amp; loss</code> · 6 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 2:156</td><td>Inna lillahi wa inna ilaihi raji'un — dibaca di setiap kematian</td><td></td></tr><tr><td>QS 2:155</td><td>"Kami pasti menguji kalian… sampaikan kabar gembira bagi yang sabar"</td><td></td></tr><tr><td>QS 2:157</td><td>Keberkahan dan rahmat bagi mereka yang bertahan</td><td></td></tr><tr><td>QS 12:86</td><td>Ya'qub: "Hanya kepada Allah aku mengadukan kesedihanku"</td><td></td></tr><tr><td>QS 3:185</td><td>Setiap yang bernyawa akan merasakan mati</td><td></td></tr><tr><td>QS 21:35</td><td>Diuji lewat hal buruk dan hal baik — dua-duanya ujian</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>4. Kesabaran  </h2>
+<p><code>Patience</code> · 5 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 2:153</td><td>Mintalah pertolongan dengan sabar dan salat</td><td></td></tr><tr><td>QS 39:10</td><td>Orang sabar diberi pahala tanpa batas</td><td></td></tr><tr><td>QS 3:200</td><td>Sabar, kuatkan kesabaranmu, jangan goyah</td><td></td></tr><tr><td>QS 103:3</td><td>Al-'Asr — mereka yang saling menasihati untuk sabar</td><td></td></tr><tr><td>QS 8:46</td><td>Allah bersama orang-orang yang sabar</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>5. Ampunan &amp; putus asa  </h2>
+<p><code>Forgiveness &amp; despair</code> · 6 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 39:53</td><td>"Jangan berputus asa dari rahmat Allah" — ayat untuk yang merasa kotor</td><td></td></tr><tr><td>QS 3:135</td><td>Siapa yang mengampuni dosa selain Allah?</td><td></td></tr><tr><td>QS 66:8</td><td>Kembalilah kepada Allah dengan tobat yang tulus</td><td></td></tr><tr><td>QS 24:22</td><td>Maafkan, dan lapangkan dadamu</td><td></td></tr><tr><td>QS 4:110</td><td>Siapa pun yang berbuat salah lalu minta ampun</td><td></td></tr><tr><td>QS 42:25</td><td>Dia menerima tobat dari hamba-hamba-Nya</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>6. Rezeki &amp; utang  </h2>
+<p><code>Provision &amp; debt</code> · 6 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 65:3</td><td>Rezeki dari arah yang tidak disangka-sangka</td><td></td></tr><tr><td>QS 11:6</td><td>Semua makhluk sudah dijamin rezekinya oleh Allah</td><td></td></tr><tr><td>QS 51:22</td><td>Di langit ada rezekimu</td><td></td></tr><tr><td>QS 29:60</td><td>Allah yang memberi rezeki kepadanya dan kepadamu</td><td></td></tr><tr><td>QS 2:280</td><td>Kalau yang berutang lagi kesulitan, beri dia waktu</td><td></td></tr><tr><td>QS 94:7</td><td>Kalau sudah selesai, kerjakan yang berikutnya</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>7. Tawakal  </h2>
+<p><code>Trust in God</code> · 4 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 3:159</td><td>Kalau sudah bertekad, bertawakallah kepada Allah</td><td></td></tr><tr><td>QS 8:2</td><td>Hatinya bergetar, imannya bertambah, lalu ia bertawakal</td><td></td></tr><tr><td>QS 3:173</td><td>"Cukuplah Allah bagi kami" — hasbunallah</td><td></td></tr><tr><td>QS 64:11</td><td>Tidak ada musibah yang menimpa kecuali dengan izin Allah</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>8. Syukur  </h2>
+<p><code>Gratitude</code> · 3 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 14:7</td><td>"Kalau kalian bersyukur, pasti Aku tambah nikmat untuk kalian"</td><td></td></tr><tr><td>QS 2:152</td><td>Ingatlah Aku, Aku pun mengingat kalian</td><td></td></tr><tr><td>QS 55:13</td><td>Nikmat Tuhanmu yang mana lagi yang kamu dustakan?</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>9. Doa yang dikabulkan  </h2>
+<p><code>Prayer answered</code> · 4 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 2:186</td><td>"Aku dekat — Aku kabulkan doa orang yang berdoa"</td><td></td></tr><tr><td>QS 40:60</td><td>"Berdoalah kepada-Ku, akan Aku kabulkan"</td><td></td></tr><tr><td>QS 7:55</td><td>Berdoalah dengan rendah hati, diam-diam saja</td><td></td></tr><tr><td>QS 21:87</td><td>Doa Nabi Yunus, dari dalam kegelapan</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>10. Rahmat &amp; kasih sayang  </h2>
+<p><code>Mercy</code> · 3 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 7:156</td><td>"Rahmat-Ku meliputi segala sesuatu"</td><td></td></tr><tr><td>QS 21:107</td><td>Diutus sebagai rahmat bagi seluruh alam</td><td></td></tr><tr><td>QS 6:54</td><td>Tuhanmu telah menetapkan kasih sayang atas diri-Nya</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>11. Harga diri &amp; makna hidup  </h2>
+<p><code>Self-worth &amp; purpose</code> · 3 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 95:4</td><td>Manusia diciptakan dalam bentuk yang sebaik-baiknya</td><td></td></tr><tr><td>QS 51:56</td><td>Jin dan manusia diciptakan hanya untuk beribadah</td><td></td></tr><tr><td>QS 17:70</td><td>Sungguh Kami telah memuliakan anak cucu Adam</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>12. Keluarga  </h2>
+<p><code>Family</code> · 3 ayat sekarang (target ± 15)</p>
+<p><strong>Ayat yang sudah ada</strong> — mohon Ustadz periksa; bila ada yang kurang pas, tulis catatan di kolom terakhir:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th>Catatan Ustadz (mis. "ganti", "hapus", "sudah pas")</th></tr></thead><tbody><tr><td>QS 30:21</td><td>Dia jadikan di antara kalian rasa cinta dan kasih sayang</td><td></td></tr><tr><td>QS 17:23</td><td>Berbuat baiklah kepada orang tua</td><td></td></tr><tr><td>QS 17:24</td><td>"Tuhanku, sayangilah mereka seperti mereka merawatku waktu kecil"</td><td></td></tr></tbody></table>
+<p><strong>Usulan tambahan dari Ustadz</strong> — tuliskan ayat baru untuk tema ini di sini:</p>
+<table><thead><tr><th>Ayat</th><th>Kenapa seseorang membuka ayat ini</th><th></th></tr></thead><tbody><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr><tr><td>QS _<em>:</em>_</td><td><em>(alasan singkat, gaya sama seperti di atas)</em></td><td></td></tr></tbody></table>
+<hr>
+<h2>Persetujuan</h2>
+<ul><li><strong>Ditinjau oleh:</strong> Ustadz Ahmad Isrofiel Mardlatillah</li><li><strong>Tanggal:</strong> <span class="blank" style="min-width:11.0ch"></span></li><li><strong>Tanda tangan / persetujuan:</strong> <span class="blank" style="min-width:11.0ch"></span></li></ul>
+<p><em>Total ayat setelah penambahan: <span class="blank" style="min-width:3.3ch"></span> (dari 55 sekarang).</em></p>
+</main>
+</body>
+</html>

@@ -8,7 +8,21 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — reviewed-aqidah content lane built (Erik's call: enrich KB, not model-synthesis); NOT deployed
+## 2026-07-19 (latest) — Ustadz review packet rendered to printable HTML
+
+Erik asked to convert the notes we hand the ustadz into HTML. Built a reusable markdown→HTML converter
+**`src/review/build-review-html.ts`** (`bun run app:review-html`) that renders all four Ustadz-facing docs
+into self-contained, print-friendly, theme-aware pages (no external assets — CSP/offline safe):
+`aqidah-cover-note.html`, `aqidah-review.html`, `thematic-curation-review.html`, `ustadz-cover-note.html`.
+Fill-in blanks become writable underlines **sized to the underscore run** the sheet drew (wide answer
+lines, short "QS. __ : __" ref blanks); tables (escaped-pipe safe), blockquotes, and the istiwa' note all
+render. `@media print` forces clean black-on-white. Kept as **local files, not a published web artifact** —
+the docs name a real person (Ustadz Ahmad Isrofiel), so distribution stays Erik's call. Flow: regenerate
+the sheet, then `app:review-html`. Verified: no raw markdown leaks in any of the four.
+
+---
+
+## 2026-07-19 — reviewed-aqidah content lane built (Erik's call: enrich KB, not model-synthesis); NOT deployed
 
 Erik chose path **(b)** on the knowledge-answer fork: close the "who is Allah?" gap by **enriching the KB
 with reviewed aqidah content** (the ustadz authors, the app displays), NOT Phase B model-synthesis (the
