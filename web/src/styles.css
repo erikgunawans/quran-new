@@ -664,6 +664,32 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* the docked bar reserves 8rem of scroll runway it does not need on the landing */
 :root[data-landing] .app { padding-bottom: var(--s-8); }
 
+/* ── back-to-top (every page) ────────────────────────────────────────
+   Fixed bottom-right, ABOVE the docked composer so it never overlaps the input. Hidden until the
+   reader has scrolled ~a screen (main.ts toggles .is-visible); a round emerald pill that returns
+   them to the top so a long browse index never means a long drag back. */
+.to-top {
+  position: fixed;
+  right: 1.25rem;
+  bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  z-index: calc(var(--z-sticky) + 1);
+  display: grid; place-items: center;
+  width: 48px; height: 48px;
+  border-radius: 9999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--primary);
+  box-shadow: 0 4px 14px oklch(0.30 0.04 160 / 0.14);
+  opacity: 0; transform: translateY(8px) scale(0.9); pointer-events: none;
+  transition: opacity var(--t), transform var(--t), border-color var(--t), background var(--t);
+}
+.to-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.to-top:hover { border-color: var(--primary-line); background: var(--surface-2); transform: translateY(-2px); }
+.to-top:active { transform: translateY(0) scale(0.94); }
+.to-top:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.to-top svg { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) { .to-top { transition: opacity var(--t); } }
+
 /* ── composing — the chat surface names its own rhythm, no typewriter gimmick ────────────── */
 .composing {
   display: flex; align-items: center; gap: 0.5rem;

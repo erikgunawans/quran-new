@@ -133,6 +133,14 @@
   </form>
 </div>
 
+<!-- Back-to-top: appears after a screen of scroll, returns the reader to the top. Sits above the
+     composer bar (bottom-right) so it never overlaps the input. main.ts (initToTop) unhides + wires it. -->
+<button class="to-top" id="to-top" type="button" hidden aria-label="Kembali ke atas" title="Kembali ke atas">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V6M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

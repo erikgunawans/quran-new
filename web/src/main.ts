@@ -319,9 +319,14 @@ async function route() {
   // The cosmos runs a rAF loop. Every route that is not the Peta index must stop it, or it keeps
   // animating a canvas that is no longer on the page. renderPetaIndex re-arms it on the way in.
   if (hash !== "#/peta") destroyCosmos();
-  // The surah index is a card grid, not reading prose — it gets the wide measure (like the landing).
-  // Reading surfaces keep the 46rem reading measure. Idempotent on every route pass.
-  document.documentElement.toggleAttribute("data-wide", hash === "#/baca");
+  // The browse indexes are card grids, not reading prose — they get the wide measure (like the
+  // landing) so the grid fills the viewport and the header sits at the edge. The verse-reading
+  // surfaces (a surah, a theme's verses, a category's entries) keep the 46rem reading measure.
+  // Idempotent on every route pass.
+  document.documentElement.toggleAttribute(
+    "data-wide",
+    hash === "#/baca" || hash === "#/tema" || hash === "#/peta",
+  );
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
@@ -647,6 +652,27 @@ async function bootCorpus(): Promise<void> {
   }
 }
 
+/**
+ * The back-to-top control. A browse index (114 surahs, 13 categories) is a long scroll; this returns
+ * the reader to the top without a manual drag back. Hidden until they've scrolled a screen, so it
+ * never clutters the first view. Enhancement-only: it stays `hidden` if this never runs (no JS).
+ */
+function initToTop(): void {
+  const btn = document.getElementById("to-top");
+  if (!btn) return;
+  btn.hidden = false; // JS is here — hand visibility to CSS (opacity), gated on scroll below
+  const onScroll = (): void => {
+    btn.classList.toggle("is-visible", window.scrollY > 420);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Return focus to the top of the document so keyboard users land where they were sent.
+    document.querySelector<HTMLElement>(".mark")?.focus();
+  });
+}
+
 (() => {
   // FIRST — before anything reads storage: carry a returning reader's saved thread, bookmark, theme,
   // and size across the Nur → New-Quranku key rename, so the rebrand does not wipe their data.
@@ -654,6 +680,7 @@ async function bootCorpus(): Promise<void> {
 
   bindLazyTafsir();
   bindKeyboardAwareComposer();
+  initToTop();
 
   const savedTheme = localStorage.getItem("newquranku:theme");
   if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;

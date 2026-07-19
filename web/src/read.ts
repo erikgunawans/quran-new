@@ -227,7 +227,7 @@ export function renderIndex(mount: HTMLElement): void {
   mount.innerHTML = `
     <div class="read-index">
       <header class="read-intro">
-        <h1>Baca Al-Qur'an</h1>
+        <h1>Baca <em>Al-Qur'an</em></h1>
         <p>Seratus empat belas surah, semuanya ada di sini. Buka yang mana pun — Al-Kahfi di hari Jumat, atau apa pun yang kamu butuhkan malam ini.</p>
       </header>
 

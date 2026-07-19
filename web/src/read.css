@@ -48,22 +48,33 @@
 }
 
 /* ── the index ───────────────────────────────────────────────────── */
-#read .read-intro { padding: 2.25rem 0 1.5rem; }
+#read .read-intro { padding: 3rem 0 2rem; }
 
+/* A hero, not a label — display serif, the app's signature scale, with the green→gold accent word
+   (matches the landing's `.hello h1 em`). The browse indexes now read as arrivals, not tables. */
 #read .read-intro h1 {
-  font-size: var(--step-3);
-  font-weight: 600;
+  font-family: var(--f-display);
+  font-size: clamp(30px, 3.6vw, 46px);
+  font-weight: 500;
   color: var(--ink);
   letter-spacing: -0.025em;
-  line-height: 1.2;
+  line-height: 1.08;
   text-wrap: balance;
+}
+#read .read-intro h1 em {
+  font-style: italic;
+  background: var(--hero-grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
 
 #read .read-intro p {
-  margin-top: 0.55rem;
+  margin-top: 0.75rem;
   color: var(--ink-2);
-  max-width: 44ch;
+  max-width: 56ch;
   text-wrap: pretty;
+  font-size: var(--step-0);
+  line-height: 1.6;
 }
 
 /* "Lanjutkan baca" — the one door back to where the reader stopped. Accent-washed so it reads as an
@@ -198,28 +209,83 @@
 #read .srow:hover .srow-n,
 #read .srow:focus-visible .srow-n { background: var(--primary); color: var(--primary-ink); }
 
-/* ── theme browsing (Path A, issue 07) — same list language as the surah index ────── */
+/* ── theme + peta browsing — a card grid, same visual language as the surah index ──────
+   Feelings (Tema) and topics (Peta) were plain hairline rows; on the wide measure they now fill the
+   width as cards, each with a numbered badge (echoing the surah tiles) and a green→gold top edge that
+   lights on hover. One card system across all three browse indexes. */
 #read .theme-list {
   list-style: none;
-  margin: 1.5rem 0 0;
+  margin: 2rem 0 0;
   padding: 0;
-  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
+@media (min-width: 560px) { #read .theme-list { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { #read .theme-list { grid-template-columns: repeat(3, 1fr); } }
+/* Peta category names run long ("Muhammad Shallallahu alaihi wasallam") — hold them to 2 columns so
+   they don't wrap awkwardly inside a narrow third. */
+@media (min-width: 900px) { #read .peta-list { grid-template-columns: repeat(2, 1fr); } }
+#read .theme-list li { display: flex; }
+
 #read .trow {
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 0.5rem;
-  border-bottom: 1px solid var(--line);
+  gap: 0.9rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
   text-decoration: none;
-  transition: background var(--t);
+  overflow: hidden;
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 }
-#read .trow:hover { background: var(--surface); }
-#read .trow:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: var(--r); }
-#read .trow-name { color: var(--ink); font-weight: 500; }
-#read .trow:hover .trow-name { color: var(--primary); }
+#read .trow::before {
+  content: "";
+  position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: var(--hero-grad);
+  opacity: 0; transition: opacity var(--t);
+}
+#read .trow:hover, #read .trow:focus-visible {
+  border-color: var(--primary-line);
+  box-shadow: var(--sh);
+  transform: translateY(-2px);
+}
+#read .trow:hover::before, #read .trow:focus-visible::before { opacity: 1; }
+#read .trow:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+#read .trow-n {
+  flex: none;
+  width: 40px; height: 40px; border-radius: 9999px;
+  display: grid; place-items: center;
+  background: var(--primary-wash); color: var(--primary);
+  font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums;
+  transition: background var(--t), color var(--t);
+}
+#read .trow:hover .trow-n, #read .trow:focus-visible .trow-n {
+  background: var(--primary); color: var(--primary-ink);
+}
+#read .trow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+#read .trow-name {
+  font-family: var(--f-display);
+  font-size: var(--step-1);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.25;
+}
 #read .trow-count { font-size: var(--step--1); color: var(--ink-3); white-space: nowrap; }
+#read .trow-go {
+  flex: none;
+  color: var(--ink-3);
+  font-size: 1.15rem; line-height: 1;
+  transition: color var(--t), transform var(--t);
+}
+#read .trow:hover .trow-go, #read .trow:focus-visible .trow-go {
+  color: var(--primary);
+  transform: translateX(3px);
+}
 
 #read .no-hit {
   margin-top: 1.5rem;

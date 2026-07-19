@@ -224,7 +224,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
   mount.innerHTML = `
     <div class="read-index peta-index">
       <header class="read-intro">
-        <h1>Peta Tematik</h1>
+        <h1>Peta <em>Tematik</em></h1>
         <p>Seluruh Qur'an dipetakan lewat topik: ${t.categories} kategori, ${t.entries.toLocaleString("id-ID")} entri, menunjuk ke ${t.verses.toLocaleString("id-ID")} ayat. Telusuri kategori, lalu subtopik, sampai ke ayatnya. Kalau ingin mulai dari perasaan, bukan topik, buka <b>Tema</b>.</p>
         ${creditEl(index.source)}
         ${derivativeNoteEl()}
@@ -239,11 +239,15 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
       </div>
 
       <ul class="theme-list peta-list">
-        ${index.categories.map((c) => `
+        ${index.categories.map((c, i) => `
           <li>
             <a class="trow" href="#/peta/${esc(c.slug)}">
-              <span class="trow-name">${esc(c.category)}</span>
-              <span class="trow-count">${c.entries.toLocaleString("id-ID")} entri</span>
+              <span class="trow-n" aria-hidden="true">${i + 1}</span>
+              <span class="trow-body">
+                <span class="trow-name">${esc(c.category)}</span>
+                <span class="trow-count">${c.entries.toLocaleString("id-ID")} entri</span>
+              </span>
+              <span class="trow-go" aria-hidden="true">→</span>
             </a>
           </li>`).join("")}
       </ul>

@@ -49,17 +49,21 @@ export function renderThemeIndex(mount: HTMLElement): void {
   mount.innerHTML = `
     <div class="read-index">
       <header class="read-intro">
-        <h1>Baca lewat perasaan</h1>
+        <h1>Baca lewat <em>perasaan</em></h1>
         <p>${THEME_INDEX.length} tema perasaan — capek, cemas, kehilangan, dan lainnya — dari ${THEME_INDEX.reduce((n, g) => n + g.verses.length, 0)} ayat yang paling sering dicari orang. Bukan daftar lengkap; kalau yang kamu rasakan belum ada, ceritakan saja lewat obrolan. Untuk menjelajah topik dan konsep seluruh Qur'an, buka <b>Peta</b>.</p>
       </header>
 
       <ul class="theme-list">
         ${THEME_INDEX.map(
-          (g) => `
+          (g, i) => `
           <li>
             <a class="trow" href="#/tema/${slugify(g.theme)}">
-              <span class="trow-name">${esc(g.theme)}</span>
-              <span class="trow-count">${g.verses.length} ayat</span>
+              <span class="trow-n" aria-hidden="true">${i + 1}</span>
+              <span class="trow-body">
+                <span class="trow-name">${esc(g.theme)}</span>
+                <span class="trow-count">${g.verses.length} ayat</span>
+              </span>
+              <span class="trow-go" aria-hidden="true">→</span>
             </a>
           </li>`,
         ).join("")}
