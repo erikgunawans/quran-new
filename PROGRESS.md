@@ -8,7 +8,35 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — retrieval fix: a theology question is not a feeling; DEPLOYED + LIVE
+## 2026-07-19 (latest) — grounded knowledge answers, Phase A; DEPLOYED + LIVE
+
+Erik wants DeepSeek/Gemini-style answers to topic/theology questions ("who is Allah"), grounded in our
+KB. He chose **"Grounded & sourced"** (not full model synthesis) — the on-principle path. Built Phase A
+(`541b3a1`, Version `a8d8d189`):
+- **`knowledge.ts`** — `matchTopic()` maps a question to one of the 13 Peta categories (conservative
+  aliases); `retrieveKnowledge()` returns the scholar's entries that GENUINELY match (verbatim + verse
+  link). Runs only as a fallback after feelings find nothing. Full attribution + derivative note ride
+  every answer. New persist-safe `knowledge` turn kind. 431 tests green.
+- **The app authors NOTHING** — every line is Ustadz Muhammad Thalib's, every link is ours and labelled.
+
+**Key finding (important):** our KB is a **predicate index** ("Allah does X → verse"), not definitional
+aqidah. So:
+- **Specific** questions work well: "hukum riba" → real riba entries + verses; "zakat dan puasa" → 8 real
+  entries. Genuinely useful sourced answers.
+- **Broad definitional** questions ("who is Allah / where / what does He want") → an honest **topic
+  pointer** (deep-links the 329-entry Allah topic), NOT a DeepSeek-style synthesis. Faking one from
+  arbitrary entries was worse than silence (surfaced "Allah seals the hearts of disbelievers" — a non
+  sequitur), so it's deliberately refused.
+
+**The tension, stated plainly:** matching DeepSeek's "who is Allah" answer needs EITHER Phase B (model
+authors the theology, grounded in KB verses — the authoring path Erik declined, with the istiwa/contested
+-position + no-review risks) OR **enriching the KB with reviewed definitional/aqidah content** (the ustadz
+authors it, the app surfaces it — the cleanest fix; it's a CONTENT gap, not an architecture one). Erik's
+call on which. Phase B stays gated on an offline eval + ustadz review regardless.
+
+---
+
+## 2026-07-19 — retrieval fix: a theology question is not a feeling; DEPLOYED + LIVE
 
 Erik reported: "siapakah allah? ada dimana allah dan mau nya allah itu apa?" returned **2:286 wrapped in
 a 'Lagi susah banget, ya' (Hardship) framing** — a confident, tone-deaf, WRONG answer. Diagnosed +
