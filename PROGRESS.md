@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — b508f31 Tema/Peta clarify DEPLOYED + LIVE; edge-cache hygiene added
+## 2026-07-19 (latest) — header redesign: full-bleed bar + centered nav + size pill; DEPLOYED + LIVE
+
+Erik flagged the top panel as poorly arranged (floating inset bar, everything crammed right) vs.
+QuranKu's clean edge-to-edge header. Fixed in `web/src/styles.css` (`4619af8`), **deployed + verified
+live** (Version **`ab3cf8d1`**, CSS bundle `index-CQ6Vya1H.css`).
+
+**Three CSS-only fixes** (no markup change — router toggles `#chat`/`#read`, never wipes `#app`, so the
+header is safe in place):
+- **Full-bleed bar** — root cause: `.top` lives inside `.app`'s centered measure, so its blurred bg only
+  covered the column and the celestial bg showed ~105px left / ~119px right (measured live via
+  Interceptor `eval`). Moved the bg to a `.top::before` 100vw band centered behind the content; content
+  still tracks the column, bar spans the viewport. Verified 1280px edge-to-edge, **no horizontal
+  overflow** (the 100vw scrollbar trap), both light + dark (`var(--bg)` swaps).
+- **Centered nav** — was `[logo] … [nav][actions]` all jammed right. Removed `.mark`'s `margin-right:auto`,
+  added `#info{margin-inline-start:auto}` so two balanced auto-margins center the nav between wordmark and
+  controls (measured −24px off true center; standard navbar behavior). Matches QuranKu.
+- **Segmented size pill** — the three 44px A-buttons were loose letters; grouped into one pill on desktop
+  (`@media min-width:48rem` only — **mobile keeps 44px touch targets**).
+
+**Verification:** measured live via Interceptor `eval` (geometry) + `curl` on the deployed CSS bundle.
+400 `bun test web/src` green. **Could NOT screenshot** — Chrome window stayed minimized all session
+(Interceptor screenshot times out at 15s); verified geometry numerically instead. Erik should eyeball
+prod visually; rollback is one line (`cd worker && bunx wrangler rollback`).
+
+**Cache-hygiene fix confirmed working:** this content deploy went **live immediately** (shell pointed at
+the new bundle at once), unlike b508f31 which lagged minutes before the fix. `9fb4165` earned its keep.
+
+---
+
+## 2026-07-19 — b508f31 Tema/Peta clarify DEPLOYED + LIVE; edge-cache hygiene added
 
 **`b508f31` (Tema/Peta clarify) is live.** Deployed to the Cloudflare Worker edge (`new-quranku-proxy`,
 Version **`b15372ba`**, then **`247f102e`** for the cache-hygiene fix). Verified: bare
