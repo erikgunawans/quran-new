@@ -409,7 +409,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   font-family: var(--f-display);
   font-size: clamp(40px, 5.6vw, 64px); font-weight: 500; color: var(--ink);
   letter-spacing: -0.02em; line-height: 1.04; text-wrap: balance;
-  max-width: 16ch; margin-bottom: var(--s-4);
+  max-width: 16ch; margin-bottom: var(--s-5);
 }
 .hello h1 em {
   font-style: italic;
@@ -424,7 +424,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .seeds {
   display: flex; flex-wrap: wrap; gap: 9px; justify-content: center;
-  max-width: 640px; margin-top: var(--s-4);
+  max-width: 640px; margin-top: var(--s-5);
 }
 .seed {
   display: inline-flex; align-items: center; min-height: 44px;
@@ -643,7 +643,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 :root[data-landing] .composer {
   position: static; padding: 0; background: none; width: 100%;
   display: flex; justify-content: center;
-  margin: var(--s-2) 0 0;
+  /* The description above must clear the composer AND its 34px-blur shadow — 8px let the glow bleed
+     onto the subtitle. A full gap separates the headline block from the action it points at. */
+  margin: var(--s-7) 0 0;
 }
 :root[data-landing] .composer form {
   width: 100%; max-width: 700px;
