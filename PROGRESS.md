@@ -8,7 +8,27 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — mobile UX pass (ui-ux-pro-max audit); DEPLOYED + LIVE
+## 2026-07-19 (latest) — "more human" bridge voice, Phase 1 (deterministic floor); DEPLOYED + LIVE
+
+Erik: make the system's answers more human — a warmer bridge statement — without authoring any verse or
+statement. Diagnosed three tone leaks: (1) an interpretive disclaimer spoken verbatim every fallback
+answer, (2) cold "label" openers ("Tentang keluarga."), (3) zero variation. **Phase 1 (safe, deterministic,
+no live-model change):**
+- Rewrote all 12 openers (`retrieve.ts` `OPENERS`) to the warm 2am register, **2–3 variants each**, rotated
+  by a stable hash of the question (varied, yet replay-stable — a restored thread reads identically).
+- Pulled the disclaimer out of the spoken opener → now **quiet chrome** (`.reader-note`, main.ts
+  `READER_NOTE`) UNDER an answer's verses, present on every answer (live + fallback), never preached.
+- `compose-openers.test.ts` (17 new tests) asserts every variant clears the egress wall, is replay-stable,
+  and no longer speaks the disclaimer. **417 tests green.** End-to-end verified on dev (opener + reader-note
+  after verses). Committed `1a2b216`, deployed **Version `7bb8fcb3`**, verified live.
+
+**Phase 2 (NOT done, gated):** enrich the live `FRAMING_SYSTEM_PROMPT` (meet the person's exact words) —
+must be tuned on the OFFLINE eval harness (20–30 real phrases), never by live prompt-poking. Still deferred.
+Disclaimer treatment chosen: option #2 (quiet chrome). Erik to review the 36 Indonesian opener lines for tone.
+
+---
+
+## 2026-07-19 — mobile UX pass (ui-ux-pro-max audit); DEPLOYED + LIVE
 
 Erik ran the `ui-ux-pro-max` skill ("improve for web + mobile"). Its generic recommendation (brown/amber,
 Lora/Raleway, newsletter pattern) was **deliberately NOT applied** — it would erase the deliberate
