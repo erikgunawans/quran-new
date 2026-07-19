@@ -60,6 +60,10 @@ export type Turn =
   // are stored; the sourced entries are re-derived from the KB at render time (like every other turn,
   // the markup is rebuilt from today's code, never resurrected from disk).
   | { q: string; kind: "knowledge"; slug: string }
+  // A broad definitional question answered from the reviewed-aqidah lane (aqidah.ts). Only the id +
+  // question are stored; the ustadz's verbatim answer + verses are re-derived from the module at
+  // render time — never resurrected from disk, like every other turn.
+  | { q: string; kind: "aqidah"; id: string }
   | { q: string; kind: "silence" };
 
 interface Stored {

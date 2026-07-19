@@ -8,7 +8,43 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — grounded knowledge answers, Phase A; DEPLOYED + LIVE
+## 2026-07-19 (latest) — reviewed-aqidah content lane built (Erik's call: enrich KB, not model-synthesis); NOT deployed
+
+Erik chose path **(b)** on the knowledge-answer fork: close the "who is Allah?" gap by **enriching the KB
+with reviewed aqidah content** (the ustadz authors, the app displays), NOT Phase B model-synthesis (the
+authoring path he declined). Built the *architecture* — the content is the ustadz's to fill.
+
+**What shipped (code, committed, NOT deployed — deploys are Erik's):**
+- **`web/src/aqidah.ts`** — the reviewed-aqidah lane. `AqidahEntry` = `{id, topic, question, aliases,
+  suggestedRefs, note?, answer, refs}`. Ships **7 PENDING STUBS** (siapa-allah, apa-itu-tauhid,
+  di-mana-allah [flagged sensitive/istiwa'], siapa-muhammad, apa-itu-alquran, apa-itu-iman, apa-itu-takwa)
+  — every `answer:""`, `refs:[]`. `matchAqidah` returns **only reviewed** entries, so the lane renders
+  **nothing** today and the app degrades to Phase A's honest topic pointer. Pure upside, zero regression.
+  `aqidahRef()` validates each ref against real mushaf bounds (never guessed).
+- **Wiring** (`main.ts` + `thread.ts`) — new persist-safe `aqidah` turn, checked **before** the knowledge
+  pointer in the silence fallback. `aqidahHtml` renders the ustadz's verbatim prose + approved verse
+  links + attribution ("ditinjau oleh Ustadz Ahmad Isrofiel Mardlatillah") + our derivative-link note.
+  The app authors NOTHING — same law as peta.ts/problem-verses.ts. Re-derives from the module by id;
+  a reverted/removed entry degrades to silence.
+- **`src/review/build-aqidah-sheet.ts`** (`bun run app:aqidah-sheet`) → **`docs/review/aqidah-review.md`**
+  (7.3 KB) — the sheet for **Ustadz Ahmad Isrofiel**: each question, our candidate verse anchors (marked
+  editable), the istiwa' sensitivity flag, and blank answer + approved-ref fields. He authors → a dev
+  transcribes verbatim into `aqidah.ts` → deploy → it goes live.
+- **`web/src/aqidah.test.ts`** (+11) — asserts every shipped entry is a pending stub (guards against
+  committing unreviewed theology), matchAqidah returns null on the unreviewed lane, refs resolve, topics
+  map to real Peta shards, and the matched path works on a hand-rolled reviewed fixture. **442 green**
+  (was 431). Web typecheck clean, `bun run build` clean.
+
+**Bright line held:** I built the lane + the sheet; I did **not** write one word of aqidah. The "di mana
+Allah?" question is flagged sensitive (istiwa') with a note deferring the stance entirely to the ustadz.
+
+**Do next:** (1) hand Ustadz Ahmad Isrofiel `docs/review/aqidah-review.md` (alongside the thematic sheet);
+(2) when he returns it, transcribe answers+refs into `aqidah.ts` (pending→live), rebuild, deploy;
+(3) still open from before: Phase 2 voice tuning (needs Erik's OPENROUTER_API_KEY), eyeball prod on phone.
+
+---
+
+## 2026-07-19 — grounded knowledge answers, Phase A; DEPLOYED + LIVE
 
 Erik wants DeepSeek/Gemini-style answers to topic/theology questions ("who is Allah"), grounded in our
 KB. He chose **"Grounded & sourced"** (not full model synthesis) — the on-principle path. Built Phase A

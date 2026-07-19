@@ -18,6 +18,7 @@
     "app:peta3d": "bun run src/app/build-peta-3d.ts",
     "app:design": "bun run src/app/build-design-doc.ts",
   "app:curation-sheet": "bun run src/review/build-curation-sheet.ts",
+  "app:aqidah-sheet": "bun run src/review/build-aqidah-sheet.ts",
   "eval:framing": "bun run src/eval/run.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",

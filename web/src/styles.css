@@ -613,6 +613,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .know-credit a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .know-derivative { margin: 0.35rem 0 0; font-size: var(--step--1); color: var(--ink-3); line-height: 1.5; }
 
+/* ── reviewed-aqidah answer — the ustadz's verbatim prose + the verses he approved ──
+   Same law as above: the app authors nothing. `.know-answer` is Ustadz Ahmad Isrofiel's own words;
+   `.know-verses` groups the approved verse links below the prose (a row, not the entry list). */
+.know-answer { margin: 0.75rem 0 0; }
+.know-verses { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.9rem 0 0; }
+
 /* Path B1 — tafsir loading lazily, on the surfaces covering the full corpus */
 .tafsir-slot { padding: 0 1.1rem 1.1rem; }
 .tafsir-loading { color: var(--ink-3); font-size: var(--step--1); padding: 0.5rem 0; }

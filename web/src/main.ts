@@ -12,6 +12,7 @@ import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
+import { aqidahById, aqidahRef, matchAqidah, type AqidahEntry } from "./aqidah.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { understandThemes } from "./theme-understand.ts";
@@ -173,7 +174,51 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       if (!k || !k.entries.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
       return knowledgeHtml(k);
     }
+
+    case "aqidah": {
+      // Re-derived from the reviewed-aqidah module by id. If the entry was removed or reverted to a
+      // pending stub since this turn was stored, degrade to silence — never render a blank answer.
+      const e = aqidahById(t.id);
+      if (!e || !e.answer.trim() || !e.refs.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
+      return aqidahHtml(e);
+    }
   }
+}
+
+/**
+ * A reviewed-aqidah answer: the ustadz's verbatim prose + the verses he approved, cited. The app
+ * authors NOTHING — the answer is Ustadz Ahmad Isrofiel Mardlatillah's own; only the framing line,
+ * the verse links, and the attribution are ours (and every one is labelled as such).
+ */
+function aqidahHtml(e: AqidahEntry): string {
+  const paras = e.answer
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p class="said know-answer">${esc(p)}</p>`)
+    .join("");
+
+  const refs = e.refs
+    .map((r) => {
+      const { ref, resolvable } = aqidahRef(r);
+      return resolvable
+        ? `<a class="know-ref" href="#/surah/${r.surah}#${r.ayah}">${esc(ref)} →</a>`
+        : `<span class="know-ref know-ref-unresolved" title="rujukan ini tidak kami temukan dalam mushaf">${esc(ref)}</span>`;
+    })
+    .join("");
+
+  const more = e.topic
+    ? `<p class="know-more"><a href="#/peta/${esc(e.topic)}">Telusuri lebih lanjut di Peta →</a></p>`
+    : "";
+
+  return (
+    `<p class="said">Ini yang bisa aku sampaikan — bukan tafsir dariku, tapi jawaban yang ditinjau <b>Ustadz Ahmad Isrofiel Mardlatillah</b>, dengan ayat-ayatnya:</p>` +
+    paras +
+    `<div class="know-verses">${refs}</div>` +
+    more +
+    `<p class="know-credit">Jawaban ditinjau oleh <strong>Ustadz Ahmad Isrofiel Mardlatillah</strong>.</p>` +
+    `<p class="know-derivative">Penautan ayat adalah tambahan kami untuk memudahkan penelusuran.</p>`
+  );
 }
 
 /**
@@ -225,6 +270,9 @@ function announceTurn(t: Turn): void {
       break;
     case "knowledge":
       say("Menampilkan entri dari Indeks Tematik Ustadz Muhammad Thalib beserta ayatnya.");
+      break;
+    case "aqidah":
+      say("Menampilkan jawaban yang ditinjau Ustadz Ahmad Isrofiel Mardlatillah beserta ayatnya.");
       break;
     default:
       break;
@@ -318,8 +366,17 @@ async function ask(question: string) {
     // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
     // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
     if (turn.kind === "silence") {
-      const knowledge = await retrieveKnowledge(q);
-      if (knowledge) turn = { q, kind: "knowledge", slug: knowledge.slug };
+      // Reviewed-aqidah first: a broad definitional question ("siapakah Allah?") gets the ustadz's
+      // own reviewed answer when one exists. Until the review sheet is filled, this returns null and
+      // the knowledge path's honest topic pointer stands — so the lane is pure upside, never a
+      // regression.
+      const aq = matchAqidah(q);
+      if (aq) {
+        turn = { q, kind: "aqidah", id: aq.id };
+      } else {
+        const knowledge = await retrieveKnowledge(q);
+        if (knowledge) turn = { q, kind: "knowledge", slug: knowledge.slug };
+      }
     }
 
     answer.innerHTML = await renderTurn(turn);
