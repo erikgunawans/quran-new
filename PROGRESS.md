@@ -8,7 +8,30 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-19 (latest) — offline framing-voice eval harness (Phase 2 tuning loop) built; DEPLOYED
+## 2026-07-19 (latest) — retrieval fix: a theology question is not a feeling; DEPLOYED + LIVE
+
+Erik reported: "siapakah allah? ada dimana allah dan mau nya allah itu apa?" returned **2:286 wrapped in
+a 'Lagi susah banget, ya' (Hardship) framing** — a confident, tone-deaf, WRONG answer. Diagnosed +
+reproduced offline:
+- The **classifier was innocent** (`/api/classify` correctly returned `[]`); the keyword path too.
+- Root cause: **word overlap**. It (a) could qualify a verse on its own, and (b) matched **substrings** —
+  six common fragments (`allah`,`ada`,`dan`,`nya`,`itu`,`apa`) scored +2 each *inside* unrelated words
+  (`nya`⊂`kesanggupannya`), clearing the floor. `retrieve()` returned 2:286 score 12 on pure junk.
+
+**Fix** (`retrieve.ts`, aligns code with the documented intent "word overlap can't speak on its own"):
+the floor is now a real **signal** (`qualified` = reference OR recognised feeling), not an accumulated
+score — word overlap re-ranks qualified verses, never qualifies one; and it matches **whole content
+words** against the rendering's word set (not substrings, skips function words). Silence is now
+**helpful**: names the boundary (companions *feelings*, not theology/rulings/meaning) and links topic
+questions to **Peta/Tema**. Theology/fiqh/definition questions → honest silence; real feelings unchanged
+(verified: capek→2:286, utang→2:286+2:280, kehilangan→17:23+3:185, tenang→13:28). +6 tests incl. the exact
+reported case; **423 green**. Committed `badae49`, deployed **Version `fbcf205d`**, verified live (silence
+copy + stopword array in bundle). End-to-end render not screenshot-verified (Interceptor flaky), but the
+retrieve→silence chain is unit-tested.
+
+---
+
+## 2026-07-19 — offline framing-voice eval harness (Phase 2 tuning loop) built; DEPLOYED
 
 The offline harness that unblocks tuning the LIVE `FRAMING_SYSTEM_PROMPT` without ever poking prod is
 built (`1c94fcd`). Parity refactor deployed (**Version `d40af375`**, byte-identical) — `/api/compose`
