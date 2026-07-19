@@ -132,11 +132,11 @@
   margin: 1.5rem 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr;   /* QuranKu: 1 → 2 → 3 columns */
+  /* auto-fill: columns grow with the (now near-full-viewport) measure — 1 on a phone, up to ~5 on a
+     wide monitor — instead of three ever-wider cards. */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
 }
-@media (min-width: 560px) { #read .surah-list { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 900px) { #read .surah-list { grid-template-columns: repeat(3, 1fr); } }
 #read .surah-list li { display: flex; }
 /* the filter hides cards, and a display rule must not out-argue [hidden] */
 #read .surah-list li[hidden] { display: none; }
@@ -218,14 +218,13 @@
   margin: 2rem 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr;
+  /* auto-fill fills the wide measure with as many columns as fit (1 on a phone, several on desktop). */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
 }
-@media (min-width: 560px) { #read .theme-list { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 900px) { #read .theme-list { grid-template-columns: repeat(3, 1fr); } }
-/* Peta category names run long ("Muhammad Shallallahu alaihi wasallam") — hold them to 2 columns so
-   they don't wrap awkwardly inside a narrow third. */
-@media (min-width: 900px) { #read .peta-list { grid-template-columns: repeat(2, 1fr); } }
+/* Peta category names run long ("Muhammad Shallallahu alaihi wasallam") — a wider minimum keeps each
+   card roomy enough for the name instead of wrapping it hard. */
+#read .peta-list { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
 #read .theme-list li { display: flex; }
 
 #read .trow {
