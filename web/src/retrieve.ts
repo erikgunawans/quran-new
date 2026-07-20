@@ -150,12 +150,67 @@ export interface Hit {
  * cheaply ask "did the lexicon already understand this?" without a second scan — e.g. to skip the
  * model classifier when it isn't needed.
  */
+/**
+ * Indonesian affixes, longest-first so "meng" is tried before "me".
+ *
+ * These exist because plain word matching would be too blunt for an agglutinative language:
+ * "bersabar", "ketakutan" and "pekerjaan" must still reach sabar / takut / kerja. Stripping only
+ * RECOGNISED affixes is also what keeps the noise out — "keuangan" reduces to `uang` (ke+UANG+an),
+ * while "ruangan" cannot, because no valid prefix turns "ruang" into "uang".
+ */
+const PREFIXES = ["memper", "menyeng", "meng", "meny", "mem", "men", "ber", "ter", "per", "pen", "pem", "peng", "me", "di", "ke", "se", "pe"];
+const SUFFIXES = ["kannya", "annya", "kan", "an", "nya", "ku", "mu", "i"];
+
+/**
+ * Every form of `w` that could reduce to a lexicon term: the word itself, and the word with one
+ * recognised prefix and/or suffix removed. Deliberately shallow — one affix per side. Deeper
+ * stripping starts inventing stems ("sepintas" → "sepi") and reintroduces the very noise this
+ * replaced.
+ */
+function stemCandidates(w: string): string[] {
+  const out = new Set<string>([w]);
+  const bodies = [w];
+  for (const p of PREFIXES) {
+    if (w.length > p.length + 2 && w.startsWith(p)) { bodies.push(w.slice(p.length)); break; }
+  }
+  for (const b of bodies) {
+    out.add(b);
+    // Up to two suffix strips: Indonesian stacks them ("pekerjaan-ku" needs -ku then -an before it
+    // reaches `kerja`). Capped at two — deeper stripping starts inventing stems and lets the noise
+    // back in.
+    let cur = b;
+    for (let round = 0; round < 2; round += 1) {
+      const s = SUFFIXES.find((x) => cur.length > x.length + 2 && cur.endsWith(x));
+      if (!s) break;
+      cur = cur.slice(0, -s.length);
+      out.add(cur);
+    }
+  }
+  return [...out];
+}
+
+/**
+ * Which emotional themes the lexicon recognises, matched on WORD boundaries rather than substrings.
+ *
+ * The substring version let a term buried inside an unrelated word hijack the question — "ibu"
+ * inside "d-IBU-lly" routed a bullied person to verses about honouring parents. See
+ * retrieve-word-boundary.test.ts for the pinned cases.
+ */
 export function keywordThemeHits(question: string): Map<string, string[]> {
   const themeScore = new Map<string, string[]>();
   const q = norm(question);
   if (!q) return themeScore;
+
+  // Every single word of the question plus its affix-stripped forms. A term matches only if it IS
+  // one of these — never merely contained in one.
+  const forms = new Set<string>();
+  for (const w of q.split(" ").filter(Boolean)) for (const c of stemCandidates(w)) forms.add(c);
+  const padded = ` ${q} `;
+
   for (const [theme, terms] of Object.entries(LEXICON)) {
-    const hits = terms.filter((t) => q.includes(t));
+    // Multi-word terms ("gak kuat", "orang tua") still match as a phrase, but bounded by spaces so
+    // they cannot start or end mid-word.
+    const hits = terms.filter((t) => (t.includes(" ") ? padded.includes(` ${t} `) : forms.has(t)));
     if (hits.length) themeScore.set(theme, hits);
   }
   return themeScore;
