@@ -90,3 +90,50 @@ describe("ustadz batches — nothing lost in the split", () => {
     }
   });
 });
+
+describe("call app (index.html) — generated from the same source, verified structural", () => {
+  const html = Bun.file(`${DIR}/index.html`);
+
+  test("one panel per batch and one card per proposed verse", async () => {
+    const h = await html.text();
+    expect((h.match(/class="panel"/g) ?? []).length).toBe(13);
+    expect((h.match(/<article class="verse/g) ?? []).length).toBe(147);
+  });
+
+  test("fully self-contained: no external asset can be requested", async () => {
+    const h = await html.text();
+    // A page for a scholar's review must work offline and leak nothing. No http(s), no src=, no
+    // <link>, no @import, no fetch — everything is inline.
+    expect(h).not.toMatch(/https?:\/\//);
+    expect(h).not.toMatch(/\ssrc=|<link|@import|fetch\(/);
+  });
+
+  test("every ⚠️ verse and every withdrawal shows its spoken note", async () => {
+    const h = await html.text();
+    expect((h.match(/class="say say-doubt"/g) ?? []).length).toBe(27);
+    expect((h.match(/class="say say-withdraw"/g) ?? []).length).toBe(3);
+  });
+
+  test("the honesty corrections survive here too", async () => {
+    const h = await html.text();
+    expect(h).not.toContain("Belum ada satu pun yang tayang");
+    expect(h).toContain("sudah tayang"); // states what is live
+    expect(h).toContain("kami cabut dari aplikasi"); // rejection = removal
+    expect(h).toContain("Tanpa konfirmasi itu, jangan ditayangkan"); // confirmation gate
+  });
+
+  test("respects the gold law: gold is only ever GROUND, never on content", async () => {
+    // The app's gold law (DESIGN.md): gold as ground — the masthead's green→gold type gradient and
+    // the sidebar progress bar — but never applied to a content surface. Checked by looking at the
+    // rule that ENCLOSES each `var(--gold-*)` USE (not the `:root` token definitions), and asserting
+    // its selector is one of the two allowed grounds.
+    const h = await html.text();
+    const css = h.match(/<style>([\s\S]*?)<\/style>/)![1]!;
+    const rules = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)];
+    const goldRules = rules.filter((r) => /var\(--gold-[ab]\)/.test(r[2]!)).map((r) => r[1]!.trim());
+    expect(goldRules.length).toBeGreaterThan(0); // gold IS used (as ground)
+    for (const sel of goldRules) {
+      expect(sel).toMatch(/\.brand|\.overall/); // masthead gradient + progress bar only
+    }
+  });
+});

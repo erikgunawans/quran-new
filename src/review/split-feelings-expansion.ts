@@ -17,6 +17,8 @@
  *
  * Run: `bun run app:split-expansion`
  */
+import { renderCallApp, type AppBatch, type AppFeeling } from "./call-app-template.ts";
+
 const SRC = "docs/review/feelings-expansion.md";
 const OUT_DIR = "docs/review/feelings-expansion";
 
@@ -28,7 +30,6 @@ const NOT_A_FEELING = /^## (Kenapa|Ringkasan|Cara meninjau|Satu keputusan desain
 
 const src = await Bun.file(SRC).text();
 const sections = src.split(/\n(?=## )/);
-const head = sections[0]!; // title + intro, before the first ##
 
 /**
  * The source document opens "Status: USULAN. Belum ada satu pun yang tayang" — none of these is live.
@@ -396,8 +397,38 @@ ${appendix.join("\n\n")}
 `;
 await Bun.write(`${OUT_DIR}/README.md`, readme);
 
+// ── the call app: one HTML page, emitted from the SAME parsed batches ─────────
+// Same source as the markdown so the two can never disagree — the drift lesson from earlier today.
+const appBatches: AppBatch[] = batches.map((batch, i) => {
+  const feelings: AppFeeling[] = batch.map((f) => ({
+    name: f.name,
+    verses: parseVerses(f.body).map((v) => ({
+      ref: v.ref,
+      surah: v.surah,
+      why: v.why,
+      tafsiriyah: v.tafsiriyah,
+      kemenag: v.kemenag,
+      doubt: v.doubt,
+      flagged: v.flagged,
+      live: liveRefs.has(v.ref),
+      withdrawn: WITHDRAWN[v.ref] ?? null,
+    })),
+  }));
+  const vs = feelings.flatMap((f) => f.verses);
+  return {
+    n: i + 1,
+    feelings,
+    verses: vs.length,
+    flagged: vs.filter((v) => v.flagged).length,
+    live: vs.filter((v) => v.live).length,
+    minutes: minutesFor(batch.flatMap((f) => parseVerses(f.body))),
+    notLive: vs.filter((v) => !v.live).map((v) => v.ref),
+  };
+});
+await Bun.write(`${OUT_DIR}/index.html`, renderCallApp(appBatches, totalVerses));
+
 console.log(
-  `✓ split     ${totalVerses} ayat / ${feelings.length} perasaan → ${batches.length} bagian in ${OUT_DIR}/ (⚠️ ${totalFlagged})`,
+  `✓ split     ${totalVerses} ayat / ${feelings.length} perasaan → ${batches.length} bagian + index.html in ${OUT_DIR}/ (⚠️ ${totalFlagged})`,
 );
 for (const [i, b] of batches.entries()) {
   const v = b.reduce((s, f) => s + f.verses, 0);
