@@ -17,6 +17,19 @@ import { PROBLEM_VERSES } from "./problem-verses.ts";
 import { PROPOSED_LABELS, PROPOSED_VERSES } from "./feelings-proposal.ts";
 
 const INCLUDE_CAVEATED = process.argv.includes("--include-caveated");
+
+/**
+ * Rows that cannot ship regardless of approval, with the reason.
+ *
+ * 23:60's own caveat asks for it to be displayed together with 23:61 — and retrieval returns ONE
+ * verse per theme, so the pair can never both appear. Alone its rendering opens "yang senantiasa
+ * mengeluarkan derma…", a mid-sentence fragment. Approval cannot make a dangling clause whole; the
+ * constraint is architectural, so the row is held rather than shipped broken. 23:61 carries the same
+ * feeling and stands on its own, so the theme is not left empty.
+ */
+const CANNOT_STAND_ALONE: Record<string, string> = {
+  "23:60": "needs 23:61 beside it, which one-verse-per-theme retrieval cannot deliver; opens mid-sentence",
+};
 const SRC = "src/review/problem-verses.ts";
 const fail = (m: string): never => { console.error(`✗ ${m}`); process.exit(1); };
 
@@ -43,6 +56,7 @@ for (const r of candidates) {
   if (!exists.has(`ayah:${r.ref[0]}:${r.ref[1]}`)) fail(`${ref} (${r.theme}) is not in data/canonical`);
   if (live.has(ref)) { console.log(`  · skip ${ref} — already live`); continue; }
   if (seen.has(ref)) { console.log(`  · skip ${ref} — duplicate in proposal`); continue; }
+  if (CANNOT_STAND_ALONE[ref]) { console.log(`  · HOLD ${ref} — ${CANNOT_STAND_ALONE[ref]}`); continue; }
   seen.add(ref);
   rows.push(r);
 }
@@ -54,15 +68,23 @@ for (const r of rows) if (!order.includes(r.theme)) order.push(r.theme);
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 let src = await Bun.file(SRC).text();
 
-// 1. extend the Theme union
-const unionAnchor = '  | "Family";';
-if (!src.includes(unionAnchor)) fail("could not find the Theme union terminator");
-src = src.replace(unionAnchor, '  | "Family"\n' + order.map((t) => `  | "${esc(t)}"`).join("\n") + ";");
+// This script must be RE-RUNNABLE: the first pass merged the high-confidence rows, so the union no
+// longer ends at "Family" and THEME_LABELS already holds most keys. Add only what is genuinely new.
+const newThemes = order.filter((t) => !src.includes(`  | "${esc(t)}"`));
 
-// 2. extend THEME_LABELS
-const labelAnchor = /(export const THEME_LABELS: Record<Theme, string> = \{)/;
-if (!labelAnchor.test(src)) fail("could not find THEME_LABELS");
-src = src.replace(labelAnchor, `$1\n` + order.map((t) => `  "${esc(t)}": "${esc(labels[t] ?? t)}",`).join("\n"));
+// 1. extend the Theme union at whatever its current terminator is
+if (newThemes.length) {
+  const m = /export type Theme =\n(?:\s*\|[^\n]*\n)*?\s*\|[^\n]*;/.exec(src);
+  if (!m) fail("could not locate the Theme union");
+  else {
+  src = src.replace(m[0], m[0].replace(/;$/, "\n" + newThemes.map((t) => `  | "${esc(t)}"`).join("\n") + ";"));
+  }
+
+  // 2. extend THEME_LABELS with the same new keys only
+  const labelAnchor = /(export const THEME_LABELS: Record<Theme, string> = \{)/;
+  if (!labelAnchor.test(src)) fail("could not find THEME_LABELS");
+  src = src.replace(labelAnchor, `$1\n` + newThemes.map((t) => `  "${esc(t)}": "${esc(labels[t] ?? t)}",`).join("\n"));
+}
 
 // 3. append the verses
 // Anchor on the array's OWN terminator. `lastIndexOf("];")` matched `readonly Theme[];` in the

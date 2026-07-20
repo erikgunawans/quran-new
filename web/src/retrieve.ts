@@ -164,6 +164,12 @@ const LEXICON: Record<string, string[]> = {
   Direction: ["bingung arah","ga tau mau ngapain","arah hidup","tujuan hidup","tersesat"],
   StudyStress: ["ujian","skripsi","belajar","stres kuliah","tugas numpuk","sekolah"],
   EffortNotEnough: ["usaha ga cukup","udah berusaha tapi","sia-sia","percuma","ga dihargai"],
+  "Temptation & desire": ["godaan","tergoda","nafsu","hawa nafsu","susah nahan","khilaf"],
+  "Marriage & spouse": ["pernikahan","rumah tangga","sama suami","sama istri","hubungan kami"],
+  Rejection: ["ditolak","penolakan","gak diterima","nggak diterima","dikucilkan"],
+  Homesickness: ["kangen rumah","jauh dari rumah","perantauan","homesick","kangen kampung"],
+  "Too far gone to repent": ["dosaku terlalu banyak","udah kelewatan","masih bisa diampuni","terlanjur"],
+  Heartbreak: ["patah hati","putus cinta","sakit hati","ditinggal pacar","gagal move on"],
 };
 
 export const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
@@ -270,6 +276,15 @@ function stemCandidates(w: string): string[] {
  * inside "d-IBU-lly" routed a bullied person to verses about honouring parents. See
  * retrieve-word-boundary.test.ts for the pinned cases.
  */
+/**
+ * Phrase match that tolerates an affix on the final word — "rumah tanggaku" must still reach the
+ * phrase "rumah tangga". Bounded at both ends, so a phrase can never start or end mid-word.
+ */
+function phraseHit(paddedQ: string, phrase: string): boolean {
+  const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\s${esc}(?:ku|mu|nya|kan|an|i)?\\s`).test(paddedQ);
+}
+
 export function keywordThemeHits(question: string): Map<string, string[]> {
   const themeScore = new Map<string, string[]>();
   const q = norm(question);
@@ -284,7 +299,7 @@ export function keywordThemeHits(question: string): Map<string, string[]> {
   for (const [theme, terms] of Object.entries(LEXICON)) {
     // Multi-word terms ("gak kuat", "orang tua") still match as a phrase, but bounded by spaces so
     // they cannot start or end mid-word.
-    const hits = terms.filter((t) => (t.includes(" ") ? padded.includes(` ${t} `) : forms.has(t)));
+    const hits = terms.filter((t) => (t.includes(" ") ? phraseHit(padded, t) : forms.has(t)));
     if (hits.length) themeScore.set(theme, hits);
   }
   return themeScore;

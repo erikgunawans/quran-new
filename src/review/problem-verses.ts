@@ -94,7 +94,13 @@ export type Theme =
   | "JobLoss"
   | "Direction"
   | "StudyStress"
-  | "EffortNotEnough";
+  | "EffortNotEnough"
+  | "Heartbreak"
+  | "Temptation & desire"
+  | "Marriage & spouse"
+  | "Rejection"
+  | "Homesickness"
+  | "Too far gone to repent";
 
 /**
  * Indonesian display labels for the browse surface (/tema).
@@ -106,6 +112,12 @@ export type Theme =
  * `build-themes.ts` emits these into the generated `theme-index.ts`; retrieval never reads them.
  */
 export const THEME_LABELS: Record<Theme, string> = {
+  Heartbreak: "Patah hati",
+  "Temptation & desire": "Godaan & hawa nafsu",
+  "Marriage & spouse": "Pernikahan & pasangan",
+  "Rejection": "Ditolak",
+  "Homesickness": "Merantau",
+  "Too far gone to repent": "Merasa terlalu banyak dosa",
   "Envy & comparison": "Iri & membanding-bandingkan",
   "Anger": "Marah",
   "Loneliness": "Kesepian",
@@ -451,4 +463,54 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [3, 195], themes: ["EffortNotEnough"], why: "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan" },
   { ref: [4, 40], themes: ["EffortNotEnough"], why: "Sebesar zarrah pun tak hilang, malah dilipatgandakan" },
   { ref: [18, 30], themes: ["EffortNotEnough"], why: "Yang kamu kerjakan dengan baik tidak akan disia-siakan" },
+
+  // ── Expanded feeling corpus (docs/review/feelings-expansion.md) ──
+  // Envy & comparison
+  { ref: [113, 5], themes: ["Envy & comparison"], why: "Memohon perlindungan dari kejahatan pendengki" },
+  // Parents
+  { ref: [71, 28], themes: ["Parents"], why: "Doa Nuh bagi dirinya dan kedua orang tuanya" },
+  // Injustice & being wronged
+  { ref: [22, 40], themes: ["Injustice & being wronged"], why: "Mereka diusir dari negerinya hanya karena berkata: \"Tuhan kami Allah\"" },
+  // Temptation & desire
+  { ref: [2, 183], themes: ["Temptation & desire"], why: "Puasa diwajibkan agar kamu sanggup menahan hawa nafsu" },
+  // Marriage & spouse
+  { ref: [19, 96], themes: ["Marriage & spouse"], why: "Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman" },
+  { ref: [2, 187], themes: ["Marriage & spouse"], why: "Suami-istri saling menjadi penenteram satu sama lain" },
+  // Waiting for a spouse
+  { ref: [51, 49], themes: ["Waiting for a spouse"], why: "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan" },
+  // Worry about the future
+  { ref: [31, 34], themes: ["Worry about the future"], why: "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu" },
+  // Confusion facing a big decision
+  { ref: [2, 216], themes: ["Confusion facing a big decision", "Heartbreak"], why: "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak" },
+  // Chronic illness
+  { ref: [10, 57], themes: ["Chronic illness", "Heartbreak"], why: "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati" },
+  // Divorce
+  { ref: [2, 237], themes: ["Divorce"], why: "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian" },
+  { ref: [4, 19], themes: ["Divorce"], why: "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar" },
+  // Betrayal
+  { ref: [40, 19], themes: ["Betrayal"], why: "Tak ada khianat yang tersembunyi; Allah melihat semuanya" },
+  // Rejection
+  { ref: [9, 118], themes: ["Rejection"], why: "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu" },
+  { ref: [16, 127], themes: ["Rejection"], why: "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka" },
+  // Longing
+  { ref: [12, 96], themes: ["Longing"], why: "Rindu yang panjang itu akhirnya berujung kabar gembira" },
+  // Homesickness
+  { ref: [28, 85], themes: ["Homesickness"], why: "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu" },
+  { ref: [106, 4], themes: ["Homesickness"], why: "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut" },
+  // Shame
+  { ref: [40, 7], themes: ["Shame"], why: "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu" },
+  // Regret over the past
+  { ref: [5, 39], themes: ["Regret over the past"], why: "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah" },
+  // Feeling unloved
+  { ref: [11, 90], themes: ["Feeling unloved"], why: "Cinta Allah amat besar kepada siapa pun yang kembali" },
+  // Wanting to change and become better
+  { ref: [29, 69], themes: ["Wanting to change and become better"], why: "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu" },
+  // Despair
+  { ref: [12, 110], themes: ["Despair"], why: "Pertolongan datang tepat saat para rasul pun hampir putus asa" },
+  // Anger at fate
+  { ref: [9, 51], themes: ["Anger at fate"], why: "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu" },
+  // Too far gone to repent
+  { ref: [4, 17], themes: ["Too far gone to repent"], why: "Pintu taubat terbuka selama napas masih ada" },
+  // Fear of insincerity
+  { ref: [4, 146], themes: ["Fear of insincerity"], why: "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman" },
 ] as const;
