@@ -41,15 +41,93 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "karakteristik-negara-bersyari-ah": ["negara", "syariah", "pemerintahan", "khilafah", "politik", "pemimpin", "hukum islam"],
 };
 
-/** Function/filler words that must not carry entry-ranking signal (mirrors retrieve.ts's discipline). */
+/**
+ * Function/filler words that must not carry entry-ranking signal (mirrors retrieve.ts's discipline).
+ *
+ * This list started at ~45 words and was too thin: entries are terse index lines, so a single shared
+ * function word was enough to qualify one. "tentang" ("about") pulled 12 entries for a question about
+ * the Prophet; "atas" ("upon") pulled 7 for the where-is-Allah question, where it is a preposition
+ * ("saksi atas kebenaran"), not the spatial "above" the asker meant.
+ *
+ * Frequency/IDF weighting was measured as the alternative and REJECTED: in a corpus of terse lines
+ * every offending word is rare in its own category ("tentang" 4.1%, "atas" 2.1%, "haram" 1.8%) —
+ * right beside the legitimate "riba" (2.9%). Frequency cannot tell signal from noise here; word
+ * class can. Hence: prepositions, conjunctions, particles, pronouns, and the speech-act verbs people
+ * open questions with ("ceritakan", "jelaskan", "sebutkan") carry no topical signal and are dropped.
+ *
+ * Deliberately NOT here: topical nouns, including loaded ones like "hukum", "riba", "arsy", "nabi".
+ * Those are the scholar's subject matter and must keep their signal.
+ */
 const STOP = new Set<string>([
+  // originals
   "ada", "adalah", "apa", "apakah", "atau", "akan", "aku", "dan", "dari", "dengan", "dia", "ini",
   "itu", "juga", "kalau", "kamu", "karena", "kita", "mau", "maka", "mereka", "nya", "pada", "saja",
   "seperti", "untuk", "yang", "gak", "nggak", "tidak", "bisa", "buat", "gimana", "kenapa", "mengapa",
   "siapa", "siapakah", "dimana", "kapan", "berapa", "bagaimana", "sudah", "udah", "lagi", "banget",
+  // prepositions & relators — "tentang" and "atas" are the two that actually shipped noise
+  "tentang", "atas", "bawah", "dalam", "luar", "oleh", "kepada", "bagi", "antara", "hingga",
+  "sampai", "secara", "serta", "bahwa", "agar", "supaya", "jika", "bila", "ketika", "saat",
+  "setelah", "sebelum", "selama", "tanpa", "yaitu", "yakni", "terhadap", "menurut", "melalui",
+  // speech-act / meta verbs people open a question with — never topical
+  "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
+  // pronouns, determiners, quantifiers
+  "saya", "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
+  // adverbs & discourse particles
+  "sangat", "sekali", "hanya", "masih", "pernah", "selalu", "kadang", "mungkin", "harus", "perlu",
+  "ingin", "mohon", "mana", "kok", "sih", "dong", "deh", "nih", "tuh", "aja",
 ]);
 
+/**
+ * Corpus-frame words: generic across an Islamic index regardless of category, so they discriminate
+ * nothing. This generalises the existing nameWords rule — that drops a category's OWN name ("allah"
+ * in the Allah category, which matches nearly every entry there) — to words that are framing
+ * everywhere. Someone asking "hukum mendengarkan musik dalam islam" uses "islam" to frame the
+ * question, not to name its topic; ranking on it returned 8 entries about Islam in general
+ * (df: islam 29/626, agama 32/626 in Perintah dan Larangan) and nothing about music.
+ *
+ * Consequence, and it is the right one: a bare "apa itu islam" now has no discriminating word left
+ * and returns the honest topic pointer instead of arbitrary entries — exactly what the existing
+ * "who is Allah" test already pins for the same reason.
+ */
+const FRAME = new Set<string>(["islam", "islami", "muslim", "agama", "ajaran"]);
+
 const MAX_ENTRIES = 8;
+
+/**
+ * Sense disambiguation for words that mean two different things in Islamic vocabulary.
+ *
+ * The case that shipped: asked "pacaran itu haram atau nggak?" the app surfaced eleven entries about
+ * warfare during the SACRED months — because `haram` means both *forbidden* (the ruling the asker
+ * meant) and *sacred/inviolable* (Masjidil Haram, the sacred months). Word-set overlap cannot see the
+ * difference; a collocation can.
+ *
+ * Each listed phrase pins the OTHER sense. If a word's only occurrences in an entry sit inside one of
+ * its phrases, the entry does not really contain that word in the asker's sense and must not score.
+ *
+ * This is a LINGUISTIC judgment ("Masjidil Haram is a place name"), never a theological one — it
+ * changes which of the scholar's entries we surface, never a word he wrote.
+ */
+const SENSE_COLLOCATIONS: Record<string, readonly string[]> = {
+  haram: ["masjidil haram", "masjid haram", "bulan haram", "bulan bulan haram", "tanah haram", "al haram"],
+};
+
+/** Normalised word list — the same tokenisation the ranking uses. */
+const wordsOf = (s: string): string[] => norm(s).split(/[\s-]+/).filter(Boolean);
+
+/**
+ * Does the entry contain `w` in its own right, rather than only inside a phrase that carries the
+ * other sense? Words with no registered collocations always pass — this narrows nothing by default.
+ */
+function hasOwnSense(entryText: string, w: string): boolean {
+  const collocations = SENSE_COLLOCATIONS[w];
+  if (!collocations) return true;
+  let t = ` ${wordsOf(entryText).join(" ")} `;
+  for (const c of collocations) {
+    const phrase = ` ${wordsOf(c).join(" ")} `;
+    while (t.includes(phrase)) t = t.replace(phrase, " ");
+  }
+  return t.split(" ").filter(Boolean).includes(w);
+}
 
 export interface KnowledgeEntry {
   /** The scholar's statement, byte-identical to the published index — never reworded. */
@@ -113,7 +191,9 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
   // sequitur. A specific word ("riba" in Ekonomi) is not a category name, so it stays as real signal.
   const nameWords = new Set(norm(meta.category).split(/[\s-]+/).filter(Boolean));
   const qWords = new Set(
-    [...norm(question).split(/[\s-]+/)].filter((w) => w.length > 2 && !STOP.has(w) && !nameWords.has(w)),
+    [...norm(question).split(/[\s-]+/)].filter(
+      (w) => w.length > 2 && !STOP.has(w) && !FRAME.has(w) && !nameWords.has(w),
+    ),
   );
 
   const matched: { text: string; ref: string; surah: number; ayah: number; resolvable: boolean; subtopic: string | null; score: number }[] = [];
@@ -123,7 +203,8 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
       if (!first) continue;
       const words = new Set(norm(e.text).split(/[\s-]+/).filter(Boolean));
       let score = 0;
-      for (const w of qWords) if (words.has(w)) score += 1;
+      // A hit only counts in the asker's sense — see SENSE_COLLOCATIONS (haram: forbidden vs sacred).
+      for (const w of qWords) if (words.has(w) && hasOwnSense(e.text, w)) score += 1;
       // ONLY genuinely-matching entries. No overlap → we surface nothing and let the render point to
       // the topic instead of faking an answer from arbitrary entries.
       if (score > 0) matched.push({ text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah, resolvable: first.resolvable, subtopic: st.subtopic, score });
