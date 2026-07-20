@@ -194,7 +194,7 @@ export const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu,
 
 /** Indonesian function/filler words carry no retrieval signal; excluded so word overlap ranks on
  * content ("sholat","utang","dosa"), never on grammar ("dan","itu","apa","yang"). */
-const OVERLAP_STOP = new Set<string>([
+export const OVERLAP_STOP = new Set<string>([
   "ada", "adalah", "apa", "apakah", "atau", "akan", "aku", "dan", "dari", "dengan", "dia", "ini",
   "itu", "juga", "kalau", "kalo", "kamu", "karena", "kita", "mau", "maka", "mereka", "nya", "pada",
   "saja", "saya", "seperti", "untuk", "yang", "kok", "sih", "gak", "nggak", "tidak", "bisa", "buat",
@@ -210,11 +210,21 @@ const wordSet = (text: string): Set<string> => new Set(norm(text).split(" ").fil
  * today, but the value stays truthful in case it ever is.) */
 export const MODEL_THEME_MATCH = "(dari ceritamu)";
 
+/** The theme keys the keyword lexicon and the openers cover. Exported so a test can assert they
+ * correspond to real corpus themes — 83 hand-typed strings across a build boundary that nothing
+ * else checks, where a typo silently disables a feeling's keyword path. */
+export const lexiconThemes = (): readonly string[] => Object.keys(LEXICON);
+export const openerThemes = (): readonly string[] => Object.keys(OPENERS);
+
 export interface Hit {
   verse: Verse;
   score: number;
   /** Which words in the question actually matched — shown to the user, never hidden. */
   matched: string[];
+  /** The feeling this verse was admitted FOR on this question. Set by retrieve()'s diversification;
+   * compose() speaks to it. Without this the opener read `themes[0]` — a property of how the row was
+   * authored, not of what the person said, so a bullied reader could be greeted about parents. */
+  matchedTheme?: string;
 }
 
 /**
@@ -238,7 +248,9 @@ export interface Hit {
  * RECOGNISED affixes is also what keeps the noise out — "keuangan" reduces to `uang` (ke+UANG+an),
  * while "ruangan" cannot, because no valid prefix turns "ruang" into "uang".
  */
-const PREFIXES = ["memper", "menyeng", "meng", "meny", "mem", "men", "ber", "ter", "per", "pen", "pem", "peng", "me", "di", "ke", "se", "pe"];
+// MUST stay longest-first: the loop takes the first match and stops. "peng" sat AFTER "pen", so it
+// was unreachable and "penghasilan" stripped to "ghasilan" instead of reaching "hasil".
+const PREFIXES = ["memper", "menyeng", "meng", "meny", "peng", "pem", "pen", "mem", "men", "ber", "ter", "per", "me", "di", "ke", "se", "pe"];
 const SUFFIXES = ["kannya", "annya", "kan", "an", "nya", "ku", "mu", "i"];
 
 /**
@@ -280,9 +292,22 @@ function stemCandidates(w: string): string[] {
  * Phrase match that tolerates an affix on the final word — "rumah tanggaku" must still reach the
  * phrase "rumah tangga". Bounded at both ends, so a phrase can never start or end mid-word.
  */
+/** Compiled phrase patterns, cached — the terms are compile-time constants, so recompiling a fresh
+ * RegExp for each of the ~255 multi-word lexicon terms on every question was pure waste. */
+const PHRASE_RE = new Map<string, RegExp>();
+const SUFFIX_ALT = [...SUFFIXES].sort((a, b) => b.length - a.length).join("|");
+function phraseRe(escaped: string): RegExp {
+  let re = PHRASE_RE.get(escaped);
+  if (!re) { re = new RegExp(`\\s${escaped}(?:${SUFFIX_ALT})?\\s`); PHRASE_RE.set(escaped, re); }
+  return re;
+}
+
 export function phraseHit(paddedQ: string, phrase: string): boolean {
   const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`\\s${esc}(?:ku|mu|nya|kan|an|i)?\\s`).test(paddedQ);
+  // Built FROM SUFFIXES, not a second hand-written copy — the inline alternation had already drifted
+  // (it lacked "kannya"/"annya"), and phraseHit is now shared with knowledge.ts's topic aliases, so
+  // the two matchers must not disagree about what an affix is.
+  return phraseRe(esc).test(paddedQ);
 }
 
 /**
@@ -375,9 +400,14 @@ export function retrieve(
       matched.push(MODEL_THEME_MATCH);
     }
 
-    // Word overlap — RANK ONLY, whole-word, content words only. Matching the rendering's word SET
-    // (not `includes`) stops fragments scoring inside longer words ("nya" ⊄ "kesanggupannya");
-    // dropping function words stops "dan/itu/apa/ada" carrying signal. It never sets `qualified`.
+    // Overlap is RANK-ONLY and never qualifies, so an unqualified verse is discarded by the filter
+    // below no matter what it scores. Bail before doing the work: this used to normalise the full
+    // text of all 201 verses on every question, ~95% of it thrown away moments later.
+    if (!qualified) return { verse, score, qualified, matched: [] };
+
+    // Word overlap — whole-word, content words only. Matching the rendering's word SET (not
+    // `includes`) stops fragments scoring inside longer words ("nya" ⊄ "kesanggupannya"); dropping
+    // function words stops "dan/itu/apa/ada" carrying signal.
     const hayWords = wordSet(`${verse.primary?.text ?? ""} ${verse.companion?.text ?? ""} ${verse.why}`);
     for (const w of contentWords) {
       if (hayWords.has(w)) {
@@ -419,7 +449,7 @@ export function retrieve(
     const fills = covering.find((t) => !seen.has(t));
     if (fills === undefined) continue;
     seen.add(fills);
-    out.push(hit);
+    out.push({ ...hit, matchedTheme: fills });
     if (out.length === limit) break;
   }
   return out;
@@ -527,6 +557,6 @@ function pickOpener(variants: readonly string[], seed: string): string {
 export function compose(hits: Hit[], question: string): string {
   if (!hits.length) return "";
   // The opener speaks to ONE feeling; use the first tag of the top hit as its voice.
-  const theme = hits[0]!.verse.themes[0] ?? "";
+  const theme = hits[0]!.matchedTheme ?? hits[0]!.verse.themes[0] ?? "";
   return pickOpener(OPENERS[theme] ?? OPENER_DEFAULT, question);
 }

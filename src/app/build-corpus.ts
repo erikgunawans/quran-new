@@ -336,6 +336,44 @@ const verses = PROBLEM_VERSES.map((v) => {
   };
 });
 
+/**
+ * Fragment gate — a verse whose rendering opens mid-sentence must be a deliberate choice.
+ *
+ * This rule was first written as CANNOT_STAND_ALONE inside the one-shot merge script, which meant it
+ * protected nothing: it could not see verses already live, did not run on hand edits to
+ * problem-verses.ts, and would not have run on the next batch. Six fragments had already shipped by
+ * the time that was noticed. It belongs here, where every rendering is in hand and every build sees
+ * every verse.
+ *
+ * A fragment is not automatically wrong — "mudahkanlah urusanku" (20:26) is a complete du'a and
+ * 13:28 has been live since the original curated set. But it must be ACKNOWLEDGED, not discovered by
+ * a reader who is handed a sentence starting with "kecuali".
+ */
+const FRAGMENT_OK: Record<string, string> = {
+  "13:28": "reads as a complete thought; part of the original curated 55",
+  "20:26": "a complete du'a on its own — Musa's 'mudahkanlah urusanku'",
+  "18:24": "the clause carries its own instruction (say insya Allah)",
+  // NOT blessed, listed so the build passes while they await a decision. Flagged in the summary.
+  "25:70": "REVIEW: opens 'kecuali' — dangling for someone in the Shame theme",
+  "23:61": "REVIEW: opens 'mereka itulah' — needs 23:60 for the referent",
+  "113:5": "REVIEW: opens 'dan dari' — well-known short surah, but still a continuation",
+};
+// The signal is a LOWERCASE opening — the translator's own mark that this rendering continues the
+// previous ayah. A capitalised "Dan…"/"Adapun…" is ordinary Qur'anic style and reads fine alone;
+// an earlier draft of this gate flagged 25:74, 17:29 and 4:146 on that basis and was simply wrong.
+const fragments = verses.filter((v) => /^[a-z]/.test((v.primary?.text ?? "").trim()));
+const unacknowledged = fragments.filter((v) => !(v.ref in FRAGMENT_OK));
+if (unacknowledged.length) {
+  fail(
+    `${unacknowledged.length} verse(s) open mid-sentence with no entry in FRAGMENT_OK: ` +
+      unacknowledged.map((v) => `${v.ref} ("${(v.primary?.text ?? "").trim().slice(0, 40)}…")`).join(", ") +
+      `\n  A reader gets a sentence with no beginning. Either pick a verse that stands alone, or add a` +
+      `\n  reasoned FRAGMENT_OK entry saying why this one is fine.`,
+  );
+}
+const needsReview = fragments.filter((v) => FRAGMENT_OK[v.ref]?.startsWith("REVIEW:"));
+
+
 const bundle = {
   corpus_version: (await Bun.file(`${DIR}/manifest.json`).json()).corpus_version,
   sources: sources.map((s) => ({
@@ -375,3 +413,6 @@ console.log(`✓ hot path ${verses.length} verses · ${bundle.sources.length} vo
 console.log(`✓ review   ${diverging} verses ranked for human review → ${REVIEW_OUT} (NOT shipped to the browser)`);
 console.log(`  ↳ the reader's safeguard is structural: every verse ships both renderings. No mechanical caution.`);
 if (hotGz > 200) console.warn(`⚠ hot path ${hotGz.toFixed(0)} KB gzipped is heavy for 4G`);
+if (needsReview.length) {
+  console.warn(`⚠ ${needsReview.length} verse(s) open mid-sentence and are awaiting a decision: ${needsReview.map((v) => v.ref).join(", ")}`);
+}

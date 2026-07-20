@@ -17,7 +17,7 @@
  * feeling is never hijacked into a topic dump. Unknown topic → null → the honest silence stands.
  */
 import { loadCategory, loadIndex, type PetaIndex } from "./peta.ts";
-import { norm, phraseHit, questionForms } from "./retrieve.ts";
+import { norm, OVERLAP_STOP, phraseHit, questionForms } from "./retrieve.ts";
 
 /**
  * Question keywords → Peta category slug. Deliberately CONSERVATIVE: a topic must be named fairly
@@ -71,24 +71,29 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
  * Deliberately NOT here: topical nouns, including loaded ones like "hukum", "riba", "arsy", "nabi".
  * Those are the scholar's subject matter and must keep their signal.
  */
-const STOP = new Set<string>([
-  // originals
-  "ada", "adalah", "apa", "apakah", "atau", "akan", "aku", "dan", "dari", "dengan", "dia", "ini",
-  "itu", "juga", "kalau", "kamu", "karena", "kita", "mau", "maka", "mereka", "nya", "pada", "saja",
-  "seperti", "untuk", "yang", "gak", "nggak", "tidak", "bisa", "buat", "gimana", "kenapa", "mengapa",
-  "siapa", "siapakah", "dimana", "kapan", "berapa", "bagaimana", "sudah", "udah", "lagi", "banget",
-  // prepositions & relators — "tentang" and "atas" are the two that actually shipped noise
+const KNOWLEDGE_EXTRA = [
+  // Beyond the shared function words: prepositions, relators and the speech-act verbs people open a
+  // question with. These earn their place here because index entries are terse, so a single shared
+  // function word was enough to qualify one ("tentang" pulled 12 entries for a question about the Prophet).
   "tentang", "atas", "bawah", "dalam", "luar", "oleh", "kepada", "bagi", "antara", "hingga",
   "sampai", "secara", "serta", "bahwa", "agar", "supaya", "jika", "bila", "ketika", "saat",
   "setelah", "sebelum", "selama", "tanpa", "yaitu", "yakni", "terhadap", "menurut", "melalui",
-  // speech-act / meta verbs people open a question with — never topical
   "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
-  // pronouns, determiners, quantifiers
-  "saya", "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
-  // adverbs & discourse particles
+  "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
   "sangat", "sekali", "hanya", "masih", "pernah", "selalu", "kadang", "mungkin", "harus", "perlu",
-  "ingin", "mohon", "mana", "kok", "sih", "dong", "deh", "nih", "tuh", "aja",
-]);
+  "ingin", "mohon", "mana",
+];
+
+/**
+ * Indonesian function words that carry no ranking signal.
+ *
+ * Built ON TOP of retrieve.ts's OVERLAP_STOP rather than beside it. The two lists used to be
+ * hand-maintained copies "mirroring" each other, and they had already drifted — this file grew to
+ * ~112 words while OVERLAP_STOP stayed at 57, so the same word could be noise on one side and signal
+ * on the other. Sharing the base means a fix lands once instead of on whichever side the bug was
+ * reported from.
+ */
+const STOP = new Set<string>([...OVERLAP_STOP, ...KNOWLEDGE_EXTRA]);
 
 /**
  * Corpus-frame words: generic across an Islamic index regardless of category, so they discriminate
