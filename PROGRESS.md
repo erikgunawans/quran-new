@@ -8,7 +8,62 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — specificity rule + grounding verification; both DEPLOYED and probed live
+## 2026-07-21 (latest) — ustadz call app, nav pill, landing polish; AI-draft "answers" refused
+
+Second half of a long session. Everything committed + pushed as it went; anchor origin/main `aeabcc3`.
+685 tests pass, web typecheck clean. **NOT deployed** (all changes since the last deploy are local).
+
+**1. The ustadz packet became a usable review tool, not homework.**
+- `22ee8de` — split the 115 KB / 147-verse `feelings-expansion.md` into **13 returnable batches** (a
+  feeling is never split across batches; each self-contained). Integrity: 147 in, 147 out, exact set
+  match. Fixed **two false claims** the source carried: it said "belum ada satu pun yang tayang" when
+  **144 of 147 are LIVE** (shipped this morning before the ustadz saw them), and it re-asked the
+  multi-theme question already decided in `1ebf396`. Every batch now states rejection = removal.
+- `62ff458` — one correction had been hand-applied to generated output and a regeneration reverted it;
+  moved it into the generator, pinned all corrections with tests (a generated file can't be corrected
+  by editing the generated file).
+- `90f3814` — reshaped the batches from a fill-in form into a **call script** (Erik's call: verbal
+  review, written record). Reads aloud, captures his answer. The 27 ⚠️ verses force the reader to speak
+  our own doubt; the 3 withdrawn verses carry what to say + the whole-passage alternative; the closing
+  captures his confirmation (WhatsApp/voice note = signature; without it, not shipped as reviewed).
+- `97c7f02` — the **call app**: one self-contained HTML page (`docs/review/feelings-expansion/index.html`),
+  emitted from the SAME parsed batches so it can't drift. Sidebar of 13 batches, per-verse read/ask/answer,
+  answers persist to localStorage, per-batch progress, WhatsApp-summary export. App identity (celestial,
+  khātam, girih, gold law). NOT published (names a real scholar). Verified live in Chrome.
+
+**2. UI (Erik ran /ui-ux-pro-max, then gave direct feedback).**
+- `8df4144` — the skill's generic output (Inter, gold CTA, App-Store pattern) was off-identity again,
+  rejected for the 5th time; used as an audit. Real gaps fixed: JS smooth-scroll ignored reduced-motion
+  (`main.ts`, both editions) — a vestibular need, now honoured; cosmos hover routed onto the motion token;
+  call app got reduced-motion + aria-pressed. No color/font/layout change.
+- `b124a30` — hero heading line-height 1.04→1.1 (Fraunces italic was clipping its own descenders by 5px,
+  measured). The apparent overlaps in screenshots were DOM-render capture artifacts — box model was clean;
+  Erik confirmed by eye the layout is clear.
+- `5ea450a` — **nav follows the QuranKu top panel**: icon+label per route (house/book/heart/bars), active
+  route an emerald pill (`--primary`/`--primary-wash`, weight 600, 10px radius). Mobile → icon-only (no
+  h-scroll) with aria-labels. Confirmed via Erik's screenshot: green "Tanya" pill with house icon.
+- `aeabcc3` — landing composer: a **traveling emerald light** rides the border (conic gradient masked to a
+  ring, `@property --beam`, reduced-motion removes it, gold law intact); **"Kejutkan aku"** lucky button
+  drops a random real-shaped question into the field (never auto-sends). Pool = 22 feelings + 6 reading
+  refs; `lucky.test.ts` runs REAL retrieval/parser over every one so a draw never lands on silence (+30
+  tests). Functionally verified; the animated *look* still needs Erik's eye (window was minimized).
+
+**3. Refused to update the KB from an AI draft.** Erik handed `~/Downloads/preview.html` as "the answers
+from ustad". Read in full: it is an **AI-assisted draft**, self-labeled at every level ("Bukan jawaban
+atau persetujuan Ustadz... wajib dikonfirmasi"), progress **0/147**, zero selections, empty note fields —
+no answers of any kind. Declined to touch the knowledge base: the app's founding law is that the SCHOLAR
+decides which verse meets which feeling, never AI, and never under his name unreviewed. Told Erik the
+real path: his actual confirmed verdicts (filled call app export, or dictated per-verse), then I
+transcribe faithfully and show the diff.
+
+**Open — waiting on Erik:** (1) eyeball the landing beam + pill on a restored (non-minimized) Chrome
+window, and confirm "Kejutkan aku" label; (2) deploy the whole batch when ready (`bun run build && cd
+worker && bunx wrangler deploy`, and the synthesis variant) — nothing since `aeabcc3` is live; (3) the
+ustadz's ACTUAL review — the packet/call-app is ready; his confirmed answers are the true unblock.
+
+---
+
+## 2026-07-20 — specificity rule + grounding verification; both DEPLOYED and probed live
 
 Two fixes, both live. **Principled** `7361ef16` (`index-DSqRKk7q.js`) · **Synthesis** `e9c0eaad`
 (`index-CsTfuC1g.js`). 640 tests, web + worker typecheck clean.
