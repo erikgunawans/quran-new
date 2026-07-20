@@ -408,5 +408,1050 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "why": "\"Tuhanku, sayangilah mereka seperti mereka merawatku waktu kecil\""
       }
     ]
+  },
+  {
+    "theme": "Iri & membanding-bandingkan",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 32,
+        "ref": "4:32",
+        "why": "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri"
+      }
+    ]
+  },
+  {
+    "theme": "Marah",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 134,
+        "ref": "3:134",
+        "why": "Mereka yang menahan amarah dan memaafkan orang lain"
+      },
+      {
+        "surah": 41,
+        "ayah": 35,
+        "ref": "41:35",
+        "why": "Membalas keburukan dengan kebaikan — hanya orang sabar yang sanggup"
+      }
+    ]
+  },
+  {
+    "theme": "Kesepian",
+    "verses": [
+      {
+        "surah": 50,
+        "ayah": 16,
+        "ref": "50:16",
+        "why": "Allah lebih dekat kepadamu daripada urat lehermu — kamu tidak pernah sendirian"
+      }
+    ]
+  },
+  {
+    "theme": "Sakit & kesembuhan",
+    "verses": [
+      {
+        "surah": 26,
+        "ayah": 80,
+        "ref": "26:80",
+        "why": "\"Ketika aku sakit, Tuhankulah yang menyembuhkan aku\" — doa Ibrahim"
+      }
+    ]
+  },
+  {
+    "theme": "Lisan & gunjingan",
+    "verses": [
+      {
+        "surah": 49,
+        "ayah": 12,
+        "ref": "49:12",
+        "why": "Jauhi prasangka, jangan mencari-cari kesalahan, jangan menggunjing"
+      }
+    ]
+  },
+  {
+    "theme": "Memaafkan orang lain",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 263,
+        "ref": "2:263",
+        "why": "Berkata baik dan memaafkan lebih baik daripada sedekah yang menyakiti hati"
+      }
+    ]
+  },
+  {
+    "theme": "Sombong & angkuh",
+    "verses": [
+      {
+        "surah": 31,
+        "ayah": 18,
+        "ref": "31:18",
+        "why": "Nasihat Luqman kepada anaknya — jangan berjalan di bumi dengan sombong"
+      },
+      {
+        "surah": 57,
+        "ayah": 23,
+        "ref": "57:23",
+        "why": "Agar kamu tidak putus asa atas yang hilang, dan tidak bangga atas yang didapat"
+      }
+    ]
+  },
+  {
+    "theme": "Takut mati",
+    "verses": [
+      {
+        "surah": 29,
+        "ayah": 57,
+        "ref": "29:57",
+        "why": "Setiap yang bernyawa pasti merasakan kematian, lalu dikumpulkan kembali"
+      }
+    ]
+  },
+  {
+    "theme": "Ragu & iman melemah",
+    "verses": [
+      {
+        "surah": 14,
+        "ayah": 27,
+        "ref": "14:27",
+        "why": "Allah meneguhkan hati orang mukmin — iman yang goyah bisa dikuatkan"
+      },
+      {
+        "surah": 18,
+        "ayah": 14,
+        "ref": "18:14",
+        "why": "\"Kami teguhkan hati mereka\" — para pemuda Ashabul Kahfi"
+      }
+    ]
+  },
+  {
+    "theme": "Harta & tamak",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 268,
+        "ref": "2:268",
+        "why": "Setan menakut-nakutimu dengan kemiskinan; Allah menjanjikan ampunan dan karunia"
+      },
+      {
+        "surah": 57,
+        "ayah": 20,
+        "ref": "57:20",
+        "why": "Dunia hanya permainan dan saling membanggakan harta dan anak"
+      }
+    ]
+  },
+  {
+    "theme": "Orang tua",
+    "verses": [
+      {
+        "surah": 19,
+        "ayah": 14,
+        "ref": "19:14",
+        "why": "Yahya berbakti kepada ibu bapaknya, tidak durhaka"
+      },
+      {
+        "surah": 14,
+        "ayah": 41,
+        "ref": "14:41",
+        "why": "Doa Ibrahim — ampunilah aku dan kedua orang tuaku"
+      }
+    ]
+  },
+  {
+    "theme": "Dizalimi",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 148,
+        "ref": "4:148",
+        "why": "Orang yang teraniaya boleh menyuarakan apa yang menimpanya"
+      }
+    ]
+  },
+  {
+    "theme": "Rasa bersalah & dosa",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 27,
+        "ref": "4:27",
+        "why": "Allah menghendaki untuk mengampuni dosa-dosa kalian"
+      }
+    ]
+  },
+  {
+    "theme": "Menanti keturunan",
+    "verses": [
+      {
+        "surah": 21,
+        "ayah": 89,
+        "ref": "21:89",
+        "why": "Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama"
+      },
+      {
+        "surah": 3,
+        "ayah": 38,
+        "ref": "3:38",
+        "why": "Allah Maha Mendengar setiap permohonan yang kau bisikkan"
+      }
+    ]
+  },
+  {
+    "theme": "Menanti jodoh",
+    "verses": [
+      {
+        "surah": 25,
+        "ayah": 74,
+        "ref": "25:74",
+        "why": "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati"
+      }
+    ]
+  },
+  {
+    "theme": "Lelah mendidik anak",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 132,
+        "ref": "20:132",
+        "why": "Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung"
+      },
+      {
+        "surah": 11,
+        "ayah": 115,
+        "ref": "11:115",
+        "why": "Tidak ada satu pun lelahmu yang disia-siakan Allah"
+      },
+      {
+        "surah": 14,
+        "ayah": 40,
+        "ref": "14:40",
+        "why": "Doakan anakmu; itu pun bagian dari mendidiknya"
+      }
+    ]
+  },
+  {
+    "theme": "Anak yang menjauh",
+    "verses": [
+      {
+        "surah": 28,
+        "ayah": 56,
+        "ref": "28:56",
+        "why": "Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai"
+      }
+    ]
+  },
+  {
+    "theme": "Merawat orang tua",
+    "verses": [
+      {
+        "surah": 31,
+        "ayah": 14,
+        "ref": "31:14",
+        "why": "Merawat mereka adalah membalas lemah yang dahulu mereka tanggung"
+      },
+      {
+        "surah": 46,
+        "ayah": 15,
+        "ref": "46:15",
+        "why": "Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya"
+      }
+    ]
+  },
+  {
+    "theme": "Pertengkaran keluarga",
+    "verses": [
+      {
+        "surah": 41,
+        "ayah": 34,
+        "ref": "41:34",
+        "why": "Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan"
+      },
+      {
+        "surah": 8,
+        "ayah": 63,
+        "ref": "8:63",
+        "why": "Hanya Allah yang sanggup menyatukan hati yang saling menjauh"
+      }
+    ]
+  },
+  {
+    "theme": "Mengasuh sendirian",
+    "verses": [
+      {
+        "surah": 19,
+        "ayah": 24,
+        "ref": "19:24",
+        "why": "Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih"
+      },
+      {
+        "surah": 19,
+        "ayah": 25,
+        "ref": "19:25",
+        "why": "Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan"
+      },
+      {
+        "surah": 28,
+        "ayah": 7,
+        "ref": "28:7",
+        "why": "Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih"
+      }
+    ]
+  },
+  {
+    "theme": "Khawatir masa depan",
+    "verses": [
+      {
+        "surah": 33,
+        "ayah": 3,
+        "ref": "33:3",
+        "why": "Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu"
+      },
+      {
+        "surah": 46,
+        "ayah": 13,
+        "ref": "46:13",
+        "why": "Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan"
+      }
+    ]
+  },
+  {
+    "theme": "Bingung memilih",
+    "verses": [
+      {
+        "surah": 18,
+        "ayah": 24,
+        "ref": "18:24",
+        "why": "Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar"
+      },
+      {
+        "surah": 42,
+        "ayah": 38,
+        "ref": "42:38",
+        "why": "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman"
+      }
+    ]
+  },
+  {
+    "theme": "Memulai lagi",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 100,
+        "ref": "4:100",
+        "why": "Yang pergi karena Allah menemukan tempat luas dan rezeki berlimpah"
+      },
+      {
+        "surah": 29,
+        "ayah": 56,
+        "ref": "29:56",
+        "why": "Bumi Allah itu luas; selalu ada tempat untuk memulai lagi"
+      }
+    ]
+  },
+  {
+    "theme": "Harapan",
+    "verses": [
+      {
+        "surah": 93,
+        "ayah": 5,
+        "ref": "93:5",
+        "why": "Allah akan memberi, sampai hatimu benar-benar puas dan senang"
+      }
+    ]
+  },
+  {
+    "theme": "Bahagia",
+    "verses": [
+      {
+        "surah": 10,
+        "ayah": 58,
+        "ref": "10:58",
+        "why": "Bergembiralah dengan karunia dan rahmat Allah"
+      },
+      {
+        "surah": 27,
+        "ayah": 19,
+        "ref": "27:19",
+        "why": "Sulaiman tersenyum, lalu memohon agar pandai mensyukuri nikmat-Nya"
+      },
+      {
+        "surah": 93,
+        "ayah": 11,
+        "ref": "93:11",
+        "why": "Saat bahagia, sebut dan syukuri nikmat Tuhanmu"
+      }
+    ]
+  },
+  {
+    "theme": "Menua",
+    "verses": [
+      {
+        "surah": 30,
+        "ayah": 54,
+        "ref": "30:54",
+        "why": "Lemah, kuat, lalu lemah lagi — semua dalam rencana-Nya"
+      }
+    ]
+  },
+  {
+    "theme": "Sakit menahun",
+    "verses": [
+      {
+        "surah": 21,
+        "ayah": 83,
+        "ref": "21:83",
+        "why": "Doa Ayyub: penyakit ini menimpaku, dan Engkau Maha Penyayang"
+      },
+      {
+        "surah": 21,
+        "ayah": 84,
+        "ref": "21:84",
+        "why": "Doa Ayyub dikabulkan; yang hilang dikembalikan berlipat oleh-Nya"
+      }
+    ]
+  },
+  {
+    "theme": "Perceraian",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 130,
+        "ref": "4:130",
+        "why": "Jika berpisah, Allah mencukupi keduanya dari karunia-Nya masing-masing"
+      }
+    ]
+  },
+  {
+    "theme": "Dikhianati",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 18,
+        "ref": "12:18",
+        "why": "Saat orang terdekat berdusta, kesabaran yang indah adalah jalannya"
+      },
+      {
+        "surah": 12,
+        "ayah": 90,
+        "ref": "12:90",
+        "why": "Yusuf dikhianati saudaranya, namun Allah tak menyia-nyiakan orang yang bersabar"
+      }
+    ]
+  },
+  {
+    "theme": "Ditinggalkan",
+    "verses": [
+      {
+        "surah": 93,
+        "ayah": 6,
+        "ref": "93:6",
+        "why": "Dia mendapatimu sendirian dahulu, lalu Dia melindungimu"
+      }
+    ]
+  },
+  {
+    "theme": "Rindu",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 84,
+        "ref": "12:84",
+        "why": "Bahkan seorang nabi menangis sampai matanya memutih karena rindu"
+      },
+      {
+        "surah": 12,
+        "ayah": 87,
+        "ref": "12:87",
+        "why": "Selama merindu, jangan pernah berputus asa dari rahmat Allah"
+      }
+    ]
+  },
+  {
+    "theme": "Kekurangan",
+    "verses": [
+      {
+        "surah": 93,
+        "ayah": 8,
+        "ref": "93:8",
+        "why": "Allah pernah mendapatimu kekurangan, lalu Dia mencukupkanmu"
+      },
+      {
+        "surah": 67,
+        "ayah": 15,
+        "ref": "67:15",
+        "why": "Bumi dibentangkan untukmu; melangkahlah, rezeki-Nya ada di sana"
+      }
+    ]
+  },
+  {
+    "theme": "Cemas soal uang",
+    "verses": [
+      {
+        "surah": 15,
+        "ayah": 21,
+        "ref": "15:21",
+        "why": "Rezekimu sudah tersimpan di sisi-Nya, turun pada takarannya"
+      }
+    ]
+  },
+  {
+    "theme": "Pelit",
+    "verses": [
+      {
+        "surah": 17,
+        "ayah": 29,
+        "ref": "17:29",
+        "why": "Jangan menggenggam terlalu erat, jangan pula menghambur; ambil tengahnya"
+      },
+      {
+        "surah": 64,
+        "ayah": 16,
+        "ref": "64:16",
+        "why": "Bertakwalah sesanggupmu; berilah, itu kebaikan untuk dirimu sendiri"
+      }
+    ]
+  },
+  {
+    "theme": "Tidak pernah merasa cukup",
+    "verses": [
+      {
+        "surah": 102,
+        "ayah": 1,
+        "ref": "102:1",
+        "why": "Berlomba menumpuk harta melalaikan, sampai kubur menghentikannya"
+      },
+      {
+        "surah": 63,
+        "ayah": 9,
+        "ref": "63:9",
+        "why": "Jangan biarkan harta dan anak melalaikanmu dari mengingat-Nya"
+      }
+    ]
+  },
+  {
+    "theme": "Merasa cukup",
+    "verses": [
+      {
+        "surah": 28,
+        "ayah": 60,
+        "ref": "28:60",
+        "why": "Yang ada di sisi Allah lebih baik dan lebih kekal"
+      },
+      {
+        "surah": 16,
+        "ayah": 96,
+        "ref": "16:96",
+        "why": "Milikmu akan habis; yang di sisi Allah tetap kekal"
+      }
+    ]
+  },
+  {
+    "theme": "Sedekah",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 261,
+        "ref": "2:261",
+        "why": "Satu biji yang kamu tanam menjadi tujuh tangkai berbuah"
+      },
+      {
+        "surah": 2,
+        "ayah": 274,
+        "ref": "2:274",
+        "why": "Yang memberi diam-diam maupun terang: tak ada takut, tak ada sedih"
+      },
+      {
+        "surah": 34,
+        "ayah": 39,
+        "ref": "34:39",
+        "why": "Apa pun yang kamu berikan, pasti Allah menggantinya"
+      }
+    ]
+  },
+  {
+    "theme": "Iri melihat kekayaan orang",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 131,
+        "ref": "20:131",
+        "why": "Jangan tujukan matamu ke milik orang lain; itu ujian"
+      },
+      {
+        "surah": 15,
+        "ayah": 88,
+        "ref": "15:88",
+        "why": "Jangan melirik milik mereka, jangan pula bersedih karenanya"
+      }
+    ]
+  },
+  {
+    "theme": "Malu",
+    "verses": [
+      {
+        "surah": 25,
+        "ayah": 70,
+        "ref": "25:70",
+        "why": "Bagi yang kembali, Allah menukar dosa-dosa itu dengan pahala"
+      },
+      {
+        "surah": 11,
+        "ayah": 114,
+        "ref": "11:114",
+        "why": "Kebaikan yang kamu kerjakan menghapus jejak yang kamu malukan"
+      }
+    ]
+  },
+  {
+    "theme": "Menyesal",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 37,
+        "ref": "2:37",
+        "why": "Adam pun pernah jatuh, dan taubatnya diterima Allah"
+      },
+      {
+        "surah": 3,
+        "ayah": 133,
+        "ref": "3:133",
+        "why": "Jangan berlama-lama di masa lalu; bergegaslah menuju ampunan-Nya"
+      }
+    ]
+  },
+  {
+    "theme": "Minder",
+    "verses": [
+      {
+        "surah": 49,
+        "ayah": 11,
+        "ref": "49:11",
+        "why": "Yang direndahkan orang bisa jadi lebih baik di sisi Allah"
+      },
+      {
+        "surah": 49,
+        "ayah": 13,
+        "ref": "49:13",
+        "why": "Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah"
+      }
+    ]
+  },
+  {
+    "theme": "Merasa tidak berguna",
+    "verses": [
+      {
+        "surah": 21,
+        "ayah": 94,
+        "ref": "21:94",
+        "why": "Tidak ada satu pun kebaikanmu yang disia-siakan Allah"
+      },
+      {
+        "surah": 99,
+        "ayah": 7,
+        "ref": "99:7",
+        "why": "Sekecil debu pun kebaikanmu tetap terlihat dan berbalas"
+      },
+      {
+        "surah": 64,
+        "ayah": 3,
+        "ref": "64:3",
+        "why": "Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya"
+      }
+    ]
+  },
+  {
+    "theme": "Merasa tidak dicintai",
+    "verses": [
+      {
+        "surah": 93,
+        "ayah": 3,
+        "ref": "93:3",
+        "why": "Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu"
+      },
+      {
+        "surah": 3,
+        "ayah": 31,
+        "ref": "3:31",
+        "why": "Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu"
+      }
+    ]
+  },
+  {
+    "theme": "Hampa",
+    "verses": [
+      {
+        "surah": 16,
+        "ayah": 97,
+        "ref": "16:97",
+        "why": "Iman dan amal kecil pun membuahkan kehidupan yang baik"
+      },
+      {
+        "surah": 23,
+        "ayah": 115,
+        "ref": "23:115",
+        "why": "Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan"
+      },
+      {
+        "surah": 67,
+        "ayah": 2,
+        "ref": "67:2",
+        "why": "Hidup dan mati diadakan agar terlihat siapa terbaik amalnya"
+      }
+    ]
+  },
+  {
+    "theme": "Ingin berubah",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 82,
+        "ref": "20:82",
+        "why": "Bertaubat, beramal, lalu bertahan di jalan itu — Allah mengampuni"
+      }
+    ]
+  },
+  {
+    "theme": "Direndahkan",
+    "verses": [
+      {
+        "surah": 33,
+        "ayah": 58,
+        "ref": "33:58",
+        "why": "Kamu tidak bersalah; dosanya ada pada yang mengolok"
+      },
+      {
+        "surah": 3,
+        "ayah": 186,
+        "ref": "3:186",
+        "why": "Ejekan yang menyakitkan itu ujian; sabarmu bernilai besar"
+      }
+    ]
+  },
+  {
+    "theme": "Difitnah",
+    "verses": [
+      {
+        "surah": 33,
+        "ayah": 69,
+        "ref": "33:69",
+        "why": "Musa pun difitnah, lalu Allah sendiri yang membersihkannya"
+      },
+      {
+        "surah": 24,
+        "ayah": 11,
+        "ref": "24:11",
+        "why": "Jangan kira fitnah ini merugikanmu; ia justru membawa kebaikan"
+      }
+    ]
+  },
+  {
+    "theme": "Menyimpan benci",
+    "verses": [
+      {
+        "surah": 5,
+        "ayah": 8,
+        "ref": "5:8",
+        "why": "Jangan biarkan bencimu membuatmu berlaku tidak adil kepadanya"
+      },
+      {
+        "surah": 17,
+        "ayah": 53,
+        "ref": "17:53",
+        "why": "Jawablah celaan dengan kata terbaik; setan senang mengadu domba"
+      }
+    ]
+  },
+  {
+    "theme": "Ingin membalas",
+    "verses": [
+      {
+        "surah": 42,
+        "ayah": 43,
+        "ref": "42:43",
+        "why": "Sabar dan memaafkan itu tanda hati yang teguh, bukan lemah"
+      },
+      {
+        "surah": 42,
+        "ayah": 40,
+        "ref": "42:40",
+        "why": "Kamu berhak membalas setimpal, tapi pahala pemaaf ditanggung Allah"
+      },
+      {
+        "surah": 12,
+        "ayah": 92,
+        "ref": "12:92",
+        "why": "Yusuf berkuasa membalas, namun ia memilih berkata: tidak ada cercaan"
+      }
+    ]
+  },
+  {
+    "theme": "Kehilangan sahabat",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 69,
+        "ref": "4:69",
+        "why": "Masih ada teman terbaik menantimu: para nabi dan orang shalih"
+      }
+    ]
+  },
+  {
+    "theme": "Masalah dengan tetangga",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 36,
+        "ref": "4:36",
+        "why": "Berbuat baik kepada tetangga dekat dan jauh, itu perintah Allah"
+      },
+      {
+        "surah": 49,
+        "ayah": 6,
+        "ref": "49:6",
+        "why": "Telitilah dulu kabar yang meragukan, agar kamu tidak menyesal"
+      },
+      {
+        "surah": 24,
+        "ayah": 27,
+        "ref": "24:27",
+        "why": "Menghormati batas rumah orang lain menjaga damainya bertetangga"
+      }
+    ]
+  },
+  {
+    "theme": "Ingin berdamai",
+    "verses": [
+      {
+        "surah": 49,
+        "ayah": 10,
+        "ref": "49:10",
+        "why": "Kalian bersaudara; damaikanlah, semoga kalian diberi rahmat"
+      },
+      {
+        "surah": 4,
+        "ayah": 114,
+        "ref": "4:114",
+        "why": "Mendamaikan yang berselisih adalah bicara paling bernilai di sisi Allah"
+      }
+    ]
+  },
+  {
+    "theme": "Putus asa",
+    "verses": [
+      {
+        "surah": 42,
+        "ayah": 28,
+        "ref": "42:28",
+        "why": "Hujan turun justru ketika manusia hampir menyerah menunggu"
+      }
+    ]
+  },
+  {
+    "theme": "Marah pada takdir",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 22,
+        "ref": "57:22",
+        "why": "Tidak ada yang menimpamu tanpa sudah tercatat sebelum dunia ada"
+      }
+    ]
+  },
+  {
+    "theme": "Doa tidak dijawab",
+    "verses": [
+      {
+        "surah": 19,
+        "ayah": 4,
+        "ref": "19:4",
+        "why": "Zakaria menua dan beruban, tapi doanya tak pernah sia-sia"
+      },
+      {
+        "surah": 21,
+        "ayah": 90,
+        "ref": "21:90",
+        "why": "Doa Zakaria dikabulkan setelah menunggu bertahun-tahun lamanya"
+      },
+      {
+        "surah": 27,
+        "ayah": 62,
+        "ref": "27:62",
+        "why": "Siapa lagi yang menjawab orang terhimpit selain Allah?"
+      }
+    ]
+  },
+  {
+    "theme": "Merasa jauh dari Allah",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 4,
+        "ref": "57:4",
+        "why": "Allah beserta kalian di mana pun kalian berada"
+      },
+      {
+        "surah": 3,
+        "ayah": 8,
+        "ref": "3:8",
+        "why": "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk"
+      }
+    ]
+  },
+  {
+    "theme": "Takut riya atau munafik",
+    "verses": [
+      {
+        "surah": 23,
+        "ayah": 61,
+        "ref": "23:61",
+        "why": "Justru merekalah yang disebut bersegera dalam kebaikan"
+      }
+    ]
+  },
+  {
+    "theme": "Susah istiqamah",
+    "verses": [
+      {
+        "surah": 73,
+        "ayah": 20,
+        "ref": "73:20",
+        "why": "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan"
+      }
+    ]
+  },
+  {
+    "theme": "Lelah & jenuh",
+    "verses": [
+      {
+        "surah": 94,
+        "ayah": 2,
+        "ref": "94:2",
+        "why": "Allah sendiri yang meringankan beban itu dari pundakmu"
+      },
+      {
+        "surah": 78,
+        "ayah": 9,
+        "ref": "78:9",
+        "why": "Tidurmu bukan kelemahan, itu penenang yang Allah sediakan"
+      },
+      {
+        "surah": 28,
+        "ayah": 73,
+        "ref": "28:73",
+        "why": "Malam untuk beristirahat itu rahmat, bukan waktu yang terbuang"
+      }
+    ]
+  },
+  {
+    "theme": "Kewalahan",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 28,
+        "ref": "4:28",
+        "why": "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya"
+      },
+      {
+        "surah": 23,
+        "ayah": 62,
+        "ref": "23:62",
+        "why": "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu"
+      }
+    ]
+  },
+  {
+    "theme": "Malas & menunda",
+    "verses": [
+      {
+        "surah": 87,
+        "ayah": 8,
+        "ref": "87:8",
+        "why": "Allah yang memudahkan langkahmu, kamu tak berjalan sendirian"
+      },
+      {
+        "surah": 92,
+        "ayah": 7,
+        "ref": "92:7",
+        "why": "Mulai satu langkah kecil, jalan mudah akan disiapkan"
+      }
+    ]
+  },
+  {
+    "theme": "Kehilangan pekerjaan",
+    "verses": [
+      {
+        "surah": 29,
+        "ayah": 62,
+        "ref": "29:62",
+        "why": "Yang melapangkan dan menyempitkan rezeki tahu persis kebutuhanmu"
+      },
+      {
+        "surah": 42,
+        "ayah": 12,
+        "ref": "42:12",
+        "why": "Perbendaharaan langit dan bumi milik-Nya; satu pintu tertutup bukan akhir"
+      }
+    ]
+  },
+  {
+    "theme": "Bingung arah hidup",
+    "verses": [
+      {
+        "surah": 1,
+        "ayah": 6,
+        "ref": "1:6",
+        "why": "Doa paling sederhana saat tak tahu harus ke mana"
+      }
+    ]
+  },
+  {
+    "theme": "Stres ujian & belajar",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 25,
+        "ref": "20:25",
+        "why": "Doa Musa saat dadanya sesak menghadapi tugas berat"
+      },
+      {
+        "surah": 20,
+        "ayah": 26,
+        "ref": "20:26",
+        "why": "Dua kata yang cukup dibaca sebelum masuk ruang ujian"
+      },
+      {
+        "surah": 96,
+        "ayah": 5,
+        "ref": "96:5",
+        "why": "Dia yang mengajari manusia apa yang belum diketahuinya"
+      }
+    ]
+  },
+  {
+    "theme": "Usaha terasa tak cukup",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 195,
+        "ref": "3:195",
+        "why": "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan"
+      },
+      {
+        "surah": 4,
+        "ayah": 40,
+        "ref": "4:40",
+        "why": "Sebesar zarrah pun tak hilang, malah dilipatgandakan"
+      },
+      {
+        "surah": 18,
+        "ayah": 30,
+        "ref": "18:30",
+        "why": "Yang kamu kerjakan dengan baik tidak akan disia-siakan"
+      }
+    ]
   }
 ] as const;

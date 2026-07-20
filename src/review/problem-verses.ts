@@ -29,7 +29,72 @@ export type Theme =
   | "Prayer answered"
   | "Mercy"
   | "Self-worth & purpose"
-  | "Family";
+  | "Family"
+  | "Envy & comparison"
+  | "Anger"
+  | "Loneliness"
+  | "Illness & healing"
+  | "Speech & gossip"
+  | "Forgiving others"
+  | "Pride & arrogance"
+  | "Fear of death"
+  | "Doubt & weak faith"
+  | "Wealth & greed"
+  | "Parents"
+  | "Injustice & being wronged"
+  | "Guilt & sin"
+  | "Longing for a child"
+  | "Waiting for a spouse"
+  | "Struggling to raise children"
+  | "A child who has gone astray"
+  | "Caring for elderly parents"
+  | "Conflict within the family"
+  | "Being a single parent"
+  | "Worry about the future"
+  | "Confusion facing a big decision"
+  | "Starting over"
+  | "Hope and optimism"
+  | "Joy and happiness"
+  | "Growing older"
+  | "Chronic illness"
+  | "Divorce"
+  | "Betrayal"
+  | "Abandonment"
+  | "Longing"
+  | "Poverty"
+  | "Fear of poverty"
+  | "Stinginess"
+  | "Never enough"
+  | "Contentment"
+  | "Giving"
+  | "Envy of wealth"
+  | "Shame"
+  | "Regret over the past"
+  | "Insecurity / feeling inferior"
+  | "Feeling worthless or useless"
+  | "Feeling unloved"
+  | "Emptiness / life feels meaningless"
+  | "Wanting to change and become better"
+  | "Being bullied"
+  | "Being slandered"
+  | "Feeling hatred"
+  | "Wanting revenge"
+  | "Losing a friend"
+  | "Trouble with neighbours"
+  | "Wanting to reconcile"
+  | "Despair"
+  | "Anger at fate"
+  | "Prayers unanswered"
+  | "Far from God"
+  | "Fear of insincerity"
+  | "Struggling with consistency"
+  | "Burnout"
+  | "Overwhelm"
+  | "Laziness"
+  | "JobLoss"
+  | "Direction"
+  | "StudyStress"
+  | "EffortNotEnough";
 
 /**
  * Indonesian display labels for the browse surface (/tema).
@@ -41,6 +106,71 @@ export type Theme =
  * `build-themes.ts` emits these into the generated `theme-index.ts`; retrieval never reads them.
  */
 export const THEME_LABELS: Record<Theme, string> = {
+  "Envy & comparison": "Iri & membanding-bandingkan",
+  "Anger": "Marah",
+  "Loneliness": "Kesepian",
+  "Illness & healing": "Sakit & kesembuhan",
+  "Speech & gossip": "Lisan & gunjingan",
+  "Forgiving others": "Memaafkan orang lain",
+  "Pride & arrogance": "Sombong & angkuh",
+  "Fear of death": "Takut mati",
+  "Doubt & weak faith": "Ragu & iman melemah",
+  "Wealth & greed": "Harta & tamak",
+  "Parents": "Orang tua",
+  "Injustice & being wronged": "Dizalimi",
+  "Guilt & sin": "Rasa bersalah & dosa",
+  "Longing for a child": "Menanti keturunan",
+  "Waiting for a spouse": "Menanti jodoh",
+  "Struggling to raise children": "Lelah mendidik anak",
+  "A child who has gone astray": "Anak yang menjauh",
+  "Caring for elderly parents": "Merawat orang tua",
+  "Conflict within the family": "Pertengkaran keluarga",
+  "Being a single parent": "Mengasuh sendirian",
+  "Worry about the future": "Khawatir masa depan",
+  "Confusion facing a big decision": "Bingung memilih",
+  "Starting over": "Memulai lagi",
+  "Hope and optimism": "Harapan",
+  "Joy and happiness": "Bahagia",
+  "Growing older": "Menua",
+  "Chronic illness": "Sakit menahun",
+  "Divorce": "Perceraian",
+  "Betrayal": "Dikhianati",
+  "Abandonment": "Ditinggalkan",
+  "Longing": "Rindu",
+  "Poverty": "Kekurangan",
+  "Fear of poverty": "Cemas soal uang",
+  "Stinginess": "Pelit",
+  "Never enough": "Tidak pernah merasa cukup",
+  "Contentment": "Merasa cukup",
+  "Giving": "Sedekah",
+  "Envy of wealth": "Iri melihat kekayaan orang",
+  "Shame": "Malu",
+  "Regret over the past": "Menyesal",
+  "Insecurity / feeling inferior": "Minder",
+  "Feeling worthless or useless": "Merasa tidak berguna",
+  "Feeling unloved": "Merasa tidak dicintai",
+  "Emptiness / life feels meaningless": "Hampa",
+  "Wanting to change and become better": "Ingin berubah",
+  "Being bullied": "Direndahkan",
+  "Being slandered": "Difitnah",
+  "Feeling hatred": "Menyimpan benci",
+  "Wanting revenge": "Ingin membalas",
+  "Losing a friend": "Kehilangan sahabat",
+  "Trouble with neighbours": "Masalah dengan tetangga",
+  "Wanting to reconcile": "Ingin berdamai",
+  "Despair": "Putus asa",
+  "Anger at fate": "Marah pada takdir",
+  "Prayers unanswered": "Doa tidak dijawab",
+  "Far from God": "Merasa jauh dari Allah",
+  "Fear of insincerity": "Takut riya atau munafik",
+  "Struggling with consistency": "Susah istiqamah",
+  "Burnout": "Lelah & jenuh",
+  "Overwhelm": "Kewalahan",
+  "Laziness": "Malas & menunda",
+  "JobLoss": "Kehilangan pekerjaan",
+  "Direction": "Bingung arah hidup",
+  "StudyStress": "Stres ujian & belajar",
+  "EffortNotEnough": "Usaha terasa tak cukup",
   "Hardship & ease": "Kesulitan & kelapangan",
   "Anxiety & fear": "Cemas & takut",
   "Grief & loss": "Duka & kehilangan",
@@ -134,4 +264,191 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [30, 21], themes: ["Family"], why: "Dia jadikan di antara kalian rasa cinta dan kasih sayang" },
   { ref: [17, 23], themes: ["Family"], why: "Berbuat baiklah kepada orang tua" },
   { ref: [17, 24], themes: ["Family"], why: "\"Tuhanku, sayangilah mereka seperti mereka merawatku waktu kecil\"" },
+
+  // ── Expanded feeling corpus (docs/review/feelings-expansion.md) ──
+  // Envy & comparison
+  { ref: [4, 32], themes: ["Envy & comparison"], why: "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri" },
+  // Anger
+  { ref: [3, 134], themes: ["Anger"], why: "Mereka yang menahan amarah dan memaafkan orang lain" },
+  { ref: [41, 35], themes: ["Anger"], why: "Membalas keburukan dengan kebaikan — hanya orang sabar yang sanggup" },
+  // Loneliness
+  { ref: [50, 16], themes: ["Loneliness"], why: "Allah lebih dekat kepadamu daripada urat lehermu — kamu tidak pernah sendirian" },
+  // Illness & healing
+  { ref: [26, 80], themes: ["Illness & healing"], why: "\"Ketika aku sakit, Tuhankulah yang menyembuhkan aku\" — doa Ibrahim" },
+  // Speech & gossip
+  { ref: [49, 12], themes: ["Speech & gossip"], why: "Jauhi prasangka, jangan mencari-cari kesalahan, jangan menggunjing" },
+  // Forgiving others
+  { ref: [2, 263], themes: ["Forgiving others"], why: "Berkata baik dan memaafkan lebih baik daripada sedekah yang menyakiti hati" },
+  // Pride & arrogance
+  { ref: [31, 18], themes: ["Pride & arrogance"], why: "Nasihat Luqman kepada anaknya — jangan berjalan di bumi dengan sombong" },
+  { ref: [57, 23], themes: ["Pride & arrogance"], why: "Agar kamu tidak putus asa atas yang hilang, dan tidak bangga atas yang didapat" },
+  // Fear of death
+  { ref: [29, 57], themes: ["Fear of death"], why: "Setiap yang bernyawa pasti merasakan kematian, lalu dikumpulkan kembali" },
+  // Doubt & weak faith
+  { ref: [14, 27], themes: ["Doubt & weak faith"], why: "Allah meneguhkan hati orang mukmin — iman yang goyah bisa dikuatkan" },
+  { ref: [18, 14], themes: ["Doubt & weak faith"], why: "\"Kami teguhkan hati mereka\" — para pemuda Ashabul Kahfi" },
+  // Wealth & greed
+  { ref: [2, 268], themes: ["Wealth & greed"], why: "Setan menakut-nakutimu dengan kemiskinan; Allah menjanjikan ampunan dan karunia" },
+  { ref: [57, 20], themes: ["Wealth & greed"], why: "Dunia hanya permainan dan saling membanggakan harta dan anak" },
+  // Parents
+  { ref: [19, 14], themes: ["Parents"], why: "Yahya berbakti kepada ibu bapaknya, tidak durhaka" },
+  { ref: [14, 41], themes: ["Parents"], why: "Doa Ibrahim — ampunilah aku dan kedua orang tuaku" },
+  // Injustice & being wronged
+  { ref: [4, 148], themes: ["Injustice & being wronged"], why: "Orang yang teraniaya boleh menyuarakan apa yang menimpanya" },
+  // Guilt & sin
+  { ref: [4, 27], themes: ["Guilt & sin"], why: "Allah menghendaki untuk mengampuni dosa-dosa kalian" },
+  // Longing for a child
+  { ref: [21, 89], themes: ["Longing for a child"], why: "Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama" },
+  { ref: [3, 38], themes: ["Longing for a child"], why: "Allah Maha Mendengar setiap permohonan yang kau bisikkan" },
+  // Waiting for a spouse
+  { ref: [25, 74], themes: ["Waiting for a spouse"], why: "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati" },
+  // Struggling to raise children
+  { ref: [20, 132], themes: ["Struggling to raise children"], why: "Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung" },
+  { ref: [11, 115], themes: ["Struggling to raise children"], why: "Tidak ada satu pun lelahmu yang disia-siakan Allah" },
+  { ref: [14, 40], themes: ["Struggling to raise children"], why: "Doakan anakmu; itu pun bagian dari mendidiknya" },
+  // A child who has gone astray
+  { ref: [28, 56], themes: ["A child who has gone astray"], why: "Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai" },
+  // Caring for elderly parents
+  { ref: [31, 14], themes: ["Caring for elderly parents"], why: "Merawat mereka adalah membalas lemah yang dahulu mereka tanggung" },
+  { ref: [46, 15], themes: ["Caring for elderly parents"], why: "Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya" },
+  // Conflict within the family
+  { ref: [41, 34], themes: ["Conflict within the family"], why: "Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan" },
+  { ref: [8, 63], themes: ["Conflict within the family"], why: "Hanya Allah yang sanggup menyatukan hati yang saling menjauh" },
+  // Being a single parent
+  { ref: [19, 24], themes: ["Being a single parent"], why: "Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih" },
+  { ref: [19, 25], themes: ["Being a single parent"], why: "Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan" },
+  { ref: [28, 7], themes: ["Being a single parent"], why: "Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih" },
+  // Worry about the future
+  { ref: [33, 3], themes: ["Worry about the future"], why: "Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu" },
+  { ref: [46, 13], themes: ["Worry about the future"], why: "Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan" },
+  // Confusion facing a big decision
+  { ref: [18, 24], themes: ["Confusion facing a big decision"], why: "Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar" },
+  { ref: [42, 38], themes: ["Confusion facing a big decision"], why: "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman" },
+  // Starting over
+  { ref: [4, 100], themes: ["Starting over"], why: "Yang pergi karena Allah menemukan tempat luas dan rezeki berlimpah" },
+  { ref: [29, 56], themes: ["Starting over"], why: "Bumi Allah itu luas; selalu ada tempat untuk memulai lagi" },
+  // Hope and optimism
+  { ref: [93, 5], themes: ["Hope and optimism"], why: "Allah akan memberi, sampai hatimu benar-benar puas dan senang" },
+  // Joy and happiness
+  { ref: [10, 58], themes: ["Joy and happiness"], why: "Bergembiralah dengan karunia dan rahmat Allah" },
+  { ref: [27, 19], themes: ["Joy and happiness"], why: "Sulaiman tersenyum, lalu memohon agar pandai mensyukuri nikmat-Nya" },
+  { ref: [93, 11], themes: ["Joy and happiness"], why: "Saat bahagia, sebut dan syukuri nikmat Tuhanmu" },
+  // Growing older
+  { ref: [30, 54], themes: ["Growing older"], why: "Lemah, kuat, lalu lemah lagi — semua dalam rencana-Nya" },
+  // Chronic illness
+  { ref: [21, 83], themes: ["Chronic illness"], why: "Doa Ayyub: penyakit ini menimpaku, dan Engkau Maha Penyayang" },
+  { ref: [21, 84], themes: ["Chronic illness"], why: "Doa Ayyub dikabulkan; yang hilang dikembalikan berlipat oleh-Nya" },
+  // Divorce
+  { ref: [4, 130], themes: ["Divorce"], why: "Jika berpisah, Allah mencukupi keduanya dari karunia-Nya masing-masing" },
+  // Betrayal
+  { ref: [12, 18], themes: ["Betrayal"], why: "Saat orang terdekat berdusta, kesabaran yang indah adalah jalannya" },
+  { ref: [12, 90], themes: ["Betrayal"], why: "Yusuf dikhianati saudaranya, namun Allah tak menyia-nyiakan orang yang bersabar" },
+  // Abandonment
+  { ref: [93, 6], themes: ["Abandonment"], why: "Dia mendapatimu sendirian dahulu, lalu Dia melindungimu" },
+  // Longing
+  { ref: [12, 84], themes: ["Longing"], why: "Bahkan seorang nabi menangis sampai matanya memutih karena rindu" },
+  { ref: [12, 87], themes: ["Longing"], why: "Selama merindu, jangan pernah berputus asa dari rahmat Allah" },
+  // Poverty
+  { ref: [93, 8], themes: ["Poverty"], why: "Allah pernah mendapatimu kekurangan, lalu Dia mencukupkanmu" },
+  { ref: [67, 15], themes: ["Poverty"], why: "Bumi dibentangkan untukmu; melangkahlah, rezeki-Nya ada di sana" },
+  // Fear of poverty
+  { ref: [15, 21], themes: ["Fear of poverty"], why: "Rezekimu sudah tersimpan di sisi-Nya, turun pada takarannya" },
+  // Stinginess
+  { ref: [17, 29], themes: ["Stinginess"], why: "Jangan menggenggam terlalu erat, jangan pula menghambur; ambil tengahnya" },
+  { ref: [64, 16], themes: ["Stinginess"], why: "Bertakwalah sesanggupmu; berilah, itu kebaikan untuk dirimu sendiri" },
+  // Never enough
+  { ref: [102, 1], themes: ["Never enough"], why: "Berlomba menumpuk harta melalaikan, sampai kubur menghentikannya" },
+  { ref: [63, 9], themes: ["Never enough"], why: "Jangan biarkan harta dan anak melalaikanmu dari mengingat-Nya" },
+  // Contentment
+  { ref: [28, 60], themes: ["Contentment"], why: "Yang ada di sisi Allah lebih baik dan lebih kekal" },
+  { ref: [16, 96], themes: ["Contentment"], why: "Milikmu akan habis; yang di sisi Allah tetap kekal" },
+  // Giving
+  { ref: [2, 261], themes: ["Giving"], why: "Satu biji yang kamu tanam menjadi tujuh tangkai berbuah" },
+  { ref: [2, 274], themes: ["Giving"], why: "Yang memberi diam-diam maupun terang: tak ada takut, tak ada sedih" },
+  { ref: [34, 39], themes: ["Giving"], why: "Apa pun yang kamu berikan, pasti Allah menggantinya" },
+  // Envy of wealth
+  { ref: [20, 131], themes: ["Envy of wealth"], why: "Jangan tujukan matamu ke milik orang lain; itu ujian" },
+  { ref: [15, 88], themes: ["Envy of wealth"], why: "Jangan melirik milik mereka, jangan pula bersedih karenanya" },
+  // Shame
+  { ref: [25, 70], themes: ["Shame"], why: "Bagi yang kembali, Allah menukar dosa-dosa itu dengan pahala" },
+  { ref: [11, 114], themes: ["Shame"], why: "Kebaikan yang kamu kerjakan menghapus jejak yang kamu malukan" },
+  // Regret over the past
+  { ref: [2, 37], themes: ["Regret over the past"], why: "Adam pun pernah jatuh, dan taubatnya diterima Allah" },
+  { ref: [3, 133], themes: ["Regret over the past"], why: "Jangan berlama-lama di masa lalu; bergegaslah menuju ampunan-Nya" },
+  // Insecurity / feeling inferior
+  { ref: [49, 11], themes: ["Insecurity / feeling inferior"], why: "Yang direndahkan orang bisa jadi lebih baik di sisi Allah" },
+  { ref: [49, 13], themes: ["Insecurity / feeling inferior"], why: "Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah" },
+  // Feeling worthless or useless
+  { ref: [21, 94], themes: ["Feeling worthless or useless"], why: "Tidak ada satu pun kebaikanmu yang disia-siakan Allah" },
+  { ref: [99, 7], themes: ["Feeling worthless or useless"], why: "Sekecil debu pun kebaikanmu tetap terlihat dan berbalas" },
+  { ref: [64, 3], themes: ["Feeling worthless or useless"], why: "Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya" },
+  // Feeling unloved
+  { ref: [93, 3], themes: ["Feeling unloved"], why: "Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu" },
+  { ref: [3, 31], themes: ["Feeling unloved"], why: "Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu" },
+  // Emptiness / life feels meaningless
+  { ref: [16, 97], themes: ["Emptiness / life feels meaningless"], why: "Iman dan amal kecil pun membuahkan kehidupan yang baik" },
+  { ref: [23, 115], themes: ["Emptiness / life feels meaningless"], why: "Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan" },
+  { ref: [67, 2], themes: ["Emptiness / life feels meaningless"], why: "Hidup dan mati diadakan agar terlihat siapa terbaik amalnya" },
+  // Wanting to change and become better
+  { ref: [20, 82], themes: ["Wanting to change and become better"], why: "Bertaubat, beramal, lalu bertahan di jalan itu — Allah mengampuni" },
+  // Being bullied
+  { ref: [33, 58], themes: ["Being bullied"], why: "Kamu tidak bersalah; dosanya ada pada yang mengolok" },
+  { ref: [3, 186], themes: ["Being bullied"], why: "Ejekan yang menyakitkan itu ujian; sabarmu bernilai besar" },
+  // Being slandered
+  { ref: [33, 69], themes: ["Being slandered"], why: "Musa pun difitnah, lalu Allah sendiri yang membersihkannya" },
+  { ref: [24, 11], themes: ["Being slandered"], why: "Jangan kira fitnah ini merugikanmu; ia justru membawa kebaikan" },
+  // Feeling hatred
+  { ref: [5, 8], themes: ["Feeling hatred"], why: "Jangan biarkan bencimu membuatmu berlaku tidak adil kepadanya" },
+  { ref: [17, 53], themes: ["Feeling hatred"], why: "Jawablah celaan dengan kata terbaik; setan senang mengadu domba" },
+  // Wanting revenge
+  { ref: [42, 43], themes: ["Wanting revenge"], why: "Sabar dan memaafkan itu tanda hati yang teguh, bukan lemah" },
+  { ref: [42, 40], themes: ["Wanting revenge"], why: "Kamu berhak membalas setimpal, tapi pahala pemaaf ditanggung Allah" },
+  { ref: [12, 92], themes: ["Wanting revenge"], why: "Yusuf berkuasa membalas, namun ia memilih berkata: tidak ada cercaan" },
+  // Losing a friend
+  { ref: [4, 69], themes: ["Losing a friend"], why: "Masih ada teman terbaik menantimu: para nabi dan orang shalih" },
+  // Trouble with neighbours
+  { ref: [4, 36], themes: ["Trouble with neighbours"], why: "Berbuat baik kepada tetangga dekat dan jauh, itu perintah Allah" },
+  { ref: [49, 6], themes: ["Trouble with neighbours"], why: "Telitilah dulu kabar yang meragukan, agar kamu tidak menyesal" },
+  { ref: [24, 27], themes: ["Trouble with neighbours"], why: "Menghormati batas rumah orang lain menjaga damainya bertetangga" },
+  // Wanting to reconcile
+  { ref: [49, 10], themes: ["Wanting to reconcile"], why: "Kalian bersaudara; damaikanlah, semoga kalian diberi rahmat" },
+  { ref: [4, 114], themes: ["Wanting to reconcile"], why: "Mendamaikan yang berselisih adalah bicara paling bernilai di sisi Allah" },
+  // Despair
+  { ref: [42, 28], themes: ["Despair"], why: "Hujan turun justru ketika manusia hampir menyerah menunggu" },
+  // Anger at fate
+  { ref: [57, 22], themes: ["Anger at fate"], why: "Tidak ada yang menimpamu tanpa sudah tercatat sebelum dunia ada" },
+  // Prayers unanswered
+  { ref: [19, 4], themes: ["Prayers unanswered"], why: "Zakaria menua dan beruban, tapi doanya tak pernah sia-sia" },
+  { ref: [21, 90], themes: ["Prayers unanswered"], why: "Doa Zakaria dikabulkan setelah menunggu bertahun-tahun lamanya" },
+  { ref: [27, 62], themes: ["Prayers unanswered"], why: "Siapa lagi yang menjawab orang terhimpit selain Allah?" },
+  // Far from God
+  { ref: [57, 4], themes: ["Far from God"], why: "Allah beserta kalian di mana pun kalian berada" },
+  { ref: [3, 8], themes: ["Far from God"], why: "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk" },
+  // Fear of insincerity
+  { ref: [23, 61], themes: ["Fear of insincerity"], why: "Justru merekalah yang disebut bersegera dalam kebaikan" },
+  // Struggling with consistency
+  { ref: [73, 20], themes: ["Struggling with consistency"], why: "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan" },
+  // Burnout
+  { ref: [94, 2], themes: ["Burnout"], why: "Allah sendiri yang meringankan beban itu dari pundakmu" },
+  { ref: [78, 9], themes: ["Burnout"], why: "Tidurmu bukan kelemahan, itu penenang yang Allah sediakan" },
+  { ref: [28, 73], themes: ["Burnout"], why: "Malam untuk beristirahat itu rahmat, bukan waktu yang terbuang" },
+  // Overwhelm
+  { ref: [4, 28], themes: ["Overwhelm"], why: "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya" },
+  { ref: [23, 62], themes: ["Overwhelm"], why: "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu" },
+  // Laziness
+  { ref: [87, 8], themes: ["Laziness"], why: "Allah yang memudahkan langkahmu, kamu tak berjalan sendirian" },
+  { ref: [92, 7], themes: ["Laziness"], why: "Mulai satu langkah kecil, jalan mudah akan disiapkan" },
+  // JobLoss
+  { ref: [29, 62], themes: ["JobLoss"], why: "Yang melapangkan dan menyempitkan rezeki tahu persis kebutuhanmu" },
+  { ref: [42, 12], themes: ["JobLoss"], why: "Perbendaharaan langit dan bumi milik-Nya; satu pintu tertutup bukan akhir" },
+  // Direction
+  { ref: [1, 6], themes: ["Direction"], why: "Doa paling sederhana saat tak tahu harus ke mana" },
+  // StudyStress
+  { ref: [20, 25], themes: ["StudyStress"], why: "Doa Musa saat dadanya sesak menghadapi tugas berat" },
+  { ref: [20, 26], themes: ["StudyStress"], why: "Dua kata yang cukup dibaca sebelum masuk ruang ujian" },
+  { ref: [96, 5], themes: ["StudyStress"], why: "Dia yang mengajari manusia apa yang belum diketahuinya" },
+  // EffortNotEnough
+  { ref: [3, 195], themes: ["EffortNotEnough"], why: "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan" },
+  { ref: [4, 40], themes: ["EffortNotEnough"], why: "Sebesar zarrah pun tak hilang, malah dilipatgandakan" },
+  { ref: [18, 30], themes: ["EffortNotEnough"], why: "Yang kamu kerjakan dengan baik tidak akan disia-siakan" },
 ] as const;

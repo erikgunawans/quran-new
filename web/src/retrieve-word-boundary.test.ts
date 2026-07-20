@@ -23,13 +23,21 @@ const themesOf = (q: string) => [...keywordThemeHits(q).keys()].sort();
 
 describe("a lexicon word buried inside another word must NOT match", () => {
   test.each([
-    ["dibully terus di sekolah", "ibu ⊂ dibully"],
     ["wilayah kami luas", "ayah ⊂ wilayah"],
     ["distribusi barang", "ibu/istri ⊂ distribusi"],
     ["ruangan ini sempit", "uang ⊂ ruangan"],
     ["sepintas terlihat baik", "sepi ⊂ sepintas"],
   ])("%s — %s", (q) => {
     expect(themesOf(q)).toEqual([]);
+  });
+
+  test("dibully matches BEING BULLIED, never Family", () => {
+    // "dibully" is now a real keyword of its own theme, so this is no longer silent — but the bug
+    // being pinned is the substring hijack, and that must stay dead: `ibu` ⊂ d-IBU-lly must never
+    // route a bullied person to verses about honouring parents.
+    const hits = keywordThemeHits("dibully terus di sekolah");
+    expect(hits.get("Family")).toBeUndefined();
+    expect([...hits.keys()]).toContain("Being bullied");
   });
 
   test("the reported case: being bullied is not a question about parents", () => {

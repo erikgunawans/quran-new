@@ -367,7 +367,11 @@ await Bun.write(REVIEW_OUT, JSON.stringify({ threshold: DIVERGENCE_THRESHOLD, co
 
 console.log(`✓ index    114 surahs → ${INDEX_TS} (${(Buffer.byteLength(indexTs) / 1024).toFixed(1)} KB, inlined — zero network)`);
 console.log(`✓ shards   ${shardedAyahs} ayahs → ${SHARD_DIR}/ (largest: surah ${largest.n} @ ${largest.kb.toFixed(0)} KB gzipped)`);
-console.log(`✓ hot path ${verses.length} verses · ${bundle.sources.length} voices → ${OUT_DIR}/corpus.json (${hotKb.toFixed(0)} KB)`);
+// Wire size, per this file's own budgeting rule above — the warning used to compare the DISK size
+// against a 300 KB threshold, so growing the corpus tripped a 4G alarm that the network never sees.
+// Every real server gzips this; measure what actually crosses the wire.
+const hotGz = Bun.gzipSync(Buffer.from(JSON.stringify(bundle))).length / 1024;
+console.log(`✓ hot path ${verses.length} verses · ${bundle.sources.length} voices → ${OUT_DIR}/corpus.json (${hotKb.toFixed(0)} KB, ${hotGz.toFixed(0)} KB gzipped)`);
 console.log(`✓ review   ${diverging} verses ranked for human review → ${REVIEW_OUT} (NOT shipped to the browser)`);
 console.log(`  ↳ the reader's safeguard is structural: every verse ships both renderings. No mechanical caution.`);
-if (hotKb > 300) console.warn(`⚠ hot path ${hotKb.toFixed(0)} KB is heavy for 4G`);
+if (hotGz > 200) console.warn(`⚠ hot path ${hotGz.toFixed(0)} KB gzipped is heavy for 4G`);

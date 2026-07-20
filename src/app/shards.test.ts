@@ -135,8 +135,11 @@ describe("Anti: the UI speaks Indonesian only", () => {
     expect(leaks).toEqual([]);
   });
 
-  test("all 55 captions are populated", () => {
-    expect(PROBLEM_VERSES.length).toBe(55);
+  test("every caption is populated", () => {
+    // Was pinned at exactly 55 — the original hand-curated set. The corpus is expected to GROW as
+    // feelings are added, so pin a floor and the invariant that matters (no empty caption), not a
+    // number that turns every legitimate expansion into a test failure.
+    expect(PROBLEM_VERSES.length).toBeGreaterThanOrEqual(55);
     for (const v of PROBLEM_VERSES) expect(v.why.trim().length).toBeGreaterThan(0);
   });
 
