@@ -8,7 +8,69 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — Synthesis answer eval built; it found a noise-matching bug in BOTH editions; fix DEPLOYED
+## 2026-07-20 (latest) — Feeling corpus 55→201 verses; honesty floor BROKEN then restored
+
+Long session. Both editions redeployed several times; final versions principled `68c78f9e`,
+synthesis `3140809c`. Pushed through `99a4496`.
+
+**1. Synthesis answer eval harness** (`bun run eval:answer`, `efc36cc`). The AI edition authors
+religious answers and had no evaluation of that. Runs the REAL pipeline (gatherGrounding →
+SYNTHESIS_SYSTEM_PROMPT → the Worker's 2-attempt guard loop), then an LLM judge that sees the SAME
+grounding and scores groundedness / fidelity / humility / helpfulness. **Never yet run against a
+model — needs a key in `.env`.**
+
+**2. Knowledge-index noise, fixed** (`5722619`). `score > 0` qualified a scholar entry on ONE shared
+word: "tentang" pulled 12 entries for a question about the Prophet; `haram`-as-SACRED (Masjidil
+Haram, bulan haram) answered "is dating haram". IDF was measured and REJECTED — in terse index lines
+every offending word is rare (tentang 4.1%, haram 1.8%) right beside the legitimate riba (2.9%).
+
+**3. The corpus was 55 verses / 12 feelings** — and that was never a design, it was a hand-written
+quality bar for the Tarjamah Tafsiriyah voice that quietly became the app's knowledge. All 6,236
+ayahs were already shipped; only the TAGS were missing. Now **201 verses / 83 feelings**
+(`a7020b3`, `7df38a0`). Selected by 8 parallel workers, each required to quote text it actually read;
+`merge-feelings-batches.ts` rejects any entry whose quote doesn't match the real ayah.
+
+**4. `theme` → `themes[]`** (`1ebf396`). A verse can carry several feelings. Scoring credits the
+BEST match (extra tags widen reach, never rank); diversification claims ONE feeling per verse so a
+broadly-tagged verse can't swallow both of someone's concerns.
+
+**5. Word-boundary matching** (`c1f6801`). `"ibu"` matched inside `"d-IBU-lly"` — a bullied person
+was told to honour their parents. Affix-aware now (`keuangan`→uang real, `ruangan`→uang noise).
+
+**6. `/pre-ship` — and it caught a regression I shipped** (`453218d`, `99a4496`).
+- 6 fragment verses were live opening mid-sentence, incl. 23:61 which I had *wrongly cleared* as
+  standalone. Fragment rule moved from a one-shot script to a build gate in `build-corpus.ts`.
+- `retrieve()` 3.58ms → 0.15ms (word overlap ran on all 201 verses, ~95% discarded).
+- **CRITICAL: the honesty floor was breached 8/8.** Growing to 83 themes brought in the vocabulary
+  ruling questions are MADE of (zakat, cerai, sombong), so "hukum cerai dalam islam" returned 4:130
+  [Divorce] wrapped in feeling framing. The old floor held by LUCK — 12 narrow themes happened not
+  to collide — and the suite stayed green because its 8 pinned strings contained none of the 71 new
+  keywords. Now `isRulingQuestion()` enforces it in code, and the test is a PROPERTY over the whole
+  lexicon so it re-proves itself on every expansion. **0/10 breaching, verified on the live corpus.**
+- Homonyms removed: `kaya`(="like") led "ngerasa kaya ga berguna" with 2:268 (Satan/poverty);
+  `materi`(=coursework); `tua`(inside "orang tua"); `mati`(inside "dimatikan" — "lampu dimatikan jam
+  10" returned "every soul will taste death").
+
+**619 tests pass, typecheck clean.**
+
+**KNOWN OPEN — all verified, none fixed:**
+1. `web/src/answer.ts:51` calls `retrieveKnowledge` UNCONDITIONALLY, so the AI edition can ground an
+   emotional question on ruling-index entries. `main.ts` gates it; `answer.ts` does not.
+2. Unresolvable refs reach the AI edition's citation whitelist — 4 index refs don't exist in the
+   mushaf (e.g. QS 8:77 in a 75-ayah surah). Principled renders them unlinked; synthesis could cite
+   them as scripture. Fix: filter `!e.resolvable` in `gatherGrounding`.
+3. `23:61` still ships mid-sentence (referent in 23:57-60), shown for Fear of insincerity.
+   `25:70`, `113:5` likewise flagged REVIEW in `FRAGMENT_OK` — the gate warns, does not block.
+4. 27 caveated verses were merged on Erik's instruction; their caveat text is DROPPED at the last
+   hop (ProblemVerse has no caveat field), so display constraints like "jangan disajikan sebagai
+   jaminan datangnya jodoh" (51:49) exist nowhere in the shipped app.
+5. `lexicon-coverage.test.ts` reads gitignored `web/public/corpus.json` — the sync guard can't run
+   on a fresh clone, and there is no CI.
+6. **The ustadz has seen none of the 147 proposed verses.** `docs/review/feelings-expansion.md`.
+
+---
+
+## 2026-07-20 — Synthesis answer eval built; it found a noise-matching bug in BOTH editions; fix DEPLOYED
 
 Two commits, both deployed and verified live by curl on the served bundles (Interceptor screenshots
 still dead — Erik's eye is the only visual verification).
@@ -93,7 +155,7 @@ now) — the real principled-vs-synthesis decision; (4) Phase-2 voice tuning (ne
 
 ---
 
-## 2026-07-20 (latest) — Islamic craft layer: mushaf medallions, girih, illuminated cartouche
+## 2026-07-20 — Islamic craft layer: mushaf medallions, girih, illuminated cartouche
 
 Erik ran /ui-ux-pro-max ("more aesthetic, still strong Islamic nuance"). Its generic recs (brown/amber,
 Lora/Raleway) were AGAIN off-identity — rejected, as before. Instead DEEPENED authentic Islamic craft
@@ -117,7 +179,7 @@ still dead — Erik must eyeball on deploy.** Deploy each edition to see it; rol
 
 ---
 
-## 2026-07-20 (latest) — SECOND EDITION: the AI-authoring "synthesis" variant (new-quranku-ai), NOT deployed
+## 2026-07-20 — SECOND EDITION: the AI-authoring "synthesis" variant (new-quranku-ai), NOT deployed
 
 Erik's second direction, deliberately a **180° reversal** of the app's founding law. He wants an
 alternative that answers **DeepSeek-style** — the *model authors* a substantive answer to any question,
