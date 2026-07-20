@@ -109,6 +109,24 @@ const STOP = new Set<string>([...OVERLAP_STOP, ...KNOWLEDGE_EXTRA]);
  */
 const FRAME = new Set<string>(["islam", "islami", "muslim", "agama", "ajaran"]);
 
+/**
+ * Question-frame nouns: they name the KIND of question, never its subject.
+ *
+ * In "hukum pacaran dalam islam", `hukum` says *what is being asked* — the ruling on something — and
+ * `pacaran` says *what it is being asked about*. `hukum` cannot go in FRAME or STOP: it is a real
+ * content word that matches real law entries, and "apa hukum qishas" should absolutely find the
+ * qishas lines. It is only noise when it matched INSTEAD of the subject.
+ *
+ * Frequency cannot make this distinction and was measured, not assumed: in Perintah dan Larangan
+ * `hukum` is 6/626 (1.0%) — RARER than `riba` in Ekonomi (2/69, 2.9%) and barely commoner than the
+ * legitimate `zina` (3/626, 0.5%). An IDF threshold would rank `hukum` as MORE specific than `riba`
+ * and rank the noise above the signal. This is the second time frequency has been tried against this
+ * index and the second time it has failed; the separator is word CLASS, as it was before.
+ *
+ * See `subjectHit` for how this is used.
+ */
+const QUESTION_FRAME = new Set<string>(["hukum", "hukumnya", "syariat", "syariah", "dalil", "cara", "caranya"]);
+
 const MAX_ENTRIES = 8;
 
 /**
@@ -218,6 +236,21 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
     ),
   );
 
+  /**
+   * The words carrying what the question is ABOUT, as opposed to what kind of question it is.
+   *
+   * "hukum pacaran dalam islam" → {pacaran}. The index holds nothing on pacaran, so every entry that
+   * scored did so on `hukum` alone and is about qishas or jahiliyah — six verses on following the law
+   * of the Jahiliyyah, handed to someone asking about dating. In the synthesis edition those six were
+   * the model's ONLY grounding, and it duly padded the gap from its own knowledge (koridor syariat,
+   * khitbah) — claims the guard is structurally blind to, since they carry no citation at all.
+   *
+   * When the question has no subject beyond its frame ("apa hukumnya?"), the frame IS all we have and
+   * suppressing it would be worse than useless — so `subjectWords` is empty there and the frame word
+   * scores normally. The rule only bites when a subject exists and the index simply does not cover it.
+   */
+  const subjectWords = new Set([...qWords].filter((w) => !QUESTION_FRAME.has(w)));
+
   const matched: { text: string; ref: string; surah: number; ayah: number; resolvable: boolean; subtopic: string | null; score: number }[] = [];
   for (const st of shard.subtopics) {
     for (const e of st.entries) {
@@ -225,11 +258,17 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
       if (!first) continue;
       const words = new Set(norm(e.text).split(/[\s-]+/).filter(Boolean));
       let score = 0;
+      let onSubject = false;
       // A hit only counts in the asker's sense — see SENSE_COLLOCATIONS (haram: forbidden vs sacred).
-      for (const w of qWords) if (words.has(w) && hasOwnSense(e.text, w)) score += 1;
-      // ONLY genuinely-matching entries. No overlap → we surface nothing and let the render point to
-      // the topic instead of faking an answer from arbitrary entries.
-      if (score > 0) matched.push({ text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah, resolvable: first.resolvable, subtopic: st.subtopic, score });
+      for (const w of qWords) {
+        if (!words.has(w) || !hasOwnSense(e.text, w)) continue;
+        score += 1;
+        // …and a hit on the question's FRAME is not a hit on its subject. See subjectWords.
+        if (!subjectWords.size || !QUESTION_FRAME.has(w)) onSubject = true;
+      }
+      // ONLY genuinely-matching entries, and only ones that matched the SUBJECT. No overlap → we
+      // surface nothing and let the render point to the topic instead of faking an answer.
+      if (score > 0 && onSubject) matched.push({ text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah, resolvable: first.resolvable, subtopic: st.subtopic, score });
     }
   }
   matched.sort((a, b) => b.score - a.score);

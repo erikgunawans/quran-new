@@ -137,3 +137,45 @@ describe("retrieveKnowledge — function words and homonyms must not rank the sc
     expect(k!.entries.some((e) => e.text.toLowerCase().includes("riba"))).toBe(true);
   });
 });
+
+describe("retrieveKnowledge — a frame word must not answer for a subject the index lacks", () => {
+  // Erik asked the live app "pacaran itu boleh ga sih?" and got an honest silence, which is correct.
+  // One phrasing away, "hukum pacaran dalam islam" returned six entries about qishas and following
+  // the law of the Jahiliyyah — matched on `hukum` alone, since the index holds nothing on pacaran.
+  // In the synthesis edition those six were the model's ONLY grounding.
+  test("'hukum pacaran' surfaces nothing rather than entries about hukum-in-general", async () => {
+    const k = await retrieveKnowledge("hukum pacaran dalam islam");
+    expect(k).not.toBeNull();
+    expect(k!.slug).toBe("perintah-dan-larangan"); // the topic still matches — only the entries go
+    expect(k!.entries).toEqual([]);
+  });
+
+  // The residual gap recorded in PROGRESS on 2026-07-20, now closed by the same rule.
+  test("'hukum mendengarkan musik' surfaces nothing — musik is not in the index", async () => {
+    expect((await retrieveKnowledge("hukum mendengarkan musik"))!.entries).toEqual([]);
+  });
+
+  // The other half of the rule, and the one that makes it safe: `hukum` is a real content word and
+  // must keep working when the subject IS covered. Anything less would trade one silence for another.
+  test("a subject the index DOES cover still answers", async () => {
+    const riba = await retrieveKnowledge("apa hukum riba dalam islam");
+    expect(riba!.entries.length).toBeGreaterThan(0);
+    expect(riba!.entries.every((e) => /riba/i.test(e.text))).toBe(true);
+
+    const qishas = await retrieveKnowledge("apa hukum qishas");
+    expect(qishas!.entries.length).toBeGreaterThan(0);
+    expect(qishas!.entries.some((e) => /qishas/i.test(e.text))).toBe(true);
+  });
+
+  // Frequency was measured and rejected for the SECOND time here. If a future change reaches for an
+  // IDF threshold, this is the counter-example: it would rank the noise above the signal.
+  test("df cannot separate these: `hukum` is RARER in its category than `riba` is in its own", async () => {
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s-]/g, " ");
+    const df = async (slug: string, w: string) => {
+      const shard = await (await fetch(`/peta/${slug}.json`)).json();
+      const all: { text: string }[] = shard.subtopics.flatMap((st: { entries: { text: string }[] }) => st.entries);
+      return all.filter((e: { text: string }) => new Set(norm(e.text).split(/[\s-]+/)).has(w)).length / all.length;
+    };
+    expect(await df("perintah-dan-larangan", "hukum")).toBeLessThan(await df("ekonomi-islam", "riba"));
+  });
+});
