@@ -8,7 +8,62 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — the eval ran for the first time and found a live bug in the OTHER edition
+## 2026-07-20 (latest) — specificity rule + grounding verification; both DEPLOYED and probed live
+
+Two fixes, both live. **Principled** `7361ef16` (`index-DSqRKk7q.js`) · **Synthesis** `e9c0eaad`
+(`index-CsTfuC1g.js`). 640 tests, web + worker typecheck clean.
+
+**1. A question-frame word must not answer for a subject the index lacks** (`3a9b271`). Erik asked the
+LIVE app "pacaran itu boleh ga sih?" and got honest silence — correct, the honesty floor. One phrasing
+away, "hukum pacaran dalam islam" returned six entries about qishas and following the law of the
+Jahiliyyah, matched on `hukum` alone because the index holds nothing on pacaran. In synthesis those six
+were the model's ONLY grounding, and prod duly padded from outside knowledge (*koridor syariat*,
+*khitbah*) — claims the guard is structurally blind to, carrying no citation at all. Same failure the
+eval judged at groundedness 2 on `feeling-anxiety`: **thin or off-topic grounding invites padding.**
+
+The rule is grammatical, not statistical: in "hukum pacaran", `hukum` names the KIND of question and
+`pacaran` its subject, so an entry qualifies only if it matched a SUBJECT word. `hukum` stays a real
+content word ("apa hukum qishas" still finds the qishas lines); a question with no subject beyond its
+frame scores normally.
+
+**Frequency was measured and rejected for the SECOND time on this index** — `hukum` is 6/626 (1.0%) in
+Perintah dan Larangan, RARER than `riba` at 2/69 (2.9%) in Ekonomi and barely commoner than the
+legitimate `zina` (0.5%). An IDF threshold would rank the noise ABOVE the signal. Pinned as a test so
+the next attempt meets the counter-example first.
+
+Live, against prod-served data: `hukum pacaran` 6→0, `hukum mendengarkan musik` 6→0 (the residual gap
+recorded this morning), `hukum riba` 6→3 and now all genuinely riba. Erik's silence now holds whatever
+the phrasing, and with nothing to ground on synthesis bows out rather than authoring around noise.
+
+**2. Grounding is verified before the model sees it** (`809b32e`). Found while verifying #1.
+`/api/answer` is public and authored from grounding the BROWSER sends; `sanitizeGrounding` bounded
+size/type/count but never asked whether the text was something a scholar wrote. It was not — a caller
+could POST invented entries and get a fluent answer on them, and the egress guard is powerless there by
+construction, since it whitelists citations against the SUBMITTED grounding, so forged grounding
+whitelists its own citations. Blast radius limited (answer returns only to that caller, nothing leaks)
+but the artifact is a screenshot of this app, under a real scholar's name, saying something no scholar
+said.
+
+Build now emits a hash per legitimate item (198 verses + 2442 entries, 38.7 KB); the Worker fetches it
+once per isolate and drops what doesn't verify. Nothing survives → same as no grounding → bows out.
+Hashing ref AND text together is the point: 2:255 exists, and the sentence bolted onto it is the payload.
+
+**The design was set by the failure mode, not the attack.** This check FAILS CLOSED, so drift would
+reject LEGITIMATE grounding and synthesis would bow out on every question — the AI edition silently
+becoming the principled one with nothing in the logs. So the hash is defined ONCE in
+`web/src/grounding-digest.ts` and imported by both builder and Worker, making drift unrepresentable;
+the parity test asserts against REAL `gatherGrounding` output, not fixtures. Worker typecheck caught a
+generic variance bug in `verifyGrounding` on the way.
+
+**Probed live on prod, and both directions mattered:** forged scholar entry → null ✓ · invented text on
+real ayah 2:255 → null ✓ · **genuine grounding still authors ✓** (the one that proves we did not fail
+closed). A green rejection with a broken accept-path looks like success and is a dead product.
+
+**Open, unchanged:** the fatwa guard has still never fired in anger. The ustadz packet is now FOUR docs
+and is the bottleneck — every verse dropped today came from checking curation nobody had checked, and
+one was live in production. Phone eyeball still outstanding.
+
+## 2026-07-20 — the eval ran for the first time and found a live bug in the OTHER edition
 
 `bun run eval:answer` ran against a model for the first time (Erik put the key in `.env`). It paid for
 itself on the first run, and not where anyone was looking.
