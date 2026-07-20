@@ -57,6 +57,123 @@ interface Feeling {
   readonly flagged: number;
 }
 
+/**
+ * One proposed verse, parsed out of the source document so it can be re-laid-out as a call script.
+ *
+ * The original layout is a form: verse, then checkboxes for the reader to tick. That shape assumed
+ * the ustadz would sit alone with 115 KB of markdown and fill it in, which is the ask that stalled.
+ * The review itself was never the problem — a scholar can judge "does this verse meet someone feeling
+ * this?" in seconds out loud. What we actually need from him is his judgement; what we need in
+ * WRITING is only the RECORD of it, because his name is displayed on the result.
+ *
+ * So the page is rebuilt for the person holding the phone: what to read aloud, what to ask, and a
+ * blank to write his answer into. He is not looking at this document. We are.
+ */
+interface Verse {
+  readonly flagged: boolean;
+  readonly surah: string;
+  readonly ref: string;
+  readonly why: string;
+  readonly doubt: string | null;
+  readonly tafsiriyah: string;
+  readonly kemenag: string;
+}
+
+const VERSE_RE =
+  /^### (⚠️ )?QS\. (.+?) — (\d+:\d+)\n\n\*\*Usulan `why`:\*\* (.+?)\n(?:\n> ⚠️ \*\*Perlu ditimbang:\*\* (.+?)\n)?\n\*\*Tarjamah Tafsiriyah \(Ustadz Muhammad Thalib\)\*\*  \n(.+?)\n\n\*\*Kemenag RI\*\*  \n(.+?)\n/s;
+
+function parseVerses(body: string): Verse[] {
+  return body
+    .split(/\n(?=### )/)
+    .filter((b) => b.startsWith("### "))
+    .map((b) => {
+      const m = VERSE_RE.exec(b);
+      if (!m) throw new Error(`unparseable verse block: ${b.split("\n")[0]}`);
+      return {
+        flagged: !!m[1],
+        surah: m[2]!.trim(),
+        ref: m[3]!,
+        why: m[4]!.trim(),
+        doubt: m[5]?.trim() ?? null,
+        tafsiriyah: m[6]!.trim(),
+        kemenag: m[7]!.trim(),
+      };
+    });
+}
+
+/** ~90 seconds per verse, ~3 minutes for one we already doubt. Rounded up to the nearest 5. */
+const minutesFor = (vs: Verse[]): number =>
+  Math.ceil((vs.length * 1.5 + vs.filter((v) => v.flagged).length * 1.5) / 5) * 5;
+
+/**
+ * Verses we ourselves pulled after review, and what to say about them.
+ *
+ * Without this the script would have the reader asking about a verse we already removed, with no idea
+ * that we had — and no way to give the ustadz the one piece of context that makes his answer useful,
+ * which is WHY we pulled it. In both cases the fix he might bless is a whole passage rather than the
+ * single ayah. See docs/review/fragment-review.md.
+ */
+const WITHDRAWN: Record<string, string> = {
+  "113:5":
+    "Ayat ini sudah kami cabut, Ustadz. Kalau berdiri sendiri, kalimatnya mulai dari 'dan dari' — " +
+    "sambungan dari ayat sebelumnya, dan di layar jadi ada tanda kutip penutup tanpa pembuka. " +
+    "Yang mau saya tanyakan: apakah lebih baik kami tampilkan **satu surat Al-Falaq utuh**?",
+  "23:61":
+    "Ayat ini sudah kami cabut, Ustadz. Kalau berdiri sendiri, 'mereka itulah' tidak ada rujukannya — " +
+    "orang yang takut ibadahnya tidak ikhlas malah membacanya sebagai gambaran orang lain yang lebih " +
+    "baik dari dia. Yang mau saya tanyakan: apakah lebih baik kami tampilkan **23:57-61 sekaligus**?",
+  "23:60":
+    "Ayat ini belum pernah tayang, Ustadz — kalimatnya sambungan dari ayat sebelumnya. " +
+    "Apakah lebih baik ditampilkan bersama 23:57-61 sekaligus?",
+};
+
+/** The per-verse script: read it, ask it, write down what he says. */
+function verseScript(v: Verse, n: number, live: boolean): string {
+  const withdrawn = WITHDRAWN[v.ref];
+  return [
+    `### ${n}. QS. ${v.surah} — ${v.ref}${v.flagged ? "  ⚠️" : ""}${live ? "" : "  _(sudah kami cabut / belum tayang)_"}`,
+    ``,
+    ...(withdrawn
+      ? [`**🗣️ Sampaikan dulu:**`, ``, `> "${withdrawn}"`, ``]
+      : live
+        ? []
+        : [`> _Belum tayang. Tanyakan seperti biasa._`, ``]),
+    `**📖 Bacakan ayatnya:**`,
+    ``,
+    `> ${v.tafsiriyah}`,
+    ``,
+    `**🗣️ Tanyakan:** "Kalau ada orang yang sedang **${"{PERASAAN}"}**, ayat ini pas nggak Ustadz`,
+    `untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya`,
+    `ditaruh di perasaan itu."`,
+    ``,
+    ...(v.doubt
+      ? [
+          `**⚠️ Sampaikan keraguan kami — jangan dilewat:**`,
+          ``,
+          `> "Yang ini kami sendiri ragu, Ustadz. ${v.doubt}"`,
+          ``,
+        ]
+      : []),
+    `**Kalimat yang akan muncul di aplikasi:** _"${v.why}"_`,
+    ``,
+    `<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>`,
+    ``,
+    `> ${v.kemenag}`,
+    ``,
+    `</details>`,
+    ``,
+    `**✍️ Jawaban Ustadz:**`,
+    ``,
+    `\`\`\``,
+    ``,
+    ``,
+    `\`\`\``,
+    ``,
+    `☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu`,
+    ``,
+  ].join("\n");
+}
+
 const feelings: Feeling[] = sections
   .filter((s) => s.startsWith("## ") && !NOT_A_FEELING.test(s))
   .map((s) => ({
@@ -121,19 +238,92 @@ for (const [i, batch] of batches.entries()) {
     `| Ditandai ⚠️ (mohon perhatian ekstra) | **${flagged}** |`,
     `| Bagian | ${n} dari ${batches.length} — total ${totalVerses} ayat |`,
     ``,
-    `Bagian ini berdiri sendiri. Tidak perlu menunggu bagian lain, dan tidak perlu dikerjakan urut —`,
-    `bagian mana pun yang sudah selesai boleh dikembalikan lebih dulu, dan ayat di dalamnya bisa`,
-    `langsung diproses sementara sisanya menyusul.`,
-    ``,
     `Perasaan di bagian ini: ${batch.map((f) => `**${f.name}**`).join(" · ")}`,
     ``,
     `---`,
     ``,
-    instructions,
+    `## Cara memakai halaman ini`,
+    ``,
+    `**Halaman ini untuk kamu, bukan untuk Ustadz.** Ustadz tidak perlu membaca apa pun dan tidak`,
+    `perlu menulis apa pun — cukup menjawab lewat telepon. Kamu yang membacakan, bertanya, dan`,
+    `menuliskan jawabannya di kolom yang sudah disediakan.`,
+    ``,
+    `Perkiraan waktu: **± ${minutesFor(batch.flatMap((f) => parseVerses(f.body)))} menit.**`,
+    ``,
+    `Yang penting dijaga:`,
+    ``,
+    `1. **Bacakan ayatnya dulu, baru bertanya.** Jangan minta Ustadz menilai dari nomor ayat saja.`,
+    `2. **Pertanyaannya bukan "ayat ini benar tidak"** — tentu benar. Pertanyaannya: pas atau tidak`,
+    `   ditaruh pada perasaan itu.`,
+    `3. **Tanda ⚠️ wajib dibacakan keraguannya.** Itu bagian yang kami sendiri tidak yakin, dan justru`,
+    `   di situ pendapat Ustadz paling dibutuhkan. Jangan dilewat supaya cepat.`,
+    `4. **Tulis jawabannya apa adanya**, termasuk yang ragu-ragu atau setengah setuju. Jangan`,
+    `   dibulatkan jadi "setuju".`,
+    `5. Kalau Ustadz ingin berhenti di tengah, **berhenti saja.** Yang sudah dijawab tetap terpakai.`,
     ``,
     `---`,
     ``,
-    batch.map((f) => f.body).join("\n\n---\n\n"),
+    `## Pembuka telepon`,
+    ``,
+    `> "Ustadz, saya minta waktunya sebentar untuk minta tolong diperiksa. Aplikasi Qur'an yang saya`,
+    `> buat itu menemani orang lewat **perasaan** — jadi kalau seseorang menulis 'saya lagi sedih',`,
+    `> aplikasinya menampilkan ayat yang kami rasa menemani perasaan itu.`,
+    `>`,
+    `> Yang mau saya minta: **apakah ayat yang kami pilih itu memang pas** untuk perasaan itu.`,
+    `>`,
+    `> Satu hal saya sampaikan terus terang dulu, Ustadz: **ayat-ayat ini sudah tayang duluan** dan`,
+    `> sudah dibaca orang sekarang. Itu keputusan kami, sebelum sempat minta pendapat Ustadz. Jadi`,
+    `> kalau menurut Ustadz ada yang tidak pas, **kami cabut** — bukan sekadar tidak jadi dipasang.`,
+    `> Mohon jangan sungkan menyuruh cabut. Beberapa sudah kami cabut sendiri setelah kami periksa`,
+    `> lagi.`,
+    `>`,
+    `> Nama Ustadz tercantum sebagai peninjau, jadi saya ingin memastikan yang tercantum itu memang`,
+    `> benar-benar sudah Ustadz lihat."`,
+    ``,
+    `---`,
+    ``,
+    batch
+      .map((f) => {
+        const vs = parseVerses(f.body);
+        return [
+          `## Perasaan: ${f.name}`,
+          ``,
+          `<sub>${vs.length} ayat${vs.some((v) => v.flagged) ? ` · ${vs.filter((v) => v.flagged).length} ⚠️` : ""}</sub>`,
+          ``,
+          `**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **${f.name.toLowerCase()}**, Ustadz."`,
+          ``,
+          vs
+            .map((v, k) =>
+              verseScript(v, k + 1, liveRefs.has(v.ref)).replaceAll("{PERASAAN}", f.name.toLowerCase()),
+            )
+            .join("\n"),
+          `**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"`,
+          ``,
+          `Usulan Ustadz: ______________________________________________`,
+          ``,
+        ].join("\n");
+      })
+      .join("\n---\n\n"),
+    `---`,
+    ``,
+    `## Penutup telepon — jangan dilewat`,
+    ``,
+    `> "Terima kasih banyak, Ustadz. Saya rapikan dulu catatannya, nanti saya kirim ke Ustadz —`,
+    `> **mohon dilihat sebentar apakah sudah sesuai** dengan yang Ustadz maksud. Kalau sudah pas,`,
+    `> cukup Ustadz balas 'betul' saja, dan itu yang saya pakai sebagai persetujuan."`,
+    ``,
+    `**Kenapa langkah ini penting:** nama Ustadz tampil di aplikasi sebagai peninjau. Konfirmasi`,
+    `singkat dari beliau — dibalas WhatsApp, pesan suara, apa saja — itulah yang menjadikan catatan`,
+    `ini sah, bukan sekadar ingatan kita atas obrolan. **Tanpa konfirmasi itu, jangan ditayangkan`,
+    `sebagai sudah ditinjau.**`,
+    ``,
+    `Setelah dikonfirmasi, isi lembar ini dipindahkan ke \`src/review/problem-verses.ts\`.`,
+    ``,
+    `| | |`,
+    `|---|---|`,
+    `| Tanggal telepon | ____________________ |`,
+    `| Catatan dikirim ke Ustadz | ☐ sudah, tanggal ____________ |`,
+    `| **Dikonfirmasi Ustadz** | ☐ **sudah** — cara: ☐ WhatsApp ☐ pesan suara ☐ lisan ulang |`,
     ``,
   ].join("\n");
   await Bun.write(`${OUT_DIR}/bagian-${pad(n)}.md`, md);

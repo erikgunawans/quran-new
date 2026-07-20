@@ -19,209 +19,414 @@
 | Ditandai ⚠️ (mohon perhatian ekstra) | **1** |
 | Bagian | 9 dari 13 — total 147 ayat |
 
-Bagian ini berdiri sendiri. Tidak perlu menunggu bagian lain, dan tidak perlu dikerjakan urut —
-bagian mana pun yang sudah selesai boleh dikembalikan lebih dulu, dan ayat di dalamnya bisa
-langsung diproses sementara sisanya menyusul.
-
 Perasaan di bagian ini: **Minder** · **Merasa tidak berguna** · **Merasa tidak dicintai** · **Hampa**
 
 ---
 
-## Cara meninjau
+## Cara memakai halaman ini
 
-Untuk setiap baris, satu pertanyaan: **apakah ayat ini benar-benar menemui orang yang sedang
-merasakan hal itu?** Bukan "apakah ayat ini benar" (tentu benar), melainkan apakah penempatannya
-pada perasaan ini tepat secara pastoral.
+**Halaman ini untuk kamu, bukan untuk Ustadz.** Ustadz tidak perlu membaca apa pun dan tidak
+perlu menulis apa pun — cukup menjawab lewat telepon. Kamu yang membacakan, bertanya, dan
+menuliskan jawabannya di kolom yang sudah disediakan.
 
-Tandai tiap baris: **✅ setuju** · **✏️ ganti `why`-nya** · **❌ jangan dipakai**.
+Perkiraan waktu: **± 20 menit.**
 
-Baris bertanda ⚠️ adalah yang penulis sendiri ragukan, dengan alasannya ditulis terbuka. Mohon
-perhatian ekstra pada baris-baris itu.
+Yang penting dijaga:
 
-> Catatan cara memilih: setiap ayat ditemukan dengan **mencari teks terjemahan Indonesia** lalu
-> dibaca, bukan dari hafalan. Ini penting — pencarian kata "dengki" memunculkan 2:109 dan 4:54,
-> yang berbicara tentang kedengkian kaum terdahulu kepada Nabi: pokok yang berbeda dari seseorang
-> yang sedang merasa iri. Keduanya tidak dipakai. Teks ayat di bawah ditarik langsung dari korpus
-> saat berkas ini dibuat, bukan diketik ulang.
-
----
-
----
-
-## Minder
-
-<sub>kunci internal: `Insecurity / feeling inferior`</sub>
-
-### QS. Al-Hujuraat — 49:11
-
-**Usulan `why`:** Yang direndahkan orang bisa jadi lebih baik di sisi Allah
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai orang-orang mukmin, janganlah suatu kaum merendahkan kaum lainnya. Barangkali kaum yang direndahkan itu lebih baik dari yang merendahkan. Janganlah seorang perempuan merendahkan perempuan lainnya. Barangkali perempuan yang direndahkan itu lebih baik dari perempuan yang merendahkan. Janganlah kalian mencela sesama mukmin secara sembunyi-sembunyi. Janganlah pula kalian menggunakan kata-kata panggilan yang buruk. Seburuk-buruk panggilan kepada orang yang telah beriman adalah kata-kata panggilan jahiliyah. Siapa saja yang tidak mau bertaubat dari dosanya, mereka itu adalah orang-orang zhalim.
-
-**Kemenag RI**  
-Hai orang-orang yang beriman, janganlah sekumpulan orang laki-laki merendahkan kumpulan yang lain, boleh jadi yang ditertawakan itu lebih baik dari mereka. Dan jangan pula sekumpulan perempuan merendahkan kumpulan lainnya, boleh jadi yang direndahkan itu lebih baik. Dan janganlah suka mencela dirimu sendiri dan jangan memanggil dengan gelaran yang mengandung ejekan. Seburuk-buruk panggilan adalah (panggilan) yang buruk sesudah iman dan barangsiapa yang tidak bertobat, maka mereka itulah orang-orang yang zalim.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+1. **Bacakan ayatnya dulu, baru bertanya.** Jangan minta Ustadz menilai dari nomor ayat saja.
+2. **Pertanyaannya bukan "ayat ini benar tidak"** — tentu benar. Pertanyaannya: pas atau tidak
+   ditaruh pada perasaan itu.
+3. **Tanda ⚠️ wajib dibacakan keraguannya.** Itu bagian yang kami sendiri tidak yakin, dan justru
+   di situ pendapat Ustadz paling dibutuhkan. Jangan dilewat supaya cepat.
+4. **Tulis jawabannya apa adanya**, termasuk yang ragu-ragu atau setengah setuju. Jangan
+   dibulatkan jadi "setuju".
+5. Kalau Ustadz ingin berhenti di tengah, **berhenti saja.** Yang sudah dijawab tetap terpakai.
 
 ---
 
-### QS. Al-Hujuraat — 49:13
+## Pembuka telepon
 
-**Usulan `why`:** Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai manusia, sungguh Kami ciptakan kalian dari seorang laki-laki dan seorang perempuan. Kemudian Kami jadikan kalian berbangsa-bangsa dan bersuku-suku, supaya kalian saling memahami. Sungguh orang yang paling mulia di antara kalian di sisi Allah adalah orang yang paling bersih dari kesyirikan. Sungguh Allah Maha Mengetahui lagi Mahaluas ilmu-Nya.
-
-**Kemenag RI**  
-Hai manusia, sesungguhnya Kami menciptakan kamu dari seorang laki-laki dan seorang perempuan dan menjadikan kamu berbangsa-bangsa dan bersuku-suku supaya kamu saling kenal-mengenal. Sesungguhnya orang yang paling mulia diantara kamu disisi Allah ialah orang yang paling takwa diantara kamu. Sesungguhnya Allah Maha Mengetahui lagi Maha Mengenal.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
-
----
-
-## Merasa tidak berguna
-
-<sub>kunci internal: `Feeling worthless or useless`</sub>
-
-### QS. Al-Anbiyaa — 21:94
-
-**Usulan `why`:** Tidak ada satu pun kebaikanmu yang disia-siakan Allah
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Siapa saja yang melakukan amal shalih dengan penuh keimanan, maka setiap amalnya tidak akan disia-siakan. Sungguh Kami selalu mencatat amal shalih itu untuk kebaikan dirinya di akhirat.
-
-**Kemenag RI**  
-Maka barang siapa yang mengerjakan amal saleh, sedang ia beriman, maka tidak ada pengingkaran terhadap amalannya itu dan sesungguhnya Kami menuliskan amalannya itu untuknya.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+> "Ustadz, saya minta waktunya sebentar untuk minta tolong diperiksa. Aplikasi Qur'an yang saya
+> buat itu menemani orang lewat **perasaan** — jadi kalau seseorang menulis 'saya lagi sedih',
+> aplikasinya menampilkan ayat yang kami rasa menemani perasaan itu.
+>
+> Yang mau saya minta: **apakah ayat yang kami pilih itu memang pas** untuk perasaan itu.
+>
+> Satu hal saya sampaikan terus terang dulu, Ustadz: **ayat-ayat ini sudah tayang duluan** dan
+> sudah dibaca orang sekarang. Itu keputusan kami, sebelum sempat minta pendapat Ustadz. Jadi
+> kalau menurut Ustadz ada yang tidak pas, **kami cabut** — bukan sekadar tidak jadi dipasang.
+> Mohon jangan sungkan menyuruh cabut. Beberapa sudah kami cabut sendiri setelah kami periksa
+> lagi.
+>
+> Nama Ustadz tercantum sebagai peninjau, jadi saya ingin memastikan yang tercantum itu memang
+> benar-benar sudah Ustadz lihat."
 
 ---
 
-### QS. Az-Zalzala — 99:7
+## Perasaan: Minder
 
-**Usulan `why`:** Sekecil debu pun kebaikanmu tetap terlihat dan berbalas
+<sub>2 ayat</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Siapa saja yang beramal shalih walaupun sebesar debu, ia akan menyaksikan pahalanya kelak di akhirat.
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **minder**, Ustadz."
 
-**Kemenag RI**  
-Barangsiapa yang mengerjakan kebaikan seberat dzarrahpun, niscaya dia akan melihat (balasan)nya.
+### 1. QS. Al-Hujuraat — 49:11
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
 
----
+> Wahai orang-orang mukmin, janganlah suatu kaum merendahkan kaum lainnya. Barangkali kaum yang direndahkan itu lebih baik dari yang merendahkan. Janganlah seorang perempuan merendahkan perempuan lainnya. Barangkali perempuan yang direndahkan itu lebih baik dari perempuan yang merendahkan. Janganlah kalian mencela sesama mukmin secara sembunyi-sembunyi. Janganlah pula kalian menggunakan kata-kata panggilan yang buruk. Seburuk-buruk panggilan kepada orang yang telah beriman adalah kata-kata panggilan jahiliyah. Siapa saja yang tidak mau bertaubat dari dosanya, mereka itu adalah orang-orang zhalim.
 
-### QS. At-Taghaabun — 64:3
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **minder**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
-**Usulan `why`:** Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya
+**Kalimat yang akan muncul di aplikasi:** _"Yang direndahkan orang bisa jadi lebih baik di sisi Allah"_
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Allah telah menciptakan semua langit dan bumi beserta tatanannya yang permanen. Allah telah menciptakan kalian, lalu menjadikan bentuk kalian sangat baik. Hanya kepada Allah-lah kalian dikembalikan.
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Kemenag RI**  
-Dia menciptakan langit dan bumi dengan haq. Dia membentuk rupamu dan dibaguskan-Nya rupamu itu dan hanya kepada Allah-lah kembali(mu).
+> Hai orang-orang yang beriman, janganlah sekumpulan orang laki-laki merendahkan kumpulan yang lain, boleh jadi yang ditertawakan itu lebih baik dari mereka. Dan jangan pula sekumpulan perempuan merendahkan kumpulan lainnya, boleh jadi yang direndahkan itu lebih baik. Dan janganlah suka mencela dirimu sendiri dan jangan memanggil dengan gelaran yang mengandung ejekan. Seburuk-buruk panggilan adalah (panggilan) yang buruk sesudah iman dan barangsiapa yang tidak bertobat, maka mereka itulah orang-orang yang zalim.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+</details>
 
----
+**✍️ Jawaban Ustadz:**
 
----
+```
 
-## Merasa tidak dicintai
 
-<sub>kunci internal: `Feeling unloved`</sub>
+```
 
-### QS. Ad-Dhuhaa — 93:3
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-**Usulan `why`:** Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu
+### 2. QS. Al-Hujuraat — 49:13
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Muhammad, Tuhanmu tidak meninggalkanmu. Tuhanmu juga tidak membencimu.
+**📖 Bacakan ayatnya:**
 
-**Kemenag RI**  
-Tuhanmu tiada meninggalkan kamu dan tiada (pula) benci kepadamu.
+> Wahai manusia, sungguh Kami ciptakan kalian dari seorang laki-laki dan seorang perempuan. Kemudian Kami jadikan kalian berbangsa-bangsa dan bersuku-suku, supaya kalian saling memahami. Sungguh orang yang paling mulia di antara kalian di sisi Allah adalah orang yang paling bersih dari kesyirikan. Sungguh Allah Maha Mengetahui lagi Mahaluas ilmu-Nya.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **minder**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
----
+**Kalimat yang akan muncul di aplikasi:** _"Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah"_
 
-### QS. Aal-i-Imraan — 3:31
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Usulan `why`:** Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu
+> Hai manusia, sesungguhnya Kami menciptakan kamu dari seorang laki-laki dan seorang perempuan dan menjadikan kamu berbangsa-bangsa dan bersuku-suku supaya kamu saling kenal-mengenal. Sesungguhnya orang yang paling mulia diantara kamu disisi Allah ialah orang yang paling takwa diantara kamu. Sesungguhnya Allah Maha Mengetahui lagi Maha Mengenal.
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Nabi, katakanlah kepada orang-orang mukmin: "Jika kalian benar-benar mencintai Allah, maka ikutilah aku. Allah pasti akan mencintai kalian dan mengampuni semua dosa kalian. Allah Maha Pengampun lagi Maha Penyayang kepada semua makhluk-Nya."
+</details>
 
-**Kemenag RI**  
-Katakanlah: "Jika kamu (benar-benar) mencintai Allah, ikutilah aku, niscaya Allah mengasihi dan mengampuni dosa-dosamu". Allah Maha Pengampun lagi Maha Penyayang.
+**✍️ Jawaban Ustadz:**
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+```
 
----
 
-### ⚠️ QS. Hud — 11:90
+```
 
-**Usulan `why`:** Cinta Allah amat besar kepada siapa pun yang kembali
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-> ⚠️ **Perlu ditimbang:** Ini ucapan Nabi Syu'aib kepada kaumnya; pastikan pengutipannya sebagai penegasan sifat Allah, bukan seruan polemik
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Hendaklah kalian minta ampun kepada Tuhan kalian, kemudian bertaubatlah kepada-Nya. Sesungguhnya Tuhanku amat belas kasih dan amat besar cintanya kepada orang-orang yang bertaubat."
-
-**Kemenag RI**  
-Dan mohonlah ampun kepada Tuhanmu kemudian bertaubatlah kepada-Nya. Sesungguhnya Tuhanku Maha Penyayang lagi Maha Pengasih.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+Usulan Ustadz: ______________________________________________
 
 ---
 
+## Perasaan: Merasa tidak berguna
+
+<sub>3 ayat</sub>
+
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **merasa tidak berguna**, Ustadz."
+
+### 1. QS. Al-Anbiyaa — 21:94
+
+**📖 Bacakan ayatnya:**
+
+> Siapa saja yang melakukan amal shalih dengan penuh keimanan, maka setiap amalnya tidak akan disia-siakan. Sungguh Kami selalu mencatat amal shalih itu untuk kebaikan dirinya di akhirat.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak berguna**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Tidak ada satu pun kebaikanmu yang disia-siakan Allah"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Maka barang siapa yang mengerjakan amal saleh, sedang ia beriman, maka tidak ada pengingkaran terhadap amalannya itu dan sesungguhnya Kami menuliskan amalannya itu untuknya.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Az-Zalzala — 99:7
+
+**📖 Bacakan ayatnya:**
+
+> Siapa saja yang beramal shalih walaupun sebesar debu, ia akan menyaksikan pahalanya kelak di akhirat.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak berguna**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Sekecil debu pun kebaikanmu tetap terlihat dan berbalas"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Barangsiapa yang mengerjakan kebaikan seberat dzarrahpun, niscaya dia akan melihat (balasan)nya.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. At-Taghaabun — 64:3
+
+**📖 Bacakan ayatnya:**
+
+> Allah telah menciptakan semua langit dan bumi beserta tatanannya yang permanen. Allah telah menciptakan kalian, lalu menjadikan bentuk kalian sangat baik. Hanya kepada Allah-lah kalian dikembalikan.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak berguna**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dia menciptakan langit dan bumi dengan haq. Dia membentuk rupamu dan dibaguskan-Nya rupamu itu dan hanya kepada Allah-lah kembali(mu).
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
+
 ---
 
-## Hampa
+## Perasaan: Merasa tidak dicintai
 
-<sub>kunci internal: `Emptiness / life feels meaningless`</sub>
+<sub>3 ayat · 1 ⚠️</sub>
 
-### QS. An-Nahl — 16:97
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **merasa tidak dicintai**, Ustadz."
 
-**Usulan `why`:** Iman dan amal kecil pun membuahkan kehidupan yang baik
+### 1. QS. Ad-Dhuhaa — 93:3
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Siapa saja yang beriman dengan benar dan beramal shalih dengan penuh keimanan, baik laki-laki atau perempuan, Kami pasti akan memberikan kehidupan yang baik kepadanya. Kami akan memberi balasan kepada mereka dengan pahala yang lebih baik daripada amal shalih mereka.
+**📖 Bacakan ayatnya:**
 
-**Kemenag RI**  
-Barangsiapa yang mengerjakan amal saleh, baik laki-laki maupun perempuan dalam keadaan beriman, maka sesungguhnya akan Kami berikan kepadanya kehidupan yang baik dan sesungguhnya akan Kami beri balasan kepada mereka dengan pahala yang lebih baik dari apa yang telah mereka kerjakan.
+> Wahai Muhammad, Tuhanmu tidak meninggalkanmu. Tuhanmu juga tidak membencimu.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak dicintai**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Tuhanmu tiada meninggalkan kamu dan tiada (pula) benci kepadamu.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Aal-i-Imraan — 3:31
+
+**📖 Bacakan ayatnya:**
+
+> Wahai Nabi, katakanlah kepada orang-orang mukmin: "Jika kalian benar-benar mencintai Allah, maka ikutilah aku. Allah pasti akan mencintai kalian dan mengampuni semua dosa kalian. Allah Maha Pengampun lagi Maha Penyayang kepada semua makhluk-Nya."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak dicintai**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Katakanlah: "Jika kamu (benar-benar) mencintai Allah, ikutilah aku, niscaya Allah mengasihi dan mengampuni dosa-dosamu". Allah Maha Pengampun lagi Maha Penyayang.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Hud — 11:90  ⚠️
+
+**📖 Bacakan ayatnya:**
+
+> Hendaklah kalian minta ampun kepada Tuhan kalian, kemudian bertaubatlah kepada-Nya. Sesungguhnya Tuhanku amat belas kasih dan amat besar cintanya kepada orang-orang yang bertaubat."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merasa tidak dicintai**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
+
+> "Yang ini kami sendiri ragu, Ustadz. Ini ucapan Nabi Syu'aib kepada kaumnya; pastikan pengutipannya sebagai penegasan sifat Allah, bukan seruan polemik"
+
+**Kalimat yang akan muncul di aplikasi:** _"Cinta Allah amat besar kepada siapa pun yang kembali"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan mohonlah ampun kepada Tuhanmu kemudian bertaubatlah kepada-Nya. Sesungguhnya Tuhanku Maha Penyayang lagi Maha Pengasih.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
-### QS. Al-Muminoon — 23:115
+## Perasaan: Hampa
 
-**Usulan `why`:** Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan
+<sub>3 ayat</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai manusia, apakah kalian mengira bahwa Kami ciptakan kalian itu tanpa kewajiban dan tanggung jawab? Apakah kalian juga mengira bahwa kalian tidak akan dikembalikan kepada Kami?
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **hampa**, Ustadz."
 
-**Kemenag RI**  
-Maka apakah kamu mengira, bahwa sesungguhnya Kami menciptakan kamu secara main-main (saja), dan bahwa kamu tidak akan dikembalikan kepada Kami?
+### 1. QS. An-Nahl — 16:97
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
+
+> Siapa saja yang beriman dengan benar dan beramal shalih dengan penuh keimanan, baik laki-laki atau perempuan, Kami pasti akan memberikan kehidupan yang baik kepadanya. Kami akan memberi balasan kepada mereka dengan pahala yang lebih baik daripada amal shalih mereka.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **hampa**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Iman dan amal kecil pun membuahkan kehidupan yang baik"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Barangsiapa yang mengerjakan amal saleh, baik laki-laki maupun perempuan dalam keadaan beriman, maka sesungguhnya akan Kami berikan kepadanya kehidupan yang baik dan sesungguhnya akan Kami beri balasan kepada mereka dengan pahala yang lebih baik dari apa yang telah mereka kerjakan.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Al-Muminoon — 23:115
+
+**📖 Bacakan ayatnya:**
+
+> Wahai manusia, apakah kalian mengira bahwa Kami ciptakan kalian itu tanpa kewajiban dan tanggung jawab? Apakah kalian juga mengira bahwa kalian tidak akan dikembalikan kepada Kami?
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **hampa**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Maka apakah kamu mengira, bahwa sesungguhnya Kami menciptakan kamu secara main-main (saja), dan bahwa kamu tidak akan dikembalikan kepada Kami?
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Al-Mulk — 67:2
+
+**📖 Bacakan ayatnya:**
+
+> Allah lah yang menciptakan mati dan hidup untuk menguji kalian, siapa di antara kalian yang paling baik amalnya. Allah Mahaperkasa lagi Maha Pengampun.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **hampa**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Hidup dan mati diadakan agar terlihat siapa terbaik amalnya"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Yang menjadikan mati dan hidup, supaya Dia menguji kamu, siapa di antara kamu yang lebih baik amalnya. Dan Dia Maha Perkasa lagi Maha Pengampun,
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
-### QS. Al-Mulk — 67:2
+## Penutup telepon — jangan dilewat
 
-**Usulan `why`:** Hidup dan mati diadakan agar terlihat siapa terbaik amalnya
+> "Terima kasih banyak, Ustadz. Saya rapikan dulu catatannya, nanti saya kirim ke Ustadz —
+> **mohon dilihat sebentar apakah sudah sesuai** dengan yang Ustadz maksud. Kalau sudah pas,
+> cukup Ustadz balas 'betul' saja, dan itu yang saya pakai sebagai persetujuan."
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Allah lah yang menciptakan mati dan hidup untuk menguji kalian, siapa di antara kalian yang paling baik amalnya. Allah Mahaperkasa lagi Maha Pengampun.
+**Kenapa langkah ini penting:** nama Ustadz tampil di aplikasi sebagai peninjau. Konfirmasi
+singkat dari beliau — dibalas WhatsApp, pesan suara, apa saja — itulah yang menjadikan catatan
+ini sah, bukan sekadar ingatan kita atas obrolan. **Tanpa konfirmasi itu, jangan ditayangkan
+sebagai sudah ditinjau.**
 
-**Kemenag RI**  
-Yang menjadikan mati dan hidup, supaya Dia menguji kamu, siapa di antara kamu yang lebih baik amalnya. Dan Dia Maha Perkasa lagi Maha Pengampun,
+Setelah dikonfirmasi, isi lembar ini dipindahkan ke `src/review/problem-verses.ts`.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
+| | |
+|---|---|
+| Tanggal telepon | ____________________ |
+| Catatan dikirim ke Ustadz | ☐ sudah, tanggal ____________ |
+| **Dikonfirmasi Ustadz** | ☐ **sudah** — cara: ☐ WhatsApp ☐ pesan suara ☐ lisan ulang |

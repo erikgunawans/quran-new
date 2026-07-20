@@ -19,239 +19,473 @@
 | Ditandai ⚠️ (mohon perhatian ekstra) | **3** |
 | Bagian | 3 dari 13 — total 147 ayat |
 
-Bagian ini berdiri sendiri. Tidak perlu menunggu bagian lain, dan tidak perlu dikerjakan urut —
-bagian mana pun yang sudah selesai boleh dikembalikan lebih dulu, dan ayat di dalamnya bisa
-langsung diproses sementara sisanya menyusul.
-
 Perasaan di bagian ini: **Pernikahan & pasangan** · **Menanti keturunan** · **Menanti jodoh** · **Lelah mendidik anak** · **Anak yang menjauh** · **Merawat orang tua**
 
 ---
 
-## Cara meninjau
+## Cara memakai halaman ini
 
-Untuk setiap baris, satu pertanyaan: **apakah ayat ini benar-benar menemui orang yang sedang
-merasakan hal itu?** Bukan "apakah ayat ini benar" (tentu benar), melainkan apakah penempatannya
-pada perasaan ini tepat secara pastoral.
+**Halaman ini untuk kamu, bukan untuk Ustadz.** Ustadz tidak perlu membaca apa pun dan tidak
+perlu menulis apa pun — cukup menjawab lewat telepon. Kamu yang membacakan, bertanya, dan
+menuliskan jawabannya di kolom yang sudah disediakan.
 
-Tandai tiap baris: **✅ setuju** · **✏️ ganti `why`-nya** · **❌ jangan dipakai**.
+Perkiraan waktu: **± 25 menit.**
 
-Baris bertanda ⚠️ adalah yang penulis sendiri ragukan, dengan alasannya ditulis terbuka. Mohon
-perhatian ekstra pada baris-baris itu.
+Yang penting dijaga:
 
-> Catatan cara memilih: setiap ayat ditemukan dengan **mencari teks terjemahan Indonesia** lalu
-> dibaca, bukan dari hafalan. Ini penting — pencarian kata "dengki" memunculkan 2:109 dan 4:54,
-> yang berbicara tentang kedengkian kaum terdahulu kepada Nabi: pokok yang berbeda dari seseorang
-> yang sedang merasa iri. Keduanya tidak dipakai. Teks ayat di bawah ditarik langsung dari korpus
-> saat berkas ini dibuat, bukan diketik ulang.
-
----
-
----
-
-## Pernikahan & pasangan
-
-<sub>kunci internal: `Marriage & spouse`</sub>
-
-### ⚠️ QS. Maryam — 19:96
-
-**Usulan `why`:** Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman
-
-> ⚠️ **Perlu ditimbang:** Bukan ayat pernikahan secara khusus — tentang kasih sayang yang Allah tanamkan. Cek apakah cukup tepat untuk tema pasangan.
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Bagi orang-orang yang beriman dan beramal shalih, Tuhan Yang Mahabelas kasih menanamkan rasa cinta dan kasih sayang kepada mereka.
-
-**Kemenag RI**  
-Sesungguhnya orang-orang yang beriman dan beramal saleh, kelak Allah Yang Maha Pemurah akan menanamkan dalam (hati) mereka rasa kasih sayang.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+1. **Bacakan ayatnya dulu, baru bertanya.** Jangan minta Ustadz menilai dari nomor ayat saja.
+2. **Pertanyaannya bukan "ayat ini benar tidak"** — tentu benar. Pertanyaannya: pas atau tidak
+   ditaruh pada perasaan itu.
+3. **Tanda ⚠️ wajib dibacakan keraguannya.** Itu bagian yang kami sendiri tidak yakin, dan justru
+   di situ pendapat Ustadz paling dibutuhkan. Jangan dilewat supaya cepat.
+4. **Tulis jawabannya apa adanya**, termasuk yang ragu-ragu atau setengah setuju. Jangan
+   dibulatkan jadi "setuju".
+5. Kalau Ustadz ingin berhenti di tengah, **berhenti saja.** Yang sudah dijawab tetap terpakai.
 
 ---
 
-### ⚠️ QS. Al-Baqara — 2:187
+## Pembuka telepon
 
-**Usulan `why`:** Suami-istri saling menjadi penenteram satu sama lain
-
-> ⚠️ **Perlu ditimbang:** Konteks ayat adalah malam puasa dan hubungan suami-istri. Bagian 'penenteram' pas, tetapi ayat penuhnya spesifik — perlu persetujuan ustadz.
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai kaum mukmin, dihalalkan bagi kalian pada malam hari puasa untuk berkumpul dengan istri-istri kalian. Istri-istri kalian menjadi penenteram bagi kalian. Kalian menjadi penenteram bagi mereka. Allah mengetahui bahwa kalian telah melanggar janji kalian kepada diri kalian sendiri untuk tidak mencampuri istri setelah bangun malam pada hari puasa. Tetapi Allah mengampuni kalian dan memaafkan dosa atas pelanggaran kalian itu. Karena itu, sekarang kalian boleh berkumpul dengan istri-istri kalian. Berusahalah kalian untuk mendapatkan anak yang telah Allah tetapkan bagi kalian. Makanlah dan minumlah sampai waktu fajar tiba. Kemudian sempurnakanlah puasa itu sampai waktu maghrib. Janganlah kalian berkumpul dengan istri kalian ketika kalian beri'tikaf di masjid. Itulah syari'at Allah. Wahai kaum mukmin, janganlah kalian melanggar syari'at-Nya. Demikianlah Allah jelaskan syari'at-Nya secara rinci kepada manusia supaya mereka beruntung mendapatkan rahmat-Nya.
-
-**Kemenag RI**  
-Dihalalkan bagi kamu pada malam hari bulan puasa bercampur dengan isteri-isteri kamu; mereka adalah pakaian bagimu, dan kamupun adalah pakaian bagi mereka. Allah mengetahui bahwasanya kamu tidak dapat menahan nafsumu, karena itu Allah mengampuni kamu dan memberi maaf kepadamu. Maka sekarang campurilah mereka dan ikutilah apa yang telah ditetapkan Allah untukmu, dan makan minumlah hingga terang bagimu benang putih dari benang hitam, yaitu fajar. Kemudian sempurnakanlah puasa itu sampai (datang) malam, (tetapi) janganlah kamu campuri mereka itu, sedang kamu beri'tikaf dalam mesjid. Itulah larangan Allah, maka janganlah kamu mendekatinya. Demikianlah Allah menerangkan ayat-ayat-Nya kepada manusia, supaya mereka bertakwa.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
-
----
-
-## Menanti keturunan
-
-<sub>kunci internal: `Longing for a child`</sub>
-
-### QS. Al-Anbiyaa — 21:89
-
-**Usulan `why`:** Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Ingatlah tentang kisah Zakaria. Ketika Zakaria berdo'a kepada Tuhannya: "Wahai Tuhanku, janganlah Engkau biarkan aku hidup tanpa anak keturunan. Engkau Mahakekal lagi pemilik segala yang ditinggalkan manusia."
-
-**Kemenag RI**  
-Dan (ingatlah kisah) Zakaria, tatkala ia menyeru Tuhannya: "Ya Tuhanku janganlah Engkau membiarkan aku hidup seorang diri dan Engkaulah Waris Yang Paling Baik.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+> "Ustadz, saya minta waktunya sebentar untuk minta tolong diperiksa. Aplikasi Qur'an yang saya
+> buat itu menemani orang lewat **perasaan** — jadi kalau seseorang menulis 'saya lagi sedih',
+> aplikasinya menampilkan ayat yang kami rasa menemani perasaan itu.
+>
+> Yang mau saya minta: **apakah ayat yang kami pilih itu memang pas** untuk perasaan itu.
+>
+> Satu hal saya sampaikan terus terang dulu, Ustadz: **ayat-ayat ini sudah tayang duluan** dan
+> sudah dibaca orang sekarang. Itu keputusan kami, sebelum sempat minta pendapat Ustadz. Jadi
+> kalau menurut Ustadz ada yang tidak pas, **kami cabut** — bukan sekadar tidak jadi dipasang.
+> Mohon jangan sungkan menyuruh cabut. Beberapa sudah kami cabut sendiri setelah kami periksa
+> lagi.
+>
+> Nama Ustadz tercantum sebagai peninjau, jadi saya ingin memastikan yang tercantum itu memang
+> benar-benar sudah Ustadz lihat."
 
 ---
 
-### QS. Aal-i-Imraan — 3:38
+## Perasaan: Pernikahan & pasangan
 
-**Usulan `why`:** Allah Maha Mendengar setiap permohonan yang kau bisikkan
+<sub>2 ayat · 2 ⚠️</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Di mihrab itu Zakariya berdo'a kepada Tuhannya: "Wahai Tuhanku, karuniakanlah keturunan yang baik kepadaku dari sisi-Mu. Engkau Maha Mendengar permohonanku."
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **pernikahan & pasangan**, Ustadz."
 
-**Kemenag RI**  
-Di sanalah Zakariya mendoa kepada Tuhannya seraya berkata: "Ya Tuhanku, berilah aku dari sisi Engkau seorang anak yang baik. Sesungguhnya Engkau Maha Pendengar doa".
+### 1. QS. Maryam — 19:96  ⚠️
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
 
----
+> Bagi orang-orang yang beriman dan beramal shalih, Tuhan Yang Mahabelas kasih menanamkan rasa cinta dan kasih sayang kepada mereka.
 
----
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **pernikahan & pasangan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
-## Menanti jodoh
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
 
-<sub>kunci internal: `Waiting for a spouse`</sub>
+> "Yang ini kami sendiri ragu, Ustadz. Bukan ayat pernikahan secara khusus — tentang kasih sayang yang Allah tanamkan. Cek apakah cukup tepat untuk tema pasangan."
 
-### QS. Al-Furqaan — 25:74
+**Kalimat yang akan muncul di aplikasi:** _"Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman"_
 
-**Usulan `why`:** Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Dan orang-orang yang berdo'a: "Wahai Tuhan kami, jadikanlah istri-istri dan anak-anak kami orang-orang shalih. Jadikanlah anak keturunan kami suri tauladan bagi orang-orang shalih."
+> Sesungguhnya orang-orang yang beriman dan beramal saleh, kelak Allah Yang Maha Pemurah akan menanamkan dalam (hati) mereka rasa kasih sayang.
 
-**Kemenag RI**  
-Dan orang orang yang berkata: "Ya Tuhan kami, anugrahkanlah kepada kami isteri-isteri kami dan keturunan kami sebagai penyenang hati (kami), dan jadikanlah kami imam bagi orang-orang yang bertakwa.
+</details>
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**✍️ Jawaban Ustadz:**
 
----
+```
 
-### ⚠️ QS. Adh-Dhaariyat — 51:49
 
-**Usulan `why`:** Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan
+```
 
-> ⚠️ **Perlu ditimbang:** Ini ayat tanda kebesaran penciptaan, bukan janji pernikahan; jangan disajikan sebagai jaminan datangnya jodoh
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Semua makhluk Kami jadikan berpasangan, supaya kalian mau berpikir.
+### 2. QS. Al-Baqara — 2:187  ⚠️
 
-**Kemenag RI**  
-Dan segala sesuatu Kami ciptakan berpasang-pasangan supaya kamu mengingat kebesaran Allah.
+**📖 Bacakan ayatnya:**
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+> Wahai kaum mukmin, dihalalkan bagi kalian pada malam hari puasa untuk berkumpul dengan istri-istri kalian. Istri-istri kalian menjadi penenteram bagi kalian. Kalian menjadi penenteram bagi mereka. Allah mengetahui bahwa kalian telah melanggar janji kalian kepada diri kalian sendiri untuk tidak mencampuri istri setelah bangun malam pada hari puasa. Tetapi Allah mengampuni kalian dan memaafkan dosa atas pelanggaran kalian itu. Karena itu, sekarang kalian boleh berkumpul dengan istri-istri kalian. Berusahalah kalian untuk mendapatkan anak yang telah Allah tetapkan bagi kalian. Makanlah dan minumlah sampai waktu fajar tiba. Kemudian sempurnakanlah puasa itu sampai waktu maghrib. Janganlah kalian berkumpul dengan istri kalian ketika kalian beri'tikaf di masjid. Itulah syari'at Allah. Wahai kaum mukmin, janganlah kalian melanggar syari'at-Nya. Demikianlah Allah jelaskan syari'at-Nya secara rinci kepada manusia supaya mereka beruntung mendapatkan rahmat-Nya.
 
----
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **pernikahan & pasangan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
----
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
 
-## Lelah mendidik anak
+> "Yang ini kami sendiri ragu, Ustadz. Konteks ayat adalah malam puasa dan hubungan suami-istri. Bagian 'penenteram' pas, tetapi ayat penuhnya spesifik — perlu persetujuan ustadz."
 
-<sub>kunci internal: `Struggling to raise children`</sub>
+**Kalimat yang akan muncul di aplikasi:** _"Suami-istri saling menjadi penenteram satu sama lain"_
 
-### QS. Taa-Haa — 20:132
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Usulan `why`:** Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung
+> Dihalalkan bagi kamu pada malam hari bulan puasa bercampur dengan isteri-isteri kamu; mereka adalah pakaian bagimu, dan kamupun adalah pakaian bagi mereka. Allah mengetahui bahwasanya kamu tidak dapat menahan nafsumu, karena itu Allah mengampuni kamu dan memberi maaf kepadamu. Maka sekarang campurilah mereka dan ikutilah apa yang telah ditetapkan Allah untukmu, dan makan minumlah hingga terang bagimu benang putih dari benang hitam, yaitu fajar. Kemudian sempurnakanlah puasa itu sampai (datang) malam, (tetapi) janganlah kamu campuri mereka itu, sedang kamu beri'tikaf dalam mesjid. Itulah larangan Allah, maka janganlah kamu mendekatinya. Demikianlah Allah menerangkan ayat-ayat-Nya kepada manusia, supaya mereka bertakwa.
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Muhammad, suruhlah keluargamu melaksanakan shalat dan bersabarlah kamu dalam melaksanakannya. Kami tidak meminta imbalan kepada kamu, bahkan Kamilah yang memberi rezeki kepadamu. Pahala yang baik di akhirat kelak hanyalah bagi orang-orang yang taat kepada Allah dan bertauhid.
+</details>
 
-**Kemenag RI**  
-Dan perintahkanlah kepada keluargamu mendirikan shalat dan bersabarlah kamu dalam mengerjakannya. Kami tidak meminta rezeki kepadamu, Kamilah yang memberi rezeki kepadamu. Dan akibat (yang baik) itu adalah bagi orang yang bertakwa.
+**✍️ Jawaban Ustadz:**
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+```
 
----
 
-### QS. Hud — 11:115
+```
 
-**Usulan `why`:** Tidak ada satu pun lelahmu yang disia-siakan Allah
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Muhammad, bersabarlah kamu, sesungguhnya Allah tidak akan menyia-nyiakan pahala bagi orang-orang yang beramal shalih.
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
 
-**Kemenag RI**  
-Dan bersabarlah, karena sesungguhnya Allah tiada menyia-nyiakan pahala orang-orang yang berbuat kebaikan.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+Usulan Ustadz: ______________________________________________
 
 ---
 
-### QS. Ibrahim — 14:40
+## Perasaan: Menanti keturunan
 
-**Usulan `why`:** Doakan anakmu; itu pun bagian dari mendidiknya
+<sub>2 ayat</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Tuhanku, jadikanlah aku orang yang selalu melaksanakan shalat. Begitu juga anak keturunanku. Wahai Tuhanku, kabulkanlah do'aku.
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **menanti keturunan**, Ustadz."
 
-**Kemenag RI**  
-Ya Tuhanku, jadikanlah aku dan anak cucuku orang-orang yang tetap mendirikan shalat, ya Tuhan kami, perkenankanlah doaku.
+### 1. QS. Al-Anbiyaa — 21:89
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
+
+> Ingatlah tentang kisah Zakaria. Ketika Zakaria berdo'a kepada Tuhannya: "Wahai Tuhanku, janganlah Engkau biarkan aku hidup tanpa anak keturunan. Engkau Mahakekal lagi pemilik segala yang ditinggalkan manusia."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **menanti keturunan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan (ingatlah kisah) Zakaria, tatkala ia menyeru Tuhannya: "Ya Tuhanku janganlah Engkau membiarkan aku hidup seorang diri dan Engkaulah Waris Yang Paling Baik.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Aal-i-Imraan — 3:38
+
+**📖 Bacakan ayatnya:**
+
+> Di mihrab itu Zakariya berdo'a kepada Tuhannya: "Wahai Tuhanku, karuniakanlah keturunan yang baik kepadaku dari sisi-Mu. Engkau Maha Mendengar permohonanku."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **menanti keturunan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Allah Maha Mendengar setiap permohonan yang kau bisikkan"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Di sanalah Zakariya mendoa kepada Tuhannya seraya berkata: "Ya Tuhanku, berilah aku dari sisi Engkau seorang anak yang baik. Sesungguhnya Engkau Maha Pendengar doa".
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
+
+---
+
+## Perasaan: Menanti jodoh
+
+<sub>2 ayat · 1 ⚠️</sub>
+
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **menanti jodoh**, Ustadz."
+
+### 1. QS. Al-Furqaan — 25:74
+
+**📖 Bacakan ayatnya:**
+
+> Dan orang-orang yang berdo'a: "Wahai Tuhan kami, jadikanlah istri-istri dan anak-anak kami orang-orang shalih. Jadikanlah anak keturunan kami suri tauladan bagi orang-orang shalih."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **menanti jodoh**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan orang orang yang berkata: "Ya Tuhan kami, anugrahkanlah kepada kami isteri-isteri kami dan keturunan kami sebagai penyenang hati (kami), dan jadikanlah kami imam bagi orang-orang yang bertakwa.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Adh-Dhaariyat — 51:49  ⚠️
+
+**📖 Bacakan ayatnya:**
+
+> Semua makhluk Kami jadikan berpasangan, supaya kalian mau berpikir.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **menanti jodoh**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
+
+> "Yang ini kami sendiri ragu, Ustadz. Ini ayat tanda kebesaran penciptaan, bukan janji pernikahan; jangan disajikan sebagai jaminan datangnya jodoh"
+
+**Kalimat yang akan muncul di aplikasi:** _"Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan segala sesuatu Kami ciptakan berpasang-pasangan supaya kamu mengingat kebesaran Allah.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
+## Perasaan: Lelah mendidik anak
+
+<sub>3 ayat</sub>
+
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **lelah mendidik anak**, Ustadz."
+
+### 1. QS. Taa-Haa — 20:132
+
+**📖 Bacakan ayatnya:**
+
+> Wahai Muhammad, suruhlah keluargamu melaksanakan shalat dan bersabarlah kamu dalam melaksanakannya. Kami tidak meminta imbalan kepada kamu, bahkan Kamilah yang memberi rezeki kepadamu. Pahala yang baik di akhirat kelak hanyalah bagi orang-orang yang taat kepada Allah dan bertauhid.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **lelah mendidik anak**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan perintahkanlah kepada keluargamu mendirikan shalat dan bersabarlah kamu dalam mengerjakannya. Kami tidak meminta rezeki kepadamu, Kamilah yang memberi rezeki kepadamu. Dan akibat (yang baik) itu adalah bagi orang yang bertakwa.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Hud — 11:115
+
+**📖 Bacakan ayatnya:**
+
+> Wahai Muhammad, bersabarlah kamu, sesungguhnya Allah tidak akan menyia-nyiakan pahala bagi orang-orang yang beramal shalih.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **lelah mendidik anak**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Tidak ada satu pun lelahmu yang disia-siakan Allah"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan bersabarlah, karena sesungguhnya Allah tiada menyia-nyiakan pahala orang-orang yang berbuat kebaikan.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Ibrahim — 14:40
+
+**📖 Bacakan ayatnya:**
+
+> Wahai Tuhanku, jadikanlah aku orang yang selalu melaksanakan shalat. Begitu juga anak keturunanku. Wahai Tuhanku, kabulkanlah do'aku.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **lelah mendidik anak**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Doakan anakmu; itu pun bagian dari mendidiknya"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Ya Tuhanku, jadikanlah aku dan anak cucuku orang-orang yang tetap mendirikan shalat, ya Tuhan kami, perkenankanlah doaku.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
+
 ---
 
-## Anak yang menjauh
+## Perasaan: Anak yang menjauh
 
-<sub>kunci internal: `A child who has gone astray`</sub>
+<sub>1 ayat</sub>
 
-### QS. Al-Qasas — 28:56
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **anak yang menjauh**, Ustadz."
 
-**Usulan `why`:** Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai
+### 1. QS. Al-Qasas — 28:56
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Muhammad, kamu tidak akan dapat memberi hidayah kepada orang yang kamu cintai. Hanya Allah lah yang memberi hidayah kepada orang yang mengimani agama-Nya. Allah Maha Mengetahui siapa yang berhak diberi hidayah.
+**📖 Bacakan ayatnya:**
 
-**Kemenag RI**  
-Sesungguhnya kamu tidak akan dapat memberi petunjuk kepada orang yang kamu kasihi, tetapi Allah memberi petunjuk kepada orang yang dikehendaki-Nya, dan Allah lebih mengetahui orang-orang yang mau menerima petunjuk.
+> Wahai Muhammad, kamu tidak akan dapat memberi hidayah kepada orang yang kamu cintai. Hanya Allah lah yang memberi hidayah kepada orang yang mengimani agama-Nya. Allah Maha Mengetahui siapa yang berhak diberi hidayah.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **anak yang menjauh**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Sesungguhnya kamu tidak akan dapat memberi petunjuk kepada orang yang kamu kasihi, tetapi Allah memberi petunjuk kepada orang yang dikehendaki-Nya, dan Allah lebih mengetahui orang-orang yang mau menerima petunjuk.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
+
+---
+
+## Perasaan: Merawat orang tua
+
+<sub>2 ayat</sub>
+
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **merawat orang tua**, Ustadz."
+
+### 1. QS. Luqman — 31:14
+
+**📖 Bacakan ayatnya:**
+
+> Kami telah memerintahkan kepada manusia untuk berbakti kepada ibu bapaknya. Ibunya telah mengandungnya dalam keadaan lemah bertambah lemah dan menyapihnya ketika usia dua tahun. Hendaklah kamu taat kepada-Ku dalam menggunakan nikmat dari-Ku dan taatlah kepada ibu bapakmu. Kepada-Kulah kalian akan kembali.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merawat orang tua**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Merawat mereka adalah membalas lemah yang dahulu mereka tanggung"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan Kami perintahkan kepada manusia (berbuat baik) kepada dua orang ibu-bapaknya; ibunya telah mengandungnya dalam keadaan lemah yang bertambah-tambah, dan menyapihnya dalam dua tahun. Bersyukurlah kepada-Ku dan kepada dua orang ibu bapakmu, hanya kepada-Kulah kembalimu.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Al-Ahqaf — 46:15
+
+**📖 Bacakan ayatnya:**
+
+> Kami telah perintahkan kepada manusia untuk berbuat baik kepada ibu bapaknya. Ibunya telah mengandungnya dengan susah payah lalu melahirkannya dengan susah payah. Ibunya mengandung dan menyusuinya selama tiga puluh bulan. Ketika anak itu dewasa dan mencapai umur empat puluh tahun, dia berdo'a: "Wahai Tuhanku, berilah aku petunjuk untuk mensyukuri nikmat-Mu yang telah Engkau karuniakan kepadaku dan kepada ibu-bapakku. Jadikanlah aku orang yang beramal shalih yang Engkau ridhai. Berikanlah kebaikan kepadaku dan kepada anak keturunanku. Sungguh aku sekarang bertaubat kepada-Mu. Sungguh aku menjadi golongan orang-orang yang taat kepada syari'at-Mu."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **merawat orang tua**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Kami perintahkan kepada manusia supaya berbuat baik kepada dua orang ibu bapaknya, ibunya mengandungnya dengan susah payah, dan melahirkannya dengan susah payah (pula). Mengandungnya sampai menyapihnya adalah tiga puluh bulan, sehingga apabila dia telah dewasa dan umurnya sampai empat puluh tahun ia berdoa: "Ya Tuhanku, tunjukilah aku untuk mensyukuri nikmat Engkau yang telah Engkau berikan kepadaku dan kepada ibu bapakku dan supaya aku dapat berbuat amal yang saleh yang Engkau ridhai; berilah kebaikan kepadaku dengan (memberi kebaikan) kepada anak cucuku. Sesungguhnya aku bertaubat kepada Engkau dan sesungguhnya aku termasuk orang-orang yang berserah diri".
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
----
+## Penutup telepon — jangan dilewat
 
-## Merawat orang tua
+> "Terima kasih banyak, Ustadz. Saya rapikan dulu catatannya, nanti saya kirim ke Ustadz —
+> **mohon dilihat sebentar apakah sudah sesuai** dengan yang Ustadz maksud. Kalau sudah pas,
+> cukup Ustadz balas 'betul' saja, dan itu yang saya pakai sebagai persetujuan."
 
-<sub>kunci internal: `Caring for elderly parents`</sub>
+**Kenapa langkah ini penting:** nama Ustadz tampil di aplikasi sebagai peninjau. Konfirmasi
+singkat dari beliau — dibalas WhatsApp, pesan suara, apa saja — itulah yang menjadikan catatan
+ini sah, bukan sekadar ingatan kita atas obrolan. **Tanpa konfirmasi itu, jangan ditayangkan
+sebagai sudah ditinjau.**
 
-### QS. Luqman — 31:14
+Setelah dikonfirmasi, isi lembar ini dipindahkan ke `src/review/problem-verses.ts`.
 
-**Usulan `why`:** Merawat mereka adalah membalas lemah yang dahulu mereka tanggung
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Kami telah memerintahkan kepada manusia untuk berbakti kepada ibu bapaknya. Ibunya telah mengandungnya dalam keadaan lemah bertambah lemah dan menyapihnya ketika usia dua tahun. Hendaklah kamu taat kepada-Ku dalam menggunakan nikmat dari-Ku dan taatlah kepada ibu bapakmu. Kepada-Kulah kalian akan kembali.
-
-**Kemenag RI**  
-Dan Kami perintahkan kepada manusia (berbuat baik) kepada dua orang ibu-bapaknya; ibunya telah mengandungnya dalam keadaan lemah yang bertambah-tambah, dan menyapihnya dalam dua tahun. Bersyukurlah kepada-Ku dan kepada dua orang ibu bapakmu, hanya kepada-Kulah kembalimu.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
-
-### QS. Al-Ahqaf — 46:15
-
-**Usulan `why`:** Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Kami telah perintahkan kepada manusia untuk berbuat baik kepada ibu bapaknya. Ibunya telah mengandungnya dengan susah payah lalu melahirkannya dengan susah payah. Ibunya mengandung dan menyusuinya selama tiga puluh bulan. Ketika anak itu dewasa dan mencapai umur empat puluh tahun, dia berdo'a: "Wahai Tuhanku, berilah aku petunjuk untuk mensyukuri nikmat-Mu yang telah Engkau karuniakan kepadaku dan kepada ibu-bapakku. Jadikanlah aku orang yang beramal shalih yang Engkau ridhai. Berikanlah kebaikan kepadaku dan kepada anak keturunanku. Sungguh aku sekarang bertaubat kepada-Mu. Sungguh aku menjadi golongan orang-orang yang taat kepada syari'at-Mu."
-
-**Kemenag RI**  
-Kami perintahkan kepada manusia supaya berbuat baik kepada dua orang ibu bapaknya, ibunya mengandungnya dengan susah payah, dan melahirkannya dengan susah payah (pula). Mengandungnya sampai menyapihnya adalah tiga puluh bulan, sehingga apabila dia telah dewasa dan umurnya sampai empat puluh tahun ia berdoa: "Ya Tuhanku, tunjukilah aku untuk mensyukuri nikmat Engkau yang telah Engkau berikan kepadaku dan kepada ibu bapakku dan supaya aku dapat berbuat amal yang saleh yang Engkau ridhai; berilah kebaikan kepadaku dengan (memberi kebaikan) kepada anak cucuku. Sesungguhnya aku bertaubat kepada Engkau dan sesungguhnya aku termasuk orang-orang yang berserah diri".
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
+| | |
+|---|---|
+| Tanggal telepon | ____________________ |
+| Catatan dikirim ke Ustadz | ☐ sudah, tanggal ____________ |
+| **Dikonfirmasi Ustadz** | ☐ **sudah** — cara: ☐ WhatsApp ☐ pesan suara ☐ lisan ulang |

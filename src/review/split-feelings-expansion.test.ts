@@ -42,20 +42,51 @@ describe("ustadz batches — the honesty corrections must survive regeneration",
 });
 
 describe("ustadz batches — nothing lost in the split", () => {
-  const refsOf = (s: string) => (s.match(/^### (?:⚠️ )?QS\..*$/gm) ?? []).map((l) => l.replace(/^### (?:⚠️ )?/, ""));
+  /** Refs only. The batches are a call script now, so headings carry a number and the source does not. */
+  const refsIn = (s: string) => [...s.matchAll(/QS\. .*? — (\d+:\d+)/g)].map((m) => m[1]!);
 
   test("every proposed verse appears exactly once across the batches", async () => {
-    const original = refsOf(await Bun.file("docs/review/feelings-expansion.md").text());
-    const split = batches.flatMap(refsOf);
+    const original = refsIn(await Bun.file("docs/review/feelings-expansion.md").text());
+    const split = batches.flatMap(refsIn);
     expect(split.length).toBe(original.length);
     expect(new Set(split).size).toBe(split.length); // no duplicates
     expect([...split].sort()).toEqual([...original].sort());
   });
 
-  test("every batch carries the full review instructions, since they are read out of order", () => {
+  test("every batch is self-contained: opening, method, and closing", () => {
+    // Batches get used on different days and in any order. One that assumes another was read first
+    // is one that gets run wrongly — the reason the instructions are repeated rather than referenced.
     for (const b of batches) {
-      expect(b).toContain("Cara meninjau");
+      expect(b).toContain("Pembuka telepon");
+      expect(b).toContain("Cara memakai halaman ini");
+      expect(b).toContain("Penutup telepon");
       expect(b).toContain("jangan dipakai");
+    }
+  });
+
+  test("every verse gives the reader its text, a question, and somewhere to write the answer", () => {
+    for (const b of batches) {
+      const verses = (b.match(/^### \d+\. QS\./gm) ?? []).length;
+      expect(verses).toBeGreaterThan(0);
+      expect((b.match(/\*\*📖 Bacakan ayatnya:\*\*/g) ?? []).length).toBe(verses);
+      expect((b.match(/\*\*✍️ Jawaban Ustadz:\*\*/g) ?? []).length).toBe(verses);
+    }
+  });
+
+  test("every ⚠️ verse makes the reader speak our own doubt aloud", async () => {
+    // The flags exist because the author already doubted the pairing. A script that lets the reader
+    // skim past them silently collects a "yes" on exactly the verses least entitled to one.
+    const source = await Bun.file("docs/review/feelings-expansion.md").text();
+    const doubted = (source.match(/> ⚠️ \*\*Perlu ditimbang:\*\*/g) ?? []).length;
+    const spoken = batches.flatMap((b) => b.match(/Yang ini kami sendiri ragu, Ustadz\./g) ?? []).length;
+    expect(doubted).toBe(27);
+    expect(spoken).toBe(doubted);
+  });
+
+  test("the closing captures HIS confirmation, since his name ships on the result", () => {
+    for (const b of batches) {
+      expect(b).toContain("Dikonfirmasi Ustadz");
+      expect(b).toContain("jangan ditayangkan");
     }
   });
 });

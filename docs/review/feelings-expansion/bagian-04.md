@@ -19,211 +19,418 @@
 | Ditandai ⚠️ (mohon perhatian ekstra) | **2** |
 | Bagian | 4 dari 13 — total 147 ayat |
 
-Bagian ini berdiri sendiri. Tidak perlu menunggu bagian lain, dan tidak perlu dikerjakan urut —
-bagian mana pun yang sudah selesai boleh dikembalikan lebih dulu, dan ayat di dalamnya bisa
-langsung diproses sementara sisanya menyusul.
-
 Perasaan di bagian ini: **Pertengkaran keluarga** · **Mengasuh sendirian** · **Khawatir masa depan** · **Bingung memilih**
 
 ---
 
-## Cara meninjau
+## Cara memakai halaman ini
 
-Untuk setiap baris, satu pertanyaan: **apakah ayat ini benar-benar menemui orang yang sedang
-merasakan hal itu?** Bukan "apakah ayat ini benar" (tentu benar), melainkan apakah penempatannya
-pada perasaan ini tepat secara pastoral.
+**Halaman ini untuk kamu, bukan untuk Ustadz.** Ustadz tidak perlu membaca apa pun dan tidak
+perlu menulis apa pun — cukup menjawab lewat telepon. Kamu yang membacakan, bertanya, dan
+menuliskan jawabannya di kolom yang sudah disediakan.
 
-Tandai tiap baris: **✅ setuju** · **✏️ ganti `why`-nya** · **❌ jangan dipakai**.
+Perkiraan waktu: **± 20 menit.**
 
-Baris bertanda ⚠️ adalah yang penulis sendiri ragukan, dengan alasannya ditulis terbuka. Mohon
-perhatian ekstra pada baris-baris itu.
+Yang penting dijaga:
 
-> Catatan cara memilih: setiap ayat ditemukan dengan **mencari teks terjemahan Indonesia** lalu
-> dibaca, bukan dari hafalan. Ini penting — pencarian kata "dengki" memunculkan 2:109 dan 4:54,
-> yang berbicara tentang kedengkian kaum terdahulu kepada Nabi: pokok yang berbeda dari seseorang
-> yang sedang merasa iri. Keduanya tidak dipakai. Teks ayat di bawah ditarik langsung dari korpus
-> saat berkas ini dibuat, bukan diketik ulang.
-
----
-
----
-
-## Pertengkaran keluarga
-
-<sub>kunci internal: `Conflict within the family`</sub>
-
-### QS. Fussilat — 41:34
-
-**Usulan `why`:** Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Amal shalih tidaklah sama dengan perbuatan dosa. Wahai Muhammad, balaslah perbuatan buruk orang lain kepadamu dengan berlaku baik kepadanya. Jika terjadi permusuhan antara diri kamu dengan seseorang, maka perlakukanlah dia dengan baik, sehingga dia merasa sebagai teman dekatmu.
-
-**Kemenag RI**  
-Dan tidaklah sama kebaikan dan kejahatan. Tolaklah (kejahatan itu) dengan cara yang lebih baik, maka tiba-tiba orang yang antaramu dan antara dia ada permusuhan seolah-olah telah menjadi teman yang sangat setia.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+1. **Bacakan ayatnya dulu, baru bertanya.** Jangan minta Ustadz menilai dari nomor ayat saja.
+2. **Pertanyaannya bukan "ayat ini benar tidak"** — tentu benar. Pertanyaannya: pas atau tidak
+   ditaruh pada perasaan itu.
+3. **Tanda ⚠️ wajib dibacakan keraguannya.** Itu bagian yang kami sendiri tidak yakin, dan justru
+   di situ pendapat Ustadz paling dibutuhkan. Jangan dilewat supaya cepat.
+4. **Tulis jawabannya apa adanya**, termasuk yang ragu-ragu atau setengah setuju. Jangan
+   dibulatkan jadi "setuju".
+5. Kalau Ustadz ingin berhenti di tengah, **berhenti saja.** Yang sudah dijawab tetap terpakai.
 
 ---
 
-### QS. Al-Anfaal — 8:63
+## Pembuka telepon
 
-**Usulan `why`:** Hanya Allah yang sanggup menyatukan hati yang saling menjauh
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Allah lah yang menyatukan hati orang-orang mukmin. Wahai Muhammad, sekiranya kamu membelanjakan semua kekayaan yang ada di bumi ini untuk menyatukan hati kaum mukmin, niscaya kamu tidak akan dapat menyatukan hati mereka. Akan tetapi Allah lah yang menyatukan hati mereka. Sesungguhnya Allah Mahaperkasa lagi Mahabijaksana.
-
-**Kemenag RI**  
-dan Yang mempersatukan hati mereka (orang-orang yang beriman). Walaupun kamu membelanjakan semua (kekayaan) yang berada di bumi, niscaya kamu tidak dapat mempersatukan hati mereka, akan tetapi Allah telah mempersatukan hati mereka. Sesungguhnya Dia Maha Gagah lagi Maha Bijaksana.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
-
----
-
-## Mengasuh sendirian
-
-<sub>kunci internal: `Being a single parent`</sub>
-
-### QS. Maryam — 19:24
-
-**Usulan `why`:** Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih
-
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Kemudian Jibril menyerunya dari bawah pohon kurma: "Janganlah kamu bersedih, karena Tuhanmu telah membuatkan parit kecil di bawahmu.
-
-**Kemenag RI**  
-Maka Jibril menyerunya dari tempat yang rendah: "Janganlah kamu bersedih hati, sesungguhnya Tuhanmu telah menjadikan anak sungai di bawahmu.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+> "Ustadz, saya minta waktunya sebentar untuk minta tolong diperiksa. Aplikasi Qur'an yang saya
+> buat itu menemani orang lewat **perasaan** — jadi kalau seseorang menulis 'saya lagi sedih',
+> aplikasinya menampilkan ayat yang kami rasa menemani perasaan itu.
+>
+> Yang mau saya minta: **apakah ayat yang kami pilih itu memang pas** untuk perasaan itu.
+>
+> Satu hal saya sampaikan terus terang dulu, Ustadz: **ayat-ayat ini sudah tayang duluan** dan
+> sudah dibaca orang sekarang. Itu keputusan kami, sebelum sempat minta pendapat Ustadz. Jadi
+> kalau menurut Ustadz ada yang tidak pas, **kami cabut** — bukan sekadar tidak jadi dipasang.
+> Mohon jangan sungkan menyuruh cabut. Beberapa sudah kami cabut sendiri setelah kami periksa
+> lagi.
+>
+> Nama Ustadz tercantum sebagai peninjau, jadi saya ingin memastikan yang tercantum itu memang
+> benar-benar sudah Ustadz lihat."
 
 ---
 
-### QS. Maryam — 19:25
+## Perasaan: Pertengkaran keluarga
 
-**Usulan `why`:** Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan
+<sub>2 ayat</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Goyangkanlah pohon kurma itu, niscaya buah-buah kurma yang masak akan berjatuhan di sekitarmu untuk kamu pungut,
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **pertengkaran keluarga**, Ustadz."
 
-**Kemenag RI**  
-Dan goyanglah pangkal pohon kurma itu ke arahmu, niscaya pohon itu akan menggugurkan buah kurma yang masak kepadamu,
+### 1. QS. Fussilat — 41:34
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
 
----
+> Amal shalih tidaklah sama dengan perbuatan dosa. Wahai Muhammad, balaslah perbuatan buruk orang lain kepadamu dengan berlaku baik kepadanya. Jika terjadi permusuhan antara diri kamu dengan seseorang, maka perlakukanlah dia dengan baik, sehingga dia merasa sebagai teman dekatmu.
 
-### QS. Al-Qasas — 28:7
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **pertengkaran keluarga**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
-**Usulan `why`:** Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih
+**Kalimat yang akan muncul di aplikasi:** _"Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan"_
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Kami berikan ilham kepada ibu Musa dengan perintah: "Susuilah Musa. Bila kamu khawatir tentang nasib Musa, hanyutkanlah Musa ke sungai Nil. Kamu jangan takut dan jangan bersedih. Sungguh Kami akan mengembalikan Musa kepadamu. Kami akan jadikan Musa sebagai salah seorang rasul."
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Kemenag RI**  
-Dan kami ilhamkan kepada ibu Musa; "Susuilah dia, dan apabila kamu khawatir terhadapnya maka jatuhkanlah dia ke sungai (Nil). Dan janganlah kamu khawatir dan janganlah (pula) bersedih hati, karena sesungguhnya Kami akan mengembalikannya kepadamu, dan menjadikannya (salah seorang) dari para rasul.
+> Dan tidaklah sama kebaikan dan kejahatan. Tolaklah (kejahatan itu) dengan cara yang lebih baik, maka tiba-tiba orang yang antaramu dan antara dia ada permusuhan seolah-olah telah menjadi teman yang sangat setia.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+</details>
 
----
+**✍️ Jawaban Ustadz:**
 
----
+```
 
-## Khawatir masa depan
 
-<sub>kunci internal: `Worry about the future`</sub>
+```
 
-### QS. Al-Ahzaab — 33:3
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-**Usulan `why`:** Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu
+### 2. QS. Al-Anfaal — 8:63
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai Nabi, pasrahkanlah dirimu kepada Allah. Cukuplah Allah menjadi pelindung bagimu.
+**📖 Bacakan ayatnya:**
 
-**Kemenag RI**  
-dan bertawakkallah kepada Allah. Dan cukuplah Allah sebagai Pemelihara.
+> Allah lah yang menyatukan hati orang-orang mukmin. Wahai Muhammad, sekiranya kamu membelanjakan semua kekayaan yang ada di bumi ini untuk menyatukan hati kaum mukmin, niscaya kamu tidak akan dapat menyatukan hati mereka. Akan tetapi Allah lah yang menyatukan hati mereka. Sesungguhnya Allah Mahaperkasa lagi Mahabijaksana.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **pertengkaran keluarga**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
----
+**Kalimat yang akan muncul di aplikasi:** _"Hanya Allah yang sanggup menyatukan hati yang saling menjauh"_
 
-### QS. Al-Ahqaf — 46:13
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
 
-**Usulan `why`:** Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan
+> dan Yang mempersatukan hati mereka (orang-orang yang beriman). Walaupun kamu membelanjakan semua (kekayaan) yang berada di bumi, niscaya kamu tidak dapat mempersatukan hati mereka, akan tetapi Allah telah mempersatukan hati mereka. Sesungguhnya Dia Maha Gagah lagi Maha Bijaksana.
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Sesungguhnya orang-orang mukmin adalah orang-orang yang berkata: "Tuhan kami adalah Allah," kemudian mereka berlaku teguh berpegang pada kalimat tauhid, maka mereka tidak sedikit pun takut menghadapi perhitungan amal di akhirat dan tidak merasa sedih meninggalkan kesenangan dunia.
+</details>
 
-**Kemenag RI**  
-Sesungguhnya orang-orang yang mengatakan: "Tuhan kami ialah Allah", kemudian mereka tetap istiqamah maka tidak ada kekhawatiran terhadap mereka dan mereka tiada (pula) berduka cita.
+**✍️ Jawaban Ustadz:**
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+```
 
----
 
-### ⚠️ QS. Luqman — 31:34
+```
 
-**Usulan `why`:** Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
 
-> ⚠️ **Perlu ditimbang:** Ayat ini utamanya tentang ilmu Allah yang eksklusif (kiamat, hujan, rahim). Pemakaian pastoralnya adalah lepaskan cemas atas hal yang memang bukan wilayahmu — mohon dicek apakah pembingkaian ini dapat diterima ustadz.
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Allah lah yang memiliki pengetahuan tentang hari kiamat. Allah lah yang menurunkan air hujan. Allah mengetahui apa saja yang ada dalam rahim-rahim para ibu. Tidak ada seorang pun yang tahu apa yang akan ia kerjakan besok. Tidak ada seorang pun yang tahu di bumi mana kelak ia akan mati. Sungguh Allah Maha Mengetahui lagi Maha Mengawasi semua perbuatan manusia.
-
-**Kemenag RI**  
-Sesungguhnya Allah, hanya pada sisi-Nya sajalah pengetahuan tentang Hari Kiamat; dan Dialah Yang menurunkan hujan, dan mengetahui apa yang ada dalam rahim. Dan tiada seorangpun yang dapat mengetahui (dengan pasti) apa yang akan diusahakannya besok. Dan tiada seorangpun yang dapat mengetahui di bumi mana dia akan mati. Sesungguhnya Allah Maha Mengetahui lagi Maha Mengenal.
-
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+Usulan Ustadz: ______________________________________________
 
 ---
 
+## Perasaan: Mengasuh sendirian
+
+<sub>3 ayat</sub>
+
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **mengasuh sendirian**, Ustadz."
+
+### 1. QS. Maryam — 19:24
+
+**📖 Bacakan ayatnya:**
+
+> Kemudian Jibril menyerunya dari bawah pohon kurma: "Janganlah kamu bersedih, karena Tuhanmu telah membuatkan parit kecil di bawahmu.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **mengasuh sendirian**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Maka Jibril menyerunya dari tempat yang rendah: "Janganlah kamu bersedih hati, sesungguhnya Tuhanmu telah menjadikan anak sungai di bawahmu.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Maryam — 19:25
+
+**📖 Bacakan ayatnya:**
+
+> Goyangkanlah pohon kurma itu, niscaya buah-buah kurma yang masak akan berjatuhan di sekitarmu untuk kamu pungut,
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **mengasuh sendirian**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan goyanglah pangkal pohon kurma itu ke arahmu, niscaya pohon itu akan menggugurkan buah kurma yang masak kepadamu,
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Al-Qasas — 28:7
+
+**📖 Bacakan ayatnya:**
+
+> Kami berikan ilham kepada ibu Musa dengan perintah: "Susuilah Musa. Bila kamu khawatir tentang nasib Musa, hanyutkanlah Musa ke sungai Nil. Kamu jangan takut dan jangan bersedih. Sungguh Kami akan mengembalikan Musa kepadamu. Kami akan jadikan Musa sebagai salah seorang rasul."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **mengasuh sendirian**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan kami ilhamkan kepada ibu Musa; "Susuilah dia, dan apabila kamu khawatir terhadapnya maka jatuhkanlah dia ke sungai (Nil). Dan janganlah kamu khawatir dan janganlah (pula) bersedih hati, karena sesungguhnya Kami akan mengembalikannya kepadamu, dan menjadikannya (salah seorang) dari para rasul.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
+
 ---
 
-## Bingung memilih
+## Perasaan: Khawatir masa depan
 
-<sub>kunci internal: `Confusion facing a big decision`</sub>
+<sub>3 ayat · 1 ⚠️</sub>
 
-### ⚠️ QS. Al-Baqara — 2:216
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **khawatir masa depan**, Ustadz."
 
-**Usulan `why`:** Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak
+### 1. QS. Al-Ahzaab — 33:3
 
-> ⚠️ **Perlu ditimbang:** Teks tafsiriyah mempersempit maknanya ke perintah agama; versi Kemenag tetap umum. Reviewer perlu memutuskan terjemahan mana yang ditampilkan
+**📖 Bacakan ayatnya:**
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Wahai kaum mukmin, kalian diwajibkan berperang, padahal kalian tidak menyukainya. Barangkali kalian membenci sesuatu perintah agama, padahal perintah itu lebih baik bagi kalian. Barangkali kalian mencintai sesuatu larangan agama, padahal sesuatu yang dilarang lebih buruk bagi kalian. Allah mengetahui, tetapi kalian tidak mengetahui akibat buruk dari mengabaikan perintah atau larangan agama.
+> Wahai Nabi, pasrahkanlah dirimu kepada Allah. Cukuplah Allah menjadi pelindung bagimu.
 
-**Kemenag RI**  
-Diwajibkan atas kamu berperang, padahal berperang itu adalah sesuatu yang kamu benci. Boleh jadi kamu membenci sesuatu, padahal ia amat baik bagimu, dan boleh jadi (pula) kamu menyukai sesuatu, padahal ia amat buruk bagimu; Allah mengetahui, sedang kamu tidak mengetahui.
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **khawatir masa depan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**Kalimat yang akan muncul di aplikasi:** _"Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> dan bertawakkallah kepada Allah. Dan cukuplah Allah sebagai Pemelihara.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Al-Ahqaf — 46:13
+
+**📖 Bacakan ayatnya:**
+
+> Sesungguhnya orang-orang mukmin adalah orang-orang yang berkata: "Tuhan kami adalah Allah," kemudian mereka berlaku teguh berpegang pada kalimat tauhid, maka mereka tidak sedikit pun takut menghadapi perhitungan amal di akhirat dan tidak merasa sedih meninggalkan kesenangan dunia.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **khawatir masa depan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Sesungguhnya orang-orang yang mengatakan: "Tuhan kami ialah Allah", kemudian mereka tetap istiqamah maka tidak ada kekhawatiran terhadap mereka dan mereka tiada (pula) berduka cita.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Luqman — 31:34  ⚠️
+
+**📖 Bacakan ayatnya:**
+
+> Allah lah yang memiliki pengetahuan tentang hari kiamat. Allah lah yang menurunkan air hujan. Allah mengetahui apa saja yang ada dalam rahim-rahim para ibu. Tidak ada seorang pun yang tahu apa yang akan ia kerjakan besok. Tidak ada seorang pun yang tahu di bumi mana kelak ia akan mati. Sungguh Allah Maha Mengetahui lagi Maha Mengawasi semua perbuatan manusia.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **khawatir masa depan**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
+
+> "Yang ini kami sendiri ragu, Ustadz. Ayat ini utamanya tentang ilmu Allah yang eksklusif (kiamat, hujan, rahim). Pemakaian pastoralnya adalah lepaskan cemas atas hal yang memang bukan wilayahmu — mohon dicek apakah pembingkaian ini dapat diterima ustadz."
+
+**Kalimat yang akan muncul di aplikasi:** _"Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Sesungguhnya Allah, hanya pada sisi-Nya sajalah pengetahuan tentang Hari Kiamat; dan Dialah Yang menurunkan hujan, dan mengetahui apa yang ada dalam rahim. Dan tiada seorangpun yang dapat mengetahui (dengan pasti) apa yang akan diusahakannya besok. Dan tiada seorangpun yang dapat mengetahui di bumi mana dia akan mati. Sesungguhnya Allah Maha Mengetahui lagi Maha Mengenal.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
-### QS. Al-Kahf — 18:24
+## Perasaan: Bingung memilih
 
-**Usulan `why`:** Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar
+<sub>3 ayat · 1 ⚠️</sub>
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-tetapi yang boleh kamu katakan adalah "Insya Allah besok aku akan melakukan sesuatu." Jika kamu lupa akan sesuatu, hendaklah kamu mengingat Tuhanmu, dan berdo'alah: "Semoga Tuhanku memberikan petunjuk kepadaku untuk mendapatkan jalan paling dekat kepada kebenaran dalam urusanku ini."
+**🗣️ Buka dengan:** "Sekarang tentang orang yang sedang **bingung memilih**, Ustadz."
 
-**Kemenag RI**  
-kecuali (dengan menyebut): "Insya Allah". Dan ingatlah kepada Tuhanmu jika kamu lupa dan katakanlah: "Mudah-mudahan Tuhanku akan memberiku petunjuk kepada yang lebih dekat kebenarannya dari pada ini".
+### 1. QS. Al-Baqara — 2:216  ⚠️
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
+**📖 Bacakan ayatnya:**
+
+> Wahai kaum mukmin, kalian diwajibkan berperang, padahal kalian tidak menyukainya. Barangkali kalian membenci sesuatu perintah agama, padahal perintah itu lebih baik bagi kalian. Barangkali kalian mencintai sesuatu larangan agama, padahal sesuatu yang dilarang lebih buruk bagi kalian. Allah mengetahui, tetapi kalian tidak mengetahui akibat buruk dari mengabaikan perintah atau larangan agama.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **bingung memilih**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**⚠️ Sampaikan keraguan kami — jangan dilewat:**
+
+> "Yang ini kami sendiri ragu, Ustadz. Teks tafsiriyah mempersempit maknanya ke perintah agama; versi Kemenag tetap umum. Reviewer perlu memutuskan terjemahan mana yang ditampilkan"
+
+**Kalimat yang akan muncul di aplikasi:** _"Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Diwajibkan atas kamu berperang, padahal berperang itu adalah sesuatu yang kamu benci. Boleh jadi kamu membenci sesuatu, padahal ia amat baik bagimu, dan boleh jadi (pula) kamu menyukai sesuatu, padahal ia amat buruk bagimu; Allah mengetahui, sedang kamu tidak mengetahui.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 2. QS. Al-Kahf — 18:24
+
+**📖 Bacakan ayatnya:**
+
+> tetapi yang boleh kamu katakan adalah "Insya Allah besok aku akan melakukan sesuatu." Jika kamu lupa akan sesuatu, hendaklah kamu mengingat Tuhanmu, dan berdo'alah: "Semoga Tuhanku memberikan petunjuk kepadaku untuk mendapatkan jalan paling dekat kepada kebenaran dalam urusanku ini."
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **bingung memilih**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> kecuali (dengan menyebut): "Insya Allah". Dan ingatlah kepada Tuhanmu jika kamu lupa dan katakanlah: "Mudah-mudahan Tuhanku akan memberiku petunjuk kepada yang lebih dekat kebenarannya dari pada ini".
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+### 3. QS. Ash-Shura — 42:38
+
+**📖 Bacakan ayatnya:**
+
+> Orang-orang beriman adalah orang-orang yang menaati seruan Tuhan mereka, mendirikan shalat, melakukan musyawarah sesama mereka dalam segala urusan, dan mengeluarkan sedekah sebagian rezeki yang Kami karuniakan kepada mereka.
+
+**🗣️ Tanyakan:** "Kalau ada orang yang sedang **bingung memilih**, ayat ini pas nggak Ustadz
+untuk menemani dia? Bukan soal benar atau tidaknya ayat — tentu benar — tapi pas atau tidaknya
+ditaruh di perasaan itu."
+
+**Kalimat yang akan muncul di aplikasi:** _"Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman"_
+
+<details><summary>Terjemahan Kemenag (kalau Ustadz minta pembanding)</summary>
+
+> Dan (bagi) orang-orang yang menerima (mematuhi) seruan Tuhannya dan mendirikan shalat, sedang urusan mereka (diputuskan) dengan musyawarat antara mereka; dan mereka menafkahkan sebagian dari rezeki yang Kami berikan kepada mereka.
+
+</details>
+
+**✍️ Jawaban Ustadz:**
+
+```
+
+
+```
+
+☐ pas, pakai   ☐ pas, tapi kalimatnya ganti   ☐ jangan dipakai   ☐ Ustadz mau pikir dulu
+
+**🗣️ Sebelum pindah:** "Ada ayat lain yang menurut Ustadz lebih pas untuk perasaan ini?"
+
+Usulan Ustadz: ______________________________________________
 
 ---
 
-### QS. Ash-Shura — 42:38
+## Penutup telepon — jangan dilewat
 
-**Usulan `why`:** Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman
+> "Terima kasih banyak, Ustadz. Saya rapikan dulu catatannya, nanti saya kirim ke Ustadz —
+> **mohon dilihat sebentar apakah sudah sesuai** dengan yang Ustadz maksud. Kalau sudah pas,
+> cukup Ustadz balas 'betul' saja, dan itu yang saya pakai sebagai persetujuan."
 
-**Tarjamah Tafsiriyah (Ustadz Muhammad Thalib)**  
-Orang-orang beriman adalah orang-orang yang menaati seruan Tuhan mereka, mendirikan shalat, melakukan musyawarah sesama mereka dalam segala urusan, dan mengeluarkan sedekah sebagian rezeki yang Kami karuniakan kepada mereka.
+**Kenapa langkah ini penting:** nama Ustadz tampil di aplikasi sebagai peninjau. Konfirmasi
+singkat dari beliau — dibalas WhatsApp, pesan suara, apa saja — itulah yang menjadikan catatan
+ini sah, bukan sekadar ingatan kita atas obrolan. **Tanpa konfirmasi itu, jangan ditayangkan
+sebagai sudah ditinjau.**
 
-**Kemenag RI**  
-Dan (bagi) orang-orang yang menerima (mematuhi) seruan Tuhannya dan mendirikan shalat, sedang urusan mereka (diputuskan) dengan musyawarat antara mereka; dan mereka menafkahkan sebagian dari rezeki yang Kami berikan kepada mereka.
+Setelah dikonfirmasi, isi lembar ini dipindahkan ke `src/review/problem-verses.ts`.
 
-Keputusan: ☐ setuju ☐ ganti `why` ☐ jangan dipakai
-
----
+| | |
+|---|---|
+| Tanggal telepon | ____________________ |
+| Catatan dikirim ke Ustadz | ☐ sudah, tanggal ____________ |
+| **Dikonfirmasi Ustadz** | ☐ **sudah** — cara: ☐ WhatsApp ☐ pesan suara ☐ lisan ulang |
