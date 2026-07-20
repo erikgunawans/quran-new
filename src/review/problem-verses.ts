@@ -228,7 +228,17 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [9, 40], themes: ["Anxiety & fear"], why: "\"Jangan sedih — Allah bersama kita\"" },
   { ref: [20, 46], themes: ["Anxiety & fear"], why: "\"Jangan takut. Aku bersama kalian, mendengar dan melihat\"" },
   { ref: [41, 30], themes: ["Anxiety & fear"], why: "Para malaikat: \"jangan takut, jangan bersedih\"" },
-  { ref: [2, 112], themes: ["Anxiety & fear"], why: "Tidak ada rasa takut pada mereka, dan mereka tidak bersedih hati" },
+  // 2:112 DROPPED (2026-07-20), found by the first real run of the synthesis answer eval.
+  //
+  // The curator reached for the verse's TAIL — "tiada takut… tiada sedih", a true anxiety verse in
+  // the literal rendering. But the tafsiriyah rendering front-loads a refutation of 2:111 that the
+  // plain text does not contain, so the verse OPENS: "Pengakuan orang Yahudi dan Nasrani semacam itu
+  // adalah dusta." Someone typed that they were anxious and could not sleep, and the app answered —
+  // top hit, in the principled edition, in production — with a polemic about Jews and Christians.
+  //
+  // "semacam itu" is a dangling reference to 2:111, so this is the same disease as 23:61 and 113:5.
+  // It escaped the fragment gate only because it capitalises. That gap is now closed by BACKREF_OK
+  // in build-corpus.ts. Anxiety & fear keeps 13:28, 3:139, 9:40, 20:46, 41:30.
 
   // ── Grief & loss ─────────────────────────────────────────────────────────
   { ref: [2, 156], themes: ["Grief & loss"], why: "Inna lillahi wa inna ilaihi raji'un — dibaca di setiap kematian" },

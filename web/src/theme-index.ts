@@ -92,12 +92,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 30,
         "ref": "41:30",
         "why": "Para malaikat: \"jangan takut, jangan bersedih\""
-      },
-      {
-        "surah": 2,
-        "ayah": 112,
-        "ref": "2:112",
-        "why": "Tidak ada rasa takut pada mereka, dan mereka tidak bersedih hati"
       }
     ]
   },

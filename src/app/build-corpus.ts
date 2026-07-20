@@ -381,6 +381,35 @@ if (unacknowledged.length) {
 const needsReview = fragments.filter((v) => FRAGMENT_OK[v.ref]?.startsWith("REVIEW:"));
 
 /**
+ * The fragment gate's blind spot: a dangling referent that CAPITALISES.
+ *
+ * The gate above keys on a lowercase opener, which is the translator's own mark of continuation. It
+ * is a good signal and it caught six real fragments — but it is only a proxy, and 2:112 walked
+ * straight through it. Its rendering opens "Pengakuan orang Yahudi dan Nasrani semacam itu adalah
+ * dusta": a capital P, and "semacam itu" pointing back at 2:111, which the reader never sees. It was
+ * tagged Anxiety & fear for its tail ("tiada takut… tiada sedih") and served, in production, as the
+ * top answer to someone who could not sleep.
+ *
+ * Nothing found that for weeks. The synthesis answer eval found it on its first real run, judging
+ * groundedness against grounding the app itself had chosen — which is the argument for the eval.
+ *
+ * So: a second, narrower probe for a back-reference in the opening sentence. It matches exactly one
+ * verse across the corpus today (2:112, now dropped), so it costs nothing and holds the line.
+ */
+const BACKREF = /^[^.]*\b(semacam itu|demikian itu|yang demikian|hal itu|itulah)\b/i;
+const BACKREF_OK: Record<string, string> = {};
+const backrefs = verses.filter((v) => BACKREF.test((v.primary?.text ?? "").split(/(?<=\.)\s/)[0] ?? ""));
+const danglers = backrefs.filter((v) => !(v.ref in BACKREF_OK));
+if (danglers.length) {
+  fail(
+    `${danglers.length} verse(s) open by pointing back at an ayah the reader cannot see: ` +
+      danglers.map((v) => `${v.ref} ("${(v.primary?.text ?? "").split(/(?<=\.)\s/)[0]}")`).join(", ") +
+      `\n  A capitalised opener is not proof a verse stands alone — 2:112 proved that. Either pick a` +
+      `\n  verse that stands alone, or add a reasoned BACKREF_OK entry saying why this one is fine.`,
+  );
+}
+
+/**
  * Verses a reviewer said must NEVER be curated together, in their words.
  *
  * Most caveats on a ProblemVerse are framing advice a machine cannot check. These two are different:
