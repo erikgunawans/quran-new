@@ -888,17 +888,37 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .nav { display: flex; gap: 2px; margin-inline-start: auto; }
 #info { margin-inline-start: auto; }
 
+/* Icon + label pairs, matching the QuranKu top panel: the active route reads as a filled emerald
+   pill (icon + label both in --primary over the --primary-wash tint — in dark mode this is the exact
+   translucent-green-on-night look of the reference), inactive routes are muted outline-icon + label.
+   Stays on the app's own tokens, so the gold law is untouched and light/dark both hold. */
 .nav-link {
+  display: inline-flex; align-items: center; gap: 7px;
   font: 500 var(--step--1)/1 var(--f-ui);
   color: var(--ink-3);
   text-decoration: none;
-  padding: 7px 12px;
-  border-radius: var(--r);
+  padding: 8px 13px;
+  border-radius: 10px;
   transition: color var(--t), background var(--t);
 }
+.nav-ico { width: 18px; height: 18px; flex: none; }
 .nav-link:hover { color: var(--ink); background: var(--surface); }
-.nav-link[aria-current="page"] { color: var(--ink); background: var(--surface-2); }
+.nav-link[aria-current="page"] {
+  color: var(--primary); background: var(--primary-wash);
+  font-weight: 600;
+}
 .nav-link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Phones: the icon+label pairs are ~100px wider all told than the old text-only nav, and the header
+   is already tight once the wordmark and the two control buttons are in the row. So below the tablet
+   breakpoint the nav goes icon-only — a standard compact-header pattern, no horizontal scroll. The
+   aria-label on each link keeps the name for screen readers now that the visible text is gone, and
+   the active route still reads as the emerald pill. */
+@media (max-width: 47.9rem) {
+  .nav-link span { display: none; }
+  .nav-link { padding: 9px; }
+  .nav { gap: 1px; }
+}
 
 .mark { text-decoration: none; }
 
