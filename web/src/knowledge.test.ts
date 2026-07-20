@@ -77,6 +77,25 @@ describe("retrieveKnowledge — the scholar's own entries, verbatim and cited", 
  * the legitimate "riba" (2.9%). Frequency cannot separate signal from noise here. Function-word
  * filtering and sense disambiguation can.
  */
+describe("a ruling question asked CASUALLY reaches the same pointer as the formal one", () => {
+  // From Erik's phone: "pacaran itu haram atau nggak?" matched the topic and offered the ustadz's
+  // section; "pacaran itu boleh ga sih?" — the same question the way people actually type it —
+  // matched nothing and fell to blank silence. The app must not reward formal vocabulary.
+  test.each([
+    "pacaran itu boleh ga sih?",
+    "boleh ga pacaran",
+    "nonton film korea boleh gak",
+    "apakah ini berdosa",
+  ])("%s → routed to the rulings topic", (q) => {
+    expect(matchTopic(q)).toBe("perintah-dan-larangan");
+  });
+
+  test("a feeling is still never hijacked into the rulings topic", () => {
+    expect(matchTopic("aku lagi sedih banget")).toBeNull();
+    expect(matchTopic("kangen ibu yang udah meninggal")).toBeNull();
+  });
+});
+
 describe("retrieveKnowledge — function words and homonyms must not rank the scholar's index", () => {
   test("'tentang' ('about') does not qualify entries — no alam-ghaib line for a question about the Prophet", async () => {
     const k = await retrieveKnowledge("ceritakan tentang nabi muhammad");

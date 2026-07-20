@@ -30,7 +30,16 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "muhammad-shallallahu-alaihi-wasallam": ["muhammad", "nabi", "rasul", "rasulullah", "utusan allah"],
   "al-qur-an-taurat-injil-dan-zabur": ["quran", "qur an", "alquran", "al quran", "kitab suci", "taurat", "injil", "zabur", "wahyu", "mushaf"],
   ibadah: ["ibadah", "sholat", "shalat", "salat", "puasa", "zakat", "haji", "umroh", "umrah", "wudhu", "sujud"],
-  "perintah-dan-larangan": ["perintah", "larangan", "hukum", "halal", "haram", "wajib", "sunnah", "makruh", "mubah", "syariat", "syari at"],
+  // "boleh" and friends matter as much as "hukum" here. Asked "pacaran itu HARAM atau nggak?" the
+  // app matched this topic and offered the scholar's section; asked "pacaran itu BOLEH ga sih?" —
+  // the same question in the way people actually type it — it matched nothing and fell to blank
+  // silence. The casual phrasing deserves the same honest pointer as the formal one. None of these
+  // make the app ANSWER a ruling; they route it to Ustadz Thalib's own material instead of nowhere.
+  "perintah-dan-larangan": [
+    "perintah", "larangan", "hukum", "halal", "haram", "wajib", "sunnah", "makruh", "mubah",
+    "syariat", "syari at", "boleh", "gak boleh", "ga boleh", "nggak boleh", "bolehkah",
+    "berdosa", "dosa ga", "dosa gak", "dilarang", "diperbolehkah", "diperbolehkan",
+  ],
   "hijrah-jihad-dan-perang": ["hijrah", "jihad", "perang", "berperang"],
   "rahasia-kejiwaan-manusia-dalam-al-qur-an": ["jiwa", "kejiwaan", "psikologi", "nafsu", "mental", "kepribadian"],
   "prinsip-prinsip-pendidikan-islam": ["pendidikan", "mendidik", "pengajaran", "ilmu", "guru", "murid", "belajar"],
