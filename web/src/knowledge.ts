@@ -17,7 +17,7 @@
  * feeling is never hijacked into a topic dump. Unknown topic → null → the honest silence stands.
  */
 import { loadCategory, loadIndex, type PetaIndex } from "./peta.ts";
-import { norm } from "./retrieve.ts";
+import { norm, phraseHit, questionForms } from "./retrieve.ts";
 
 /**
  * Question keywords → Peta category slug. Deliberately CONSERVATIVE: a topic must be named fairly
@@ -29,7 +29,8 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "allah-subhanahu-wa-ta-ala": ["allah", "tuhan", "gusti allah", "rabb", "pencipta", "khalik", "khaliq"],
   "muhammad-shallallahu-alaihi-wasallam": ["muhammad", "nabi", "rasul", "rasulullah", "utusan allah"],
   "al-qur-an-taurat-injil-dan-zabur": ["quran", "qur an", "alquran", "al quran", "kitab suci", "taurat", "injil", "zabur", "wahyu", "mushaf"],
-  ibadah: ["ibadah", "sholat", "shalat", "salat", "puasa", "zakat", "haji", "umroh", "umrah", "wudhu", "sujud"],
+  ibadah: ["ibadah", "sholat", "shalat", "salat", "puasa", "zakat", "haji", "umroh", "umrah", "wudhu", "sujud",
+    "ngaji", "mengaji", "tarawih", "taraweh", "witir", "tahajud", "dzikir", "zikir", "khusyuk", "khusyu", "sedekah", "adzan", "azan"],
   // "boleh" and friends matter as much as "hukum" here. Asked "pacaran itu HARAM atau nggak?" the
   // app matched this topic and offered the scholar's section; asked "pacaran itu BOLEH ga sih?" —
   // the same question in the way people actually type it — it matched nothing and fell to blank
@@ -43,10 +44,13 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "hijrah-jihad-dan-perang": ["hijrah", "jihad", "perang", "berperang"],
   "rahasia-kejiwaan-manusia-dalam-al-qur-an": ["jiwa", "kejiwaan", "psikologi", "nafsu", "mental", "kepribadian"],
   "prinsip-prinsip-pendidikan-islam": ["pendidikan", "mendidik", "pengajaran", "ilmu", "guru", "murid", "belajar"],
-  keluarga: ["keluarga", "pernikahan", "menikah", "poligami", "warisan", "perceraian"],
+  keluarga: ["keluarga", "pernikahan", "menikah", "poligami", "warisan", "perceraian", "mertua", "menantu", "ipar", "jodoh", "rumah tangga", "nafkah"],
   sosial: ["sosial", "masyarakat", "tetangga", "bermasyarakat", "gotong royong"],
-  "ekonomi-islam": ["ekonomi", "riba", "jual beli", "perdagangan", "dagang", "harta", "bisnis", "muamalah"],
-  "membangun-pribadi-shalih": ["akhlak", "karakter", "pribadi shalih", "adab", "budi pekerti"],
+  "ekonomi-islam": ["ekonomi", "riba", "jual beli", "perdagangan", "dagang", "harta", "bisnis", "muamalah",
+    "pinjol", "pinjaman online", "bunga bank", "kredit", "investasi", "saham", "kripto", "crypto", "asuransi", "gadai"],
+  "membangun-pribadi-shalih": ["akhlak", "karakter", "pribadi shalih", "adab", "budi pekerti",
+    "jadi orang baik", "pribadi yang baik", "pribadi yang lebih baik", "jadi pribadi",
+    "memperbaiki diri", "jadi lebih baik", "sifat baik"],
   "karakteristik-negara-bersyari-ah": ["negara", "syariah", "pemerintahan", "khilafah", "politik", "pemimpin", "hukum islam"],
 };
 
@@ -163,12 +167,16 @@ export function matchTopic(question: string): string | null {
   const q = norm(question);
   if (!q) return null;
   // Split on hyphens too, so "al-quran" yields the whole word "quran" for the alias match.
-  const words = new Set(q.split(/[\s-]+/).filter(Boolean));
+  const forms = questionForms(q);
   let best: { slug: string; score: number } | null = null;
   for (const [slug, aliases] of Object.entries(TOPIC_ALIASES)) {
     let score = 0;
     for (const a of aliases) {
-      if (a.includes(" ") ? q.includes(a) : words.has(a)) score += 1;
+      // Same matcher the theme lexicon uses. This used to be whole-word-only, so "hukumnya",
+      // "sholatnya" and "zakatku" matched no topic while their bare forms did — the app quietly
+      // required people to strip their own suffixes. Multi-word aliases are space-bounded rather
+      // than raw substrings, for the reason documented on phraseHit.
+      if (a.includes(" ") ? phraseHit(` ${q} `, a) : forms.has(a)) score += 1;
     }
     if (score > 0 && (!best || score > best.score)) best = { slug, score };
   }

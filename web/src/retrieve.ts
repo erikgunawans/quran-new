@@ -280,9 +280,26 @@ function stemCandidates(w: string): string[] {
  * Phrase match that tolerates an affix on the final word — "rumah tanggaku" must still reach the
  * phrase "rumah tangga". Bounded at both ends, so a phrase can never start or end mid-word.
  */
-function phraseHit(paddedQ: string, phrase: string): boolean {
+export function phraseHit(paddedQ: string, phrase: string): boolean {
   const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`\\s${esc}(?:ku|mu|nya|kan|an|i)?\\s`).test(paddedQ);
+}
+
+/**
+ * Every word of a normalised question plus its affix-stripped forms. Shared so topic matching and
+ * theme matching cannot drift apart — matchTopic had its own weaker copy that matched whole words
+ * only, so "hukumnya", "sholatnya" and "zakatku" reached no topic at all while "hukum" did.
+ */
+export function questionForms(normalisedQ: string): Set<string> {
+  const forms = new Set<string>();
+  for (const w of normalisedQ.split(" ").filter(Boolean)) {
+    // Both the hyphenated token AND its parts. `norm` keeps hyphens, so "al-quran" arrives whole —
+    // splitting on spaces alone never yielded "quran" and silently broke topic matching for it.
+    // But splitting on hyphens alone would break "was-was", a lexicon term in its own right. Keep both.
+    for (const c of stemCandidates(w)) forms.add(c);
+    if (w.includes("-")) for (const part of w.split("-").filter(Boolean)) for (const c of stemCandidates(part)) forms.add(c);
+  }
+  return forms;
 }
 
 export function keywordThemeHits(question: string): Map<string, string[]> {
@@ -290,10 +307,7 @@ export function keywordThemeHits(question: string): Map<string, string[]> {
   const q = norm(question);
   if (!q) return themeScore;
 
-  // Every single word of the question plus its affix-stripped forms. A term matches only if it IS
-  // one of these — never merely contained in one.
-  const forms = new Set<string>();
-  for (const w of q.split(" ").filter(Boolean)) for (const c of stemCandidates(w)) forms.add(c);
+  const forms = questionForms(q);
   const padded = ` ${q} `;
 
   for (const [theme, terms] of Object.entries(LEXICON)) {
