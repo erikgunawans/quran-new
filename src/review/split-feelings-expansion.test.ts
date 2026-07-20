@@ -137,3 +137,18 @@ describe("call app (index.html) — generated from the same source, verified str
     }
   });
 });
+
+describe("call app — accessibility deepening (safe, no restyle)", () => {
+  const html = Bun.file(`${DIR}/index.html`);
+
+  test("honours reduced-motion — a scholar may run this with the setting on", async () => {
+    const h = await html.text();
+    expect(h).toMatch(/@media \(prefers-reduced-motion:reduce\)/);
+  });
+
+  test("every choice toggle announces its selected state to a screen reader", async () => {
+    const h = await html.text();
+    // 147 verses × 4 choices. Visual .is-on alone is invisible to a screen reader; aria-pressed is not.
+    expect((h.match(/aria-pressed=/g) ?? []).length).toBe(147 * 4);
+  });
+});

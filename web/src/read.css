@@ -558,7 +558,9 @@
 
 #read .pm-bond {
   stroke: var(--primary);
-  transition: opacity 0.18s ease, stroke 0.18s ease;
+  /* The cosmos was the last place still hand-rolling its own curve; route it onto the app's motion
+     token (--t = 200ms of the signature spring) so every interaction in the product shares one feel. */
+  transition: opacity var(--t), stroke var(--t);
 }
 #read .pm-bond.is-dim { opacity: 0.05 !important; }
 #read .pm-bond.is-lit { opacity: 0.85 !important; stroke: var(--action); }
@@ -568,7 +570,7 @@
   stroke: var(--bg);
   stroke-width: 2;
   cursor: pointer;
-  transition: fill 0.18s ease;
+  transition: fill var(--t);
 }
 #read .pm-node:hover { fill: var(--action); }
 

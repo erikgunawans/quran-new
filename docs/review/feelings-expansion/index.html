@@ -205,6 +205,13 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
   .panel[hidden]{display:none}.verse{break-inside:avoid;box-shadow:none}
   body{background:#fff;color:#000}
 }
+/* A reduced-motion reader gets no transitions — the progress bar, the toast slide, the choice-button
+   and card state changes all resolve instantly. This is a tool a scholar may use with accessibility
+   settings on; motion here is decoration, never meaning, so it is safe to drop entirely. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0.01ms!important;animation-duration:0.01ms!important}
+  html{scroll-behavior:auto}
+}
 </style>
 </head>
 <body>
@@ -408,7 +415,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-32">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-32" data-note="4:32" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:32">
-      <button type="button" class="choice" data-choice="pas" data-for="4:32">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:32">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:32">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:32">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:32" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:32" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:32" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:32" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -447,7 +454,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-113-5">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-113-5" data-note="113:5" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 113:5">
-      <button type="button" class="choice" data-choice="pas" data-for="113:5">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="113:5">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="113:5">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="113:5">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="113:5" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="113:5" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="113:5" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="113:5" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -498,7 +505,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-134">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-134" data-note="3:134" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:134">
-      <button type="button" class="choice" data-choice="pas" data-for="3:134">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:134">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:134">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:134">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:134" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:134" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:134" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:134" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -537,7 +544,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-41-35">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-41-35" data-note="41:35" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 41:35">
-      <button type="button" class="choice" data-choice="pas" data-for="41:35">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="41:35">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="41:35">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="41:35">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="41:35" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="41:35" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="41:35" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="41:35" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -588,7 +595,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-50-16">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-50-16" data-note="50:16" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 50:16">
-      <button type="button" class="choice" data-choice="pas" data-for="50:16">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="50:16">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="50:16">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="50:16">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="50:16" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="50:16" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="50:16" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="50:16" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -639,7 +646,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-26-80">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-26-80" data-note="26:80" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 26:80">
-      <button type="button" class="choice" data-choice="pas" data-for="26:80">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="26:80">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="26:80">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="26:80">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="26:80" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="26:80" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="26:80" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="26:80" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -690,7 +697,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-49-12">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-49-12" data-note="49:12" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 49:12">
-      <button type="button" class="choice" data-choice="pas" data-for="49:12">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:12">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:12">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:12">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="49:12" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:12" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:12" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:12" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -741,7 +748,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-263">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-263" data-note="2:263" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:263">
-      <button type="button" class="choice" data-choice="pas" data-for="2:263">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:263">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:263">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:263">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:263" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:263" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:263" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:263" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -792,7 +799,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-31-18">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-31-18" data-note="31:18" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 31:18">
-      <button type="button" class="choice" data-choice="pas" data-for="31:18">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:18">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:18">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:18">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="31:18" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:18" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:18" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:18" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -831,7 +838,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-57-23">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-57-23" data-note="57:23" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 57:23">
-      <button type="button" class="choice" data-choice="pas" data-for="57:23">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:23">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:23">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:23">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="57:23" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:23" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:23" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:23" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -882,7 +889,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-29-57">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-29-57" data-note="29:57" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 29:57">
-      <button type="button" class="choice" data-choice="pas" data-for="29:57">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:57">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:57">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:57">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="29:57" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:57" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:57" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:57" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1002,7 +1009,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-14-27">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-14-27" data-note="14:27" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 14:27">
-      <button type="button" class="choice" data-choice="pas" data-for="14:27">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:27">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:27">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:27">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="14:27" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:27" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:27" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:27" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1041,7 +1048,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-18-14">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-18-14" data-note="18:14" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 18:14">
-      <button type="button" class="choice" data-choice="pas" data-for="18:14">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:14">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:14">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:14">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="18:14" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:14" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:14" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:14" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1092,7 +1099,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-268">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-268" data-note="2:268" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:268">
-      <button type="button" class="choice" data-choice="pas" data-for="2:268">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:268">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:268">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:268">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:268" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:268" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:268" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:268" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1131,7 +1138,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-57-20">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-57-20" data-note="57:20" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 57:20">
-      <button type="button" class="choice" data-choice="pas" data-for="57:20">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:20">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:20">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:20">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="57:20" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:20" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:20" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:20" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1182,7 +1189,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-19-14">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-19-14" data-note="19:14" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 19:14">
-      <button type="button" class="choice" data-choice="pas" data-for="19:14">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:14">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:14">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:14">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="19:14" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:14" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:14" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:14" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1221,7 +1228,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-14-41">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-14-41" data-note="14:41" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 14:41">
-      <button type="button" class="choice" data-choice="pas" data-for="14:41">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:41">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:41">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:41">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="14:41" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:41" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:41" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:41" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1260,7 +1267,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-71-28">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-71-28" data-note="71:28" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 71:28">
-      <button type="button" class="choice" data-choice="pas" data-for="71:28">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="71:28">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="71:28">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="71:28">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="71:28" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="71:28" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="71:28" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="71:28" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1311,7 +1318,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-148">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-148" data-note="4:148" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:148">
-      <button type="button" class="choice" data-choice="pas" data-for="4:148">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:148">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:148">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:148">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:148" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:148" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:148" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:148" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1350,7 +1357,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-22-40">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-22-40" data-note="22:40" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 22:40">
-      <button type="button" class="choice" data-choice="pas" data-for="22:40">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="22:40">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="22:40">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="22:40">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="22:40" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="22:40" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="22:40" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="22:40" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1401,7 +1408,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-27">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-27" data-note="4:27" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:27">
-      <button type="button" class="choice" data-choice="pas" data-for="4:27">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:27">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:27">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:27">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:27" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:27" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:27" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:27" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1452,7 +1459,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-183">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-183" data-note="2:183" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:183">
-      <button type="button" class="choice" data-choice="pas" data-for="2:183">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:183">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:183">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:183">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:183" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:183" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:183" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:183" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1572,7 +1579,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-19-96">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-19-96" data-note="19:96" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 19:96">
-      <button type="button" class="choice" data-choice="pas" data-for="19:96">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:96">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:96">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:96">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="19:96" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:96" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:96" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:96" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1611,7 +1618,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-187">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-187" data-note="2:187" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:187">
-      <button type="button" class="choice" data-choice="pas" data-for="2:187">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:187">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:187">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:187">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:187" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:187" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:187" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:187" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1662,7 +1669,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-21-89">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-21-89" data-note="21:89" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 21:89">
-      <button type="button" class="choice" data-choice="pas" data-for="21:89">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:89">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:89">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:89">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="21:89" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:89" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:89" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:89" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1701,7 +1708,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-38">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-38" data-note="3:38" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:38">
-      <button type="button" class="choice" data-choice="pas" data-for="3:38">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:38">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:38">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:38">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:38" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:38" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:38" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:38" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1752,7 +1759,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-25-74">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-25-74" data-note="25:74" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 25:74">
-      <button type="button" class="choice" data-choice="pas" data-for="25:74">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="25:74">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="25:74">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="25:74">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="25:74" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="25:74" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="25:74" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="25:74" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1791,7 +1798,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-51-49">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-51-49" data-note="51:49" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 51:49">
-      <button type="button" class="choice" data-choice="pas" data-for="51:49">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="51:49">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="51:49">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="51:49">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="51:49" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="51:49" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="51:49" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="51:49" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1842,7 +1849,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-20-132">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-20-132" data-note="20:132" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 20:132">
-      <button type="button" class="choice" data-choice="pas" data-for="20:132">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:132">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:132">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:132">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="20:132" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:132" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:132" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:132" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1881,7 +1888,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-11-115">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-11-115" data-note="11:115" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 11:115">
-      <button type="button" class="choice" data-choice="pas" data-for="11:115">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:115">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:115">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:115">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="11:115" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:115" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:115" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:115" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1920,7 +1927,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-14-40">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-14-40" data-note="14:40" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 14:40">
-      <button type="button" class="choice" data-choice="pas" data-for="14:40">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:40">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:40">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:40">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="14:40" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="14:40" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="14:40" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="14:40" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -1971,7 +1978,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-28-56">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-28-56" data-note="28:56" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 28:56">
-      <button type="button" class="choice" data-choice="pas" data-for="28:56">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:56">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:56">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:56">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="28:56" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:56" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:56" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:56" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2022,7 +2029,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-31-14">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-31-14" data-note="31:14" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 31:14">
-      <button type="button" class="choice" data-choice="pas" data-for="31:14">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:14">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:14">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:14">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="31:14" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:14" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:14" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:14" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2061,7 +2068,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-46-15">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-46-15" data-note="46:15" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 46:15">
-      <button type="button" class="choice" data-choice="pas" data-for="46:15">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="46:15">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="46:15">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="46:15">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="46:15" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="46:15" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="46:15" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="46:15" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2181,7 +2188,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-41-34">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-41-34" data-note="41:34" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 41:34">
-      <button type="button" class="choice" data-choice="pas" data-for="41:34">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="41:34">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="41:34">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="41:34">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="41:34" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="41:34" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="41:34" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="41:34" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2220,7 +2227,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-8-63">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-8-63" data-note="8:63" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 8:63">
-      <button type="button" class="choice" data-choice="pas" data-for="8:63">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="8:63">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="8:63">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="8:63">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="8:63" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="8:63" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="8:63" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="8:63" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2271,7 +2278,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-19-24">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-19-24" data-note="19:24" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 19:24">
-      <button type="button" class="choice" data-choice="pas" data-for="19:24">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:24">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:24">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:24">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="19:24" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:24" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:24" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:24" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2310,7 +2317,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-19-25">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-19-25" data-note="19:25" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 19:25">
-      <button type="button" class="choice" data-choice="pas" data-for="19:25">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:25">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:25">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:25">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="19:25" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:25" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:25" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:25" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2349,7 +2356,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-28-7">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-28-7" data-note="28:7" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 28:7">
-      <button type="button" class="choice" data-choice="pas" data-for="28:7">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:7">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:7">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:7">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="28:7" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:7" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:7" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:7" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2400,7 +2407,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-33-3">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-33-3" data-note="33:3" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 33:3">
-      <button type="button" class="choice" data-choice="pas" data-for="33:3">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:3">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:3">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:3">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="33:3" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:3" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:3" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:3" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2439,7 +2446,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-46-13">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-46-13" data-note="46:13" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 46:13">
-      <button type="button" class="choice" data-choice="pas" data-for="46:13">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="46:13">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="46:13">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="46:13">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="46:13" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="46:13" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="46:13" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="46:13" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2478,7 +2485,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-31-34">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-31-34" data-note="31:34" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 31:34">
-      <button type="button" class="choice" data-choice="pas" data-for="31:34">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:34">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:34">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:34">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="31:34" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="31:34" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="31:34" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="31:34" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2529,7 +2536,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-216">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-216" data-note="2:216" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:216">
-      <button type="button" class="choice" data-choice="pas" data-for="2:216">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:216">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:216">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:216">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:216" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:216" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:216" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:216" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2568,7 +2575,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-18-24">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-18-24" data-note="18:24" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 18:24">
-      <button type="button" class="choice" data-choice="pas" data-for="18:24">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:24">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:24">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:24">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="18:24" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:24" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:24" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:24" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2607,7 +2614,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-42-38">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-42-38" data-note="42:38" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 42:38">
-      <button type="button" class="choice" data-choice="pas" data-for="42:38">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:38">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:38">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:38">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="42:38" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:38" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:38" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:38" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2727,7 +2734,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-100">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-100" data-note="4:100" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:100">
-      <button type="button" class="choice" data-choice="pas" data-for="4:100">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:100">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:100">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:100">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:100" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:100" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:100" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:100" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2766,7 +2773,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-29-56">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-29-56" data-note="29:56" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 29:56">
-      <button type="button" class="choice" data-choice="pas" data-for="29:56">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:56">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:56">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:56">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="29:56" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:56" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:56" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:56" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2817,7 +2824,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-93-5">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-93-5" data-note="93:5" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 93:5">
-      <button type="button" class="choice" data-choice="pas" data-for="93:5">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:5">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:5">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:5">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="93:5" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:5" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:5" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:5" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2868,7 +2875,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-10-58">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-10-58" data-note="10:58" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 10:58">
-      <button type="button" class="choice" data-choice="pas" data-for="10:58">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="10:58">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="10:58">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="10:58">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="10:58" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="10:58" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="10:58" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="10:58" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2907,7 +2914,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-27-19">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-27-19" data-note="27:19" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 27:19">
-      <button type="button" class="choice" data-choice="pas" data-for="27:19">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="27:19">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="27:19">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="27:19">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="27:19" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="27:19" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="27:19" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="27:19" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2946,7 +2953,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-93-11">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-93-11" data-note="93:11" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 93:11">
-      <button type="button" class="choice" data-choice="pas" data-for="93:11">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:11">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:11">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:11">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="93:11" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:11" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:11" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:11" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -2997,7 +3004,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-30-54">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-30-54" data-note="30:54" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 30:54">
-      <button type="button" class="choice" data-choice="pas" data-for="30:54">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="30:54">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="30:54">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="30:54">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="30:54" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="30:54" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="30:54" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="30:54" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3048,7 +3055,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-21-83">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-21-83" data-note="21:83" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 21:83">
-      <button type="button" class="choice" data-choice="pas" data-for="21:83">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:83">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:83">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:83">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="21:83" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:83" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:83" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:83" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3087,7 +3094,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-21-84">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-21-84" data-note="21:84" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 21:84">
-      <button type="button" class="choice" data-choice="pas" data-for="21:84">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:84">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:84">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:84">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="21:84" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:84" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:84" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:84" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3126,7 +3133,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-10-57">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-10-57" data-note="10:57" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 10:57">
-      <button type="button" class="choice" data-choice="pas" data-for="10:57">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="10:57">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="10:57">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="10:57">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="10:57" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="10:57" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="10:57" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="10:57" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3246,7 +3253,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-130">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-130" data-note="4:130" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:130">
-      <button type="button" class="choice" data-choice="pas" data-for="4:130">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:130">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:130">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:130">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:130" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:130" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:130" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:130" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3285,7 +3292,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-237">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-237" data-note="2:237" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:237">
-      <button type="button" class="choice" data-choice="pas" data-for="2:237">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:237">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:237">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:237">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:237" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:237" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:237" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:237" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3324,7 +3331,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-19">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-19" data-note="4:19" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:19">
-      <button type="button" class="choice" data-choice="pas" data-for="4:19">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:19">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:19">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:19">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:19" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:19" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:19" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:19" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3375,7 +3382,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-18">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-18" data-note="12:18" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:18">
-      <button type="button" class="choice" data-choice="pas" data-for="12:18">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:18">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:18">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:18">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:18" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:18" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:18" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:18" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3414,7 +3421,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-90">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-90" data-note="12:90" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:90">
-      <button type="button" class="choice" data-choice="pas" data-for="12:90">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:90">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:90">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:90">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:90" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:90" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:90" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:90" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3453,7 +3460,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-40-19">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-40-19" data-note="40:19" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 40:19">
-      <button type="button" class="choice" data-choice="pas" data-for="40:19">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="40:19">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="40:19">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="40:19">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="40:19" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="40:19" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="40:19" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="40:19" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3504,7 +3511,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-93-6">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-93-6" data-note="93:6" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 93:6">
-      <button type="button" class="choice" data-choice="pas" data-for="93:6">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:6">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:6">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:6">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="93:6" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:6" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:6" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:6" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3555,7 +3562,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-9-118">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-9-118" data-note="9:118" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 9:118">
-      <button type="button" class="choice" data-choice="pas" data-for="9:118">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="9:118">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="9:118">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="9:118">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="9:118" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="9:118" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="9:118" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="9:118" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3594,7 +3601,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-16-127">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-16-127" data-note="16:127" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 16:127">
-      <button type="button" class="choice" data-choice="pas" data-for="16:127">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:127">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:127">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:127">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="16:127" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:127" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:127" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:127" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3645,7 +3652,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-84">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-84" data-note="12:84" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:84">
-      <button type="button" class="choice" data-choice="pas" data-for="12:84">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:84">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:84">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:84">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:84" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:84" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:84" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:84" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3684,7 +3691,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-87">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-87" data-note="12:87" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:87">
-      <button type="button" class="choice" data-choice="pas" data-for="12:87">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:87">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:87">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:87">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:87" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:87" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:87" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:87" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3723,7 +3730,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-96">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-96" data-note="12:96" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:96">
-      <button type="button" class="choice" data-choice="pas" data-for="12:96">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:96">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:96">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:96">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:96" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:96" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:96" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:96" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3843,7 +3850,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-28-85">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-28-85" data-note="28:85" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 28:85">
-      <button type="button" class="choice" data-choice="pas" data-for="28:85">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:85">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:85">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:85">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="28:85" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:85" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:85" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:85" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3882,7 +3889,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-106-4">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-106-4" data-note="106:4" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 106:4">
-      <button type="button" class="choice" data-choice="pas" data-for="106:4">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="106:4">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="106:4">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="106:4">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="106:4" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="106:4" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="106:4" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="106:4" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3933,7 +3940,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-93-8">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-93-8" data-note="93:8" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 93:8">
-      <button type="button" class="choice" data-choice="pas" data-for="93:8">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:8">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:8">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:8">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="93:8" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:8" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:8" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:8" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -3972,7 +3979,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-67-15">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-67-15" data-note="67:15" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 67:15">
-      <button type="button" class="choice" data-choice="pas" data-for="67:15">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="67:15">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="67:15">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="67:15">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="67:15" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="67:15" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="67:15" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="67:15" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4023,7 +4030,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-15-21">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-15-21" data-note="15:21" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 15:21">
-      <button type="button" class="choice" data-choice="pas" data-for="15:21">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="15:21">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="15:21">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="15:21">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="15:21" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="15:21" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="15:21" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="15:21" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4074,7 +4081,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-17-29">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-17-29" data-note="17:29" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 17:29">
-      <button type="button" class="choice" data-choice="pas" data-for="17:29">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="17:29">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="17:29">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="17:29">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="17:29" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="17:29" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="17:29" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="17:29" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4113,7 +4120,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-64-16">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-64-16" data-note="64:16" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 64:16">
-      <button type="button" class="choice" data-choice="pas" data-for="64:16">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="64:16">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="64:16">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="64:16">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="64:16" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="64:16" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="64:16" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="64:16" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4164,7 +4171,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-102-1">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-102-1" data-note="102:1" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 102:1">
-      <button type="button" class="choice" data-choice="pas" data-for="102:1">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="102:1">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="102:1">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="102:1">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="102:1" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="102:1" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="102:1" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="102:1" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4203,7 +4210,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-63-9">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-63-9" data-note="63:9" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 63:9">
-      <button type="button" class="choice" data-choice="pas" data-for="63:9">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="63:9">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="63:9">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="63:9">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="63:9" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="63:9" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="63:9" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="63:9" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4254,7 +4261,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-28-60">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-28-60" data-note="28:60" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 28:60">
-      <button type="button" class="choice" data-choice="pas" data-for="28:60">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:60">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:60">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:60">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="28:60" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:60" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:60" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:60" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4293,7 +4300,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-16-96">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-16-96" data-note="16:96" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 16:96">
-      <button type="button" class="choice" data-choice="pas" data-for="16:96">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:96">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:96">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:96">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="16:96" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:96" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:96" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:96" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4413,7 +4420,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-261">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-261" data-note="2:261" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:261">
-      <button type="button" class="choice" data-choice="pas" data-for="2:261">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:261">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:261">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:261">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:261" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:261" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:261" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:261" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4452,7 +4459,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-274">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-274" data-note="2:274" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:274">
-      <button type="button" class="choice" data-choice="pas" data-for="2:274">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:274">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:274">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:274">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:274" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:274" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:274" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:274" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4491,7 +4498,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-34-39">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-34-39" data-note="34:39" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 34:39">
-      <button type="button" class="choice" data-choice="pas" data-for="34:39">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="34:39">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="34:39">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="34:39">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="34:39" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="34:39" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="34:39" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="34:39" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4542,7 +4549,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-20-131">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-20-131" data-note="20:131" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 20:131">
-      <button type="button" class="choice" data-choice="pas" data-for="20:131">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:131">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:131">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:131">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="20:131" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:131" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:131" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:131" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4581,7 +4588,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-15-88">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-15-88" data-note="15:88" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 15:88">
-      <button type="button" class="choice" data-choice="pas" data-for="15:88">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="15:88">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="15:88">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="15:88">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="15:88" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="15:88" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="15:88" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="15:88" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4632,7 +4639,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-25-70">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-25-70" data-note="25:70" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 25:70">
-      <button type="button" class="choice" data-choice="pas" data-for="25:70">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="25:70">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="25:70">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="25:70">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="25:70" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="25:70" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="25:70" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="25:70" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4671,7 +4678,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-11-114">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-11-114" data-note="11:114" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 11:114">
-      <button type="button" class="choice" data-choice="pas" data-for="11:114">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:114">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:114">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:114">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="11:114" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:114" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:114" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:114" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4710,7 +4717,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-40-7">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-40-7" data-note="40:7" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 40:7">
-      <button type="button" class="choice" data-choice="pas" data-for="40:7">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="40:7">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="40:7">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="40:7">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="40:7" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="40:7" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="40:7" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="40:7" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4761,7 +4768,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-2-37">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-2-37" data-note="2:37" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 2:37">
-      <button type="button" class="choice" data-choice="pas" data-for="2:37">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:37">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:37">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:37">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="2:37" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="2:37" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="2:37" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="2:37" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4800,7 +4807,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-5-39">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-5-39" data-note="5:39" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 5:39">
-      <button type="button" class="choice" data-choice="pas" data-for="5:39">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="5:39">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="5:39">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="5:39">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="5:39" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="5:39" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="5:39" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="5:39" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4839,7 +4846,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-133">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-133" data-note="3:133" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:133">
-      <button type="button" class="choice" data-choice="pas" data-for="3:133">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:133">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:133">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:133">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:133" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:133" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:133" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:133" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4959,7 +4966,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-49-11">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-49-11" data-note="49:11" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 49:11">
-      <button type="button" class="choice" data-choice="pas" data-for="49:11">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:11">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:11">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:11">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="49:11" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:11" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:11" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:11" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -4998,7 +5005,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-49-13">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-49-13" data-note="49:13" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 49:13">
-      <button type="button" class="choice" data-choice="pas" data-for="49:13">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:13">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:13">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:13">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="49:13" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:13" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:13" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:13" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5049,7 +5056,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-21-94">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-21-94" data-note="21:94" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 21:94">
-      <button type="button" class="choice" data-choice="pas" data-for="21:94">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:94">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:94">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:94">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="21:94" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:94" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:94" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:94" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5088,7 +5095,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-99-7">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-99-7" data-note="99:7" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 99:7">
-      <button type="button" class="choice" data-choice="pas" data-for="99:7">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="99:7">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="99:7">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="99:7">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="99:7" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="99:7" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="99:7" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="99:7" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5127,7 +5134,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-64-3">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-64-3" data-note="64:3" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 64:3">
-      <button type="button" class="choice" data-choice="pas" data-for="64:3">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="64:3">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="64:3">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="64:3">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="64:3" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="64:3" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="64:3" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="64:3" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5178,7 +5185,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-93-3">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-93-3" data-note="93:3" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 93:3">
-      <button type="button" class="choice" data-choice="pas" data-for="93:3">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:3">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:3">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:3">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="93:3" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="93:3" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="93:3" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="93:3" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5217,7 +5224,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-31">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-31" data-note="3:31" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:31">
-      <button type="button" class="choice" data-choice="pas" data-for="3:31">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:31">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:31">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:31">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:31" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:31" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:31" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:31" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5256,7 +5263,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-11-90">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-11-90" data-note="11:90" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 11:90">
-      <button type="button" class="choice" data-choice="pas" data-for="11:90">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:90">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:90">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:90">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="11:90" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="11:90" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="11:90" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="11:90" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5307,7 +5314,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-16-97">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-16-97" data-note="16:97" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 16:97">
-      <button type="button" class="choice" data-choice="pas" data-for="16:97">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:97">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:97">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:97">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="16:97" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="16:97" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="16:97" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="16:97" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5346,7 +5353,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-23-115">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-23-115" data-note="23:115" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 23:115">
-      <button type="button" class="choice" data-choice="pas" data-for="23:115">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:115">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:115">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:115">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="23:115" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:115" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:115" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:115" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5385,7 +5392,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-67-2">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-67-2" data-note="67:2" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 67:2">
-      <button type="button" class="choice" data-choice="pas" data-for="67:2">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="67:2">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="67:2">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="67:2">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="67:2" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="67:2" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="67:2" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="67:2" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5505,7 +5512,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-20-82">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-20-82" data-note="20:82" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 20:82">
-      <button type="button" class="choice" data-choice="pas" data-for="20:82">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:82">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:82">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:82">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="20:82" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:82" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:82" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:82" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5544,7 +5551,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-29-69">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-29-69" data-note="29:69" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 29:69">
-      <button type="button" class="choice" data-choice="pas" data-for="29:69">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:69">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:69">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:69">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="29:69" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:69" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:69" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:69" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5595,7 +5602,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-33-58">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-33-58" data-note="33:58" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 33:58">
-      <button type="button" class="choice" data-choice="pas" data-for="33:58">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:58">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:58">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:58">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="33:58" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:58" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:58" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:58" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5634,7 +5641,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-186">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-186" data-note="3:186" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:186">
-      <button type="button" class="choice" data-choice="pas" data-for="3:186">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:186">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:186">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:186">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:186" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:186" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:186" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:186" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5685,7 +5692,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-33-69">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-33-69" data-note="33:69" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 33:69">
-      <button type="button" class="choice" data-choice="pas" data-for="33:69">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:69">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:69">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:69">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="33:69" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="33:69" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="33:69" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="33:69" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5724,7 +5731,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-24-11">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-24-11" data-note="24:11" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 24:11">
-      <button type="button" class="choice" data-choice="pas" data-for="24:11">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="24:11">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="24:11">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="24:11">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="24:11" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="24:11" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="24:11" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="24:11" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5775,7 +5782,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-5-8">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-5-8" data-note="5:8" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 5:8">
-      <button type="button" class="choice" data-choice="pas" data-for="5:8">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="5:8">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="5:8">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="5:8">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="5:8" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="5:8" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="5:8" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="5:8" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5814,7 +5821,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-17-53">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-17-53" data-note="17:53" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 17:53">
-      <button type="button" class="choice" data-choice="pas" data-for="17:53">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="17:53">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="17:53">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="17:53">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="17:53" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="17:53" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="17:53" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="17:53" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5865,7 +5872,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-42-43">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-42-43" data-note="42:43" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 42:43">
-      <button type="button" class="choice" data-choice="pas" data-for="42:43">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:43">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:43">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:43">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="42:43" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:43" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:43" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:43" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5904,7 +5911,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-42-40">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-42-40" data-note="42:40" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 42:40">
-      <button type="button" class="choice" data-choice="pas" data-for="42:40">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:40">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:40">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:40">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="42:40" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:40" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:40" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:40" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5943,7 +5950,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-92">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-92" data-note="12:92" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:92">
-      <button type="button" class="choice" data-choice="pas" data-for="12:92">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:92">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:92">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:92">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:92" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:92" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:92" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:92" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -5994,7 +6001,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-69">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-69" data-note="4:69" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:69">
-      <button type="button" class="choice" data-choice="pas" data-for="4:69">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:69">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:69">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:69">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:69" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:69" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:69" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:69" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6114,7 +6121,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-36">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-36" data-note="4:36" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:36">
-      <button type="button" class="choice" data-choice="pas" data-for="4:36">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:36">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:36">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:36">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:36" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:36" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:36" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:36" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6153,7 +6160,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-49-6">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-49-6" data-note="49:6" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 49:6">
-      <button type="button" class="choice" data-choice="pas" data-for="49:6">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:6">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:6">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:6">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="49:6" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:6" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:6" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:6" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6192,7 +6199,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-24-27">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-24-27" data-note="24:27" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 24:27">
-      <button type="button" class="choice" data-choice="pas" data-for="24:27">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="24:27">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="24:27">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="24:27">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="24:27" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="24:27" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="24:27" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="24:27" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6243,7 +6250,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-49-10">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-49-10" data-note="49:10" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 49:10">
-      <button type="button" class="choice" data-choice="pas" data-for="49:10">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:10">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:10">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:10">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="49:10" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="49:10" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="49:10" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="49:10" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6282,7 +6289,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-114">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-114" data-note="4:114" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:114">
-      <button type="button" class="choice" data-choice="pas" data-for="4:114">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:114">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:114">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:114">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:114" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:114" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:114" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:114" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6333,7 +6340,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-42-28">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-42-28" data-note="42:28" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 42:28">
-      <button type="button" class="choice" data-choice="pas" data-for="42:28">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:28">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:28">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:28">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="42:28" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:28" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:28" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:28" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6372,7 +6379,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-12-110">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-12-110" data-note="12:110" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 12:110">
-      <button type="button" class="choice" data-choice="pas" data-for="12:110">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:110">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:110">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:110">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="12:110" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="12:110" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="12:110" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="12:110" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6423,7 +6430,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-57-22">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-57-22" data-note="57:22" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 57:22">
-      <button type="button" class="choice" data-choice="pas" data-for="57:22">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:22">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:22">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:22">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="57:22" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:22" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:22" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:22" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6462,7 +6469,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-9-51">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-9-51" data-note="9:51" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 9:51">
-      <button type="button" class="choice" data-choice="pas" data-for="9:51">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="9:51">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="9:51">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="9:51">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="9:51" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="9:51" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="9:51" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="9:51" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6513,7 +6520,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-19-4">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-19-4" data-note="19:4" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 19:4">
-      <button type="button" class="choice" data-choice="pas" data-for="19:4">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:4">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:4">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:4">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="19:4" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="19:4" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="19:4" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="19:4" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6552,7 +6559,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-21-90">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-21-90" data-note="21:90" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 21:90">
-      <button type="button" class="choice" data-choice="pas" data-for="21:90">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:90">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:90">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:90">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="21:90" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="21:90" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="21:90" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="21:90" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6591,7 +6598,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-27-62">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-27-62" data-note="27:62" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 27:62">
-      <button type="button" class="choice" data-choice="pas" data-for="27:62">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="27:62">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="27:62">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="27:62">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="27:62" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="27:62" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="27:62" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="27:62" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6711,7 +6718,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-57-4">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-57-4" data-note="57:4" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 57:4">
-      <button type="button" class="choice" data-choice="pas" data-for="57:4">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:4">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:4">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:4">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="57:4" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="57:4" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="57:4" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="57:4" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6750,7 +6757,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-8">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-8" data-note="3:8" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:8">
-      <button type="button" class="choice" data-choice="pas" data-for="3:8">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:8">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:8">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:8">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:8" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:8" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:8" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:8" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6801,7 +6808,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-17">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-17" data-note="4:17" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:17">
-      <button type="button" class="choice" data-choice="pas" data-for="4:17">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:17">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:17">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:17">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:17" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:17" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:17" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:17" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6852,7 +6859,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-23-60">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-23-60" data-note="23:60" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 23:60">
-      <button type="button" class="choice" data-choice="pas" data-for="23:60">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:60">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:60">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:60">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="23:60" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:60" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:60" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:60" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6891,7 +6898,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-23-61">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-23-61" data-note="23:61" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 23:61">
-      <button type="button" class="choice" data-choice="pas" data-for="23:61">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:61">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:61">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:61">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="23:61" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:61" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:61" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:61" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6930,7 +6937,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-146">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-146" data-note="4:146" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:146">
-      <button type="button" class="choice" data-choice="pas" data-for="4:146">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:146">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:146">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:146">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:146" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:146" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:146" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:146" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -6981,7 +6988,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-73-20">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-73-20" data-note="73:20" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 73:20">
-      <button type="button" class="choice" data-choice="pas" data-for="73:20">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="73:20">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="73:20">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="73:20">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="73:20" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="73:20" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="73:20" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="73:20" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7032,7 +7039,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-94-2">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-94-2" data-note="94:2" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 94:2">
-      <button type="button" class="choice" data-choice="pas" data-for="94:2">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="94:2">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="94:2">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="94:2">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="94:2" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="94:2" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="94:2" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="94:2" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7071,7 +7078,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-78-9">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-78-9" data-note="78:9" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 78:9">
-      <button type="button" class="choice" data-choice="pas" data-for="78:9">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="78:9">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="78:9">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="78:9">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="78:9" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="78:9" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="78:9" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="78:9" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7110,7 +7117,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-28-73">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-28-73" data-note="28:73" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 28:73">
-      <button type="button" class="choice" data-choice="pas" data-for="28:73">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:73">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:73">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:73">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="28:73" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="28:73" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="28:73" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="28:73" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7161,7 +7168,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-28">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-28" data-note="4:28" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:28">
-      <button type="button" class="choice" data-choice="pas" data-for="4:28">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:28">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:28">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:28">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:28" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:28" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:28" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:28" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7200,7 +7207,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-23-62">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-23-62" data-note="23:62" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 23:62">
-      <button type="button" class="choice" data-choice="pas" data-for="23:62">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:62">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:62">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:62">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="23:62" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="23:62" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="23:62" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="23:62" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7320,7 +7327,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-87-8">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-87-8" data-note="87:8" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 87:8">
-      <button type="button" class="choice" data-choice="pas" data-for="87:8">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="87:8">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="87:8">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="87:8">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="87:8" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="87:8" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="87:8" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="87:8" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7359,7 +7366,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-92-7">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-92-7" data-note="92:7" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 92:7">
-      <button type="button" class="choice" data-choice="pas" data-for="92:7">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="92:7">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="92:7">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="92:7">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="92:7" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="92:7" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="92:7" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="92:7" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7410,7 +7417,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-29-62">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-29-62" data-note="29:62" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 29:62">
-      <button type="button" class="choice" data-choice="pas" data-for="29:62">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:62">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:62">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:62">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="29:62" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="29:62" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="29:62" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="29:62" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7449,7 +7456,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-42-12">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-42-12" data-note="42:12" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 42:12">
-      <button type="button" class="choice" data-choice="pas" data-for="42:12">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:12">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:12">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:12">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="42:12" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="42:12" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="42:12" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="42:12" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7500,7 +7507,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-1-6">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-1-6" data-note="1:6" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 1:6">
-      <button type="button" class="choice" data-choice="pas" data-for="1:6">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="1:6">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="1:6">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="1:6">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="1:6" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="1:6" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="1:6" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="1:6" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7551,7 +7558,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-20-25">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-20-25" data-note="20:25" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 20:25">
-      <button type="button" class="choice" data-choice="pas" data-for="20:25">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:25">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:25">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:25">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="20:25" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:25" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:25" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:25" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7590,7 +7597,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-20-26">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-20-26" data-note="20:26" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 20:26">
-      <button type="button" class="choice" data-choice="pas" data-for="20:26">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:26">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:26">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:26">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="20:26" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="20:26" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="20:26" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="20:26" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7629,7 +7636,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-96-5">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-96-5" data-note="96:5" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 96:5">
-      <button type="button" class="choice" data-choice="pas" data-for="96:5">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="96:5">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="96:5">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="96:5">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="96:5" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="96:5" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="96:5" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="96:5" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7680,7 +7687,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-3-195">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-3-195" data-note="3:195" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 3:195">
-      <button type="button" class="choice" data-choice="pas" data-for="3:195">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:195">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:195">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:195">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="3:195" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="3:195" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="3:195" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="3:195" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7719,7 +7726,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-4-40">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-4-40" data-note="4:40" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 4:40">
-      <button type="button" class="choice" data-choice="pas" data-for="4:40">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:40">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:40">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:40">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="4:40" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="4:40" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="4:40" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="4:40" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7758,7 +7765,7 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
     <label for="a-18-30">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-18-30" data-note="18:30" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk 18:30">
-      <button type="button" class="choice" data-choice="pas" data-for="18:30">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:30">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:30">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:30">Ustadz pikir dulu</button>
+      <button type="button" class="choice" data-choice="pas" data-for="18:30" aria-pressed="false">Pas, pakai</button><button type="button" class="choice" data-choice="ganti" data-for="18:30" aria-pressed="false">Pas, kalimatnya ganti</button><button type="button" class="choice" data-choice="cabut" data-for="18:30" aria-pressed="false">Jangan dipakai</button><button type="button" class="choice" data-choice="pikir" data-for="18:30" aria-pressed="false">Ustadz pikir dulu</button>
     </div>
   </div>
 </article>
@@ -7829,7 +7836,9 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
       var ref=v.getAttribute("data-ref"), c=store["choice:"+ref]||"";
       total++;
       v.querySelectorAll(".choice").forEach(function(b){
-        b.classList.toggle("is-on", b.getAttribute("data-choice")===c);
+        var on = b.getAttribute("data-choice")===c;
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
       });
       var st=v.querySelector("[data-state-for]");
       st.textContent = c ? LABEL[c] : "";

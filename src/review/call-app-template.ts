@@ -107,7 +107,7 @@ function verseCard(v: AppVerse, feeling: string, n: number): string {
     <label for="a-${id}">Jawaban Ustadz <em>— tulis apa adanya, jangan dibulatkan jadi “setuju”</em></label>
     <textarea id="a-${id}" data-note="${esc(v.ref)}" rows="3" placeholder="Ketik yang Ustadz katakan…"></textarea>
     <div class="choices" role="group" aria-label="Putusan untuk ${esc(v.ref)}">
-      ${CHOICES.map((c) => `<button type="button" class="choice" data-choice="${c.v}" data-for="${esc(v.ref)}">${c.label}</button>`).join("")}
+      ${CHOICES.map((c) => `<button type="button" class="choice" data-choice="${c.v}" data-for="${esc(v.ref)}" aria-pressed="false">${c.label}</button>`).join("")}
     </div>
   </div>
 </article>`;
@@ -423,6 +423,13 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
   .panel[hidden]{display:none}.verse{break-inside:avoid;box-shadow:none}
   body{background:#fff;color:#000}
 }
+/* A reduced-motion reader gets no transitions — the progress bar, the toast slide, the choice-button
+   and card state changes all resolve instantly. This is a tool a scholar may use with accessibility
+   settings on; motion here is decoration, never meaning, so it is safe to drop entirely. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0.01ms!important;animation-duration:0.01ms!important}
+  html{scroll-behavior:auto}
+}
 </style>
 </head>
 <body>
@@ -486,7 +493,9 @@ textarea:focus,input:focus{outline:2px solid var(--primary);outline-offset:1px;b
       var ref=v.getAttribute("data-ref"), c=store["choice:"+ref]||"";
       total++;
       v.querySelectorAll(".choice").forEach(function(b){
-        b.classList.toggle("is-on", b.getAttribute("data-choice")===c);
+        var on = b.getAttribute("data-choice")===c;
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
       });
       var st=v.querySelector("[data-state-for]");
       st.textContent = c ? LABEL[c] : "";

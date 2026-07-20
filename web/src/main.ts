@@ -83,8 +83,15 @@ function skeleton(): HTMLElement {
   return el;
 }
 
+// Someone who set "reduce motion" is telling the OS that animated scrolling makes them unwell — a
+// vestibular need, not a preference. The CSS already honours it everywhere; the JS smooth-scrolls did
+// not, so a reduced-motion reader still got thrown down the page on every answer. Ask the OS each time
+// (the setting can change mid-session) and fall back to an instant jump.
+const scrollBehavior = (): ScrollBehavior =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
 const scrollDown = () =>
-  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }));
+  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: scrollBehavior() }));
 
 // The honesty note — the app points at scripture, it never interprets. It used to be bolted onto
 // every fallback opener as a spoken sentence, which read as a preached footer; now it lives here as
@@ -855,7 +862,7 @@ function initToTop(): void {
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
   btn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
     // Return focus to the top of the document so keyboard users land where they were sent.
     document.querySelector<HTMLElement>(".mark")?.focus();
   });
