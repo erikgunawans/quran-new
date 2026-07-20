@@ -66,3 +66,44 @@ describe("allowedRefsFrom — normalises grounding refs to surah:ayah", () => {
     expect(set.has("4:82")).toBe(false);
   });
 });
+
+describe("guardAnswerProse — no fiqh verdict may be issued", () => {
+  // The failure this catches is invisible to the other two rules: fluent Indonesian, no Arabic,
+  // and either a perfectly grounded citation or none at all. Only the SHAPE gives it away.
+  test("an assigned ruling is rejected even when its citation is grounded", () => {
+    const r = guardAnswerProse("Berdasarkan QS 2:275, hukumnya haram dan transaksimu batal.", allow("2:275"));
+    expect(r.ok).toBe(false);
+    expect(r.violations[0]!.kind).toBe("fatwa");
+  });
+
+  test("verdict-first phrasing is caught too", () => {
+    expect(guardAnswerProse("Riba itu haram hukumnya.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Perbuatan itu haram.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Wajib bagi kamu mengqadha puasanya.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Shalatmu tidak sah.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Itu termasuk dosa besar.", allow()).ok).toBe(false);
+  });
+
+  // The prompt ORDERS the model to disclaim being a mufti, so a compliant answer contains these very
+  // words. A word-level check would reject precisely the answers that obey rule 3.
+  test("the obedient disclaimer is NOT a fatwa", () => {
+    expect(guardAnswerProse("Aku tidak bisa menetapkan hukum halal atau haram — tanyakan pada ustadz.", allow()).ok).toBe(true);
+    expect(guardAnswerProse("Soal wajib atau tidaknya, sebaiknya kamu bertanya kepada ulama.", allow()).ok).toBe(true);
+    expect(guardAnswerProse("Ini bukan fatwa, dan aku bukan mufti.", allow()).ok).toBe(true);
+  });
+
+  test("ordinary warm prose is not mistaken for a ruling", () => {
+    expect(guardAnswerProse("Kamu tidak boleh putus asa dari rahmat Allah.", allow()).ok).toBe(true);
+    expect(guardAnswerProse("Rasanya berat, dan itu wajar.", allow()).ok).toBe(true);
+  });
+
+  // Hedging one sentence must not license a bare verdict in the next.
+  test("a hedge elsewhere does not license a verdict sentence", () => {
+    const prose = "Aku bukan mufti dan bukan ustadz. Tapi hukumnya haram.";
+    expect(guardAnswerProse(prose, allow()).ok).toBe(false);
+  });
+
+  test("safeAnswer returns null on a fatwa so the caller falls back to principled", () => {
+    expect(safeAnswer("Hukumnya wajib.", allow())).toBeNull();
+  });
+});

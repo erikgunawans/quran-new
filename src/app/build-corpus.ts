@@ -353,10 +353,17 @@ const FRAGMENT_OK: Record<string, string> = {
   "13:28": "reads as a complete thought; part of the original curated 55",
   "20:26": "a complete du'a on its own — Musa's 'mudahkanlah urusanku'",
   "18:24": "the clause carries its own instruction (say insya Allah)",
-  // NOT blessed, listed so the build passes while they await a decision. Flagged in the summary.
-  "25:70": "REVIEW: opens 'kecuali' — dangling for someone in the Shame theme",
-  "23:61": "REVIEW: opens 'mereka itulah' — needs 23:60 for the referent",
-  "113:5": "REVIEW: opens 'dan dari' — well-known short surah, but still a continuation",
+  // Reviewed 2026-07-20. 23:61 and 113:5 were DROPPED from the feeling corpus rather than blessed
+  // (see the reasoning at their old sites in problem-verses.ts), so they no longer reach this gate.
+  //
+  // 25:70 is blessed, and it is the one case where the missing referent is not a loss. "kecuali"
+  // hangs off 25:68's gravest sins — shirk, murder, zina — but everything AFTER it is a complete,
+  // self-contained promise: repent, believe, do good, and Allah exchanges the sins for reward. The
+  // omitted context makes the promise NARROWER than the fragment reads, so a person in shame who
+  // takes it at face value is told something a fortiori true, never something false. The only defect
+  // is a lowercase opener. Shipping the referent instead would put the gravest sins in front of
+  // someone already drowning in shame, to no benefit.
+  "25:70": "blessed: the clause after 'kecuali' is a whole promise; the hidden referent only narrows it",
 };
 // The signal is a LOWERCASE opening — the translator's own mark that this rendering continues the
 // previous ayah. A capitalised "Dan…"/"Adapun…" is ordinary Qur'anic style and reads fine alone;

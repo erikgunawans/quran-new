@@ -437,7 +437,13 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [57, 4], themes: ["Far from God"], why: "Allah beserta kalian di mana pun kalian berada" },
   { ref: [3, 8], themes: ["Far from God"], why: "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk" },
   // Fear of insincerity
-  { ref: [23, 61], themes: ["Fear of insincerity"], why: "Justru merekalah yang disebut bersegera dalam kebaikan" },
+  // 23:61 DROPPED (fragment review, 2026-07-20). It opens "mereka itulah" and the referent is the
+  // whole of 23:57-60 — and every one of those ayahs is ITSELF a lowercase continuation, so there is
+  // no standalone verse anywhere in the passage to swap in. Alone, "mereka itulah orang-orang yang
+  // berusaha keras menaati Allah" points at nobody, and a person afraid their worship is hollow reads
+  // it as a description of BETTER people than them — the exact inversion of the comfort intended
+  // (23:60 is the trembling heart). Fear of insincerity keeps 4:146. Proposed for the ustadz: ship
+  // 23:57-61 as one passage, or let him choose a different verse. See docs/review/fragment-review.md.
   // Struggling with consistency
   { ref: [73, 20], themes: ["Struggling with consistency"], why: "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan" },
   // Burnout
@@ -466,7 +472,12 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
 
   // ── Expanded feeling corpus (docs/review/feelings-expansion.md) ──
   // Envy & comparison
-  { ref: [113, 5], themes: ["Envy & comparison"], why: "Memohon perlindungan dari kejahatan pendengki" },
+  // 113:5 DROPPED (fragment review, 2026-07-20). Al-Falaq is one unbroken du'a: the verb "aku
+  // berlindung" lives in 113:1 and every later ayah hangs off it. Served alone the card reads "dan
+  // dari kejahatan pendengki bila ia dengki\"" — opening with "dan dari", and closing on a quotation
+  // mark that has no opening, which is the excision showing through to the reader. Envy & comparison
+  // keeps 4:32. Proposed for the ustadz: ship Al-Falaq whole, the way it is actually recited.
+
   // Parents
   { ref: [71, 28], themes: ["Parents"], why: "Doa Nuh bagi dirinya dan kedua orang tuanya" },
   // Injustice & being wronged

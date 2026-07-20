@@ -8,7 +8,63 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — Feeling corpus 55→201 verses; honesty floor BROKEN then restored
+## 2026-07-20 (latest) — synthesis grounding fenced (3 known-open closed); fragments decided
+
+All three synthesis known-opens from the checkpoint below are fixed, and the three `REVIEW:` fragments
+are decided. **629 tests pass** (was 619), web typecheck clean, both builds succeed. **NOT deployed.**
+
+**1. The KB no longer hijacks a feeling** (`answer.ts`). `gatherGrounding` called `retrieveKnowledge`
+unconditionally, so "aku capek banget mikirin utang" handed the model its feeling verses *and* a stack
+of Ekonomi/riba **law** lines — and the model, given both, answered the ruling instead of the exhausted
+person. `main.ts` has always run the KB only after feelings came up empty; now so does this. Same law,
+both editions. The two lanes turn out to compose exactly right: a ruling question already retrieves no
+feeling verse (the honesty floor), so it still reaches the KB.
+
+**2. Non-existent ayahs can no longer be cited as scripture** (`answer.ts`). The index cites 4 refs
+that are not in the mushaf — measured, not assumed: 8:96 and 48:59 (*rahasia-kejiwaan*), 8:77
+(*membangun-pribadi-shalih*), 11:161 (*karakteristik-negara-bersyari-ah*). The principled edition
+renders them unlinked and inert. Here the ref list becomes the **citation whitelist**, i.e. the model's
+licence to write a reference as scripture. Now filtered on `resolvable`. Pinned by the one query whose
+ONLY grounding is unresolvable ("syarat pribadi shalih khianat" → QS 8:77, Al-Anfal ends at 75), so the
+filter is provably load-bearing rather than merely present.
+
+**3. A deterministic backstop against a fatwa** (`answer-guard.ts`). The guard checked Arabic and
+ref-grounding only. A fatwa-shaped answer defeats both: no Arabic, and it cites a *grounded* ref or
+none at all. `SYNTHESIS_SYSTEM_PROMPT` rule 3 forbids it, but a prompt is a request, not a wall. New
+`fatwa` violation matches fiqh **verdict constructions**, not vocabulary — the distinction is the whole
+design, because rule 3 orders the model to *say* "aku tidak bisa menetapkan hukum halal atau haram",
+so a word-level check would reject precisely the answers that obey. Sentence-scoped with a hedge
+exemption; hedging one sentence does not license a bare verdict in the next. `tidak boleh` is
+deliberately absent ("kamu tidak boleh putus asa" is warm prose, not a ruling). The Worker and the eval
+harness both import this module, so the rule lands on all three surfaces at once.
+
+**4. The three fragments, decided** (`docs/review/fragment-review.md`). The question asked was not "is
+this good scripture" but "does this rendering, alone on a card, say something true to a person in this
+feeling?"
+- **25:70 BLESSED.** `kecuali` hangs off 25:68's gravest sins, but everything after it is a whole
+  promise, and the missing context makes it NARROWER — so read alone it is a fortiori true, never
+  false. Showing the referent would put shirk/murder/zina in front of someone drowning in shame.
+- **23:61 DROPPED** — the least safe, and worse than incomplete: alone it inverts. Its referent is
+  23:60, the trembling heart (*that fear is the mark of the sincere*). Cut loose, someone afraid they
+  are a fraud reads it as a description of better people than them. **No swap existed** — 23:57-60 are
+  each themselves lowercase continuations; the passage is one sentence. Keeps 4:146.
+- **113:5 DROPPED** — Al-Falaq is one du'a; the verb *aku berlindung* is in 113:1. Served alone the card
+  opens "dan dari" and closes on a quotation mark with no opening quote — the excision visible to the
+  reader. Keeps 4:32.
+
+Corpus **201 → 199 verses, still 83 feelings** — neither drop left a feeling unanswered. The build's
+`⚠ awaiting a decision` line is gone; the gate still blocks any future fragment.
+
+**Open:**
+1. **`bun run eval:answer` has still never run against a model.** `.env` exists and is gitignored with
+   an EMPTY `OPENROUTER_API_KEY=` — Erik fills it himself, in the file, never on a command line or in
+   chat. `--dry-run --limit 5` re-verified working after these changes (zero API spend).
+2. **Not deployed.** These are behaviour changes to the synthesis edition's grounding.
+3. Unchanged from below: the ustadz has seen none of the 147 proposed verses; 27 caveats are dropped at
+   the last hop (`ProblemVerse` has no caveat field); `lexicon-coverage.test.ts` reads gitignored
+   `corpus.json`; no CI.
+
+## 2026-07-20 — Feeling corpus 55→201 verses; honesty floor BROKEN then restored
 
 Long session. Both editions redeployed several times; final versions principled `68c78f9e`,
 synthesis `3140809c`. Pushed through `99a4496`.

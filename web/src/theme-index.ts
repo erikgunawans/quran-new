@@ -417,12 +417,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 32,
         "ref": "4:32",
         "why": "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri"
-      },
-      {
-        "surah": 113,
-        "ayah": 5,
-        "ref": "113:5",
-        "why": "Memohon perlindungan dari kejahatan pendengki"
       }
     ]
   },
@@ -1404,23 +1398,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Takut riya atau munafik",
-    "verses": [
-      {
-        "surah": 23,
-        "ayah": 61,
-        "ref": "23:61",
-        "why": "Justru merekalah yang disebut bersegera dalam kebaikan"
-      },
-      {
-        "surah": 4,
-        "ayah": 146,
-        "ref": "4:146",
-        "why": "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman"
-      }
-    ]
-  },
-  {
     "theme": "Susah istiqamah",
     "verses": [
       {
@@ -1649,6 +1626,17 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 17,
         "ref": "4:17",
         "why": "Pintu taubat terbuka selama napas masih ada"
+      }
+    ]
+  },
+  {
+    "theme": "Takut riya atau munafik",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 146,
+        "ref": "4:146",
+        "why": "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman"
       }
     ]
   }

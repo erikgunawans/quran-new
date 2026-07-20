@@ -45,12 +45,28 @@ export async function gatherGrounding(
     text: h.verse.primary?.text ?? h.verse.companion?.text ?? "",
   }));
 
+  // The KB is a FALLBACK, exactly as in main.ts: it runs only after the feeling path came up empty.
+  // Ungated, it hijacked real feelings — the index is a ruling/predicate index, so "aku capek banget
+  // sama utang" retrieved its verses AND a stack of Ekonomi/riba law lines, and the model, handed both,
+  // answered the debt question instead of the exhausted person. Feelings first, the scholar's index
+  // only when there is no feeling to answer. Same law, both editions.
   let entries: GroundingEntry[] = [];
-  try {
-    const k = await retrieveKnowledge(question);
-    if (k) entries = k.entries.slice(0, MAX_ENTRIES).map((e) => ({ ref: e.ref, text: e.text }));
-  } catch {
-    // KB is optional grounding — a failed shard fetch just means fewer entries, never a broken turn.
+  if (verses.length === 0) {
+    try {
+      const k = await retrieveKnowledge(question);
+      // A ref the index cites that is NOT in the mushaf (4 of them: e.g. QS 8:77, a 75-ayah surah)
+      // must never reach the citation whitelist. The principled edition renders these unlinked and
+      // harmless; here the whitelist is what lets the model write a reference as scripture, so an
+      // unresolvable entry would launder a non-existent ayah into an authored answer.
+      if (k) {
+        entries = k.entries
+          .filter((e) => e.resolvable)
+          .slice(0, MAX_ENTRIES)
+          .map((e) => ({ ref: e.ref, text: e.text }));
+      }
+    } catch {
+      // KB is optional grounding — a failed shard fetch just means fewer entries, never a broken turn.
+    }
   }
 
   const refs = verses.map((v) => v.ref);
