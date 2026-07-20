@@ -465,6 +465,27 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .seed:hover { border-color: var(--action); color: var(--primary); transform: translateY(-1px); }
 .seed:active { transform: translateY(1px); }
 
+/* "Kejutkan aku" — deliberately NOT a seed chip. The seeds are examples of what to type; this is an
+   action that fills the field for you. Emerald text + a faint wash so it reads as the app's own
+   voice offering a hand, set a little apart from the outline example chips above it. */
+.lucky {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+  margin: 14px auto 0; padding: 9px 18px;
+  border: 1px solid var(--primary-line); border-radius: 999px;
+  background: var(--primary-wash); color: var(--primary);
+  font-size: 14px; font-weight: 600;
+  transition: background var(--t), transform var(--t), box-shadow var(--t);
+}
+.lucky svg { width: 17px; height: 17px; }
+.lucky:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--primary-wash); }
+.lucky:active { transform: translateY(1px); }
+.lucky:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* the sparkle gives one gentle turn on click — feedback that a new question was drawn */
+@media (prefers-reduced-motion: no-preference) {
+  .lucky.is-rolling svg { animation: lucky-spin 0.5s var(--ease); }
+}
+@keyframes lucky-spin { from { transform: rotate(0); } to { transform: rotate(180deg); } }
+
 .msg.me {
   align-self: flex-end; max-width: 85%;
   background: var(--primary-wash); border: 1px solid var(--primary-line);
@@ -786,6 +807,40 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 :root[data-landing] .composer textarea { font-size: 17.5px; padding: 14px 0; }
 :root[data-landing] .send { width: 52px; height: 52px; border-radius: 13px; }
 :root[data-landing] .send svg { width: 22px; height: 22px; }
+
+/* ── the traveling light ───────────────────────────────────────────────────────
+   The landing composer IS the page's call to action, so it gets the one moment of "come talk to me"
+   motion: a soft emerald light that glides around its edge. It rides the BORDER only — a conic
+   gradient masked to a ~1.6px ring — never washing the field, so the placeholder stays legible. The
+   ::after is the same beam blurred, so the light reads as luminous rather than drawn. Emerald
+   throughout: the gold law is untouched. Reduced-motion removes it completely — the calm bordered
+   field the app already had is what remains, never a strobe. */
+@property --beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+:root[data-landing] .composer form { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-landing] .composer form::before,
+  :root[data-landing] .composer form::after {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: beam-travel 5.5s linear infinite;
+  }
+  /* the sharp beam: a bright arc with a hot near-white core, trailing off into the emerald line */
+  :root[data-landing] .composer form::before {
+    padding: 1.6px;
+    background: conic-gradient(from var(--beam),
+      transparent 0deg 210deg, var(--primary-line) 300deg, var(--primary) 338deg,
+      oklch(0.96 0.05 165) 350deg, var(--primary) 358deg, transparent 360deg);
+  }
+  /* its glow: same rotation, wider and blurred, so the beam looks like it's emitting light */
+  :root[data-landing] .composer form::after {
+    padding: 4px; opacity: 0.5; filter: blur(4px);
+    background: conic-gradient(from var(--beam),
+      transparent 0deg 305deg, var(--primary) 348deg, transparent 360deg);
+  }
+}
+@keyframes beam-travel { to { --beam: 360deg; } }
 /* the docked bar reserves 8rem of scroll runway it does not need on the landing */
 :root[data-landing] .app { padding-bottom: var(--s-8); }
 

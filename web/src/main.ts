@@ -11,6 +11,7 @@ import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, Shar
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
 import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
+import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
 import { aqidahById, aqidahRef, matchAqidah, type AqidahEntry } from "./aqidah.ts";
 import { composeFraming } from "./compose-contract.ts";
@@ -629,6 +630,23 @@ input.addEventListener("keydown", (e) => {
     e.preventDefault();
     form.requestSubmit();
   }
+});
+
+// "Kejutkan aku" — drop a random real-shaped question into the field, focused, ready. It does NOT
+// submit: the person sees what "just talk to me" looks like and decides. The pool is retrieval- and
+// parser-validated (lucky.test.ts), so a draw never lands on silence.
+const lucky = document.getElementById("lucky");
+let lastLucky: string | null = null;
+lucky?.addEventListener("click", () => {
+  lastLucky = pickLucky(lastLucky);
+  input.value = lastLucky;
+  input.dispatchEvent(new Event("input", { bubbles: true })); // autosize + enable send
+  input.focus();
+  const caret = input.value.length;
+  input.setSelectionRange(caret, caret);
+  lucky.classList.remove("is-rolling");
+  void lucky.offsetWidth; // restart the sparkle spin on every click
+  lucky.classList.add("is-rolling");
 });
 
 // ── actions: seeds, copy, share, retry ───────────────────────────────────────
