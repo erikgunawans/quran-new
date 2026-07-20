@@ -28,8 +28,9 @@
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
-    "build": "bun run app:corpus && bun run app:themes && bun run app:peta && bun run app:peta3d && vite build web",
-    "app:caveat-sheet": "bun run src/review/build-caveat-sheet.ts"
+    "build": "bun run app:corpus && bun run app:themes && bun run app:peta && bun run app:peta3d && bun run app:grounding-digest && vite build web",
+    "app:caveat-sheet": "bun run src/review/build-caveat-sheet.ts",
+    "app:grounding-digest": "bun run src/app/build-grounding-digest.ts"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",

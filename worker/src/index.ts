@@ -21,6 +21,7 @@ import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
 import { allowedRefsFrom, guardAnswerProse } from "../../web/src/answer-guard.ts";
+import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
   ANSWER_PARAMS,
   buildAnswerUserMessage,
@@ -172,6 +173,51 @@ function sanitizeGrounding(raw: unknown, withName: boolean): (GroundingVerse | G
   return out;
 }
 
+/**
+ * The set of hashes proving a grounding item is real. Fetched once per isolate, then reused.
+ *
+ * Module scope survives across requests in a warm isolate, so the 39 KB digest is paid for on a cold
+ * start and never again. A failed fetch is NOT cached, so a transient miss self-heals next request.
+ */
+let groundingDigest: Set<string> | null = null;
+
+async function loadGroundingDigest(env: Env): Promise<Set<string> | null> {
+  if (groundingDigest) return groundingDigest;
+  try {
+    const res = await env.ASSETS.fetch(new Request("https://assets.local/grounding-digest.json"));
+    if (!res.ok) return null;
+    const body = (await res.json()) as { hashes?: unknown };
+    if (!Array.isArray(body.hashes) || body.hashes.length === 0) return null;
+    groundingDigest = new Set(body.hashes as string[]);
+    return groundingDigest;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Drop any grounding the browser sent that is not verbatim ours.
+ *
+ * `sanitizeGrounding` above bounds the input; this establishes that it is REAL. Without it a caller
+ * could POST invented scholar entries and receive a fluent answer built on them — and the egress guard
+ * is powerless there by construction, since it whitelists citations against the submitted grounding,
+ * so forged grounding whitelists its own citations.
+ *
+ * Hashing ref+text together is the point. A real reference carrying invented words is the dangerous
+ * case: 2:255 exists, and it is the sentence bolted onto it that would be screenshotted.
+ *
+ * FAILS CLOSED. If the digest cannot be loaded we return nothing, every item is dropped, and the
+ * caller falls back to the principled edition — the app's standing rule that synthesis may degrade to
+ * the trustworthy edition but must never outrun it.
+ */
+async function verifyGrounding<T extends { ref: string; text: string }>(items: T[], env: Env): Promise<T[]> {
+  if (items.length === 0) return [];
+  const digest = await loadGroundingDigest(env);
+  if (!digest) return [];
+  const ok = await Promise.all(items.map((i) => hashGrounding(i.ref, i.text).then((h) => digest.has(h))));
+  return items.filter((_, idx) => ok[idx] === true);
+}
+
 async function handleAnswer(request: Request, env: Env): Promise<Response> {
   // The authoring endpoint exists in one codebase but must only be live on the synthesis edition.
   // On the principled deploy EDITION is unset → this returns null and the app authors nothing.
@@ -185,8 +231,9 @@ async function handleAnswer(request: Request, env: Env): Promise<Response> {
   }
 
   const question = asBoundedString(body.question);
-  const verses = sanitizeGrounding(body.verses, true) as GroundingVerse[];
-  const entries = sanitizeGrounding(body.entries, false) as GroundingEntry[];
+  // Bound it, THEN prove it is ours. Forged grounding is dropped here, before the model ever sees it.
+  const verses = await verifyGrounding(sanitizeGrounding(body.verses, true) as GroundingVerse[], env);
+  const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
   if (!question || (verses.length === 0 && entries.length === 0)) return json({ answer: null }, 200, request);
 
   const user = buildAnswerUserMessage({ question, verses, entries });
