@@ -8,7 +8,65 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — synthesis grounding fenced (3 known-open closed); fragments decided
+## 2026-07-20 (latest) — the eval ran for the first time and found a live bug in the OTHER edition
+
+`bun run eval:answer` ran against a model for the first time (Erik put the key in `.env`). It paid for
+itself on the first run, and not where anyone was looking.
+
+**19 cases · answered 11 · bowed out 8 · guard rejected 0 · model error 0.** Judge: groundedness 4.43,
+fidelity 4.57, **humility 5.00**, helpfulness 4.86.
+
+**The find: `feeling-anxiety` scored groundedness 2.** Someone types *"cemas terus tiap malam gabisa
+tidur mikirin banyak hal"* and the retrieved verse was **2:112**, whose Tarjamah Tafsiriyah rendering
+opens: *"Pengakuan orang Yahudi dan Nasrani semacam itu adalah dusta."* An anxious person at 2am was
+being answered with a polemic about Jews and Christians — **top hit, in the PRINCIPLED edition, live in
+production.** The eval does not even test that edition; it found the bug through the grounding.
+
+The model actually behaved well (it said the verse doesn't address the question and hedged); its only
+sin was padding with psychology, which is what the ≤2 flagged. The curator had reached for the verse's
+TAIL — *"tiada takut… tiada sedih"*, a real anxiety verse in the literal rendering. The tafsiriyah
+rendering front-loads a refutation of 2:111 that the plain text does not contain.
+
+`"semacam itu"` is a dangling reference, so this is the **same disease as 23:61 and 113:5** — it
+escaped the fragment gate only because it CAPITALISES. Gate keys on a lowercase opener: a good signal,
+but a proxy. Added `BACKREF`, a second narrower probe for a back-reference in the opening sentence —
+it matches exactly one verse across the whole corpus (2:112 itself), so it is precise, not noisy.
+
+2:112 dropped. Anxiety & fear keeps 13:28, 3:139, 9:40, 20:46, 41:30, and the same question now
+answers **3:139** — *"janganlah kalian merasa hina dan jangan bersedih."*
+
+**The 5 expectation mismatches are NOT regressions** — verified: all retrieve 0 verses, so today's KB
+gate is a no-op on them. `topic-allah` (329 entries), `topic-quran` (111), `aqidah-*` all match a topic
+but the word-overlap ranker matches **zero** entries, because a broad definitional question shares no
+content words with terse predicate lines. That is the documented broad-definitional gap, and arguably
+the eval's expectations are wrong rather than the app: with no grounding, bowing out to the principled
+pointer IS correct. **The fatwa guard rejected nothing in 19 cases** — no false positives, but it also
+never fired, so it stays unproven against a real verdict attempt.
+
+**Caveats restored** (`090aa91`). 20 reviewer caveats were dying in the batch-merge artifact. Now on
+`ProblemVerse`, sorted by what can be done about them: **co-display (2)** are flat prohibitions with a
+named partner, so `NEVER_TOGETHER` in `build-corpus.ts` now **fails the build** (probed: adding 4:145
+breaks it). 4:146 is the mercy clause, 4:145 the threat it excepts — shown together to someone afraid
+their faith is fake, the threat wins. Both partners are absent today, but only by the accident of what
+got curated, which is exactly how the honesty floor "held" until it broke 8/8. **framing (11)** and
+**open-question (7)** go to `docs/review/caveat-review.md` (`bun run app:caveat-sheet`). Caveats are
+deliberately NOT shipped in `corpus.json` (verified absent) — they are backstage notes.
+
+Corpus **201 → 198 verses**, still **83 feelings**. 629 tests, typecheck clean, both builds succeed.
+
+**NOT DEPLOYED — and this is the one thing outstanding.** The deploy was blocked by the permission
+classifier, correctly. Three commits are pushed (`2256427`, `090aa91`, `66ff5a7`) and prod is still
+serving 2:112 to anxious people. Erik runs:
+```
+bun run build && cd worker && bunx wrangler deploy
+VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy --env synthesis
+```
+Then verify the served `corpus.json` reports **198 verses** — a failed build leaves `dist` stale and
+wrangler still reports success.
+
+---
+
+## 2026-07-20 — synthesis grounding fenced (3 known-open closed); fragments decided
 
 All three synthesis known-opens from the checkpoint below are fixed, and the three `REVIEW:` fragments
 are decided. **629 tests pass** (was 619), web typecheck clean, both builds succeed. **NOT deployed.**
