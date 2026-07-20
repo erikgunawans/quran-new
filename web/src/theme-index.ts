@@ -1591,6 +1591,23 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
+    "theme": "Patah hati",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 216,
+        "ref": "2:216",
+        "why": "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak"
+      },
+      {
+        "surah": 10,
+        "ayah": 57,
+        "ref": "10:57",
+        "why": "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati"
+      }
+    ]
+  },
+  {
     "theme": "Ditolak",
     "verses": [
       {
