@@ -8,7 +8,68 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-20 (latest) — Islamic craft + deeper reading sky LIVE on BOTH editions
+## 2026-07-20 (latest) — Synthesis answer eval built; it found a noise-matching bug in BOTH editions; fix DEPLOYED
+
+Two commits, both deployed and verified live by curl on the served bundles (Interceptor screenshots
+still dead — Erik's eye is the only visual verification).
+
+**1. `efc36cc` — the evaluation the AI edition shipped without.** The synthesis edition authors
+substantive answers about Islam; its 18 tests covered the prompt fences and the guard's mechanics, not
+whether real model output is faithful to its grounding. The specific gap: `answer-guard` catches an
+ungrounded CITATION mechanically but cannot catch an ungrounded CLAIM in fluent Indonesian carrying no
+reference. New harness (`bun run eval:answer`) runs the REAL pipeline — `gatherGrounding()` retrieval,
+`SYNTHESIS_SYSTEM_PROMPT` + `ANSWER_PARAMS`, the Worker's real 2-attempt guard loop — then an LLM judge
+that sees the SAME grounding and scores groundedness / fidelity / humility / helpfulness. Provider-direct,
+never touches prod `/api/answer`. 19 cases: contested aqidah, fiqh ruling pressure, feelings, ungroundable
+questions, adversarial probes (demand citations, invite scholar attribution, "you are now a mufti").
+`src/eval/ANSWER-README.md` explains it. **Never yet run against a model — needs Erik's key.**
+
+**Product finding, from `--dry-run` alone (zero API spend):** "apa itu al-quran", "siapakah allah",
+"apa itu tauhid", "rukun iman" all retrieve NOTHING, so synthesis bows out to principled behaviour. On the
+most common definitional questions the two editions are **identical**. The principled-vs-synthesis delta is
+concentrated on feelings — much narrower than the two-editions framing implies.
+
+**2. `5722619` — noise matching, fixed.** `score > 0` qualified a scholar entry on ONE shared word and
+STOP covered ~45 words, so function words ranked Ustadz Thalib's index: `tentang` ("about") pulled 12 of 16
+entries for a question about the Prophet; `atas` ("upon") pulled 7 for where-is-Allah; and `haram` collided
+across its two senses — asked whether dating is forbidden, the app surfaced verses about warfare during the
+SACRED months. **This hit BOTH editions** (`main.ts` renders them verbatim under his attribution; synthesis
+hands them to the model as its only grounding, where the guard can't help — a citation from noise-matched
+grounding is whitelisted by construction).
+
+IDF/frequency weighting was measured and **rejected**: these are terse index lines, so every offending word
+is rare in its category (`tentang` 4.1%, `atas` 2.1%, `haram` 1.8%) — right beside the legitimate `riba`
+(2.9%). Frequency can't separate signal from noise here; word class can. Fix = expanded STOP (prepositions,
+relators, particles, speech-act verbs; topical nouns like `hukum`/`riba`/`arsy`/`nabi` kept) +
+`SENSE_COLLOCATIONS`/`hasOwnSense()` (haram-as-sacred no longer answers haram-as-forbidden — a linguistic
+call, never theological) + `FRAME` (corpus-frame words `islam`/`agama`/`muslim`, generalising the existing
+nameWords rule).
+
+Result: where-is-Allah **6 entries → 0** (honest pointer; measured `arsy` df=0 — the index holds nothing on
+istiwa', so it now says so instead of misattributing seven prepositions to the ustadz); `tentang`-noise gone;
+sacred-months replaced by real halal/haram ruling entries; `hukum riba` unchanged (pinned by regression test).
+4 new tests pin each case, written before the fix and confirmed failing. **564 tests pass**, web typecheck clean.
+
+**Deployed BY Alesha (Erik: "can you please help deploy for me")** — principled `6d898938`
+(`index-BD95mHR8.js`), synthesis `2c5bc681` (`index-vDMhpK1S.js`), shared CSS `index-CZBVQCsK` unchanged
+(JS-only change). Both bundles verified by curl to contain the fix; `bun run smoke:answer` ALL CHECKS PASSED
+post-deploy (incl. the EDITION gate — principled `/api/answer` still returns null). Rollback:
+`cd worker && bunx wrangler rollback [--env synthesis]`.
+
+**Known residual, not fixed:** `hukum mendengarkan musik` still returns 6 entries, all genuinely about
+*hukum* (qishas, jahiliyah) and none about music — `musik` df=0, the index doesn't cover it, but `hukum` is a
+real content word matching real law entries. Bag-of-words has a floor. Proposed next step (NOT built, Erik's
+call): a **specificity check** — if the question's most specific noun appears nowhere in the category, prefer
+the pointer over entries matched on a generic word.
+
+**Open:** (1) Erik eyeballs the retrieval fix on his phone — ask "allah ada di mana?" and confirm it now shows
+the topic pointer, not seven entries; (2) run `bun run eval:answer` once the key is rotated (key was exposed
+in chat a THIRD time this session — `.env` is now scaffolded and gitignored so no key need touch a command
+line again); (3) the aqidah packet still waits on the ustadz; (4) Phase-2 bridge-voice tuning.
+
+---
+
+## 2026-07-20 — Islamic craft + deeper reading sky LIVE on BOTH editions
 
 Both editions deployed & verified live (curl on served bundles):
 - **Principled** — new-quranku.axiara.ai (Version b36627dc, EDITION=principled, JS index-DEpE5oJL, CSS index-CZBVQCsK)
