@@ -10,7 +10,7 @@ import { guardComposeProse } from "./compose-guard.ts";
  * restored thread would rewrite itself), and (3) no longer speak the interpretive disclaimer, which is
  * now quiet chrome under the verses, not part of the spoken opener.
  */
-const hitFor = (theme: string): Hit => ({ verse: { theme } as Hit["verse"], score: 1, matched: [] });
+const hitFor = (theme: string): Hit => ({ verse: { themes: [theme] } as Hit["verse"], score: 1, matched: [] });
 
 // enough distinct seeds to land on every variant of a 2–3 entry list
 const SEEDS = ["a", "bb", "ccc", "dddd", "eeeee", "ffffff", "ggggggg", "hhhhhhhh"];

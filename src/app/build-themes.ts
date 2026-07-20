@@ -27,14 +27,14 @@ const OUT_TS = "web/src/theme-index.ts";
 // curated (most-reached-for first), not alphabetical, and there is no reason to discard it.
 const order: Theme[] = [];
 for (const v of PROBLEM_VERSES) {
-  if (!order.includes(v.theme)) order.push(v.theme);
+  for (const t of v.themes) if (!order.includes(t)) order.push(t);
 }
 
 // `theme` in the generated index is the READER-FACING label (Indonesian). The English `Theme` key
 // stays internal to retrieval scoring (web/src/retrieve.ts) and never ships to the browse UI.
 const grouped = order.map((theme) => ({
   theme: THEME_LABELS[theme],
-  verses: PROBLEM_VERSES.filter((v) => v.theme === theme).map((v) => ({
+  verses: PROBLEM_VERSES.filter((v) => v.themes.includes(theme)).map((v) => ({
     surah: v.ref[0],
     ayah: v.ref[1],
     ref: `${v.ref[0]}:${v.ref[1]}`,

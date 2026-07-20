@@ -18,7 +18,7 @@ function makeHit(theme: string, ref = "94:5"): Hit {
     surah_name: "Ash-Sharh",
     surah_ar: "الشرح",
     arabic: "…",
-    theme,
+    themes: [theme],
     why: "",
     primary: null,
     companion: null,

@@ -320,7 +320,7 @@ const verses = PROBLEM_VERSES.map((v) => {
     surah_name: surah.tl,
     surah_ar: surah.ar,
     arabic: stripBasmalah(s, a, ayah.text_uthmani),
-    theme: v.theme,
+    themes: v.themes,
     why: v.why,
     primary,
     companion,
@@ -348,7 +348,7 @@ const bundle = {
     display_role: s.display_role,
     note: s.note ?? null,
   })),
-  themes: [...new Set(verses.map((v) => v.theme))],
+  themes: [...new Set(verses.flatMap((v) => v.themes))],
   verses,
 };
 

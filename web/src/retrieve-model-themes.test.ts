@@ -11,7 +11,7 @@ function verse(ref: string, theme: string, text: string): Verse {
     surah_name: "X",
     surah_ar: "X",
     arabic: "…",
-    theme,
+    themes: [theme],
     why: "",
     primary: { text, translator: "T", translation_type: "interpretive" },
     companion: null,

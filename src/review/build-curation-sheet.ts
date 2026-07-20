@@ -20,13 +20,13 @@ const MIN_BLANK_ROWS = 4;
 
 // Preserve first-appearance order (curated: most-reached-for first), matching build-themes.ts.
 const order: Theme[] = [];
-for (const v of PROBLEM_VERSES) if (!order.includes(v.theme)) order.push(v.theme);
+for (const v of PROBLEM_VERSES) for (const t of v.themes) if (!order.includes(t)) order.push(t);
 
 const cell = (s: string) => s.replace(/\|/g, "\\|").trim();
 
 const sections = order
   .map((theme, i) => {
-    const verses = PROBLEM_VERSES.filter((v) => v.theme === theme);
+    const verses = PROBLEM_VERSES.filter((v) => v.themes.includes(theme));
     const current = verses
       .map((v) => `| QS ${v.ref[0]}:${v.ref[1]} | ${cell(v.why)} | |`)
       .join("\n");

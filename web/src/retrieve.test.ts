@@ -73,7 +73,7 @@ describe("but real feelings still land", () => {
 describe("the diversity rule still holds", () => {
   test("someone carrying two things hears both", () => {
     const hits = retrieve(corpus, "lagi banyak utang, stress banget");
-    const themes = new Set(hits.map((h) => h.verse.theme));
+    const themes = new Set(hits.map((h) => h.verse.themes[0]));
     expect(themes.size).toBe(hits.length); // one verse per theme, never two of the same
   });
 

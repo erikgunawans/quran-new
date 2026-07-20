@@ -37,7 +37,8 @@ export interface Verse {
   surah_name: string;
   surah_ar: string;
   arabic: string;
-  theme: string;
+  /** A verse may console more than one state. Reach comes from all of them; rank from the best. */
+  themes: string[];
   why: string;
   primary: Reading | null;
   companion: Reading | null;
@@ -194,12 +195,19 @@ export function retrieve(
       matched.push(verse.ref);
     }
 
-    const themeHits = themeScore.get(verse.theme);
+    // A verse may carry several feelings. Credit the BEST-matching one, never the sum: a verse
+    // tagged with four states must not outrank a single-tagged verse on a question that touches
+    // one of them. Extra tags widen REACH, they must not buy RANK.
+    let themeHits: string[] | undefined;
+    for (const t of verse.themes) {
+      const hits = themeScore.get(t);
+      if (hits?.length && hits.length > (themeHits?.length ?? 0)) themeHits = hits;
+    }
     if (themeHits?.length) {
       score += 10 * themeHits.length;
       qualified = true;
       matched.push(...themeHits);
-    } else if (modelThemeSet.has(verse.theme)) {
+    } else if (verse.themes.some((t) => modelThemeSet.has(t))) {
       // Keywords missed this theme but the model recognised it in what the person wrote — the whole
       // reason the understander exists ("ngerasa Tuhan udah nyerah sama aku" hits no keyword).
       // Credit it like one keyword theme hit and record honest provenance rather than a faked word.
@@ -233,11 +241,26 @@ export function retrieve(
   // Returning two verses about exhaustion answers half the person. One verse per theme means
   // the strongest signal in each thing they said gets heard, which is the whole point of
   // meeting them where they are.
+  // With multi-theme verses, "one verse per theme" becomes: admit a verse only if it brings a
+  // feeling not yet represented, then mark the feelings it actually answers as covered. Marking
+  // ALL of a verse's tags covered would let one broadly-tagged verse consume several concerns and
+  // crowd the second thing the person said out of the results — the exact failure this block exists
+  // to prevent.
+  const asked = new Set<string>([...themeScore.keys(), ...modelThemeSet]);
   const out: Hit[] = [];
   const seen = new Set<string>();
   for (const hit of ranked) {
-    if (seen.has(hit.verse.theme)) continue;
-    seen.add(hit.verse.theme);
+    // The feelings this verse answers for THIS question — its tags intersected with what was asked.
+    // Falls back to its own tags when nothing was asked (a direct ref lookup qualifies that way).
+    const relevant = hit.verse.themes.filter((t) => asked.has(t));
+    const covering = relevant.length ? relevant : hit.verse.themes;
+    // Claim exactly ONE feeling — the first gap this verse can fill. Marking every tag it carries
+    // would let a broadly-tagged verse answer "utang + stress" by itself and suppress the verse
+    // that speaks to the second thing; claiming one keeps the original one-verse-per-feeling
+    // behaviour while still letting a multi-tagged verse fill whichever slot is still open.
+    const fills = covering.find((t) => !seen.has(t));
+    if (fills === undefined) continue;
+    seen.add(fills);
     out.push(hit);
     if (out.length === limit) break;
   }
@@ -345,6 +368,7 @@ function pickOpener(variants: readonly string[], seed: string): string {
 // fallback are what make that safe.
 export function compose(hits: Hit[], question: string): string {
   if (!hits.length) return "";
-  const theme = hits[0]!.verse.theme;
+  // The opener speaks to ONE feeling; use the first tag of the top hit as its voice.
+  const theme = hits[0]!.verse.themes[0] ?? "";
   return pickOpener(OPENERS[theme] ?? OPENER_DEFAULT, question);
 }

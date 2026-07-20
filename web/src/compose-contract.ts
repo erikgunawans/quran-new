@@ -96,8 +96,10 @@ export function buildFramingUserMessage(ctx: ComposeContext): string {
 export function composeContext(hits: Hit[], question: string): ComposeContext | null {
   const first = hits[0];
   if (!first) return null;
-  const themes = new Set(hits.map((h) => h.verse.theme));
-  return { question, theme: first.verse.theme, themeCount: themes.size };
+  // A verse may carry several feelings; count the distinct ones across all hits so a person
+  // who named two things is still recognised as having named two.
+  const themes = new Set(hits.flatMap((h) => h.verse.themes));
+  return { question, theme: first.verse.themes[0] ?? "", themeCount: themes.size };
 }
 
 /**

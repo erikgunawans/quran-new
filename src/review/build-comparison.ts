@@ -13,14 +13,15 @@
  */
 import type { Translation } from "../domain/canonical.ts";
 import type { TafsirPassage, TafsirSource } from "../domain/interpretive.ts";
-import { PROBLEM_VERSES, type Theme } from "./problem-verses.ts";
+import { PROBLEM_VERSES } from "./problem-verses.ts";
 
 const OUT = "docs/review/primary-voice-review.html";
 const DIR = "data/canonical";
 
 interface Row {
   ref: string;
-  theme: Theme;
+  /** Display label — a verse may carry several feelings, joined for the sheet. */
+  theme: string;
   why: string;
   arabic: string;
   kemenag: string;
@@ -85,7 +86,7 @@ for (const v of PROBLEM_VERSES) {
 
   rows.push({
     ref: `${s}:${a}`,
-    theme: v.theme,
+    theme: v.themes.join(" · "),
     why: v.why,
     arabic,
     kemenag,
