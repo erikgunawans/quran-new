@@ -380,6 +380,32 @@ if (unacknowledged.length) {
 }
 const needsReview = fragments.filter((v) => FRAGMENT_OK[v.ref]?.startsWith("REVIEW:"));
 
+/**
+ * Verses a reviewer said must NEVER be curated together, in their words.
+ *
+ * Most caveats on a ProblemVerse are framing advice a machine cannot check. These two are different:
+ * they are flat prohibitions with a named partner, so they are enforceable, so they are enforced.
+ *
+ * The stakes are the whole product. 4:146 is the mercy clause — those who repent are counted with
+ * the believers — and 4:145 is what it is an exception TO: the hypocrites in the lowest depths of the
+ * fire. A person who opened this app because they are afraid their faith is fake, shown both, has
+ * been handed the threat they already fear beside the reassurance, and the threat wins.
+ *
+ * Both partners are absent from the corpus today, so the ban currently holds — but it holds by the
+ * accident of what got curated, and that is exactly how the honesty floor "held" right up until the
+ * corpus grew from 12 feelings to 83 and it broke 8/8. A build gate does not care how the corpus grows.
+ */
+const NEVER_TOGETHER: [string, string, string][] = [
+  ["4:146", "4:145", "4:146 is the exception to 4:145's threat against the hypocrites — the reviewer's note says WAJIB ditampilkan sendiri"],
+  ["4:17", "4:18", "4:18 narrows 4:17's open door with a threat — the reviewer's note says jangan tampilkan berdampingan"],
+];
+const curated = new Set(verses.map((v) => v.ref));
+for (const [a, b, why] of NEVER_TOGETHER) {
+  if (curated.has(a) && curated.has(b)) {
+    fail(`${a} and ${b} are both in the feeling corpus, and a reviewer forbade showing them together.\n  ${why}\n  Drop one, or take it to the reviewer — do not silence this gate.`);
+  }
+}
+
 
 const bundle = {
   corpus_version: (await Bun.file(`${DIR}/manifest.json`).json()).corpus_version,

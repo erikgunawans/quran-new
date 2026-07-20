@@ -15,6 +15,22 @@ export interface ProblemVerse {
   readonly themes: readonly Theme[];
   /** Why a person in this state reaches for this verse. */
   readonly why: string;
+  /**
+   * The reviewer's own warning about this pairing, verbatim.
+   *
+   * These existed only in the batch-merge artifact and were dropped at the last hop, so constraints
+   * the reviewers actually wrote — "jangan disajikan sebagai jaminan datangnya jodoh" (51:49) —
+   * existed nowhere in the shipped app. They are the reviewer's words about their own curation;
+   * rewording one is the same category of error as rewording a translation.
+   *
+   * They are NOT reader-facing copy. A caveat is a note to us, backstage: shown verbatim to a
+   * person it would read as stage direction leaking into the play. Three kinds are mixed here:
+   *   - CO-DISPLAY rules ("jangan pernah bersama 4:145") — mechanically enforceable, see
+   *     NEVER_TOGETHER in build-corpus.ts, which gates the build.
+   *   - FRAMING limits on the `why` caption — human judgement, checked by eye at review time.
+   *   - OPEN QUESTIONS for the ustadz ("mohon dicek…") — carried into the review sheet.
+   */
+  readonly caveat?: string;
 }
 
 export type Theme =
@@ -488,40 +504,40 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [19, 96], themes: ["Marriage & spouse"], why: "Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman" },
   { ref: [2, 187], themes: ["Marriage & spouse"], why: "Suami-istri saling menjadi penenteram satu sama lain" },
   // Waiting for a spouse
-  { ref: [51, 49], themes: ["Waiting for a spouse"], why: "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan" },
+  { ref: [51, 49], themes: ["Waiting for a spouse"], why: "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan", caveat: "Ini ayat tanda kebesaran penciptaan, bukan janji pernikahan; jangan disajikan sebagai jaminan datangnya jodoh" },
   // Worry about the future
-  { ref: [31, 34], themes: ["Worry about the future"], why: "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu" },
+  { ref: [31, 34], themes: ["Worry about the future"], why: "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu", caveat: "Ayat ini utamanya tentang ilmu Allah yang eksklusif (kiamat, hujan, rahim). Pemakaian pastoralnya adalah lepaskan cemas atas hal yang memang bukan wilayahmu — mohon dicek apakah pembingkaian ini dapat diterima ustadz." },
   // Confusion facing a big decision
-  { ref: [2, 216], themes: ["Confusion facing a big decision", "Heartbreak"], why: "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak" },
+  { ref: [2, 216], themes: ["Confusion facing a big decision", "Heartbreak"], why: "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak", caveat: "Teks tafsiriyah mempersempit maknanya ke perintah agama; versi Kemenag tetap umum. Reviewer perlu memutuskan terjemahan mana yang ditampilkan" },
   // Chronic illness
-  { ref: [10, 57], themes: ["Chronic illness", "Heartbreak"], why: "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati" },
+  { ref: [10, 57], themes: ["Chronic illness", "Heartbreak"], why: "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati", caveat: "Yang dimaksud obat penawar di sini adalah penyakit hati, bukan penyakit fisik. Pastikan teks pendamping tidak terbaca sebagai janji kesembuhan jasmani." },
   // Divorce
-  { ref: [2, 237], themes: ["Divorce"], why: "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian" },
-  { ref: [4, 19], themes: ["Divorce"], why: "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar" },
+  { ref: [2, 237], themes: ["Divorce"], why: "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian", caveat: "Bagian terbesar ayat ini adalah aturan pembagian maskawin; sisi pastoralnya hanya pada kalimat janganlah kalian melupakan kebaikan di antara kalian" },
+  { ref: [4, 19], themes: ["Divorce"], why: "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar", caveat: "Ayat ini ditujukan kepada para suami dan diawali hukum warisan janda; pastikan penyajiannya tidak terbaca menyudutkan pihak perempuan" },
   // Betrayal
-  { ref: [40, 19], themes: ["Betrayal"], why: "Tak ada khianat yang tersembunyi; Allah melihat semuanya" },
+  { ref: [40, 19], themes: ["Betrayal"], why: "Tak ada khianat yang tersembunyi; Allah melihat semuanya", caveat: "Ayat ini bicara tentang pengawasan Allah atas manusia secara umum, bukan penghiburan langsung bagi korban; pastikan nadanya menenangkan, bukan mengancam" },
   // Rejection
-  { ref: [9, 118], themes: ["Rejection"], why: "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu" },
-  { ref: [16, 127], themes: ["Rejection"], why: "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka" },
+  { ref: [9, 118], themes: ["Rejection"], why: "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu", caveat: "Konteksnya tiga sahabat yang tidak ikut Perang Tabuk dan dikucilkan sebagai teguran; periksa apakah kaitannya dengan rasa ditolak sehari-hari tidak menyesatkan" },
+  { ref: [16, 127], themes: ["Rejection"], why: "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka", caveat: "Ayat ini ditujukan kepada Nabi menghadapi gangguan kaum kafir; pastikan pemakaiannya tidak membingkai orang yang menolak kita sebagai musuh agama" },
   // Longing
-  { ref: [12, 96], themes: ["Longing"], why: "Rindu yang panjang itu akhirnya berujung kabar gembira" },
+  { ref: [12, 96], themes: ["Longing"], why: "Rindu yang panjang itu akhirnya berujung kabar gembira", caveat: "Ini bagian narasi pertemuan kembali, bukan janji umum; pastikan tidak terbaca sebagai jaminan bahwa setiap orang yang dirindukan pasti kembali" },
   // Homesickness
-  { ref: [28, 85], themes: ["Homesickness"], why: "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu" },
-  { ref: [106, 4], themes: ["Homesickness"], why: "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut" },
+  { ref: [28, 85], themes: ["Homesickness"], why: "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu", caveat: "Teks tafsiriyah mengkhususkannya pada kepulangan Nabi ke Makkah; periksa apakah pemakaian umum untuk perantau masih pantas" },
+  { ref: [106, 4], themes: ["Homesickness"], why: "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut", caveat: "Ayat ini menyebut nikmat khusus kaum Quraisy dalam perjalanan dagang; periksa apakah generalisasi ke perantau umum dapat diterima" },
   // Shame
-  { ref: [40, 7], themes: ["Shame"], why: "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu" },
+  { ref: [40, 7], themes: ["Shame"], why: "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu", caveat: "Ayat aslinya tentang malaikat pemikul 'Arsy; pastikan pembingkaian 'ada yang mendoakanmu' tidak melebihi makna ayat" },
   // Regret over the past
-  { ref: [5, 39], themes: ["Regret over the past"], why: "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah" },
+  { ref: [5, 39], themes: ["Regret over the past"], why: "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah", caveat: "Konteks asli ayat ini adalah taubat pelaku pencurian; terjemahan tafsiriyah membacanya umum — mohon ustadz memastikan pemakaian umumnya sah" },
   // Feeling unloved
-  { ref: [11, 90], themes: ["Feeling unloved"], why: "Cinta Allah amat besar kepada siapa pun yang kembali" },
+  { ref: [11, 90], themes: ["Feeling unloved"], why: "Cinta Allah amat besar kepada siapa pun yang kembali", caveat: "Ini ucapan Nabi Syu'aib kepada kaumnya; pastikan pengutipannya sebagai penegasan sifat Allah, bukan seruan polemik" },
   // Wanting to change and become better
-  { ref: [29, 69], themes: ["Wanting to change and become better"], why: "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu" },
+  { ref: [29, 69], themes: ["Wanting to change and become better"], why: "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu", caveat: "Ayat aslinya tentang jihad/kesungguhan di jalan Allah; pastikan pemakaian untuk usaha berubah menjadi lebih baik tidak menyempitkan makna ayat" },
   // Despair
-  { ref: [12, 110], themes: ["Despair"], why: "Pertolongan datang tepat saat para rasul pun hampir putus asa" },
+  { ref: [12, 110], themes: ["Despair"], why: "Pertolongan datang tepat saat para rasul pun hampir putus asa", caveat: "Bagian akhir ayat berbicara tentang adzab bagi kaum berdosa — pastikan tampilan menonjolkan paruh pertama, bukan ancamannya" },
   // Anger at fate
-  { ref: [9, 51], themes: ["Anger at fate"], why: "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu" },
+  { ref: [9, 51], themes: ["Anger at fate"], why: "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu", caveat: "Tafsiriyah menyempitkan konteks ke kekalahan perang. Periksa apakah pembacaan umumnya masih layak dipakai untuk keseharian" },
   // Too far gone to repent
-  { ref: [4, 17], themes: ["Too far gone to repent"], why: "Pintu taubat terbuka selama napas masih ada" },
+  { ref: [4, 17], themes: ["Too far gone to repent"], why: "Pintu taubat terbuka selama napas masih ada", caveat: "Ayat berikutnya (4:18) mempersempit dengan nada ancaman. Jangan tampilkan berdampingan dengan 4:18" },
   // Fear of insincerity
-  { ref: [4, 146], themes: ["Fear of insincerity"], why: "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman" },
+  { ref: [4, 146], themes: ["Fear of insincerity"], why: "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman", caveat: "Ini pengecualian dari 4:145 yang mengancam munafik dengan neraka. WAJIB ditampilkan sendiri, jangan pernah bersama 4:145" },
 ] as const;
