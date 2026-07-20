@@ -81,7 +81,7 @@ const KNOWLEDGE_EXTRA = [
   "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
   "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
   "sangat", "sekali", "hanya", "masih", "pernah", "selalu", "kadang", "mungkin", "harus", "perlu",
-  "ingin", "mohon", "mana",
+  "ingin", "mohon", "mana", "sama", "soal", "biar", "banget", "nih", "kok",
 ];
 
 /**

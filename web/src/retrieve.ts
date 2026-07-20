@@ -106,9 +106,9 @@ const LEXICON: Record<string, string[]> = {
   "Speech & gossip": ["ghibah","gosip","menggunjing","ngomongin orang","fitnah","julid","prasangka"],
   "Forgiving others": ["memaafkan","maafin","susah maafin","memaklumi","melepaskan dendam"],
   "Pride & arrogance": ["sombong","angkuh","tinggi hati","merasa paling","pamer","riya"],
-  "Fear of death": ["takut mati","kematian","mati","ajal","meninggal nanti","sakaratul"],
+  "Fear of death": ["takut mati","kematian","ajal","meninggal nanti","sakaratul","takut meninggal"],
   "Doubt & weak faith": ["ragu","iman turun","futur","goyah","bimbang iman","males ibadah"],
-  "Wealth & greed": ["tamak","serakah","rakus","harta","kaya","materi"],
+  "Wealth & greed": ["tamak","serakah","rakus","harta","kekayaan","orang kaya","pengen kaya","materialistis"],
   Parents: ["birrul walidain","berbakti","orang tua","ibu bapak","bapak ibu"],
   "Injustice & being wronged": ["dizalimi","dizhalimi","ditindas","tidak adil","gak adil","diperlakukan tidak adil"],
   "Guilt & sin": ["bersalah","rasa bersalah","berdosa","dosa besar","nyesel banget"],
@@ -124,7 +124,7 @@ const LEXICON: Record<string, string[]> = {
   "Starting over": ["mulai lagi","memulai dari nol","pindah","merantau","hijrah","mulai dari awal"],
   "Hope and optimism": ["harapan","berharap","optimis","semangat lagi","masih ada harapan"],
   "Joy and happiness": ["bahagia","senang","gembira","bersyukur banget","seneng banget"],
-  "Growing older": ["menua","tua","umur","makin tua","ulang tahun","uban"],
+  "Growing older": ["menua","umur","makin tua","ulang tahun","uban","lanjut usia"],
   "Chronic illness": ["sakit menahun","sakit lama","penyakit kronis","ga sembuh-sembuh"],
   Divorce: ["cerai","perceraian","bercerai","pisah","gugat cerai"],
   Betrayal: ["dikhianati","khianat","selingkuh","dibohongi","ditipu","dikecewakan"],
@@ -149,7 +149,7 @@ const LEXICON: Record<string, string[]> = {
   "Feeling hatred": ["benci","membenci","ga suka banget","muak"],
   "Wanting revenge": ["balas dendam","dendam","pengen balas","ingin membalas"],
   "Losing a friend": ["kehilangan sahabat","temen menjauh","sahabat pergi","ga temenan lagi"],
-  "Trouble with neighbours": ["tetangga","masalah tetangga","lingkungan","rt","rw"],
+  "Trouble with neighbours": ["tetangga","masalah tetangga","lingkungan sekitar"],
   "Wanting to reconcile": ["berdamai","islah","ingin baikan","rujuk","memperbaiki hubungan"],
   Despair: ["putus asa","udahlah","ga ada harapan","nyerah","hopeless"],
   "Anger at fate": ["kenapa aku","ga adil takdir","marah sama takdir","kenapa harus aku"],
@@ -327,6 +327,62 @@ export function questionForms(normalisedQ: string): Set<string> {
   return forms;
 }
 
+/**
+ * Markers that make a question a request for a RULING or a PROCEDURE, not a statement of feeling.
+ *
+ * The feeling path must not answer these. It used to reach silence on them by luck: with twelve
+ * broad emotional themes, no ruling question happened to contain a feeling keyword. Expanding to
+ * eighty-three brought in topical vocabulary that ruling questions are MADE of — zakat, cerai,
+ * sedekah, sombong, ghibah — and every one of eight probe questions started returning a verse
+ * wrapped in "here's a verse that might connect with what you told me". A person asking what the
+ * law is got consolation dressed as an answer.
+ *
+ * This app answers feelings and refuses rulings. That refusal is the product, so it is enforced
+ * here rather than left to the accident of vocabulary coverage.
+ */
+const RULING_MARKERS = [
+  "hukum", "hukumnya", "halal", "haram", "wajib", "sunnah", "makruh", "mubah", "syariat",
+  "boleh", "bolehkah", "dilarang", "berdosa", "sah", "batal", "rukun", "syarat", "niat",
+];
+/**
+ * "gimana cara X" / "berapa rakaat X" — procedural, and not a feeling.
+ *
+ * The frame alone is NOT enough: "gimana caranya biar aku tenang" ("how do I find peace") is a
+ * person describing a feeling, and an earlier draft of this gate silenced it. The frame only
+ * suppresses when it sits beside something actually being asked how to DO.
+ */
+const PROCEDURAL = /\b(cara|caranya|tata cara|berapa)\b/;
+const RITUAL_NOUNS = [
+  "sholat", "shalat", "salat", "puasa", "zakat", "haji", "umroh", "umrah", "wudhu", "tayamum",
+  "istikharah", "tahajud", "tarawih", "witir", "rakaat", "sujud", "adzan", "azan", "mandi wajib",
+  "zakat fitrah", "qurban", "aqiqah", "talak", "waris", "warisan",
+  "sedekah", "infak", "nikah", "menikah", "pernikahan", "cerai", "perceraian", "hijrah",
+  "ghibah", "riba", "taubat", "dzikir", "zikir", "doa", "ngaji", "mengaji", "jodoh", "harta",
+];
+
+/**
+ * Ruling framings built from words that are ALSO feeling words.
+ *
+ * "dosa" cannot go in RULING_MARKERS: "aku ngerasa banyak dosa" is a person carrying guilt, and
+ * silencing that would be the opposite failure. But "apakah X itu dosa" asks for a verdict. The
+ * frame disambiguates what the bare word cannot.
+ */
+const RULING_FRAMES = [
+  /\bapa(kah)?\b[^?]*\bitu\s+(dosa|haram|halal|wajib|boleh|salah)\b/,
+  /\bitu\s+(dosa|haram|halal)\s+(besar|ga|gak|nggak|atau)\b/,
+  /\btermasuk\s+(dosa|haram)\b/,
+];
+
+/** Does this question ask for a ruling or a procedure rather than describe a feeling? */
+export function isRulingQuestion(question: string): boolean {
+  const q = norm(question);
+  if (!q) return false;
+  const forms = questionForms(q);
+  if (RULING_MARKERS.some((m) => forms.has(m))) return true;
+  if (RULING_FRAMES.some((re) => re.test(q))) return true;
+  return PROCEDURAL.test(q) && RITUAL_NOUNS.some((n) => (n.includes(" ") ? q.includes(n) : forms.has(n)));
+}
+
 export function keywordThemeHits(question: string): Map<string, string[]> {
   const themeScore = new Map<string, string[]>();
   const q = norm(question);
@@ -360,7 +416,10 @@ export function retrieve(
   const modelThemeSet = new Set(modelThemes);
 
   // 1. Which emotional theme is this person in? (Shared with callers via keywordThemeHits.)
-  const themeScore = keywordThemeHits(question);
+  // A ruling or procedural question is not a feeling, whatever vocabulary it happens to share with
+  // one. Refusing here keeps the honesty floor a property of the code rather than of which words the
+  // lexicon does not yet cover.
+  const themeScore = isRulingQuestion(question) ? new Map<string, string[]>() : keywordThemeHits(question);
 
   // 2. Explicit verse reference — "2:255", "surat 94 ayat 5"
   const direct = question.match(/(\d{1,3})\s*[:\.]\s*(\d{1,3})/);

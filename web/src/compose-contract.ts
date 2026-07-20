@@ -99,7 +99,9 @@ export function composeContext(hits: Hit[], question: string): ComposeContext | 
   // A verse may carry several feelings; count the distinct ones across all hits so a person
   // who named two things is still recognised as having named two.
   const themes = new Set(hits.flatMap((h) => h.verse.themes));
-  return { question, theme: first.verse.themes[0] ?? "", themeCount: themes.size };
+  // matchedTheme, not themes[0] — the same fix compose() got. Reading tag order told the framing
+  // model "Chronic illness" for a heartbroken reader, because 10:57 happens to carry that tag first.
+  return { question, theme: first.matchedTheme ?? first.verse.themes[0] ?? "", themeCount: themes.size };
 }
 
 /**
