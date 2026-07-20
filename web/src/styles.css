@@ -435,7 +435,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .hello h1 {
   font-family: var(--f-display);
   font-size: clamp(40px, 5.6vw, 64px); font-weight: 500; color: var(--ink);
-  letter-spacing: -0.02em; line-height: 1.04; text-wrap: balance;
+  /* 1.04 was tight enough that the italic Fraunces descenders (the "hari ini?" swash) ink-overflowed
+     the line box by ~5px — measured, not guessed. 1.1 gives the display serif its own room without
+     visibly loosening the heading. Still tight for a hero; just no longer clipping its own tails. */
+  letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance;
   max-width: 16ch; margin-bottom: var(--s-5);
 }
 .hello h1 em {
