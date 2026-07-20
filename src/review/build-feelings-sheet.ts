@@ -34,21 +34,44 @@ const nameOf = (n: number) => surahs.find((s) => s.number === n)?.name_translit 
 
 const live = new Set(PROBLEM_VERSES.map((v) => `${v.ref[0]}:${v.ref[1]}`));
 
+// ── fold in the batch-searched feelings (verified by merge-feelings-batches.ts) ───
+interface Row { ref: readonly [number, number]; theme: string; why: string; confidence: "high" | "medium"; caveat?: string }
+let batchLabels: Record<string, string> = {};
+let batchRows: Row[] = [];
+const BATCH_PATH = "src/review/feelings-batch-merged.json";
+if (await Bun.file(BATCH_PATH).exists()) {
+  const b = (await Bun.file(BATCH_PATH).json()) as { labels: Record<string, string>; verses: Row[] };
+  batchLabels = b.labels;
+  batchRows = b.verses;
+  // Re-verify here too: the sheet must never render a ref the corpus does not have, whatever
+  // produced it. Cheap, and it means one generator failing open cannot leak into the review sheet.
+  for (const r of batchRows) {
+    const id = `ayah:${r.ref[0]}:${r.ref[1]}`;
+    if (!primary.has(id) || !companion.has(id)) fail(`batch ref ${r.ref[0]}:${r.ref[1]} (${r.theme}) is not in the corpus`);
+  }
+}
+
+const labelOf = (t: string) => (t in PROPOSED_LABELS ? PROPOSED_LABELS[t as ProposedTheme] : batchLabels[t] ?? t);
+
+// ── group ─────────────────────────────────────────────────────────────────────────
+const byTheme = new Map<string, Row[]>();
+for (const p of [...PROPOSED_VERSES, ...batchRows] as Row[]) {
+  byTheme.set(p.theme, [...(byTheme.get(p.theme) ?? []), p]);
+}
+
+const allRows = [...PROPOSED_VERSES, ...batchRows] as Row[];
+
 // ── verify every proposed ref before writing a single line ────────────────────────
 const collisions: string[] = [];
-for (const p of PROPOSED_VERSES) {
+for (const p of allRows) {
   const id = `ayah:${p.ref[0]}:${p.ref[1]}`;
   if (!primary.has(id)) fail(`${p.ref[0]}:${p.ref[1]} (${p.theme}) has no Tarjamah Tafsiriyah — bad ref?`);
   if (!companion.has(id)) fail(`${p.ref[0]}:${p.ref[1]} (${p.theme}) has no Kemenag rendering — bad ref?`);
   if (live.has(`${p.ref[0]}:${p.ref[1]}`)) collisions.push(`${p.ref[0]}:${p.ref[1]} (${p.theme})`);
 }
 
-// ── group ─────────────────────────────────────────────────────────────────────────
-const byTheme = new Map<ProposedTheme, typeof PROPOSED_VERSES[number][]>();
-for (const p of PROPOSED_VERSES) byTheme.set(p.theme, [...(byTheme.get(p.theme) ?? []), p]);
-
-const highs = PROPOSED_VERSES.filter((p) => p.confidence === "high").length;
-const meds = PROPOSED_VERSES.length - highs;
+const highs = allRows.filter((p) => p.confidence === "high").length;
+const meds = allRows.length - highs;
 
 const L: string[] = [
   `# Usulan perluasan tema perasaan — untuk ditinjau`,
@@ -73,7 +96,7 @@ const L: string[] = [
   `| | |`,
   `|---|---|`,
   `| Tema baru diusulkan | **${byTheme.size}** |`,
-  `| Ayat diusulkan | **${PROPOSED_VERSES.length}** (${highs} keyakinan tinggi, ${meds} perlu ditimbang) |`,
+  `| Ayat diusulkan | **${allRows.length}** (${highs} keyakinan tinggi, ${meds} perlu ditimbang) |`,
   `| Tema saat ini | 12 |`,
   `| Ayat saat ini | ${PROBLEM_VERSES.length} |`,
   `| Bentrok dengan ayat yang sudah tayang | ${collisions.length ? `**${collisions.length}** — ${collisions.join(", ")}` : `tidak ada`} |`,
@@ -100,7 +123,7 @@ const L: string[] = [
 ];
 
 for (const [theme, rows] of byTheme) {
-  L.push(`## ${PROPOSED_LABELS[theme]}`, ``, `<sub>kunci internal: \`${theme}\`</sub>`, ``);
+  L.push(`## ${labelOf(theme)}`, ``, `<sub>kunci internal: \`${theme}\`</sub>`, ``);
   for (const p of rows) {
     const id = `ayah:${p.ref[0]}:${p.ref[1]}`;
     const ref = `${p.ref[0]}:${p.ref[1]}`;
@@ -123,7 +146,7 @@ L.push(
   ``,
   `| Ayat | Sekarang di | Diinginkan untuk | Catatan |`,
   `|---|---|---|---|`,
-  ...OVERLAPS.map((o) => `| ${o.ref} | ${o.liveTheme} | ${PROPOSED_LABELS[o.wantedFor]} | ${o.note} |`),
+  ...OVERLAPS.map((o) => `| ${o.ref} | ${o.liveTheme} | ${labelOf(o.wantedFor)} | ${o.note} |`),
   ``,
   `Keempatnya **sengaja tidak diusulkan pindah** — memindahkannya akan diam-diam mengosongkan tema`,
   `yang sekarang bekerja. Pilihannya:`,
@@ -151,5 +174,5 @@ L.push(
 );
 
 await Bun.write(OUT, L.join("\n"));
-console.log(`✓ ${byTheme.size} themes · ${PROPOSED_VERSES.length} verses (${highs} high, ${meds} to weigh) → ${OUT}`);
+console.log(`✓ ${byTheme.size} themes · ${allRows.length} verses (${highs} high, ${meds} to weigh) → ${OUT}`);
 if (collisions.length) console.log(`⚠ already live: ${collisions.join(", ")}`);
