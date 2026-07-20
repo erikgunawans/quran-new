@@ -40,13 +40,13 @@ diproses; sisanya menunggu tanpa menghambat.
 ## Satu keputusan desain: ayat yang cocok untuk dua perasaan — **SUDAH DIPUTUSKAN**
 
 > **Catatan pembaruan (20 Juli 2026).** Bagian ini semula mengajukan pilihan kepada Ustadz, karena
-> dahulu sebuah ayat hanya bisa memiliki SATU tema. **Pilihan itu sudah diambil dan sudah dikerjakan:**
-> skema dilebarkan menjadi `themes: Theme[]`, sehingga **satu ayat kini boleh menenangkan beberapa
-> perasaan sekaligus.** Ustadz **tidak perlu memutuskan apa pun di bagian ini.**
+> dahulu sebuah ayat hanya bisa memiliki satu tema saja. **Pilihan itu sudah diambil dan sudah
+> dikerjakan:** skemanya dilebarkan, sehingga **satu ayat kini boleh menenangkan beberapa perasaan
+> sekaligus.** Ustadz **tidak perlu memutuskan apa pun di bagian ini.**
 >
 > Saat meninjau: kalau menurut Ustadz sebuah ayat cocok untuk perasaan ini **walaupun ayat itu sudah
-> dipakai di perasaan lain**, silakan setujui saja. Empat ayat yang dahulu terganjal (3:185, 21:35,
-> 24:22, 3:135) sudah tidak menjadi masalah.
+> dipakai di perasaan lain**, silakan setujui saja. Tidak ada yang perlu dikorbankan. Empat ayat yang
+> dahulu terganjal (3:185, 21:35, 24:22, 3:135) sudah tidak menjadi masalah.
 
 ## Kalau disetujui
 

@@ -140,9 +140,30 @@ for (const [i, batch] of batches.entries()) {
 }
 
 // ── index ────────────────────────────────────────────────────────────────────
+/**
+ * The multi-theme appendix asks the ustadz to choose something that was already chosen and shipped
+ * (`1ebf396`, `theme` → `themes[]`). Left as written it would have him rejecting verses to protect a
+ * constraint that no longer exists.
+ *
+ * This replacement lives HERE, in the generator, and not as a hand-edit of the output — which is
+ * exactly the mistake made the first time: the correction was applied to README.md by hand, and the
+ * very next `bun run app:split-expansion` silently reverted it. A generated file cannot be corrected
+ * by editing the generated file. Anything true of the output has to be true of the code that emits it.
+ */
+const MULTI_THEME_RESOLVED = `## Satu keputusan desain: ayat yang cocok untuk dua perasaan — **SUDAH DIPUTUSKAN**
+
+> **Catatan pembaruan (20 Juli 2026).** Bagian ini semula mengajukan pilihan kepada Ustadz, karena
+> dahulu sebuah ayat hanya bisa memiliki satu tema saja. **Pilihan itu sudah diambil dan sudah
+> dikerjakan:** skemanya dilebarkan, sehingga **satu ayat kini boleh menenangkan beberapa perasaan
+> sekaligus.** Ustadz **tidak perlu memutuskan apa pun di bagian ini.**
+>
+> Saat meninjau: kalau menurut Ustadz sebuah ayat cocok untuk perasaan ini **walaupun ayat itu sudah
+> dipakai di perasaan lain**, silakan setujui saja. Tidak ada yang perlu dikorbankan. Empat ayat yang
+> dahulu terganjal (3:185, 21:35, 24:22, 3:135) sudah tidak menjadi masalah.`;
+
 const appendix = sections
   .filter((s) => /^## (Satu keputusan desain|Kalau disetujui)/.test(s))
-  .map((s) => s.trim());
+  .map((s) => (/^## Satu keputusan desain/.test(s) ? MULTI_THEME_RESOLVED : s.trim()));
 
 const rows = batches
   .map((b, i) => {
