@@ -934,13 +934,31 @@ function wireFloating(): void {
     top.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
   }
 
-  // donation card: dismiss and remember it (device-local)
+  // donation widget: a pill that expands into the card on hover (tap to toggle on touch)
   const donasi = document.getElementById("qk-donasi");
-  if (donasi && localStorage.getItem(DONASI_KEY) === "1") donasi.hidden = true;
-  document.getElementById("qk-donasi-x")?.addEventListener("click", () => {
-    if (donasi) donasi.hidden = true;
-    try { localStorage.setItem(DONASI_KEY, "1"); } catch { /* private mode */ }
-  });
+  if (donasi) {
+    if (localStorage.getItem(DONASI_KEY) === "1") donasi.hidden = true;
+    const pill = document.getElementById("qk-donasi-pill");
+    const setOpen = (on: boolean): void => {
+      donasi.classList.toggle("is-open", on);
+      pill?.setAttribute("aria-expanded", on ? "true" : "false");
+    };
+    let closeTimer = 0;
+    const open = (): void => { window.clearTimeout(closeTimer); setOpen(true); };
+    // small grace delay so crossing the pill→card gap never flickers it shut
+    const close = (): void => { window.clearTimeout(closeTimer); closeTimer = window.setTimeout(() => setOpen(false), 180); };
+    donasi.addEventListener("mouseenter", open);
+    donasi.addEventListener("mouseleave", close);
+    donasi.addEventListener("focusin", open);
+    donasi.addEventListener("focusout", close);
+    pill?.addEventListener("click", () => setOpen(!donasi.classList.contains("is-open")));
+
+    document.getElementById("qk-donasi-x")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      donasi.hidden = true;
+      try { localStorage.setItem(DONASI_KEY, "1"); } catch { /* private mode */ }
+    });
+  }
 
   // right rail — matches QuranKu's users / trending / share
   document.getElementById("qk-rail-komunitas")?.addEventListener("click", () => {

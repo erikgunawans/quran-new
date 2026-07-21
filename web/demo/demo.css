@@ -845,18 +845,35 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .qk-rail-btn:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
 
-/* Donation card, bottom-left — elevated 3D card, dismissable. */
-.qk-donasi {
-  position: fixed; left: 24px; bottom: 24px; z-index: 55; width: 304px;
+/* Donation widget, bottom-left — a flush-left pill that expands into the card on hover. */
+.qk-donasi { position: fixed; left: 0; bottom: 26px; z-index: 55; }
+.qk-donasi[hidden] { display: none; }
+
+/* collapsed pill */
+.qk-donasi-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 18px 11px 15px; border-radius: 0 999px 999px 0;
+  background: linear-gradient(160deg, #22c55e, var(--qk-primary) 78%); color: #fff;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(22, 162, 73, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: opacity .22s var(--qk-ease), transform .28s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-donasi-pill svg { flex: none; }
+.qk-donasi-pill:hover { box-shadow: 0 12px 26px rgba(22, 162, 73, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+/* once open the pill gives way to the card */
+.qk-donasi.is-open .qk-donasi-pill { opacity: 0; transform: translateX(-10px) scale(0.9); pointer-events: none; }
+
+/* expanded card — grows out of the pill's bottom-left corner */
+.qk-donasi-card {
+  position: absolute; left: 18px; bottom: 0; width: 300px;
   display: flex; gap: 14px; padding: 18px 18px 18px 16px;
   background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 18px;
   box-shadow: 0 22px 50px rgba(23, 24, 28, 0.16), 0 6px 16px rgba(23, 24, 28, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform-origin: left bottom;
+  opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.9);
+  transition: opacity .26s var(--qk-ease), transform .32s var(--qk-ease), visibility .32s var(--qk-ease);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .qk-donasi { animation: qk-donasi-in .5s var(--qk-ease) both; }
-}
-@keyframes qk-donasi-in { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
-.qk-donasi[hidden] { display: none; }
+.qk-donasi.is-open .qk-donasi-card { opacity: 1; visibility: visible; transform: none; }
 .qk-donasi-x {
   position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px;
   display: grid; place-items: center; color: var(--qk-muted); background: transparent;
@@ -903,7 +920,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 @media (max-width: 760px) {
   .qk-rail { display: none; }
-  .qk-donasi { left: 12px; right: 12px; bottom: 12px; width: auto; }
+  .qk-donasi { bottom: 16px; }
+  .qk-donasi-card { width: min(300px, calc(100vw - 40px)); }
   .qk-top { right: 16px; bottom: 16px; }
 }
 
