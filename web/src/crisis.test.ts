@@ -109,8 +109,8 @@ describe("what Nur says when it fires", () => {
     // rendered verse: no reference, no Arabic, no translation block.
     expect(reply).not.toMatch(/\d{1,3}:\d{1,3}/); // no verse reference
     expect(reply).not.toMatch(/[؀-ۿ]/); // no Arabic script
-    expect(reply).not.toContain("Terjemah makna");
-    expect(reply).not.toContain("Terjemah harfiah");
+    expect(reply).not.toContain("Terjemahan makna");
+    expect(reply).not.toContain("Terjemahan harfiah");
     expect(reply).not.toContain("class=\"verse\"");
   });
 

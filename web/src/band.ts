@@ -120,9 +120,9 @@ export async function renderAyahOfDay(host: HTMLElement, now: Date = new Date())
         <div class="aod-rule" aria-hidden="true"></div>
         <p class="aod-ar" dir="rtl" lang="ar">${esc(v.ar)}</p>
         <p class="aod-makna">${esc(makna.text)}</p>
-        <p class="aod-src">Terjemah makna oleh <b>${esc(makna.translator)}</b></p>
+        <p class="aod-src">Terjemahan makna oleh <b>${esc(makna.translator)}</b></p>
         <details class="aod-lit">
-          <summary>Terjemah harfiah <b>${esc(literal.translator)}</b></summary>
+          <summary>Terjemahan harfiah <b>${esc(literal.translator)}</b></summary>
           <p>${esc(literal.text)}</p>
         </details>
         <p class="aod-foot">

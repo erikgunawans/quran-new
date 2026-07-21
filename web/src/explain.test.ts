@@ -23,8 +23,8 @@ describe("the explainer exists and says the necessary things", () => {
   });
 
   test("it defines BOTH kinds, not just the one we lead with", () => {
-    expect(src).toContain("Terjemah makna");
-    expect(src).toContain("Terjemah harfiah");
+    expect(src).toContain("Terjemahan makna");
+    expect(src).toContain("Terjemahan harfiah");
     expect(src).toContain("kata per kata"); // what harfiah means
     expect(src).toContain("maksud"); // what makna means
   });

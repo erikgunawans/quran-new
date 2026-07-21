@@ -10,7 +10,7 @@
  * Two decisions shape what follows.
  *
  * 1. IT LIVES AT THE POINT OF CONFUSION. Not an About page nobody opens. The labels themselves —
- *    "Terjemah makna", "Terjemah harfiah" — become the affordance: they are the thing you are
+ *    "Terjemahan makna", "Terjemahan harfiah" — become the affordance: they are the thing you are
  *    confused by, so they are the thing you press.
  *
  * 2. IT SHOWS RATHER THAN LECTURES. The explanation is not a definition of translation theory;
@@ -53,12 +53,12 @@ function markup(): string {
 
         <div class="explain-kinds">
           <div class="explain-kind">
-            <span class="chip lead">Terjemah makna</span>
+            <span class="chip lead">Terjemahan makna</span>
             <p>Menerjemahkan <b>maksud</b> ayat, bukan cuma kata-katanya. Lebih mudah dipahami — tapi
             di dalamnya sudah ada pilihan seorang manusia. Ini sudah masuk wilayah tafsir.</p>
           </div>
           <div class="explain-kind">
-            <span class="chip">Terjemah harfiah</span>
+            <span class="chip">Terjemahan harfiah</span>
             <p>Menerjemahkan <b>kata per kata</b>, sedekat mungkin dengan aslinya. Paling setia pada
             teks — tapi kadang tidak sampai ke pembacanya.</p>
           </div>
@@ -69,7 +69,7 @@ function markup(): string {
 
         <div class="explain-compare">
           <div class="explain-side">
-            <span class="chip">Terjemah harfiah</span>
+            <span class="chip">Terjemahan harfiah</span>
             <p class="explain-txt">${HARFIAH}</p>
             <p class="explain-note">Kalau kamu tidak bisa bahasa Arab, kalimat terakhirnya
             <b>tidak memberitahu apa-apa</b>. Padahal justru kalimat itu yang dibaca orang saat
@@ -77,7 +77,7 @@ function markup(): string {
           </div>
 
           <div class="explain-side">
-            <span class="chip lead">Terjemah makna</span>
+            <span class="chip lead">Terjemahan makna</span>
             <p class="explain-txt">${MAKNA}</p>
             <p class="explain-note">Sekarang kamu tahu apa yang sebenarnya diucapkan — dan kenapa
             orang mengucapkannya.</p>

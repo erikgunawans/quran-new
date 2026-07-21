@@ -625,7 +625,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .reading.companion .txt { color: var(--ink-2); }
 
 /* ── the depth disclosure: everything but the interpretive primary ──────────────
-   Terjemah makna reads open above; the literal companion (Terjemah harfiah) and the tafsir stack
+   Terjemahan makna reads open above; the literal companion (Terjemahan harfiah) and the tafsir stack
    live one tap inside here — depth on demand, never depth removed. The companion still ships with
    every verse (the literal_companion data gate); flagged-divergent verses (94:5) render it OPEN so
    the caution's "baca keduanya" is honest without a tap. */

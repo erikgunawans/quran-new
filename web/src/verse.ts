@@ -2,8 +2,8 @@
  * The verse card — the one place scripture is rendered.
  *
  * Chat and the reading surface both draw through here. That is not just DRY: it is what
- * guarantees the honesty contract holds everywhere. The interpretive primary (Terjemah makna)
- * reads open; the literal companion (Terjemah harfiah) and the tafsir stack live one tap away
+ * guarantees the honesty contract holds everywhere. The interpretive primary (Terjemahan makna)
+ * reads open; the literal companion (Terjemahan harfiah) and the tafsir stack live one tap away
  * inside the depth disclosure — depth on demand (DESIGN principle 4), never depth removed. The
  * companion is always PRESENT in the card (and always ships in the corpus — the `literal_companion`
  * data gate), so "read both" is always reachable; for the handful of verses where the primary is
@@ -72,7 +72,7 @@ export interface Reading {
  */
 export const FLAGGED: Record<string, string> = {
   "94:5":
-    "Terjemah makna di atas membaca ayat ini sebagai gambaran umum kehidupan. Terjemah harfiah Kemenag membacanya sebagai janji: <em>sesudah kesulitan ada kemudahan</em>. Perbedaannya nyata — baca keduanya.",
+    "Terjemahan makna di atas membaca ayat ini sebagai gambaran umum kehidupan. Terjemahan harfiah Kemenag membacanya sebagai janji: <em>sesudah kesulitan ada kemudahan</em>. Perbedaannya nyata — baca keduanya.",
   "94:6":
     "Sama seperti ayat sebelumnya. Al-Qur'an mengulang ayat ini — pengulangan itu sendiri adalah penegasan.",
 };
@@ -106,7 +106,7 @@ function relatedEl(ref: string): string {
 }
 
 function readingEl(r: Reading, lead: boolean): string {
-  const label = lead ? "Terjemah makna" : "Terjemah harfiah";
+  const label = lead ? "Terjemahan makna" : "Terjemahan harfiah";
 
   // The chip IS the affordance.
   //
@@ -129,7 +129,7 @@ function readingEl(r: Reading, lead: boolean): string {
 /**
  * The depth disclosure — everything but the interpretive primary.
  *
- * Terjemah makna reads open above this; here live the literal companion (Terjemah harfiah) and the
+ * Terjemahan makna reads open above this; here live the literal companion (Terjemahan harfiah) and the
  * tafsir stack, one tap away. `flagged` verses (94:5/94:6) open by default so the caution's "baca
  * keduanya" stays honest. Lazy verses carry `data-lazy-tafsir` on THIS element — bindLazyTafsir
  * fills the `.tafsir-slot` inside on first open; chat's curated verses pass their stack html
@@ -150,7 +150,7 @@ function depthEl(v: VerseCard, flagged: boolean): string {
   const lazyAttrs = lazy ? ` data-lazy-tafsir data-surah="${v.surah}" data-ayah="${v.ayah}"` : "";
   return `
     <details class="depth"${flagged ? " open" : ""}${lazyAttrs}>
-      <summary>Terjemah harfiah &amp; tafsir ulama</summary>
+      <summary>Terjemahan harfiah &amp; tafsir ulama</summary>
       ${v.companion ? readingEl(v.companion, false) : ""}
       ${tafsir}
     </details>`;

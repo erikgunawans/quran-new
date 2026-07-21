@@ -135,7 +135,7 @@ export async function renderVerseCardImage(v: VerseCard): Promise<Blob | null> {
 
   if (v.primary) {
     blocks.push({
-      lines: ["Terjemah makna"],
+      lines: ["Terjemahan makna"],
       font: uiFont(700, 24),
       lineHeight: 34,
       color: primaryColor,
@@ -164,7 +164,7 @@ export async function renderVerseCardImage(v: VerseCard): Promise<Blob | null> {
   }
 
   blocks.push({
-    lines: ["Terjemah harfiah"],
+    lines: ["Terjemahan harfiah"],
     font: uiFont(700, 24),
     lineHeight: 34,
     color: ink2,

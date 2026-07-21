@@ -243,7 +243,7 @@ async function ensureCorpus(): Promise<Corpus | null> {
 
 function readingHtml(r: ReadingLike, primary: boolean): string {
   if (!r || !r.text.trim()) return "";
-  const tag = r.translation_type === "literal" ? "Terjemah Harfiah" : "Terjemah Makna";
+  const tag = r.translation_type === "literal" ? "Terjemahan Harfiah" : "Terjemahan Makna";
   return `<div class="qk-reading${primary ? " primary" : ""}">
     <span class="qk-reading-tag">${tag}</span>
     <div class="qk-reading-txt">${esc(r.text)}</div>
@@ -258,7 +258,7 @@ function readingHtml(r: ReadingLike, primary: boolean): string {
  * (Erik, 2026-07-22 — the answer surface was showing both renderings stacked open while the reader
  * hid one, so the same verse looked like two different products depending on where you met it).
  *
- * Which one hides is not arbitrary. Terjemah Makna — the tafsiriyah — is the reading this app
+ * Which one hides is not arbitrary. Terjemahan Makna — the tafsiriyah — is the reading this app
  * exists to put in front of people, so it stays visible; the literal translation is the comparison
  * you reach for, not the thing you are handed. Collapsing it also stops an answer becoming a wall
  * of two near-identical paragraphs, which is what made the Tanya result hard to read.
@@ -1093,7 +1093,7 @@ function renderBookmark(): void {
         <button class="qk-bm-remove" data-ref="${esc(bm.ref)}" aria-label="Hapus bookmark">✕</button>
       </div>
       <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(bm.ar)}</div>
-      <div class="qk-reading primary"><span class="qk-reading-tag">Terjemah Makna</span><div class="qk-reading-txt">${esc(bm.tr)}</div></div>
+      <div class="qk-reading primary"><span class="qk-reading-tag">Terjemahan Makna</span><div class="qk-reading-txt">${esc(bm.tr)}</div></div>
     </article>`).join("");
   for (const b of el.querySelectorAll<HTMLButtonElement>(".qk-bm-remove")) {
     b.addEventListener("click", () => { saveBookmarks(getBookmarks().filter((x) => x.ref !== b.dataset.ref)); renderBookmark(); });

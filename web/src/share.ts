@@ -14,7 +14,7 @@
  * the same invariant is enforced here, on egress:
  *
  *   1. Both renderings always travel together.
- *   2. The interpretive one is LABELLED interpretive ("Terjemah makna"), never as the Qur'an's
+ *   2. The interpretive one is LABELLED interpretive ("Terjemahan makna"), never as the Qur'an's
  *      own words.
  *   3. Every rendering names its translator.
  *
@@ -29,10 +29,10 @@ export function shareText(v: VerseCard): string {
   const lines: string[] = [`QS ${v.surah_name} ${v.ref}`, "", v.arabic, ""];
 
   if (v.primary) {
-    lines.push(`Terjemah makna (${v.primary.translator}):`, v.primary.text, "");
+    lines.push(`Terjemahan makna (${v.primary.translator}):`, v.primary.text, "");
   }
   if (v.companion) {
-    lines.push(`Terjemah harfiah (${v.companion.translator}):`, v.companion.text, "");
+    lines.push(`Terjemahan harfiah (${v.companion.translator}):`, v.companion.text, "");
   }
 
   lines.push("— dibagikan lewat New-Quranku");

@@ -150,13 +150,13 @@ const card = (over: Partial<VerseCard> = {}): VerseCard => ({
 describe("egress — an interpretation must never leave dressed as scripture", () => {
   test("the shared text labels the interpretive rendering as interpretive", () => {
     const t = shareText(card());
-    expect(t).toContain("Terjemah makna");
+    expect(t).toContain("Terjemahan makna");
     expect(t).toContain("Ustadz Muhammad Thalib");
   });
 
   test("the literal companion travels with it — literal_companion, honored on egress", () => {
     const t = shareText(card());
-    expect(t).toContain("Terjemah harfiah");
+    expect(t).toContain("Terjemahan harfiah");
     expect(t).toContain("Kementerian Agama Republik Indonesia");
     expect(t).toContain("Maka sesungguhnya beserta kesulitan ada kemudahan.");
   });
@@ -164,7 +164,7 @@ describe("egress — an interpretation must never leave dressed as scripture", (
   test("Anti: no share payload presents an interpretive rendering as the Qur'an's own words", () => {
     const t = shareText(card());
     // The interpretive text must never appear without its label somewhere above it.
-    const iMakna = t.indexOf("Terjemah makna");
+    const iMakna = t.indexOf("Terjemahan makna");
     const iText = t.indexOf("Dalam hidup ini ada kesusahan");
     expect(iMakna).toBeGreaterThanOrEqual(0);
     expect(iText).toBeGreaterThan(iMakna);

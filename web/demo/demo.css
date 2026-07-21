@@ -582,7 +582,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* the head was a hardcoded near-white slab — it stayed bright in dark mode */
 :root[data-theme="dark"] .qk-verse-head { background: #1b1e24; }
 
-/* Terjemah Harfiah (Kemenag) is secondary: collapsed by default, revealed by the
+/* Terjemahan Harfiah (Kemenag) is secondary: collapsed by default, revealed by the
    chevron on the right of the ayah head. */
 .qk-harf-btn {
   margin-left: auto; display: inline-flex; align-items: center; gap: 5px;

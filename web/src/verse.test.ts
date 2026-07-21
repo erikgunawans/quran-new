@@ -27,7 +27,7 @@ describe("verse card — the mushaf ayah-end medallion", () => {
 });
 
 describe("verse card — interpretive primary reads open, everything else one tap away", () => {
-  test("the primary (Terjemah makna) renders OUTSIDE the depth disclosure", () => {
+  test("the primary (Terjemahan makna) renders OUTSIDE the depth disclosure", () => {
     const html = verseEl(base());
     const maknaIdx = html.indexOf("MAKNA_TEXT");
     const depthIdx = html.indexOf('<details class="depth"');
@@ -35,7 +35,7 @@ describe("verse card — interpretive primary reads open, everything else one ta
     expect(depthIdx).toBeGreaterThan(maknaIdx); // primary text is above the disclosure
   });
 
-  test("the literal companion (Terjemah harfiah) lives INSIDE the depth disclosure", () => {
+  test("the literal companion (Terjemahan harfiah) lives INSIDE the depth disclosure", () => {
     const html = verseEl(base());
     expect(html).toContain('<details class="depth"');
     const depthIdx = html.indexOf('<details class="depth"');
