@@ -8,7 +8,61 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — reasoning tokens had silently killed two of the three model calls
+## 2026-07-22 (latest) — framing now answers the person; and a grief bug fell out of testing it
+
+`3043efe` + `7a8b350`, deployed `dfb9d301` (principled). **Synthesis was NOT deployed** — the
+command was cut off mid-line, so `new-quranku-ai` still serves `index-3mGZZsdq.js` with the old 4s
+cap while principled is on `index-De89BZxR.js`. Second deploy still owed.
+
+**The framing rewrite.** I first told Erik the model never saw the user's words — **that was wrong**,
+and I corrected it before building: `buildFramingUserMessage` has always passed the raw question.
+The real ceiling was the PROMPT: it said *"Name the feeling"* (answer the category), and all three
+few-shot examples were category-level (*"Berat, ya."*). Few-shot dominates register, so the model
+was faithfully imitating the blandness we handed it. Now: echo the specific thing they named, in
+their register, using ONLY what they gave; sit with it one sentence; then hand over. Two or three
+sentences, explicit ban on advice/next-steps/silver-linings. All three new exemplars were run
+through `guardComposeProse` **before** shipping — an exemplar that trips the wall would teach the
+model to get itself rejected on every call.
+
+Result, live: `"Utang yang numpuk itu bikin capeknya beda, ya — bukan cuma soal angka, tapi soal
+nggak bisa tidur mikirinnya. Wajar banget kalau rasanya pengen nyerah. Ayat-ayat di bawah ini sering
+dibaca orang yang lagi di titik itu."` On a vague input (*"aku ga tau harus gimana lagi"*) it quotes
+them back and explicitly declines to invent a life — the "use only what they gave" rule working.
+
+**The trap: the API was 12/12 healthy and the BROWSER still showed canned lines.** No `/api/compose`
+request in the network log at all — aborted client-side. Three specific sentences generate slower
+than one generic one: measured 2.75s / 5.70s / 2.82s / 2.18s against a **4000ms** `AbortController`.
+One in four killed at the door, invisible server-side (the Worker logged a success for prose nobody
+read). Raised to 8s; the wait is not blank (`skeleton()` is already on screen). **Lesson: a healthy
+endpoint is not a working feature — verify in the browser, not at the API.**
+
+### The grief bug — worse than the thing I was sent to fix
+
+Testing the third input surfaced this. `"baru kehilangan orang tua, rasanya kosong"` returns
+**17:23 — *"Berbuat baiklah kepada orang tua"*, ranked FIRST**: an instruction about caring for
+living parents, shown to someone whose parent just died. Reproduced deterministically offline (no
+model needed), and it is not one phrasing — `"kehilangan ibu, rasanya kosong"` also puts 17:23
+first; `"baru ditinggal ayah"` shows it second.
+
+**Cause** (`main.ts:411`): the model classifier runs **only when the keyword lexicon comes up
+empty** — `keywordThemeHits(q).size === 0`. The comment's assumption is *"most messages hit a
+keyword, and there the lexicon is already right."* That assumption fails exactly here: `"orang tua"`
+matches the TOPIC (Parents/Family) while missing the SITUATION (bereavement). The lexicon does
+detect `Grief & loss` too — it is in the hit set — but Family/Parents outranks it, and because the
+set is non-empty the classifier never runs to disambiguate. **This was invisible until today**: the
+classifier returned `[]` on every call anyway (the reasoning-token bug), so nothing was lost by
+skipping it. Fixing classify is what made this gate matter.
+
+**NOT FIXED — needs Erik's call**, because it changes retrieval for every question, not just this
+one. Options: (a) always classify — one model hop per question, latency + cost on the common path;
+(b) special-case bereavement over topical themes — brittle; (c) **recommended** — classify when the
+keyword hits are AMBIGUOUS (several distinct theme families, as here: grief + self-worth + family +
+parents + emptiness), not only when empty. (c) keeps single-theme keyword hits instant and extends
+the original design intent from "the MISSES" to "the misses AND the ambiguities".
+
+---
+
+## 2026-07-22 — reasoning tokens had silently killed two of the three model calls
 
 `e23bc51`, deployed `45572228` (principled) + `6a66eb90` (synthesis). Erik asked for answers that
 feel more human — *"it shouldn't receive the question and then suddenly go to the first side, there
