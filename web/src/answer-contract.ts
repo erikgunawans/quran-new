@@ -42,8 +42,21 @@ export interface AnswerContext {
 
 export type AnswerModel = (ctx: AnswerContext) => Promise<string>;
 
-/** Lower temperature than framing (accuracy over flourish), room for a real explanation, not an essay. */
-export const ANSWER_PARAMS = { temperature: 0.4, maxTokens: 520 } as const;
+/**
+ * Lower temperature than framing (accuracy over flourish), room for a real explanation, not an essay.
+ *
+ * `reasoning: "none"` + a raised ceiling (2026-07-22). When the reasoning-token starvation was
+ * found in `/api/compose` (160) and `/api/classify` (80), this endpoint at 520 looked healthy and
+ * was deliberately left alone. **That was wrong**, and a screenshot caught it: an answer on the live
+ * demo ended `"…Allah tidak membebani seseorang melampaui kem"` — cut mid-word. Re-probed twice:
+ * one of two answers ended mid-sentence (`"…QS Al-Baqarah 2:286 menegaskan bahwa"`).
+ *
+ * 520 was simply a larger budget failing more rarely, not a budget that survived. An authored answer
+ * is the longest of the three calls, so it needs the most headroom AND the least competition for it.
+ * Unlike framing, a truncated answer is not a cosmetic loss: it stops mid-explanation of scripture,
+ * which is exactly where the reader must not be left. Length stays a PROMPT concern.
+ */
+export const ANSWER_PARAMS = { temperature: 0.4, maxTokens: 1100, reasoning: "none" } as const;
 
 export const SYNTHESIS_SYSTEM_PROMPT = `You are the voice of New-Quranku (AI edition), a Qur'an companion app for Indonesian Muslims. Someone has asked you something — a feeling, or a question about Islam, Allah, the Qur'an, or how to live. You will be given the exact Qur'an verses (Indonesian translation) and scholar index entries that the app already retrieved for this question. Your job is to answer them warmly and clearly, IN INDONESIAN, using ONLY that material.
 
