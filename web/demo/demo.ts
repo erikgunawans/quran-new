@@ -492,7 +492,7 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
   const ref = `${surah}:${v.a}`;
   const tr = v.p?.text ?? v.c?.text ?? "";
   const on = isBookmarked(ref);
-  return `<article class="qk-verse">
+  return `<article class="qk-verse" id="ayat-${surah}-${v.a}">
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(ref)}</span>
       <span class="qk-verse-surah">${esc(surahName)}</span>
@@ -507,7 +507,7 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
   </article>`;
 }
 
-async function renderMushaf(param?: string): Promise<void> {
+async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> {
   const el = $("#qk-mushaf");
   const n = param ? Number(param) : 0;
   if (!n || n < 1 || n > 114) {
@@ -531,6 +531,15 @@ async function renderMushaf(param?: string): Promise<void> {
       ${shard.bismillah ? `<div class="qk-read-bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</div>` : ""}
       <div class="qk-ayat">${shard.verses.map((v) => ayahHtml(n, shard.name, v)).join("")}</div>`;
     wireBookmarkButtons(el);
+    const a = anchorAyah ? Number(anchorAyah) : 0;
+    if (a) {
+      const target = document.getElementById(`ayat-${n}-${a}`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        target.classList.add("is-target");
+        window.setTimeout(() => target.classList.remove("is-target"), 2600);
+      }
+    }
   } catch {
     el.innerHTML = `<a class="qk-back" href="#/mushaf">‹ Semua surah</a><div class="qk-silence"><p><b>Gagal memuat surah.</b> Periksa koneksi lalu coba lagi.</p></div>`;
   }
@@ -538,35 +547,142 @@ async function renderMushaf(param?: string): Promise<void> {
 
 /* ── TEMATIK: the Indeks Tematik (reuses New-Quranku's Peta data — Ustadz Muhammad Thalib's) ── */
 interface PetaIndex { categories: { slug: string; category: string; entries: number }[] }
-interface PetaCategory { category: string; subtopics: { subtopic: string; entries: { text: string; ref: string }[] }[] }
+interface PetaRef { surah: number; ayah: number; resolvable: boolean }
+interface PetaEntry { text: string; ref: string; refs?: PetaRef[] }
+interface PetaCategory { category: string; subtopics: { subtopic: string; entries: PetaEntry[] }[] }
+
+const TEMA_BOOK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.4 5.4 8.4 5.1 6 5.3v12.5c2.4-.2 4.4.1 6 1.3 1.6-1.2 3.6-1.5 6-1.3V5.3c-2.4-.2-4.4.1-6 1.3Z"/><path d="M12 6.6v12.5"/></svg>`;
+
+/** Short reference badge like the original ("Al-Baqarah:7", or "Fussilat:2-4" for a run). */
+function refRange(rs: PetaRef[]): string {
+  const a = rs.map((r) => r.ayah);
+  const min = Math.min(...a), max = Math.max(...a);
+  return min === max ? String(min) : `${min}-${max}`;
+}
 
 async function renderTematik(slug?: string): Promise<void> {
   const el = $("#qk-tematik");
   el.innerHTML = `<div class="qk-lead qk-thinking">Memuat…</div>`;
   try {
-    if (!slug) {
-      const idx = await fetchJson<PetaIndex>("/peta/index.json");
-      el.innerHTML =
-        `<div class="qk-page-head"><h1>Indeks Tematik Al-Qur'an</h1><p>Temukan dan pelajari ayat-ayat berdasarkan topik-topik utama yang telah dikelompokkan secara sistematis. Oleh <b>Ustadz Muhammad Thalib</b>.</p></div>` +
-        `<ul class="qk-cat-grid">${idx.categories.map((c, i) => `<li>
-          <a class="qk-cat-card" href="#/tematik/${encodeURIComponent(c.slug)}">
-            <span class="qk-cat-n">${i + 1}</span>
-            <span class="qk-cat-body"><span class="qk-cat-name">${esc(c.category)}</span><span class="qk-cat-count">${c.entries} entri</span></span>
-            <span class="qk-cat-go">›</span>
-          </a></li>`).join("")}</ul>`;
-      return;
-    }
-    const cat = await fetchJson<PetaCategory>(`/peta/${slug}.json`);
-    const subs = cat.subtopics.map((s) =>
-      `<div class="qk-sub"><h2>${esc(s.subtopic)}</h2><ul class="qk-tentries">${
-        s.entries.map((e) => `<li class="qk-tentry"><p class="qk-tentry-text">${esc(e.text)}</p><span class="qk-tentry-ref">${esc(e.ref)}</span></li>`).join("")
-      }</ul></div>`).join("");
-    el.innerHTML =
-      `<a class="qk-back" href="#/tematik">‹ Semua topik</a>
-      <div class="qk-page-head"><h1>${esc(cat.category)}</h1><p class="qk-credit">Indeks Tematik oleh <b>Ustadz Muhammad Thalib</b>.</p></div>${subs}`;
+    const idx = await fetchJson<PetaIndex>("/peta/index.json");
+    el.innerHTML = `
+      <div class="qk-tema-head">
+        <span class="qk-tema-ico">${TEMA_BOOK}</span>
+        <h1>Indeks Tematik Al-Qur'an</h1>
+        <p>Temukan dan pelajari ayat-ayat berdasarkan topik-topik utama yang telah dikelompokkan secara sistematis.</p>
+      </div>
+      <div class="qk-tema-search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="qk-tema-find" type="search" placeholder="Cari tema, nama surah, atau topik…" aria-label="Cari tema, nama surah, atau topik" autocomplete="off">
+      </div>
+      <div class="qk-tema-list">${idx.categories.map((c) => `
+        <section class="qk-tcat" data-slug="${esc(c.slug)}" data-name="${esc(c.category.toLowerCase())}">
+          <button class="qk-tcat-head" type="button" aria-expanded="false">
+            <span class="qk-tcat-ico">${TEMA_BOOK}</span>
+            <span class="qk-tcat-name">${esc(c.category)}</span>
+            <span class="qk-tcat-count">${c.entries}</span>
+            <svg class="qk-tcat-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="qk-tcat-body" hidden></div>
+        </section>`).join("")}</div>`;
+    wireTematik(slug);
   } catch {
     el.innerHTML = `<div class="qk-silence"><p><b>Gagal memuat indeks tematik.</b> Coba lagi.</p></div>`;
   }
+}
+
+function wireTematik(slug?: string): void {
+  const el = $("#qk-tematik");
+  for (const head of el.querySelectorAll<HTMLButtonElement>(".qk-tcat-head")) {
+    head.addEventListener("click", () => void toggleCategory(head.closest(".qk-tcat") as HTMLElement));
+  }
+  const find = el.querySelector<HTMLInputElement>("#qk-tema-find");
+  find?.addEventListener("input", () => {
+    const q = find.value.trim().toLowerCase();
+    for (const sec of el.querySelectorAll<HTMLElement>(".qk-tcat")) {
+      sec.hidden = q.length > 0 && !(sec.dataset.name ?? "").includes(q);
+    }
+  });
+  if (slug) {
+    const sec = el.querySelector<HTMLElement>(`.qk-tcat[data-slug="${CSS.escape(slug)}"]`);
+    if (sec) { void toggleCategory(sec, true); window.setTimeout(() => sec.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }
+  }
+}
+
+async function toggleCategory(sec: HTMLElement, forceOpen = false): Promise<void> {
+  const head = sec.querySelector<HTMLButtonElement>(".qk-tcat-head");
+  const body = sec.querySelector<HTMLElement>(".qk-tcat-body");
+  if (!head || !body) return;
+  const open = forceOpen || body.hidden;
+  head.setAttribute("aria-expanded", open ? "true" : "false");
+  body.hidden = !open;
+  if (!open || body.dataset.loaded) return;
+  body.innerHTML = `<div class="qk-lead qk-thinking">Memuat…</div>`;
+  try {
+    const cat = await fetchJson<PetaCategory>(`/peta/${sec.dataset.slug}.json`);
+    const multi = cat.subtopics.length > 1;
+    let n = 0;
+    body.innerHTML = cat.subtopics.map((s) =>
+      (multi ? `<h3 class="qk-tsub">${esc(s.subtopic)}</h3>` : "") +
+      s.entries.map((e) => entryRowHtml(++n, e)).join("")
+    ).join("");
+    body.dataset.loaded = "1";
+    for (const eh of body.querySelectorAll<HTMLButtonElement>(".qk-tentry-head")) {
+      eh.addEventListener("click", () => void toggleEntry(eh.closest(".qk-tentry") as HTMLElement));
+    }
+  } catch { body.innerHTML = `<p class="qk-silence">Gagal memuat topik.</p>`; body.dataset.loaded = ""; }
+}
+
+function entryRowHtml(n: number, e: PetaEntry): string {
+  const rs = (e.refs ?? []).filter((r) => r.resolvable);
+  const r = rs[0];
+  const badge = r ? `${displayName(r.surah)}:${refRange(rs)}` : e.ref;
+  return `<div class="qk-tentry" data-surah="${r?.surah ?? 0}" data-ayah="${r?.ayah ?? 0}">
+    <button class="qk-tentry-head" type="button" aria-expanded="false"${r ? "" : " disabled"}>
+      <span class="qk-tentry-title"><b>${n}.</b> ${esc(e.text)}</span>
+      <span class="qk-tentry-ref">${esc(badge)}</span>
+    </button>
+    <div class="qk-tentry-body" hidden></div>
+  </div>`;
+}
+
+async function toggleEntry(entry: HTMLElement): Promise<void> {
+  const head = entry.querySelector<HTMLButtonElement>(".qk-tentry-head");
+  const body = entry.querySelector<HTMLElement>(".qk-tentry-body");
+  if (!head || !body) return;
+  const open = body.hidden;
+  head.setAttribute("aria-expanded", open ? "true" : "false");
+  body.hidden = !open;
+  if (!open || body.dataset.loaded) return;
+  const surah = Number(entry.dataset.surah), ayah = Number(entry.dataset.ayah);
+  if (!surah || !ayah) { body.innerHTML = `<p class="qk-silence">Rujukan tidak tersedia.</p>`; body.dataset.loaded = "1"; return; }
+  body.innerHTML = `<div class="qk-lead qk-thinking">Memuat ayat…</div>`;
+  try {
+    const v = await loadAyah(surah, ayah);
+    const tr = v.p?.text ?? v.c?.text ?? "";
+    const name = displayName(surah);
+    body.innerHTML = `
+      <div class="qk-tentry-ar" dir="rtl" lang="ar">${esc(v.ar)}</div>
+      <p class="qk-tentry-tr">${esc(tr)}</p>
+      <p class="qk-tentry-cite">— Tarjamah Tafsiriyah</p>
+      <div class="qk-tentry-acts">
+        <div class="qk-tentry-tools">
+          <button class="qk-ico-act" type="button" data-copy aria-label="Salin ayat"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button class="qk-ico-act" type="button" data-share aria-label="Bagikan ayat"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
+        </div>
+        <a class="qk-tentry-go" href="#/mushaf/${surah}/${ayah}">Lihat di Surah <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>`;
+    body.dataset.loaded = "1";
+    body.querySelector<HTMLButtonElement>("[data-copy]")?.addEventListener("click", () => {
+      const text = `${v.ar}\n\n${tr}\n\n(QS. ${name} : ${ayah} — Tarjamah Tafsiriyah)`;
+      navigator.clipboard.writeText(text).then(() => toast("Ayat disalin")).catch(() => toast("Gagal menyalin"));
+    });
+    body.querySelector<HTMLButtonElement>("[data-share]")?.addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}#/mushaf/${surah}/${ayah}`;
+      const data: ShareData = { title: `QS. ${name} : ${ayah}`, text: tr, url };
+      try { if (navigator.share) { await navigator.share(data); return; } await navigator.clipboard.writeText(url); toast("Tautan disalin"); } catch { /* cancelled */ }
+    });
+  } catch { body.innerHTML = `<p class="qk-silence">Gagal memuat ayat.</p>`; body.dataset.loaded = "1"; }
 }
 
 /* ── AUDIO: the full 114-surah grid + a persistent player (bottom bar + fullscreen) ──
@@ -775,7 +891,7 @@ function route(): void {
   // the hash, so the Audio → fullscreen flow is unaffected.)
   closeFull();
 
-  const [sectionRaw = "", param] = location.hash.replace(/^#\//, "").split("/");
+  const [sectionRaw = "", param, param2] = location.hash.replace(/^#\//, "").split("/");
   const section = (ROUTES as readonly string[]).includes(sectionRaw) ? sectionRaw : "beranda";
 
   for (const r of ROUTES) {
@@ -783,7 +899,7 @@ function route(): void {
     if (node) node.hidden = r !== section;
   }
 
-  if (section === "mushaf") void renderMushaf(param);
+  if (section === "mushaf") void renderMushaf(param, param2);
   else if (section === "tematik") void renderTematik(param ? decodeURIComponent(param) : undefined);
   else if (section === "audio") renderAudio();
   else if (section === "bookmark") renderBookmark();
@@ -825,8 +941,10 @@ function wireFloating(): void {
     try { localStorage.setItem(DONASI_KEY, "1"); } catch { /* private mode */ }
   });
 
-  // right rail
-  document.getElementById("qk-rail-tanya")?.addEventListener("click", () => { location.hash = "#/tanya"; });
+  // right rail — matches QuranKu's users / trending / share
+  document.getElementById("qk-rail-komunitas")?.addEventListener("click", () => {
+    window.open("https://quran.tarjamahtafsiriyah.com/", "_blank", "noopener");
+  });
   document.getElementById("qk-rail-pop")?.addEventListener("click", () => {
     if (location.hash.replace(/^#\//, "").split("/")[0] !== "beranda") location.hash = "#/beranda";
     window.setTimeout(() => document.getElementById("qk-surah-grid")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
