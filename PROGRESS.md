@@ -8,7 +8,25 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — Tanya headline: landing treatment + rotating invitation, always two lines
+## 2026-07-21 (latest) — crisis card dark-mode colors
+
+`4fa55a3`, deployed version `eed9c08f`. Closes the light-leftover flagged in the dark-theme checkpoint.
+The crisis card is deliberately off-brand (warm terracotta) so it reads as an interruption, but its cream
+ground `#fff8f3` washed out to near-white on near-black. Dark now uses a deep ember ground
+(`#2c1b14`→`#231510`), warm border `#6d4130`, cream body `#ebd2c3`, orange lead `#ff9d76`, brightened 119 CTA
+`#d8412f` — same urgent-but-calm character, readable on dark. Light untouched (`#fff8f3`/`#e6b8a2` verified).
+Verified by triggering a REAL crisis detection (`detectCrisis` runs first, no model needed) in both themes.
+
+**Two verification traps hit again, both false alarms — worth remembering:**
+1. `rg 'data-theme="dark"] .crisis'` reported MISSING in the built CSS. The minifier **strips the quotes**
+   from attribute selectors — the rule was there as `data-theme=dark] .crisis{...}`. Grep the minified form.
+2. The edge served a stale `index.html` pointing at the previous CSS hash right after deploy; the new CSS was
+   already reachable (200) and correct. It resolved on its own within ~15s. Poll `curl` before concluding a
+   deploy failed.
+
+---
+
+## 2026-07-21 — Tanya headline: landing treatment + rotating invitation, always two lines
 
 `23f6a71` then `79c4477`, deployed versions `12ce3be5` → `ca4f697d`. Demo-only, typecheck clean.
 
