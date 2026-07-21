@@ -496,19 +496,75 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
   const ref = `${surah}:${v.a}`;
   const tr = v.p?.text ?? v.c?.text ?? "";
   const on = isBookmarked(ref);
-  return `<article class="qk-verse" id="ayat-${surah}-${v.a}">
+  const harf = readingHtml(v.c, false);
+  const canPlay = AUDIO_AVAIL.has(surah);
+  return `<article class="qk-verse" id="ayat-${surah}-${v.a}"
+      data-ref="${esc(ref)}" data-name="${esc(surahName)}" data-ar="${esc(v.ar)}" data-tr="${esc(tr)}">
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(ref)}</span>
       <span class="qk-verse-surah">${esc(surahName)}</span>
-      <button class="qk-bm-btn${on ? " is-on" : ""}" aria-label="Simpan ayat" aria-pressed="${on}"
-        data-ref="${esc(ref)}" data-surah="${esc(surahName)}" data-ar="${esc(v.ar)}" data-tr="${esc(tr)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
-      </button>
+      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemah harfiah">
+        <span>Harfiah</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>` : ""}
     </div>
     <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(v.ar)}</div>
     ${readingHtml(v.p, true)}
-    ${readingHtml(v.c, false)}
+    ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
+    <div class="qk-verse-tools">
+      ${canPlay ? `<button class="qk-vt" type="button" data-play="${surah}" data-ayah="${v.a}" aria-label="Putar ayat ini" title="Putar">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5-12-7.5Z"/></svg>
+      </button>` : ""}
+      <button class="qk-vt" type="button" data-copy aria-label="Salin ayat" title="Salin">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+      <button class="qk-vt qk-bm-btn${on ? " is-on" : ""}" type="button" aria-label="Simpan ayat" aria-pressed="${on}" title="Simpan"
+        data-ref="${esc(ref)}" data-surah="${esc(surahName)}" data-ar="${esc(v.ar)}" data-tr="${esc(tr)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
+      </button>
+      <button class="qk-vt" type="button" data-share aria-label="Bagikan ayat" title="Bagikan">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+      </button>
+    </div>
   </article>`;
+}
+
+/** Per-ayah tools: harfiah disclosure, play, copy, share (bookmark keeps its own wiring). */
+function wireVerseTools(scope: HTMLElement): void {
+  for (const b of scope.querySelectorAll<HTMLButtonElement>(".qk-harf-btn")) {
+    b.addEventListener("click", () => {
+      const box = b.closest(".qk-verse")?.querySelector<HTMLElement>(".qk-harf");
+      if (!box) return;
+      const open = box.hidden;
+      box.hidden = !open;
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      b.setAttribute("aria-label", open ? "Sembunyikan terjemah harfiah" : "Tampilkan terjemah harfiah");
+    });
+  }
+  for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-play]")) {
+    b.addEventListener("click", () => playerStart(Number(b.dataset.play), Number(b.dataset.ayah) || 1));
+  }
+  for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    b.addEventListener("click", () => {
+      const a = b.closest<HTMLElement>(".qk-verse");
+      if (!a) return;
+      const text = `${a.dataset.ar ?? ""}\n\n${a.dataset.tr ?? ""}\n\n(QS. ${a.dataset.name ?? ""} : ${(a.dataset.ref ?? "").split(":")[1] ?? ""})`;
+      navigator.clipboard.writeText(text).then(() => toast("Ayat disalin")).catch(() => toast("Gagal menyalin"));
+    });
+  }
+  for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-share]")) {
+    b.addEventListener("click", async () => {
+      const a = b.closest<HTMLElement>(".qk-verse");
+      if (!a) return;
+      const [s, ay] = (a.dataset.ref ?? "").split(":");
+      const url = `${location.origin}${location.pathname}#/mushaf/${s}/${ay}`;
+      try {
+        if (navigator.share) { await navigator.share({ title: `QS. ${a.dataset.name} : ${ay}`, text: a.dataset.tr ?? "", url }); return; }
+        await navigator.clipboard.writeText(url);
+        toast("Tautan disalin");
+      } catch { /* cancelled */ }
+    });
+  }
 }
 
 async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> {
@@ -535,6 +591,7 @@ async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> 
       ${shard.bismillah ? `<div class="qk-read-bismillah" dir="rtl" lang="ar">${esc(BASMALAH)}</div>` : ""}
       <div class="qk-ayat">${shard.verses.map((v) => ayahHtml(n, shard.name, v)).join("")}</div>`;
     wireBookmarkButtons(el);
+    wireVerseTools(el);
     const a = anchorAyah ? Number(anchorAyah) : 0;
     if (a) {
       const target = document.getElementById(`ayat-${n}-${a}`);
@@ -798,9 +855,9 @@ function loadCurrentAyah(): void {
   pAudio.playbackRate = pl.rate;
   void pAudio.play();
 }
-function playerStart(n: number): void {
+function playerStart(n: number, startAyah = 1): void {
   if (!AUDIO_AVAIL.has(n)) return;
-  pl.surah = n; pl.ayah = 1; pl.total = surahMeta(n)?.ayahs ?? 0;
+  pl.surah = n; pl.ayah = startAyah; pl.total = surahMeta(n)?.ayahs ?? 0;
   $("#qk-pbar").hidden = false;
   loadCurrentAyah();
   updatePlayerUI();
