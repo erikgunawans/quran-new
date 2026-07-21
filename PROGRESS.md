@@ -8,7 +8,54 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — demo caught up; and the AI edition can still say what the ustadz corrected
+## 2026-07-22 (latest) — reasoning tokens had silently killed two of the three model calls
+
+`e23bc51`, deployed `45572228` (principled) + `6a66eb90` (synthesis). Erik asked for answers that
+feel more human — *"it shouldn't receive the question and then suddenly go to the first side, there
+should be some transition."* The transition was already designed. **It was being destroyed in
+production**, and chasing the cause found a second, larger failure nobody had seen.
+
+**The configured model `deepseek/deepseek-v4-flash` is a REASONING model** (confirmed against
+OpenRouter's public model list: it advertises `include_reasoning`, `reasoning`, `reasoning_effort`).
+Reasoning consumed the token budget, so the two small-budget calls died while the large one was
+untouched — and that contrast is what pinned the cause to budget rather than prompt.
+
+| call | budget | before | after |
+|------|--------|--------|-------|
+| `/api/classify` | 80 | `{"themes":[]}` on **every** call | `["Provision & debt","Hardship & ease"]` |
+| `/api/compose` | 160 | 2 OK / 1 mid-word / 3 empty (n=6) | **6/6 complete** (n=6) |
+| `/api/answer` | 520 | fine | untouched |
+
+**`/api/classify` returning `[]` every time is the bigger find.** Model theme-understanding was dead
+in production and every question was grounding on the **keyword lexicon alone**. It failed
+invisibly because `[]` is *also* the legitimate "nothing matched" answer — the broken path and the
+healthy path were byte-identical. Now: *"baru kehilangan orang tua"* → `["Grief & loss"]`, *"cemas
+terus tiap malam"* → `["Anxiety & fear"]`, precise rather than scattershot.
+
+**`/api/compose` was shipping fragments to real readers.** Measured live before the fix: `"Capek
+bang"`, `"Capek banget, ya, apalagi kalau semu"` — cut mid-word, then straight into an Arabic verse
+card. That IS the abruptness Erik described. After the fix the same prompt completes that very
+sentence: *"Capek banget, ya, apalagi kalau semuanya datang bersamaan. Ayat-ayat di bawah ini sering
+dibaca orang saat dadanya sesak seperti ini."*
+
+**Fix pulls both levers** — `reasoning: { effort: "none" }` on the two calls that never needed
+thinking, AND ceilings moved off the line (160→400, 80→200). Lesson worth keeping: **a token cap is
+a truncation device, not a style device.** The "one or two sentences" rule belongs in the prompt,
+where it already was; using `max_tokens` to enforce brevity is what produced `"Capek bang"`.
+`/api/answer` deliberately left alone — it works, and synthesis may genuinely want thinking.
+
+**The demo needs no redeploy** — it calls `new-quranku-ai.axiara.ai/api/{answer,classify}`
+cross-origin, and that Worker was redeployed, so demo Tanya inherits the fix through the wire.
+
+**Still open (Erik's design question, deliberately NOT built yet):** the framing model receives only
+`{question, theme, themeCount}` — it never sees what the person actually wrote beyond a theme label,
+which is the hard ceiling on how personal it can sound. Recommended next step is to pass their own
+words in. Standing constraint either way: **no interpretive closing after the verse** — that is
+exactly where the ustadz spent a phone call removing over-promising framings.
+
+---
+
+## 2026-07-22 — demo caught up; and the AI edition can still say what the ustadz corrected
 
 Demo deployed: `new-quranku-demo-proxy` → **`818f3bc6`**. It had been the last surface still serving
 **all 14 withdrawn verses** — it is a THIRD Worker with its own bundle (`web/dist-demo`), so the two
