@@ -8,7 +8,45 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — the knowledge-pointer fix ported to the LIVE app (one line, dead code revived)
+## 2026-07-22 (latest) — the knowledge-pointer fix is DEPLOYED and verified live on BOTH prod editions
+
+Erik ran the two deploys. Versions: `new-quranku-proxy` → **`7486975f`**, `new-quranku-ai-proxy` →
+**`c2d5085c`**. Both shipped the same artifact — `[env.synthesis].assets.directory` is `../web/dist`, the
+identical dist prod serves, so the single `bun run build` covered both and no rebuild sat between the two
+`wrangler deploy` calls.
+
+**Pre-deploy gate (run before he deployed, so the build was de-risked):** `bun test` → 685 pass / 0 fail;
+`bun run build` clean (digest `198 verses + 2442 index entries`); and the fix confirmed present in the
+**minified** bundle — `entries.length)return\`<p class="said">Pertan…`, i.e. the guard now falls *into* the
+pointer instead of returning silence. Grepped the minified form, never the authored syntax.
+
+**Verified live in real Chrome (Interceptor), on the deployed hosts — not on `dev`, not reasoned:**
+- `new-quranku.axiara.ai` — "allah itu siapa sih?" → *"Pertanyaan soal **Allah Subhanahu wa ta'ala** itu luas
+  — dan aku nggak mau ngarang. Tapi di knowledge base kami ada **329 entri**…"* with the live anchor
+  `#/peta/allah-subhanahu-wa-ta-ala`. The formerly-unreachable branch renders in production.
+- **Regression, same session:** "riba" → real entries (QS. Ar-Rum 30:39, *Lihat semua 69 entri tentang Ekonomi
+  Islam*). Counted `nggak mau ngarang` occurrences in the DOM: **exactly 1**, from the broad question only —
+  proof the pointer did NOT fire on the narrow path. Only the dead branch changed.
+- `new-quranku-ai.axiara.ai` (synthesis) — same pointer, same 329-entry copy, same Peta anchor. Both editions
+  share `main.ts`, and the live DOM confirms it rather than assuming it.
+
+**Two traps hit and handled, worth keeping:**
+1. The edge served a **stale `index.html`** on the synthesis host for one poll — first `curl` returned the old
+   `index-CSrBFGyV.js`, the next returned `index-DqTVBQiO.js`. Poll `curl`; never call a deploy broken on the
+   first read.
+2. **Interceptor `act`/`fill` failed all session** with `stale element [undefined]` even straight after
+   `interceptor state` (which itself reported `tab: undefined`). Did not loop on it — fell back to
+   `interceptor eval --main`, driving the composer through the native `value` setter + `input` event +
+   `form.requestSubmit()`. That path worked first try and gave real DOM evidence. **Use `eval --main` as the
+   standing fallback when `act` reports stale refs.**
+
+**Still open, unchanged:** ISC-98 (real-iOS `visualViewport`) and ISC-99 (genuine ≤375px probe). This
+Interceptor build has no viewport resize and no OS window-resize permission — these need a real device or
+another tool, not more effort here.
+
+---
+
+## 2026-07-22 — the knowledge-pointer fix ported to the LIVE app (one line, dead code revived)
 
 Erik approved porting yesterday's demo fix into `web/src`. **The live app turned out to need only ONE line** —
 and the discovery is the interesting part: `knowledgeHtml()` in `web/src/main.ts` (lines ~289-298) **already
