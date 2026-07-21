@@ -31,7 +31,39 @@ export interface ProblemVerse {
    *   - OPEN QUESTIONS for the ustadz ("mohon dicek…") — carried into the review sheet.
    */
   readonly caveat?: string;
+  /**
+   * The senior reviewer's ruling on this placement, verbatim — see RULING_REVIEW.
+   *
+   * A `caveat` above is the CURATOR's own doubt, written while proposing the placement. A `ruling`
+   * is the ANSWER to it, given by the scholar whose name the app prints. Where both exist the
+   * ruling supersedes; the caveat is kept as the record of what was asked, because a question that
+   * disappears once answered leaves no trace that the answer was ever earned.
+   *
+   * `verdict: "ganti"` means the placement stands but HIS sentence replaced ours — in that case
+   * `why` above is his words, not the curator's. `verdict: "pas"` means the placement and the
+   * sentence both stood. Verses he rejected are listed in WITHDRAWN and are gone from here.
+   *
+   * `verdict: "cabut"` appearing on a verse that is STILL in this list is not a contradiction and
+   * not a bug: he ruled against one placement of a verse that also sits on a theme he was never
+   * asked about, so it survives there. 2:216 is the only such case today — rejected for "bingung
+   * memilih", retained for "Heartbreak". Left visible rather than smoothed away, because the next
+   * person to read this line needs to know a rejection is attached to it.
+   *
+   * Not reader-facing, and not shipped: build-corpus.ts emits only `themes` and `why`. Several
+   * notes carry conditions we have NOT yet met (display this verse together with the one before
+   * it). Those verses are withdrawn rather than shipped half-approved — a condition dropped
+   * quietly is a scholar's name on an approval he did not give.
+   */
+  readonly ruling?: { readonly verdict: "pas" | "ganti" | "cabut"; readonly note: string };
 }
+
+/** Provenance for every `ruling` below. Uniform, so it is stated once instead of 133 times. */
+export const RULING_REVIEW = {
+  reviewer: "Ustadz Ahmad Isrofiel Mardlatillah",
+  on: "2026-07-22",
+  /** The complete verbatim record, including the verses he rejected. */
+  record: "docs/review/ustadz-perasaan-2026-07-22.json",
+} as const;
 
 export type Theme =
   | "Hardship & ease"
@@ -305,163 +337,160 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
 
   // ── Expanded feeling corpus (docs/review/feelings-expansion.md) ──
   // Envy & comparison
-  { ref: [4, 32], themes: ["Envy & comparison"], why: "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri" },
+  { ref: [4, 32], themes: ["Envy & comparison"], why: "Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya.", ruling: { verdict: "ganti", note: "Ayat ini tepat untuk iri dan kebiasaan membandingkan diri, karena melarang menginginkan kelebihan yang Allah berikan kepada orang lain dan mengarahkan kita memohon karunia-Nya. Ganti kalimat menjadi: “Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya.”" } },
   // Anger
-  { ref: [3, 134], themes: ["Anger"], why: "Mereka yang menahan amarah dan memaafkan orang lain" },
-  { ref: [41, 35], themes: ["Anger"], why: "Membalas keburukan dengan kebaikan — hanya orang sabar yang sanggup" },
+  { ref: [3, 134], themes: ["Anger"], why: "Mereka yang menahan amarah dan memaafkan orang lain", ruling: { verdict: "pas", note: "Pas. Ayat ini secara langsung memuji orang yang menahan amarah dan memaafkan manusia. Tetap sampaikan bahwa menahan amarah tidak berarti membiarkan kekerasan atau kezaliman tanpa batas." } },
   // Loneliness
-  { ref: [50, 16], themes: ["Loneliness"], why: "Allah lebih dekat kepadamu daripada urat lehermu — kamu tidak pernah sendirian" },
+  { ref: [50, 16], themes: ["Loneliness"], why: "Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk kesepian sebagai pengingat bahwa Allah mengetahui bisikan hati, tetapi jangan memahami kedekatan ini sebagai kedekatan fisik. Ganti kalimat menjadi: “Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya.”" } },
   // Illness & healing
-  { ref: [26, 80], themes: ["Illness & healing"], why: "\"Ketika aku sakit, Tuhankulah yang menyembuhkan aku\" — doa Ibrahim" },
+  { ref: [26, 80], themes: ["Illness & healing"], why: "\"Ketika aku sakit, Tuhankulah yang menyembuhkan aku\" — doa Ibrahim", ruling: { verdict: "pas", note: "Pas. Ini pengakuan Nabi Ibrahim bahwa Allah adalah satu-satunya Pemberi kesembuhan. Tambahkan pemahaman bahwa bertawakal kepada Allah berjalan bersama ikhtiar pengobatan yang halal." } },
   // Speech & gossip
-  { ref: [49, 12], themes: ["Speech & gossip"], why: "Jauhi prasangka, jangan mencari-cari kesalahan, jangan menggunjing" },
+  { ref: [49, 12], themes: ["Speech & gossip"], why: "Jauhi prasangka, jangan mencari-cari kesalahan, jangan menggunjing", ruling: { verdict: "pas", note: "Pas. Ayat ini langsung melarang prasangka buruk, memata-matai, dan menggunjing. Kalimat aplikasi sudah mewakili pesan utama tanpa mengurangi beratnya larangan ghibah." } },
   // Forgiving others
-  { ref: [2, 263], themes: ["Forgiving others"], why: "Berkata baik dan memaafkan lebih baik daripada sedekah yang menyakiti hati" },
+  { ref: [2, 263], themes: ["Forgiving others"], why: "Berkata baik dan memaafkan lebih baik daripada sedekah yang menyakiti hati", ruling: { verdict: "pas", note: "Pas, dengan konteks adab sedekah. Ayat menegaskan bahwa perkataan baik dan pemberian maaf lebih baik daripada sedekah yang diikuti tindakan menyakiti; jangan dijadikan dalil tunggal untuk semua bentuk konflik." } },
   // Pride & arrogance
-  { ref: [31, 18], themes: ["Pride & arrogance"], why: "Nasihat Luqman kepada anaknya — jangan berjalan di bumi dengan sombong" },
-  { ref: [57, 23], themes: ["Pride & arrogance"], why: "Agar kamu tidak putus asa atas yang hilang, dan tidak bangga atas yang didapat" },
+  { ref: [31, 18], themes: ["Pride & arrogance"], why: "Nasihat Luqman kepada anaknya — jangan berjalan di bumi dengan sombong", ruling: { verdict: "pas", note: "Pas. Nasihat Luqman ini secara langsung melarang memalingkan wajah karena sombong dan berjalan dengan angkuh. Kalimat pendamping sudah sesuai." } },
+  { ref: [57, 23], themes: ["Pride & arrogance"], why: "Jangan berduka berlebihan atas yang luput dan jangan membanggakan diri atas yang Allah berikan.", ruling: { verdict: "ganti", note: "Cocok untuk kesombongan, tetapi jangan sampai larangan berbangga diri dipahami sebagai larangan bersyukur atau bergembira. Ganti kalimat menjadi: “Jangan berduka berlebihan atas yang luput dan jangan membanggakan diri atas yang Allah berikan.”" } },
   // Fear of death
-  { ref: [29, 57], themes: ["Fear of death"], why: "Setiap yang bernyawa pasti merasakan kematian, lalu dikumpulkan kembali" },
+  { ref: [29, 57], themes: ["Fear of death"], why: "Setiap yang bernyawa pasti merasakan kematian, lalu dikumpulkan kembali", ruling: { verdict: "pas", note: "Pas sebagai pengingat lembut bahwa kematian pasti dan semua kembali kepada Allah. Untuk orang yang sangat cemas, dampingi dengan ayat tentang rahmat, husnuzan, dan persiapan amal agar tidak terasa hanya sebagai ancaman." } },
   // Doubt & weak faith
-  { ref: [14, 27], themes: ["Doubt & weak faith"], why: "Allah meneguhkan hati orang mukmin — iman yang goyah bisa dikuatkan" },
-  { ref: [18, 14], themes: ["Doubt & weak faith"], why: "\"Kami teguhkan hati mereka\" — para pemuda Ashabul Kahfi" },
+  { ref: [14, 27], themes: ["Doubt & weak faith"], why: "Allah meneguhkan orang beriman dengan kalimat yang teguh di dunia dan akhirat.", ruling: { verdict: "ganti", note: "Cocok untuk iman yang melemah, tetapi kalimatnya jangan dibuat sebagai janji otomatis bahwa setiap kegoyahan segera hilang. Ganti menjadi: “Allah meneguhkan orang beriman dengan kalimat yang teguh di dunia dan akhirat.”" } },
+  { ref: [18, 14], themes: ["Doubt & weak faith"], why: "\"Kami teguhkan hati mereka\" — para pemuda Ashabul Kahfi", ruling: { verdict: "pas", note: "Pas. Kisah para pemuda menunjukkan bahwa Allah meneguhkan hati orang beriman ketika mereka berdiri mempertahankan tauhid. Ini adalah teladan keberanian iman, bukan sekadar dorongan emosional." } },
   // Wealth & greed
-  { ref: [2, 268], themes: ["Wealth & greed"], why: "Setan menakut-nakutimu dengan kemiskinan; Allah menjanjikan ampunan dan karunia" },
-  { ref: [57, 20], themes: ["Wealth & greed"], why: "Dunia hanya permainan dan saling membanggakan harta dan anak" },
+  { ref: [2, 268], themes: ["Wealth & greed"], why: "Setan menakut-nakutimu dengan kemiskinan; Allah menjanjikan ampunan dan karunia", ruling: { verdict: "pas", note: "Pas untuk ketakutan miskin, kekikiran, dan keterikatan pada harta. Ayat membedakan bisikan setan yang menakut-nakuti dengan kemiskinan dari janji ampunan dan karunia Allah." } },
+  { ref: [57, 20], themes: ["Wealth & greed"], why: "Dunia hanya permainan dan saling membanggakan harta dan anak", ruling: { verdict: "pas", note: "Pas. Ayat ini langsung mengingatkan sifat sementara dunia, perlombaan dalam harta dan anak, serta bahaya kesenangan yang menipu. Kalimat aplikasi sudah tepat." } },
   // Parents
-  { ref: [19, 14], themes: ["Parents"], why: "Yahya berbakti kepada ibu bapaknya, tidak durhaka" },
-  { ref: [14, 41], themes: ["Parents"], why: "Doa Ibrahim — ampunilah aku dan kedua orang tuaku" },
+  { ref: [19, 14], themes: ["Parents"], why: "Yahya berbakti kepada ibu bapaknya, tidak durhaka", ruling: { verdict: "pas", note: "Pas sebagai teladan berbakti kepada orang tua. Jelaskan bahwa ayat ini menggambarkan sifat Nabi Yahya, bukan sekadar slogan umum tentang keluarga." } },
+  { ref: [14, 41], themes: ["Parents"], why: "Doa Ibrahim — ampunilah aku dan kedua orang tuaku", ruling: { verdict: "pas", note: "Pas. Ini doa Nabi Ibrahim memohon ampun untuk dirinya, kedua orang tuanya, dan kaum mukmin pada hari perhitungan. Kalimat pendamping sesuai." } },
   // Injustice & being wronged
-  { ref: [4, 148], themes: ["Injustice & being wronged"], why: "Orang yang teraniaya boleh menyuarakan apa yang menimpanya" },
+  { ref: [4, 148], themes: ["Injustice & being wronged"], why: "Orang yang teraniaya boleh menyuarakan apa yang menimpanya", ruling: { verdict: "pas", note: "Pas. Ayat memberi ruang kepada orang yang dizalimi untuk menyuarakan keburukan yang menimpanya. Tekankan bahwa izin ini bukan pembenaran untuk berdusta, membuka aib yang tidak relevan, atau melampaui batas." } },
   // Guilt & sin
-  { ref: [4, 27], themes: ["Guilt & sin"], why: "Allah menghendaki untuk mengampuni dosa-dosa kalian" },
+  { ref: [4, 27], themes: ["Guilt & sin"], why: "Allah hendak menerima taubatmu; jangan mengikuti hawa nafsu yang menjauhkanmu.", ruling: { verdict: "ganti", note: "Pas untuk rasa bersalah bila diarahkan kepada taubat, tetapi kalimat sekarang terlalu mudah terbaca sebagai pengampunan tanpa syarat. Ganti menjadi: “Allah hendak menerima taubatmu; jangan mengikuti hawa nafsu yang menjauhkanmu.”" } },
   // Longing for a child
-  { ref: [21, 89], themes: ["Longing for a child"], why: "Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama" },
-  { ref: [3, 38], themes: ["Longing for a child"], why: "Allah Maha Mendengar setiap permohonan yang kau bisikkan" },
+  { ref: [21, 89], themes: ["Longing for a child"], why: "Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama", ruling: { verdict: "pas", note: "Pas. Ini doa Nabi Zakaria ketika memohon keturunan dan mengakui Allah sebagai sebaik-baik Pewaris. Jangan menjadikannya jaminan bahwa setiap doa akan dijawab dengan bentuk dan waktu yang sama." } },
+  { ref: [3, 38], themes: ["Longing for a child"], why: "Allah Maha Mendengar setiap permohonan yang kau bisikkan", ruling: { verdict: "pas", note: "Pas. Doa Nabi Zakaria secara langsung memohon keturunan yang baik dan menegaskan bahwa Allah Maha Mendengar doa. Kalimat pendamping sesuai selama tidak menjanjikan hasil tertentu." } },
   // Waiting for a spouse
-  { ref: [25, 74], themes: ["Waiting for a spouse"], why: "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati" },
+  { ref: [25, 74], themes: ["Waiting for a spouse"], why: "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati", ruling: { verdict: "pas", note: "Pas untuk menanti jodoh sekaligus membangun visi keluarga. Ayat mengajarkan meminta pasangan dan keturunan sebagai penyejuk mata serta menjadi teladan bagi orang bertakwa." } },
   // Struggling to raise children
-  { ref: [20, 132], themes: ["Struggling to raise children"], why: "Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung" },
-  { ref: [11, 115], themes: ["Struggling to raise children"], why: "Tidak ada satu pun lelahmu yang disia-siakan Allah" },
-  { ref: [14, 40], themes: ["Struggling to raise children"], why: "Doakan anakmu; itu pun bagian dari mendidiknya" },
+  { ref: [20, 132], themes: ["Struggling to raise children"], why: "Perintahkan keluargamu salat dan bersabarlah menjaganya; Allah-lah yang memberi rezeki.", ruling: { verdict: "ganti", note: "Pas untuk orang tua yang lelah membimbing keluarga, tetapi kalimat harus tetap dekat dengan teks. Ganti menjadi: “Perintahkan keluargamu salat dan bersabarlah menjaganya; Allah-lah yang memberi rezeki.”" } },
+  { ref: [11, 115], themes: ["Struggling to raise children"], why: "Bersabarlah; Allah tidak menyia-nyiakan pahala orang-orang yang berbuat baik", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai penguatan umum bagi orang tua yang bersabar berbuat baik. Ganti kalimat menjadi: “Bersabarlah; Allah tidak menyia-nyiakan pahala orang-orang yang berbuat baik,” agar tidak mengklaim setiap bentuk kelelahan otomatis bernilai ibadah." } },
+  { ref: [14, 40], themes: ["Struggling to raise children"], why: "Doakan anakmu; itu pun bagian dari mendidiknya", ruling: { verdict: "pas", note: "Pas. Doa Nabi Ibrahim agar dirinya dan keturunannya menegakkan salat sangat relevan ketika ikhtiar mendidik terasa berat. Kalimat aplikasi sudah baik." } },
   // A child who has gone astray
-  { ref: [28, 56], themes: ["A child who has gone astray"], why: "Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai" },
+  { ref: [28, 56], themes: ["A child who has gone astray"], why: "Kamu tidak dapat memberi hidayah kepada orang yang kamu cintai; Allah memberi hidayah, sedangkan tugasmu tetap menasihati, mendoakan, dan memberi teladan.", ruling: { verdict: "ganti", note: "Prinsipnya tepat: hidayah hati bukan di tangan orang tua, bahkan terhadap orang yang dicintai. Ganti kalimat menjadi: “Kamu tidak dapat memberi hidayah kepada orang yang kamu cintai; Allah memberi hidayah, sedangkan tugasmu tetap menasihati, mendoakan, dan memberi teladan.”" } },
   // Caring for elderly parents
-  { ref: [31, 14], themes: ["Caring for elderly parents"], why: "Merawat mereka adalah membalas lemah yang dahulu mereka tanggung" },
-  { ref: [46, 15], themes: ["Caring for elderly parents"], why: "Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya" },
+  { ref: [31, 14], themes: ["Caring for elderly parents"], why: "Bersyukurlah kepada Allah dan kepada kedua orang tua; ingatlah beratnya ibu mengandung dan menyapih.", ruling: { verdict: "ganti", note: "Ayat sangat relevan untuk berbakti dan merawat orang tua, tetapi kalimat sekarang dapat menambah rasa bersalah pada perawat yang sudah kelelahan. Ganti menjadi: “Bersyukurlah kepada Allah dan kepada kedua orang tua; ingatlah beratnya ibu mengandung dan menyapih.”" } },
+  { ref: [46, 15], themes: ["Caring for elderly parents"], why: "Berbuat baiklah kepada orang tua; mohon kekuatan untuk mensyukuri nikmat dan beramal saleh yang Allah ridhai.", ruling: { verdict: "ganti", note: "Pas untuk merawat orang tua karena memerintahkan berbuat baik dan mengajarkan doa syukur, tetapi kalimat aplikasi menyatakan sesuatu yang tidak disebut langsung. Ganti menjadi: “Berbuat baiklah kepada orang tua; mohon kekuatan untuk mensyukuri nikmat dan beramal saleh yang Allah ridhai.”" } },
   // Conflict within the family
-  { ref: [41, 34], themes: ["Conflict within the family"], why: "Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan" },
-  { ref: [8, 63], themes: ["Conflict within the family"], why: "Hanya Allah yang sanggup menyatukan hati yang saling menjauh" },
+  { ref: [41, 34], themes: ["Conflict within the family"], why: "Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan", ruling: { verdict: "pas", note: "Pas untuk pertengkaran keluarga sebagai prinsip menolak keburukan dengan cara yang lebih baik. Namun, dalam kekerasan atau bahaya nyata, ayat ini tidak menghapus kebutuhan akan batas aman, perlindungan, dan pertolongan." } },
+  { ref: [8, 63], themes: ["Conflict within the family"], why: "Hanya Allah yang sanggup menyatukan hati yang saling menjauh", ruling: { verdict: "pas", note: "Pas sebagai pengingat bahwa penyatuan hati berada dalam kuasa Allah. Tetap lakukan sebab-sebab damai—komunikasi, keadilan, dan mediasi—seraya memohon Allah melembutkan hati." } },
   // Being a single parent
-  { ref: [19, 24], themes: ["Being a single parent"], why: "Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih" },
-  { ref: [19, 25], themes: ["Being a single parent"], why: "Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan" },
-  { ref: [28, 7], themes: ["Being a single parent"], why: "Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih" },
+  { ref: [19, 24], themes: ["Being a single parent"], why: "Ketika Maryam sendirian dalam kesulitan, Allah menyampaikan kepadanya: jangan bersedih.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk menguatkan pengasuh yang merasa sendirian, tetapi konteksnya adalah Maryam saat melahirkan. Ganti menjadi: “Ketika Maryam sendirian dalam kesulitan, Allah menyampaikan kepadanya: jangan bersedih.”" } },
+  { ref: [28, 7], themes: ["Being a single parent"], why: "Allah menenangkan ibu Musa ketika ia takut akan keselamatan anaknya: jangan takut dan jangan bersedih.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk ketakutan seorang ibu, tetapi jangan disamakan begitu saja dengan semua pengalaman orang tua tunggal. Ganti menjadi: “Allah menenangkan ibu Musa ketika ia takut akan keselamatan anaknya: jangan takut dan jangan bersedih.”" } },
   // Worry about the future
-  { ref: [33, 3], themes: ["Worry about the future"], why: "Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu" },
-  { ref: [46, 13], themes: ["Worry about the future"], why: "Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan" },
+  { ref: [33, 3], themes: ["Worry about the future"], why: "Bertawakallah kepada Allah; cukuplah Allah sebagai Pemelihara", ruling: { verdict: "ganti", note: "Pas untuk kekhawatiran masa depan melalui tawakal. Ganti kalimat menjadi: “Bertawakallah kepada Allah; cukuplah Allah sebagai Pemelihara,” agar tidak menyiratkan tawakal berarti berhenti merencanakan atau berikhtiar." } },
+  { ref: [46, 13], themes: ["Worry about the future"], why: "Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan", ruling: { verdict: "pas", note: "Pas. Ayat menghubungkan pengakuan ‘Tuhan kami Allah’ dengan istiqamah, lalu meniadakan ketakutan dan kesedihan bagi mereka. Kalimat pendamping sesuai." } },
   // Confusion facing a big decision
-  { ref: [18, 24], themes: ["Confusion facing a big decision"], why: "Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar" },
-  { ref: [42, 38], themes: ["Confusion facing a big decision"], why: "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman" },
+  { ref: [18, 24], themes: ["Confusion facing a big decision"], why: "Katakan insya Allah dan mohon agar Tuhan menunjukkan jalan yang lebih dekat kepada kebenaran.", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai doa memohon jalan yang lebih dekat kepada kebenaran, tetapi konteks utamanya adalah adab mengucapkan insya Allah setelah terlupa. Ganti menjadi: “Katakan insya Allah dan mohon agar Tuhan menunjukkan jalan yang lebih dekat kepada kebenaran.”" } },
+  { ref: [42, 38], themes: ["Confusion facing a big decision"], why: "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman", ruling: { verdict: "pas", note: "Pas. Musyawarah disebut sebagai sifat orang beriman bersama salat dan infak. Untuk keputusan pribadi, pilih orang yang amanah, memahami masalah, dan tidak mengambil alih tanggung jawab keputusan." } },
   // Starting over
-  { ref: [4, 100], themes: ["Starting over"], why: "Yang pergi karena Allah menemukan tempat luas dan rezeki berlimpah" },
-  { ref: [29, 56], themes: ["Starting over"], why: "Bumi Allah itu luas; selalu ada tempat untuk memulai lagi" },
+  { ref: [4, 100], themes: ["Starting over"], why: "Siapa yang berhijrah di jalan Allah akan mendapati tempat yang luas dan rezeki; niat dan arah hijrahnya harus karena Allah.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk memulai lagi bila perpindahan itu benar-benar hijrah menuju ketaatan dan keselamatan agama. Ganti kalimat menjadi: “Siapa yang berhijrah di jalan Allah akan mendapati tempat yang luas dan rezeki; niat dan arah hijrahnya harus karena Allah.”" } },
   // Hope and optimism
-  { ref: [93, 5], themes: ["Hope and optimism"], why: "Allah akan memberi, sampai hatimu benar-benar puas dan senang" },
+  { ref: [93, 5], themes: ["Hope and optimism"], why: "Tuhanmu akan memberi kepadamu hingga engkau ridha—penghiburan Allah kepada Nabi-Nya.", ruling: { verdict: "ganti", note: "Ayat ini adalah penghiburan dan janji khusus Allah kepada Nabi Muhammad. Boleh menjadi sumber harapan, tetapi jangan dijadikan jaminan bahwa semua keinginan setiap orang pasti terpenuhi; ganti menjadi: “Tuhanmu akan memberi kepadamu hingga engkau ridha—penghiburan Allah kepada Nabi-Nya.”" } },
   // Joy and happiness
-  { ref: [10, 58], themes: ["Joy and happiness"], why: "Bergembiralah dengan karunia dan rahmat Allah" },
-  { ref: [27, 19], themes: ["Joy and happiness"], why: "Sulaiman tersenyum, lalu memohon agar pandai mensyukuri nikmat-Nya" },
-  { ref: [93, 11], themes: ["Joy and happiness"], why: "Saat bahagia, sebut dan syukuri nikmat Tuhanmu" },
+  { ref: [10, 58], themes: ["Joy and happiness"], why: "Bergembiralah dengan karunia dan rahmat Allah", ruling: { verdict: "pas", note: "Pas. Ayat memerintahkan bergembira karena karunia dan rahmat Allah, yang lebih baik daripada apa yang manusia kumpulkan. Kalimat aplikasi tepat." } },
+  { ref: [27, 19], themes: ["Joy and happiness"], why: "Sulaiman tersenyum, lalu memohon agar pandai mensyukuri nikmat-Nya", ruling: { verdict: "pas", note: "Pas untuk mengarahkan kebahagiaan kepada syukur. Nabi Sulaiman tersenyum lalu memohon kemampuan mensyukuri nikmat dan beramal yang diridhai Allah." } },
+  { ref: [93, 11], themes: ["Joy and happiness"], why: "Saat bahagia, sebut dan syukuri nikmat Tuhanmu", ruling: { verdict: "pas", note: "Pas. Ayat mengajarkan menyebut nikmat Tuhan dengan syukur. Penyebutan nikmat hendaknya tidak berubah menjadi pamer, merendahkan orang lain, atau membuka hal yang sebaiknya dijaga." } },
   // Growing older
-  { ref: [30, 54], themes: ["Growing older"], why: "Lemah, kuat, lalu lemah lagi — semua dalam rencana-Nya" },
+  { ref: [30, 54], themes: ["Growing older"], why: "Lemah, kuat, lalu lemah lagi — semua dalam rencana-Nya", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung menggambarkan fase lemah, kuat, lalu lemah dan beruban sebagai bagian dari penciptaan Allah. Kalimat pendamping sesuai." } },
   // Chronic illness
-  { ref: [21, 83], themes: ["Chronic illness"], why: "Doa Ayyub: penyakit ini menimpaku, dan Engkau Maha Penyayang" },
-  { ref: [21, 84], themes: ["Chronic illness"], why: "Doa Ayyub dikabulkan; yang hilang dikembalikan berlipat oleh-Nya" },
+  { ref: [21, 83], themes: ["Chronic illness"], why: "Doa Ayyub: penyakit ini menimpaku, dan Engkau Maha Penyayang", ruling: { verdict: "pas", note: "Pas. Doa Nabi Ayyub mengajarkan mengadukan penderitaan kepada Allah dengan adab dan tetap mengakui keluasan rahmat-Nya. Ini tidak melarang mencari diagnosis, pengobatan, dan dukungan manusia." } },
+  { ref: [21, 84], themes: ["Chronic illness"], why: "Allah mengabulkan doa Ayyub dan mengangkat penderitaannya—kisah rahmat dan harapan, bukan pola hasil yang dijanjikan kepada setiap orang.", ruling: { verdict: "ganti", note: "Kisah ini memberi harapan, tetapi jangan dibaca sebagai janji bahwa semua penyakit menahun pasti sembuh atau semua kehilangan kembali dalam bentuk yang sama. Ganti menjadi: “Allah mengabulkan doa Ayyub dan mengangkat penderitaannya—kisah rahmat dan harapan, bukan pola hasil yang dijanjikan kepada setiap orang.”" } },
   // Divorce
-  { ref: [4, 130], themes: ["Divorce"], why: "Jika berpisah, Allah mencukupi keduanya dari karunia-Nya masing-masing" },
+  { ref: [4, 130], themes: ["Divorce"], why: "Jika berpisah, Allah mencukupi keduanya dari karunia-Nya masing-masing", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung berbicara tentang perceraian dan keluasan karunia Allah bagi masing-masing pihak. Kecukupan tidak harus berarti kekayaan segera; maknanya mencakup pertolongan dan jalan hidup yang Allah bukakan menurut hikmah-Nya." } },
   // Betrayal
-  { ref: [12, 18], themes: ["Betrayal"], why: "Saat orang terdekat berdusta, kesabaran yang indah adalah jalannya" },
-  { ref: [12, 90], themes: ["Betrayal"], why: "Yusuf dikhianati saudaranya, namun Allah tak menyia-nyiakan orang yang bersabar" },
+  { ref: [12, 18], themes: ["Betrayal"], why: "Saat orang terdekat berdusta, kesabaran yang indah adalah jalannya", ruling: { verdict: "pas", note: "Pas. Nabi Ya’qub menghadapi kebohongan orang-orang terdekat dengan ‘kesabaran yang indah’ dan memohon pertolongan Allah. Kesabaran di sini tidak berarti membenarkan pengkhianatan atau menolak mencari kebenaran." } },
+  { ref: [12, 90], themes: ["Betrayal"], why: "Yusuf dikhianati saudaranya, namun Allah tak menyia-nyiakan orang yang bersabar", ruling: { verdict: "pas", note: "Pas. Kisah Yusuf menunjukkan bahwa takwa dan kesabaran tidak disia-siakan Allah setelah pengkhianatan panjang. Jangan menjanjikan bahwa pemulihan setiap orang akan mengikuti jalan cerita yang sama." } },
   // Abandonment
-  { ref: [93, 6], themes: ["Abandonment"], why: "Dia mendapatimu sendirian dahulu, lalu Dia melindungimu" },
+  { ref: [93, 6], themes: ["Abandonment"], why: "Bukankah Dia mendapatimu yatim lalu melindungimu?—penghiburan Allah kepada Nabi-Nya yang menumbuhkan harapan akan pemeliharaan-Nya.", ruling: { verdict: "ganti", note: "Ayat ini adalah penghiburan khusus kepada Nabi yang dahulu yatim, bukan pernyataan bahwa beliau sekadar ‘sendirian’. Ganti menjadi: “Bukankah Dia mendapatimu yatim lalu melindungimu?—penghiburan Allah kepada Nabi-Nya yang menumbuhkan harapan akan pemeliharaan-Nya.”" } },
   // Longing
-  { ref: [12, 84], themes: ["Longing"], why: "Bahkan seorang nabi menangis sampai matanya memutih karena rindu" },
-  { ref: [12, 87], themes: ["Longing"], why: "Selama merindu, jangan pernah berputus asa dari rahmat Allah" },
+  { ref: [12, 84], themes: ["Longing"], why: "Bahkan seorang nabi menangis sampai matanya memutih karena rindu", ruling: { verdict: "pas", note: "Pas. Al-Qur’an mengakui kesedihan dan rindu Nabi Ya’qub tanpa mencelanya. Gunakan dengan lembut dan jangan menyimpulkan bahwa kesedihan mendalam selalu berarti kurang iman." } },
+  { ref: [12, 87], themes: ["Longing"], why: "Selama merindu, jangan pernah berputus asa dari rahmat Allah", ruling: { verdict: "pas", note: "Pas. Nabi Ya’qub tetap menyuruh mencari Yusuf dan melarang berputus asa dari kelapangan serta rahmat Allah. Ayat menggabungkan harapan dengan ikhtiar nyata." } },
   // Poverty
-  { ref: [93, 8], themes: ["Poverty"], why: "Allah pernah mendapatimu kekurangan, lalu Dia mencukupkanmu" },
-  { ref: [67, 15], themes: ["Poverty"], why: "Bumi dibentangkan untukmu; melangkahlah, rezeki-Nya ada di sana" },
+  { ref: [93, 8], themes: ["Poverty"], why: "Dia mendapatimu kekurangan lalu memberi kecukupan—penghiburan kepada Nabi yang menumbuhkan harapan, bukan janji cepat kaya bagi setiap orang.", ruling: { verdict: "ganti", note: "Ayat ini mengingatkan nikmat khusus Allah kepada Nabi yang dahulu kekurangan lalu dicukupkan. Ganti menjadi: “Dia mendapatimu kekurangan lalu memberi kecukupan—penghiburan kepada Nabi yang menumbuhkan harapan, bukan janji cepat kaya bagi setiap orang.”" } },
+  { ref: [67, 15], themes: ["Poverty"], why: "Bumi dibentangkan untukmu; melangkahlah, rezeki-Nya ada di sana", ruling: { verdict: "pas", note: "Pas. Ayat memerintahkan berjalan di penjuru bumi dan memakan rezeki Allah, sehingga menggabungkan ikhtiar dengan kesadaran bahwa rezeki berasal dari-Nya." } },
   // Fear of poverty
-  { ref: [15, 21], themes: ["Fear of poverty"], why: "Rezekimu sudah tersimpan di sisi-Nya, turun pada takarannya" },
+  { ref: [15, 21], themes: ["Fear of poverty"], why: "Segala sesuatu memiliki khazanah di sisi Allah dan diturunkan dengan ukuran tertentu; tetaplah berikhtiar secara halal.", ruling: { verdict: "ganti", note: "Cocok untuk meredakan kecemasan, tetapi teksnya berbicara luas tentang khazanah segala sesuatu, bukan saldo pribadi yang sudah pasti. Ganti menjadi: “Segala sesuatu memiliki khazanah di sisi Allah dan diturunkan dengan ukuran tertentu; tetaplah berikhtiar secara halal.”" } },
   // Stinginess
-  { ref: [17, 29], themes: ["Stinginess"], why: "Jangan menggenggam terlalu erat, jangan pula menghambur; ambil tengahnya" },
-  { ref: [64, 16], themes: ["Stinginess"], why: "Bertakwalah sesanggupmu; berilah, itu kebaikan untuk dirimu sendiri" },
+  { ref: [17, 29], themes: ["Stinginess"], why: "Jangan menggenggam terlalu erat, jangan pula menghambur; ambil tengahnya", ruling: { verdict: "pas", note: "Pas. Ayat mengajarkan jalan tengah antara kikir dan boros. Kalimat aplikasi sesuai dan praktis." } },
+  { ref: [64, 16], themes: ["Stinginess"], why: "Bertakwalah sesanggupmu; berilah, itu kebaikan untuk dirimu sendiri", ruling: { verdict: "pas", note: "Pas. Ayat memerintahkan takwa sesuai kemampuan, mendengar, taat, dan berinfak; keselamatan dari kekikiran diri disebut sebagai keberuntungan." } },
   // Never enough
-  { ref: [102, 1], themes: ["Never enough"], why: "Berlomba menumpuk harta melalaikan, sampai kubur menghentikannya" },
-  { ref: [63, 9], themes: ["Never enough"], why: "Jangan biarkan harta dan anak melalaikanmu dari mengingat-Nya" },
+  { ref: [102, 1], themes: ["Never enough"], why: "Berlomba memperbanyak dan bermegah-megahan telah melalaikanmu.", ruling: { verdict: "ganti", note: "Maknanya cocok, tetapi kalimat aplikasi memasukkan isi ayat 2 sementara yang ditampilkan hanya ayat 1. Tampilkan QS 102:1–2 bersama, atau ganti kalimat menjadi: “Berlomba memperbanyak dan bermegah-megahan telah melalaikanmu.”" } },
+  { ref: [63, 9], themes: ["Never enough"], why: "Jangan biarkan harta dan anak melalaikanmu dari mengingat-Nya", ruling: { verdict: "pas", note: "Pas. Ayat langsung memperingatkan agar harta dan anak tidak melalaikan dari mengingat Allah. Ini mengoreksi rasa tidak pernah cukup tanpa mencela kepemilikan yang halal." } },
   // Contentment
-  { ref: [28, 60], themes: ["Contentment"], why: "Yang ada di sisi Allah lebih baik dan lebih kekal" },
-  { ref: [16, 96], themes: ["Contentment"], why: "Milikmu akan habis; yang di sisi Allah tetap kekal" },
+  { ref: [28, 60], themes: ["Contentment"], why: "Yang ada di sisi Allah lebih baik dan lebih kekal", ruling: { verdict: "pas", note: "Pas untuk qanaah. Ayat menempatkan kenikmatan dunia sebagai sementara dan menegaskan bahwa yang di sisi Allah lebih baik serta lebih kekal." } },
+  { ref: [16, 96], themes: ["Contentment"], why: "Milikmu akan habis; yang di sisi Allah tetap kekal", ruling: { verdict: "pas", note: "Pas. Ayat membandingkan apa yang ada pada manusia yang akan lenyap dengan apa yang ada di sisi Allah yang kekal, lalu menguatkan orang yang sabar." } },
   // Giving
-  { ref: [2, 261], themes: ["Giving"], why: "Satu biji yang kamu tanam menjadi tujuh tangkai berbuah" },
-  { ref: [2, 274], themes: ["Giving"], why: "Yang memberi diam-diam maupun terang: tak ada takut, tak ada sedih" },
-  { ref: [34, 39], themes: ["Giving"], why: "Apa pun yang kamu berikan, pasti Allah menggantinya" },
+  { ref: [2, 261], themes: ["Giving"], why: "Satu biji yang kamu tanam menjadi tujuh tangkai berbuah", ruling: { verdict: "pas", note: "Pas. Perumpamaan satu benih menjadi tujuh bulir menegaskan pelipatgandaan pahala infak di jalan Allah. Jangan membatasi ‘di jalan Allah’ hanya pada perang bila terjemahan pendamping dapat dibuat lebih luas dan tepat." } },
+  { ref: [2, 274], themes: ["Giving"], why: "Yang memberi diam-diam maupun terang: tak ada takut, tak ada sedih", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung memuji orang yang berinfak malam dan siang, sembunyi maupun terang, serta menjanjikan pahala di sisi Allah." } },
+  { ref: [34, 39], themes: ["Giving"], why: "Apa yang kamu infakkan, Allah menggantinya menurut hikmah-Nya; Dia sebaik-baik Pemberi rezeki.", ruling: { verdict: "ganti", note: "Pas untuk sedekah, tetapi ‘Allah menggantinya’ jangan dipersempit menjadi pengembalian uang segera atau jumlah yang sama. Ganti menjadi: “Apa yang kamu infakkan, Allah menggantinya menurut hikmah-Nya; Dia sebaik-baik Pemberi rezeki.”" } },
   // Envy of wealth
-  { ref: [20, 131], themes: ["Envy of wealth"], why: "Jangan tujukan matamu ke milik orang lain; itu ujian" },
-  { ref: [15, 88], themes: ["Envy of wealth"], why: "Jangan melirik milik mereka, jangan pula bersedih karenanya" },
+  { ref: [20, 131], themes: ["Envy of wealth"], why: "Jangan tujukan matamu ke milik orang lain; itu ujian", ruling: { verdict: "pas", note: "Pas. Ayat langsung melarang memanjangkan pandangan kepada kemewahan yang diberikan kepada kelompok lain dan mengingatkan bahwa rezeki Tuhan lebih baik serta lebih kekal." } },
+  { ref: [15, 88], themes: ["Envy of wealth"], why: "Jangan melirik milik mereka, jangan pula bersedih karenanya", ruling: { verdict: "pas", note: "Pas. Ayat melarang mengarahkan pandangan kepada kenikmatan kelompok lain dan larut dalam kesedihan karenanya. Kalimat aplikasi sesuai." } },
   // Shame
-  { ref: [25, 70], themes: ["Shame"], why: "Bagi yang kembali, Allah menukar dosa-dosa itu dengan pahala" },
-  { ref: [11, 114], themes: ["Shame"], why: "Kebaikan yang kamu kerjakan menghapus jejak yang kamu malukan" },
+  { ref: [25, 70], themes: ["Shame"], why: "Bagi yang kembali, Allah menukar dosa-dosa itu dengan pahala", ruling: { verdict: "pas", note: "Pas untuk malu karena dosa, dengan syarat taubat, iman, dan amal saleh disebut jelas. Jangan menyederhanakan pesan menjadi penghapusan otomatis tanpa perubahan nyata." } },
+  { ref: [11, 114], themes: ["Shame"], why: "Kebaikan menghapus keburukan; dosa besar dan hak manusia tetap memerlukan taubat serta perbaikan khusus.", ruling: { verdict: "ganti", note: "Boleh dipakai, tetapi jangan memberi kesan bahwa semua dosa terhapus hanya dengan kebaikan tambahan. Ganti menjadi: “Kebaikan menghapus keburukan; dosa besar dan hak manusia tetap memerlukan taubat serta perbaikan khusus.”" } },
   // Regret over the past
-  { ref: [2, 37], themes: ["Regret over the past"], why: "Adam pun pernah jatuh, dan taubatnya diterima Allah" },
-  { ref: [3, 133], themes: ["Regret over the past"], why: "Jangan berlama-lama di masa lalu; bergegaslah menuju ampunan-Nya" },
+  { ref: [2, 37], themes: ["Regret over the past"], why: "Adam pun pernah jatuh, dan taubatnya diterima Allah", ruling: { verdict: "pas", note: "Pas. Nabi Adam menerima kalimat-kalimat taubat dari Tuhannya, lalu Allah menerima taubatnya. Ini menumbuhkan harapan setelah penyesalan tanpa meremehkan kesalahan." } },
+  { ref: [3, 133], themes: ["Regret over the past"], why: "Jangan berlama-lama di masa lalu; bergegaslah menuju ampunan-Nya", ruling: { verdict: "pas", note: "Pas. Ayat mengarahkan orang agar segera berlomba menuju ampunan dan surga, sehingga penyesalan diubah menjadi langkah taubat, bukan tenggelam dalam masa lalu." } },
   // Insecurity / feeling inferior
-  { ref: [49, 11], themes: ["Insecurity / feeling inferior"], why: "Yang direndahkan orang bisa jadi lebih baik di sisi Allah" },
-  { ref: [49, 13], themes: ["Insecurity / feeling inferior"], why: "Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah" },
+  { ref: [49, 11], themes: ["Insecurity / feeling inferior"], why: "Yang direndahkan orang bisa jadi lebih baik di sisi Allah", ruling: { verdict: "pas", note: "Pas. Ayat melarang saling merendahkan dan mengingatkan bahwa orang yang direndahkan boleh jadi lebih baik di sisi Allah. Kalimat pendamping sesuai." } },
+  { ref: [49, 13], themes: ["Insecurity / feeling inferior"], why: "Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah", ruling: { verdict: "pas", note: "Pas. Ayat menegaskan kesetaraan asal manusia dan bahwa ukuran kemuliaan di sisi Allah adalah takwa, bukan suku, status, atau penampilan." } },
   // Feeling worthless or useless
-  { ref: [21, 94], themes: ["Feeling worthless or useless"], why: "Tidak ada satu pun kebaikanmu yang disia-siakan Allah" },
-  { ref: [99, 7], themes: ["Feeling worthless or useless"], why: "Sekecil debu pun kebaikanmu tetap terlihat dan berbalas" },
-  { ref: [64, 3], themes: ["Feeling worthless or useless"], why: "Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya" },
+  { ref: [21, 94], themes: ["Feeling worthless or useless"], why: "Tidak ada satu pun kebaikanmu yang disia-siakan Allah", ruling: { verdict: "pas", note: "Pas. Ayat menegaskan bahwa amal saleh seorang mukmin tidak diingkari dan dicatat. Ini tepat untuk orang yang merasa jerih payahnya tidak berguna." } },
+  { ref: [99, 7], themes: ["Feeling worthless or useless"], why: "Sekecil debu pun kebaikanmu tetap terlihat dan berbalas", ruling: { verdict: "pas", note: "Pas. Kebaikan seberat zarrah pun akan dilihat. Kalimat pendamping tepat selama tidak dipakai untuk mengecilkan kebutuhan akan amal yang lebih besar dan konsisten." } },
+  { ref: [64, 3], themes: ["Feeling worthless or useless"], why: "Allah membentukmu dengan baik menurut hikmah-Nya; kepada-Nya seluruh perjalanan kembali.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk rasa rendah diri, tetapi jangan menjadikannya klaim tentang standar rupa atau tubuh tertentu. Ganti menjadi: “Allah membentukmu dengan baik menurut hikmah-Nya; kepada-Nya seluruh perjalanan kembali.”" } },
   // Feeling unloved
-  { ref: [93, 3], themes: ["Feeling unloved"], why: "Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu" },
-  { ref: [3, 31], themes: ["Feeling unloved"], why: "Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu" },
+  { ref: [93, 3], themes: ["Feeling unloved"], why: "Tuhanmu tidak meninggalkan dan tidak membenci Nabi-Nya—ayat penghiburan bagi hati yang merasa jauh dari kasih Allah.", ruling: { verdict: "ganti", note: "Ayat ini adalah penghiburan Allah kepada Nabi Muhammad bahwa beliau tidak ditinggalkan dan tidak dibenci. Ganti menjadi: “Tuhanmu tidak meninggalkan dan tidak membenci Nabi-Nya—ayat penghiburan bagi hati yang merasa jauh dari kasih Allah.”" } },
+  { ref: [3, 31], themes: ["Feeling unloved"], why: "Ikutilah Rasulullah; Allah akan mencintai dan mengampuni dosa-dosamu.", ruling: { verdict: "ganti", note: "Cocok untuk mencari cinta Allah, tetapi kalimat harus menyebut jalannya dengan jelas. Ganti menjadi: “Ikutilah Rasulullah; Allah akan mencintai dan mengampuni dosa-dosamu.”" } },
   // Emptiness / life feels meaningless
-  { ref: [16, 97], themes: ["Emptiness / life feels meaningless"], why: "Iman dan amal kecil pun membuahkan kehidupan yang baik" },
-  { ref: [23, 115], themes: ["Emptiness / life feels meaningless"], why: "Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan" },
-  { ref: [67, 2], themes: ["Emptiness / life feels meaningless"], why: "Hidup dan mati diadakan agar terlihat siapa terbaik amalnya" },
+  { ref: [16, 97], themes: ["Emptiness / life feels meaningless"], why: "Iman dan amal kecil pun membuahkan kehidupan yang baik", ruling: { verdict: "pas", note: "Pas. Ayat menjanjikan kehidupan yang baik bagi laki-laki atau perempuan yang beramal saleh dalam keadaan beriman. Jangan menyempitkan ‘kehidupan yang baik’ hanya menjadi kenyamanan materi." } },
+  { ref: [23, 115], themes: ["Emptiness / life feels meaningless"], why: "Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung menolak anggapan bahwa manusia diciptakan sia-sia dan tidak akan kembali kepada Allah. Ini kuat untuk rasa hampa dan kehilangan tujuan." } },
+  { ref: [67, 2], themes: ["Emptiness / life feels meaningless"], why: "Hidup dan mati diadakan agar terlihat siapa terbaik amalnya", ruling: { verdict: "pas", note: "Pas. Hidup dan mati disebut sebagai ujian untuk melihat siapa yang terbaik amalnya. Sampaikan dengan lembut agar orang yang sedang rapuh tidak merasa hidupnya hanya dinilai dari produktivitas." } },
   // Wanting to change and become better
-  { ref: [20, 82], themes: ["Wanting to change and become better"], why: "Bertaubat, beramal, lalu bertahan di jalan itu — Allah mengampuni" },
+  { ref: [20, 82], themes: ["Wanting to change and become better"], why: "Bertaubat, beramal, lalu bertahan di jalan itu — Allah mengampuni", ruling: { verdict: "pas", note: "Pas. Ayat menggabungkan taubat, iman, amal saleh, dan keteguhan di jalan petunjuk. Ini memberi arah perubahan yang utuh, bukan sekadar niat sesaat." } },
   // Being bullied
-  { ref: [33, 58], themes: ["Being bullied"], why: "Kamu tidak bersalah; dosanya ada pada yang mengolok" },
-  { ref: [3, 186], themes: ["Being bullied"], why: "Ejekan yang menyakitkan itu ujian; sabarmu bernilai besar" },
+  { ref: [33, 58], themes: ["Being bullied"], why: "Menyakiti orang beriman tanpa kesalahan yang mereka lakukan adalah fitnah dan dosa yang nyata.", ruling: { verdict: "ganti", note: "Pas untuk orang yang disakiti atau direndahkan tanpa alasan yang benar, tetapi jangan berkata mutlak ‘kamu tidak bersalah’. Ganti menjadi: “Menyakiti orang beriman tanpa kesalahan yang mereka lakukan adalah fitnah dan dosa yang nyata.”" } },
+  { ref: [3, 186], themes: ["Being bullied"], why: "Kamu akan mendengar banyak ucapan menyakitkan; sabar dan takwa adalah keteguhan yang besar.", ruling: { verdict: "ganti", note: "Boleh dipakai ketika seseorang menghadapi ucapan menyakitkan karena imannya, tetapi konteksnya adalah ujian harta, jiwa, dan gangguan dari kelompok penentang. Ganti kalimat agar tidak menormalisasi perundungan: “Kamu akan mendengar banyak ucapan menyakitkan; sabar dan takwa adalah keteguhan yang besar.”" } },
   // Being slandered
-  { ref: [33, 69], themes: ["Being slandered"], why: "Musa pun difitnah, lalu Allah sendiri yang membersihkannya" },
-  { ref: [24, 11], themes: ["Being slandered"], why: "Jangan kira fitnah ini merugikanmu; ia justru membawa kebaikan" },
+  { ref: [33, 69], themes: ["Being slandered"], why: "Musa pun difitnah, lalu Allah sendiri yang membersihkannya", ruling: { verdict: "pas", note: "Pas. Ayat mengingatkan agar tidak seperti orang yang menyakiti Nabi Musa, lalu Allah membersihkannya dari tuduhan mereka. Ini memberi harapan tanpa menyuruh korban membalas fitnah dengan fitnah." } },
+  { ref: [24, 11], themes: ["Being slandered"], why: "Dalam peristiwa ifk, Allah membersihkan tuduhan dan menampakkan hikmah; jangan menjanjikan bahwa setiap fitnah akan terasa baik atau selesai dengan cara yang sama.", ruling: { verdict: "ganti", note: "Ayat ini terkait peristiwa fitnah besar terhadap keluarga Nabi dan hikmah yang Allah keluarkan darinya. Ganti menjadi: “Dalam peristiwa ifk, Allah membersihkan tuduhan dan menampakkan hikmah; jangan menjanjikan bahwa setiap fitnah akan terasa baik atau selesai dengan cara yang sama.”" } },
   // Feeling hatred
-  { ref: [5, 8], themes: ["Feeling hatred"], why: "Jangan biarkan bencimu membuatmu berlaku tidak adil kepadanya" },
-  { ref: [17, 53], themes: ["Feeling hatred"], why: "Jawablah celaan dengan kata terbaik; setan senang mengadu domba" },
+  { ref: [5, 8], themes: ["Feeling hatred"], why: "Jangan biarkan bencimu membuatmu berlaku tidak adil kepadanya", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung melarang kebencian mendorong ketidakadilan dan memerintahkan berlaku adil karena itu lebih dekat kepada takwa." } },
+  { ref: [17, 53], themes: ["Feeling hatred"], why: "Jawablah celaan dengan kata terbaik; setan senang mengadu domba", ruling: { verdict: "pas", note: "Pas. Allah memerintahkan hamba-hamba-Nya mengucapkan yang terbaik karena setan menimbulkan perselisihan di antara manusia. Kalimat pendamping sesuai." } },
   // Wanting revenge
-  { ref: [42, 43], themes: ["Wanting revenge"], why: "Sabar dan memaafkan itu tanda hati yang teguh, bukan lemah" },
-  { ref: [42, 40], themes: ["Wanting revenge"], why: "Kamu berhak membalas setimpal, tapi pahala pemaaf ditanggung Allah" },
-  { ref: [12, 92], themes: ["Wanting revenge"], why: "Yusuf berkuasa membalas, namun ia memilih berkata: tidak ada cercaan" },
+  { ref: [42, 43], themes: ["Wanting revenge"], why: "Sabar dan memaafkan itu tanda hati yang teguh, bukan lemah", ruling: { verdict: "pas", note: "Pas. Kesabaran dan memaafkan disebut sebagai perkara yang memerlukan keteguhan hati. Memaafkan tidak selalu berarti menghapus batas, keadilan, atau konsekuensi yang diperlukan." } },
+  { ref: [42, 40], themes: ["Wanting revenge"], why: "Kamu berhak membalas setimpal, tapi pahala pemaaf ditanggung Allah", ruling: { verdict: "pas", note: "Pas. Ayat mengakui hak balasan yang setimpal sekaligus memuliakan pemaafan dan perbaikan. Ini menjaga keseimbangan antara keadilan dan ihsan." } },
+  { ref: [12, 92], themes: ["Wanting revenge"], why: "Yusuf berkuasa membalas, namun ia memilih berkata: tidak ada cercaan", ruling: { verdict: "pas", note: "Pas. Nabi Yusuf memiliki kuasa untuk membalas, tetapi memilih tidak mencela dan mendoakan ampunan. Ini adalah teladan pemaafan setelah kebenaran tampak." } },
   // Losing a friend
-  { ref: [4, 69], themes: ["Losing a friend"], why: "Masih ada teman terbaik menantimu: para nabi dan orang shalih" },
+  { ref: [4, 69], themes: ["Losing a friend"], why: "Ketaatan mengantarkan kepada kebersamaan dengan para nabi, siddiq, syuhada, dan orang saleh—mereka sebaik-baik teman.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk menguatkan orang yang kehilangan sahabat, tetapi konteksnya adalah kebersamaan di akhirat bagi orang yang taat kepada Allah dan Rasul. Ganti menjadi: “Ketaatan mengantarkan kepada kebersamaan dengan para nabi, siddiq, syuhada, dan orang saleh—mereka sebaik-baik teman.”" } },
   // Trouble with neighbours
-  { ref: [4, 36], themes: ["Trouble with neighbours"], why: "Berbuat baik kepada tetangga dekat dan jauh, itu perintah Allah" },
-  { ref: [49, 6], themes: ["Trouble with neighbours"], why: "Telitilah dulu kabar yang meragukan, agar kamu tidak menyesal" },
-  { ref: [24, 27], themes: ["Trouble with neighbours"], why: "Menghormati batas rumah orang lain menjaga damainya bertetangga" },
+  { ref: [4, 36], themes: ["Trouble with neighbours"], why: "Berbuat baik kepada tetangga dekat dan jauh, itu perintah Allah", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung memerintahkan berbuat baik kepada tetangga dekat dan jauh bersama kelompok lain yang berhak diperlakukan dengan ihsan." } },
+  { ref: [49, 6], themes: ["Trouble with neighbours"], why: "Jika datang berita dari sumber yang tidak dapat dipercaya, telitilah agar tidak mencelakakan orang lalu menyesal.", ruling: { verdict: "ganti", note: "Pas bila masalah tetangga dipicu kabar atau tuduhan, bukan sebagai jawaban untuk semua konflik. Ganti menjadi: “Jika datang berita dari sumber yang tidak dapat dipercaya, telitilah agar tidak mencelakakan orang lalu menyesal.”" } },
+  { ref: [24, 27], themes: ["Trouble with neighbours"], why: "Menghormati batas rumah orang lain menjaga damainya bertetangga", ruling: { verdict: "pas", note: "Pas. Ayat mengatur izin dan salam sebelum memasuki rumah orang lain, sehingga sangat relevan untuk menjaga privasi dan adab bertetangga." } },
   // Wanting to reconcile
-  { ref: [49, 10], themes: ["Wanting to reconcile"], why: "Kalian bersaudara; damaikanlah, semoga kalian diberi rahmat" },
-  { ref: [4, 114], themes: ["Wanting to reconcile"], why: "Mendamaikan yang berselisih adalah bicara paling bernilai di sisi Allah" },
+  { ref: [49, 10], themes: ["Wanting to reconcile"], why: "Kalian bersaudara; damaikanlah, semoga kalian diberi rahmat", ruling: { verdict: "pas", note: "Pas. Ayat menyebut orang beriman bersaudara dan memerintahkan mendamaikan dua pihak yang berselisih. Perdamaian harus tetap berlandaskan keadilan, bukan sekadar menekan korban agar diam." } },
+  { ref: [4, 114], themes: ["Wanting to reconcile"], why: "Mendamaikan yang berselisih adalah bicara paling bernilai di sisi Allah", ruling: { verdict: "pas", note: "Pas. Pembicaraan rahasia umumnya tidak bernilai kecuali yang memerintahkan sedekah, kebaikan, atau mendamaikan manusia. Kalimat aplikasi sesuai." } },
   // Despair
-  { ref: [42, 28], themes: ["Despair"], why: "Hujan turun justru ketika manusia hampir menyerah menunggu" },
+  { ref: [42, 28], themes: ["Despair"], why: "Allah menurunkan hujan setelah manusia berputus asa dan menyebarkan rahmat-Nya—tanda keluasan kuasa-Nya.", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai tanda bahwa Allah menurunkan hujan setelah manusia berputus asa, tetapi jangan dijadikan jadwal pasti datangnya pertolongan pribadi. Ganti menjadi: “Allah menurunkan hujan setelah manusia berputus asa dan menyebarkan rahmat-Nya—tanda keluasan kuasa-Nya.”" } },
   // Anger at fate
-  { ref: [57, 22], themes: ["Anger at fate"], why: "Tidak ada yang menimpamu tanpa sudah tercatat sebelum dunia ada" },
+  { ref: [57, 22], themes: ["Anger at fate"], why: "Tidak ada yang menimpamu tanpa sudah tercatat sebelum dunia ada", ruling: { verdict: "pas", note: "Pas untuk menerima takdir. Ayat menegaskan bahwa musibah di bumi dan diri telah tercatat sebelum diwujudkan; ini tidak melarang berduka, berobat, menuntut keadilan, atau memperbaiki sebab." } },
   // Prayers unanswered
-  { ref: [19, 4], themes: ["Prayers unanswered"], why: "Zakaria menua dan beruban, tapi doanya tak pernah sia-sia" },
-  { ref: [21, 90], themes: ["Prayers unanswered"], why: "Doa Zakaria dikabulkan setelah menunggu bertahun-tahun lamanya" },
-  { ref: [27, 62], themes: ["Prayers unanswered"], why: "Siapa lagi yang menjawab orang terhimpit selain Allah?" },
+  { ref: [19, 4], themes: ["Prayers unanswered"], why: "Zakaria tetap memohon kepada Allah meski tubuhnya lemah dan rambutnya beruban; doa tidak menuntut hasil yang segera.", ruling: { verdict: "ganti", note: "Pas sebagai teladan tetap berdoa ketika usia dan keadaan terasa tidak mendukung, tetapi ayat ini belum memuat jawaban doanya. Ganti menjadi: “Zakaria tetap memohon kepada Allah meski tubuhnya lemah dan rambutnya beruban; doa tidak menuntut hasil yang segera.”" } },
+  { ref: [21, 90], themes: ["Prayers unanswered"], why: "Allah mengabulkan doa Zakaria dan memperbaiki keadaan keluarganya—kisah harapan, bukan pola hasil yang wajib terulang.", ruling: { verdict: "ganti", note: "Kisah ini memberi harapan bahwa Allah mampu mengabulkan doa setelah penantian, tetapi jangan dijadikan jaminan bentuk jawaban yang sama. Ganti menjadi: “Allah mengabulkan doa Zakaria dan memperbaiki keadaan keluarganya—kisah harapan, bukan pola hasil yang wajib terulang.”" } },
+  { ref: [27, 62], themes: ["Prayers unanswered"], why: "Siapakah yang mengabulkan doa orang yang terdesak dan menghilangkan kesusahan selain Allah?", ruling: { verdict: "ganti", note: "Pas sebagai seruan tauhid dan harapan ketika terdesak, tetapi hindari janji bahwa jawaban selalu datang seketika atau sesuai keinginan. Ganti menjadi: “Siapakah yang mengabulkan doa orang yang terdesak dan menghilangkan kesusahan selain Allah?”" } },
   // Far from God
-  { ref: [57, 4], themes: ["Far from God"], why: "Allah beserta kalian di mana pun kalian berada" },
-  { ref: [3, 8], themes: ["Far from God"], why: "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk" },
+  { ref: [57, 4], themes: ["Far from God"], why: "Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya.", ruling: { verdict: "ganti", note: "Pas untuk rasa jauh dari Allah, tetapi kebersamaan Allah dipahami melalui ilmu, pengawasan, pertolongan, dan kuasa-Nya, bukan keberadaan fisik di dalam makhluk. Ganti menjadi: “Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya.”" } },
+  { ref: [3, 8], themes: ["Far from God"], why: "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk", ruling: { verdict: "pas", note: "Pas. Ini doa orang berilmu agar hati tidak disimpangkan setelah mendapat petunjuk dan agar diberi rahmat. Sangat tepat untuk rasa takut menjauh dari Allah." } },
   // Fear of insincerity
   // 23:61 DROPPED (fragment review, 2026-07-20). It opens "mereka itulah" and the referent is the
   // whole of 23:57-60 — and every one of those ayahs is ITSELF a lowercase continuation, so there is
@@ -471,30 +500,26 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   // (23:60 is the trembling heart). Fear of insincerity keeps 4:146. Proposed for the ustadz: ship
   // 23:57-61 as one passage, or let him choose a different verse. See docs/review/fragment-review.md.
   // Struggling with consistency
-  { ref: [73, 20], themes: ["Struggling with consistency"], why: "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan" },
+  { ref: [73, 20], themes: ["Struggling with consistency"], why: "Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten.", ruling: { verdict: "ganti", note: "Ayat ini memberi keringanan khusus dalam qiyamullail setelah Allah mengetahui keterbatasan umat, bukan izin umum meninggalkan kewajiban. Ganti menjadi: “Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten.”" } },
   // Burnout
-  { ref: [94, 2], themes: ["Burnout"], why: "Allah sendiri yang meringankan beban itu dari pundakmu" },
-  { ref: [78, 9], themes: ["Burnout"], why: "Tidurmu bukan kelemahan, itu penenang yang Allah sediakan" },
-  { ref: [28, 73], themes: ["Burnout"], why: "Malam untuk beristirahat itu rahmat, bukan waktu yang terbuang" },
+  { ref: [94, 2], themes: ["Burnout"], why: "Bukankah Kami telah melapangkan dadamu dan mengangkat bebanmu?—penghiburan Allah kepada Nabi-Nya.", ruling: { verdict: "ganti", note: "Ayat ini adalah penghiburan khusus kepada Nabi tentang beban yang Allah angkat. Boleh memberi harapan, tetapi jangan dijadikan janji bahwa semua beban segera hilang; ganti menjadi: “Bukankah Kami telah melapangkan dadamu dan mengangkat bebanmu?—penghiburan Allah kepada Nabi-Nya.”" } },
+  { ref: [78, 9], themes: ["Burnout"], why: "Tidurmu bukan kelemahan, itu penenang yang Allah sediakan", ruling: { verdict: "pas", note: "Pas. Allah menjadikan tidur sebagai waktu istirahat. Ini mengoreksi anggapan bahwa kebutuhan istirahat selalu berarti malas atau gagal." } },
+  { ref: [28, 73], themes: ["Burnout"], why: "Malam untuk beristirahat itu rahmat, bukan waktu yang terbuang", ruling: { verdict: "pas", note: "Pas. Pergantian malam untuk beristirahat dan siang untuk mencari karunia disebut sebagai rahmat Allah. Kalimat pendamping sesuai." } },
   // Overwhelm
-  { ref: [4, 28], themes: ["Overwhelm"], why: "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya" },
-  { ref: [23, 62], themes: ["Overwhelm"], why: "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu" },
+  { ref: [4, 28], themes: ["Overwhelm"], why: "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya", ruling: { verdict: "pas", note: "Pas. Dalam konteks keringanan syariat, Allah menyatakan hendak meringankan beban karena manusia diciptakan lemah. Ini menumbuhkan rahmat tanpa menghapus tanggung jawab." } },
+  { ref: [23, 62], themes: ["Overwhelm"], why: "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu", ruling: { verdict: "pas", note: "Pas. Allah tidak membebani seseorang kecuali sesuai kesanggupannya, dan catatan di sisi-Nya berbicara benar. Hindari memakai ayat ini untuk menyalahkan orang yang sedang kewalahan atau menolak bantuan." } },
   // Laziness
-  { ref: [87, 8], themes: ["Laziness"], why: "Allah yang memudahkan langkahmu, kamu tak berjalan sendirian" },
-  { ref: [92, 7], themes: ["Laziness"], why: "Mulai satu langkah kecil, jalan mudah akan disiapkan" },
   // JobLoss
-  { ref: [29, 62], themes: ["JobLoss"], why: "Yang melapangkan dan menyempitkan rezeki tahu persis kebutuhanmu" },
-  { ref: [42, 12], themes: ["JobLoss"], why: "Perbendaharaan langit dan bumi milik-Nya; satu pintu tertutup bukan akhir" },
+  { ref: [29, 62], themes: ["JobLoss"], why: "Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya.", ruling: { verdict: "ganti", note: "Pas untuk kehilangan pekerjaan sebagai pengingat bahwa keluasan dan kesempitan rezeki berada dalam ilmu Allah, tetapi bukan janji pekerjaan baru segera. Ganti menjadi: “Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya.”" } },
+  { ref: [42, 12], themes: ["JobLoss"], why: "Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya.", ruling: { verdict: "ganti", note: "Pas sebagai penguatan bahwa kunci langit dan bumi milik Allah, tetapi kalimat ‘satu pintu tertutup bukan akhir’ adalah refleksi, bukan teks ayat. Ganti menjadi: “Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya.”" } },
   // Direction
-  { ref: [1, 6], themes: ["Direction"], why: "Doa paling sederhana saat tak tahu harus ke mana" },
+  { ref: [1, 6], themes: ["Direction"], why: "Doa paling sederhana saat tak tahu harus ke mana", ruling: { verdict: "pas", note: "Pas. Doa memohon jalan yang lurus adalah permohonan paling mendasar ketika arah hidup tidak jelas. Ia dibaca berulang dalam setiap rakaat dan harus diikuti usaha mencari ilmu serta nasihat yang baik." } },
   // StudyStress
-  { ref: [20, 25], themes: ["StudyStress"], why: "Doa Musa saat dadanya sesak menghadapi tugas berat" },
-  { ref: [20, 26], themes: ["StudyStress"], why: "Dua kata yang cukup dibaca sebelum masuk ruang ujian" },
-  { ref: [96, 5], themes: ["StudyStress"], why: "Dia yang mengajari manusia apa yang belum diketahuinya" },
+  { ref: [96, 5], themes: ["StudyStress"], why: "Dia yang mengajari manusia apa yang belum diketahuinya", ruling: { verdict: "pas", note: "Pas. Ayat menegaskan bahwa Allah mengajarkan manusia apa yang sebelumnya tidak diketahui. Ini baik untuk belajar selama disertai usaha, disiplin, dan kejujuran akademik." } },
   // EffortNotEnough
-  { ref: [3, 195], themes: ["EffortNotEnough"], why: "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan" },
-  { ref: [4, 40], themes: ["EffortNotEnough"], why: "Sebesar zarrah pun tak hilang, malah dilipatgandakan" },
-  { ref: [18, 30], themes: ["EffortNotEnough"], why: "Yang kamu kerjakan dengan baik tidak akan disia-siakan" },
+  { ref: [3, 195], themes: ["EffortNotEnough"], why: "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan", ruling: { verdict: "pas", note: "Pas. Allah menegaskan tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan. Kalimat pendamping tepat." } },
+  { ref: [4, 40], themes: ["EffortNotEnough"], why: "Sebesar zarrah pun tak hilang, malah dilipatgandakan", ruling: { verdict: "pas", note: "Pas. Allah tidak menzalimi walau seberat zarrah dan melipatgandakan kebaikan. Ini kuat untuk orang yang merasa usahanya terlalu kecil." } },
+  { ref: [18, 30], themes: ["EffortNotEnough"], why: "Yang kamu kerjakan dengan baik tidak akan disia-siakan", ruling: { verdict: "pas", note: "Pas. Ayat secara langsung menegaskan bahwa Allah tidak menyia-nyiakan pahala orang yang beriman dan beramal saleh dengan baik." } },
 
   // ── Expanded feeling corpus (docs/review/feelings-expansion.md) ──
   // Envy & comparison
@@ -505,49 +530,69 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   // keeps 4:32. Proposed for the ustadz: ship Al-Falaq whole, the way it is actually recited.
 
   // Parents
-  { ref: [71, 28], themes: ["Parents"], why: "Doa Nuh bagi dirinya dan kedua orang tuanya" },
+  { ref: [71, 28], themes: ["Parents"], why: "Nabi Nuh memohon ampun untuk dirinya, kedua orang tuanya, dan orang-orang beriman", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai contoh doa Nabi Nuh untuk orang tua dan orang beriman, tetapi ayat penuhnya juga berisi doa terhadap orang zalim. Ganti kalimat menjadi: “Nabi Nuh memohon ampun untuk dirinya, kedua orang tuanya, dan orang-orang beriman,” serta jangan memotong akhir ayat tanpa penjelasan." } },
   // Injustice & being wronged
-  { ref: [22, 40], themes: ["Injustice & being wronged"], why: "Mereka diusir dari negerinya hanya karena berkata: \"Tuhan kami Allah\"" },
   // Temptation & desire
-  { ref: [2, 183], themes: ["Temptation & desire"], why: "Puasa diwajibkan agar kamu sanggup menahan hawa nafsu" },
+  { ref: [2, 183], themes: ["Temptation & desire"], why: "Puasa diwajibkan agar kamu bertakwa; ia melatih pengendalian diri di bawah ketaatan kepada Allah.", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai jalan praktis menghadapi hawa nafsu, tetapi tujuan teksnya adalah takwa, bukan sekadar penekanan dorongan. Ganti menjadi: “Puasa diwajibkan agar kamu bertakwa; ia melatih pengendalian diri di bawah ketaatan kepada Allah.”" } },
   // Marriage & spouse
-  { ref: [19, 96], themes: ["Marriage & spouse"], why: "Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman" },
-  { ref: [2, 187], themes: ["Marriage & spouse"], why: "Suami-istri saling menjadi penenteram satu sama lain" },
+  { ref: [2, 187], themes: ["Marriage & spouse"], why: "Mereka adalah pakaian bagimu dan kamu adalah pakaian bagi mereka—kedekatan, perlindungan, dan kehormatan yang timbal balik.", ruling: { verdict: "ganti", note: "Cocok untuk pernikahan karena menggambarkan suami-istri sebagai pakaian satu sama lain, tetapi ayat penuhnya membahas hukum malam Ramadan. Ganti kalimat menjadi: “Mereka adalah pakaian bagimu dan kamu adalah pakaian bagi mereka—kedekatan, perlindungan, dan kehormatan yang timbal balik.”" } },
   // Waiting for a spouse
-  { ref: [51, 49], themes: ["Waiting for a spouse"], why: "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan", caveat: "Ini ayat tanda kebesaran penciptaan, bukan janji pernikahan; jangan disajikan sebagai jaminan datangnya jodoh" },
   // Worry about the future
-  { ref: [31, 34], themes: ["Worry about the future"], why: "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu", caveat: "Ayat ini utamanya tentang ilmu Allah yang eksklusif (kiamat, hujan, rahim). Pemakaian pastoralnya adalah lepaskan cemas atas hal yang memang bukan wilayahmu — mohon dicek apakah pembingkaian ini dapat diterima ustadz." },
+  { ref: [31, 34], themes: ["Worry about the future"], why: "Tak seorang pun mengetahui pasti apa yang akan diusahakannya besok; Allah Maha Mengetahui—maka rencanakan, berikhtiar, dan serahkan hasil kepada-Nya.", caveat: "Ayat ini utamanya tentang ilmu Allah yang eksklusif (kiamat, hujan, rahim). Pemakaian pastoralnya adalah lepaskan cemas atas hal yang memang bukan wilayahmu — mohon dicek apakah pembingkaian ini dapat diterima ustadz.", ruling: { verdict: "ganti", note: "Cocok untuk menerima keterbatasan pengetahuan tentang masa depan, tetapi jangan menjadikannya alasan pasif. Ganti menjadi: “Tak seorang pun mengetahui pasti apa yang akan diusahakannya besok; Allah Maha Mengetahui—maka rencanakan, berikhtiar, dan serahkan hasil kepada-Nya.”" } },
   // Confusion facing a big decision
-  { ref: [2, 216], themes: ["Confusion facing a big decision", "Heartbreak"], why: "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak", caveat: "Teks tafsiriyah mempersempit maknanya ke perintah agama; versi Kemenag tetap umum. Reviewer perlu memutuskan terjemahan mana yang ditampilkan" },
+  { ref: [2, 216], themes: ["Heartbreak"], why: "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak", caveat: "Teks tafsiriyah mempersempit maknanya ke perintah agama; versi Kemenag tetap umum. Reviewer perlu memutuskan terjemahan mana yang ditampilkan", ruling: { verdict: "cabut", note: "Jangan dipakai sebagai panduan umum ketika bingung memilih. Konteks langsungnya adalah kewajiban berperang, dan potongan ‘boleh jadi kamu membenci sesuatu’ tidak menggantikan istikharah, musyawarah, ilmu, dan penilaian maslahat." } },
   // Chronic illness
-  { ref: [10, 57], themes: ["Chronic illness", "Heartbreak"], why: "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati", caveat: "Yang dimaksud obat penawar di sini adalah penyakit hati, bukan penyakit fisik. Pastikan teks pendamping tidak terbaca sebagai janji kesembuhan jasmani." },
+  { ref: [10, 57], themes: ["Chronic illness", "Heartbreak"], why: "Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah.", caveat: "Yang dimaksud obat penawar di sini adalah penyakit hati, bukan penyakit fisik. Pastikan teks pendamping tidak terbaca sebagai janji kesembuhan jasmani.", ruling: { verdict: "ganti", note: "Boleh dipakai karena kalimat pendamping sudah membedakan penyakit tubuh dari penyakit hati. Ganti menjadi lebih tegas: “Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah.”" } },
   // Divorce
-  { ref: [2, 237], themes: ["Divorce"], why: "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian", caveat: "Bagian terbesar ayat ini adalah aturan pembagian maskawin; sisi pastoralnya hanya pada kalimat janganlah kalian melupakan kebaikan di antara kalian" },
-  { ref: [4, 19], themes: ["Divorce"], why: "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar", caveat: "Ayat ini ditujukan kepada para suami dan diawali hukum warisan janda; pastikan penyajiannya tidak terbaca menyudutkan pihak perempuan" },
+  { ref: [2, 237], themes: ["Divorce"], why: "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian", caveat: "Bagian terbesar ayat ini adalah aturan pembagian maskawin; sisi pastoralnya hanya pada kalimat janganlah kalian melupakan kebaikan di antara kalian", ruling: { verdict: "pas", note: "Pas, terutama untuk etika berpisah dengan adil dan tidak melupakan kebaikan. Tetap tampilkan konteks hukumnya tentang mahar agar potongan pastoral tidak terlepas dari ayat." } },
   // Betrayal
-  { ref: [40, 19], themes: ["Betrayal"], why: "Tak ada khianat yang tersembunyi; Allah melihat semuanya", caveat: "Ayat ini bicara tentang pengawasan Allah atas manusia secara umum, bukan penghiburan langsung bagi korban; pastikan nadanya menenangkan, bukan mengancam" },
+  { ref: [40, 19], themes: ["Betrayal"], why: "Allah mengetahui pandangan yang berkhianat dan apa yang disembunyikan hati.", caveat: "Ayat ini bicara tentang pengawasan Allah atas manusia secara umum, bukan penghiburan langsung bagi korban; pastikan nadanya menenangkan, bukan mengancam", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai pengingat bahwa pengkhianatan tersembunyi tidak luput dari ilmu Allah, tetapi jangan digunakan untuk menuduh tanpa bukti. Ganti menjadi: “Allah mengetahui pandangan yang berkhianat dan apa yang disembunyikan hati.”" } },
   // Rejection
-  { ref: [9, 118], themes: ["Rejection"], why: "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu", caveat: "Konteksnya tiga sahabat yang tidak ikut Perang Tabuk dan dikucilkan sebagai teguran; periksa apakah kaitannya dengan rasa ditolak sehari-hari tidak menyesatkan" },
-  { ref: [16, 127], themes: ["Rejection"], why: "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka", caveat: "Ayat ini ditujukan kepada Nabi menghadapi gangguan kaum kafir; pastikan pemakaiannya tidak membingkai orang yang menolak kita sebagai musuh agama" },
+  { ref: [16, 127], themes: ["Rejection"], why: "Bersabarlah dengan pertolongan Allah; jangan bersedih dan jangan bersempit dada karena tipu daya mereka.", caveat: "Ayat ini ditujukan kepada Nabi menghadapi gangguan kaum kafir; pastikan pemakaiannya tidak membingkai orang yang menolak kita sebagai musuh agama", ruling: { verdict: "ganti", note: "Boleh dipakai untuk penolakan yang disertai gangguan atau tipu daya, tetapi konteksnya adalah Nabi menghadapi penentangan dakwah. Ganti menjadi: “Bersabarlah dengan pertolongan Allah; jangan bersedih dan jangan bersempit dada karena tipu daya mereka.”" } },
   // Longing
-  { ref: [12, 96], themes: ["Longing"], why: "Rindu yang panjang itu akhirnya berujung kabar gembira", caveat: "Ini bagian narasi pertemuan kembali, bukan janji umum; pastikan tidak terbaca sebagai jaminan bahwa setiap orang yang dirindukan pasti kembali" },
+  { ref: [12, 96], themes: ["Longing"], why: "Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang.", caveat: "Ini bagian narasi pertemuan kembali, bukan janji umum; pastikan tidak terbaca sebagai jaminan bahwa setiap orang yang dirindukan pasti kembali", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai akhir kisah rindu Nabi Ya’qub, tetapi bukan jaminan bahwa setiap orang yang dirindukan akan kembali. Ganti menjadi: “Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang.”" } },
   // Homesickness
-  { ref: [28, 85], themes: ["Homesickness"], why: "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu", caveat: "Teks tafsiriyah mengkhususkannya pada kepulangan Nabi ke Makkah; periksa apakah pemakaian umum untuk perantau masih pantas" },
-  { ref: [106, 4], themes: ["Homesickness"], why: "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut", caveat: "Ayat ini menyebut nikmat khusus kaum Quraisy dalam perjalanan dagang; periksa apakah generalisasi ke perantau umum dapat diterima" },
   // Shame
-  { ref: [40, 7], themes: ["Shame"], why: "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu", caveat: "Ayat aslinya tentang malaikat pemikul 'Arsy; pastikan pembingkaian 'ada yang mendoakanmu' tidak melebihi makna ayat" },
+  { ref: [40, 7], themes: ["Shame"], why: "Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah.", caveat: "Ayat aslinya tentang malaikat pemikul 'Arsy; pastikan pembingkaian 'ada yang mendoakanmu' tidak melebihi makna ayat", ruling: { verdict: "ganti", note: "Boleh dipakai untuk mengangkat rasa malu, tetapi kalimat sekarang menambahkan ‘menutupi aib’ yang tidak disebut ayat. Ganti menjadi: “Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah.”" } },
   // Regret over the past
-  { ref: [5, 39], themes: ["Regret over the past"], why: "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah", caveat: "Konteks asli ayat ini adalah taubat pelaku pencurian; terjemahan tafsiriyah membacanya umum — mohon ustadz memastikan pemakaian umumnya sah" },
+  { ref: [5, 39], themes: ["Regret over the past"], why: "Sesudah berbuat zalim, bertaubatlah dan perbaikilah diri; bila menyangkut hak manusia, kembalikan hak dan mintalah maaf.", caveat: "Konteks asli ayat ini adalah taubat pelaku pencurian; terjemahan tafsiriyah membacanya umum — mohon ustadz memastikan pemakaian umumnya sah", ruling: { verdict: "ganti", note: "Prinsip taubat dan perbaikan dapat dipakai, walaupun konteks langsungnya adalah pencurian. Ganti menjadi: “Sesudah berbuat zalim, bertaubatlah dan perbaikilah diri; bila menyangkut hak manusia, kembalikan hak dan mintalah maaf.”" } },
   // Feeling unloved
-  { ref: [11, 90], themes: ["Feeling unloved"], why: "Cinta Allah amat besar kepada siapa pun yang kembali", caveat: "Ini ucapan Nabi Syu'aib kepada kaumnya; pastikan pengutipannya sebagai penegasan sifat Allah, bukan seruan polemik" },
+  { ref: [11, 90], themes: ["Feeling unloved"], why: "Mohonlah ampun dan bertaubatlah kepada-Nya; Tuhanku Maha Penyayang lagi Maha Pengasih.", caveat: "Ini ucapan Nabi Syu'aib kepada kaumnya; pastikan pengutipannya sebagai penegasan sifat Allah, bukan seruan polemik", ruling: { verdict: "ganti", note: "Pas sebagai penegasan kasih dan rahmat Allah bagi orang yang kembali, tetapi pertahankan urutan taubatnya. Ganti menjadi: “Mohonlah ampun dan bertaubatlah kepada-Nya; Tuhanku Maha Penyayang lagi Maha Pengasih.”" } },
   // Wanting to change and become better
-  { ref: [29, 69], themes: ["Wanting to change and become better"], why: "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu", caveat: "Ayat aslinya tentang jihad/kesungguhan di jalan Allah; pastikan pemakaian untuk usaha berubah menjadi lebih baik tidak menyempitkan makna ayat" },
+  { ref: [29, 69], themes: ["Wanting to change and become better"], why: "Orang yang bersungguh-sungguh di jalan Kami akan Kami tunjukkan jalan-jalan Kami; Allah bersama orang yang berbuat baik.", caveat: "Ayat aslinya tentang jihad/kesungguhan di jalan Allah; pastikan pemakaian untuk usaha berubah menjadi lebih baik tidak menyempitkan makna ayat", ruling: { verdict: "ganti", note: "Boleh dipakai untuk perubahan yang sungguh-sungguh mencari ridha Allah, bukan motivasi diri yang bebas nilai. Ganti menjadi: “Orang yang bersungguh-sungguh di jalan Kami akan Kami tunjukkan jalan-jalan Kami; Allah bersama orang yang berbuat baik.”" } },
   // Despair
-  { ref: [12, 110], themes: ["Despair"], why: "Pertolongan datang tepat saat para rasul pun hampir putus asa", caveat: "Bagian akhir ayat berbicara tentang adzab bagi kaum berdosa — pastikan tampilan menonjolkan paruh pertama, bukan ancamannya" },
+  { ref: [12, 110], themes: ["Despair"], why: "Ketika para rasul tidak lagi berharap kaumnya beriman dan mereka didustakan, pertolongan Allah datang.", caveat: "Bagian akhir ayat berbicara tentang adzab bagi kaum berdosa — pastikan tampilan menonjolkan paruh pertama, bukan ancamannya", ruling: { verdict: "ganti", note: "Boleh dipakai dengan kehati-hatian: para rasul tidak lagi berharap kaumnya beriman, bukan berputus asa dari Allah. Ganti menjadi: “Ketika para rasul tidak lagi berharap kaumnya beriman dan mereka didustakan, pertolongan Allah datang.”" } },
   // Anger at fate
-  { ref: [9, 51], themes: ["Anger at fate"], why: "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu", caveat: "Tafsiriyah menyempitkan konteks ke kekalahan perang. Periksa apakah pembacaan umumnya masih layak dipakai untuk keseharian" },
+  { ref: [9, 51], themes: ["Anger at fate"], why: "Tidak akan menimpa kami kecuali apa yang Allah tetapkan bagi kami; Dia Pelindung kami, maka kepada-Nya orang beriman bertawakal.", caveat: "Tafsiriyah menyempitkan konteks ke kekalahan perang. Periksa apakah pembacaan umumnya masih layak dipakai untuk keseharian", ruling: { verdict: "ganti", note: "Prinsip tawakalnya dapat dipakai secara umum, walaupun konteks dekatnya adalah peristiwa perang dan sikap orang munafik. Ganti menjadi: “Tidak akan menimpa kami kecuali apa yang Allah tetapkan bagi kami; Dia Pelindung kami, maka kepada-Nya orang beriman bertawakal.”" } },
   // Too far gone to repent
-  { ref: [4, 17], themes: ["Too far gone to repent"], why: "Pintu taubat terbuka selama napas masih ada", caveat: "Ayat berikutnya (4:18) mempersempit dengan nada ancaman. Jangan tampilkan berdampingan dengan 4:18" },
+  { ref: [4, 17], themes: ["Too far gone to repent"], why: "Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat.", caveat: "Ayat berikutnya (4:18) mempersempit dengan nada ancaman. Jangan tampilkan berdampingan dengan 4:18", ruling: { verdict: "ganti", note: "Ayat membuka harapan taubat bagi orang yang segera kembali setelah berbuat salah, tetapi tidak membenarkan menunda hingga kematian datang. Ganti menjadi: “Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat.”" } },
   // Fear of insincerity
-  { ref: [4, 146], themes: ["Fear of insincerity"], why: "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman", caveat: "Ini pengecualian dari 4:145 yang mengancam munafik dengan neraka. WAJIB ditampilkan sendiri, jangan pernah bersama 4:145" },
+  { ref: [4, 146], themes: ["Fear of insincerity"], why: "Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman.", caveat: "Ini pengecualian dari 4:145 yang mengancam munafik dengan neraka. WAJIB ditampilkan sendiri, jangan pernah bersama 4:145", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai pintu harapan bagi orang yang takut munafik, tetapi jangan mendiagnosis dirinya sebagai munafik. Ganti menjadi: “Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman.”" } },
+] as const;
+
+/**
+ * Verses withdrawn on the ustadz's review of 2026-07-22 — kept here so they are not re-proposed.
+ *
+ * `cabut` is his own verdict: the placement was wrong and the verse came out of the app. It had
+ * been live, and he was told plainly on the call that "jangan dipakai" would mean withdrawal.
+ *
+ * `condition-unmet` is NOT his verdict. He allowed these, conditioned on displaying the
+ * neighbouring ayat, which one-verse-per-theme retrieval cannot do. They return the day
+ * co-display exists; until then his condition is unmet and his approval does not hold.
+ */
+export const WITHDRAWN: readonly { readonly ref: string; readonly kind: "cabut" | "condition-unmet"; readonly why: string }[] = [
+  { ref: "41:35", kind: "condition-unmet", why: "ayat 35 berdiri sebagai kelanjutan ayat 34 — minta QS 41:34–35 ditampilkan bersama" },
+  { ref: "19:25", kind: "cabut", why: "Jangan dipakai untuk tema umum mengasuh sendirian. Perintah menggoyang pohon kurma berada dalam kisah persalinan Maryam; metafora “kamu cukup menggoyang, sisanya Allah” terlalu jauh dari teks dan dapat mengecilkan beratnya pengasuhan." },
+  { ref: "29:56", kind: "cabut", why: "Jangan dipakai sebagai slogan umum bahwa selalu ada tempat untuk memulai hidup baru. Ayat ini memerintahkan orang beriman berpindah ketika tidak leluasa menyembah Allah; konteksnya hijrah demi ibadah, bukan setiap perubahan hidup." },
+  { ref: "87:8", kind: "cabut", why: "Jangan dipakai sebagai motivasi umum bagi orang malas atau menunda. Ayat ini adalah janji Allah kepada Nabi untuk memudahkan beliau menuju jalan kemudahan dalam tugas wahyu; kalimat aplikasi mengubah alamat khusus menjadi slogan pribadi." },
+  { ref: "92:7", kind: "condition-unmet", why: "bergantung pada syarat di ayat sebelumnya — minta QS 92:5–7 ditampilkan bersama" },
+  { ref: "20:25", kind: "condition-unmet", why: "minta ditampilkan bersama QS 20:25–28" },
+  { ref: "20:26", kind: "condition-unmet", why: "bagian dari rangkaian doa; minta ditampilkan bersama QS 20:25–28" },
+  { ref: "22:40", kind: "cabut", why: "Jangan dipakai untuk tema umum ‘dizalimi’. Konteksnya adalah orang beriman yang diusir karena agama dan pembelaan terhadap tempat ibadah; pemakaian pada konflik kantor atau keluarga berisiko mengaburkan konteks dan memanaskan keadaan." },
+  { ref: "19:96", kind: "cabut", why: "Jangan dipakai sebagai ayat khusus pernikahan atau pasangan. Ayat menjelaskan bahwa Allah menanamkan kasih sayang bagi orang beriman dan beramal saleh secara umum, bukan janji hubungan romantis atau keberhasilan rumah tangga." },
+  { ref: "51:49", kind: "cabut", why: "Jangan dipakai sebagai janji bahwa setiap orang pasti mendapatkan pasangan hidup. Ayat ini berbicara tentang tanda kebesaran Allah dalam penciptaan segala sesuatu berpasangan, bukan kepastian jodoh individual." },
+  { ref: "4:19", kind: "cabut", why: "Jangan dipakai untuk orang yang sedang menghadapi perceraian secara umum. Ayat ini menata perlakuan terhadap perempuan dan kehidupan rumah tangga, bukan menyuruh semua orang bertahan; pemakaiannya dapat menekan korban kekerasan atau menyudutkan perempuan." },
+  { ref: "9:118", kind: "cabut", why: "Jangan dipakai untuk penolakan sehari-hari. Ayat ini berbicara tentang tiga sahabat yang ditangguhkan penerimaan taubatnya dan dikucilkan sebagai disiplin agama; menggunakannya untuk penolakan romantis atau sosial dapat menimbulkan rasa bersalah yang keliru." },
+  { ref: "28:85", kind: "cabut", why: "Jangan dipakai sebagai janji umum bagi perantau bahwa pasti pulang ke tempat asal. Ayat ini ditujukan kepada Nabi dan ditafsirkan berkaitan dengan pengembalian beliau ke tempat kembali; universalisasi kalimat aplikasi terlalu jauh." },
+  { ref: "106:4", kind: "condition-unmet", why: "harus dibaca bersama QS Quraisy 106:1–4" },
 ] as const;

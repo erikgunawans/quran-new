@@ -1,0 +1,1100 @@
+{
+  "reviewer": "Ustadz Ahmad Isrofiel Mardlatillah",
+  "reviewedOn": "2026-07-22",
+  "method": "Telepon. Erik membacakan tiap ayat dan pertanyaannya; jawaban Ustadz ditulis apa adanya oleh Erik pada halaman panduan telepon (peninjauan_ayat_perasaan). Ustadz tidak membaca dan tidak menulis sendiri.",
+  "source": "peninjauan_ayat_perasaan_bersih.html",
+  "verses": [
+    {
+      "ref": "4:32",
+      "feeling": "Iri & membanding-bandingkan",
+      "captionShown": "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri",
+      "verdict": "ganti",
+      "note": "Ayat ini tepat untuk iri dan kebiasaan membandingkan diri, karena melarang menginginkan kelebihan yang Allah berikan kepada orang lain dan mengarahkan kita memohon karunia-Nya. Ganti kalimat menjadi: “Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya.”",
+      "replacement": "Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya."
+    },
+    {
+      "ref": "113:5",
+      "feeling": "Iri & membanding-bandingkan",
+      "captionShown": "Memohon perlindungan dari kejahatan pendengki",
+      "verdict": "cabut",
+      "note": "Jangan dipakai untuk orang yang sedang mengelola rasa iri dalam dirinya. Ayat ini adalah permohonan perlindungan dari keburukan orang yang dengki ketika kedengkiannya diwujudkan; bila dipakai, tempatkan pada tema perlindungan dari hasad dan sebaiknya tampilkan Surah Al-Falaq secara utuh."
+    },
+    {
+      "ref": "3:134",
+      "feeling": "Marah",
+      "captionShown": "Mereka yang menahan amarah dan memaafkan orang lain",
+      "verdict": "pas",
+      "note": "Pas. Ayat ini secara langsung memuji orang yang menahan amarah dan memaafkan manusia. Tetap sampaikan bahwa menahan amarah tidak berarti membiarkan kekerasan atau kezaliman tanpa batas."
+    },
+    {
+      "ref": "41:35",
+      "feeling": "Marah",
+      "captionShown": "Membalas keburukan dengan kebaikan — hanya orang sabar yang sanggup",
+      "verdict": "ganti",
+      "note": "Maknanya cocok sebagai lanjutan nasihat menghadapi kemarahan, tetapi ayat 35 berdiri sebagai kelanjutan ayat 34. Tampilkan QS 41:34–35 bersama, lalu gunakan kalimat: “Membalas keburukan dengan cara yang lebih baik memerlukan kesabaran dan bagian kebaikan yang besar.”",
+      "replacement": "Membalas keburukan dengan cara yang lebih baik memerlukan kesabaran dan bagian kebaikan yang besar."
+    },
+    {
+      "ref": "50:16",
+      "feeling": "Kesepian",
+      "captionShown": "Allah lebih dekat kepadamu daripada urat lehermu — kamu tidak pernah sendirian",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk kesepian sebagai pengingat bahwa Allah mengetahui bisikan hati, tetapi jangan memahami kedekatan ini sebagai kedekatan fisik. Ganti kalimat menjadi: “Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya.”",
+      "replacement": "Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya."
+    },
+    {
+      "ref": "26:80",
+      "feeling": "Sakit & kesembuhan",
+      "captionShown": "\"Ketika aku sakit, Tuhankulah yang menyembuhkan aku\" — doa Ibrahim",
+      "verdict": "pas",
+      "note": "Pas. Ini pengakuan Nabi Ibrahim bahwa Allah adalah satu-satunya Pemberi kesembuhan. Tambahkan pemahaman bahwa bertawakal kepada Allah berjalan bersama ikhtiar pengobatan yang halal."
+    },
+    {
+      "ref": "49:12",
+      "feeling": "Lisan & gunjingan",
+      "captionShown": "Jauhi prasangka, jangan mencari-cari kesalahan, jangan menggunjing",
+      "verdict": "pas",
+      "note": "Pas. Ayat ini langsung melarang prasangka buruk, memata-matai, dan menggunjing. Kalimat aplikasi sudah mewakili pesan utama tanpa mengurangi beratnya larangan ghibah."
+    },
+    {
+      "ref": "2:263",
+      "feeling": "Memaafkan orang lain",
+      "captionShown": "Berkata baik dan memaafkan lebih baik daripada sedekah yang menyakiti hati",
+      "verdict": "pas",
+      "note": "Pas, dengan konteks adab sedekah. Ayat menegaskan bahwa perkataan baik dan pemberian maaf lebih baik daripada sedekah yang diikuti tindakan menyakiti; jangan dijadikan dalil tunggal untuk semua bentuk konflik."
+    },
+    {
+      "ref": "31:18",
+      "feeling": "Sombong & angkuh",
+      "captionShown": "Nasihat Luqman kepada anaknya — jangan berjalan di bumi dengan sombong",
+      "verdict": "pas",
+      "note": "Pas. Nasihat Luqman ini secara langsung melarang memalingkan wajah karena sombong dan berjalan dengan angkuh. Kalimat pendamping sudah sesuai."
+    },
+    {
+      "ref": "57:23",
+      "feeling": "Sombong & angkuh",
+      "captionShown": "Agar kamu tidak putus asa atas yang hilang, dan tidak bangga atas yang didapat",
+      "verdict": "ganti",
+      "note": "Cocok untuk kesombongan, tetapi jangan sampai larangan berbangga diri dipahami sebagai larangan bersyukur atau bergembira. Ganti kalimat menjadi: “Jangan berduka berlebihan atas yang luput dan jangan membanggakan diri atas yang Allah berikan.”",
+      "replacement": "Jangan berduka berlebihan atas yang luput dan jangan membanggakan diri atas yang Allah berikan."
+    },
+    {
+      "ref": "29:57",
+      "feeling": "Takut mati",
+      "captionShown": "Setiap yang bernyawa pasti merasakan kematian, lalu dikumpulkan kembali",
+      "verdict": "pas",
+      "note": "Pas sebagai pengingat lembut bahwa kematian pasti dan semua kembali kepada Allah. Untuk orang yang sangat cemas, dampingi dengan ayat tentang rahmat, husnuzan, dan persiapan amal agar tidak terasa hanya sebagai ancaman."
+    },
+    {
+      "ref": "14:27",
+      "feeling": "Ragu & iman melemah",
+      "captionShown": "Allah meneguhkan hati orang mukmin — iman yang goyah bisa dikuatkan",
+      "verdict": "ganti",
+      "note": "Cocok untuk iman yang melemah, tetapi kalimatnya jangan dibuat sebagai janji otomatis bahwa setiap kegoyahan segera hilang. Ganti menjadi: “Allah meneguhkan orang beriman dengan kalimat yang teguh di dunia dan akhirat.”",
+      "replacement": "Allah meneguhkan orang beriman dengan kalimat yang teguh di dunia dan akhirat."
+    },
+    {
+      "ref": "18:14",
+      "feeling": "Ragu & iman melemah",
+      "captionShown": "\"Kami teguhkan hati mereka\" — para pemuda Ashabul Kahfi",
+      "verdict": "pas",
+      "note": "Pas. Kisah para pemuda menunjukkan bahwa Allah meneguhkan hati orang beriman ketika mereka berdiri mempertahankan tauhid. Ini adalah teladan keberanian iman, bukan sekadar dorongan emosional."
+    },
+    {
+      "ref": "2:268",
+      "feeling": "Harta & tamak",
+      "captionShown": "Setan menakut-nakutimu dengan kemiskinan; Allah menjanjikan ampunan dan karunia",
+      "verdict": "pas",
+      "note": "Pas untuk ketakutan miskin, kekikiran, dan keterikatan pada harta. Ayat membedakan bisikan setan yang menakut-nakuti dengan kemiskinan dari janji ampunan dan karunia Allah."
+    },
+    {
+      "ref": "57:20",
+      "feeling": "Harta & tamak",
+      "captionShown": "Dunia hanya permainan dan saling membanggakan harta dan anak",
+      "verdict": "pas",
+      "note": "Pas. Ayat ini langsung mengingatkan sifat sementara dunia, perlombaan dalam harta dan anak, serta bahaya kesenangan yang menipu. Kalimat aplikasi sudah tepat."
+    },
+    {
+      "ref": "19:14",
+      "feeling": "Orang tua",
+      "captionShown": "Yahya berbakti kepada ibu bapaknya, tidak durhaka",
+      "verdict": "pas",
+      "note": "Pas sebagai teladan berbakti kepada orang tua. Jelaskan bahwa ayat ini menggambarkan sifat Nabi Yahya, bukan sekadar slogan umum tentang keluarga."
+    },
+    {
+      "ref": "14:41",
+      "feeling": "Orang tua",
+      "captionShown": "Doa Ibrahim — ampunilah aku dan kedua orang tuaku",
+      "verdict": "pas",
+      "note": "Pas. Ini doa Nabi Ibrahim memohon ampun untuk dirinya, kedua orang tuanya, dan kaum mukmin pada hari perhitungan. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "71:28",
+      "feeling": "Orang tua",
+      "captionShown": "Doa Nuh bagi dirinya dan kedua orang tuanya",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai contoh doa Nabi Nuh untuk orang tua dan orang beriman, tetapi ayat penuhnya juga berisi doa terhadap orang zalim. Ganti kalimat menjadi: “Nabi Nuh memohon ampun untuk dirinya, kedua orang tuanya, dan orang-orang beriman,” serta jangan memotong akhir ayat tanpa penjelasan.",
+      "replacement": "Nabi Nuh memohon ampun untuk dirinya, kedua orang tuanya, dan orang-orang beriman"
+    },
+    {
+      "ref": "4:148",
+      "feeling": "Dizalimi",
+      "captionShown": "Orang yang teraniaya boleh menyuarakan apa yang menimpanya",
+      "verdict": "pas",
+      "note": "Pas. Ayat memberi ruang kepada orang yang dizalimi untuk menyuarakan keburukan yang menimpanya. Tekankan bahwa izin ini bukan pembenaran untuk berdusta, membuka aib yang tidak relevan, atau melampaui batas."
+    },
+    {
+      "ref": "22:40",
+      "feeling": "Dizalimi",
+      "captionShown": "Mereka diusir dari negerinya hanya karena berkata: \"Tuhan kami Allah\"",
+      "verdict": "cabut",
+      "note": "Jangan dipakai untuk tema umum ‘dizalimi’. Konteksnya adalah orang beriman yang diusir karena agama dan pembelaan terhadap tempat ibadah; pemakaian pada konflik kantor atau keluarga berisiko mengaburkan konteks dan memanaskan keadaan."
+    },
+    {
+      "ref": "4:27",
+      "feeling": "Rasa bersalah & dosa",
+      "captionShown": "Allah menghendaki untuk mengampuni dosa-dosa kalian",
+      "verdict": "ganti",
+      "note": "Pas untuk rasa bersalah bila diarahkan kepada taubat, tetapi kalimat sekarang terlalu mudah terbaca sebagai pengampunan tanpa syarat. Ganti menjadi: “Allah hendak menerima taubatmu; jangan mengikuti hawa nafsu yang menjauhkanmu.”",
+      "replacement": "Allah hendak menerima taubatmu; jangan mengikuti hawa nafsu yang menjauhkanmu."
+    },
+    {
+      "ref": "2:183",
+      "feeling": "Godaan & hawa nafsu",
+      "captionShown": "Puasa diwajibkan agar kamu sanggup menahan hawa nafsu",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai jalan praktis menghadapi hawa nafsu, tetapi tujuan teksnya adalah takwa, bukan sekadar penekanan dorongan. Ganti menjadi: “Puasa diwajibkan agar kamu bertakwa; ia melatih pengendalian diri di bawah ketaatan kepada Allah.”",
+      "replacement": "Puasa diwajibkan agar kamu bertakwa; ia melatih pengendalian diri di bawah ketaatan kepada Allah."
+    },
+    {
+      "ref": "19:96",
+      "feeling": "Pernikahan & pasangan",
+      "captionShown": "Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai ayat khusus pernikahan atau pasangan. Ayat menjelaskan bahwa Allah menanamkan kasih sayang bagi orang beriman dan beramal saleh secara umum, bukan janji hubungan romantis atau keberhasilan rumah tangga."
+    },
+    {
+      "ref": "2:187",
+      "feeling": "Pernikahan & pasangan",
+      "captionShown": "Suami-istri saling menjadi penenteram satu sama lain",
+      "verdict": "ganti",
+      "note": "Cocok untuk pernikahan karena menggambarkan suami-istri sebagai pakaian satu sama lain, tetapi ayat penuhnya membahas hukum malam Ramadan. Ganti kalimat menjadi: “Mereka adalah pakaian bagimu dan kamu adalah pakaian bagi mereka—kedekatan, perlindungan, dan kehormatan yang timbal balik.”",
+      "replacement": "Mereka adalah pakaian bagimu dan kamu adalah pakaian bagi mereka—kedekatan, perlindungan, dan kehormatan yang timbal balik."
+    },
+    {
+      "ref": "21:89",
+      "feeling": "Menanti keturunan",
+      "captionShown": "Nabi Zakaria pun pernah memohon keturunan dengan hati yang sama",
+      "verdict": "pas",
+      "note": "Pas. Ini doa Nabi Zakaria ketika memohon keturunan dan mengakui Allah sebagai sebaik-baik Pewaris. Jangan menjadikannya jaminan bahwa setiap doa akan dijawab dengan bentuk dan waktu yang sama."
+    },
+    {
+      "ref": "3:38",
+      "feeling": "Menanti keturunan",
+      "captionShown": "Allah Maha Mendengar setiap permohonan yang kau bisikkan",
+      "verdict": "pas",
+      "note": "Pas. Doa Nabi Zakaria secara langsung memohon keturunan yang baik dan menegaskan bahwa Allah Maha Mendengar doa. Kalimat pendamping sesuai selama tidak menjanjikan hasil tertentu."
+    },
+    {
+      "ref": "25:74",
+      "feeling": "Menanti jodoh",
+      "captionShown": "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati",
+      "verdict": "pas",
+      "note": "Pas untuk menanti jodoh sekaligus membangun visi keluarga. Ayat mengajarkan meminta pasangan dan keturunan sebagai penyejuk mata serta menjadi teladan bagi orang bertakwa."
+    },
+    {
+      "ref": "51:49",
+      "feeling": "Menanti jodoh",
+      "captionShown": "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai janji bahwa setiap orang pasti mendapatkan pasangan hidup. Ayat ini berbicara tentang tanda kebesaran Allah dalam penciptaan segala sesuatu berpasangan, bukan kepastian jodoh individual."
+    },
+    {
+      "ref": "20:132",
+      "feeling": "Lelah mendidik anak",
+      "captionShown": "Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung",
+      "verdict": "ganti",
+      "note": "Pas untuk orang tua yang lelah membimbing keluarga, tetapi kalimat harus tetap dekat dengan teks. Ganti menjadi: “Perintahkan keluargamu salat dan bersabarlah menjaganya; Allah-lah yang memberi rezeki.”",
+      "replacement": "Perintahkan keluargamu salat dan bersabarlah menjaganya; Allah-lah yang memberi rezeki."
+    },
+    {
+      "ref": "11:115",
+      "feeling": "Lelah mendidik anak",
+      "captionShown": "Tidak ada satu pun lelahmu yang disia-siakan Allah",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai penguatan umum bagi orang tua yang bersabar berbuat baik. Ganti kalimat menjadi: “Bersabarlah; Allah tidak menyia-nyiakan pahala orang-orang yang berbuat baik,” agar tidak mengklaim setiap bentuk kelelahan otomatis bernilai ibadah.",
+      "replacement": "Bersabarlah; Allah tidak menyia-nyiakan pahala orang-orang yang berbuat baik"
+    },
+    {
+      "ref": "14:40",
+      "feeling": "Lelah mendidik anak",
+      "captionShown": "Doakan anakmu; itu pun bagian dari mendidiknya",
+      "verdict": "pas",
+      "note": "Pas. Doa Nabi Ibrahim agar dirinya dan keturunannya menegakkan salat sangat relevan ketika ikhtiar mendidik terasa berat. Kalimat aplikasi sudah baik."
+    },
+    {
+      "ref": "28:56",
+      "feeling": "Anak yang menjauh",
+      "captionShown": "Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai",
+      "verdict": "ganti",
+      "note": "Prinsipnya tepat: hidayah hati bukan di tangan orang tua, bahkan terhadap orang yang dicintai. Ganti kalimat menjadi: “Kamu tidak dapat memberi hidayah kepada orang yang kamu cintai; Allah memberi hidayah, sedangkan tugasmu tetap menasihati, mendoakan, dan memberi teladan.”",
+      "replacement": "Kamu tidak dapat memberi hidayah kepada orang yang kamu cintai; Allah memberi hidayah, sedangkan tugasmu tetap menasihati, mendoakan, dan memberi teladan."
+    },
+    {
+      "ref": "31:14",
+      "feeling": "Merawat orang tua",
+      "captionShown": "Merawat mereka adalah membalas lemah yang dahulu mereka tanggung",
+      "verdict": "ganti",
+      "note": "Ayat sangat relevan untuk berbakti dan merawat orang tua, tetapi kalimat sekarang dapat menambah rasa bersalah pada perawat yang sudah kelelahan. Ganti menjadi: “Bersyukurlah kepada Allah dan kepada kedua orang tua; ingatlah beratnya ibu mengandung dan menyapih.”",
+      "replacement": "Bersyukurlah kepada Allah dan kepada kedua orang tua; ingatlah beratnya ibu mengandung dan menyapih."
+    },
+    {
+      "ref": "46:15",
+      "feeling": "Merawat orang tua",
+      "captionShown": "Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya",
+      "verdict": "ganti",
+      "note": "Pas untuk merawat orang tua karena memerintahkan berbuat baik dan mengajarkan doa syukur, tetapi kalimat aplikasi menyatakan sesuatu yang tidak disebut langsung. Ganti menjadi: “Berbuat baiklah kepada orang tua; mohon kekuatan untuk mensyukuri nikmat dan beramal saleh yang Allah ridhai.”",
+      "replacement": "Berbuat baiklah kepada orang tua; mohon kekuatan untuk mensyukuri nikmat dan beramal saleh yang Allah ridhai."
+    },
+    {
+      "ref": "41:34",
+      "feeling": "Pertengkaran keluarga",
+      "captionShown": "Balas keburukan dengan kebaikan, permusuhan bisa berubah jadi kedekatan",
+      "verdict": "pas",
+      "note": "Pas untuk pertengkaran keluarga sebagai prinsip menolak keburukan dengan cara yang lebih baik. Namun, dalam kekerasan atau bahaya nyata, ayat ini tidak menghapus kebutuhan akan batas aman, perlindungan, dan pertolongan."
+    },
+    {
+      "ref": "8:63",
+      "feeling": "Pertengkaran keluarga",
+      "captionShown": "Hanya Allah yang sanggup menyatukan hati yang saling menjauh",
+      "verdict": "pas",
+      "note": "Pas sebagai pengingat bahwa penyatuan hati berada dalam kuasa Allah. Tetap lakukan sebab-sebab damai—komunikasi, keadilan, dan mediasi—seraya memohon Allah melembutkan hati."
+    },
+    {
+      "ref": "19:24",
+      "feeling": "Mengasuh sendirian",
+      "captionShown": "Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk menguatkan pengasuh yang merasa sendirian, tetapi konteksnya adalah Maryam saat melahirkan. Ganti menjadi: “Ketika Maryam sendirian dalam kesulitan, Allah menyampaikan kepadanya: jangan bersedih.”",
+      "replacement": "Ketika Maryam sendirian dalam kesulitan, Allah menyampaikan kepadanya: jangan bersedih."
+    },
+    {
+      "ref": "19:25",
+      "feeling": "Mengasuh sendirian",
+      "captionShown": "Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan",
+      "verdict": "cabut",
+      "note": "Jangan dipakai untuk tema umum mengasuh sendirian. Perintah menggoyang pohon kurma berada dalam kisah persalinan Maryam; metafora “kamu cukup menggoyang, sisanya Allah” terlalu jauh dari teks dan dapat mengecilkan beratnya pengasuhan."
+    },
+    {
+      "ref": "28:7",
+      "feeling": "Mengasuh sendirian",
+      "captionShown": "Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk ketakutan seorang ibu, tetapi jangan disamakan begitu saja dengan semua pengalaman orang tua tunggal. Ganti menjadi: “Allah menenangkan ibu Musa ketika ia takut akan keselamatan anaknya: jangan takut dan jangan bersedih.”",
+      "replacement": "Allah menenangkan ibu Musa ketika ia takut akan keselamatan anaknya: jangan takut dan jangan bersedih."
+    },
+    {
+      "ref": "33:3",
+      "feeling": "Khawatir masa depan",
+      "captionShown": "Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu",
+      "verdict": "ganti",
+      "note": "Pas untuk kekhawatiran masa depan melalui tawakal. Ganti kalimat menjadi: “Bertawakallah kepada Allah; cukuplah Allah sebagai Pemelihara,” agar tidak menyiratkan tawakal berarti berhenti merencanakan atau berikhtiar.",
+      "replacement": "Bertawakallah kepada Allah; cukuplah Allah sebagai Pemelihara"
+    },
+    {
+      "ref": "46:13",
+      "feeling": "Khawatir masa depan",
+      "captionShown": "Tetap teguh pada Allah, maka tak ada yang perlu ditakutkan",
+      "verdict": "pas",
+      "note": "Pas. Ayat menghubungkan pengakuan ‘Tuhan kami Allah’ dengan istiqamah, lalu meniadakan ketakutan dan kesedihan bagi mereka. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "31:34",
+      "feeling": "Khawatir masa depan",
+      "captionShown": "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu",
+      "verdict": "ganti",
+      "note": "Cocok untuk menerima keterbatasan pengetahuan tentang masa depan, tetapi jangan menjadikannya alasan pasif. Ganti menjadi: “Tak seorang pun mengetahui pasti apa yang akan diusahakannya besok; Allah Maha Mengetahui—maka rencanakan, berikhtiar, dan serahkan hasil kepada-Nya.”",
+      "replacement": "Tak seorang pun mengetahui pasti apa yang akan diusahakannya besok; Allah Maha Mengetahui—maka rencanakan, berikhtiar, dan serahkan hasil kepada-Nya."
+    },
+    {
+      "ref": "2:216",
+      "feeling": "Bingung memilih",
+      "captionShown": "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai panduan umum ketika bingung memilih. Konteks langsungnya adalah kewajiban berperang, dan potongan ‘boleh jadi kamu membenci sesuatu’ tidak menggantikan istikharah, musyawarah, ilmu, dan penilaian maslahat."
+    },
+    {
+      "ref": "18:24",
+      "feeling": "Bingung memilih",
+      "captionShown": "Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai doa memohon jalan yang lebih dekat kepada kebenaran, tetapi konteks utamanya adalah adab mengucapkan insya Allah setelah terlupa. Ganti menjadi: “Katakan insya Allah dan mohon agar Tuhan menunjukkan jalan yang lebih dekat kepada kebenaran.”",
+      "replacement": "Katakan insya Allah dan mohon agar Tuhan menunjukkan jalan yang lebih dekat kepada kebenaran."
+    },
+    {
+      "ref": "42:38",
+      "feeling": "Bingung memilih",
+      "captionShown": "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman",
+      "verdict": "pas",
+      "note": "Pas. Musyawarah disebut sebagai sifat orang beriman bersama salat dan infak. Untuk keputusan pribadi, pilih orang yang amanah, memahami masalah, dan tidak mengambil alih tanggung jawab keputusan."
+    },
+    {
+      "ref": "4:100",
+      "feeling": "Memulai lagi",
+      "captionShown": "Yang pergi karena Allah menemukan tempat luas dan rezeki berlimpah",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk memulai lagi bila perpindahan itu benar-benar hijrah menuju ketaatan dan keselamatan agama. Ganti kalimat menjadi: “Siapa yang berhijrah di jalan Allah akan mendapati tempat yang luas dan rezeki; niat dan arah hijrahnya harus karena Allah.”",
+      "replacement": "Siapa yang berhijrah di jalan Allah akan mendapati tempat yang luas dan rezeki; niat dan arah hijrahnya harus karena Allah."
+    },
+    {
+      "ref": "29:56",
+      "feeling": "Memulai lagi",
+      "captionShown": "Bumi Allah itu luas; selalu ada tempat untuk memulai lagi",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai slogan umum bahwa selalu ada tempat untuk memulai hidup baru. Ayat ini memerintahkan orang beriman berpindah ketika tidak leluasa menyembah Allah; konteksnya hijrah demi ibadah, bukan setiap perubahan hidup."
+    },
+    {
+      "ref": "93:5",
+      "feeling": "Harapan",
+      "captionShown": "Allah akan memberi, sampai hatimu benar-benar puas dan senang",
+      "verdict": "ganti",
+      "note": "Ayat ini adalah penghiburan dan janji khusus Allah kepada Nabi Muhammad. Boleh menjadi sumber harapan, tetapi jangan dijadikan jaminan bahwa semua keinginan setiap orang pasti terpenuhi; ganti menjadi: “Tuhanmu akan memberi kepadamu hingga engkau ridha—penghiburan Allah kepada Nabi-Nya.”",
+      "replacement": "Tuhanmu akan memberi kepadamu hingga engkau ridha—penghiburan Allah kepada Nabi-Nya."
+    },
+    {
+      "ref": "10:58",
+      "feeling": "Bahagia",
+      "captionShown": "Bergembiralah dengan karunia dan rahmat Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat memerintahkan bergembira karena karunia dan rahmat Allah, yang lebih baik daripada apa yang manusia kumpulkan. Kalimat aplikasi tepat."
+    },
+    {
+      "ref": "27:19",
+      "feeling": "Bahagia",
+      "captionShown": "Sulaiman tersenyum, lalu memohon agar pandai mensyukuri nikmat-Nya",
+      "verdict": "pas",
+      "note": "Pas untuk mengarahkan kebahagiaan kepada syukur. Nabi Sulaiman tersenyum lalu memohon kemampuan mensyukuri nikmat dan beramal yang diridhai Allah."
+    },
+    {
+      "ref": "93:11",
+      "feeling": "Bahagia",
+      "captionShown": "Saat bahagia, sebut dan syukuri nikmat Tuhanmu",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengajarkan menyebut nikmat Tuhan dengan syukur. Penyebutan nikmat hendaknya tidak berubah menjadi pamer, merendahkan orang lain, atau membuka hal yang sebaiknya dijaga."
+    },
+    {
+      "ref": "30:54",
+      "feeling": "Menua",
+      "captionShown": "Lemah, kuat, lalu lemah lagi — semua dalam rencana-Nya",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung menggambarkan fase lemah, kuat, lalu lemah dan beruban sebagai bagian dari penciptaan Allah. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "21:83",
+      "feeling": "Sakit menahun",
+      "captionShown": "Doa Ayyub: penyakit ini menimpaku, dan Engkau Maha Penyayang",
+      "verdict": "pas",
+      "note": "Pas. Doa Nabi Ayyub mengajarkan mengadukan penderitaan kepada Allah dengan adab dan tetap mengakui keluasan rahmat-Nya. Ini tidak melarang mencari diagnosis, pengobatan, dan dukungan manusia."
+    },
+    {
+      "ref": "21:84",
+      "feeling": "Sakit menahun",
+      "captionShown": "Doa Ayyub dikabulkan; yang hilang dikembalikan berlipat oleh-Nya",
+      "verdict": "ganti",
+      "note": "Kisah ini memberi harapan, tetapi jangan dibaca sebagai janji bahwa semua penyakit menahun pasti sembuh atau semua kehilangan kembali dalam bentuk yang sama. Ganti menjadi: “Allah mengabulkan doa Ayyub dan mengangkat penderitaannya—kisah rahmat dan harapan, bukan pola hasil yang dijanjikan kepada setiap orang.”",
+      "replacement": "Allah mengabulkan doa Ayyub dan mengangkat penderitaannya—kisah rahmat dan harapan, bukan pola hasil yang dijanjikan kepada setiap orang."
+    },
+    {
+      "ref": "10:57",
+      "feeling": "Sakit menahun",
+      "captionShown": "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati",
+      "verdict": "ganti",
+      "note": "Boleh dipakai karena kalimat pendamping sudah membedakan penyakit tubuh dari penyakit hati. Ganti menjadi lebih tegas: “Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah.”",
+      "replacement": "Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah."
+    },
+    {
+      "ref": "4:130",
+      "feeling": "Perceraian",
+      "captionShown": "Jika berpisah, Allah mencukupi keduanya dari karunia-Nya masing-masing",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung berbicara tentang perceraian dan keluasan karunia Allah bagi masing-masing pihak. Kecukupan tidak harus berarti kekayaan segera; maknanya mencakup pertolongan dan jalan hidup yang Allah bukakan menurut hikmah-Nya."
+    },
+    {
+      "ref": "2:237",
+      "feeling": "Perceraian",
+      "captionShown": "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian",
+      "verdict": "pas",
+      "note": "Pas, terutama untuk etika berpisah dengan adil dan tidak melupakan kebaikan. Tetap tampilkan konteks hukumnya tentang mahar agar potongan pastoral tidak terlepas dari ayat."
+    },
+    {
+      "ref": "4:19",
+      "feeling": "Perceraian",
+      "captionShown": "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar",
+      "verdict": "cabut",
+      "note": "Jangan dipakai untuk orang yang sedang menghadapi perceraian secara umum. Ayat ini menata perlakuan terhadap perempuan dan kehidupan rumah tangga, bukan menyuruh semua orang bertahan; pemakaiannya dapat menekan korban kekerasan atau menyudutkan perempuan."
+    },
+    {
+      "ref": "12:18",
+      "feeling": "Dikhianati",
+      "captionShown": "Saat orang terdekat berdusta, kesabaran yang indah adalah jalannya",
+      "verdict": "pas",
+      "note": "Pas. Nabi Ya’qub menghadapi kebohongan orang-orang terdekat dengan ‘kesabaran yang indah’ dan memohon pertolongan Allah. Kesabaran di sini tidak berarti membenarkan pengkhianatan atau menolak mencari kebenaran."
+    },
+    {
+      "ref": "12:90",
+      "feeling": "Dikhianati",
+      "captionShown": "Yusuf dikhianati saudaranya, namun Allah tak menyia-nyiakan orang yang bersabar",
+      "verdict": "pas",
+      "note": "Pas. Kisah Yusuf menunjukkan bahwa takwa dan kesabaran tidak disia-siakan Allah setelah pengkhianatan panjang. Jangan menjanjikan bahwa pemulihan setiap orang akan mengikuti jalan cerita yang sama."
+    },
+    {
+      "ref": "40:19",
+      "feeling": "Dikhianati",
+      "captionShown": "Tak ada khianat yang tersembunyi; Allah melihat semuanya",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai pengingat bahwa pengkhianatan tersembunyi tidak luput dari ilmu Allah, tetapi jangan digunakan untuk menuduh tanpa bukti. Ganti menjadi: “Allah mengetahui pandangan yang berkhianat dan apa yang disembunyikan hati.”",
+      "replacement": "Allah mengetahui pandangan yang berkhianat dan apa yang disembunyikan hati."
+    },
+    {
+      "ref": "93:6",
+      "feeling": "Ditinggalkan",
+      "captionShown": "Dia mendapatimu sendirian dahulu, lalu Dia melindungimu",
+      "verdict": "ganti",
+      "note": "Ayat ini adalah penghiburan khusus kepada Nabi yang dahulu yatim, bukan pernyataan bahwa beliau sekadar ‘sendirian’. Ganti menjadi: “Bukankah Dia mendapatimu yatim lalu melindungimu?—penghiburan Allah kepada Nabi-Nya yang menumbuhkan harapan akan pemeliharaan-Nya.”",
+      "replacement": "Bukankah Dia mendapatimu yatim lalu melindungimu?—penghiburan Allah kepada Nabi-Nya yang menumbuhkan harapan akan pemeliharaan-Nya."
+    },
+    {
+      "ref": "9:118",
+      "feeling": "Ditolak",
+      "captionShown": "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu",
+      "verdict": "cabut",
+      "note": "Jangan dipakai untuk penolakan sehari-hari. Ayat ini berbicara tentang tiga sahabat yang ditangguhkan penerimaan taubatnya dan dikucilkan sebagai disiplin agama; menggunakannya untuk penolakan romantis atau sosial dapat menimbulkan rasa bersalah yang keliru."
+    },
+    {
+      "ref": "16:127",
+      "feeling": "Ditolak",
+      "captionShown": "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk penolakan yang disertai gangguan atau tipu daya, tetapi konteksnya adalah Nabi menghadapi penentangan dakwah. Ganti menjadi: “Bersabarlah dengan pertolongan Allah; jangan bersedih dan jangan bersempit dada karena tipu daya mereka.”",
+      "replacement": "Bersabarlah dengan pertolongan Allah; jangan bersedih dan jangan bersempit dada karena tipu daya mereka."
+    },
+    {
+      "ref": "12:84",
+      "feeling": "Rindu",
+      "captionShown": "Bahkan seorang nabi menangis sampai matanya memutih karena rindu",
+      "verdict": "pas",
+      "note": "Pas. Al-Qur’an mengakui kesedihan dan rindu Nabi Ya’qub tanpa mencelanya. Gunakan dengan lembut dan jangan menyimpulkan bahwa kesedihan mendalam selalu berarti kurang iman."
+    },
+    {
+      "ref": "12:87",
+      "feeling": "Rindu",
+      "captionShown": "Selama merindu, jangan pernah berputus asa dari rahmat Allah",
+      "verdict": "pas",
+      "note": "Pas. Nabi Ya’qub tetap menyuruh mencari Yusuf dan melarang berputus asa dari kelapangan serta rahmat Allah. Ayat menggabungkan harapan dengan ikhtiar nyata."
+    },
+    {
+      "ref": "12:96",
+      "feeling": "Rindu",
+      "captionShown": "Rindu yang panjang itu akhirnya berujung kabar gembira",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai akhir kisah rindu Nabi Ya’qub, tetapi bukan jaminan bahwa setiap orang yang dirindukan akan kembali. Ganti menjadi: “Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang.”",
+      "replacement": "Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang."
+    },
+    {
+      "ref": "28:85",
+      "feeling": "Merantau",
+      "captionShown": "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai janji umum bagi perantau bahwa pasti pulang ke tempat asal. Ayat ini ditujukan kepada Nabi dan ditafsirkan berkaitan dengan pengembalian beliau ke tempat kembali; universalisasi kalimat aplikasi terlalu jauh."
+    },
+    {
+      "ref": "106:4",
+      "feeling": "Merantau",
+      "captionShown": "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk syukur atas pangan dan keamanan dalam perjalanan, tetapi harus dibaca bersama QS Quraisy 106:1–4. Ganti menjadi: “Dalam perjalanan dagang Quraisy, Allah mengingatkan nikmat pangan dan keamanan; bersyukurlah kepada Tuhan pemilik Ka’bah.”",
+      "replacement": "Dalam perjalanan dagang Quraisy, Allah mengingatkan nikmat pangan dan keamanan; bersyukurlah kepada Tuhan pemilik Ka’bah."
+    },
+    {
+      "ref": "93:8",
+      "feeling": "Kekurangan",
+      "captionShown": "Allah pernah mendapatimu kekurangan, lalu Dia mencukupkanmu",
+      "verdict": "ganti",
+      "note": "Ayat ini mengingatkan nikmat khusus Allah kepada Nabi yang dahulu kekurangan lalu dicukupkan. Ganti menjadi: “Dia mendapatimu kekurangan lalu memberi kecukupan—penghiburan kepada Nabi yang menumbuhkan harapan, bukan janji cepat kaya bagi setiap orang.”",
+      "replacement": "Dia mendapatimu kekurangan lalu memberi kecukupan—penghiburan kepada Nabi yang menumbuhkan harapan, bukan janji cepat kaya bagi setiap orang."
+    },
+    {
+      "ref": "67:15",
+      "feeling": "Kekurangan",
+      "captionShown": "Bumi dibentangkan untukmu; melangkahlah, rezeki-Nya ada di sana",
+      "verdict": "pas",
+      "note": "Pas. Ayat memerintahkan berjalan di penjuru bumi dan memakan rezeki Allah, sehingga menggabungkan ikhtiar dengan kesadaran bahwa rezeki berasal dari-Nya."
+    },
+    {
+      "ref": "15:21",
+      "feeling": "Cemas soal uang",
+      "captionShown": "Rezekimu sudah tersimpan di sisi-Nya, turun pada takarannya",
+      "verdict": "ganti",
+      "note": "Cocok untuk meredakan kecemasan, tetapi teksnya berbicara luas tentang khazanah segala sesuatu, bukan saldo pribadi yang sudah pasti. Ganti menjadi: “Segala sesuatu memiliki khazanah di sisi Allah dan diturunkan dengan ukuran tertentu; tetaplah berikhtiar secara halal.”",
+      "replacement": "Segala sesuatu memiliki khazanah di sisi Allah dan diturunkan dengan ukuran tertentu; tetaplah berikhtiar secara halal."
+    },
+    {
+      "ref": "17:29",
+      "feeling": "Pelit",
+      "captionShown": "Jangan menggenggam terlalu erat, jangan pula menghambur; ambil tengahnya",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengajarkan jalan tengah antara kikir dan boros. Kalimat aplikasi sesuai dan praktis."
+    },
+    {
+      "ref": "64:16",
+      "feeling": "Pelit",
+      "captionShown": "Bertakwalah sesanggupmu; berilah, itu kebaikan untuk dirimu sendiri",
+      "verdict": "pas",
+      "note": "Pas. Ayat memerintahkan takwa sesuai kemampuan, mendengar, taat, dan berinfak; keselamatan dari kekikiran diri disebut sebagai keberuntungan."
+    },
+    {
+      "ref": "102:1",
+      "feeling": "Tidak pernah merasa cukup",
+      "captionShown": "Berlomba menumpuk harta melalaikan, sampai kubur menghentikannya",
+      "verdict": "ganti",
+      "note": "Maknanya cocok, tetapi kalimat aplikasi memasukkan isi ayat 2 sementara yang ditampilkan hanya ayat 1. Tampilkan QS 102:1–2 bersama, atau ganti kalimat menjadi: “Berlomba memperbanyak dan bermegah-megahan telah melalaikanmu.”",
+      "replacement": "Berlomba memperbanyak dan bermegah-megahan telah melalaikanmu."
+    },
+    {
+      "ref": "63:9",
+      "feeling": "Tidak pernah merasa cukup",
+      "captionShown": "Jangan biarkan harta dan anak melalaikanmu dari mengingat-Nya",
+      "verdict": "pas",
+      "note": "Pas. Ayat langsung memperingatkan agar harta dan anak tidak melalaikan dari mengingat Allah. Ini mengoreksi rasa tidak pernah cukup tanpa mencela kepemilikan yang halal."
+    },
+    {
+      "ref": "28:60",
+      "feeling": "Merasa cukup",
+      "captionShown": "Yang ada di sisi Allah lebih baik dan lebih kekal",
+      "verdict": "pas",
+      "note": "Pas untuk qanaah. Ayat menempatkan kenikmatan dunia sebagai sementara dan menegaskan bahwa yang di sisi Allah lebih baik serta lebih kekal."
+    },
+    {
+      "ref": "16:96",
+      "feeling": "Merasa cukup",
+      "captionShown": "Milikmu akan habis; yang di sisi Allah tetap kekal",
+      "verdict": "pas",
+      "note": "Pas. Ayat membandingkan apa yang ada pada manusia yang akan lenyap dengan apa yang ada di sisi Allah yang kekal, lalu menguatkan orang yang sabar."
+    },
+    {
+      "ref": "2:261",
+      "feeling": "Sedekah",
+      "captionShown": "Satu biji yang kamu tanam menjadi tujuh tangkai berbuah",
+      "verdict": "pas",
+      "note": "Pas. Perumpamaan satu benih menjadi tujuh bulir menegaskan pelipatgandaan pahala infak di jalan Allah. Jangan membatasi ‘di jalan Allah’ hanya pada perang bila terjemahan pendamping dapat dibuat lebih luas dan tepat."
+    },
+    {
+      "ref": "2:274",
+      "feeling": "Sedekah",
+      "captionShown": "Yang memberi diam-diam maupun terang: tak ada takut, tak ada sedih",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung memuji orang yang berinfak malam dan siang, sembunyi maupun terang, serta menjanjikan pahala di sisi Allah."
+    },
+    {
+      "ref": "34:39",
+      "feeling": "Sedekah",
+      "captionShown": "Apa pun yang kamu berikan, pasti Allah menggantinya",
+      "verdict": "ganti",
+      "note": "Pas untuk sedekah, tetapi ‘Allah menggantinya’ jangan dipersempit menjadi pengembalian uang segera atau jumlah yang sama. Ganti menjadi: “Apa yang kamu infakkan, Allah menggantinya menurut hikmah-Nya; Dia sebaik-baik Pemberi rezeki.”",
+      "replacement": "Apa yang kamu infakkan, Allah menggantinya menurut hikmah-Nya; Dia sebaik-baik Pemberi rezeki."
+    },
+    {
+      "ref": "20:131",
+      "feeling": "Iri melihat kekayaan orang",
+      "captionShown": "Jangan tujukan matamu ke milik orang lain; itu ujian",
+      "verdict": "pas",
+      "note": "Pas. Ayat langsung melarang memanjangkan pandangan kepada kemewahan yang diberikan kepada kelompok lain dan mengingatkan bahwa rezeki Tuhan lebih baik serta lebih kekal."
+    },
+    {
+      "ref": "15:88",
+      "feeling": "Iri melihat kekayaan orang",
+      "captionShown": "Jangan melirik milik mereka, jangan pula bersedih karenanya",
+      "verdict": "pas",
+      "note": "Pas. Ayat melarang mengarahkan pandangan kepada kenikmatan kelompok lain dan larut dalam kesedihan karenanya. Kalimat aplikasi sesuai."
+    },
+    {
+      "ref": "25:70",
+      "feeling": "Malu",
+      "captionShown": "Bagi yang kembali, Allah menukar dosa-dosa itu dengan pahala",
+      "verdict": "pas",
+      "note": "Pas untuk malu karena dosa, dengan syarat taubat, iman, dan amal saleh disebut jelas. Jangan menyederhanakan pesan menjadi penghapusan otomatis tanpa perubahan nyata."
+    },
+    {
+      "ref": "11:114",
+      "feeling": "Malu",
+      "captionShown": "Kebaikan yang kamu kerjakan menghapus jejak yang kamu malukan",
+      "verdict": "ganti",
+      "note": "Boleh dipakai, tetapi jangan memberi kesan bahwa semua dosa terhapus hanya dengan kebaikan tambahan. Ganti menjadi: “Kebaikan menghapus keburukan; dosa besar dan hak manusia tetap memerlukan taubat serta perbaikan khusus.”",
+      "replacement": "Kebaikan menghapus keburukan; dosa besar dan hak manusia tetap memerlukan taubat serta perbaikan khusus."
+    },
+    {
+      "ref": "40:7",
+      "feeling": "Malu",
+      "captionShown": "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk mengangkat rasa malu, tetapi kalimat sekarang menambahkan ‘menutupi aib’ yang tidak disebut ayat. Ganti menjadi: “Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah.”",
+      "replacement": "Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah."
+    },
+    {
+      "ref": "2:37",
+      "feeling": "Menyesal",
+      "captionShown": "Adam pun pernah jatuh, dan taubatnya diterima Allah",
+      "verdict": "pas",
+      "note": "Pas. Nabi Adam menerima kalimat-kalimat taubat dari Tuhannya, lalu Allah menerima taubatnya. Ini menumbuhkan harapan setelah penyesalan tanpa meremehkan kesalahan."
+    },
+    {
+      "ref": "5:39",
+      "feeling": "Menyesal",
+      "captionShown": "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah",
+      "verdict": "ganti",
+      "note": "Prinsip taubat dan perbaikan dapat dipakai, walaupun konteks langsungnya adalah pencurian. Ganti menjadi: “Sesudah berbuat zalim, bertaubatlah dan perbaikilah diri; bila menyangkut hak manusia, kembalikan hak dan mintalah maaf.”",
+      "replacement": "Sesudah berbuat zalim, bertaubatlah dan perbaikilah diri; bila menyangkut hak manusia, kembalikan hak dan mintalah maaf."
+    },
+    {
+      "ref": "3:133",
+      "feeling": "Menyesal",
+      "captionShown": "Jangan berlama-lama di masa lalu; bergegaslah menuju ampunan-Nya",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengarahkan orang agar segera berlomba menuju ampunan dan surga, sehingga penyesalan diubah menjadi langkah taubat, bukan tenggelam dalam masa lalu."
+    },
+    {
+      "ref": "49:11",
+      "feeling": "Minder",
+      "captionShown": "Yang direndahkan orang bisa jadi lebih baik di sisi Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat melarang saling merendahkan dan mengingatkan bahwa orang yang direndahkan boleh jadi lebih baik di sisi Allah. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "49:13",
+      "feeling": "Minder",
+      "captionShown": "Ukuran kemuliaan bukan status, melainkan takwa di sisi Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat menegaskan kesetaraan asal manusia dan bahwa ukuran kemuliaan di sisi Allah adalah takwa, bukan suku, status, atau penampilan."
+    },
+    {
+      "ref": "21:94",
+      "feeling": "Merasa tidak berguna",
+      "captionShown": "Tidak ada satu pun kebaikanmu yang disia-siakan Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat menegaskan bahwa amal saleh seorang mukmin tidak diingkari dan dicatat. Ini tepat untuk orang yang merasa jerih payahnya tidak berguna."
+    },
+    {
+      "ref": "99:7",
+      "feeling": "Merasa tidak berguna",
+      "captionShown": "Sekecil debu pun kebaikanmu tetap terlihat dan berbalas",
+      "verdict": "pas",
+      "note": "Pas. Kebaikan seberat zarrah pun akan dilihat. Kalimat pendamping tepat selama tidak dipakai untuk mengecilkan kebutuhan akan amal yang lebih besar dan konsisten."
+    },
+    {
+      "ref": "64:3",
+      "feeling": "Merasa tidak berguna",
+      "captionShown": "Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk rasa rendah diri, tetapi jangan menjadikannya klaim tentang standar rupa atau tubuh tertentu. Ganti menjadi: “Allah membentukmu dengan baik menurut hikmah-Nya; kepada-Nya seluruh perjalanan kembali.”",
+      "replacement": "Allah membentukmu dengan baik menurut hikmah-Nya; kepada-Nya seluruh perjalanan kembali."
+    },
+    {
+      "ref": "93:3",
+      "feeling": "Merasa tidak dicintai",
+      "captionShown": "Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu",
+      "verdict": "ganti",
+      "note": "Ayat ini adalah penghiburan Allah kepada Nabi Muhammad bahwa beliau tidak ditinggalkan dan tidak dibenci. Ganti menjadi: “Tuhanmu tidak meninggalkan dan tidak membenci Nabi-Nya—ayat penghiburan bagi hati yang merasa jauh dari kasih Allah.”",
+      "replacement": "Tuhanmu tidak meninggalkan dan tidak membenci Nabi-Nya—ayat penghiburan bagi hati yang merasa jauh dari kasih Allah."
+    },
+    {
+      "ref": "3:31",
+      "feeling": "Merasa tidak dicintai",
+      "captionShown": "Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu",
+      "verdict": "ganti",
+      "note": "Cocok untuk mencari cinta Allah, tetapi kalimat harus menyebut jalannya dengan jelas. Ganti menjadi: “Ikutilah Rasulullah; Allah akan mencintai dan mengampuni dosa-dosamu.”",
+      "replacement": "Ikutilah Rasulullah; Allah akan mencintai dan mengampuni dosa-dosamu."
+    },
+    {
+      "ref": "11:90",
+      "feeling": "Merasa tidak dicintai",
+      "captionShown": "Cinta Allah amat besar kepada siapa pun yang kembali",
+      "verdict": "ganti",
+      "note": "Pas sebagai penegasan kasih dan rahmat Allah bagi orang yang kembali, tetapi pertahankan urutan taubatnya. Ganti menjadi: “Mohonlah ampun dan bertaubatlah kepada-Nya; Tuhanku Maha Penyayang lagi Maha Pengasih.”",
+      "replacement": "Mohonlah ampun dan bertaubatlah kepada-Nya; Tuhanku Maha Penyayang lagi Maha Pengasih."
+    },
+    {
+      "ref": "16:97",
+      "feeling": "Hampa",
+      "captionShown": "Iman dan amal kecil pun membuahkan kehidupan yang baik",
+      "verdict": "pas",
+      "note": "Pas. Ayat menjanjikan kehidupan yang baik bagi laki-laki atau perempuan yang beramal saleh dalam keadaan beriman. Jangan menyempitkan ‘kehidupan yang baik’ hanya menjadi kenyamanan materi."
+    },
+    {
+      "ref": "23:115",
+      "feeling": "Hampa",
+      "captionShown": "Kamu tidak diciptakan tanpa maksud; hidupmu punya tujuan",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung menolak anggapan bahwa manusia diciptakan sia-sia dan tidak akan kembali kepada Allah. Ini kuat untuk rasa hampa dan kehilangan tujuan."
+    },
+    {
+      "ref": "67:2",
+      "feeling": "Hampa",
+      "captionShown": "Hidup dan mati diadakan agar terlihat siapa terbaik amalnya",
+      "verdict": "pas",
+      "note": "Pas. Hidup dan mati disebut sebagai ujian untuk melihat siapa yang terbaik amalnya. Sampaikan dengan lembut agar orang yang sedang rapuh tidak merasa hidupnya hanya dinilai dari produktivitas."
+    },
+    {
+      "ref": "20:82",
+      "feeling": "Ingin berubah",
+      "captionShown": "Bertaubat, beramal, lalu bertahan di jalan itu — Allah mengampuni",
+      "verdict": "pas",
+      "note": "Pas. Ayat menggabungkan taubat, iman, amal saleh, dan keteguhan di jalan petunjuk. Ini memberi arah perubahan yang utuh, bukan sekadar niat sesaat."
+    },
+    {
+      "ref": "29:69",
+      "feeling": "Ingin berubah",
+      "captionShown": "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk perubahan yang sungguh-sungguh mencari ridha Allah, bukan motivasi diri yang bebas nilai. Ganti menjadi: “Orang yang bersungguh-sungguh di jalan Kami akan Kami tunjukkan jalan-jalan Kami; Allah bersama orang yang berbuat baik.”",
+      "replacement": "Orang yang bersungguh-sungguh di jalan Kami akan Kami tunjukkan jalan-jalan Kami; Allah bersama orang yang berbuat baik."
+    },
+    {
+      "ref": "33:58",
+      "feeling": "Direndahkan",
+      "captionShown": "Kamu tidak bersalah; dosanya ada pada yang mengolok",
+      "verdict": "ganti",
+      "note": "Pas untuk orang yang disakiti atau direndahkan tanpa alasan yang benar, tetapi jangan berkata mutlak ‘kamu tidak bersalah’. Ganti menjadi: “Menyakiti orang beriman tanpa kesalahan yang mereka lakukan adalah fitnah dan dosa yang nyata.”",
+      "replacement": "Menyakiti orang beriman tanpa kesalahan yang mereka lakukan adalah fitnah dan dosa yang nyata."
+    },
+    {
+      "ref": "3:186",
+      "feeling": "Direndahkan",
+      "captionShown": "Ejekan yang menyakitkan itu ujian; sabarmu bernilai besar",
+      "verdict": "ganti",
+      "note": "Boleh dipakai ketika seseorang menghadapi ucapan menyakitkan karena imannya, tetapi konteksnya adalah ujian harta, jiwa, dan gangguan dari kelompok penentang. Ganti kalimat agar tidak menormalisasi perundungan: “Kamu akan mendengar banyak ucapan menyakitkan; sabar dan takwa adalah keteguhan yang besar.”",
+      "replacement": "Kamu akan mendengar banyak ucapan menyakitkan; sabar dan takwa adalah keteguhan yang besar."
+    },
+    {
+      "ref": "33:69",
+      "feeling": "Difitnah",
+      "captionShown": "Musa pun difitnah, lalu Allah sendiri yang membersihkannya",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengingatkan agar tidak seperti orang yang menyakiti Nabi Musa, lalu Allah membersihkannya dari tuduhan mereka. Ini memberi harapan tanpa menyuruh korban membalas fitnah dengan fitnah."
+    },
+    {
+      "ref": "24:11",
+      "feeling": "Difitnah",
+      "captionShown": "Jangan kira fitnah ini merugikanmu; ia justru membawa kebaikan",
+      "verdict": "ganti",
+      "note": "Ayat ini terkait peristiwa fitnah besar terhadap keluarga Nabi dan hikmah yang Allah keluarkan darinya. Ganti menjadi: “Dalam peristiwa ifk, Allah membersihkan tuduhan dan menampakkan hikmah; jangan menjanjikan bahwa setiap fitnah akan terasa baik atau selesai dengan cara yang sama.”",
+      "replacement": "Dalam peristiwa ifk, Allah membersihkan tuduhan dan menampakkan hikmah; jangan menjanjikan bahwa setiap fitnah akan terasa baik atau selesai dengan cara yang sama."
+    },
+    {
+      "ref": "5:8",
+      "feeling": "Menyimpan benci",
+      "captionShown": "Jangan biarkan bencimu membuatmu berlaku tidak adil kepadanya",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung melarang kebencian mendorong ketidakadilan dan memerintahkan berlaku adil karena itu lebih dekat kepada takwa."
+    },
+    {
+      "ref": "17:53",
+      "feeling": "Menyimpan benci",
+      "captionShown": "Jawablah celaan dengan kata terbaik; setan senang mengadu domba",
+      "verdict": "pas",
+      "note": "Pas. Allah memerintahkan hamba-hamba-Nya mengucapkan yang terbaik karena setan menimbulkan perselisihan di antara manusia. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "42:43",
+      "feeling": "Ingin membalas",
+      "captionShown": "Sabar dan memaafkan itu tanda hati yang teguh, bukan lemah",
+      "verdict": "pas",
+      "note": "Pas. Kesabaran dan memaafkan disebut sebagai perkara yang memerlukan keteguhan hati. Memaafkan tidak selalu berarti menghapus batas, keadilan, atau konsekuensi yang diperlukan."
+    },
+    {
+      "ref": "42:40",
+      "feeling": "Ingin membalas",
+      "captionShown": "Kamu berhak membalas setimpal, tapi pahala pemaaf ditanggung Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengakui hak balasan yang setimpal sekaligus memuliakan pemaafan dan perbaikan. Ini menjaga keseimbangan antara keadilan dan ihsan."
+    },
+    {
+      "ref": "12:92",
+      "feeling": "Ingin membalas",
+      "captionShown": "Yusuf berkuasa membalas, namun ia memilih berkata: tidak ada cercaan",
+      "verdict": "pas",
+      "note": "Pas. Nabi Yusuf memiliki kuasa untuk membalas, tetapi memilih tidak mencela dan mendoakan ampunan. Ini adalah teladan pemaafan setelah kebenaran tampak."
+    },
+    {
+      "ref": "4:69",
+      "feeling": "Kehilangan sahabat",
+      "captionShown": "Masih ada teman terbaik menantimu: para nabi dan orang shalih",
+      "verdict": "ganti",
+      "note": "Boleh dipakai untuk menguatkan orang yang kehilangan sahabat, tetapi konteksnya adalah kebersamaan di akhirat bagi orang yang taat kepada Allah dan Rasul. Ganti menjadi: “Ketaatan mengantarkan kepada kebersamaan dengan para nabi, siddiq, syuhada, dan orang saleh—mereka sebaik-baik teman.”",
+      "replacement": "Ketaatan mengantarkan kepada kebersamaan dengan para nabi, siddiq, syuhada, dan orang saleh—mereka sebaik-baik teman."
+    },
+    {
+      "ref": "4:36",
+      "feeling": "Masalah dengan tetangga",
+      "captionShown": "Berbuat baik kepada tetangga dekat dan jauh, itu perintah Allah",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung memerintahkan berbuat baik kepada tetangga dekat dan jauh bersama kelompok lain yang berhak diperlakukan dengan ihsan."
+    },
+    {
+      "ref": "49:6",
+      "feeling": "Masalah dengan tetangga",
+      "captionShown": "Telitilah dulu kabar yang meragukan, agar kamu tidak menyesal",
+      "verdict": "ganti",
+      "note": "Pas bila masalah tetangga dipicu kabar atau tuduhan, bukan sebagai jawaban untuk semua konflik. Ganti menjadi: “Jika datang berita dari sumber yang tidak dapat dipercaya, telitilah agar tidak mencelakakan orang lalu menyesal.”",
+      "replacement": "Jika datang berita dari sumber yang tidak dapat dipercaya, telitilah agar tidak mencelakakan orang lalu menyesal."
+    },
+    {
+      "ref": "24:27",
+      "feeling": "Masalah dengan tetangga",
+      "captionShown": "Menghormati batas rumah orang lain menjaga damainya bertetangga",
+      "verdict": "pas",
+      "note": "Pas. Ayat mengatur izin dan salam sebelum memasuki rumah orang lain, sehingga sangat relevan untuk menjaga privasi dan adab bertetangga."
+    },
+    {
+      "ref": "49:10",
+      "feeling": "Ingin berdamai",
+      "captionShown": "Kalian bersaudara; damaikanlah, semoga kalian diberi rahmat",
+      "verdict": "pas",
+      "note": "Pas. Ayat menyebut orang beriman bersaudara dan memerintahkan mendamaikan dua pihak yang berselisih. Perdamaian harus tetap berlandaskan keadilan, bukan sekadar menekan korban agar diam."
+    },
+    {
+      "ref": "4:114",
+      "feeling": "Ingin berdamai",
+      "captionShown": "Mendamaikan yang berselisih adalah bicara paling bernilai di sisi Allah",
+      "verdict": "pas",
+      "note": "Pas. Pembicaraan rahasia umumnya tidak bernilai kecuali yang memerintahkan sedekah, kebaikan, atau mendamaikan manusia. Kalimat aplikasi sesuai."
+    },
+    {
+      "ref": "42:28",
+      "feeling": "Putus asa",
+      "captionShown": "Hujan turun justru ketika manusia hampir menyerah menunggu",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai tanda bahwa Allah menurunkan hujan setelah manusia berputus asa, tetapi jangan dijadikan jadwal pasti datangnya pertolongan pribadi. Ganti menjadi: “Allah menurunkan hujan setelah manusia berputus asa dan menyebarkan rahmat-Nya—tanda keluasan kuasa-Nya.”",
+      "replacement": "Allah menurunkan hujan setelah manusia berputus asa dan menyebarkan rahmat-Nya—tanda keluasan kuasa-Nya."
+    },
+    {
+      "ref": "12:110",
+      "feeling": "Putus asa",
+      "captionShown": "Pertolongan datang tepat saat para rasul pun hampir putus asa",
+      "verdict": "ganti",
+      "note": "Boleh dipakai dengan kehati-hatian: para rasul tidak lagi berharap kaumnya beriman, bukan berputus asa dari Allah. Ganti menjadi: “Ketika para rasul tidak lagi berharap kaumnya beriman dan mereka didustakan, pertolongan Allah datang.”",
+      "replacement": "Ketika para rasul tidak lagi berharap kaumnya beriman dan mereka didustakan, pertolongan Allah datang."
+    },
+    {
+      "ref": "57:22",
+      "feeling": "Marah pada takdir",
+      "captionShown": "Tidak ada yang menimpamu tanpa sudah tercatat sebelum dunia ada",
+      "verdict": "pas",
+      "note": "Pas untuk menerima takdir. Ayat menegaskan bahwa musibah di bumi dan diri telah tercatat sebelum diwujudkan; ini tidak melarang berduka, berobat, menuntut keadilan, atau memperbaiki sebab."
+    },
+    {
+      "ref": "9:51",
+      "feeling": "Marah pada takdir",
+      "captionShown": "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu",
+      "verdict": "ganti",
+      "note": "Prinsip tawakalnya dapat dipakai secara umum, walaupun konteks dekatnya adalah peristiwa perang dan sikap orang munafik. Ganti menjadi: “Tidak akan menimpa kami kecuali apa yang Allah tetapkan bagi kami; Dia Pelindung kami, maka kepada-Nya orang beriman bertawakal.”",
+      "replacement": "Tidak akan menimpa kami kecuali apa yang Allah tetapkan bagi kami; Dia Pelindung kami, maka kepada-Nya orang beriman bertawakal."
+    },
+    {
+      "ref": "19:4",
+      "feeling": "Doa tidak dijawab",
+      "captionShown": "Zakaria menua dan beruban, tapi doanya tak pernah sia-sia",
+      "verdict": "ganti",
+      "note": "Pas sebagai teladan tetap berdoa ketika usia dan keadaan terasa tidak mendukung, tetapi ayat ini belum memuat jawaban doanya. Ganti menjadi: “Zakaria tetap memohon kepada Allah meski tubuhnya lemah dan rambutnya beruban; doa tidak menuntut hasil yang segera.”",
+      "replacement": "Zakaria tetap memohon kepada Allah meski tubuhnya lemah dan rambutnya beruban; doa tidak menuntut hasil yang segera."
+    },
+    {
+      "ref": "21:90",
+      "feeling": "Doa tidak dijawab",
+      "captionShown": "Doa Zakaria dikabulkan setelah menunggu bertahun-tahun lamanya",
+      "verdict": "ganti",
+      "note": "Kisah ini memberi harapan bahwa Allah mampu mengabulkan doa setelah penantian, tetapi jangan dijadikan jaminan bentuk jawaban yang sama. Ganti menjadi: “Allah mengabulkan doa Zakaria dan memperbaiki keadaan keluarganya—kisah harapan, bukan pola hasil yang wajib terulang.”",
+      "replacement": "Allah mengabulkan doa Zakaria dan memperbaiki keadaan keluarganya—kisah harapan, bukan pola hasil yang wajib terulang."
+    },
+    {
+      "ref": "27:62",
+      "feeling": "Doa tidak dijawab",
+      "captionShown": "Siapa lagi yang menjawab orang terhimpit selain Allah?",
+      "verdict": "ganti",
+      "note": "Pas sebagai seruan tauhid dan harapan ketika terdesak, tetapi hindari janji bahwa jawaban selalu datang seketika atau sesuai keinginan. Ganti menjadi: “Siapakah yang mengabulkan doa orang yang terdesak dan menghilangkan kesusahan selain Allah?”",
+      "replacement": "Siapakah yang mengabulkan doa orang yang terdesak dan menghilangkan kesusahan selain Allah?"
+    },
+    {
+      "ref": "57:4",
+      "feeling": "Merasa jauh dari Allah",
+      "captionShown": "Allah beserta kalian di mana pun kalian berada",
+      "verdict": "ganti",
+      "note": "Pas untuk rasa jauh dari Allah, tetapi kebersamaan Allah dipahami melalui ilmu, pengawasan, pertolongan, dan kuasa-Nya, bukan keberadaan fisik di dalam makhluk. Ganti menjadi: “Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya.”",
+      "replacement": "Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya."
+    },
+    {
+      "ref": "3:8",
+      "feeling": "Merasa jauh dari Allah",
+      "captionShown": "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk",
+      "verdict": "pas",
+      "note": "Pas. Ini doa orang berilmu agar hati tidak disimpangkan setelah mendapat petunjuk dan agar diberi rahmat. Sangat tepat untuk rasa takut menjauh dari Allah."
+    },
+    {
+      "ref": "4:17",
+      "feeling": "Merasa terlalu banyak dosa",
+      "captionShown": "Pintu taubat terbuka selama napas masih ada",
+      "verdict": "ganti",
+      "note": "Ayat membuka harapan taubat bagi orang yang segera kembali setelah berbuat salah, tetapi tidak membenarkan menunda hingga kematian datang. Ganti menjadi: “Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat.”",
+      "replacement": "Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat."
+    },
+    {
+      "ref": "23:60",
+      "feeling": "Takut riya atau munafik",
+      "captionShown": "Mereka beramal sambil hatinya gemetar takut tak diterima",
+      "verdict": "ganti",
+      "note": "Maknanya sangat tepat untuk takut amal tidak diterima, sebagaimana penjelasan hadis tentang orang yang salat, puasa, dan bersedekah namun tetap takut. Tampilkan bersama QS 23:57–61 atau minimal 23:60–61; ganti kalimat menjadi: “Mereka beramal sambil takut karena akan kembali kepada Tuhan.”",
+      "replacement": "Mereka beramal sambil takut karena akan kembali kepada Tuhan."
+    },
+    {
+      "ref": "23:61",
+      "feeling": "Takut riya atau munafik",
+      "captionShown": "Justru merekalah yang disebut bersegera dalam kebaikan",
+      "verdict": "ganti",
+      "note": "Ayat ini adalah kelanjutan yang menjelaskan bahwa orang-orang dengan rasa takut tersebut justru bersegera dalam kebaikan. Tampilkan bersama QS 23:60 dan gunakan kalimat: “Mereka itulah yang bersegera dalam kebaikan dan menjadi yang terdepan melakukannya.”",
+      "replacement": "Mereka itulah yang bersegera dalam kebaikan dan menjadi yang terdepan melakukannya."
+    },
+    {
+      "ref": "4:146",
+      "feeling": "Takut riya atau munafik",
+      "captionShown": "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman",
+      "verdict": "ganti",
+      "note": "Boleh dipakai sebagai pintu harapan bagi orang yang takut munafik, tetapi jangan mendiagnosis dirinya sebagai munafik. Ganti menjadi: “Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman.”",
+      "replacement": "Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman."
+    },
+    {
+      "ref": "73:20",
+      "feeling": "Susah istiqamah",
+      "captionShown": "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan",
+      "verdict": "ganti",
+      "note": "Ayat ini memberi keringanan khusus dalam qiyamullail setelah Allah mengetahui keterbatasan umat, bukan izin umum meninggalkan kewajiban. Ganti menjadi: “Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten.”",
+      "replacement": "Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten."
+    },
+    {
+      "ref": "94:2",
+      "feeling": "Lelah & jenuh",
+      "captionShown": "Allah sendiri yang meringankan beban itu dari pundakmu",
+      "verdict": "ganti",
+      "note": "Ayat ini adalah penghiburan khusus kepada Nabi tentang beban yang Allah angkat. Boleh memberi harapan, tetapi jangan dijadikan janji bahwa semua beban segera hilang; ganti menjadi: “Bukankah Kami telah melapangkan dadamu dan mengangkat bebanmu?—penghiburan Allah kepada Nabi-Nya.”",
+      "replacement": "Bukankah Kami telah melapangkan dadamu dan mengangkat bebanmu?—penghiburan Allah kepada Nabi-Nya."
+    },
+    {
+      "ref": "78:9",
+      "feeling": "Lelah & jenuh",
+      "captionShown": "Tidurmu bukan kelemahan, itu penenang yang Allah sediakan",
+      "verdict": "pas",
+      "note": "Pas. Allah menjadikan tidur sebagai waktu istirahat. Ini mengoreksi anggapan bahwa kebutuhan istirahat selalu berarti malas atau gagal."
+    },
+    {
+      "ref": "28:73",
+      "feeling": "Lelah & jenuh",
+      "captionShown": "Malam untuk beristirahat itu rahmat, bukan waktu yang terbuang",
+      "verdict": "pas",
+      "note": "Pas. Pergantian malam untuk beristirahat dan siang untuk mencari karunia disebut sebagai rahmat Allah. Kalimat pendamping sesuai."
+    },
+    {
+      "ref": "4:28",
+      "feeling": "Kewalahan",
+      "captionShown": "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya",
+      "verdict": "pas",
+      "note": "Pas. Dalam konteks keringanan syariat, Allah menyatakan hendak meringankan beban karena manusia diciptakan lemah. Ini menumbuhkan rahmat tanpa menghapus tanggung jawab."
+    },
+    {
+      "ref": "23:62",
+      "feeling": "Kewalahan",
+      "captionShown": "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu",
+      "verdict": "pas",
+      "note": "Pas. Allah tidak membebani seseorang kecuali sesuai kesanggupannya, dan catatan di sisi-Nya berbicara benar. Hindari memakai ayat ini untuk menyalahkan orang yang sedang kewalahan atau menolak bantuan."
+    },
+    {
+      "ref": "87:8",
+      "feeling": "Malas & menunda",
+      "captionShown": "Allah yang memudahkan langkahmu, kamu tak berjalan sendirian",
+      "verdict": "cabut",
+      "note": "Jangan dipakai sebagai motivasi umum bagi orang malas atau menunda. Ayat ini adalah janji Allah kepada Nabi untuk memudahkan beliau menuju jalan kemudahan dalam tugas wahyu; kalimat aplikasi mengubah alamat khusus menjadi slogan pribadi."
+    },
+    {
+      "ref": "92:7",
+      "feeling": "Malas & menunda",
+      "captionShown": "Mulai satu langkah kecil, jalan mudah akan disiapkan",
+      "verdict": "ganti",
+      "note": "Boleh dipakai, tetapi ayat ini bergantung pada syarat di ayat sebelumnya: memberi, bertakwa, dan membenarkan pahala terbaik. Tampilkan QS 92:5–7 bersama dan ganti menjadi: “Bagi yang memberi, bertakwa, dan membenarkan kebaikan, Allah memudahkan jalan menuju kemudahan.”",
+      "replacement": "Bagi yang memberi, bertakwa, dan membenarkan kebaikan, Allah memudahkan jalan menuju kemudahan."
+    },
+    {
+      "ref": "29:62",
+      "feeling": "Kehilangan pekerjaan",
+      "captionShown": "Yang melapangkan dan menyempitkan rezeki tahu persis kebutuhanmu",
+      "verdict": "ganti",
+      "note": "Pas untuk kehilangan pekerjaan sebagai pengingat bahwa keluasan dan kesempitan rezeki berada dalam ilmu Allah, tetapi bukan janji pekerjaan baru segera. Ganti menjadi: “Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya.”",
+      "replacement": "Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya."
+    },
+    {
+      "ref": "42:12",
+      "feeling": "Kehilangan pekerjaan",
+      "captionShown": "Perbendaharaan langit dan bumi milik-Nya; satu pintu tertutup bukan akhir",
+      "verdict": "ganti",
+      "note": "Pas sebagai penguatan bahwa kunci langit dan bumi milik Allah, tetapi kalimat ‘satu pintu tertutup bukan akhir’ adalah refleksi, bukan teks ayat. Ganti menjadi: “Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya.”",
+      "replacement": "Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya."
+    },
+    {
+      "ref": "1:6",
+      "feeling": "Bingung arah hidup",
+      "captionShown": "Doa paling sederhana saat tak tahu harus ke mana",
+      "verdict": "pas",
+      "note": "Pas. Doa memohon jalan yang lurus adalah permohonan paling mendasar ketika arah hidup tidak jelas. Ia dibaca berulang dalam setiap rakaat dan harus diikuti usaha mencari ilmu serta nasihat yang baik."
+    },
+    {
+      "ref": "20:25",
+      "feeling": "Stres ujian & belajar",
+      "captionShown": "Doa Musa saat dadanya sesak menghadapi tugas berat",
+      "verdict": "ganti",
+      "note": "Boleh dibaca saat menghadapi ujian sebagai doa memohon kelapangan dada, tetapi konteksnya adalah Nabi Musa menerima tugas dakwah yang berat. Tampilkan bersama QS 20:25–28 dan ganti menjadi: “Ya Tuhanku, lapangkanlah dadaku.”",
+      "replacement": "Ya Tuhanku, lapangkanlah dadaku."
+    },
+    {
+      "ref": "20:26",
+      "feeling": "Stres ujian & belajar",
+      "captionShown": "Dua kata yang cukup dibaca sebelum masuk ruang ujian",
+      "verdict": "ganti",
+      "note": "Boleh dipakai, tetapi ayat ini adalah bagian dari rangkaian doa Nabi Musa, bukan dua kata yang berdiri sendiri untuk ujian sekolah. Tampilkan QS 20:25–28 dan gunakan: “Mudahkanlah urusanku, lepaskan kekakuan lidahku, agar mereka memahami ucapanku.”",
+      "replacement": "Mudahkanlah urusanku, lepaskan kekakuan lidahku, agar mereka memahami ucapanku."
+    },
+    {
+      "ref": "96:5",
+      "feeling": "Stres ujian & belajar",
+      "captionShown": "Dia yang mengajari manusia apa yang belum diketahuinya",
+      "verdict": "pas",
+      "note": "Pas. Ayat menegaskan bahwa Allah mengajarkan manusia apa yang sebelumnya tidak diketahui. Ini baik untuk belajar selama disertai usaha, disiplin, dan kejujuran akademik."
+    },
+    {
+      "ref": "3:195",
+      "feeling": "Usaha terasa tak cukup",
+      "captionShown": "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan",
+      "verdict": "pas",
+      "note": "Pas. Allah menegaskan tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan. Kalimat pendamping tepat."
+    },
+    {
+      "ref": "4:40",
+      "feeling": "Usaha terasa tak cukup",
+      "captionShown": "Sebesar zarrah pun tak hilang, malah dilipatgandakan",
+      "verdict": "pas",
+      "note": "Pas. Allah tidak menzalimi walau seberat zarrah dan melipatgandakan kebaikan. Ini kuat untuk orang yang merasa usahanya terlalu kecil."
+    },
+    {
+      "ref": "18:30",
+      "feeling": "Usaha terasa tak cukup",
+      "captionShown": "Yang kamu kerjakan dengan baik tidak akan disia-siakan",
+      "verdict": "pas",
+      "note": "Pas. Ayat secara langsung menegaskan bahwa Allah tidak menyia-nyiakan pahala orang yang beriman dan beramal saleh dengan baik."
+    }
+  ]
+}

@@ -159,7 +159,12 @@ const LEXICON: Record<string, string[]> = {
   "Struggling with consistency": ["istiqamah","istiqomah","susah konsisten","naik turun iman"],
   Burnout: ["burnout","jenuh","lelah banget","muak kerja","ga ada energi"],
   Overwhelm: ["kewalahan","kebanyakan","overwhelmed","ga sanggup semua","numpuk"],
-  Laziness: ["malas","males","menunda","nunda","ga semangat","mager"],
+  // Laziness — DISABLED 2026-07-22. Both of its verses came out on the ustadz's review (87:8 as
+  // `cabut`, 92:7 allowed only with QS 92:5–7 shown together, which retrieval cannot do), so the
+  // theme has no approved verse left. A keyword path that can only ever return nothing is worse
+  // than no path: it makes the app look like it heard you and then had nothing to say. Restore
+  // this line the moment a reviewed verse lands on the theme.
+  //   Laziness: ["malas","males","menunda","nunda","ga semangat","mager"],
   JobLoss: ["phk","dipecat","kehilangan pekerjaan","nganggur","di-phk","resign"],
   Direction: ["bingung arah","ga tau mau ngapain","arah hidup","tujuan hidup","tersesat"],
   StudyStress: ["ujian","skripsi","belajar","stres kuliah","tugas numpuk","sekolah"],
@@ -167,7 +172,9 @@ const LEXICON: Record<string, string[]> = {
   "Temptation & desire": ["godaan","tergoda","nafsu","hawa nafsu","susah nahan","khilaf"],
   "Marriage & spouse": ["pernikahan","rumah tangga","sama suami","sama istri","hubungan kami"],
   Rejection: ["ditolak","penolakan","gak diterima","nggak diterima","dikucilkan"],
-  Homesickness: ["kangen rumah","jauh dari rumah","perantauan","homesick","kangen kampung"],
+  // Homesickness — DISABLED 2026-07-22, same reason as Laziness above: 28:85 `cabut`, and 106:4
+  // allowed only alongside QS 106:1–4. No approved verse remains on the theme.
+  //   Homesickness: ["kangen rumah","jauh dari rumah","perantauan","homesick","kangen kampung"],
   "Too far gone to repent": ["dosaku terlalu banyak","udah kelewatan","masih bisa diampuni","terlanjur"],
   Heartbreak: ["patah hati","putus cinta","sakit hati","ditinggal pacar","gagal move on"],
 };
