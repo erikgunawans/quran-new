@@ -532,7 +532,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .qk-pfull-inner { width: min(680px, 92vw); display: flex; flex-direction: column; align-items: center; padding: 24px; }
 .qk-pfull-top { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
-.qk-pfull-mode { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--qk-muted); }
+.qk-pfull-mode { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--qk-muted); white-space: nowrap; }
 .qk-pfull-icon { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--qk-fg); background: rgba(255, 255, 255, 0.5); transition: background .2s var(--qk-ease); }
 .qk-pfull-icon svg { width: 22px; height: 22px; }
 .qk-pfull-icon:hover { background: rgba(255, 255, 255, 0.85); }
@@ -546,7 +546,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-pfull-sname { font-family: var(--qk-f-display); font-weight: 700; font-size: clamp(28px, 6vw, 36px); margin-top: 4px; }
 .qk-pfull-sar { font-family: var(--qk-f-ar); font-size: 26px; opacity: 0.92; margin-top: 2px; }
 .qk-pfull-wm { position: absolute; right: 14px; bottom: 4px; font-family: var(--qk-f-display); font-weight: 800; font-size: 72px; color: rgba(255, 255, 255, 0.16); line-height: 1; pointer-events: none; }
-.qk-pfull-ayah { position: relative; z-index: 1; margin-top: -18px; background: var(--qk-primary); color: #fff; font-size: 13px; font-weight: 600; padding: 5px 16px; border-radius: 999px; box-shadow: 0 4px 12px rgba(22, 162, 73, 0.3); }
+.qk-pfull-ayah { position: relative; z-index: 1; margin-top: -18px; background: var(--qk-primary); color: #fff; font-size: 13px; font-weight: 600; padding: 5px 16px; border-radius: 999px; box-shadow: 0 4px 12px rgba(22, 162, 73, 0.3); white-space: nowrap; }
 .qk-pfull-qari { font-size: 12px; letter-spacing: 0.12em; color: var(--qk-muted); margin-top: 16px; }
 .qk-pfull-progress { width: 100%; max-width: 440px; margin-top: 20px; }
 .qk-pfull-controls { display: flex; align-items: center; gap: 28px; margin-top: 22px; }
