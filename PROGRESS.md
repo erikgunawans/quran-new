@@ -20,13 +20,17 @@ white on dark (Erik's screenshot). Dark now `#1b1e24`.
 head. Terjemah Makna (Ustadz Muhammad Thalib) stays always-visible — the tafsiriyah reading is the point of
 the app; the literal is the secondary companion.
 
-**3. Per-ayah tools: play / copy / bookmark / share.** Erik left the placement to me and I chose a
-**horizontal row along the bottom** over the original's left rail: a rail carves a permanent gutter out of
-every card and shrinks the reading measure on mobile, and a bottom row matches the Tematik entry cards
-already shipped. Play only renders where audio actually exists (`AUDIO_AVAIL` = surahs 1/112/113/114) rather
-than showing a dead control on 110 surahs; `playerStart()` gained a `startAyah` param so it begins on THAT
-verse (verified: ayah 1:4 loads `/audio/1/4.mp3`). Copy takes arabic+makna+ref; share uses `navigator.share`
-else copies the deep link.
+**3. Per-ayah tools: play / copy / bookmark / share.** Erik left the placement to me and I first chose a
+bottom horizontal row (reasoning: a rail carves a gutter out of every card). **Erik overruled it — "move the
+icons to the left side like the original" — and matching the original wins over my ergonomics argument.**
+Final (`6e5515a`, version `2875a506`): a **vertical rail on the left**, placed beside the READINGS rather
+than the Arabic, so the tafsiriyah band is inset by the gutter instead of icons floating over it
+(`.qk-verse-body` = flex row of `[tools rail | readings column]`). Play only renders where audio actually
+exists (`AUDIO_AVAIL` = surahs 1/112/113/114) rather than showing a dead control on 110 surahs;
+`playerStart()` gained a `startAyah` param so it begins on THAT verse (verified: ayah 1:4 loads
+`/audio/1/4.mp3`). Copy takes arabic+makna+ref; share uses `navigator.share` else copies the deep link.
+- **Layout bug from the switch:** the rail is often taller than a short translation, leaving a strip of bare
+  card under the emerald band. Fixed by making the readings a flex column with the primary reading `flex:1`.
 - **Bug found while building:** `.qk-bm-btn` still carried `margin-inline-start:auto` from when it lived in
   the head — inside the tools row that shunted it and everything after it to the far right.
 
