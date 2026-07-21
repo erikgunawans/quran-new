@@ -24,6 +24,11 @@
   --qk-muted:     #6b7580;
   --qk-border:    #dce0e5;
   --qk-ring:      #22c55e;
+  /* translucent chrome (header / right rail) — tokenised so the dark theme can swap them */
+  --qk-glass:        rgba(255, 255, 255, 0.8);
+  --qk-glass-border: rgba(220, 224, 229, 0.8);
+  --qk-rail-bg:      rgba(255, 255, 255, 0.82);
+  color-scheme: light;
 
   --qk-f-display: "Poppins", system-ui, sans-serif;
   --qk-f-ui:      "Inter", system-ui, sans-serif;
@@ -36,6 +41,33 @@
   --qk-container: 1280px;
   --qk-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ── Dark theme (QuranKu ships one; the header toggle drives it) ────────────────
+   Only tokens change — every component reads them, so the whole app follows.
+   The emerald is brightened for dark: #16a249 on near-black is too low-contrast. */
+:root[data-theme="dark"] {
+  --qk-bg:        #0a0b0d;
+  --qk-fg:        #e9ecef;
+  --qk-card:      #16181c;
+  --qk-primary:   #22c55e;
+  --qk-primary-wash: rgba(34, 197, 94, 0.14);
+  --qk-secondary: #efc851;
+  --qk-secondary-wash: rgba(240, 200, 81, 0.16);
+  --qk-secondary-ink: #f3d98a;
+  --qk-muted:     #99a2ac;
+  --qk-border:    #282c33;
+  --qk-ring:      #4ade80;
+  --qk-glass:        rgba(10, 11, 13, 0.82);
+  --qk-glass-border: rgba(40, 44, 51, 0.9);
+  --qk-rail-bg:      rgba(22, 25, 29, 0.86);
+  --qk-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --qk-shadow:    0 4px 20px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+/* theme-toggle glyphs */
+.qk-ico-sun { display: none; }
+:root[data-theme="dark"] .qk-ico-moon { display: none; }
+:root[data-theme="dark"] .qk-ico-sun { display: block; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -56,16 +88,18 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── header ─────────────────────────────────────────────────────────── */
 .qk-header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--qk-header-h);
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--qk-glass);
   -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(220, 224, 229, 0.8);
+  border-bottom: 1px solid var(--qk-glass-border);
   box-shadow: var(--qk-shadow-sm);
 }
+/* the header spans wider than the page column: logo sits further left, actions further right */
+.qk-header .qk-container { max-width: 1720px; padding: 0 40px; }
 .qk-header-row { display: flex; align-items: center; gap: 20px; height: 100%; }
 
 .qk-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-.qk-logo { width: 40px; height: 40px; flex: none; object-fit: contain; display: block; }
-.qk-wordmark { font-family: var(--qk-f-display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; color: var(--qk-primary); }
+.qk-logo { width: 46px; height: 46px; flex: none; object-fit: contain; display: block; }
+.qk-wordmark { font-family: var(--qk-f-display); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; color: var(--qk-primary); }
 
 .qk-nav { display: flex; align-items: center; gap: 2px; margin-inline: auto; }
 .qk-nav-link {
@@ -826,7 +860,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-rail {
   position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 55;
   display: flex; flex-direction: column; gap: 3px; padding: 7px;
-  background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: var(--qk-rail-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--qk-border); border-right: none; border-radius: 16px 0 0 16px;
   box-shadow: -8px 10px 30px rgba(23, 24, 28, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }

@@ -912,6 +912,22 @@ function route(): void {
   window.scrollTo({ top: 0 });
 }
 
+/* ── theme: light/dark, persisted, defaults to the OS preference ──────── */
+const THEME_KEY = "qk-theme";
+function applyTheme(dark: boolean): void {
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+}
+function wireTheme(): void {
+  const stored = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+  applyTheme(stored ? stored === "dark" : prefersDark);
+  document.getElementById("qk-theme")?.addEventListener("click", () => {
+    const nowDark = document.documentElement.dataset.theme !== "dark";
+    applyTheme(nowDark);
+    try { localStorage.setItem(THEME_KEY, nowDark ? "dark" : "light"); } catch { /* private mode */ }
+  });
+}
+
 /* ── floating UI: right rail · donation card · scroll-to-top ──────────── */
 let toastTimer = 0;
 function toast(msg: string): void {
@@ -971,6 +987,7 @@ function wireFloating(): void {
 }
 
 /* ── boot ────────────────────────────────────────────────────────────── */
+wireTheme();
 renderSurahGrid();
 wireSurahFind();
 wireTanya();
