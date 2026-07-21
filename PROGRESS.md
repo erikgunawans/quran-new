@@ -8,7 +8,50 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — demo: halo behind the fields, and the live composer wired in
+## 2026-07-22 (latest) — a screenshot finally worked, and it caught a bug the API probes had cleared
+
+Two fixes, NEITHER DEPLOYED (`ef8c0df`, `d67b40e`). Erik asked to hold the deploy.
+
+**Seeing the halo took three obstacles, none of them CSS.** (1) `interceptor tab new` opens in the
+**background by contract** → `visibilityState: hidden` → DOM-render hangs 15s; fixed with
+`interceptor tabs` + `tab switch <id>`. (2) The harness truncates tool output at ~64KB and captures
+return a base64 dataUrl, so a COMPLETE capture looked like "no image"; fixed by redirecting to a
+file in bash. (3) **DOM-render under-renders `filter: blur()`** — it showed the halo as a faint
+whisper and I nearly reported the design as too weak. `--pixel` showed the truth: the halo reads
+exactly as intended on both fields. This CORRECTS the older note that said "never use `--pixel`":
+`--pixel` is right for glows, but only once the intended tab is foregrounded (its failure mode is a
+stale frame of the wrong tab — earlier captures grabbed YouTube, then axiara.ai).
+
+**The bug the screenshot caught.** A Tanya answer on the live demo ended `"…Allah tidak membebani
+seseorang melampaui kem"` — cut mid-word. Re-probed twice: **1 of 2 answers ended mid-sentence**.
+This is `/api/answer`, the endpoint I inspected during the reasoning-token work, judged healthy at
+520 tokens, and deliberately left alone. **That was wrong** — 520 was failing more rarely, not
+surviving. Fixed like the other two (`reasoning: {effort:"none"}`, 520→1100). It matters more than
+the framing did: a truncated opener is cosmetic, a truncated ANSWER stops mid-explanation of
+scripture. **Lesson: an endpoint that passes a probe is not proven; only the rendered surface is.**
+
+**Tanya verse cards now collapse the harfiah** (`d67b40e`). Erik sent a screenshot of the READER's
+card and asked the Tanya result to match. Checking the deployed demo first showed the ask was bigger
+than the label: `cardHtml()` rendered BOTH readings stacked open with no chevron at all, while the
+reader hid one — the same verse looked like two different products depending where you met it.
+`cardHtml` now emits the reader's disclosure, only when a companion reading exists so a chevron
+never opens onto nothing. Terjemah Makna stays visible and the literal Kemenag rendering hides: the
+tafsiriyah is what this app exists to show; the literal is the comparison you reach for.
+`wireVerseTools()` was reader-only, so the chevron would have been **inert markup** — now wired on
+live AND restored turns (a reload would otherwise kill every chevron). Label `Harfiah` →
+**`Terjemahan Harfiah`** + aria-labels. The longer label then WRAPPED, breaking the head into two
+rows with the chevron stranded — caught by screenshot, invisible to tests; fixed with `nowrap` +
+`flex:none` on the control and ellipsis on the surah name. Verified 720/480/375/320px and with a
+deliberately long name (head holds 50px, name truncates 293→84px). Toggle verified both directions.
+
+**Open question for Erik:** the chevron now says *Terjemahan Harfiah* but the card's section headers
+still read *TERJEMAH HARFIAH* / *TERJEMAH MAKNA*. *Terjemahan* is the correct noun form, but
+"Terjemah Makna oleh Ustadz Muhammad Thalib" is attribution wording tied to his *Tarjamah
+Tafsiriyah* — renaming how his work is labelled is not mine to decide. Harmonise or leave.
+
+---
+
+## 2026-07-22 — demo: halo behind the fields, and the live composer wired in
 
 Two demo changes, both deployed (`62417194` then `ecb14c43`), serving
 `index-shE6xh7E.css` + `index-CTZg17NX.js`. A fresh `demo:build` reproduces both hashes exactly,
