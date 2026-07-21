@@ -8,7 +8,28 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — crisis card dark-mode colors
+## 2026-07-21 (latest) — audio player dark-mode colors (dark theme now complete)
+
+`14b3632`, deployed version `60d0b85a`. The last light-theme leftovers, closing the dark-theme punch list.
+The bottom bar was a near-white slab and the fullscreen scrim a light mint — both jarring on a dark page.
+The fullscreen play button was near-black, which would have **vanished** against a dark scrim, so it inverts.
+
+- `.qk-pbar` → `rgba(16,18,21,.97)` + deeper drop shadow
+- `.qk-pfull` scrim → `rgba(10,11,13,.72)`
+- `.qk-pfull-icon` / speeds track → white at 8–18% (was 50–60%)
+- `.qk-pfull-play` → light `#f1f3f5` with a dark glyph, so it stays the obvious primary control
+- active speed pill → white 92% + dark text (was `#fff` + `var(--qk-fg)` = light-on-light in dark)
+
+Sliders needed nothing: `accent-color` + the `color-scheme: dark` token handle them natively. Light untouched
+(scrim `rgba(226,238,231,.55)`, play `#17181c`, bar `rgba(255,255,255,.97)` all re-verified).
+
+**Minified-CSS grep trap, third time:** searching the deployed bundle for the rgba values found nothing —
+the minifier rewrites `rgba(16,18,21,.97)` as `#101215f7` and strips quotes from `[data-theme="dark"]`.
+Grep the minified form (`[data-theme=dark] .qk-pbar{`) or a distinctive hex, never the authored syntax.
+
+---
+
+## 2026-07-21 — crisis card dark-mode colors
 
 `4fa55a3`, deployed version `eed9c08f`. Closes the light-leftover flagged in the dark-theme checkpoint.
 The crisis card is deliberately off-brand (warm terracotta) so it reads as an interruption, but its cream
