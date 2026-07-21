@@ -8,7 +8,41 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — ayah card overhaul + favicon/title
+## 2026-07-21 (latest) — the "honest silence" on broad questions was a RENDER bug; quick-pills matched
+
+`31b8f78`, deployed version `8e7fff3c`. Erik: *"why does 'allah itu siapa sih?' answer like this again? I
+thought we've fixed it."* It was never the matcher, and nothing regressed — the fix from `1a60e5a` works.
+
+**What I proved, in order (all by running the real functions, not reading them):**
+1. `aliasHit("allah itu siapa sih?", siapa-allah.aliases)` → **true**. The `-kah` + word-subset matcher fix
+   is intact; his exact colloquial phrasing matches.
+2. `matchAqidah()` → null anyway, because it gates on `isReviewed(e)` and **all 7 entries still have
+   `answer='' refs=[]`** — the ustadz hasn't authored them. That gate is the scholar safety property doing
+   its job, not a defect.
+3. `matchTopic("allah itu siapa sih?")` → **`allah-subhanahu-wa-ta-ala`**. Topic routing was fine.
+4. So the lane order was right; the failure was downstream.
+
+**The actual bug is in the RENDER.** `knowledge.ts` returns an **empty entry list on purpose** for a broad
+definitional question — it deliberately drops the category's own name words as noise ("allah" matches nearly
+every entry in the Allah chapter), so entries can never score — and documents: *"the render shows an honest
+pointer to the topic, never an invented one."* `main.ts:441` repeats the promise: *"the knowledge path's
+honest topic pointer stands — so the lane is pure upside, never a regression."* But `renderTurn` gated on
+`k.entries.length` and degraded it to `SILENCE`. **The pointer never rendered for exactly the questions it was
+written for.** Two comments promised a behaviour the renderer threw away.
+
+Fix: `knowledgePointerHtml()` — admits there's no reviewed answer, then points at the **329-entry "Allah
+Subhanahu wa ta'ala"** chapter with a CTA into the Tematik accordion (which auto-opens that category). Verified
+live end-to-end.
+
+**⚠️ The live app has the same bug.** `web/src/main.ts:190` carries the identical `!k.entries.length → silence`
+gate. NOT touched here (demo isolation + prod deploys are gated to Erik) — **open decision for him.**
+
+Also: **quick-pills matched to the original** — only the featured "Indeks Tematik" is tinted (plus its icon);
+the rest are plain white with dark text. Verified by computed style on all seven.
+
+---
+
+## 2026-07-21 — ayah card overhaul + favicon/title
 
 `4d97856` (ayah card, version `3189c693`) and `2a6ad5a` (favicon/title, version `b6454f05`). Demo-only,
 typecheck clean.
