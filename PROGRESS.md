@@ -8,7 +8,35 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — audio player dark-mode colors (dark theme now complete)
+## 2026-07-21 (latest) — 3D Peta Tematik cosmos restored inside the demo's Tematik section
+
+`0328d93`, deployed version `7a6cf646`. Erik asked for "the 3D knowledge graph from the previous version"
+back, inside Tematik. **It already existed and did not need rebuilding** — `web/src/peta-cosmos.ts` (401 lines)
+draws the baked coordinates from `src/app/build-peta-3d.ts` → `web/public/peta/cosmos.json` (46 KB):
+1,632 verse-stars around 13 category hubs, with NO force-simulation library shipped to the browser (the layout
+is computed once at build time). The demo already imports from `../src/`, so this was a wiring job, not a port.
+
+- Collapsible **"Peta Tematik 3D"** panel sits above the category accordions.
+- `cosmos.json` is fetched **only on first open** — preserving the original design boundary: a reader who
+  never opens the map pays nothing (it matters on patchy 4G).
+- Star click → `#/mushaf/<surah>/<ayah>`, landing on the verse with the arrival flash built earlier
+  (rewired from the main app's `#/surah/` route to the demo's reader).
+- HUD keeps both controls (auto-rotate, bridges-only); the legend is real DOM, not canvas text, so it stays
+  selectable/translatable/screen-readable. Frame is dark in BOTH themes by design — luminous points need
+  darkness to bloom; it reads as a framed object, not app chrome.
+- `cosmosHandle.destroy()` on re-render so a stale canvas never keeps an animation frame running.
+
+**Bundle cost: +7.5 KB raw / +2.6 KB gzipped.** `peta-cosmos.ts` imports only `esc` from `verse.ts`, whose
+audio/related-verses chain tree-shook away — measured, not assumed.
+
+Verified live: mounts on first click from a fresh load, 13-item legend, both toggles flip without navigating
+(no HUD click-through), star pick resolves to `#/mushaf/88/7`. **I twice called something a bug that wasn't**
+— a stray `#/mushaf/2` navigation and a "handler attached twice" theory both failed to reproduce under clean
+tests. Re-test on a fresh load before diagnosing; stray events from prior interactions poison the observation.
+
+---
+
+## 2026-07-21 — audio player dark-mode colors (dark theme now complete)
 
 `14b3632`, deployed version `60d0b85a`. The last light-theme leftovers, closing the dark-theme punch list.
 The bottom bar was a near-white slab and the fullscreen scrim a light mint — both jarring on a dark page.
