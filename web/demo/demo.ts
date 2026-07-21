@@ -642,6 +642,12 @@ function renderBookmark(): void {
 const ROUTES = ["beranda", "tanya", "mushaf", "tematik", "audio", "bookmark"] as const;
 
 function route(): void {
+  // The fullscreen player is a modal overlay that persists across routes by design; but it must never
+  // survive a NAVIGATION, or you land inside the player (covering e.g. Beranda) instead of the route.
+  // The bottom bar keeps playing — only the fullscreen overlay is dismissed. (openFull() doesn't touch
+  // the hash, so the Audio → fullscreen flow is unaffected.)
+  closeFull();
+
   const [sectionRaw = "", param] = location.hash.replace(/^#\//, "").split("/");
   const section = (ROUTES as readonly string[]).includes(sectionRaw) ? sectionRaw : "beranda";
 
