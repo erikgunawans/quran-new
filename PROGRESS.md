@@ -8,7 +8,46 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — demo pixel-verification unblocked; player wrap bug + audio gap fixed
+## 2026-07-21 (latest) — demo DEPLOYED public at demo-quranku.axiara.ai; synthesis worker redeployed (backlog shipped)
+
+The QuranKu-clone demo is **live and public** at **https://demo-quranku.axiara.ai/** (Erik chose public over gated
+after I flagged the QuranKu-branding/impersonation consideration — his call, his ustadz relationship).
+
+**Third Cloudflare Worker, fully isolated from the two live apps:**
+- `new-quranku-demo-proxy` → route `demo-quranku.axiara.ai/*`, serves the isolated `web/dist-demo` bundle (static host
+  only; no `/api` key needed — Tanya calls the synthesis worker cross-origin). Committed in `wrangler.toml [env.demo]`.
+- DNS: created a PROXIED placeholder AAAA `demo-quranku` → `100::` on the axiara.ai zone (id
+  `53b2e640068159fb8fa7914bde2c8436`), mirroring new-quranku / new-quranku-ai.
+- Build fix: `vite.demo.config.ts` now flattens the built `index.html` from `dist-demo/demo/` to `dist-demo/` root
+  (closeBundle plugin) so the subdomain serves the app at `/` not `/demo/`. Asset refs are absolute + routing is
+  hash-based, so the move is safe. `demo:build` remains the build command.
+- Deploy commits: `23b9efd` (demo config) — all pushed. `web/dist` (principled prod build) never rebuilt during demo
+  work; `web/dist` and `web/dist-demo` are both gitignored.
+
+**Synthesis worker REDEPLOYED (Erik chose to light up the demo's AI-Tanya immediately):**
+- Added `https://demo-quranku.axiara.ai` to `ALLOWED_ORIGINS` in `worker/src/index.ts` (committed in `23b9efd`), then
+  `VITE_ANSWER_MODE=synthesis bun run build && wrangler deploy --env synthesis` (Erik ran the deploy himself — the
+  auto-mode classifier gates prod deploys; the demo deploy to a NEW subdomain was allowed, the prod one was not).
+- New synthesis version `909e0f2f`, live bundle `index-CSrBFGyV.js`. This **shipped the entire undeployed 2026-07-21
+  front-end backlog** (nav pill `5ea450a`, landing beam + "Kejutkan aku" `aeabcc3`, reduced-motion `8df4144`, hero
+  line-height `b124a30`) to `new-quranku-ai.axiara.ai` — Erik knowingly accepted this coupling.
+- **Verified live, end-to-end (not inferred):** CORS preflight from the demo origin returns
+  `access-control-allow-origin: https://demo-quranku.axiara.ai` (a bad origin gets none); and a real Tanya question on
+  the live demo ("aku sedang merasa cemas…") returned an **AI-authored, verse-grounded answer** with the "disusun oleh
+  AI" label (citing QS At-Tawba 9:40) — the AI-synthesis path, not the principled fallback.
+
+**⚠️ Editions now out of sync — the one open follow-up:** `new-quranku.axiara.ai` (PRINCIPLED) was NOT redeployed; it
+still serves the old pre-backlog bundle `index-DSqRKk7q.js` (2026-07-20). The backlog touches both editions, so
+principled users lack the nav pill / beam / reduced-motion fixes. To sync it: **`bun run build`** (NO flag — rebuilds
+principled; `web/dist` currently holds the *synthesis* build, so a no-rebuild principled deploy would push synthesis
+assets to the principled domain — footgun) **then `wrangler deploy`** (no `--env`). Awaiting Erik's go.
+
+Minor hygiene: a `.DS_Store` leaked into both new deploys as a static asset (harmless macOS metadata, served publicly).
+Worth adding to the build's ignore later.
+
+---
+
+## 2026-07-21 — demo pixel-verification unblocked; player wrap bug + audio gap fixed
 
 Screenshots finally worked. The all-session blocker (demo tab in a minimized 2nd Chrome window) cleared once
 Erik un-minimized + maximized the window (1280px). Key mechanics learned: **`interceptor screenshot`
