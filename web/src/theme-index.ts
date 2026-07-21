@@ -410,7 +410,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 32,
         "ref": "4:32",
-        "why": "Jangan iri pada karunia orang lain — mintalah kepada Allah bagianmu sendiri"
+        "why": "Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya."
       }
     ]
   },
@@ -422,12 +422,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 134,
         "ref": "3:134",
         "why": "Mereka yang menahan amarah dan memaafkan orang lain"
-      },
-      {
-        "surah": 41,
-        "ayah": 35,
-        "ref": "41:35",
-        "why": "Membalas keburukan dengan kebaikan — hanya orang sabar yang sanggup"
       }
     ]
   },
@@ -438,7 +432,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 50,
         "ayah": 16,
         "ref": "50:16",
-        "why": "Allah lebih dekat kepadamu daripada urat lehermu — kamu tidak pernah sendirian"
+        "why": "Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya."
       }
     ]
   },
@@ -488,7 +482,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 57,
         "ayah": 23,
         "ref": "57:23",
-        "why": "Agar kamu tidak putus asa atas yang hilang, dan tidak bangga atas yang didapat"
+        "why": "Jangan berduka berlebihan atas yang luput dan jangan membanggakan diri atas yang Allah berikan."
       }
     ]
   },
@@ -510,7 +504,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 14,
         "ayah": 27,
         "ref": "14:27",
-        "why": "Allah meneguhkan hati orang mukmin — iman yang goyah bisa dikuatkan"
+        "why": "Allah meneguhkan orang beriman dengan kalimat yang teguh di dunia dan akhirat."
       },
       {
         "surah": 18,
@@ -556,7 +550,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 71,
         "ayah": 28,
         "ref": "71:28",
-        "why": "Doa Nuh bagi dirinya dan kedua orang tuanya"
+        "why": "Nabi Nuh memohon ampun untuk dirinya, kedua orang tuanya, dan orang-orang beriman"
       }
     ]
   },
@@ -568,12 +562,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 148,
         "ref": "4:148",
         "why": "Orang yang teraniaya boleh menyuarakan apa yang menimpanya"
-      },
-      {
-        "surah": 22,
-        "ayah": 40,
-        "ref": "22:40",
-        "why": "Mereka diusir dari negerinya hanya karena berkata: \"Tuhan kami Allah\""
       }
     ]
   },
@@ -584,7 +572,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 27,
         "ref": "4:27",
-        "why": "Allah menghendaki untuk mengampuni dosa-dosa kalian"
+        "why": "Allah hendak menerima taubatmu; jangan mengikuti hawa nafsu yang menjauhkanmu."
       }
     ]
   },
@@ -613,12 +601,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 74,
         "ref": "25:74",
         "why": "Beginilah hamba-hamba-Nya meminta pasangan yang menenteramkan hati"
-      },
-      {
-        "surah": 51,
-        "ayah": 49,
-        "ref": "51:49",
-        "why": "Segala sesuatu Dia ciptakan berpasangan; tidak ada yang terlupakan"
       }
     ]
   },
@@ -629,13 +611,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 20,
         "ayah": 132,
         "ref": "20:132",
-        "why": "Bersabarlah membimbing keluarga; urusan rezeki sudah Dia tanggung"
+        "why": "Perintahkan keluargamu salat dan bersabarlah menjaganya; Allah-lah yang memberi rezeki."
       },
       {
         "surah": 11,
         "ayah": 115,
         "ref": "11:115",
-        "why": "Tidak ada satu pun lelahmu yang disia-siakan Allah"
+        "why": "Bersabarlah; Allah tidak menyia-nyiakan pahala orang-orang yang berbuat baik"
       },
       {
         "surah": 14,
@@ -652,7 +634,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 28,
         "ayah": 56,
         "ref": "28:56",
-        "why": "Hidayah bukan di tanganmu, sekalipun untuk orang yang kaucintai"
+        "why": "Kamu tidak dapat memberi hidayah kepada orang yang kamu cintai; Allah memberi hidayah, sedangkan tugasmu tetap menasihati, mendoakan, dan memberi teladan."
       }
     ]
   },
@@ -663,13 +645,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 31,
         "ayah": 14,
         "ref": "31:14",
-        "why": "Merawat mereka adalah membalas lemah yang dahulu mereka tanggung"
+        "why": "Bersyukurlah kepada Allah dan kepada kedua orang tua; ingatlah beratnya ibu mengandung dan menyapih."
       },
       {
         "surah": 46,
         "ayah": 15,
         "ref": "46:15",
-        "why": "Susah payah mereka dahulu, kini susah payahmu; Allah mencatat keduanya"
+        "why": "Berbuat baiklah kepada orang tua; mohon kekuatan untuk mensyukuri nikmat dan beramal saleh yang Allah ridhai."
       }
     ]
   },
@@ -697,19 +679,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 19,
         "ayah": 24,
         "ref": "19:24",
-        "why": "Saat Maryam sendirian dan kesakitan, Allah menyapanya: jangan bersedih"
-      },
-      {
-        "surah": 19,
-        "ayah": 25,
-        "ref": "19:25",
-        "why": "Kau cukup menggoyang pohonnya; sisanya Allah yang jatuhkan"
+        "why": "Ketika Maryam sendirian dalam kesulitan, Allah menyampaikan kepadanya: jangan bersedih."
       },
       {
         "surah": 28,
         "ayah": 7,
         "ref": "28:7",
-        "why": "Kepada ibu yang ketakutan sendirian: jangan takut, jangan bersedih"
+        "why": "Allah menenangkan ibu Musa ketika ia takut akan keselamatan anaknya: jangan takut dan jangan bersedih."
       }
     ]
   },
@@ -720,7 +696,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 33,
         "ayah": 3,
         "ref": "33:3",
-        "why": "Serahkan yang belum terjadi; Allah sendiri yang jadi pelindungmu"
+        "why": "Bertawakallah kepada Allah; cukuplah Allah sebagai Pemelihara"
       },
       {
         "surah": 46,
@@ -732,7 +708,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 31,
         "ayah": 34,
         "ref": "31:34",
-        "why": "Tak seorang pun tahu esok; itu urusan Allah, bukan bebanmu"
+        "why": "Tak seorang pun mengetahui pasti apa yang akan diusahakannya besok; Allah Maha Mengetahui—maka rencanakan, berikhtiar, dan serahkan hasil kepada-Nya."
       }
     ]
   },
@@ -743,19 +719,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 18,
         "ayah": 24,
         "ref": "18:24",
-        "why": "Ucapkan insya Allah, lalu minta ditunjukkan jalan yang paling benar"
+        "why": "Katakan insya Allah dan mohon agar Tuhan menunjukkan jalan yang lebih dekat kepada kebenaran."
       },
       {
         "surah": 42,
         "ayah": 38,
         "ref": "42:38",
         "why": "Jangan putuskan sendirian; bermusyawarahlah, itu ciri orang beriman"
-      },
-      {
-        "surah": 2,
-        "ayah": 216,
-        "ref": "2:216",
-        "why": "Yang kamu tolak bisa jadi baik; Allah tahu, kamu tidak"
       }
     ]
   },
@@ -766,13 +736,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 100,
         "ref": "4:100",
-        "why": "Yang pergi karena Allah menemukan tempat luas dan rezeki berlimpah"
-      },
-      {
-        "surah": 29,
-        "ayah": 56,
-        "ref": "29:56",
-        "why": "Bumi Allah itu luas; selalu ada tempat untuk memulai lagi"
+        "why": "Siapa yang berhijrah di jalan Allah akan mendapati tempat yang luas dan rezeki; niat dan arah hijrahnya harus karena Allah."
       }
     ]
   },
@@ -783,7 +747,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 93,
         "ayah": 5,
         "ref": "93:5",
-        "why": "Allah akan memberi, sampai hatimu benar-benar puas dan senang"
+        "why": "Tuhanmu akan memberi kepadamu hingga engkau ridha—penghiburan Allah kepada Nabi-Nya."
       }
     ]
   },
@@ -834,13 +798,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 21,
         "ayah": 84,
         "ref": "21:84",
-        "why": "Doa Ayyub dikabulkan; yang hilang dikembalikan berlipat oleh-Nya"
+        "why": "Allah mengabulkan doa Ayyub dan mengangkat penderitaannya—kisah rahmat dan harapan, bukan pola hasil yang dijanjikan kepada setiap orang."
       },
       {
         "surah": 10,
         "ayah": 57,
         "ref": "10:57",
-        "why": "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati"
+        "why": "Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah."
       }
     ]
   },
@@ -858,12 +822,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 237,
         "ref": "2:237",
         "why": "Berpisahlah tanpa melupakan kebaikan yang pernah ada di antara kalian"
-      },
-      {
-        "surah": 4,
-        "ayah": 19,
-        "ref": "4:19",
-        "why": "Apa yang tak kausukai hari ini bisa menyimpan kebaikan besar"
       }
     ]
   },
@@ -886,7 +844,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 40,
         "ayah": 19,
         "ref": "40:19",
-        "why": "Tak ada khianat yang tersembunyi; Allah melihat semuanya"
+        "why": "Allah mengetahui pandangan yang berkhianat dan apa yang disembunyikan hati."
       }
     ]
   },
@@ -897,7 +855,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 93,
         "ayah": 6,
         "ref": "93:6",
-        "why": "Dia mendapatimu sendirian dahulu, lalu Dia melindungimu"
+        "why": "Bukankah Dia mendapatimu yatim lalu melindungimu?—penghiburan Allah kepada Nabi-Nya yang menumbuhkan harapan akan pemeliharaan-Nya."
       }
     ]
   },
@@ -920,7 +878,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 12,
         "ayah": 96,
         "ref": "12:96",
-        "why": "Rindu yang panjang itu akhirnya berujung kabar gembira"
+        "why": "Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang."
       }
     ]
   },
@@ -931,7 +889,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 93,
         "ayah": 8,
         "ref": "93:8",
-        "why": "Allah pernah mendapatimu kekurangan, lalu Dia mencukupkanmu"
+        "why": "Dia mendapatimu kekurangan lalu memberi kecukupan—penghiburan kepada Nabi yang menumbuhkan harapan, bukan janji cepat kaya bagi setiap orang."
       },
       {
         "surah": 67,
@@ -948,7 +906,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 15,
         "ayah": 21,
         "ref": "15:21",
-        "why": "Rezekimu sudah tersimpan di sisi-Nya, turun pada takarannya"
+        "why": "Segala sesuatu memiliki khazanah di sisi Allah dan diturunkan dengan ukuran tertentu; tetaplah berikhtiar secara halal."
       }
     ]
   },
@@ -976,7 +934,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 102,
         "ayah": 1,
         "ref": "102:1",
-        "why": "Berlomba menumpuk harta melalaikan, sampai kubur menghentikannya"
+        "why": "Berlomba memperbanyak dan bermegah-megahan telah melalaikanmu."
       },
       {
         "surah": 63,
@@ -1022,7 +980,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 34,
         "ayah": 39,
         "ref": "34:39",
-        "why": "Apa pun yang kamu berikan, pasti Allah menggantinya"
+        "why": "Apa yang kamu infakkan, Allah menggantinya menurut hikmah-Nya; Dia sebaik-baik Pemberi rezeki."
       }
     ]
   },
@@ -1056,13 +1014,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 11,
         "ayah": 114,
         "ref": "11:114",
-        "why": "Kebaikan yang kamu kerjakan menghapus jejak yang kamu malukan"
+        "why": "Kebaikan menghapus keburukan; dosa besar dan hak manusia tetap memerlukan taubat serta perbaikan khusus."
       },
       {
         "surah": 40,
         "ayah": 7,
         "ref": "40:7",
-        "why": "Saat kamu menutupi aibmu, para malaikat memohonkan ampun untukmu"
+        "why": "Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah."
       }
     ]
   },
@@ -1085,7 +1043,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 5,
         "ayah": 39,
         "ref": "5:39",
-        "why": "Sesudah salah, taubat dan perbaikan diri tetap dibukakan Allah"
+        "why": "Sesudah berbuat zalim, bertaubatlah dan perbaikilah diri; bila menyangkut hak manusia, kembalikan hak dan mintalah maaf."
       }
     ]
   },
@@ -1125,7 +1083,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 64,
         "ayah": 3,
         "ref": "64:3",
-        "why": "Allah sendiri yang membentukmu, dan Dia membentukmu sebaik-baiknya"
+        "why": "Allah membentukmu dengan baik menurut hikmah-Nya; kepada-Nya seluruh perjalanan kembali."
       }
     ]
   },
@@ -1136,19 +1094,19 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 93,
         "ayah": 3,
         "ref": "93:3",
-        "why": "Tuhanmu tidak meninggalkanmu, dan Dia tidak membencimu"
+        "why": "Tuhanmu tidak meninggalkan dan tidak membenci Nabi-Nya—ayat penghiburan bagi hati yang merasa jauh dari kasih Allah."
       },
       {
         "surah": 3,
         "ayah": 31,
         "ref": "3:31",
-        "why": "Dekati Dia, maka Allah pasti mencintaimu dan mengampunimu"
+        "why": "Ikutilah Rasulullah; Allah akan mencintai dan mengampuni dosa-dosamu."
       },
       {
         "surah": 11,
         "ayah": 90,
         "ref": "11:90",
-        "why": "Cinta Allah amat besar kepada siapa pun yang kembali"
+        "why": "Mohonlah ampun dan bertaubatlah kepada-Nya; Tuhanku Maha Penyayang lagi Maha Pengasih."
       }
     ]
   },
@@ -1188,7 +1146,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 29,
         "ayah": 69,
         "ref": "29:69",
-        "why": "Bersungguh-sungguhlah, Allah membukakan jalan keluar dan menyertaimu"
+        "why": "Orang yang bersungguh-sungguh di jalan Kami akan Kami tunjukkan jalan-jalan Kami; Allah bersama orang yang berbuat baik."
       }
     ]
   },
@@ -1199,13 +1157,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 33,
         "ayah": 58,
         "ref": "33:58",
-        "why": "Kamu tidak bersalah; dosanya ada pada yang mengolok"
+        "why": "Menyakiti orang beriman tanpa kesalahan yang mereka lakukan adalah fitnah dan dosa yang nyata."
       },
       {
         "surah": 3,
         "ayah": 186,
         "ref": "3:186",
-        "why": "Ejekan yang menyakitkan itu ujian; sabarmu bernilai besar"
+        "why": "Kamu akan mendengar banyak ucapan menyakitkan; sabar dan takwa adalah keteguhan yang besar."
       }
     ]
   },
@@ -1222,7 +1180,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 24,
         "ayah": 11,
         "ref": "24:11",
-        "why": "Jangan kira fitnah ini merugikanmu; ia justru membawa kebaikan"
+        "why": "Dalam peristiwa ifk, Allah membersihkan tuduhan dan menampakkan hikmah; jangan menjanjikan bahwa setiap fitnah akan terasa baik atau selesai dengan cara yang sama."
       }
     ]
   },
@@ -1273,7 +1231,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 69,
         "ref": "4:69",
-        "why": "Masih ada teman terbaik menantimu: para nabi dan orang shalih"
+        "why": "Ketaatan mengantarkan kepada kebersamaan dengan para nabi, siddiq, syuhada, dan orang saleh—mereka sebaik-baik teman."
       }
     ]
   },
@@ -1290,7 +1248,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 49,
         "ayah": 6,
         "ref": "49:6",
-        "why": "Telitilah dulu kabar yang meragukan, agar kamu tidak menyesal"
+        "why": "Jika datang berita dari sumber yang tidak dapat dipercaya, telitilah agar tidak mencelakakan orang lalu menyesal."
       },
       {
         "surah": 24,
@@ -1324,13 +1282,13 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 42,
         "ayah": 28,
         "ref": "42:28",
-        "why": "Hujan turun justru ketika manusia hampir menyerah menunggu"
+        "why": "Allah menurunkan hujan setelah manusia berputus asa dan menyebarkan rahmat-Nya—tanda keluasan kuasa-Nya."
       },
       {
         "surah": 12,
         "ayah": 110,
         "ref": "12:110",
-        "why": "Pertolongan datang tepat saat para rasul pun hampir putus asa"
+        "why": "Ketika para rasul tidak lagi berharap kaumnya beriman dan mereka didustakan, pertolongan Allah datang."
       }
     ]
   },
@@ -1347,7 +1305,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 9,
         "ayah": 51,
         "ref": "9:51",
-        "why": "Hanya yang Allah tetapkan yang sampai padamu; Dia pelindungmu"
+        "why": "Tidak akan menimpa kami kecuali apa yang Allah tetapkan bagi kami; Dia Pelindung kami, maka kepada-Nya orang beriman bertawakal."
       }
     ]
   },
@@ -1358,19 +1316,19 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 19,
         "ayah": 4,
         "ref": "19:4",
-        "why": "Zakaria menua dan beruban, tapi doanya tak pernah sia-sia"
+        "why": "Zakaria tetap memohon kepada Allah meski tubuhnya lemah dan rambutnya beruban; doa tidak menuntut hasil yang segera."
       },
       {
         "surah": 21,
         "ayah": 90,
         "ref": "21:90",
-        "why": "Doa Zakaria dikabulkan setelah menunggu bertahun-tahun lamanya"
+        "why": "Allah mengabulkan doa Zakaria dan memperbaiki keadaan keluarganya—kisah harapan, bukan pola hasil yang wajib terulang."
       },
       {
         "surah": 27,
         "ayah": 62,
         "ref": "27:62",
-        "why": "Siapa lagi yang menjawab orang terhimpit selain Allah?"
+        "why": "Siapakah yang mengabulkan doa orang yang terdesak dan menghilangkan kesusahan selain Allah?"
       }
     ]
   },
@@ -1381,7 +1339,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 57,
         "ayah": 4,
         "ref": "57:4",
-        "why": "Allah beserta kalian di mana pun kalian berada"
+        "why": "Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya."
       },
       {
         "surah": 3,
@@ -1398,7 +1356,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 73,
         "ayah": 20,
         "ref": "73:20",
-        "why": "Allah tahu kalian tak sanggup terus-menerus, maka Dia meringankan"
+        "why": "Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten."
       }
     ]
   },
@@ -1409,7 +1367,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 94,
         "ayah": 2,
         "ref": "94:2",
-        "why": "Allah sendiri yang meringankan beban itu dari pundakmu"
+        "why": "Bukankah Kami telah melapangkan dadamu dan mengangkat bebanmu?—penghiburan Allah kepada Nabi-Nya."
       },
       {
         "surah": 78,
@@ -1443,36 +1401,19 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
-    "theme": "Malas & menunda",
-    "verses": [
-      {
-        "surah": 87,
-        "ayah": 8,
-        "ref": "87:8",
-        "why": "Allah yang memudahkan langkahmu, kamu tak berjalan sendirian"
-      },
-      {
-        "surah": 92,
-        "ayah": 7,
-        "ref": "92:7",
-        "why": "Mulai satu langkah kecil, jalan mudah akan disiapkan"
-      }
-    ]
-  },
-  {
     "theme": "Kehilangan pekerjaan",
     "verses": [
       {
         "surah": 29,
         "ayah": 62,
         "ref": "29:62",
-        "why": "Yang melapangkan dan menyempitkan rezeki tahu persis kebutuhanmu"
+        "why": "Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya."
       },
       {
         "surah": 42,
         "ayah": 12,
         "ref": "42:12",
-        "why": "Perbendaharaan langit dan bumi milik-Nya; satu pintu tertutup bukan akhir"
+        "why": "Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya."
       }
     ]
   },
@@ -1490,18 +1431,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
   {
     "theme": "Stres ujian & belajar",
     "verses": [
-      {
-        "surah": 20,
-        "ayah": 25,
-        "ref": "20:25",
-        "why": "Doa Musa saat dadanya sesak menghadapi tugas berat"
-      },
-      {
-        "surah": 20,
-        "ayah": 26,
-        "ref": "20:26",
-        "why": "Dua kata yang cukup dibaca sebelum masuk ruang ujian"
-      },
       {
         "surah": 96,
         "ayah": 5,
@@ -1540,7 +1469,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 2,
         "ayah": 183,
         "ref": "2:183",
-        "why": "Puasa diwajibkan agar kamu sanggup menahan hawa nafsu"
+        "why": "Puasa diwajibkan agar kamu bertakwa; ia melatih pengendalian diri di bawah ketaatan kepada Allah."
       }
     ]
   },
@@ -1548,16 +1477,10 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     "theme": "Pernikahan & pasangan",
     "verses": [
       {
-        "surah": 19,
-        "ayah": 96,
-        "ref": "19:96",
-        "why": "Allah menanamkan rasa cinta dan kasih sayang bagi orang beriman"
-      },
-      {
         "surah": 2,
         "ayah": 187,
         "ref": "2:187",
-        "why": "Suami-istri saling menjadi penenteram satu sama lain"
+        "why": "Mereka adalah pakaian bagimu dan kamu adalah pakaian bagi mereka—kedekatan, perlindungan, dan kehormatan yang timbal balik."
       }
     ]
   },
@@ -1574,7 +1497,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 10,
         "ayah": 57,
         "ref": "10:57",
-        "why": "Saat tubuh belum sembuh, Al-Quran jadi penawar bagi hati"
+        "why": "Al-Qur’an adalah pelajaran dan penawar bagi penyakit dalam dada, sekalipun kesembuhan jasmani tetap memerlukan ikhtiar dan ketetapan Allah."
       }
     ]
   },
@@ -1582,33 +1505,10 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     "theme": "Ditolak",
     "verses": [
       {
-        "surah": 9,
-        "ayah": 118,
-        "ref": "9:118",
-        "why": "Saat bumi terasa sempit karena dikucilkan, Allah tetap menerimamu"
-      },
-      {
         "surah": 16,
         "ayah": 127,
         "ref": "16:127",
-        "why": "Bersabarlah, jangan bersedih dan jangan merasa sesak karena penolakan mereka"
-      }
-    ]
-  },
-  {
-    "theme": "Merantau",
-    "verses": [
-      {
-        "surah": 28,
-        "ayah": 85,
-        "ref": "28:85",
-        "why": "Yang menyuruhmu pergi jauh pasti mengembalikanmu ke tempat asalmu"
-      },
-      {
-        "surah": 106,
-        "ayah": 4,
-        "ref": "106:4",
-        "why": "Dia yang memberi makan di perjalanan dan mengamankan dari rasa takut"
+        "why": "Bersabarlah dengan pertolongan Allah; jangan bersedih dan jangan bersempit dada karena tipu daya mereka."
       }
     ]
   },
@@ -1619,7 +1519,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 17,
         "ref": "4:17",
-        "why": "Pintu taubat terbuka selama napas masih ada"
+        "why": "Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat."
       }
     ]
   },
@@ -1630,7 +1530,7 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "surah": 4,
         "ayah": 146,
         "ref": "4:146",
-        "why": "Yang bertaubat dan memperbaiki niat, dihitung bersama orang beriman"
+        "why": "Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman."
       }
     ]
   }
