@@ -8,7 +8,20 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — Tematik reformatted to QuranKu accordion; rail icons matched
+## 2026-07-21 (latest) — Tematik UI refined past the original
+
+`aec75c8`, deployed `new-quranku-demo-proxy` version `075103f0`. Demo-only, CSS only. Erik: "improve the UI of
+the tematik to be slightly better than the original." Restrained premium polish over the matched layout:
+category cards get soft depth + hover lift and a clear OPEN state (emerald border/shadow, tinted header,
+name→emerald, icon inverts to solid emerald, chevron rotates+colors via `:has()`); the head book-icon sits in an
+emerald-wash rounded tile; the expanded ayah gets a framed panel (emerald→gold tint + hairline border + radius);
+accordion expand fades in; "Lihat di Surah" is a gradient CTA with a nudging arrow; copy/share get a press state.
+Verified applied via computed CSS (arHasPanel, open-cat name rgb(22,162,73), icon bg solid emerald, gradient CTA)
+— could NOT pixel-capture: Erik was actively browsing in Chrome, OS-capture kept grabbing his front tab.
+
+---
+
+## 2026-07-21 — Tematik reformatted to QuranKu accordion; rail icons matched
 
 `809ed9e`, deployed `new-quranku-demo-proxy` version `ed7dda9c`, verified LIVE via DOM (13 category accordions,
 search, rail labels; expanded entry card structure exact). Demo-only (`web/demo/*`); web typecheck clean; prod
