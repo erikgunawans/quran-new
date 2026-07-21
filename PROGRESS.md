@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — 3D Peta Tematik cosmos restored inside the demo's Tematik section
+## 2026-07-21 (latest) — ayah card overhaul + favicon/title
+
+`4d97856` (ayah card, version `3189c693`) and `2a6ad5a` (favicon/title, version `b6454f05`). Demo-only,
+typecheck clean.
+
+**1. Dark-mode ayah head.** `.qk-verse-head` was a hardcoded `#fafbfc` slab, so the ref bar stayed bright
+white on dark (Erik's screenshot). Dark now `#1b1e24`.
+
+**2. Terjemah Harfiah (Kemenag) collapsed by default**, revealed by a "Harfiah" chevron on the right of the
+head. Terjemah Makna (Ustadz Muhammad Thalib) stays always-visible — the tafsiriyah reading is the point of
+the app; the literal is the secondary companion.
+
+**3. Per-ayah tools: play / copy / bookmark / share.** Erik left the placement to me and I chose a
+**horizontal row along the bottom** over the original's left rail: a rail carves a permanent gutter out of
+every card and shrinks the reading measure on mobile, and a bottom row matches the Tematik entry cards
+already shipped. Play only renders where audio actually exists (`AUDIO_AVAIL` = surahs 1/112/113/114) rather
+than showing a dead control on 110 surahs; `playerStart()` gained a `startAyah` param so it begins on THAT
+verse (verified: ayah 1:4 loads `/audio/1/4.mp3`). Copy takes arabic+makna+ref; share uses `navigator.share`
+else copies the deep link.
+- **Bug found while building:** `.qk-bm-btn` still carried `margin-inline-start:auto` from when it lived in
+  the head — inside the tools row that shunted it and everything after it to the far right.
+
+**4. Favicon + tab title.** The demo shipped with NO favicon (generic globe) and the long descriptive title.
+Added `favicon-32.png` + `favicon-180.png` (apple-touch), generated from Erik's 512px logo with `sips` rather
+than shipping the 1024px/589KB original as an icon; title is now **"QuranKu 2.0"**. Vite hashes both into
+`assets/`; verified live (title renders, both icons fetch 200).
+
+---
+
+## 2026-07-21 — 3D Peta Tematik cosmos restored inside the demo's Tematik section
 
 `0328d93`, deployed version `7a6cf646`. Erik asked for "the 3D knowledge graph from the previous version"
 back, inside Tematik. **It already existed and did not need rebuilding** — `web/src/peta-cosmos.ts` (401 lines)
