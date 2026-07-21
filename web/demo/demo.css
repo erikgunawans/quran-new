@@ -6,6 +6,12 @@
    This is the ORIGINAL's look. The "Tanya" section is the New-Quranku feature added on top.
    ════════════════════════════════════════════════════════════════════ */
 
+/* The `hidden` attribute MUST win. Elements like .qk-pfull / .qk-pbar / .qk-thread-clear set an
+   explicit `display`, whose class-selector specificity ties the UA `[hidden]{display:none}` rule and
+   (author order) overrides it — so `hidden` did nothing and the fullscreen player stayed on screen
+   over every route. This reset makes `hidden` authoritative everywhere. */
+[hidden] { display: none !important; }
+
 :root {
   --qk-bg:        #f7f9fa;
   --qk-fg:        #17181c;
