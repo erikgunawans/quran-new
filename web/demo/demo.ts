@@ -153,11 +153,15 @@ async function renderToday(): Promise<void> {
     c.verses[0];
   if (!pick) { el.remove(); return; }
   const tr = pick.primary?.text ?? pick.companion?.text ?? "";
+  const ayah = pick.ref.split(":")[1] ?? pick.ref;
   el.innerHTML = `
+    <div class="qk-today-head">
+      <h3 class="qk-today-topic">${esc(pick.surah_name)}</h3>
+      <p class="qk-today-ref">Ayat ${esc(ayah)}</p>
+    </div>
     <div class="qk-today-ar" dir="rtl" lang="ar">${esc(pick.arabic)}</div>
     <p class="qk-today-tr">${esc(tr)}</p>
     <div class="qk-today-foot">
-      <span class="qk-today-ref">${esc(pick.ref)} · ${esc(pick.surah_name)}</span>
       <a class="qk-today-btn" href="#/tanya">Baca Selengkapnya</a>
     </div>`;
 }

@@ -1,4 +1,4 @@
-import { existsSync, renameSync, rmdirSync } from "node:fs";
+import { existsSync, renameSync, rmdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 
@@ -32,9 +32,25 @@ function flattenDemoHtml(): Plugin {
   };
 }
 
+/**
+ * Wrangler serves everything under the assets directory (`dist-demo/`) verbatim, so an OS-generated
+ * `.DS_Store` would otherwise ship as a public static asset. Emit a `.assetsignore` (gitignore syntax)
+ * into the outDir on every build so wrangler skips those files. Written here rather than committed as a
+ * static file because `emptyOutDir` wipes `dist-demo/` on each build.
+ */
+function emitAssetsIgnore(): Plugin {
+  const target = fileURLToPath(new URL("./dist-demo/.assetsignore", import.meta.url));
+  return {
+    name: "emit-assetsignore",
+    closeBundle() {
+      writeFileSync(target, ".DS_Store\n**/.DS_Store\nThumbs.db\n");
+    },
+  };
+}
+
 export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
-  plugins: [flattenDemoHtml()],
+  plugins: [flattenDemoHtml(), emitAssetsIgnore()],
   build: {
     outDir: "dist-demo",
     emptyOutDir: true,

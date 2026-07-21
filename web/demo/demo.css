@@ -230,19 +230,33 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-quick:hover { background: rgba(22, 162, 73, 0.18); }
 
 /* Topik Hari Ini card */
+/* ── "Topik Hari Ini" — elevated card with a green ornament bar on top (mirrors QuranKu) ── */
 .qk-today {
+  position: relative; overflow: hidden;
   margin-top: 16px; background: var(--qk-card); border: 1px solid var(--qk-border);
-  border-radius: var(--qk-radius); box-shadow: var(--qk-shadow-sm); padding: 24px; text-align: center;
+  border-radius: var(--qk-radius); padding: 26px 28px 22px; text-align: left;
+  box-shadow: 0 14px 34px rgba(22, 162, 73, 0.09), 0 3px 8px rgba(0, 0, 0, 0.05);
+  transition: transform .2s var(--qk-ease), box-shadow .2s var(--qk-ease);
 }
-.qk-today-ar { font-family: var(--qk-f-ar); font-size: 28px; line-height: 2; direction: rtl; color: var(--qk-fg); }
-.qk-today-tr { margin: 12px auto 0; max-width: 60ch; color: var(--qk-muted); font-size: 15px; line-height: 1.6; }
-.qk-today-foot { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
-.qk-today-ref { font-weight: 700; font-size: 14px; color: var(--qk-primary); background: var(--qk-primary-wash); padding: 6px 14px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.qk-today:hover { transform: translateY(-2px); box-shadow: 0 20px 44px rgba(22, 162, 73, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06); }
+/* the ornament: a full-width emerald bar flush across the top, clipped to the card's rounded corners */
+.qk-today::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+  background: linear-gradient(90deg, var(--qk-primary) 0%, #22c55e 100%);
+}
+.qk-today-head { margin-bottom: 14px; }
+.qk-today-topic { font-family: var(--qk-f-display); font-weight: 700; font-size: 18px; color: var(--qk-primary); margin: 0; letter-spacing: -0.01em; }
+.qk-today-ref { color: var(--qk-muted); font-size: 13.5px; margin: 3px 0 0; font-variant-numeric: tabular-nums; }
+.qk-today-ar { font-family: var(--qk-f-ar); font-size: 30px; line-height: 2.05; direction: rtl; color: var(--qk-fg); text-align: center; margin: 6px 0 0; }
+.qk-today-tr { margin: 16px 0 0; color: var(--qk-muted); font-size: 15px; line-height: 1.7; }
+.qk-today-foot { display: flex; align-items: center; justify-content: flex-end; margin-top: 20px; }
 .qk-today-btn {
-  display: inline-flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; height: 38px; padding: 0 18px; border-radius: 10px;
   background: var(--qk-primary); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none;
+  box-shadow: 0 4px 12px rgba(22, 162, 73, 0.28); transition: filter .2s var(--qk-ease), transform .1s var(--qk-ease);
 }
 .qk-today-btn:hover { filter: brightness(1.06); }
+.qk-today-btn:active { transform: scale(0.97); }
 
 /* Surah toolbar */
 .qk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -328,19 +342,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── the living composer: soft aurora glow + traveling emerald→gold beam ── */
 .qk-composer { position: relative; margin-top: 30px; }
 .qk-composer::before {
-  content: ""; position: absolute; inset: -72px -28px; pointer-events: none;
+  content: ""; position: absolute; inset: -80px -32px; pointer-events: none;
   background:
-    radial-gradient(56% 84% at 24% 14%, rgba(22, 162, 73, 0.34), transparent 66%),
-    radial-gradient(52% 78% at 84% 96%, rgba(239, 200, 81, 0.32), transparent 68%),
-    radial-gradient(72% 62% at 50% 48%, rgba(52, 211, 153, 0.18), transparent 74%);
-  filter: blur(16px);
+    radial-gradient(56% 84% at 24% 14%, rgba(22, 162, 73, 0.22), transparent 68%),
+    radial-gradient(52% 78% at 84% 96%, rgba(239, 200, 81, 0.19), transparent 70%),
+    radial-gradient(72% 62% at 50% 48%, rgba(52, 211, 153, 0.12), transparent 76%);
+  filter: blur(22px);
 }
+/* Alive but disciplined: a slow ambient drift, no pulse — you feel it more than see it. */
 @media (prefers-reduced-motion: no-preference) {
-  .qk-composer::before { animation: qk-aurora 9s ease-in-out infinite alternate; }
+  .qk-composer::before { animation: qk-aurora 14s ease-in-out infinite alternate; }
 }
 @keyframes qk-aurora {
-  from { opacity: 0.85; transform: translateY(-6px) scale(1); }
-  to   { opacity: 1;    transform: translateY(6px) scale(1.05); }
+  from { opacity: 0.7;  transform: translateY(-4px); }
+  to   { opacity: 0.95; transform: translateY(4px); }
 }
 
 .qk-ask {
@@ -374,17 +389,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
-    animation: qk-beam-travel 4.5s linear infinite;
+    animation: qk-beam-travel 6.5s linear infinite;
   }
   .qk-ask::before {
     padding: 2px;
     background: conic-gradient(from var(--qk-beam),
-      transparent 0deg 200deg, rgba(22, 162, 73, 0.4) 300deg, #16a249 336deg,
-      #efc851 349deg, #16a249 358deg, transparent 360deg);
+      transparent 0deg 210deg, rgba(22, 162, 73, 0.35) 305deg, #16a249 338deg,
+      #efc851 350deg, #16a249 358deg, transparent 360deg);
   }
   .qk-ask::after {
-    padding: 6px; opacity: 0.5; filter: blur(6px);
-    background: conic-gradient(from var(--qk-beam), transparent 0deg 300deg, #efc851 345deg, transparent 360deg);
+    padding: 6px; opacity: 0.4; filter: blur(7px);
+    background: conic-gradient(from var(--qk-beam), transparent 0deg 305deg, #efc851 347deg, transparent 360deg);
   }
 }
 
