@@ -369,13 +369,31 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
 }
 .qk-tanya-kicker svg { color: var(--qk-secondary); flex: none; }   /* gold sparkle */
+/* Same treatment as the landing hero title: ExtraBold Poppins, the WHOLE headline
+   carrying the emerald→gold gradient. */
 .qk-tanya-hero h1 {
-  font-family: var(--qk-f-display); font-weight: 800; font-size: clamp(34px, 5.4vw, 52px);
-  line-height: 1.05; letter-spacing: -1.2px; margin: 0 0 16px; text-wrap: balance; color: var(--qk-fg);
+  font-family: var(--qk-f-display); font-weight: 800; font-size: clamp(36px, 6.4vw, 58px);
+  line-height: 1.0; letter-spacing: -1.5px; margin: 0 0 18px; text-wrap: balance;
+  min-height: 2em;   /* reserve both lines so a rotation never shifts the page */
+  background: linear-gradient(to right bottom, #16a249, #f0c851);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-.qk-tanya-accent {
-  background: linear-gradient(96deg, #16a249 0%, #34d399 44%, #efc851 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+/* rotating headline: fade/lift out, swap the words, settle back in */
+@keyframes qk-tt-swap {
+  0%   { opacity: 1; transform: translateY(0); }
+  44%  { opacity: 0; transform: translateY(-10px); }
+  56%  { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.qk-tanya-hero h1.is-swap { animation: qk-tt-swap .68s var(--qk-ease); }
+@media (prefers-reduced-motion: reduce) { .qk-tanya-hero h1.is-swap { animation: none; } }
+/* on near-black the #16a249 end of the sweep goes muddy — brighten both hero
+   gradients in dark so the headline keeps its glow */
+:root[data-theme="dark"] .qk-hero-title,
+:root[data-theme="dark"] .qk-tanya-hero h1 {
+  background: linear-gradient(to right bottom, #34d399, #f5d97a);
+  -webkit-background-clip: text; background-clip: text;
 }
 .qk-tanya-hero > p { color: var(--qk-muted); font-size: 17px; line-height: 1.6; max-width: 47ch; margin: 0 auto; }
 

@@ -912,6 +912,41 @@ function route(): void {
   window.scrollTo({ top: 0 });
 }
 
+/* ── Tanya headline: the same invitation, worded differently each time ──── */
+// Each line stays under ~22 characters so every variant sets on exactly two lines at
+// the display size — otherwise a longer one wraps and shoves the page down mid-rotation.
+const TANYA_HEADLINES: readonly (readonly [string, string])[] = [
+  ["Tanya apa saja.", "Tanpa perlu sungkan."],
+  ["Ceritakan saja.", "Di sini kamu aman."],
+  ["Curahkan isi hati.", "Tanpa dihakimi."],
+  ["Datang apa adanya.", "Tak perlu pura-pura."],
+  ["Ada yang berat?", "Ceritakan di sini."],
+  ["Tak tahu harus mulai?", "Mulai dari rasamu."],
+  ["Apa pun bebanmu,", "di sini ada tempatnya."],
+];
+
+function wireTanyaHeadline(): void {
+  const h1 = document.getElementById("qk-tanya-title");
+  const a = h1?.querySelector<HTMLElement>(".qk-tt-a");
+  const b = h1?.querySelector<HTMLElement>(".qk-tt-b");
+  if (!h1 || !a || !b) return;
+  // open on the familiar line, then wander through the rest in a shuffled order
+  const rest = [...TANYA_HEADLINES.slice(1)].sort(() => Math.random() - 0.5);
+  const order = [TANYA_HEADLINES[0]!, ...rest];
+  let i = 0;
+  window.setInterval(() => {
+    // only while the landing headline is actually on screen (not mid-conversation,
+    // not on another route, not on a background tab)
+    if (document.hidden || h1.offsetParent === null) return;
+    i = (i + 1) % order.length;
+    const [l1, l2] = order[i]!;
+    h1.classList.remove("is-swap");
+    void h1.offsetWidth;                 // restart the keyframe
+    h1.classList.add("is-swap");
+    window.setTimeout(() => { a.textContent = l1; b.textContent = l2; }, 300);
+  }, 6800);
+}
+
 /* ── theme: light/dark, persisted, defaults to the OS preference ──────── */
 const THEME_KEY = "qk-theme";
 function applyTheme(dark: boolean): void {
@@ -988,6 +1023,7 @@ function wireFloating(): void {
 
 /* ── boot ────────────────────────────────────────────────────────────── */
 wireTheme();
+wireTanyaHeadline();
 renderSurahGrid();
 wireSurahFind();
 wireTanya();
