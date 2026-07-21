@@ -8,7 +8,29 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — REAL fix: `[hidden]` was overridden by class `display`, so the player covered every page
+## 2026-07-21 (latest) — Tanya elevated to a "personal ustadz" AI landing; QuranKu DESIGN.md extracted
+
+**1. Tanya redesign (`1848d6e`, aurora strengthened `6f847f4`).** The flat single-input landing became a warm,
+AI-forward "personal ustadz" experience, all in the QuranKu skin, demo-only. Ran `/frontend-design` + `/ui-ux-pro-max`.
+- Copy: kicker "Ustadz AI · ditenagai Al-Qur'an"; headline **"Tanya apa saja. / Tanpa perlu sungkan."** with an
+  emerald→gold gradient accent (echoes the QuranKu hero); subtitle frames it as an always-there ustadz grounded in Qur'an.
+- Signature: a **living composer** — emerald→gold **aurora glow** (`.qk-composer::before`, strengthened per Erik) +
+  a **traveling beam** on the border (reuses the `--qk-beam` conic technique), both reduced-motion-guarded.
+- Trust line under the composer + three quiet promises (Tanpa dihakimi · Berdasar Al-Qur'an · Sumber disebutkan).
+- New DOM `#qk-composer`, `#qk-tanya-extras`; `showLanding()` hides intro+extras once chatting, burn button restores.
+- Verified LIVE on demo-quranku.axiara.ai (worker `78f9682f`). Web typecheck clean, prod build untouched.
+
+**2. QuranKu DESIGN.md (`c4f4c46`).** `/firecrawl-website-design-clone` was invoked but Firecrawl is unavailable
+(no CLI/key) — extracted via Interceptor computed-CSS + a live screenshot instead (higher fidelity for a token clone).
+`docs/research/quranku/DESIGN.md` = agent-ready design system (exact tokens, component specs, page topology, build
+instructions) consolidating the folder's prior research. Screenshot: `docs/research/quranku/quranku-homepage.jpg`.
+
+**3. Stray npm changes reverted.** Something ran `npm install --save-dev wrangler@4`, adding a foreign
+`package-lock.json` + a wrangler line to root `package.json` — reverted (this repo is bun/`bun.lock`).
+
+---
+
+## 2026-07-21 — REAL fix: `[hidden]` was overridden by class `display`, so the player covered every page
 
 The "demo keeps opening on the audio player" bug was REAL all along — I misdiagnosed it three times (as
 "stale state", "stale tabs", "--pixel capture artifact") before finding it. **Root cause:** `.qk-pfull`
