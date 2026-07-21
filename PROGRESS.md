@@ -8,7 +8,42 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — Tanya elevated to a "personal ustadz" AI landing; QuranKu DESIGN.md extracted
+## 2026-07-21 (latest) — "Topik Hari Ini" card matched to QuranKu; Tanya calmed; ship-safe demo assets
+
+Session of demo polish (`2b0de50`), deployed to `new-quranku-demo-proxy` version `489a2d35`, all verified LIVE
+on demo-quranku.axiara.ai. Demo-only (`web/demo/*` + `web/vite.demo.config.ts`); prod build (`web/dist`) untouched.
+
+**1. "Topik Al-Qur'an Hari Ini" card now mirrors QuranKu's design** (Erik's ask, from a screenshot of the original).
+Was a flat, center-aligned card with a hairline shadow. Now: **elevated 3D card** (soft depth shadow + subtle hover
+lift) with a **green ornament bar across the top** (`.qk-today::before`, emerald gradient, clipped to the card's
+rounded corners via `overflow:hidden`), a **left-aligned header** (surah name in emerald Poppins + "Ayat N" muted),
+Arabic centered, translation left, and the **"Baca Selengkapnya" CTA bottom-right**. `renderToday()` in demo.ts now
+emits the head block; styles in demo.css. Verified against the live corpus render, then live post-deploy.
+
+**2. Tanya landing calmed (the "quiet but alive" pass).** Aurora glow softened — opacities down (~0.34→0.22),
+blur up (16→22px), the `scale(1.05)` pulse **removed**, drift slowed (9s→14s). The traveling beam slowed to a
+deliberate glide (4.5s→6.5s) and its halo eased — the beam stays the one "alive" signature, everything else quiet.
+Subtitle tightened + de-saccharined (dropped "seperti punya ustadz sendiri yang selalu ada"; new copy ran through
+IndonesianPolish, avoids the headline's "apa saja" echo).
+
+**3. `.assetsignore` so `.DS_Store` can never ship.** `vite.demo.config.ts` closeBundle now writes
+`dist-demo/.assetsignore` (`.DS_Store`, `**/.DS_Store`, `Thumbs.db`) every build — wrangler skips those at upload
+(confirmed: the deploy uploaded 3 assets, no `.DS_Store`). Written by the build, not committed static, because
+`emptyOutDir` wipes `dist-demo/` each run.
+
+**Parity audit (Erik's request): demo vs. the real QuranKu, everything except Tanya.** Verdict — **at parity or
+better on every surface**, one accepted divergence. Beranda (hero/search/pills/nav all match; prayer panel more
+complete), surah grid (faithful), ayah reader (richer — dual Terjemah Makna + Harfiah), Audio (complete: qari
+selector, filters, fullscreen CTA), Tematik (clean index), Bookmark (good empty state). **Accepted divergence
+(Erik: "as is"):** the original's top-nav **"Mushaf" is a scanned printed-page viewer** (Mushaf Madinah, Riwayat
+Hafs / jump-to-page); the demo repurposes "Mushaf" as the ayah reader and does NOT reproduce the print viewer.
+Minor homepage omissions (donation float, right-edge FABs) left out intentionally. Method note: DOM-render
+screenshots were dead this session (stale extension needs a full Chrome restart), so verification used OS-level
+`macos screenshot --app "Google Chrome"` with `interceptor open --activate` to foreground the target tab.
+
+---
+
+## 2026-07-21 — Tanya elevated to a "personal ustadz" AI landing; QuranKu DESIGN.md extracted
 
 **1. Tanya redesign (`1848d6e`, aurora strengthened `6f847f4`).** The flat single-input landing became a warm,
 AI-forward "personal ustadz" experience, all in the QuranKu skin, demo-only. Ran `/frontend-design` + `/ui-ux-pro-max`.
