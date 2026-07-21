@@ -606,6 +606,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-vt:hover { color: var(--qk-primary); background: var(--qk-primary-wash); }
 .qk-vt:active { transform: scale(0.92); }
 .qk-vt svg { width: 17px; height: 17px; }
+/* On phones the ~52px gutter is ~13% of the screen, taken from the reading measure on every
+   card. Below 560px the rail unwraps into a horizontal row under the translation instead. */
+@media (max-width: 560px) {
+  .qk-verse-body { flex-direction: column; }
+  .qk-verse-readings { order: 1; }
+  .qk-verse-tools {
+    order: 2; flex-direction: row; align-items: center; justify-content: flex-start; gap: 4px;
+    padding: 6px 10px; border-right: none; border-top: 1px solid var(--qk-border);
+  }
+  .qk-verse-readings > .qk-reading.primary { flex: 0 1 auto; }
+}
 /* the bookmark button kept `margin-inline-start:auto` from when it lived in the head —
    inside the tools row that shunted it and everything after it to the far right */
 .qk-verse-tools .qk-bm-btn { margin-inline-start: 0; width: 36px; height: 36px; border-radius: 9px; border: none; }
