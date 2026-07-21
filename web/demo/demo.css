@@ -720,8 +720,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-footer-col h3 { font-family: var(--qk-f-display); font-size: 15px; font-weight: 600; margin: 0 0 4px; color: var(--qk-fg); }
 .qk-footer-col a { font-size: 14px; color: var(--qk-muted); text-decoration: none; }
 .qk-footer-col a:hover { color: var(--qk-primary); }
-.qk-footer-demo { font-size: 13px; color: var(--qk-muted); margin-top: 4px; }
-.qk-footer-demo b { color: var(--qk-primary); }
+.qk-footer-brand .qk-footer-data { font-size: 13px; margin-top: 10px; opacity: 0.85; }
+/* draft disclaimer — a small emerald-tinted card at the top of the footer */
+.qk-footer-note {
+  display: flex; align-items: center; gap: 11px;
+  max-width: 580px; margin: 0 auto 40px; padding: 12px 18px;
+  background: var(--qk-primary-wash); border: 1px solid rgba(22, 162, 73, 0.22);
+  border-radius: 12px; box-shadow: 0 4px 14px rgba(22, 162, 73, 0.08);
+}
+.qk-footer-note svg { color: var(--qk-primary); flex: none; }
+.qk-footer-note p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--qk-fg); }
+.qk-footer-note b { color: var(--qk-primary); font-weight: 700; }
+/* copyright / open-source bar */
+.qk-footer-bar { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--qk-border); text-align: center; }
+.qk-footer-bar p { margin: 0; font-size: 13px; color: var(--qk-muted); line-height: 1.6; }
+.qk-footer-bar p + p { margin-top: 4px; }
 @media (max-width: 760px) { .qk-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; } .qk-footer-brand { grid-column: 1 / -1; } }
 
 /* ── responsive ─────────────────────────────────────────────────────── */
