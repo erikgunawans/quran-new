@@ -8,7 +8,67 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — the knowledge-pointer fix is DEPLOYED and verified live on BOTH prod editions
+## 2026-07-22 (latest) — the ustadz ruled on all 147 feeling placements; applied verbatim
+
+`d6b1ac9`. Erik sent back `peninjauan_ayat_perasaan_bersih.html` — the call-app page, with the
+Ustadz's answers persisted inside it (`var DEFAULTS`, 295 keys). **He got through every one of the
+147 placements. Nothing deferred:** 73 `pas`, 63 `ganti`, 11 `cabut`.
+
+**The extraction validated itself before anything was applied.** The sheet stored `captionShown` —
+the exact sentence read to him — and all 147 still matched the corpus `why` **character for
+character**. Zero drift, so every ruling was given on text that still exists. The applier
+(`src/review/apply-ustadz-review.ts`) hard-fails on any drift rather than applying a ruling to text
+he never saw, and refuses to invent a replacement for a `ganti` that carries none.
+
+**What changed.** Corpus **198 → 184**.
+- **56 captions replaced with his sentence, verbatim.** Some are substantive corrections, not
+  polish. **57:4** read *"Allah beserta kalian di mana pun kalian berada"*; he replaced it with
+  *"Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya"*
+  — closing a reading that places God physically inside creation. His consistent move across the 63
+  is stripping over-promise: *"bukan janji cepat kaya"*, *"bukan pola hasil yang wajib terulang"*.
+- **9 verses withdrawn on his `cabut`.** They were live. The call script promised in writing that
+  *"jangan dipakai"* would mean withdrawal, not merely declining to add — so they came out.
+- **5 more withdrawn as `condition-unmet` — and this is the judgement call worth recording.** He
+  allowed 41:35, 106:4, 92:7, 20:25, 20:26 **on condition** we display the neighbouring ayat
+  (41:34–35, 92:5–7, 20:25–28, 106:1–4). `ProblemVerse` holds a single `[surah, ayah]` and retrieval
+  returns one verse per theme, so the condition is architectural, not a to-do. **Erik's call: pull
+  them.** Shipping his new sentence while quietly dropping his condition would put his name on an
+  approval he never gave. They return the day co-display exists. (102:1 offered *"display 102:1–2
+  **or** use this sentence"* — we took the OR, so it stays.)
+- **2:216 keeps the theme he was never asked about.** He rejected it for *"bingung memilih"*; it
+  also sits on *"Heartbreak"*. **Erik's call: apply to the reviewed theme only** — so it loses one
+  placement and stays on the other. Its `ruling` still reads `verdict: "cabut"`, deliberately: the
+  next reader must see a rejection is attached. (10:57 is the one schema-forced compromise — `why`
+  is shared across a verse's themes, so his sentence necessarily lands on both. Written down in the
+  applier, not left to be discovered.)
+- **130 rulings attached inline** as a new `ruling` field. It **supersedes but does not delete** the
+  curators' prior `caveat`s — all 20 existing caveats belonged to verses he reviewed, i.e. they were
+  the ⚠️ doubts read to him. Keeping both leaves the question visible beside the answer.
+
+**The consequence I did not anticipate, and the suite caught it.** `Laziness` and `Homesickness`
+each lost *both* their verses (87:8 + 92:7; 28:85 + 106:4) and went **empty** →
+`lexicon-coverage.test.ts` failed on two orphan keys. Fixed by disabling those two LEXICON entries
+(commented in place, with the reason and how to restore), because a keyword path that can only ever
+return nothing is worse than no path — it looks like the app heard you and had nothing to say.
+**Probed live, not assumed:** *"aku males banget, mager terus"* → honest silence; *"kangen rumah"* →
+falls through to **12:84 [Longing]**, a verse he passed; *"ngerasa jauh dari allah"* → 57:4 rendering
+his corrected sentence.
+
+**The near-miss worth remembering:** the verbatim record was first written to `data/review/`, and
+**all of `data/` is gitignored** — the scholar's own words would never have been committed, while
+`problem-verses.ts` pointed at the path. That is precisely the failure the `caveat` field's own
+doc-comment was written about ("existed nowhere in the shipped app"). Moved to `docs/review/`.
+
+`bun test` **685 pass / 0 fail**; typecheck at the same **6 pre-existing** `quran.ts` DOM-lib errors.
+**NOT DEPLOYED** — prod deploys are Erik's.
+
+**Open for the next call with the ustadz:** the 5 co-display verses (build co-display, or retire the
+placements), the now-empty Laziness/Homesickness themes, and 23:60/23:61 — he ruled `ganti` on both,
+but they are not in the corpus (23:60 was already held back as unable to stand alone).
+
+---
+
+## 2026-07-22 — the knowledge-pointer fix is DEPLOYED and verified live on BOTH prod editions
 
 Erik ran the two deploys. Versions: `new-quranku-proxy` → **`7486975f`**, `new-quranku-ai-proxy` →
 **`c2d5085c`**. Both shipped the same artifact — `[env.synthesis].assets.directory` is `../web/dist`, the
