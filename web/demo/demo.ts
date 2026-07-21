@@ -13,6 +13,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
+import { composeFraming, type ComposeContext, type FramingModel } from "../src/compose-contract.ts";
 import type { AnswerContext, AnswerModel } from "../src/answer-contract.ts";
 import { understandThemes, type ThemeContext, type ThemeModel } from "../src/theme-understand.ts";
 // The AI chat is the SAME conversation model as the live new-quranku-ai edition: a persisted thread
@@ -82,6 +83,48 @@ const demoThemeModel: ThemeModel = async (ctx: ThemeContext): Promise<string[]> 
     const data = (await res.json()) as { themes?: unknown };
     if (!Array.isArray(data.themes)) throw new Error("no themes");
     return data.themes.filter((t): t is string => typeof t === "string");
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/**
+ * The framing — the warm sentences that sit ABOVE the verses on the retrieval path.
+ *
+ * Until now the demo called the deterministic `compose()` only, so it showed the canned one-liner
+ * ("Capek, ya, nahan semuanya sendirian.") while the live app had long since moved to prose that
+ * answers the PERSON — naming the thing they actually wrote, sitting with it, then handing over.
+ * The demo is the surface Erik pitches with, so it was showing strictly worse work than the
+ * product it represents. Third of the three model passes to get an absolute URL, for the same
+ * reason as answer and classify: a relative /api/compose does not exist on localhost or on the
+ * demo Worker (which is a static host and holds no key).
+ *
+ * `composeFraming` keeps the canned line as its fallback, so every failure path — CORS, timeout,
+ * a wall rejection, no key — lands exactly where the demo already was. This can only improve the
+ * line, never remove it.
+ *
+ * Timeout is 8s to match `compose-live.ts`: the rewritten framing generates three specific
+ * sentences rather than one generic one, and measured latency runs 2.2–5.7s. The old 4s cap threw
+ * away good prose one call in four, invisibly — the endpoint logged a success for a line nobody
+ * ever read. Do not lower this without re-measuring.
+ */
+const AI_COMPOSE_ENDPOINT = "https://new-quranku-ai.axiara.ai/api/compose";
+const COMPOSE_TIMEOUT_MS = 8000;
+
+const demoFramingModel: FramingModel = async (ctx: ComposeContext): Promise<string> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), COMPOSE_TIMEOUT_MS);
+  try {
+    const res = await fetch(AI_COMPOSE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: ctx.question, theme: ctx.theme, themeCount: ctx.themeCount }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`/api/compose returned ${res.status}`);
+    const data = (await res.json()) as { prose?: string | null };
+    if (typeof data.prose !== "string" || data.prose.length === 0) throw new Error("no prose");
+    return data.prose;
   } finally {
     clearTimeout(timer);
   }
@@ -322,7 +365,8 @@ async function renderTurn(t: Turn): Promise<string> {
       const verses = c ? t.refs.map((r) => c.verses.find((v) => v.ref === r)).filter((v): v is NonNullable<typeof v> => !!v) : [];
       if (!verses.length) return SILENCE;
       const hits = verses.map((v) => ({ verse: v, score: 1, matched: [] as string[] }));
-      const lead = compose(hits, t.q);
+      // Live framing, with the canned opener as the safety net — never worse than before.
+      const lead = await composeFraming(hits, t.q, demoFramingModel, compose(hits, t.q));
       return (lead ? `<div class="qk-lead">${esc(lead)}</div>` : "") + hits.map(verseHtml).join("");
     }
     case "ai": {
