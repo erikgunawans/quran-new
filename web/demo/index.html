@@ -180,7 +180,7 @@
   <section class="qk-route" id="route-tanya" hidden>
     <div class="qk-container qk-tanya">
 
-      <div class="qk-tanya-hero">
+      <div class="qk-tanya-hero" id="qk-tanya-hero">
         <span class="qk-tanya-kicker">Fitur baru</span>
         <h1>Ceritakan yang kamu <span class="qk-hero-accent">rasakan</span></h1>
         <p>Tulis pakai bahasamu sendiri. QuranKu carikan ayatnya — lalu kamu lihat sendiri
@@ -195,6 +195,8 @@
         <p class="qk-tanya-hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
       </div>
 
+      <div class="qk-thread" id="qk-thread" aria-live="polite"></div>
+
       <form class="qk-ask" id="qk-ask">
         <textarea id="qk-q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off" aria-label="Ceritakan apa yang kamu rasakan"></textarea>
         <button class="qk-ask-send" id="qk-send" type="submit" disabled aria-label="Kirim">
@@ -202,7 +204,10 @@
         </button>
       </form>
 
-      <div class="qk-answer" id="qk-answer" aria-live="polite"></div>
+      <button class="qk-thread-clear" id="qk-thread-clear" type="button" hidden>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        Hapus percakapan
+      </button>
 
     </div>
   </section>

@@ -15,6 +15,12 @@ import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type S
 import { synthesizeAnswer } from "../src/answer.ts";
 import type { AnswerContext, AnswerModel } from "../src/answer-contract.ts";
 import { understandThemes, type ThemeContext, type ThemeModel } from "../src/theme-understand.ts";
+// The AI chat is the SAME conversation model as the live new-quranku-ai edition: a persisted thread
+// of turns, crisis exchanges answered but never written to disk, knowledge/aqidah fallback lanes.
+import { rememberTurn, loadThread, clearThread, hasThread, turnFromHits, type Turn } from "../src/thread.ts";
+import { detectCrisis, crisisReply } from "../src/crisis.ts";
+import { matchAqidah, aqidahById, type AqidahEntry } from "../src/aqidah.ts";
+import { retrieveKnowledge, type KnowledgeAnswer } from "../src/knowledge.ts";
 
 /** The shape both the curated corpus (Reading) and a shard verse (ShardVerse.p/.c) satisfy. */
 type ReadingLike = { text: string; translator: string; translation_type: string } | null;
@@ -216,72 +222,179 @@ const SILENCE = `<div class="qk-silence">
   surah dan ayatnya langsung (misalnya <b>2:255</b>).</p>
 </div>`;
 
-async function askDirect(ref: string, ayah: number, out: HTMLDivElement, lead?: string): Promise<void> {
-  const [surahStr] = ref.split(":");
-  const surah = Number(surahStr);
-  try {
-    const v = await loadAyah(surah, ayah);
-    out.innerHTML =
-      (lead ? `<div class="qk-lead">${esc(lead)}</div>` : "") +
-      cardHtml(`${surah}:${ayah}`, displayName(surah), v.ar, v.p, v.c);
-  } catch {
-    out.innerHTML = `<div class="qk-silence"><p><b>Gagal memuat ${esc(displayName(surah))}.</b> Periksa koneksi lalu coba lagi.</p></div>`;
+/* ── the chat thread ─────────────────────────────────────────────────
+   Matches the live new-quranku-ai edition: an accumulating conversation, not a single answer.
+   We persist what the engine DECIDED (a ref, hits, an AI prose turn) via thread.ts and re-derive
+   the markup here, so a restored thread is always current markup — never resurrected HTML. */
+const thread = (): HTMLDivElement => $<HTMLDivElement>("#qk-thread");
+const tanyaHero = (): HTMLElement | null => document.querySelector<HTMLElement>("#qk-tanya-hero");
+const clearBtn = (): HTMLButtonElement => $<HTMLButtonElement>("#qk-thread-clear");
+
+function refreshClear(): void { clearBtn().hidden = !hasThread(); }
+function endHero(): void { const h = tanyaHero(); if (h) h.hidden = true; }
+const scrollTo = (el: HTMLElement): void => el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+function meBubble(q: string): HTMLDivElement {
+  const el = document.createElement("div");
+  el.className = "qk-msg qk-msg-me";
+  el.textContent = q;
+  return el;
+}
+function nurBubble(inner: string, loading = false): HTMLDivElement {
+  const el = document.createElement("div");
+  el.className = "qk-msg qk-msg-nur" + (loading ? " qk-msg-loading" : "");
+  el.innerHTML = inner;
+  return el;
+}
+
+/** The scholar's Indeks Tematik entries (knowledge lane), verbatim + cited — never reworded. */
+function knowledgeHtml(k: KnowledgeAnswer): string {
+  const shown = k.entries.length, total = k.totalEntries;
+  const items = k.entries
+    .map((e) => `<div class="qk-know-item"><p class="qk-know-txt">${esc(e.text)}</p><span class="qk-know-ref">${esc(e.ref)}</span></div>`)
+    .join("");
+  return `<p class="qk-said">Ini yang ada di <b>Indeks Tematik</b> untuk topik <b>${esc(k.category)}</b>${total > shown ? ` (${shown} dari ${total} entri)` : ""}:</p>
+    <div class="qk-know">${items}</div>
+    <p class="qk-know-src">Sumber: Indeks Tematik Al-Qur'an — Ustadz Muhammad Thalib.</p>`;
+}
+
+/** The reviewed-aqidah lane: the ustadz's verbatim answer + his approved verse anchors. */
+async function aqidahHtml(e: AqidahEntry): Promise<string> {
+  const paras = e.answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+    .map((p) => `<p class="qk-ai-said">${esc(p)}</p>`).join("");
+  const cards = (await Promise.all(e.refs.map(async (r) => {
+    try { const v = await loadAyah(r.surah, r.ayah); return cardHtml(`${r.surah}:${r.ayah}`, displayName(r.surah), v.ar, v.p, v.c); }
+    catch { return ""; }
+  }))).join("");
+  return `<div class="qk-ai">${paras}</div>${cards}<p class="qk-ai-note">Jawaban ini ditinjau oleh Ustadz Ahmad Isrofiel Mardlatillah.</p>`;
+}
+
+/**
+ * Live answers AND restored answers are drawn by THIS function and nothing else — that is what makes
+ * persistence safe (see thread.ts). `ai` prose is replayed verbatim (a non-deterministic model output);
+ * every other kind is re-derived from today's code.
+ */
+async function renderTurn(t: Turn): Promise<string> {
+  switch (t.kind) {
+    case "no-such-surah":
+      return `<p class="qk-said">Tidak ada surah nomor ${t.surah}. Al-Qur'an punya <b>114 surah</b>.</p>`;
+    case "no-such-ayah": {
+      const m = surahMeta(t.surah);
+      return `<p class="qk-said"><b>${esc(displayName(t.surah))}</b> hanya sampai ayat ${m?.ayahs ?? "?"}. Ayat ${t.ayah} tidak ada.</p>
+        <div class="qk-verse-acts"><a class="qk-act" href="#/mushaf/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+    case "surah": {
+      const m = surahMeta(t.surah);
+      return `<p class="qk-said">Ini surah ${esc(displayName(t.surah))} — ${m?.ayahs ?? "?"} ayat.</p>
+        <div class="qk-verse-acts"><a class="qk-act" href="#/mushaf/${t.surah}">Baca ${esc(displayName(t.surah))} →</a></div>`;
+    }
+    case "ayah": {
+      const v = await loadAyah(t.surah, t.ayah);
+      return `<p class="qk-said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` +
+        cardHtml(`${t.surah}:${t.ayah}`, displayName(t.surah), v.ar, v.p, v.c);
+    }
+    case "hits": {
+      const c = await ensureCorpus();
+      const verses = c ? t.refs.map((r) => c.verses.find((v) => v.ref === r)).filter((v): v is NonNullable<typeof v> => !!v) : [];
+      if (!verses.length) return SILENCE;
+      const hits = verses.map((v) => ({ verse: v, score: 1, matched: [] as string[] }));
+      const lead = compose(hits, t.q);
+      return (lead ? `<div class="qk-lead">${esc(lead)}</div>` : "") + hits.map(verseHtml).join("");
+    }
+    case "ai": {
+      const c = await ensureCorpus();
+      return c ? aiAnswerHtml(c, t.prose, t.refs) : SILENCE;
+    }
+    case "aqidah": {
+      const e = aqidahById(t.id);
+      if (!e || !e.answer.trim() || !e.refs.length) return SILENCE;
+      return aqidahHtml(e);
+    }
+    case "knowledge": {
+      const k = await retrieveKnowledge(t.q);
+      return k && k.entries.length ? knowledgeHtml(k) : SILENCE;
+    }
+    case "silence":
+      return SILENCE;
   }
+}
+
+/**
+ * Decide the turn — the SAME resolution order as the live app's ask(): direct reference first
+ * (any of the 6236 ayat), then AI synthesis, then principled hits, then the knowledge/aqidah lanes,
+ * then honest silence. Returns only the persistable DECISION; renderTurn() draws it.
+ */
+async function resolveTurn(q: string): Promise<Turn> {
+  const ref = parseRef(q);
+  if (ref.kind === "no-such-surah") return { q, kind: "no-such-surah", surah: ref.surah };
+  if (ref.kind === "no-such-ayah") return { q, kind: "no-such-ayah", surah: ref.surah.n, ayah: ref.ayah };
+  if (ref.kind === "surah") return { q, kind: "surah", surah: ref.surah.n };
+  if (ref.kind === "ayah") return { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah };
+
+  const c = await ensureCorpus();
+  if (!c) return { q, kind: "silence" };
+
+  // Pass 1 — the theme classifier broadens retrieval (same as the live app); [] on any failure.
+  const modelThemes = await understandThemes(q, c.themes, demoThemeModel, () => []);
+  // Pass 2 — the AI authors a grounded answer. Null (nothing to ground / model down / guard reject)
+  // falls through to the principled resolution, so this edition is never worse than the trustworthy one.
+  const ai = await synthesizeAnswer(c, q, modelThemes, demoAnswerModel);
+  if (ai) return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
+
+  const turn = turnFromHits(q, retrieve(c, q, 2, modelThemes));
+  if (turn.kind === "silence") {
+    const aq = matchAqidah(q);
+    if (aq) return { q, kind: "aqidah", id: aq.id };
+    const k = await retrieveKnowledge(q);
+    if (k) return { q, kind: "knowledge", slug: k.slug };
+  }
+  return turn;
 }
 
 async function ask(qRaw: string): Promise<void> {
   const q = qRaw.trim();
   if (!q) return;
-  const out = $<HTMLDivElement>("#qk-answer");
-  out.innerHTML = `<div class="qk-lead">Mencari ayat untukmu…</div>`;
+  const th = thread();
+  endHero();
+  th.append(meBubble(q));
+  const bubble = nurBubble(`<div class="qk-lead qk-thinking">Menyusun jawaban dari ayat-ayatnya…</div>`, true);
+  th.append(bubble);
+  scrollTo(bubble);
 
-  // Direct reference — "2:255", "surat 18 ayat 10", "yasin" — resolves via the shard loader,
-  // so ANY of the 6236 ayat works, not just the curated feelings corpus.
-  const ref = parseRef(q);
-  if (ref.kind === "ayah") { await askDirect(`${ref.surah.n}:${ref.ayah}`, ref.ayah, out); return; }
-  if (ref.kind === "surah") { await askDirect(`${ref.surah.n}:1`, 1, out, `${displayName(ref.surah.n)} — ayat 1:`); return; }
-  if (ref.kind === "no-such-ayah") {
-    out.innerHTML = `<div class="qk-silence"><p><b>${esc(displayName(ref.surah.n))}</b> hanya sampai ayat ${ref.surah.ayahs}. Ayat ${ref.ayah} tidak ada.</p></div>`;
-    return;
-  }
-  if (ref.kind === "no-such-surah") {
-    out.innerHTML = `<div class="qk-silence"><p>Tidak ada surah nomor ${ref.surah}. Al-Qur'an punya 114 surah.</p></div>`;
-    return;
-  }
-
-  const c = await ensureCorpus();
-  if (!c) {
-    out.innerHTML = `<div class="qk-silence"><p><b>Gagal memuat data.</b> Periksa koneksi lalu coba lagi.</p></div>`;
-    return;
+  // Crisis runs FIRST — before parsing, before retrieval. Answered, but NEVER written to disk
+  // (a shared phone must not surface it to whoever opens the app next). See thread.ts.
+  const crisis = detectCrisis(q);
+  if (crisis) {
+    bubble.classList.remove("qk-msg-loading");
+    bubble.innerHTML = crisisReply();
+    scrollTo(bubble);
+    return; // deliberately NOT remembered
   }
 
-  // ── THE AI ENGINE (primary) ──────────────────────────────────────────
-  // Synthesis: the model AUTHORS a grounded answer. Slower than a framing line (a real model call),
-  // so it gets its own "menyusun" state. Returns null only when it cannot ground/guard safely — then
-  // we degrade to the principled engine below, exactly as the live app does. Never a blank turn.
-  out.innerHTML = `<div class="qk-lead qk-thinking">Menyusun jawaban dari ayat-ayatnya…</div>`;
-  // Pass 1 — the theme classifier broadens retrieval (same as the live app). Falls back to keyword-
-  // only retrieval ([]) if the classifier is slow/down; never blocks the answer beyond its timeout.
-  const modelThemes = await understandThemes(q, c.themes, demoThemeModel, () => []);
-  // Pass 2 — author the grounded answer, now grounded on the enriched retrieval.
-  const ai = await synthesizeAnswer(c, q, modelThemes, demoAnswerModel);
-  if (ai) {
-    out.innerHTML = aiAnswerHtml(c, ai.prose, ai.refs);
-    out.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    return;
+  try {
+    const turn = await resolveTurn(q);
+    bubble.classList.remove("qk-msg-loading");
+    bubble.innerHTML = await renderTurn(turn);
+    rememberTurn(turn);
+  } catch {
+    bubble.classList.remove("qk-msg-loading");
+    bubble.innerHTML = `<div class="qk-silence"><p><b>Ada yang salah saat menyusun jawaban.</b> Mungkin koneksimu sedang tidak stabil — coba lagi.</p></div>`;
   }
+  refreshClear();
+  scrollTo(bubble);
+}
 
-  // ── principled fallback (honest degradation) ─────────────────────────
-  const hits = retrieve(c, q);
-  if (!hits.length) {
-    out.innerHTML = SILENCE;
-    return;
+/** Rebuild a saved conversation on load — same renderer as the live path, so markup is always current. */
+async function restoreThread(): Promise<void> {
+  const turns = loadThread();
+  if (!turns.length) return;
+  endHero();
+  const th = thread();
+  for (const t of turns) {
+    th.append(meBubble(t.q));
+    th.append(nurBubble(await renderTurn(t)));
   }
-  const lead = compose(hits, q);
-  out.innerHTML =
-    (lead ? `<div class="qk-lead">${esc(lead)}</div>` : "") +
-    hits.map(verseHtml).join("");
-  out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  refreshClear();
 }
 
 /** Render the AI-authored answer: guarded prose (paragraphs) + grounding verses + the AI label. */
@@ -314,18 +427,26 @@ function wireTanya(): void {
   ta.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
   });
+  // Send-and-clear: the composer empties on submit, like any chat input, and the turn appears in the thread.
+  const submit = (val: string): void => { ta.value = ""; sync(); void ask(val); };
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    void ask(ta.value);
+    submit(ta.value);
   });
 
   for (const seed of document.querySelectorAll<HTMLButtonElement>(".qk-seed")) {
-    seed.addEventListener("click", () => {
-      ta.value = seed.textContent ?? "";
-      sync();
-      void ask(ta.value);
-    });
+    seed.addEventListener("click", () => submit(seed.textContent ?? ""));
   }
+
+  // Burn the conversation — clears storage AND the DOM, and brings the intro hero back.
+  clearBtn().addEventListener("click", () => {
+    clearThread();
+    thread().replaceChildren();
+    refreshClear();
+    const h = tanyaHero();
+    if (h) h.hidden = false;
+  });
 
   // Homepage search → route into Tanya and run it, so the feature is discoverable from Beranda.
   const search = $<HTMLFormElement>("#qk-search");
@@ -334,19 +455,16 @@ function wireTanya(): void {
     const input = search.querySelector("input");
     const val = input?.value.trim() ?? "";
     if (!val) return;
-    ta.value = val;
+    if (input) input.value = "";
     location.hash = "#/tanya";
-    sync();
-    void ask(val);
+    submit(val);
   });
 
   // Topic chips are illustrative on the clone; clicking one seeds Tanya with it.
   for (const chip of document.querySelectorAll<HTMLButtonElement>(".qk-chip")) {
     chip.addEventListener("click", () => {
-      ta.value = chip.textContent?.trim() ?? "";
       location.hash = "#/tanya";
-      sync();
-      void ask(ta.value);
+      submit(chip.textContent?.trim() ?? "");
     });
   }
 }
@@ -672,6 +790,7 @@ function route(): void {
 renderSurahGrid();
 wireSurahFind();
 wireTanya();
+void restoreThread();
 startClock();
 initPlayer();
 void renderToday();
