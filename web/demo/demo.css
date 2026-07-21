@@ -167,35 +167,48 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-search-ico { width: 20px; height: 20px; color: var(--qk-muted); flex: none; position: relative; z-index: 1; }
 .qk-search input { flex: 1; border: none; outline: none; background: none; font: inherit; font-size: 15px; color: var(--qk-fg); position: relative; z-index: 1; }
 
-/* ── the traveling light on the search border ───────────────────────────────
-   The original's border blinks; ours has a soft emerald light that glides AROUND the pill's edge.
-   Same technique as the New-Quranku composer: a conic gradient masked to a ~2px ring, rotated via
-   @property --qk-beam. ::after is the same beam blurred, so the light reads as luminous. Emerald
-   only. Reduced-motion removes it entirely, leaving the calm bordered field. */
-@property --qk-beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+/* ── the halo: colour moving BEHIND the field, not a line running around it ──
+   Erik's call (2026-07-22): the original QuranKu sits the search pill inside a soft coloured
+   aura — the light is BEHIND the field, bleeding outward, and the field itself stays a calm
+   white pill. We had a traveling beam masked to the border instead: a bright line chasing the
+   pill's edge. It drew the eye to the RIM rather than to the field, and next to the original it
+   read as a loading indicator rather than as warmth. Replaced by the halo below.
+       ::before  three emerald/gold blobs that drift and swell — the colour moving
+       ::after   a slow conic sweep underneath, so hues rotate THROUGH the halo
+   Both sit at z-index -1, behind the pill's own opaque background, so the field never dims and
+   the text never fights a gradient. `.qk-search` deliberately creates NO stacking context (no
+   transform/filter/opacity/isolation on it) — that is what lets a negative-z child paint behind
+   its parent's background. Adding `isolation: isolate` here would trap both layers in front and
+   wash the field out. Reduced-motion keeps the halo and stops the movement. */
 .qk-search { position: relative; }
-@media (prefers-reduced-motion: no-preference) {
-  .qk-search::before, .qk-search::after {
-    content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    animation: qk-beam-travel 4s linear infinite;
-  }
-  /* the sharp beam: a bright arc with a near-white core trailing off into the emerald line */
-  .qk-search::before {
-    padding: 2px;
-    background: conic-gradient(from var(--qk-beam),
-      transparent 0deg 205deg, rgba(22, 162, 73, 0.45) 300deg, #16a249 338deg,
-      #c6f6d5 350deg, #16a249 358deg, transparent 360deg);
-  }
-  /* its glow: same rotation, wider and blurred, so the beam looks like it emits light */
-  .qk-search::after {
-    padding: 5px; opacity: 0.55; filter: blur(5px);
-    background: conic-gradient(from var(--qk-beam), transparent 0deg 305deg, #16a249 348deg, transparent 360deg);
-  }
+.qk-search::before, .qk-search::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; border-radius: 999px;
 }
-@keyframes qk-beam-travel { to { --qk-beam: 360deg; } }
+.qk-search::before {
+  inset: -34px -56px;
+  background:
+    radial-gradient(50% 72% at 22% 30%, rgba(22, 162, 73, 0.30), transparent 70%),
+    radial-gradient(46% 66% at 78% 72%, rgba(239, 200, 81, 0.24), transparent 72%),
+    radial-gradient(62% 60% at 50% 50%, rgba(52, 211, 153, 0.17), transparent 74%);
+  filter: blur(26px);
+}
+.qk-search::after {
+  inset: -26px -46px; opacity: 0.55; filter: blur(30px);
+  background: conic-gradient(from 0deg,
+    rgba(22, 162, 73, 0.24), rgba(239, 200, 81, 0.20), rgba(52, 211, 153, 0.18),
+    rgba(239, 200, 81, 0.20), rgba(22, 162, 73, 0.24));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .qk-search::before { animation: qk-halo-drift 15s ease-in-out infinite alternate; }
+  .qk-search::after  { animation: qk-halo-spin 26s linear infinite; }
+}
+.qk-search:focus-within::before { filter: blur(24px); opacity: 1; }
+
+@keyframes qk-halo-drift {
+  from { transform: translate3d(-12px, -5px, 0) scale(1); }
+  to   { transform: translate3d(12px, 5px, 0) scale(1.07); }
+}
+@keyframes qk-halo-spin { to { transform: rotate(360deg); } }
 
 /* Navigasi / Populer — centered outline pills directly under the search (original placement) */
 .qk-hero-tabs { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
@@ -410,24 +423,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .qk-tanya-hero > p { color: var(--qk-muted); font-size: 17px; line-height: 1.6; max-width: 47ch; margin: 0 auto; }
 
-/* ── the living composer: soft aurora glow + traveling emerald→gold beam ── */
+/* ── the living composer ────────────────────────────────────────────────────
+   The wide ambient aurora that used to live here (inset -80px -32px, blurred 22px) was removed
+   when the field itself gained a halo below. Two glows stacked around one input read as muddy —
+   the outer wash flattened the inner halo's colour instead of deepening it, and the field lost
+   the crisp seat it has in the original. One light source per surface. */
 .qk-composer { position: relative; margin-top: 30px; }
-.qk-composer::before {
-  content: ""; position: absolute; inset: -80px -32px; pointer-events: none;
-  background:
-    radial-gradient(56% 84% at 24% 14%, rgba(22, 162, 73, 0.22), transparent 68%),
-    radial-gradient(52% 78% at 84% 96%, rgba(239, 200, 81, 0.19), transparent 70%),
-    radial-gradient(72% 62% at 50% 48%, rgba(52, 211, 153, 0.12), transparent 76%);
-  filter: blur(22px);
-}
-/* Alive but disciplined: a slow ambient drift, no pulse — you feel it more than see it. */
-@media (prefers-reduced-motion: no-preference) {
-  .qk-composer::before { animation: qk-aurora 14s ease-in-out infinite alternate; }
-}
-@keyframes qk-aurora {
-  from { opacity: 0.7;  transform: translateY(-4px); }
-  to   { opacity: 0.95; transform: translateY(4px); }
-}
 
 .qk-ask {
   position: relative;
@@ -454,26 +455,32 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-ask-send:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
 .qk-ask-send:active:not(:disabled) { transform: scale(0.95); }
 .qk-ask-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-/* the beam: emerald with a gold flare, gliding around the composer edge (mirrors the hero search) */
-@media (prefers-reduced-motion: no-preference) {
-  .qk-ask::before, .qk-ask::after {
-    content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    animation: qk-beam-travel 6.5s linear infinite;
-  }
-  .qk-ask::before {
-    padding: 2px;
-    background: conic-gradient(from var(--qk-beam),
-      transparent 0deg 210deg, rgba(22, 162, 73, 0.35) 305deg, #16a249 338deg,
-      #efc851 350deg, #16a249 358deg, transparent 360deg);
-  }
-  .qk-ask::after {
-    padding: 6px; opacity: 0.4; filter: blur(7px);
-    background: conic-gradient(from var(--qk-beam), transparent 0deg 305deg, #efc851 347deg, transparent 360deg);
-  }
+/* The composer gets the SAME halo as the hero search — colour behind the field, no traveling
+   line — so the two input surfaces of the app behave identically. Rounded to the composer's own
+   22px corners rather than a pill, and pulled a little tighter, because this field is a tall
+   rectangle: a pill-shaped aura around a rectangle reads as a mistake at the corners. */
+.qk-ask::before, .qk-ask::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; border-radius: 34px;
 }
+.qk-ask::before {
+  inset: -30px -40px;
+  background:
+    radial-gradient(50% 70% at 20% 26%, rgba(22, 162, 73, 0.26), transparent 70%),
+    radial-gradient(46% 64% at 80% 76%, rgba(239, 200, 81, 0.22), transparent 72%),
+    radial-gradient(64% 58% at 50% 50%, rgba(52, 211, 153, 0.15), transparent 74%);
+  filter: blur(28px);
+}
+.qk-ask::after {
+  inset: -22px -32px; opacity: 0.5; filter: blur(32px);
+  background: conic-gradient(from 0deg,
+    rgba(22, 162, 73, 0.22), rgba(239, 200, 81, 0.19), rgba(52, 211, 153, 0.16),
+    rgba(239, 200, 81, 0.19), rgba(22, 162, 73, 0.22));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .qk-ask::before { animation: qk-halo-drift 17s ease-in-out infinite alternate; }
+  .qk-ask::after  { animation: qk-halo-spin 30s linear infinite; }
+}
+.qk-ask:focus-within::before { filter: blur(26px); opacity: 1; }
 
 .qk-ask-trust {
   display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap;
