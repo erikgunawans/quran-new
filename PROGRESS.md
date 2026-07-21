@@ -8,7 +8,35 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — floating UI: donation card + right rail + 3D scroll-to-top
+## 2026-07-21 (latest) — Tematik reformatted to QuranKu accordion; rail icons matched
+
+`809ed9e`, deployed `new-quranku-demo-proxy` version `ed7dda9c`, verified LIVE via DOM (13 category accordions,
+search, rail labels; expanded entry card structure exact). Demo-only (`web/demo/*`); web typecheck clean; prod
+build untouched. Note: could not pixel-capture the expanded card — Erik was actively typing in another Chrome tab,
+so OS-capture kept grabbing HIS front tab; fell back to DOM structure read-back (stronger for this anyway).
+
+**Tematik rebuilt to mirror `quran.tarjamahtafsiriyah.com/thematic-index`** (Erik's ask, image #3). Was a
+grid of category cards → separate detail page. Now a single page: centered head (book icon + title + the
+original's subtitle, no author line) + search bar + **category accordions** (13). Expanding a category
+lazy-fetches its `/peta/<slug>.json` and renders its entries; **each entry is itself collapsible** and
+lazy-loads the ayah via `loadAyah` → Arabic (centered) + Tarjamah Tafsiriyah translation + "— Tarjamah
+Tafsiriyah", with **copy** (writes ayah+tr+ref to clipboard + toast), **share** (native / copy-link), and a
+**"Lihat di Surah →"** CTA. Ref badge is the original's short form (`displayName:ayah`, e.g. `Al-Baqarah:7`;
+ranges like `2-4`). Theme header + entry header are clickable. Verified card matches image #3 exactly
+(same data source: Ustadz Muhammad Thalib) — entry "1. Memateri hati orang kafir · Al-Baqarah:7".
+
+**Reader ayah-anchor.** "Lihat di Surah" → `#/mushaf/<surah>/<ayah>`; router now reads a 3rd hash segment,
+`renderMushaf(param, anchorAyah)` scrolls to `#ayat-<s>-<a>` (added to `ayahHtml`) and flashes it
+(`.qk-verse.is-target` keyframe). Beranda "Jelajahi Topik" chips became `<a href="#/tematik/<slug>">` deep-links.
+
+**Rail matched to QuranKu.** The original rail is a single glassy pill with **users / trending-up / share**
+icons — my icons already matched path-for-path; the fix was identity: relabeled the mislabeled ones to
+**Komunitas** (users → opens real QuranKu), **Populer** (trending → scrolls to the surah list), **Bagikan**
+(share), and added the original's **thin dividers** between them.
+
+---
+
+## 2026-07-21 — floating UI: donation card + right rail + 3D scroll-to-top
 
 `4ccfe4c`, deployed `new-quranku-demo-proxy` version `038cec23`, verified LIVE (all three present in the DOM +
 visual; scroll-to-top click 1200→0). Demo-only (`web/demo/index.html` + `demo.css` + `demo.ts`); web typecheck
