@@ -215,6 +215,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-block h2, .qk-surah-head h2 {
   font-family: var(--qk-f-display); font-weight: 700; font-size: 20px; margin: 0 0 16px;
 }
+/* section-heading marks (star / hash / book) — inline so the h2 layout is untouched */
+.qk-h-ico { display: inline-block; vertical-align: -4px; margin-right: 9px; }
+.qk-h-ico svg { display: block; width: 22px; height: 22px; }
+.qk-h-gold { color: var(--qk-secondary); }
+.qk-h-green { color: var(--qk-primary); }
 .qk-block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .qk-block-head h2 { margin-bottom: 0; }
 .qk-block-link { font-size: 14px; font-weight: 600; color: var(--qk-primary); text-decoration: none; }
@@ -849,19 +854,23 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-donasi { position: fixed; left: 0; bottom: 26px; z-index: 55; }
 .qk-donasi[hidden] { display: none; }
 
-/* collapsed pill */
+/* collapsed pill — slides in from the left edge and stays; click opens the card */
 .qk-donasi-pill {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 11px 18px 11px 15px; border-radius: 0 999px 999px 0;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 12px 20px 12px 16px; border-radius: 0 999px 999px 0;
   background: linear-gradient(160deg, #22c55e, var(--qk-primary) 78%); color: #fff;
-  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-size: 14.5px; font-weight: 600; cursor: pointer;
   box-shadow: 0 8px 20px rgba(22, 162, 73, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: opacity .22s var(--qk-ease), transform .28s var(--qk-ease), box-shadow .2s var(--qk-ease);
+  transform: translateX(0); opacity: 1;
+  transition: transform .44s var(--qk-ease), opacity .3s var(--qk-ease), box-shadow .2s var(--qk-ease), padding-right .2s var(--qk-ease);
 }
 .qk-donasi-pill svg { flex: none; }
-.qk-donasi-pill:hover { box-shadow: 0 12px 26px rgba(22, 162, 73, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
-/* once open the pill gives way to the card */
-.qk-donasi.is-open .qk-donasi-pill { opacity: 0; transform: translateX(-10px) scale(0.9); pointer-events: none; }
+.qk-donasi-pill:hover { box-shadow: 0 12px 26px rgba(22, 162, 73, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35); padding-right: 24px; }
+.qk-donasi-pill:active { transform: scale(0.97); }
+/* pre-mount and open states both park the pill off the left edge, so it always
+   re-enters by sliding in from the left (on first load and after the card closes) */
+.qk-donasi.is-pre .qk-donasi-pill,
+.qk-donasi.is-open .qk-donasi-pill { transform: translateX(-110%); opacity: 0; pointer-events: none; }
 
 /* expanded card — grows out of the pill's bottom-left corner */
 .qk-donasi-card {
