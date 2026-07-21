@@ -8,7 +8,32 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — fullscreen-overlay-on-nav bug fixed; principled worker synced (all 3 apps current)
+## 2026-07-21 (latest) — demo Tanya rebuilt as the full AI chat (matches new-quranku-ai); audio "bug" was stale tabs
+
+**1. The recurring "demo opens on the audio player" report was stale tabs, not a live bug.** A genuinely
+fresh load already showed home (player hidden) after the nav-overlay fix. What Erik kept seeing were
+~6 leftover demo tabs in HIS Chrome — residue from Interceptor testing driving his browser — still running
+the OLD cached bundle (`index-DX0ebsb2.js`, pre-fix). Confirmed by inspecting one: old bundle, and the old
+bundle had the overlay-persists-on-nav bug. Closed all stale tabs; next visit loads clean. Lesson banked in
+[[interceptor-minimized-window-blocker]]-adjacent memory: Interceptor tabs left open in Erik's browser read to
+him as "the deployed site" — clean them up before declaring done.
+
+**2. Demo Tanya is now the full AI chat, exactly matching new-quranku-ai (`da5124c`).** Replaced the single-shot
+answer box with a persisted conversation thread, reusing the live edition's OWN modules so behaviour is identical:
+- `thread.ts` (persist the decision, re-derive markup; 12h TTL, 20-turn cap) — `restoreThread()` on boot.
+- `crisis.ts` — `detectCrisis` runs FIRST, `crisisReply()` helpline (119/SEJIWA), answered but NEVER persisted.
+- Same resolution order as live `ask()`: direct ref → AI synthesis (`synthesizeAnswer`) → principled hits →
+  knowledge (`retrieveKnowledge`) / aqidah (`matchAqidah`) lanes → honest silence.
+- Accumulating me/nur bubbles, send-and-clear composer, burn button ("Hapus percakapan"), try/catch guard.
+- New demo DOM (`#qk-thread`, `#qk-thread-clear`, `#qk-tanya-hero`) + chat CSS (bubbles, crisis card, knowledge lane).
+- Demo-only (`web/demo/*`); `web/src` + prod build untouched. Web typecheck clean.
+- **Verified LIVE on demo-quranku.axiara.ai** (bundle `index-C9BsM1Wv.js`, worker version `66663abb`): thread
+  accumulates + persists across reload, AI synthesis fires ("disusun oleh AI"), principled fallback on null,
+  direct refs render ayah cards, crisis shows 119 and is NOT written to localStorage, burn button clears all.
+
+---
+
+## 2026-07-21 — fullscreen-overlay-on-nav bug fixed; principled worker synced (all 3 apps current)
 
 Two follow-ups from the deploy, both closed:
 
