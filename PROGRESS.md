@@ -8,7 +8,30 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — Tanya composer enlarged to a Claude-sized chat field
+## 2026-07-21 (latest) — donation widget: collapses to a pill, expands on hover
+
+`8ca051f`, deployed version `d29a931a`, verified LIVE. Erik supplied a screen recording of the real site
+(`~/Downloads/donasi.mp4`, 26s) — read it by extracting frames with `ffmpeg` (contact sheets at 1fps, then an
+8fps crop of the expansion, then high-res stills of each state). **Finding: I had built the donation card wrong.**
+The real QuranKu does NOT show a permanently-open card; it rests as a small **flush-left green "♡ Donasi" pill**
+at bottom-left that **expands into the card on hover**.
+
+- Collapsed: gradient pill, `border-radius: 0 999px 999px 0` hugging the left edge, heart icon + "Donasi".
+- Expanded: the existing "Dukung Dakwah QuranKu" card, growing from the pill's bottom-left corner
+  (`transform-origin: left bottom`, scale .9 + 10px rise → none) while the pill fades out.
+- `mouseenter` opens; `mouseleave` closes after a **180ms grace** so crossing the pill→card gap never flickers;
+  `focusin/focusout` for keyboard; pill click toggles (touch, where there is no hover). X still dismisses
+  permanently via localStorage and stops propagation.
+
+Verified live: rests collapsed → expands on hover → collapses on leave → X persists the dismissal.
+
+**Technique worth keeping:** to "watch" a video reference, `ffprobe` for duration/fps then `ffmpeg -vf
+"fps=N,scale=…,tile=RxC"` into contact sheets, and crop tightly around the region of interest for the
+transition frames. That is how the pill state was discovered at all.
+
+---
+
+## 2026-07-21 — Tanya composer enlarged to a Claude-sized chat field
 
 `3b87c7c`, deployed version `6397ba55`, verified LIVE (textarea 90px / box 124px). Erik: "the chat field needs
 to be bigger — same as the Claude AI chat field." Was a single-line box (~68px). Now `.qk-ask textarea`
