@@ -251,15 +251,35 @@ function readingHtml(r: ReadingLike, primary: boolean): string {
   </div>`;
 }
 
+/**
+ * A verse card in the Tanya thread.
+ *
+ * The literal Kemenag rendering is COLLAPSED behind a disclosure, exactly as the reader does it
+ * (Erik, 2026-07-22 — the answer surface was showing both renderings stacked open while the reader
+ * hid one, so the same verse looked like two different products depending on where you met it).
+ *
+ * Which one hides is not arbitrary. Terjemah Makna — the tafsiriyah — is the reading this app
+ * exists to put in front of people, so it stays visible; the literal translation is the comparison
+ * you reach for, not the thing you are handed. Collapsing it also stops an answer becoming a wall
+ * of two near-identical paragraphs, which is what made the Tanya result hard to read.
+ *
+ * The companion may be absent (some verses ship one voice); the disclosure is only emitted when
+ * there is genuinely something behind it, so a chevron never opens onto nothing.
+ */
 function cardHtml(ref: string, surahName: string, arabic: string, primary: ReadingLike, companion: ReadingLike): string {
+  const harf = companion ? readingHtml(companion, false) : "";
   return `<article class="qk-verse">
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(ref)}</span>
       <span class="qk-verse-surah">${esc(surahName)}</span>
+      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
+        <span>Terjemahan Harfiah</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>` : ""}
     </div>
     <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(arabic)}</div>
     ${readingHtml(primary, true)}
-    ${readingHtml(companion, false)}
+    ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
   </article>`;
 }
 
@@ -448,6 +468,9 @@ async function ask(qRaw: string): Promise<void> {
     const turn = await resolveTurn(q);
     bubble.classList.remove("qk-msg-loading");
     bubble.innerHTML = await renderTurn(turn);
+    // The thread renders verse cards too, so its disclosures need the same wiring the reader gets.
+    // Without this the chevron is inert markup — it looks interactive and does nothing.
+    wireVerseTools(bubble);
     rememberTurn(turn);
   } catch {
     bubble.classList.remove("qk-msg-loading");
@@ -465,7 +488,9 @@ async function restoreThread(): Promise<void> {
   const th = thread();
   for (const t of turns) {
     th.append(meBubble(t.q));
-    th.append(nurBubble(await renderTurn(t)));
+    const b = nurBubble(await renderTurn(t));
+    th.append(b);
+    wireVerseTools(b); // must run on RESTORED turns too, or reloading the page kills every chevron
   }
   refreshClear();
 }
@@ -563,8 +588,11 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(ref)}</span>
       <span class="qk-verse-surah">${esc(surahName)}</span>
-      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemah harfiah">
-        <span>Harfiah</span>
+      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
+        <!-- Erik, 2026-07-22: the disclosure must name what it opens. "Harfiah" alone is an
+             adjective floating next to a chevron — the reader has to already know that the
+             literal Kemenag rendering is the thing being hidden. Full noun phrase. -->
+        <span>Terjemahan Harfiah</span>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>` : ""}
     </div>
@@ -602,7 +630,7 @@ function wireVerseTools(scope: HTMLElement): void {
       const open = box.hidden;
       box.hidden = !open;
       b.setAttribute("aria-expanded", open ? "true" : "false");
-      b.setAttribute("aria-label", open ? "Sembunyikan terjemah harfiah" : "Tampilkan terjemah harfiah");
+      b.setAttribute("aria-label", open ? "Sembunyikan terjemahan harfiah" : "Tampilkan terjemahan harfiah");
     });
   }
   for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-play]")) {

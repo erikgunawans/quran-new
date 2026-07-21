@@ -589,7 +589,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: 5px 8px 5px 10px; border-radius: 8px; background: none;
   font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: var(--qk-muted); cursor: pointer;
   transition: color .2s var(--qk-ease), background .2s var(--qk-ease);
+  /* "Terjemahan Harfiah" is long enough to wrap in a flex row, and it did — the label broke
+     across two lines and the ayah head grew a second row with the chevron stranded beside it.
+     nowrap + flex-none keeps the control one line; the surah name beside it is the flexible
+     part and truncates instead, since a shortened surah name is far less bad than a broken
+     control. */
+  white-space: nowrap; flex: none;
 }
+/* Yield to the button: the ref stays whole, the NAME gives up width when the row is tight. */
+.qk-verse-head .qk-verse-ref { flex: none; }
+.qk-verse-head .qk-verse-surah { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .qk-harf-btn:hover { color: var(--qk-primary); background: var(--qk-primary-wash); }
 .qk-harf-btn svg { transition: transform .25s var(--qk-ease); }
 .qk-harf-btn[aria-expanded="true"] { color: var(--qk-primary); }
