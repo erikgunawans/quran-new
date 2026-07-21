@@ -14,6 +14,12 @@ export interface SurahMeta {
   /** How many ayahs this surah actually has — the bound every reference is checked against. */
   readonly ayahs: number;
   readonly rev: string;
+  /**
+   * Order of revelation, 1-114 — the sequence the surahs came down in, which is NOT the order
+   * they are arranged in. Al-Faatiha is 5th revealed but 1st in the mushaf. Straight from
+   * Tanzil's `order` attribute; a traditional ordering, not a contested reconstruction.
+   */
+  readonly order: number;
   /** Does this surah open with an unnumbered basmalah? (false for Al-Faatiha and At-Tawbah) */
   readonly bismillah: boolean;
 }
@@ -26,6 +32,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Opening",
     "ayahs": 7,
     "rev": "meccan",
+    "order": 5,
     "bismillah": false
   },
   {
@@ -35,6 +42,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Cow",
     "ayahs": 286,
     "rev": "medinan",
+    "order": 87,
     "bismillah": true
   },
   {
@@ -44,6 +52,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Family of Imraan",
     "ayahs": 200,
     "rev": "medinan",
+    "order": 89,
     "bismillah": true
   },
   {
@@ -53,6 +62,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Women",
     "ayahs": 176,
     "rev": "medinan",
+    "order": 92,
     "bismillah": true
   },
   {
@@ -62,6 +72,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Table",
     "ayahs": 120,
     "rev": "medinan",
+    "order": 112,
     "bismillah": true
   },
   {
@@ -71,6 +82,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Cattle",
     "ayahs": 165,
     "rev": "meccan",
+    "order": 55,
     "bismillah": true
   },
   {
@@ -80,6 +92,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Heights",
     "ayahs": 206,
     "rev": "meccan",
+    "order": 39,
     "bismillah": true
   },
   {
@@ -89,6 +102,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Spoils of War",
     "ayahs": 75,
     "rev": "medinan",
+    "order": 88,
     "bismillah": true
   },
   {
@@ -98,6 +112,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Repentance",
     "ayahs": 129,
     "rev": "medinan",
+    "order": 113,
     "bismillah": false
   },
   {
@@ -107,6 +122,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Jonas",
     "ayahs": 109,
     "rev": "meccan",
+    "order": 51,
     "bismillah": true
   },
   {
@@ -116,6 +132,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Hud",
     "ayahs": 123,
     "rev": "meccan",
+    "order": 52,
     "bismillah": true
   },
   {
@@ -125,6 +142,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Joseph",
     "ayahs": 111,
     "rev": "meccan",
+    "order": 53,
     "bismillah": true
   },
   {
@@ -134,6 +152,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Thunder",
     "ayahs": 43,
     "rev": "medinan",
+    "order": 96,
     "bismillah": true
   },
   {
@@ -143,6 +162,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Abraham",
     "ayahs": 52,
     "rev": "meccan",
+    "order": 72,
     "bismillah": true
   },
   {
@@ -152,6 +172,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Rock",
     "ayahs": 99,
     "rev": "meccan",
+    "order": 54,
     "bismillah": true
   },
   {
@@ -161,6 +182,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Bee",
     "ayahs": 128,
     "rev": "meccan",
+    "order": 70,
     "bismillah": true
   },
   {
@@ -170,6 +192,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Night Journey",
     "ayahs": 111,
     "rev": "meccan",
+    "order": 50,
     "bismillah": true
   },
   {
@@ -179,6 +202,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Cave",
     "ayahs": 110,
     "rev": "meccan",
+    "order": 69,
     "bismillah": true
   },
   {
@@ -188,6 +212,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Mary",
     "ayahs": 98,
     "rev": "meccan",
+    "order": 44,
     "bismillah": true
   },
   {
@@ -197,6 +222,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Taa-Haa",
     "ayahs": 135,
     "rev": "meccan",
+    "order": 45,
     "bismillah": true
   },
   {
@@ -206,6 +232,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Prophets",
     "ayahs": 112,
     "rev": "meccan",
+    "order": 73,
     "bismillah": true
   },
   {
@@ -215,6 +242,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Pilgrimage",
     "ayahs": 78,
     "rev": "medinan",
+    "order": 103,
     "bismillah": true
   },
   {
@@ -224,6 +252,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Believers",
     "ayahs": 118,
     "rev": "meccan",
+    "order": 74,
     "bismillah": true
   },
   {
@@ -233,6 +262,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Light",
     "ayahs": 64,
     "rev": "medinan",
+    "order": 102,
     "bismillah": true
   },
   {
@@ -242,6 +272,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Criterion",
     "ayahs": 77,
     "rev": "meccan",
+    "order": 42,
     "bismillah": true
   },
   {
@@ -251,6 +282,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Poets",
     "ayahs": 227,
     "rev": "meccan",
+    "order": 47,
     "bismillah": true
   },
   {
@@ -260,6 +292,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Ant",
     "ayahs": 93,
     "rev": "meccan",
+    "order": 48,
     "bismillah": true
   },
   {
@@ -269,6 +302,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Stories",
     "ayahs": 88,
     "rev": "meccan",
+    "order": 49,
     "bismillah": true
   },
   {
@@ -278,6 +312,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Spider",
     "ayahs": 69,
     "rev": "meccan",
+    "order": 85,
     "bismillah": true
   },
   {
@@ -287,6 +322,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Romans",
     "ayahs": 60,
     "rev": "meccan",
+    "order": 84,
     "bismillah": true
   },
   {
@@ -296,6 +332,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Luqman",
     "ayahs": 34,
     "rev": "meccan",
+    "order": 57,
     "bismillah": true
   },
   {
@@ -305,6 +342,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Prostration",
     "ayahs": 30,
     "rev": "meccan",
+    "order": 75,
     "bismillah": true
   },
   {
@@ -314,6 +352,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Clans",
     "ayahs": 73,
     "rev": "medinan",
+    "order": 90,
     "bismillah": true
   },
   {
@@ -323,6 +362,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Sheba",
     "ayahs": 54,
     "rev": "meccan",
+    "order": 58,
     "bismillah": true
   },
   {
@@ -332,6 +372,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Originator",
     "ayahs": 45,
     "rev": "meccan",
+    "order": 43,
     "bismillah": true
   },
   {
@@ -341,6 +382,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Yaseen",
     "ayahs": 83,
     "rev": "meccan",
+    "order": 41,
     "bismillah": true
   },
   {
@@ -350,6 +392,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Those drawn up in Ranks",
     "ayahs": 182,
     "rev": "meccan",
+    "order": 56,
     "bismillah": true
   },
   {
@@ -359,6 +402,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The letter Saad",
     "ayahs": 88,
     "rev": "meccan",
+    "order": 38,
     "bismillah": true
   },
   {
@@ -368,6 +412,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Groups",
     "ayahs": 75,
     "rev": "meccan",
+    "order": 59,
     "bismillah": true
   },
   {
@@ -377,6 +422,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Forgiver",
     "ayahs": 85,
     "rev": "meccan",
+    "order": 60,
     "bismillah": true
   },
   {
@@ -386,6 +432,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Explained in detail",
     "ayahs": 54,
     "rev": "meccan",
+    "order": 61,
     "bismillah": true
   },
   {
@@ -395,6 +442,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Consultation",
     "ayahs": 53,
     "rev": "meccan",
+    "order": 62,
     "bismillah": true
   },
   {
@@ -404,6 +452,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Ornaments of gold",
     "ayahs": 89,
     "rev": "meccan",
+    "order": 63,
     "bismillah": true
   },
   {
@@ -413,6 +462,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Smoke",
     "ayahs": 59,
     "rev": "meccan",
+    "order": 64,
     "bismillah": true
   },
   {
@@ -422,6 +472,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Crouching",
     "ayahs": 37,
     "rev": "meccan",
+    "order": 65,
     "bismillah": true
   },
   {
@@ -431,6 +482,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Dunes",
     "ayahs": 35,
     "rev": "meccan",
+    "order": 66,
     "bismillah": true
   },
   {
@@ -440,6 +492,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Muhammad",
     "ayahs": 38,
     "rev": "medinan",
+    "order": 95,
     "bismillah": true
   },
   {
@@ -449,6 +502,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Victory",
     "ayahs": 29,
     "rev": "medinan",
+    "order": 111,
     "bismillah": true
   },
   {
@@ -458,6 +512,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Inner Apartments",
     "ayahs": 18,
     "rev": "medinan",
+    "order": 106,
     "bismillah": true
   },
   {
@@ -467,6 +522,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The letter Qaaf",
     "ayahs": 45,
     "rev": "meccan",
+    "order": 34,
     "bismillah": true
   },
   {
@@ -476,6 +532,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Winnowing Winds",
     "ayahs": 60,
     "rev": "meccan",
+    "order": 67,
     "bismillah": true
   },
   {
@@ -485,6 +542,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Mount",
     "ayahs": 49,
     "rev": "meccan",
+    "order": 76,
     "bismillah": true
   },
   {
@@ -494,6 +552,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Star",
     "ayahs": 62,
     "rev": "meccan",
+    "order": 23,
     "bismillah": true
   },
   {
@@ -503,6 +562,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Moon",
     "ayahs": 55,
     "rev": "meccan",
+    "order": 37,
     "bismillah": true
   },
   {
@@ -512,6 +572,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Beneficent",
     "ayahs": 78,
     "rev": "medinan",
+    "order": 97,
     "bismillah": true
   },
   {
@@ -521,6 +582,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Inevitable",
     "ayahs": 96,
     "rev": "meccan",
+    "order": 46,
     "bismillah": true
   },
   {
@@ -530,6 +592,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Iron",
     "ayahs": 29,
     "rev": "medinan",
+    "order": 94,
     "bismillah": true
   },
   {
@@ -539,6 +602,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Pleading Woman",
     "ayahs": 22,
     "rev": "medinan",
+    "order": 105,
     "bismillah": true
   },
   {
@@ -548,6 +612,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Exile",
     "ayahs": 24,
     "rev": "medinan",
+    "order": 101,
     "bismillah": true
   },
   {
@@ -557,6 +622,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "She that is to be examined",
     "ayahs": 13,
     "rev": "medinan",
+    "order": 91,
     "bismillah": true
   },
   {
@@ -566,6 +632,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Ranks",
     "ayahs": 14,
     "rev": "medinan",
+    "order": 109,
     "bismillah": true
   },
   {
@@ -575,6 +642,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Friday",
     "ayahs": 11,
     "rev": "medinan",
+    "order": 110,
     "bismillah": true
   },
   {
@@ -584,6 +652,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Hypocrites",
     "ayahs": 11,
     "rev": "medinan",
+    "order": 104,
     "bismillah": true
   },
   {
@@ -593,6 +662,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Mutual Disillusion",
     "ayahs": 18,
     "rev": "medinan",
+    "order": 108,
     "bismillah": true
   },
   {
@@ -602,6 +672,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Divorce",
     "ayahs": 12,
     "rev": "medinan",
+    "order": 99,
     "bismillah": true
   },
   {
@@ -611,6 +682,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Prohibition",
     "ayahs": 12,
     "rev": "medinan",
+    "order": 107,
     "bismillah": true
   },
   {
@@ -620,6 +692,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Sovereignty",
     "ayahs": 30,
     "rev": "meccan",
+    "order": 77,
     "bismillah": true
   },
   {
@@ -629,6 +702,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Pen",
     "ayahs": 52,
     "rev": "meccan",
+    "order": 2,
     "bismillah": true
   },
   {
@@ -638,6 +712,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Reality",
     "ayahs": 52,
     "rev": "meccan",
+    "order": 78,
     "bismillah": true
   },
   {
@@ -647,6 +722,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Ascending Stairways",
     "ayahs": 44,
     "rev": "meccan",
+    "order": 79,
     "bismillah": true
   },
   {
@@ -656,6 +732,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Noah",
     "ayahs": 28,
     "rev": "meccan",
+    "order": 71,
     "bismillah": true
   },
   {
@@ -665,6 +742,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Jinn",
     "ayahs": 28,
     "rev": "meccan",
+    "order": 40,
     "bismillah": true
   },
   {
@@ -674,6 +752,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Enshrouded One",
     "ayahs": 20,
     "rev": "meccan",
+    "order": 3,
     "bismillah": true
   },
   {
@@ -683,6 +762,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Cloaked One",
     "ayahs": 56,
     "rev": "meccan",
+    "order": 4,
     "bismillah": true
   },
   {
@@ -692,6 +772,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Resurrection",
     "ayahs": 40,
     "rev": "meccan",
+    "order": 31,
     "bismillah": true
   },
   {
@@ -701,6 +782,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Man",
     "ayahs": 31,
     "rev": "medinan",
+    "order": 98,
     "bismillah": true
   },
   {
@@ -710,6 +792,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Emissaries",
     "ayahs": 50,
     "rev": "meccan",
+    "order": 33,
     "bismillah": true
   },
   {
@@ -719,6 +802,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Announcement",
     "ayahs": 40,
     "rev": "meccan",
+    "order": 80,
     "bismillah": true
   },
   {
@@ -728,6 +812,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Those who drag forth",
     "ayahs": 46,
     "rev": "meccan",
+    "order": 81,
     "bismillah": true
   },
   {
@@ -737,6 +822,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "He frowned",
     "ayahs": 42,
     "rev": "meccan",
+    "order": 24,
     "bismillah": true
   },
   {
@@ -746,6 +832,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Overthrowing",
     "ayahs": 29,
     "rev": "meccan",
+    "order": 7,
     "bismillah": true
   },
   {
@@ -755,6 +842,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Cleaving",
     "ayahs": 19,
     "rev": "meccan",
+    "order": 82,
     "bismillah": true
   },
   {
@@ -764,6 +852,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Defrauding",
     "ayahs": 36,
     "rev": "meccan",
+    "order": 86,
     "bismillah": true
   },
   {
@@ -773,6 +862,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Splitting Open",
     "ayahs": 25,
     "rev": "meccan",
+    "order": 83,
     "bismillah": true
   },
   {
@@ -782,6 +872,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Constellations",
     "ayahs": 22,
     "rev": "meccan",
+    "order": 27,
     "bismillah": true
   },
   {
@@ -791,6 +882,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Morning Star",
     "ayahs": 17,
     "rev": "meccan",
+    "order": 36,
     "bismillah": true
   },
   {
@@ -800,6 +892,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Most High",
     "ayahs": 19,
     "rev": "meccan",
+    "order": 8,
     "bismillah": true
   },
   {
@@ -809,6 +902,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Overwhelming",
     "ayahs": 26,
     "rev": "meccan",
+    "order": 68,
     "bismillah": true
   },
   {
@@ -818,6 +912,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Dawn",
     "ayahs": 30,
     "rev": "meccan",
+    "order": 10,
     "bismillah": true
   },
   {
@@ -827,6 +922,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The City",
     "ayahs": 20,
     "rev": "meccan",
+    "order": 35,
     "bismillah": true
   },
   {
@@ -836,6 +932,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Sun",
     "ayahs": 15,
     "rev": "meccan",
+    "order": 26,
     "bismillah": true
   },
   {
@@ -845,6 +942,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Night",
     "ayahs": 21,
     "rev": "meccan",
+    "order": 9,
     "bismillah": true
   },
   {
@@ -854,6 +952,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Morning Hours",
     "ayahs": 11,
     "rev": "meccan",
+    "order": 11,
     "bismillah": true
   },
   {
@@ -863,6 +962,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Consolation",
     "ayahs": 8,
     "rev": "meccan",
+    "order": 12,
     "bismillah": true
   },
   {
@@ -872,6 +972,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Fig",
     "ayahs": 8,
     "rev": "meccan",
+    "order": 28,
     "bismillah": true
   },
   {
@@ -881,6 +982,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Clot",
     "ayahs": 19,
     "rev": "meccan",
+    "order": 1,
     "bismillah": true
   },
   {
@@ -890,6 +992,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Power, Fate",
     "ayahs": 5,
     "rev": "meccan",
+    "order": 25,
     "bismillah": true
   },
   {
@@ -899,6 +1002,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Evidence",
     "ayahs": 8,
     "rev": "medinan",
+    "order": 100,
     "bismillah": true
   },
   {
@@ -908,6 +1012,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Earthquake",
     "ayahs": 8,
     "rev": "medinan",
+    "order": 93,
     "bismillah": true
   },
   {
@@ -917,6 +1022,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Chargers",
     "ayahs": 11,
     "rev": "meccan",
+    "order": 14,
     "bismillah": true
   },
   {
@@ -926,6 +1032,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Calamity",
     "ayahs": 11,
     "rev": "meccan",
+    "order": 30,
     "bismillah": true
   },
   {
@@ -935,6 +1042,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Competition",
     "ayahs": 8,
     "rev": "meccan",
+    "order": 16,
     "bismillah": true
   },
   {
@@ -944,6 +1052,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Declining Day, Epoch",
     "ayahs": 3,
     "rev": "meccan",
+    "order": 13,
     "bismillah": true
   },
   {
@@ -953,6 +1062,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Traducer",
     "ayahs": 9,
     "rev": "meccan",
+    "order": 32,
     "bismillah": true
   },
   {
@@ -962,6 +1072,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Elephant",
     "ayahs": 5,
     "rev": "meccan",
+    "order": 19,
     "bismillah": true
   },
   {
@@ -971,6 +1082,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Quraysh",
     "ayahs": 4,
     "rev": "meccan",
+    "order": 29,
     "bismillah": true
   },
   {
@@ -980,6 +1092,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Almsgiving",
     "ayahs": 7,
     "rev": "meccan",
+    "order": 17,
     "bismillah": true
   },
   {
@@ -989,6 +1102,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Abundance",
     "ayahs": 3,
     "rev": "meccan",
+    "order": 15,
     "bismillah": true
   },
   {
@@ -998,6 +1112,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Disbelievers",
     "ayahs": 6,
     "rev": "meccan",
+    "order": 18,
     "bismillah": true
   },
   {
@@ -1007,6 +1122,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Divine Support",
     "ayahs": 3,
     "rev": "medinan",
+    "order": 114,
     "bismillah": true
   },
   {
@@ -1016,6 +1132,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Palm Fibre",
     "ayahs": 5,
     "rev": "meccan",
+    "order": 6,
     "bismillah": true
   },
   {
@@ -1025,6 +1142,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Sincerity",
     "ayahs": 4,
     "rev": "meccan",
+    "order": 22,
     "bismillah": true
   },
   {
@@ -1034,6 +1152,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "The Dawn",
     "ayahs": 5,
     "rev": "meccan",
+    "order": 20,
     "bismillah": true
   },
   {
@@ -1043,6 +1162,7 @@ export const SURAH_INDEX: readonly SurahMeta[] = [
     "en": "Mankind",
     "ayahs": 6,
     "rev": "meccan",
+    "order": 21,
     "bismillah": true
   }
 ] as const;

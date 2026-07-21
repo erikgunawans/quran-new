@@ -144,14 +144,18 @@ const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* ── shared surah card (Beranda + Mushaf index) ──────────────────────── */
-function surahCardHtml(s: (typeof SURAH_INDEX)[number], hrefPrefix: string): string {
+function surahCardHtml(s: (typeof SURAH_INDEX)[number], hrefPrefix: string, byRevelation = false): string {
   const rev = s.rev === "meccan" ? "meccan" : "medinan";
   const revLabel = s.rev === "meccan" ? "Makkiyah" : "Madaniyah";
+  // In revelation order the badge shows the ORDER, not the surah number — otherwise the list
+  // reads as a scrambled 1..114 and looks broken. The mushaf number moves to the meta row so
+  // it is still there, just no longer the thing being counted.
+  const badge = byRevelation ? s.order : s.n;
   return `<li>
-    <a class="qk-surah-card" href="${hrefPrefix}${s.n}" aria-label="${esc(s.tl)}">
+    <a class="qk-surah-card" href="${hrefPrefix}${s.n}" aria-label="${esc(s.tl)}${byRevelation ? ` — wahyu ke-${s.order}` : ""}">
       <div class="qk-sc-top">
         <div class="qk-sc-left">
-          <span class="qk-sc-num">${s.n}</span>
+          <span class="qk-sc-num">${badge}</span>
           <span class="qk-sc-name">
             <span class="qk-sc-tl">${esc(idName(s.n, s.tl))}</span>
             <span class="qk-sc-en">${esc(idMeaning(s.n) || s.en)}</span>
@@ -161,7 +165,7 @@ function surahCardHtml(s: (typeof SURAH_INDEX)[number], hrefPrefix: string): str
       </div>
       <div class="qk-sc-meta">
         <span class="qk-sc-rev ${rev}">${revLabel}</span>
-        <span class="qk-sc-ayahs">${s.ayahs} Ayat</span>
+        <span class="qk-sc-ayahs">${byRevelation ? `Surah ${s.n} · ${s.ayahs} Ayat` : `${s.ayahs} Ayat`}</span>
       </div>
     </a>
   </li>`;
@@ -205,14 +209,29 @@ function renderJuzGrid(): void {
 }
 
 /**
+ * Beranda: the 114 surahs in the order they were REVEALED, not the order they are arranged in.
+ *
+ * These are different sequences and the difference is the point: Al-Alaq came first, Al-Faatiha
+ * fifth, An-Nasr last, while the mushaf opens with Al-Faatiha and puts Al-Alaq at 96. Reading in
+ * revelation order is how people follow the arc of the revelation rather than the arrangement.
+ *
+ * `order` is Tanzil's `order` attribute, carried through the pinned metadata to SURAH_INDEX — a
+ * traditional ordering, not a reconstruction of ours.
+ */
+function renderRevelationGrid(): void {
+  const grid = $<HTMLUListElement>("#qk-surah-grid");
+  grid.innerHTML = SURAH_INDEX.slice()
+    .sort((a, b) => a.order - b.order)
+    .map((s) => surahCardHtml(s, "#/mushaf/", true))
+    .join("");
+}
+
+/**
  * The Surah / Juz tabs.
  *
- * These three buttons have been inert decoration since the demo was built — `is-active` was
- * hardcoded on "Surah" and nothing listened. Now that two of them have data behind them, an
- * inert third would read as broken rather than unbuilt, so "Urutan Wahyu" is explicitly
- * disabled with a title explaining why: SURAH_INDEX carries no revelation-order field. The
- * order exists in the pinned Tanzil metadata (`order` on each <sura>), so this is a small
- * follow-on, not a dead end — but shipping a tab that silently does nothing is the thing to avoid.
+ * These three buttons were inert decoration since the demo was built — `is-active` hardcoded on
+ * "Surah" and nothing listening. All three now have data behind them: surah order, juz, and
+ * revelation order (the last unlocked by carrying Tanzil's `order` through to SURAH_INDEX).
  */
 function wireListTabs(): void {
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".qk-tabs .qk-tab"));
@@ -230,6 +249,10 @@ function wireListTabs(): void {
       renderJuzGrid();
       if (blurb) blurb.textContent = "Jelajahi 30 juz dalam Al-Qur'an.";
       if (find) find.placeholder = "Cari juz, nomor, nama surah...";
+    } else if (idx === 2) {
+      renderRevelationGrid();
+      if (blurb) blurb.textContent = "114 surah menurut urutan diturunkannya wahyu.";
+      if (find) find.placeholder = "Cari nama surah, arti, nomor...";
     } else {
       renderSurahGrid();
       if (blurb) blurb.textContent = "Jelajahi 114 surah dalam Al-Qur'an.";
@@ -243,11 +266,6 @@ function wireListTabs(): void {
   };
 
   tabs.forEach((tab, i) => {
-    if (i === 2) {
-      tab.disabled = true;
-      tab.title = "Belum tersedia — urutan wahyu belum ada di indeks surah.";
-      return;
-    }
     tab.addEventListener("click", () => select(i));
   });
 }

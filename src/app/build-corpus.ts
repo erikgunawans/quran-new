@@ -176,6 +176,7 @@ const index = surahs
     en: s.name_en,
     ayahs: s.ayah_count,
     rev: s.revelation_type,
+    order: s.order_revealed,
     bismillah: hasBismillahHeader(s.number),
   }));
 
@@ -200,6 +201,12 @@ export interface SurahMeta {
   /** How many ayahs this surah actually has — the bound every reference is checked against. */
   readonly ayahs: number;
   readonly rev: string;
+  /**
+   * Order of revelation, 1-114 — the sequence the surahs came down in, which is NOT the order
+   * they are arranged in. Al-Faatiha is 5th revealed but 1st in the mushaf. Straight from
+   * Tanzil's \`order\` attribute; a traditional ordering, not a contested reconstruction.
+   */
+  readonly order: number;
   /** Does this surah open with an unnumbered basmalah? (false for Al-Faatiha and At-Tawbah) */
   readonly bismillah: boolean;
 }
