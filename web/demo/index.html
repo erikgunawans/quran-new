@@ -371,6 +371,42 @@
   </div>
 </footer>
 
+<!-- ── Floating UI: right rail, donation card, scroll-to-top (mirrors QuranKu, elevated) ── -->
+<div class="qk-rail" aria-label="Tindakan cepat">
+  <button class="qk-rail-btn" id="qk-rail-tanya" type="button" data-tip="Tanya Ustadz" aria-label="Tanya Ustadz">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+  </button>
+  <button class="qk-rail-btn" id="qk-rail-pop" type="button" data-tip="Jelajahi surah" aria-label="Jelajahi surah">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+  </button>
+  <button class="qk-rail-btn" id="qk-rail-share" type="button" data-tip="Bagikan" aria-label="Bagikan">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+  </button>
+</div>
+
+<aside class="qk-donasi" id="qk-donasi" aria-label="Dukung Dakwah QuranKu">
+  <button class="qk-donasi-x" id="qk-donasi-x" type="button" aria-label="Tutup">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <span class="qk-donasi-ico">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+  </span>
+  <div class="qk-donasi-body">
+    <h4>Dukung Dakwah QuranKu</h4>
+    <p>Setiap donasi Anda membantu kami terus berkembang dan menyebarkan manfaat.</p>
+    <a class="qk-donasi-btn" href="https://quran.tarjamahtafsiriyah.com/donate" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v9h14v-9"/><path d="M12 8S9.5 3 7.2 3.6 5.4 7.4 8 8M12 8s2.5-5 4.8-4.4S18.6 7.4 16 8"/></svg>
+      Donasi Sekarang
+    </a>
+  </div>
+</aside>
+
+<button class="qk-top" id="qk-top" type="button" aria-label="Kembali ke atas">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="qk-toast" id="qk-toast" role="status" aria-live="polite"></div>
+
 <script type="module" src="./demo.ts"></script>
 </body>
 </html>

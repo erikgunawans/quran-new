@@ -795,6 +795,53 @@ function route(): void {
   window.scrollTo({ top: 0 });
 }
 
+/* ── floating UI: right rail · donation card · scroll-to-top ──────────── */
+let toastTimer = 0;
+function toast(msg: string): void {
+  const t = document.getElementById("qk-toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add("is-on");
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => t.classList.remove("is-on"), 2200);
+}
+
+const DONASI_KEY = "qk-donasi-dismissed";
+function wireFloating(): void {
+  // scroll-to-top: fades in once past the fold
+  const top = document.getElementById("qk-top");
+  if (top) {
+    const onScroll = (): void => { top.classList.toggle("is-on", window.scrollY > 400); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    top.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }
+
+  // donation card: dismiss and remember it (device-local)
+  const donasi = document.getElementById("qk-donasi");
+  if (donasi && localStorage.getItem(DONASI_KEY) === "1") donasi.hidden = true;
+  document.getElementById("qk-donasi-x")?.addEventListener("click", () => {
+    if (donasi) donasi.hidden = true;
+    try { localStorage.setItem(DONASI_KEY, "1"); } catch { /* private mode */ }
+  });
+
+  // right rail
+  document.getElementById("qk-rail-tanya")?.addEventListener("click", () => { location.hash = "#/tanya"; });
+  document.getElementById("qk-rail-pop")?.addEventListener("click", () => {
+    if (location.hash.replace(/^#\//, "").split("/")[0] !== "beranda") location.hash = "#/beranda";
+    window.setTimeout(() => document.getElementById("qk-surah-grid")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  });
+  document.getElementById("qk-rail-share")?.addEventListener("click", async () => {
+    const url = location.origin + location.pathname;
+    const data: ShareData = { title: "QuranKu — Al-Qur'an Tarjamah Tafsiriyah", text: "Al-Qur'an Tarjamah Tafsiriyah", url };
+    try {
+      if (navigator.share) { await navigator.share(data); return; }
+      await navigator.clipboard.writeText(url);
+      toast("Tautan disalin ke clipboard");
+    } catch { /* user cancelled the share sheet, or clipboard blocked */ }
+  });
+}
+
 /* ── boot ────────────────────────────────────────────────────────────── */
 renderSurahGrid();
 wireSurahFind();
@@ -803,5 +850,6 @@ void restoreThread();
 startClock();
 initPlayer();
 void renderToday();
+wireFloating();
 window.addEventListener("hashchange", route);
 route();

@@ -737,6 +737,98 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-footer-bar p + p { margin-top: 4px; }
 @media (max-width: 760px) { .qk-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; } .qk-footer-brand { grid-column: 1 / -1; } }
 
+/* ═══ Floating UI — right rail · donation card · scroll-to-top (elevated / 3D) ═══════════ */
+
+/* Right rail: 3 quick actions in a glassy pill hugging the right edge, vertically centered. */
+.qk-rail {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 55;
+  display: flex; flex-direction: column; gap: 3px; padding: 7px;
+  background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--qk-border); border-right: none; border-radius: 16px 0 0 16px;
+  box-shadow: -8px 10px 30px rgba(23, 24, 28, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.qk-rail-btn {
+  position: relative; width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center; color: var(--qk-muted); background: transparent;
+  transition: color .2s var(--qk-ease), background .2s var(--qk-ease), transform .18s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-rail-btn:hover {
+  color: #fff; background: linear-gradient(160deg, #22c55e, var(--qk-primary) 75%);
+  transform: translateX(-3px); box-shadow: 0 6px 16px rgba(22, 162, 73, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.qk-rail-btn:active { transform: translateX(-1px) scale(0.95); }
+/* left-side tooltip */
+.qk-rail-btn::after {
+  content: attr(data-tip); position: absolute; right: calc(100% + 12px); top: 50%;
+  transform: translateY(-50%) translateX(6px); white-space: nowrap;
+  background: var(--qk-fg); color: #fff; font-size: 12px; font-weight: 500;
+  padding: 6px 11px; border-radius: 9px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  opacity: 0; pointer-events: none; transition: opacity .18s var(--qk-ease), transform .18s var(--qk-ease);
+}
+.qk-rail-btn:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* Donation card, bottom-left — elevated 3D card, dismissable. */
+.qk-donasi {
+  position: fixed; left: 24px; bottom: 24px; z-index: 55; width: 304px;
+  display: flex; gap: 14px; padding: 18px 18px 18px 16px;
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 18px;
+  box-shadow: 0 22px 50px rgba(23, 24, 28, 0.16), 0 6px 16px rgba(23, 24, 28, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .qk-donasi { animation: qk-donasi-in .5s var(--qk-ease) both; }
+}
+@keyframes qk-donasi-in { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+.qk-donasi[hidden] { display: none; }
+.qk-donasi-x {
+  position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center; color: var(--qk-muted); background: transparent;
+  transition: color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-donasi-x:hover { color: var(--qk-fg); background: var(--qk-muted); }
+.qk-donasi-ico {
+  flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+  color: var(--qk-primary); background: var(--qk-primary-wash);
+}
+.qk-donasi-body h4 { font-family: var(--qk-f-display); font-weight: 700; font-size: 15px; color: var(--qk-fg); margin: 2px 22px 0 0; }
+.qk-donasi-body p { margin: 6px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--qk-muted); }
+.qk-donasi-btn {
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 13px; height: 38px; padding: 0 15px;
+  border-radius: 10px; background: linear-gradient(160deg, #22c55e, var(--qk-primary) 78%); color: #fff;
+  font-size: 13.5px; font-weight: 600; text-decoration: none;
+  box-shadow: 0 6px 16px rgba(22, 162, 73, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform .15s var(--qk-ease), filter .2s var(--qk-ease);
+}
+.qk-donasi-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.qk-donasi-btn:active { transform: translateY(0) scale(0.98); }
+
+/* Scroll-to-top, bottom-right — raised 3D emerald disc, fades in past the fold. */
+.qk-top {
+  position: fixed; right: 26px; bottom: 26px; z-index: 56;
+  width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(158deg, #2fd06e 0%, var(--qk-primary) 62%, #0f7a37 100%);
+  box-shadow: 0 10px 24px rgba(22, 162, 73, 0.42), 0 3px 8px rgba(0, 0, 0, 0.18), inset 0 1.5px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.12);
+  opacity: 0; visibility: hidden; transform: translateY(14px) scale(0.9);
+  transition: opacity .28s var(--qk-ease), transform .28s var(--qk-ease), visibility .28s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-top.is-on { opacity: 1; visibility: visible; transform: none; }
+.qk-top:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 16px 32px rgba(22, 162, 73, 0.5), 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1.5px 0 rgba(255, 255, 255, 0.45); }
+.qk-top:active { transform: translateY(-1px) scale(0.97); }
+
+/* Toast (share feedback) */
+.qk-toast {
+  position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(20px); z-index: 70;
+  background: var(--qk-fg); color: #fff; font-size: 13.5px; font-weight: 500;
+  padding: 11px 18px; border-radius: 12px; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+  opacity: 0; pointer-events: none; transition: opacity .25s var(--qk-ease), transform .25s var(--qk-ease);
+}
+.qk-toast.is-on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 760px) {
+  .qk-rail { display: none; }
+  .qk-donasi { left: 12px; right: 12px; bottom: 12px; width: auto; }
+  .qk-top { right: 16px; bottom: 16px; }
+}
+
 /* ── responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 760px) {
   .qk-nav { gap: 0; }
