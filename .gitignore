@@ -18,6 +18,7 @@ worker/node_modules/
 web/dist/
 web/dist-demo/
 web/public/corpus.json
+web/public/juz.json
 web/public/tafsir/
 
 # agent worktrees — not part of the project
