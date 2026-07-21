@@ -16,6 +16,7 @@ data/
 node_modules/
 worker/node_modules/
 web/dist/
+web/dist-demo/
 web/public/corpus.json
 web/public/tafsir/
 

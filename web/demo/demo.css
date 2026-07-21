@@ -1,0 +1,596 @@
+/* ════════════════════════════════════════════════════════════════════
+   QuranKu clone — demo skin.
+   Tokens extracted verbatim from quran.tarjamahtafsiriyah.com (2026-07-21):
+   emerald #16A249 primary · gold #EFC851 · ink #17181C · hairline #DCE0E5 ·
+   Poppins display / Inter UI / Amiri Arabic · 12px cards · 72px blurred header.
+   This is the ORIGINAL's look. The "Tanya" section is the New-Quranku feature added on top.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --qk-bg:        #f7f9fa;
+  --qk-fg:        #17181c;
+  --qk-card:      #ffffff;
+  --qk-primary:   #16a249;
+  --qk-primary-wash: rgba(22, 162, 73, 0.10);
+  --qk-secondary: #efc851;   /* QuranKu uses gold freely — this is THEIR design, not New-Quranku */
+  --qk-secondary-wash: rgba(240, 200, 81, 0.20);
+  --qk-secondary-ink: #7a5e17;
+  --qk-muted:     #6b7580;
+  --qk-border:    #dce0e5;
+  --qk-ring:      #22c55e;
+
+  --qk-f-display: "Poppins", system-ui, sans-serif;
+  --qk-f-ui:      "Inter", system-ui, sans-serif;
+  --qk-f-ar:      "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
+
+  --qk-radius: 12px;
+  --qk-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --qk-shadow:    0 4px 20px rgba(0, 0, 0, 0.08);
+  --qk-header-h: 72px;
+  --qk-container: 1280px;
+  --qk-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--qk-bg);
+  color: var(--qk-fg);
+  font-family: var(--qk-f-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+.qk-container { max-width: var(--qk-container); margin: 0 auto; padding: 0 24px; width: 100%; }
+
+/* ── header ─────────────────────────────────────────────────────────── */
+.qk-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--qk-header-h);
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(220, 224, 229, 0.8);
+  box-shadow: var(--qk-shadow-sm);
+}
+.qk-header-row { display: flex; align-items: center; gap: 20px; height: 100%; }
+
+.qk-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.qk-logo { width: 40px; height: 40px; flex: none; object-fit: contain; display: block; }
+.qk-wordmark { font-family: var(--qk-f-display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; color: var(--qk-primary); }
+
+.qk-nav { display: flex; align-items: center; gap: 2px; margin-inline: auto; }
+.qk-nav-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 13px; border-radius: 10px;
+  font-size: 15px; font-weight: 500; color: var(--qk-muted);
+  text-decoration: none; transition: color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-nav-ico { width: 18px; height: 18px; flex: none; }
+.qk-nav-link:hover { color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-nav-link[aria-current="page"] { color: var(--qk-primary); background: var(--qk-primary-wash); font-weight: 600; }
+.qk-nav-tanya { color: var(--qk-primary); font-weight: 600; }
+.qk-badge-new {
+  font-family: var(--qk-f-ui); font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: #fff; background: var(--qk-primary);
+  padding: 2px 6px; border-radius: 999px; line-height: 1.4;
+}
+
+.qk-header-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.qk-icon-btn {
+  width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center;
+  color: var(--qk-muted); border: 1px solid var(--qk-border); background: var(--qk-card);
+  transition: color .2s var(--qk-ease), border-color .2s var(--qk-ease);
+}
+.qk-icon-btn svg { width: 18px; height: 18px; }
+.qk-icon-btn:hover { color: var(--qk-primary); border-color: var(--qk-primary); }
+
+.qk-masuk {
+  flex: none;
+  display: inline-flex; align-items: center; height: 40px; padding: 0 18px;
+  border-radius: 10px; background: var(--qk-primary); color: #fff;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: filter .2s var(--qk-ease);
+}
+.qk-masuk:hover { filter: brightness(1.06); }
+
+.qk-main { padding-top: var(--qk-header-h); min-height: calc(100dvh - var(--qk-header-h)); }
+.qk-route { padding: 40px 0 80px; }
+
+/* ── hero ───────────────────────────────────────────────────────────── */
+/* 896px matches the original's hero container so the 60px title wraps EXACTLY as it does there:
+   "Al-Qur'an Tarjamah" (≈864px) on line 1, "Tafsiriyah" on line 2. Subtitle + search sit centered
+   inside at their own narrower widths. */
+.qk-hero { max-width: 896px; margin: 52px auto 0; text-align: center; }
+/* The WHOLE title carries the emerald→gold gradient (QuranKu signature), ExtraBold, 60px, two lines. */
+.qk-hero-title {
+  font-family: var(--qk-f-display); font-weight: 800;
+  font-size: clamp(38px, 7vw, 60px); line-height: 1.0; letter-spacing: -1.5px;
+  margin: 0 auto 22px;
+  background: linear-gradient(to right bottom, #16a249, #f0c851);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.qk-hero > p { color: var(--qk-muted); font-size: clamp(16px, 2vw, 19px); margin: 0 auto 28px; max-width: 56ch; line-height: 1.6; }
+
+.qk-search {
+  display: flex; align-items: center; gap: 12px;
+  max-width: 620px; margin: 0 auto; height: 58px; padding: 0 22px;
+  background: var(--qk-card); border: 1px solid var(--qk-border);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(22, 162, 73, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: border-color .2s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-search:focus-within { border-color: var(--qk-ring); box-shadow: 0 12px 36px rgba(22, 162, 73, 0.22), 0 0 0 4px var(--qk-primary-wash); }
+.qk-search-ico { width: 20px; height: 20px; color: var(--qk-muted); flex: none; position: relative; z-index: 1; }
+.qk-search input { flex: 1; border: none; outline: none; background: none; font: inherit; font-size: 15px; color: var(--qk-fg); position: relative; z-index: 1; }
+
+/* ── the traveling light on the search border ───────────────────────────────
+   The original's border blinks; ours has a soft emerald light that glides AROUND the pill's edge.
+   Same technique as the New-Quranku composer: a conic gradient masked to a ~2px ring, rotated via
+   @property --qk-beam. ::after is the same beam blurred, so the light reads as luminous. Emerald
+   only. Reduced-motion removes it entirely, leaving the calm bordered field. */
+@property --qk-beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.qk-search { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  .qk-search::before, .qk-search::after {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: qk-beam-travel 4s linear infinite;
+  }
+  /* the sharp beam: a bright arc with a near-white core trailing off into the emerald line */
+  .qk-search::before {
+    padding: 2px;
+    background: conic-gradient(from var(--qk-beam),
+      transparent 0deg 205deg, rgba(22, 162, 73, 0.45) 300deg, #16a249 338deg,
+      #c6f6d5 350deg, #16a249 358deg, transparent 360deg);
+  }
+  /* its glow: same rotation, wider and blurred, so the beam looks like it emits light */
+  .qk-search::after {
+    padding: 5px; opacity: 0.55; filter: blur(5px);
+    background: conic-gradient(from var(--qk-beam), transparent 0deg 305deg, #16a249 348deg, transparent 360deg);
+  }
+}
+@keyframes qk-beam-travel { to { --qk-beam: 360deg; } }
+
+/* Navigasi / Populer — centered outline pills directly under the search (original placement) */
+.qk-hero-tabs { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+.qk-hero-tabs .qk-nav-tab {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px;
+  font-size: 14px; font-weight: 600; color: var(--qk-fg);
+  border: 1px solid var(--qk-border); background: var(--qk-card);
+  transition: color .2s var(--qk-ease), border-color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-hero-tabs .qk-nav-tab svg { width: 17px; height: 17px; color: var(--qk-primary); }
+.qk-hero-tabs .qk-nav-tab:hover { border-color: var(--qk-primary); }
+.qk-hero-tabs .qk-nav-tab.is-active { border-color: var(--qk-primary); background: var(--qk-primary-wash); color: var(--qk-primary); }
+
+/* ── hero glow ──────────────────────────────────────────────────────── */
+.qk-hero { position: relative; }
+.qk-hero::before {
+  content: ""; position: absolute; z-index: -1; left: 50%; top: -40px; transform: translateX(-50%);
+  width: 720px; height: 420px; max-width: 120vw; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(22, 162, 73, 0.14), rgba(20, 184, 166, 0.06) 60%, transparent);
+}
+
+/* ── prayer panel (the teal signature card) ─────────────────────────── */
+.qk-prayer {
+  position: relative; margin: 44px 0 0; border-radius: 16px; padding: 24px; overflow: hidden;
+  background: linear-gradient(to right bottom, #34d399, #14b8a6, #0891b2);
+  color: #fff; box-shadow: 0 12px 34px rgba(8, 145, 178, 0.25);
+}
+.qk-prayer-glow { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 120% at 100% 0%, rgba(255,255,255,0.18), transparent 55%); }
+.qk-prayer-body { position: relative; }
+.qk-prayer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.qk-prayer-when b { font-family: var(--qk-f-display); font-size: 19px; font-weight: 700; display: block; }
+.qk-prayer-when span { font-size: 13px; opacity: 0.9; }
+.qk-prayer-clock { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; line-height: 1.1; }
+.qk-prayer-next { display: flex; align-items: center; gap: 8px; margin: 14px 0 16px; font-size: 14px; }
+.qk-prayer-next svg { width: 17px; height: 17px; flex: none; }
+.qk-prayer-next b { font-weight: 700; }
+.qk-prayer-dot { opacity: 0.6; }
+.qk-prayer-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.qk-prayer-row li {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 10px 6px; text-align: center;
+}
+.qk-prayer-row li.on { background: #fff; color: #0f766e; }
+.qk-prayer-row .nm { font-size: 12px; font-weight: 600; opacity: 0.95; }
+.qk-prayer-row li.on .nm { opacity: 1; }
+.qk-prayer-row .tm { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ── generic content block ──────────────────────────────────────────── */
+.qk-block { margin: 40px 0 0; }
+.qk-block h2, .qk-surah-head h2 {
+  font-family: var(--qk-f-display); font-weight: 700; font-size: 20px; margin: 0 0 16px;
+}
+.qk-block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.qk-block-head h2 { margin-bottom: 0; }
+.qk-block-link { font-size: 14px; font-weight: 600; color: var(--qk-primary); text-decoration: none; }
+.qk-block-link:hover { text-decoration: underline; }
+
+/* Akses Cepat pills — emerald-tinted (QuranKu's exact style) */
+.qk-quick-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.qk-quick {
+  padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; text-decoration: none;
+  background: rgba(22, 162, 73, 0.1); color: var(--qk-primary); border: 1px solid rgba(22, 162, 73, 0.2);
+  transition: background .2s var(--qk-ease);
+}
+.qk-quick:hover { background: rgba(22, 162, 73, 0.18); }
+
+/* Topik Hari Ini card */
+.qk-today {
+  margin-top: 16px; background: var(--qk-card); border: 1px solid var(--qk-border);
+  border-radius: var(--qk-radius); box-shadow: var(--qk-shadow-sm); padding: 24px; text-align: center;
+}
+.qk-today-ar { font-family: var(--qk-f-ar); font-size: 28px; line-height: 2; direction: rtl; color: var(--qk-fg); }
+.qk-today-tr { margin: 12px auto 0; max-width: 60ch; color: var(--qk-muted); font-size: 15px; line-height: 1.6; }
+.qk-today-foot { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+.qk-today-ref { font-weight: 700; font-size: 14px; color: var(--qk-primary); background: var(--qk-primary-wash); padding: 6px 14px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.qk-today-btn {
+  display: inline-flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 10px;
+  background: var(--qk-primary); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none;
+}
+.qk-today-btn:hover { filter: brightness(1.06); }
+
+/* Surah toolbar */
+.qk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.qk-tabs { display: inline-flex; background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 999px; padding: 4px; gap: 2px; }
+.qk-tab { padding: 7px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--qk-muted); }
+.qk-tab.is-active { background: var(--qk-primary); color: #fff; }
+.qk-toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qk-find { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 10px; min-width: 240px; }
+.qk-find svg { width: 17px; height: 17px; color: var(--qk-muted); flex: none; }
+.qk-find input { border: none; outline: none; background: none; font: inherit; font-size: 14px; flex: 1; color: var(--qk-fg); }
+.qk-sort { height: 40px; display: inline-flex; align-items: center; padding: 0 14px; background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 10px; font-size: 14px; color: var(--qk-muted); }
+
+.qk-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.qk-chip {
+  padding: 8px 16px; border-radius: 999px; border: 1px solid var(--qk-border);
+  background: var(--qk-card); color: var(--qk-fg); font-size: 14px; font-weight: 500;
+  transition: border-color .2s var(--qk-ease), color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-chip:hover { border-color: var(--qk-primary); color: var(--qk-primary); background: var(--qk-primary-wash); }
+
+/* ── surah grid ─────────────────────────────────────────────────────── */
+.qk-surah-block { margin: 40px 0 0; }
+.qk-surah-head { margin-bottom: 16px; }
+.qk-surah-head p { color: var(--qk-muted); margin: 4px 0 0; font-size: 15px; }
+.qk-surah-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
+}
+@media (max-width: 900px) { .qk-surah-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .qk-surah-grid { grid-template-columns: 1fr; } }
+.qk-surah-card {
+  display: block; background: var(--qk-card); border: 1px solid var(--qk-border);
+  border-radius: var(--qk-radius); box-shadow: var(--qk-shadow-sm); padding: 16px 18px;
+  text-decoration: none; transition: box-shadow .2s var(--qk-ease), border-color .2s var(--qk-ease), transform .2s var(--qk-ease);
+}
+.qk-surah-card:hover { box-shadow: var(--qk-shadow); border-color: var(--qk-primary); transform: translateY(-1px); }
+.qk-sc-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.qk-sc-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.qk-sc-num {
+  flex: none; width: 38px; height: 38px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: var(--qk-primary-wash); color: var(--qk-primary);
+  font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.qk-sc-name { min-width: 0; }
+.qk-sc-tl { font-family: var(--qk-f-display); font-size: 16px; font-weight: 600; line-height: 1.3; }
+.qk-sc-en { font-size: 13px; color: var(--qk-muted); }
+.qk-sc-ar { font-family: var(--qk-f-ar); font-size: 22px; color: var(--qk-fg); direction: rtl; flex: none; }
+.qk-sc-meta { display: flex; align-items: center; gap: 8px; }
+.qk-sc-rev {
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+}
+.qk-sc-rev.meccan  { background: var(--qk-secondary-wash); color: var(--qk-secondary-ink); }
+.qk-sc-rev.medinan { background: var(--qk-primary-wash); color: var(--qk-primary); }
+.qk-sc-ayahs { font-size: 13px; color: var(--qk-muted); }
+
+/* ── Tanya (the added feature) ──────────────────────────────────────── */
+.qk-tanya { max-width: 760px; }
+.qk-tanya-hero { text-align: center; margin: 16px auto 28px; }
+.qk-tanya-kicker {
+  display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--qk-primary); background: var(--qk-primary-wash); padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+}
+.qk-tanya-hero h1 {
+  font-family: var(--qk-f-display); font-weight: 800; font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.08; letter-spacing: -1px; margin: 0 0 14px; text-wrap: balance;
+}
+.qk-tanya-hero > p { color: var(--qk-muted); font-size: 17px; max-width: 52ch; margin: 0 auto 22px; }
+.qk-seeds { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; }
+.qk-seed {
+  min-height: 42px; padding: 9px 16px; border-radius: 999px;
+  border: 1px solid var(--qk-border); background: var(--qk-card);
+  color: var(--qk-fg); font-size: 14px; font-weight: 500;
+  transition: border-color .2s var(--qk-ease), color .2s var(--qk-ease);
+}
+.qk-seed:hover { border-color: var(--qk-primary); color: var(--qk-primary); }
+.qk-tanya-hint { margin-top: 16px; font-size: 14px; color: var(--qk-muted); text-align: center; }
+.qk-tanya-hint b { color: var(--qk-fg); font-weight: 600; }
+
+.qk-ask {
+  display: flex; align-items: flex-end; gap: 10px;
+  background: var(--qk-card); border: 1px solid var(--qk-border);
+  border-radius: 18px; padding: 10px 10px 10px 22px; box-shadow: var(--qk-shadow-sm);
+  transition: border-color .2s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-ask:focus-within { border-color: var(--qk-ring); box-shadow: 0 0 0 4px var(--qk-primary-wash); }
+.qk-ask textarea {
+  flex: 1; border: none; outline: none; background: none; resize: none;
+  font: inherit; font-size: 17px; color: var(--qk-fg); padding: 12px 0; max-height: 140px; line-height: 1.5;
+}
+.qk-ask-send {
+  flex: none; width: 48px; height: 48px; border-radius: 12px;
+  display: grid; place-items: center; background: var(--qk-primary); color: #fff;
+  transition: filter .2s var(--qk-ease), transform .2s var(--qk-ease), opacity .2s var(--qk-ease);
+}
+.qk-ask-send svg { width: 20px; height: 20px; }
+.qk-ask-send:hover:not(:disabled) { filter: brightness(1.06); }
+.qk-ask-send:active:not(:disabled) { transform: scale(0.95); }
+.qk-ask-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* answer */
+.qk-answer { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
+.qk-lead { color: var(--qk-fg); font-size: 17px; line-height: 1.6; }
+.qk-lead b { font-weight: 600; }
+.qk-verse {
+  background: var(--qk-card); border: 1px solid var(--qk-border);
+  border-radius: var(--qk-radius); overflow: hidden; box-shadow: var(--qk-shadow-sm);
+}
+.qk-verse-head {
+  display: flex; align-items: baseline; gap: 10px; padding: 12px 18px;
+  background: #fafbfc; border-bottom: 1px solid var(--qk-border);
+}
+.qk-verse-ref { font-weight: 700; color: var(--qk-primary); font-size: 14px; font-variant-numeric: tabular-nums; }
+.qk-verse-surah { color: var(--qk-muted); font-size: 14px; }
+.qk-verse-ar {
+  font-family: var(--qk-f-ar); font-size: 30px; line-height: 2; direction: rtl; text-align: right;
+  color: var(--qk-fg); padding: 20px 24px 24px;
+}
+.qk-reading { padding: 16px 18px; border-top: 1px solid var(--qk-border); }
+.qk-reading:first-of-type { border-top: none; }
+.qk-reading.primary { background: var(--qk-primary-wash); }
+.qk-reading-tag {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--qk-muted); margin-bottom: 6px;
+}
+.qk-reading.primary .qk-reading-tag { color: var(--qk-primary); }
+.qk-reading-txt { color: var(--qk-fg); line-height: 1.7; }
+.qk-reading-by { margin-top: 8px; font-size: 13px; color: var(--qk-muted); }
+.qk-reading-by b { color: var(--qk-fg); font-weight: 600; }
+.qk-silence {
+  padding: 18px 20px; border: 1px dashed var(--qk-border); border-radius: var(--qk-radius);
+  color: var(--qk-muted); font-size: 15px; line-height: 1.6;
+}
+.qk-silence b { color: var(--qk-fg); }
+
+/* ── AI-authored answer (synthesis engine) ──────────────────────────── */
+.qk-thinking { color: var(--qk-muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .qk-thinking { animation: qk-pulse 1.3s ease-in-out infinite; }
+  @keyframes qk-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+}
+.qk-ai { display: flex; flex-direction: column; gap: 12px; }
+.qk-ai-said { color: var(--qk-fg); font-size: 17px; line-height: 1.7; margin: 0; }
+.qk-ai-note {
+  margin: 4px 0 4px; padding-top: 12px; border-top: 1px solid var(--qk-primary);
+  font-size: 14px; line-height: 1.55; color: var(--qk-muted);
+}
+
+/* ══ the other tabs (Mushaf / Tematik / Audio / Bookmark) ══════════════ */
+.qk-page-head { margin: 8px 0 24px; }
+.qk-page-head h1 { font-family: var(--qk-f-display); font-weight: 800; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.5px; margin: 0; }
+.qk-page-head p { color: var(--qk-muted); margin: 8px 0 0; max-width: 68ch; line-height: 1.6; }
+.qk-page-head .qk-credit b, .qk-page-head p b { color: var(--qk-fg); font-weight: 600; }
+.qk-back {
+  display: inline-flex; align-items: center; gap: 4px; margin-bottom: 16px;
+  font-size: 14px; font-weight: 600; color: var(--qk-primary); text-decoration: none;
+}
+.qk-back:hover { text-decoration: underline; }
+.qk-empty { padding: 48px 24px; text-align: center; color: var(--qk-muted); border: 1px dashed var(--qk-border); border-radius: var(--qk-radius); }
+.qk-empty-ico { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 999px; background: var(--qk-primary-wash); color: var(--qk-primary); margin-bottom: 16px; }
+.qk-empty-ico svg { width: 26px; height: 26px; }
+.qk-empty-lead { color: var(--qk-fg); font-weight: 600; font-size: 16px; margin: 0 0 6px; }
+.qk-empty p { margin: 0 0 6px; }
+.qk-empty a { color: var(--qk-primary); font-weight: 600; }
+
+/* Mushaf reading — an illuminated surah header, then the ayah cards */
+.qk-read-title {
+  position: relative; text-align: center; margin: 8px auto 28px; max-width: 760px;
+  padding: 30px 24px 26px; border-radius: 18px; overflow: hidden;
+  background: linear-gradient(180deg, var(--qk-primary-wash), rgba(22,162,73,0.04));
+  border: 1px solid rgba(22,162,73,0.18);
+}
+.qk-read-ar { font-family: var(--qk-f-ar); font-size: 44px; color: var(--qk-primary); direction: rtl; line-height: 1.5; }
+.qk-read-title h1 { font-family: var(--qk-f-display); font-weight: 700; font-size: 22px; margin: 10px 0 6px; }
+.qk-read-title p { color: var(--qk-primary); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
+.qk-read-bismillah { font-family: var(--qk-f-ar); font-size: 30px; text-align: center; color: var(--qk-fg); margin: 0 auto 24px; direction: rtl; }
+.qk-ayat { display: flex; flex-direction: column; gap: 14px; max-width: 760px; margin: 0 auto; }
+.qk-verse-head { position: relative; }
+.qk-bm-btn, .qk-bm-remove {
+  margin-inline-start: auto; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center;
+  color: var(--qk-muted); border: 1px solid transparent; background: none; flex: none;
+  transition: color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-bm-btn svg { width: 17px; height: 17px; }
+.qk-bm-btn:hover, .qk-bm-remove:hover { color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-bm-btn.is-on { color: var(--qk-primary); }
+.qk-bm-btn.is-on svg { fill: var(--qk-primary-wash); }
+
+/* Tematik */
+.qk-cat-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.qk-cat-card {
+  display: flex; align-items: center; gap: 14px; padding: 18px 20px;
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: var(--qk-radius);
+  box-shadow: var(--qk-shadow-sm); text-decoration: none; transition: border-color .2s var(--qk-ease), box-shadow .2s var(--qk-ease), transform .2s var(--qk-ease);
+}
+.qk-cat-card:hover { border-color: var(--qk-primary); box-shadow: var(--qk-shadow); transform: translateY(-1px); }
+.qk-cat-n { flex: none; width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center; background: var(--qk-primary-wash); color: var(--qk-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
+.qk-cat-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.qk-cat-name { font-family: var(--qk-f-display); font-weight: 600; font-size: 16px; color: var(--qk-fg); }
+.qk-cat-count { font-size: 13px; color: var(--qk-muted); }
+.qk-cat-go { color: var(--qk-muted); font-size: 22px; line-height: 1; }
+.qk-sub { margin: 28px 0 0; }
+.qk-sub h2 { font-family: var(--qk-f-display); font-weight: 700; font-size: 18px; margin: 0 0 12px; color: var(--qk-fg); }
+.qk-tentries { list-style: none; margin: 0; padding: 0; }
+.qk-tentry { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--qk-border); }
+.qk-tentry-text { margin: 0; color: var(--qk-fg); line-height: 1.55; }
+.qk-tentry-ref { flex: none; font-size: 13px; color: var(--qk-primary); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Audio — the 114-surah grid (matches the original Audio Al-Qur'an page) */
+.qk-au-hero { text-align: center; max-width: 700px; margin: 8px auto 28px; }
+.qk-au-ico { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 999px; background: var(--qk-primary-wash); color: var(--qk-primary); margin-bottom: 14px; }
+.qk-au-ico svg { width: 28px; height: 28px; }
+.qk-au-hero .qk-hero-title { font-size: clamp(30px, 5vw, 48px); margin-bottom: 12px; }
+.qk-au-hero p { color: var(--qk-muted); margin: 0 auto; max-width: 56ch; line-height: 1.6; }
+.qk-au-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.qk-au-toolbar .qk-find { min-width: 260px; flex: 1; max-width: 420px; }
+.qk-au-selects { display: flex; gap: 10px; flex-wrap: wrap; }
+.qk-au-sel { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid var(--qk-border); border-radius: 10px; background: var(--qk-card); font-size: 14px; font-weight: 500; color: var(--qk-fg); }
+.qk-au-sel svg { width: 16px; height: 16px; color: var(--qk-primary); }
+.qk-au-caret { color: var(--qk-muted); }
+.qk-au-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .qk-au-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .qk-au-grid { grid-template-columns: 1fr; } }
+.qk-au-card {
+  position: relative; padding: 16px 18px 14px; min-height: 104px;
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: var(--qk-radius);
+  box-shadow: var(--qk-shadow-sm); overflow: hidden;
+  transition: border-color .2s var(--qk-ease), box-shadow .2s var(--qk-ease);
+}
+.qk-au-card:hover { border-color: var(--qk-primary); box-shadow: var(--qk-shadow); }
+.qk-au-wm { position: absolute; top: 12px; right: 16px; font-family: var(--qk-f-display); font-size: 36px; font-weight: 700; color: rgba(23, 24, 28, 0.1); font-variant-numeric: tabular-nums; line-height: 1; pointer-events: none; }
+.qk-au-name { font-family: var(--qk-f-ui); font-weight: 700; font-size: 18px; color: var(--qk-primary); padding-right: 56px; }
+.qk-au-sub { font-size: 14px; color: var(--qk-muted); margin-top: 3px; }
+.qk-au-play {
+  margin-top: 12px; width: 38px; height: 38px; border-radius: 999px; display: grid; place-items: center;
+  color: var(--qk-primary); border: 1px solid var(--qk-border); background: var(--qk-card);
+  transition: color .2s var(--qk-ease), border-color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-au-play svg { width: 34px; height: 34px; }
+.qk-au-play:hover { border-color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-au-off .qk-au-play { opacity: 0.35; cursor: default; }
+.qk-au-off .qk-au-play:hover { border-color: var(--qk-border); background: var(--qk-card); }
+.qk-au-card.is-playing { border-color: var(--qk-primary); }
+.qk-au-card.is-playing .qk-au-play { background: var(--qk-primary); color: #fff; border-color: var(--qk-primary); }
+.qk-au-fs {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; height: 48px; padding: 0 24px;
+  border-radius: 12px; background: var(--qk-primary); color: #fff; font-size: 15px; font-weight: 600;
+  transition: filter .2s var(--qk-ease);
+}
+.qk-au-fs svg { width: 18px; height: 18px; }
+.qk-au-fs:hover { filter: brightness(1.06); }
+
+/* ══ the player: play/pause glyph (CSS-drawn, white on green/dark) ══════ */
+.qk-pplay-i { display: block; width: 20px; height: 20px; position: relative; }
+.qk-pplay-i::before { content: ""; position: absolute; inset: 0; margin: auto; left: 3px; width: 0; height: 0; border-style: solid; border-width: 9px 0 9px 15px; border-color: transparent transparent transparent currentColor; }
+.qk-pplay-i.is-playing::before { display: none; }
+.qk-pplay-i.is-playing::after { content: ""; position: absolute; inset: 0; width: 14px; height: 16px; margin: auto; background: linear-gradient(currentColor 0 0) left / 5px 100% no-repeat, linear-gradient(currentColor 0 0) right / 5px 100% no-repeat; }
+
+/* ── bottom bar ─────────────────────────────────────────────────────── */
+.qk-pbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  display: grid; grid-template-columns: 1fr minmax(300px, 520px) 1fr; align-items: center; gap: 16px;
+  padding: 12px 20px; background: rgba(255, 255, 255, 0.97);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--qk-border); box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.07);
+}
+.qk-pbar-info { min-width: 0; }
+.qk-pbar-title { font-family: var(--qk-f-display); font-weight: 600; font-size: 15px; color: var(--qk-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-pbar-sub { font-size: 12px; color: var(--qk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-pbar-center { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.qk-pbar-controls { display: flex; align-items: center; gap: 18px; }
+.qk-pctl { color: var(--qk-fg); width: 34px; height: 34px; display: grid; place-items: center; transition: color .2s var(--qk-ease); }
+.qk-pctl svg { width: 24px; height: 24px; }
+.qk-pctl:hover { color: var(--qk-primary); }
+.qk-pplay { width: 48px; height: 48px; border-radius: 999px; background: var(--qk-primary); color: #fff; display: grid; place-items: center; transition: filter .2s var(--qk-ease); }
+.qk-pplay:hover { filter: brightness(1.06); }
+.qk-pbar-progress { display: flex; align-items: center; gap: 10px; width: 100%; }
+.qk-ptime { font-size: 12px; color: var(--qk-muted); font-variant-numeric: tabular-nums; min-width: 34px; text-align: center; }
+.qk-pseek { flex: 1; accent-color: var(--qk-primary); height: 4px; cursor: pointer; }
+.qk-pbar-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.qk-pbar-qari { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--qk-muted); border: 1px solid var(--qk-border); border-radius: 8px; padding: 7px 10px; white-space: nowrap; }
+.qk-pbar-qari svg { width: 15px; height: 15px; }
+.qk-pmini { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; color: var(--qk-muted); transition: color .2s var(--qk-ease), background .2s var(--qk-ease); }
+.qk-pmini svg { width: 18px; height: 18px; }
+.qk-pmini:hover { color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-pmini.is-on { color: var(--qk-primary); }
+.qk-pvol { width: 84px; accent-color: var(--qk-primary); height: 4px; cursor: pointer; }
+
+/* ── fullscreen player ──────────────────────────────────────────────── */
+.qk-pfull {
+  position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+  background: rgba(226, 238, 231, 0.55); -webkit-backdrop-filter: blur(34px); backdrop-filter: blur(34px);
+}
+.qk-pfull-inner { width: min(680px, 92vw); display: flex; flex-direction: column; align-items: center; padding: 24px; }
+.qk-pfull-top { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
+.qk-pfull-mode { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--qk-muted); }
+.qk-pfull-icon { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--qk-fg); background: rgba(255, 255, 255, 0.5); transition: background .2s var(--qk-ease); }
+.qk-pfull-icon svg { width: 22px; height: 22px; }
+.qk-pfull-icon:hover { background: rgba(255, 255, 255, 0.85); }
+.qk-pfull-icon.is-on { color: var(--qk-primary); }
+.qk-pfull-card {
+  position: relative; width: min(380px, 78vw); aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff;
+  background: linear-gradient(158deg, #9ac088 0%, #5c9d68 55%, #33513f 100%); box-shadow: 0 24px 60px rgba(30, 60, 45, 0.28);
+}
+.qk-pfull-slabel { font-size: 12px; letter-spacing: 0.16em; opacity: 0.85; }
+.qk-pfull-sname { font-family: var(--qk-f-display); font-weight: 700; font-size: clamp(28px, 6vw, 36px); margin-top: 4px; }
+.qk-pfull-sar { font-family: var(--qk-f-ar); font-size: 26px; opacity: 0.92; margin-top: 2px; }
+.qk-pfull-wm { position: absolute; right: 14px; bottom: 4px; font-family: var(--qk-f-display); font-weight: 800; font-size: 72px; color: rgba(255, 255, 255, 0.16); line-height: 1; pointer-events: none; }
+.qk-pfull-ayah { position: relative; z-index: 1; margin-top: -18px; background: var(--qk-primary); color: #fff; font-size: 13px; font-weight: 600; padding: 5px 16px; border-radius: 999px; box-shadow: 0 4px 12px rgba(22, 162, 73, 0.3); }
+.qk-pfull-qari { font-size: 12px; letter-spacing: 0.12em; color: var(--qk-muted); margin-top: 16px; }
+.qk-pfull-progress { width: 100%; max-width: 440px; margin-top: 20px; }
+.qk-pfull-controls { display: flex; align-items: center; gap: 28px; margin-top: 22px; }
+.qk-pfull-controls .qk-pfull-icon { background: transparent; }
+.qk-pfull-controls .qk-pfull-icon:hover { background: rgba(255, 255, 255, 0.5); }
+.qk-pfull-play { width: 72px; height: 72px; border-radius: 999px; background: #17181c; color: #fff; display: grid; place-items: center; transition: filter .2s var(--qk-ease); }
+.qk-pfull-play:hover { filter: brightness(1.15); }
+.qk-pfull-play .qk-pplay-i { width: 24px; height: 24px; }
+.qk-pfull-speeds { display: flex; gap: 4px; margin-top: 26px; background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 5px; }
+.qk-pfull-speeds button { padding: 8px 16px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--qk-muted); transition: background .2s var(--qk-ease), color .2s var(--qk-ease); }
+.qk-pfull-speeds button.is-active { background: #fff; color: var(--qk-fg); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
+
+@media (max-width: 700px) {
+  .qk-pbar { grid-template-columns: auto 1fr auto; gap: 10px; padding: 10px 12px; }
+  .qk-pbar-qari, .qk-pvol { display: none; }
+  .qk-pbar-sub { display: none; }
+}
+
+/* ── stub routes ────────────────────────────────────────────────────── */
+.qk-stub { max-width: 640px; text-align: center; padding: 48px 0; }
+.qk-stub h2 { font-family: var(--qk-f-display); font-size: 28px; margin: 0 0 10px; }
+.qk-stub p { color: var(--qk-muted); }
+.qk-stub a { color: var(--qk-primary); font-weight: 600; }
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+.qk-footer { border-top: 1px solid var(--qk-border); padding: 48px 0 32px; background: var(--qk-card); margin-top: 64px; }
+.qk-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; }
+.qk-footer-brand p { margin: 12px 0 0; font-size: 14px; color: var(--qk-muted); line-height: 1.6; max-width: 40ch; }
+.qk-footer-col { display: flex; flex-direction: column; gap: 10px; }
+.qk-footer-col h3 { font-family: var(--qk-f-display); font-size: 15px; font-weight: 600; margin: 0 0 4px; color: var(--qk-fg); }
+.qk-footer-col a { font-size: 14px; color: var(--qk-muted); text-decoration: none; }
+.qk-footer-col a:hover { color: var(--qk-primary); }
+.qk-footer-demo { font-size: 13px; color: var(--qk-muted); margin-top: 4px; }
+.qk-footer-demo b { color: var(--qk-primary); }
+@media (max-width: 760px) { .qk-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; } .qk-footer-brand { grid-column: 1 / -1; } }
+
+/* ── responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .qk-nav { gap: 0; }
+  .qk-nav-link { padding: 8px 9px; font-size: 14px; }
+  .qk-nav-link[data-route="mushaf"], .qk-nav-link[data-route="audio"],
+  .qk-nav-link[data-route="bookmark"], .qk-nav-link[data-route="tematik"] { display: none; }
+  .qk-surah-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

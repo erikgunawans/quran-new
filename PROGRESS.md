@@ -8,7 +8,48 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — ustadz call app, nav pill, landing polish; AI-draft "answers" refused
+## 2026-07-21 (latest) — QuranKu clone DEMO built: 6 functional tabs behind their skin, reusing our engines
+
+A full separate demo that presents as the real QuranKu (their look) with our improvements wired in. **Isolated
+from the live app and prod** — new files under `web/demo/`, a dedicated `web/vite.demo.config.ts` → `web/dist-demo/`
+(gitignored). Verified repeatedly: `web/dist/index.html` mtime never moved, so `bun run build`/deploy are untouched.
+Web typecheck clean. NOT deployed (demo is dev-served at `localhost:5173/demo/`, buildable via `bun run demo:build`).
+
+**The six tabs — all functional, QuranKu skin, reusing New-Quranku data/engines (Erik chose reuse over pixel-clone):**
+- **Beranda** — faithful clone: real QuranKu logo PNG (`web/demo/quranku-logo.png`), emerald→gold hero gradient
+  (whole title, 60px/800, 2-line wrap like the original), teal prayer panel (`#34d399→#14b8a6→#0891b2`) with a live
+  clock, Navigasi/Populer tabs, Akses Cepat pills, Jelajahi Topik, Topik Hari Ini (real ayah), 114-surah grid (3-col),
+  multi-column footer, and a **traveling-light search border** (the `@property --beam` conic ring from our composer).
+- **Tanya** — THE AI SYNTHESIS ENGINE (not the principled one). Two model passes exactly like the live synthesis app:
+  `/api/classify` (understandThemes) → enriched retrieval → `/api/answer` (synthesizeAnswer), both hitting the deployed
+  `new-quranku-ai.axiara.ai` worker (CORS-verified from localhost). Quality parity confirmed; fail-closed to principled.
+- **Mushaf** — per-ayah reading (loadSurah shards, terjemah makna + harfiah, illuminated emerald header, bookmark buttons).
+- **Tematik** — the real Indeks Tematik (peta data, 13 categories → subtopics → entries, Ustadz Muhammad Thalib).
+- **Audio** — 114-surah grid matching the reference (36px watermark numbers @0.1, **emerald 18/700 names**, Indonesian
+  meanings) + a persistent PLAYER: bottom bar (info/controls/progress/qari/repeat/vol/close) + fullscreen (surah card,
+  "Ayat N dari M", 0.5x–2x speeds), survives tab changes. Recitation only for surahs 1/112/113/114 (all the local audio).
+- **Bookmark** — localStorage saved verses + polished empty state (their original is a Google-login wall; ours works).
+
+**Fidelity via scraping the original's DOM** (since screenshots were blocked): `web/demo/surah-id.ts` holds all 114
+original surah names + Indonesian meanings, scraped live; used across Audio/Beranda/Mushaf/player. Grids switched from
+auto-fill to fixed 3-col to match. Design extraction docs in `docs/research/quranku/` (tokens, topology, components).
+
+**Config touched (all additive):** `.gitignore` (+`web/dist-demo/`), `package.json` (+`demo:build`), `web/tsconfig.json`
+(+`demo` in include so the demo is typechecked). No `web/src/*` changes — the live app is byte-untouched.
+
+**Blocked all session — screenshot verification.** The demo tab lives in a SECOND, minimized Chrome window; OS-capture
+grabs the visible (YouTube) window, DOM-render hangs on the minimized one, and there's no programmatic un-minimize. So
+every section is **DOM-verified only** (computed styles + content diffed against the original), never eyeballed. To
+unblock next time: open `localhost:5173/demo/` in the VISIBLE Chrome window (⌘T there), then screenshots work.
+
+**Open / next:** (1) real pixel eyeball once the window is restored; (2) finish DOM-diff comparison passes for Tematik +
+the fullscreen player (vs Erik's image #5) + Beranda; (3) Audio grid gap is 16px vs the original's 20px (deliberate,
+trivially matchable). Pre-existing, NOT mine: `bun run typecheck`'s root `tsc` step fails on `web/src/quran.ts`
+(`caches`/`Cache` DOM globals missing under root lib) — predates this session, doesn't affect either build.
+
+---
+
+## 2026-07-21 — ustadz call app, nav pill, landing polish; AI-draft "answers" refused
 
 Second half of a long session. Everything committed + pushed as it went; anchor origin/main `aeabcc3`.
 685 tests pass, web typecheck clean. **NOT deployed** (all changes since the last deploy are local).

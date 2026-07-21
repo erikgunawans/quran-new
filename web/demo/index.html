@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#16a249">
+<meta name="description" content="QuranKu — Al-Qur'an Tarjamah Tafsiriyah. Baca, pahami, dan jelajahi Al-Qur'an. (Demo: dengan fitur Tanya.)">
+<title>QuranKu — Al-Qur'an Tarjamah Tafsiriyah</title>
+
+<!-- QuranKu's faces: Poppins (display) + Inter (UI), Amiri for Arabic (Uthmani diacritics). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+
+<!-- ══ Fixed header — QuranKu's translucent+blur bar ══ -->
+<header class="qk-header">
+  <div class="qk-container qk-header-row">
+    <a class="qk-brand" href="#/beranda" aria-label="QuranKu — beranda">
+      <img class="qk-logo" src="./quranku-logo.png" alt="QuranKu" width="40" height="40">
+      <span class="qk-wordmark">QuranKu</span>
+    </a>
+
+    <nav class="qk-nav" aria-label="Utama">
+      <a class="qk-nav-link" href="#/beranda" data-route="beranda">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h12v-8.5"/></svg>
+        <span>Beranda</span>
+      </a>
+      <a class="qk-nav-link" href="#/mushaf" data-route="mushaf">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.4 5.4 8.4 5.1 6 5.3v12.5c2.4-.2 4.4.1 6 1.3 1.6-1.2 3.6-1.5 6-1.3V5.3c-2.4-.2-4.4.1-6 1.3Z"/><path d="M12 6.6v12.5"/></svg>
+        <span>Mushaf</span>
+      </a>
+      <a class="qk-nav-link" href="#/audio" data-route="audio">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>
+        <span>Audio</span>
+      </a>
+      <a class="qk-nav-link" href="#/bookmark" data-route="bookmark">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
+        <span>Bookmark</span>
+      </a>
+      <a class="qk-nav-link" href="#/tematik" data-route="tematik">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20v-6M12 20V8M18 20v-9"/></svg>
+        <span>Tematik</span>
+      </a>
+      <!-- THE ADDED SECTION — the New-Quranku "Tanya" feature, dropped into QuranKu. -->
+      <a class="qk-nav-link qk-nav-tanya" href="#/tanya" data-route="tanya">
+        <svg class="qk-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 10h8M8 14h5M21 12a8 8 0 0 1-11.3 7.3L4 21l1.7-5.7A8 8 0 1 1 21 12Z"/></svg>
+        <span>Tanya</span> <span class="qk-badge-new">Baru</span>
+      </a>
+    </nav>
+
+    <div class="qk-header-actions">
+      <button class="qk-icon-btn" aria-label="Cari">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      </button>
+      <button class="qk-icon-btn" aria-label="Ganti ke mode gelap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+      <a class="qk-masuk" href="#/tanya">Masuk</a>
+    </div>
+  </div>
+</header>
+
+<main class="qk-main">
+
+  <!-- ══ BERANDA (QuranKu homepage clone) ══ -->
+  <section class="qk-route" id="route-beranda">
+    <div class="qk-container">
+
+      <div class="qk-hero">
+        <h1 class="qk-hero-title">Al-Qur'an Tarjamah Tafsiriyah</h1>
+        <p>Baca, pahami, dan jelajahi Al-Qur'an dengan metode Tarjamah Tafsiriyah – terjemahan tafsiriyah yang lebih jelas, tepat, dan mencerahkan.</p>
+
+        <form class="qk-search" id="qk-search" role="search">
+          <svg class="qk-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+          <input type="search" placeholder="Cari ayat atau terjemahan..." aria-label="Cari ayat atau terjemahan">
+        </form>
+
+        <div class="qk-hero-tabs">
+          <button class="qk-nav-tab is-active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15 9-3.5 1.5L10 14l3.5-1.5L15 9Z"/></svg>
+            Navigasi Al-Qur'an
+          </button>
+          <button class="qk-nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></svg>
+            Populer
+          </button>
+        </div>
+      </div>
+
+      <!-- the teal prayer-times panel (QuranKu's signature element) -->
+      <section class="qk-prayer" aria-label="Waktu salat">
+        <div class="qk-prayer-glow" aria-hidden="true"></div>
+        <div class="qk-prayer-body">
+          <div class="qk-prayer-top">
+            <div class="qk-prayer-when">
+              <b>Selasa, 21 Juli</b>
+              <span>7 Ṣafar 1448 H</span>
+            </div>
+            <div class="qk-prayer-clock" id="qk-clock">05:33:14</div>
+          </div>
+          <div class="qk-prayer-next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 7v5l3 2"/></svg>
+            <span>Gunung Putri</span>
+            <span class="qk-prayer-dot">·</span>
+            <span>Berikutnya: <b>Dzuhur 11:59</b></span>
+          </div>
+          <ul class="qk-prayer-row">
+            <li><span class="nm">Subuh</span><span class="tm">04:42</span></li>
+            <li class="on"><span class="nm">Dzuhur</span><span class="tm">11:59</span></li>
+            <li><span class="nm">Ashar</span><span class="tm">15:23</span></li>
+            <li><span class="nm">Maghrib</span><span class="tm">17:53</span></li>
+            <li><span class="nm">Isya</span><span class="tm">19:06</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Akses Cepat -->
+      <div class="qk-block">
+        <h2>Akses Cepat</h2>
+        <div class="qk-quick-pills">
+          <a class="qk-quick" href="#/tematik">Indeks Tematik</a>
+          <a class="qk-quick" href="#/mushaf">Yasin</a>
+          <a class="qk-quick" href="#/mushaf">Al-Waqi'ah</a>
+          <a class="qk-quick" href="#/mushaf">Al-Mulk</a>
+          <a class="qk-quick" href="#/mushaf">Al-Kahfi</a>
+          <a class="qk-quick" href="#/mushaf">Ar-Rahman</a>
+          <a class="qk-quick" href="#/mushaf">Ayat Kursi</a>
+        </div>
+      </div>
+
+      <div class="qk-block">
+        <h2>Jelajahi Topik</h2>
+        <div class="qk-chips">
+          <button class="qk-chip">Keluarga</button>
+          <button class="qk-chip">Allah Subhanahu wa ta'ala</button>
+          <button class="qk-chip">Rahasia Kejiwaan Manusia</button>
+          <button class="qk-chip">Karakteristik Negara Bersyari'ah</button>
+          <button class="qk-chip">Membangun Pribadi Shalih</button>
+        </div>
+      </div>
+
+      <!-- Topik Al-Qur'an Hari Ini -->
+      <div class="qk-block">
+        <div class="qk-block-head">
+          <h2>Topik Al-Qur'an Hari Ini</h2>
+          <a class="qk-block-link" href="#/tematik">Lihat semua</a>
+        </div>
+        <article class="qk-today" id="qk-today"></article>
+      </div>
+
+      <div class="qk-surah-block">
+        <div class="qk-surah-head">
+          <h2>Daftar Surah</h2>
+          <p>Jelajahi 114 surah dalam Al-Qur'an.</p>
+        </div>
+        <div class="qk-toolbar">
+          <div class="qk-tabs" role="tablist">
+            <button class="qk-tab is-active" role="tab" aria-selected="true">Surah</button>
+            <button class="qk-tab" role="tab" aria-selected="false">Juz</button>
+            <button class="qk-tab" role="tab" aria-selected="false">Urutan Wahyu</button>
+          </div>
+          <div class="qk-toolbar-right">
+            <div class="qk-find">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              <input type="search" id="qk-surah-find" placeholder="Cari nama surah, arti, nomor..." aria-label="Cari surah">
+            </div>
+            <div class="qk-sort">Nomor Surah (ASC)</div>
+          </div>
+        </div>
+        <ul class="qk-surah-grid" id="qk-surah-grid" aria-label="Daftar surah"></ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ TANYA (the added New-Quranku feature, in QuranKu skin) ══ -->
+  <section class="qk-route" id="route-tanya" hidden>
+    <div class="qk-container qk-tanya">
+
+      <div class="qk-tanya-hero">
+        <span class="qk-tanya-kicker">Fitur baru</span>
+        <h1>Ceritakan yang kamu <span class="qk-hero-accent">rasakan</span></h1>
+        <p>Tulis pakai bahasamu sendiri. QuranKu carikan ayatnya — lalu kamu lihat sendiri
+           terjemah maknanya dan terjemah harfiahnya, dengan sumber yang disebutkan namanya.</p>
+
+        <div class="qk-seeds">
+          <button class="qk-seed">aku lagi capek banget</button>
+          <button class="qk-seed">lagi banyak utang, stress</button>
+          <button class="qk-seed">baru kehilangan orang tua</button>
+          <button class="qk-seed">cemas terus tiap malam</button>
+        </div>
+        <p class="qk-tanya-hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+      </div>
+
+      <form class="qk-ask" id="qk-ask">
+        <textarea id="qk-q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off" aria-label="Ceritakan apa yang kamu rasakan"></textarea>
+        <button class="qk-ask-send" id="qk-send" type="submit" disabled aria-label="Kirim">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </form>
+
+      <div class="qk-answer" id="qk-answer" aria-live="polite"></div>
+
+    </div>
+  </section>
+
+  <!-- ══ MUSHAF — per-ayah reading with dual translations (reuses New-Quranku's shard engine) ══ -->
+  <section class="qk-route" id="route-mushaf" hidden>
+    <div class="qk-container" id="qk-mushaf"></div>
+  </section>
+
+  <!-- ══ TEMATIK — Indeks Tematik (reuses New-Quranku's Peta data) ══ -->
+  <section class="qk-route" id="route-tematik" hidden>
+    <div class="qk-container" id="qk-tematik"></div>
+  </section>
+
+  <!-- ══ AUDIO — recitation player (New-Quranku's local audio) ══ -->
+  <section class="qk-route" id="route-audio" hidden>
+    <div class="qk-container" id="qk-audio"></div>
+  </section>
+
+  <!-- ══ BOOKMARK — saved verses (localStorage) ══ -->
+  <section class="qk-route" id="route-bookmark" hidden>
+    <div class="qk-container" id="qk-bookmark"></div>
+  </section>
+
+</main>
+
+<!-- ══ PERSISTENT AUDIO PLAYER (bottom bar + fullscreen), driven by one <audio> ══ -->
+<audio id="qk-audio-el" preload="none"></audio>
+
+<div class="qk-pbar" id="qk-pbar" hidden aria-label="Pemutar audio">
+  <div class="qk-pbar-info">
+    <div class="qk-pbar-title" id="qk-pbar-title">—</div>
+    <div class="qk-pbar-sub" id="qk-pbar-sub">Mishary Rashid Al Afasy (Murattal)</div>
+  </div>
+  <div class="qk-pbar-center">
+    <div class="qk-pbar-controls">
+      <button class="qk-pctl" data-act="prev" aria-label="Ayat sebelumnya"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 6h2v12H7zM19 6l-9 6 9 6z"/></svg></button>
+      <button class="qk-pplay" data-act="toggle" aria-label="Putar atau jeda"><span class="qk-pplay-i"></span></button>
+      <button class="qk-pctl" data-act="next" aria-label="Ayat berikutnya"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 6h2v12h-2zM5 6l9 6-9 6z"/></svg></button>
+    </div>
+    <div class="qk-pbar-progress">
+      <span class="qk-ptime" id="qk-cur">0:00</span>
+      <input type="range" class="qk-pseek" id="qk-seek" min="0" max="1000" value="0" step="1" aria-label="Posisi audio">
+      <span class="qk-ptime" id="qk-dur">0:00</span>
+    </div>
+  </div>
+  <div class="qk-pbar-right">
+    <span class="qk-pbar-qari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M5 11a7 7 0 0 0 14 0"/></svg>Mishary Rashid Al…</span>
+    <button class="qk-pmini" data-act="fullscreen" aria-label="Buka layar penuh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
+    <button class="qk-pmini" data-act="repeat" aria-label="Ulangi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+    <button class="qk-pmini" data-act="mute" aria-label="Volume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M16 9a3 3 0 0 1 0 6M19 6a7 7 0 0 1 0 12"/></svg></button>
+    <input type="range" class="qk-pvol" id="qk-vol" min="0" max="100" value="100" aria-label="Volume">
+    <button class="qk-pmini" data-act="close" aria-label="Tutup pemutar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+</div>
+
+<div class="qk-pfull" id="qk-pfull" hidden>
+  <div class="qk-pfull-inner">
+    <div class="qk-pfull-top">
+      <button class="qk-pfull-icon" data-act="collapse" aria-label="Tutup layar penuh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <span class="qk-pfull-mode">MODE SURAH</span>
+      <button class="qk-pfull-icon" aria-label="Antrean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h11M4 12h11M4 18h7"/><path d="M18 9v8M18 9l3-1v8"/></svg></button>
+    </div>
+    <div class="qk-pfull-card">
+      <span class="qk-pfull-slabel">SURAH</span>
+      <div class="qk-pfull-sname" id="qk-full-name">—</div>
+      <div class="qk-pfull-sar" id="qk-full-ar" dir="rtl" lang="ar"></div>
+      <span class="qk-pfull-wm" id="qk-full-wm">001</span>
+    </div>
+    <span class="qk-pfull-ayah" id="qk-full-ayah">Ayat 1 dari 7</span>
+    <span class="qk-pfull-qari">MISHARY RASHID AL AFASY</span>
+    <div class="qk-pbar-progress qk-pfull-progress">
+      <span class="qk-ptime" id="qk-full-cur">0:00</span>
+      <input type="range" class="qk-pseek" id="qk-full-seek" min="0" max="1000" value="0" step="1" aria-label="Posisi audio">
+      <span class="qk-ptime" id="qk-full-dur">0:00</span>
+    </div>
+    <div class="qk-pfull-controls">
+      <button class="qk-pfull-icon" data-act="repeat" aria-label="Ulangi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+      <button class="qk-pfull-icon" data-act="prev" aria-label="Ayat sebelumnya"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 6h2v12H7zM19 6l-9 6 9 6z"/></svg></button>
+      <button class="qk-pfull-play" data-act="toggle" aria-label="Putar atau jeda"><span class="qk-pplay-i"></span></button>
+      <button class="qk-pfull-icon" data-act="next" aria-label="Ayat berikutnya"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 6h2v12h-2zM5 6l9 6-9 6z"/></svg></button>
+    </div>
+    <div class="qk-pfull-speeds" id="qk-speeds">
+      <button data-rate="0.5">0.5x</button>
+      <button data-rate="0.75">0.75x</button>
+      <button data-rate="1" class="is-active">1x</button>
+      <button data-rate="1.25">1.25x</button>
+      <button data-rate="1.5">1.5x</button>
+      <button data-rate="2">2x</button>
+    </div>
+  </div>
+</div>
+
+<footer class="qk-footer">
+  <div class="qk-container qk-footer-grid">
+    <div class="qk-footer-brand">
+      <a class="qk-brand" href="#/beranda">
+        <img class="qk-logo" src="./quranku-logo.png" alt="QuranKu" width="40" height="40">
+        <span class="qk-wordmark">QuranKu</span>
+      </a>
+      <p>Al-Qur'an online dengan Tarjamah Tafsiriyah Ma'had An-Nabawy oleh Al Ustadz Muhammad Thalib. Memudahkan pemahaman makna Al-Qur'an dengan benar.</p>
+    </div>
+    <div class="qk-footer-col">
+      <h3>Navigasi</h3>
+      <a href="#/beranda">Beranda</a>
+      <a href="#/mushaf">Mushaf</a>
+      <a href="#/audio">Audio</a>
+      <a href="#/tematik">Tematik</a>
+      <a href="#/tanya">Tanya</a>
+    </div>
+    <div class="qk-footer-col">
+      <h3>Informasi</h3>
+      <a href="#/beranda">Tentang</a>
+      <a href="#/beranda">Metode Tafsiriyah</a>
+      <a href="#/beranda">Sumber Data</a>
+      <a href="#/beranda">Kebijakan Privasi</a>
+    </div>
+    <div class="qk-footer-col">
+      <h3>Hubungi Kami</h3>
+      <a href="#/beranda">Kontak</a>
+      <a href="#/beranda">Ma'had An-Nabawy</a>
+      <span class="qk-footer-demo">Demo · <b>Tanya</b> ditenagai mesin New-Quranku</span>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="./demo.ts"></script>
+</body>
+</html>
