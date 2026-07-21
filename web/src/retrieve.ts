@@ -474,9 +474,25 @@ export function retrieve(
     // Word overlap — whole-word, content words only. Matching the rendering's word SET (not
     // `includes`) stops fragments scoring inside longer words ("nya" ⊄ "kesanggupannya"); dropping
     // function words stops "dan/itu/apa/ada" carrying signal.
+    //
+    // NEVER count a word that already scored as a theme keyword (fixed 2026-07-22). Overlap is
+    // meant to break ties between verses that a feeling qualified — it is explicitly RANK-ONLY.
+    // But the keyword phrase itself is made of ordinary words, so a verse whose caption happens to
+    // repeat that phrase collected the SAME signal twice: once at +10 as the theme, again at +2 a
+    // word. That double-count let a TOPIC match beat a SITUATION match.
+    //
+    // The case that exposed it: "baru kehilangan orang tua, rasanya kosong".
+    //   17:23 "Berbuat baiklah kepada orang tua"  [Family]      = 10 + orang(2) + tua(2) = 14
+    //   3:185 "Setiap yang bernyawa akan merasakan mati" [Grief] = 10 + orang(2)          = 12
+    // A person whose parent had just died was told to be good to their parents, ranked FIRST,
+    // because the words "orang tua" appeared in the caption of a verse about living ones. Echoing
+    // someone's vocabulary is not understanding their situation, and the scorer must not confuse
+    // the two. With the double-count removed, grief wins on its own merits and no model call is
+    // needed to arbitrate.
+    const themeWords = new Set((themeHits ?? []).flatMap((h) => h.split(" ")));
     const hayWords = wordSet(`${verse.primary?.text ?? ""} ${verse.companion?.text ?? ""} ${verse.why}`);
     for (const w of contentWords) {
-      if (hayWords.has(w)) {
+      if (hayWords.has(w) && !themeWords.has(w)) {
         score += 2;
         matched.push(w);
       }
