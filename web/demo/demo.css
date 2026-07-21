@@ -545,6 +545,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .crisis-meta { display: block; margin-top: 8px; font-size: 13px; color: #8a5a45; }
 .crisis-alt { font-size: 14px !important; }
 .crisis-alt a { color: #b34524; font-weight: 600; }
+/* Dark: stay deliberately warm/off-brand so it still reads as an interruption, but on a
+   deep ember ground instead of cream — the light values washed out to near-white on black. */
+:root[data-theme="dark"] .crisis {
+  border-color: #6d4130; background: linear-gradient(180deg, #2c1b14, #231510);
+}
+:root[data-theme="dark"] .crisis p { color: #ebd2c3; }
+:root[data-theme="dark"] .crisis-lead { color: #ff9d76 !important; }
+:root[data-theme="dark"] .crisis-cta { background: #d8412f; }
+:root[data-theme="dark"] .crisis-meta { color: #c79d89; }
+:root[data-theme="dark"] .crisis-alt a { color: #ff9d76; }
 .qk-lead { color: var(--qk-fg); font-size: 17px; line-height: 1.6; }
 .qk-lead b { font-weight: 600; }
 .qk-verse {
