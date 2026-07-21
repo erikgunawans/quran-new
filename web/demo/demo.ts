@@ -913,17 +913,30 @@ function route(): void {
 }
 
 /* ── Tanya headline: the same invitation, worded differently each time ──── */
-// Each line stays under ~22 characters so every variant sets on exactly two lines at
-// the display size — otherwise a longer one wraps and shoves the page down mid-rotation.
+// Each wording sets on exactly two lines — the lines are nowrap and fitHeadline()
+// scales the type down for the longer ones instead of letting them wrap.
 const TANYA_HEADLINES: readonly (readonly [string, string])[] = [
   ["Tanya apa saja.", "Tanpa perlu sungkan."],
-  ["Ceritakan saja.", "Di sini kamu aman."],
-  ["Curahkan isi hati.", "Tanpa dihakimi."],
-  ["Datang apa adanya.", "Tak perlu pura-pura."],
-  ["Ada yang berat?", "Ceritakan di sini."],
-  ["Tak tahu harus mulai?", "Mulai dari rasamu."],
-  ["Apa pun bebanmu,", "di sini ada tempatnya."],
+  ["Ceritakan saja dulu.", "Di sini kamu aman."],
+  ["Curahkan isi hatimu.", "Tak ada yang menghakimi."],
+  ["Datang apa adanya.", "Tak perlu pura-pura kuat."],
+  ["Yang mengganjal di dada,", "ceritakan pelan-pelan."],
+  ["Tak tahu mulai dari mana?", "Mulai dari yang kamu rasakan."],
+  ["Apa pun bebanmu,", "di sini selalu ada tempatnya."],
 ];
+
+/** Two nowrap lines, scaled to fill the width without ever wrapping to a third. */
+function fitHeadline(h1: HTMLElement, a: HTMLElement, b: HTMLElement): void {
+  const cap = Math.min(58, Math.max(32, window.innerWidth * 0.064));
+  h1.style.minHeight = `${Math.round(cap * 2)}px`;   // constant box → no shift on swap
+  h1.style.fontSize = `${cap}px`;
+  const avail = h1.clientWidth;
+  if (!avail) return;
+  const widest = Math.max(a.getBoundingClientRect().width, b.getBoundingClientRect().width);
+  if (widest > avail) {
+    h1.style.fontSize = `${Math.max(22, Math.floor(cap * (avail / widest)))}px`;
+  }
+}
 
 function wireTanyaHeadline(): void {
   const h1 = document.getElementById("qk-tanya-title");
@@ -934,6 +947,8 @@ function wireTanyaHeadline(): void {
   const rest = [...TANYA_HEADLINES.slice(1)].sort(() => Math.random() - 0.5);
   const order = [TANYA_HEADLINES[0]!, ...rest];
   let i = 0;
+  fitHeadline(h1, a, b);
+  window.addEventListener("resize", () => fitHeadline(h1, a, b));
   window.setInterval(() => {
     // only while the landing headline is actually on screen (not mid-conversation,
     // not on another route, not on a background tab)
@@ -943,7 +958,7 @@ function wireTanyaHeadline(): void {
     h1.classList.remove("is-swap");
     void h1.offsetWidth;                 // restart the keyframe
     h1.classList.add("is-swap");
-    window.setTimeout(() => { a.textContent = l1; b.textContent = l2; }, 300);
+    window.setTimeout(() => { a.textContent = l1; b.textContent = l2; fitHeadline(h1, a, b); }, 300);
   }, 6800);
 }
 

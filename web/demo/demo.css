@@ -355,7 +355,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ── Tanya (the added feature) ──────────────────────────────────────── */
 /* ══ Tanya — the "personal ustadz" AI landing ══════════════════════════ */
-.qk-tanya { max-width: 720px; }
+/* The column widens so the headline can use the horizontal space; everything below it
+   stays at the original reading width. */
+.qk-tanya { max-width: 960px; }
+.qk-thread, .qk-composer, .qk-tanya-extras { max-width: 720px; margin-left: auto; margin-right: auto; }
 .qk-tanya-hero { text-align: center; margin: 10px auto 0; }
 @media (prefers-reduced-motion: no-preference) {
   .qk-tanya-hero { animation: qk-rise .5s var(--qk-ease) both; }
@@ -373,12 +376,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    carrying the emerald→gold gradient. */
 .qk-tanya-hero h1 {
   font-family: var(--qk-f-display); font-weight: 800; font-size: clamp(36px, 6.4vw, 58px);
-  line-height: 1.0; letter-spacing: -1.5px; margin: 0 0 18px; text-wrap: balance;
-  min-height: 2em;   /* reserve both lines so a rotation never shifts the page */
+  line-height: 1.0; letter-spacing: -1.5px; margin: 0 0 18px;
+  /* exactly two lines, always: each line is nowrap and fitHeadline() scales the type
+     down when a longer wording would otherwise overflow */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   background: linear-gradient(to right bottom, #16a249, #f0c851);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
 }
+.qk-tt-a, .qk-tt-b { white-space: nowrap; display: block; }
 /* rotating headline: fade/lift out, swap the words, settle back in */
 @keyframes qk-tt-swap {
   0%   { opacity: 1; transform: translateY(0); }
