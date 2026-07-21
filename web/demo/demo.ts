@@ -431,7 +431,8 @@ function wireTanya(): void {
   const sync = (): void => {
     send.disabled = ta.value.trim().length === 0;
     ta.style.height = "auto";
-    ta.style.height = `${Math.min(ta.scrollHeight, 140)}px`;
+    // floor matches the CSS min-height so the composer never collapses back to one line
+    ta.style.height = `${Math.min(Math.max(ta.scrollHeight, 88), 280)}px`;
   };
   ta.addEventListener("input", sync);
   ta.addEventListener("keydown", (e) => {

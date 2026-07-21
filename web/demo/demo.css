@@ -363,14 +363,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: relative;
   display: flex; align-items: flex-end; gap: 10px;
   background: var(--qk-card); border: 1px solid var(--qk-border);
-  border-radius: 18px; padding: 10px 10px 10px 22px;
+  border-radius: 22px; padding: 16px 16px 16px 22px;
   box-shadow: 0 16px 40px rgba(22, 162, 73, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: border-color .2s var(--qk-ease), box-shadow .2s var(--qk-ease);
 }
 .qk-ask:focus-within { border-color: var(--qk-ring); box-shadow: 0 20px 48px rgba(22, 162, 73, 0.2), 0 0 0 4px var(--qk-primary-wash); }
 .qk-ask textarea {
   flex: 1; border: none; outline: none; background: none; resize: none; position: relative; z-index: 1;
-  font: inherit; font-size: 17px; color: var(--qk-fg); padding: 13px 0; max-height: 150px; line-height: 1.55;
+  font: inherit; font-size: 17px; color: var(--qk-fg); padding: 4px 0; line-height: 1.6;
+  min-height: 88px; max-height: 280px;   /* ~3 lines at rest, like the Claude composer */
 }
 .qk-ask textarea::placeholder { color: var(--qk-muted); }
 .qk-ask-send {
