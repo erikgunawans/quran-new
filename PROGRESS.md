@@ -8,7 +8,24 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — Tematik UI refined past the original
+## 2026-07-21 (latest) — Tanya composer enlarged to a Claude-sized chat field
+
+`3b87c7c`, deployed version `6397ba55`, verified LIVE (textarea 90px / box 124px). Erik: "the chat field needs
+to be bigger — same as the Claude AI chat field." Was a single-line box (~68px). Now `.qk-ask textarea`
+min-height 88px (~3 lines at rest) / max-height 280px, `.qk-ask` padding 16px + radius 22px, send button pinned
+bottom-right — Claude's composer shape. The auto-grow `sync()` floor was raised to match the CSS min-height
+(`Math.min(Math.max(scrollHeight, 88), 280)`) so the field never collapses back to one line after send/clear;
+`rows=3` as the no-CSS fallback. Tested: rest 90 → grows to the 280 cap → returns to 90 on clear.
+
+**Also this session:** finally got the pixel eyeball owed from the previous two checkpoints (Erik freed Chrome).
+Tematik verified visually end-to-end — open-state accent, framed ayah panel, copy/share + gradient CTA all
+render as intended; **"Lihat di Surah" confirmed working**: `#/mushaf/2/7` lands on 2:7 Al-Baqara at 142px
+(clear of the 72px fixed header) with the emerald flash. NOTE: an intermediate check reported "not in view" —
+that was a FALSE ALARM from measuring mid-smooth-scroll, not a bug. No fix was needed.
+
+---
+
+## 2026-07-21 — Tematik UI refined past the original
 
 `aec75c8`, deployed `new-quranku-demo-proxy` version `075103f0`. Demo-only, CSS only. Erik: "improve the UI of
 the tematik to be slightly better than the original." Restrained premium polish over the matched layout:
