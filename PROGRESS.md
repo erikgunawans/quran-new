@@ -8,7 +8,27 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — demo footer matched to QuranKu verbatim + draft disclaimer card
+## 2026-07-21 (latest) — floating UI: donation card + right rail + 3D scroll-to-top
+
+`4ccfe4c`, deployed `new-quranku-demo-proxy` version `038cec23`, verified LIVE (all three present in the DOM +
+visual; scroll-to-top click 1200→0). Demo-only (`web/demo/index.html` + `demo.css` + `demo.ts`); web typecheck
+clean; prod build untouched. Erik's ask: replicate QuranKu's floating chrome but "make it better / 3D".
+
+- **Donation card (bottom-left)** — "Dukung Dakwah QuranKu" with heart-in-wash icon, copy verbatim from the
+  original, and a gradient "Donasi Sekarang" CTA → the real `/donate` (new tab). Elevated 3D card (layered shadow +
+  inset highlight), slide-up entrance, X-dismiss remembered in `localStorage` (`qk-donasi-dismissed`).
+- **Right-edge rail** — glassy blurred pill hugging the right edge, 3 buttons with left tooltips: Tanya Ustadz
+  (users icon → `#/tanya`), Jelajahi surah (trending icon → scroll to the surah list on Beranda), Bagikan (share
+  icon → `navigator.share`, else copy link + toast). Hover = emerald gradient fill + slide.
+- **Scroll-to-top (bottom-right)** — raised 3D emerald disc (gradient + inset highlight/shadow), fades in past
+  scrollY 400, smooth-scrolls to top. `wireFloating()` wires all of it; `toast()` helper added.
+
+**Cache note:** first live load after deploy showed a STALE bundle (browser tab cache) — `?fresh=<ts>` forced the
+new one. New visitors get the new build; an already-open tab may need a hard refresh.
+
+---
+
+## 2026-07-21 — demo footer matched to QuranKu verbatim + draft disclaimer card
 
 `28f7fde`, deployed `new-quranku-demo-proxy` version `631a8322`, verified LIVE (render + all 9 hrefs read back
 from the live DOM). Demo-only (`web/demo/index.html` + `demo.css`); prod build untouched.
