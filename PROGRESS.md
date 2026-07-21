@@ -31,6 +31,15 @@ exists (`AUDIO_AVAIL` = surahs 1/112/113/114) rather than showing a dead control
 `/audio/1/4.mp3`). Copy takes arabic+makna+ref; share uses `navigator.share` else copies the deep link.
 - **Layout bug from the switch:** the rail is often taller than a short translation, leaving a strip of bare
   card under the emerald band. Fixed by making the readings a flex column with the primary reading `flex:1`.
+- **Mobile breakpoint** (`8651e2f`, version `2f06279d`): the rail costs a ~52px gutter on every card — ~13% of
+  a 390px screen, straight out of the reading measure. Below **560px** `.qk-verse-body` becomes a column and
+  the rail unwraps into a horizontal row beneath the translation (`order:1/2` rather than `column-reverse`, so
+  DOM and visual order stay aligned for focus); the divider moves from `border-right` to `border-top`. Desktop
+  keeps the rail. **Verification limit, stated plainly:** this Interceptor build has no viewport resize
+  (`macos windows` returns `[]`), so the 560px THRESHOLD was never observed firing. What WAS verified: the
+  compiled rules are present in the live bundle, and injecting the same declarations produces the intended
+  layout. Also note the minifier rewrites `(max-width: 560px)` as **`(width<=560px)`** (modern range syntax) —
+  another variant of the minified-CSS grep trap; grep the range form or the declarations, not the authored one.
 - **Bug found while building:** `.qk-bm-btn` still carried `margin-inline-start:auto` from when it lived in
   the head — inside the tools row that shunted it and everything after it to the far right.
 
