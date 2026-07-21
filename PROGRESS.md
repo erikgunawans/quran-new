@@ -8,7 +8,51 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — the grief bug was a DOUBLE-COUNT, not a missing model call
+## 2026-07-22 (latest) — demo: halo behind the fields, and the live composer wired in
+
+Two demo changes, both deployed (`62417194` then `ecb14c43`), serving
+`index-shE6xh7E.css` + `index-CTZg17NX.js`. A fresh `demo:build` reproduces both hashes exactly,
+so the live bundle provably comes from committed source.
+
+**1. Halo, not a traveling line** (`49f2d19`). Erik, with a screenshot of the original: the search
+pill should sit inside a soft coloured aura — light BEHIND the field, bleeding outward — with the
+colours moving. We had the opposite: a conic beam masked to a 2px ring chasing the pill's edge,
+which pulled the eye to the RIM and read as a loading indicator next to the original. Both input
+surfaces now share `::before` (emerald/gold blobs that drift and swell, `qk-halo-drift`) and
+`::after` (a slow conic sweep so hues rotate through, `qk-halo-spin`), at `z-index:-1` behind the
+field's own opaque background so the pill stays crisp. Verified live that NO ancestor creates a
+stacking context and none clips overflow — the two things that silently kill this technique.
+Also deleted the wide ambient aurora on `.qk-composer`: two stacked washes flattened each other
+instead of deepening. `@property --qk-beam` + `qk-beam-travel` removed, nothing else used them.
+**Never actually seen** — `interceptor screenshot` timed out twice (minimized-window blocker), so
+intensity is unverified by eye and Erik was told so plainly.
+
+**2. The demo now uses the live composer** (`5db1e6d`). `demo.ts:325` called the deterministic
+`compose()` only, so the demo rendered canned one-liners while prod had moved to prose that answers
+the person. Now `composeFraming(hits, q, demoFramingModel, compose(...))` — a third absolute-URL
+model pass alongside answer and classify, since a relative `/api/compose` does not exist on a
+static demo Worker holding no key. CORS confirmed by live preflight (204, correct headers), not
+read off the config. The canned line remains the fallback, so every failure path lands where the
+demo already was. Timeout 8s to match `compose-live.ts`.
+
+**CORRECTION to my own recommendation.** I pitched this as *"the surface you pitch with has none of
+today's work on it"* — overstated, and I said so. The demo's PRIMARY path is the AI-authored answer
+(`.qk-ai`); the framing only renders when that falls back to retrieval. My first sample happened to
+be a fallback and I generalised from one observation. Re-running the same input afterwards went AI
+and the change did not apply at all. Confirmed working on a genuine retrieval turn: *"Iri lihat
+teman yang sukses, ya. Rasanya nggak nyaman banget, apalagi pas lagi berusaha sendiri. Wajar kok
+kalau perasaan itu datang."* So this improves the FALLBACK half of demo turns — real, but not the
+whole surface. **The AI path is the bigger lever for the demo now**, and it is the same path where
+the ustadz's framing corrections cannot reach (the 57:4 finding).
+
+**Verification note worth keeping:** `rg -c` counts LINES, and minified CSS/JS is one line — an
+occurrence count needs `rg -o | wc -l`. Combined with the gzip trap (`curl` without `--compressed`
+greps compressed bytes), two different tools reported "the fix isn't deployed" today when the
+deploy was perfect. Always sanity-check the decompressed byte count against the local file.
+
+---
+
+## 2026-07-22 — the grief bug was a DOUBLE-COUNT, not a missing model call
 
 `2b6c878`, deployed `6ad0890e` on principled (`index-CKv9aah0.js`). **Synthesis still one bundle
 behind** (`index-De89BZxR.js`) — the chained deploy command was truncated at the final `bunx` for the
