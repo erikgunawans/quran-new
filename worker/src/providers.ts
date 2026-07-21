@@ -64,7 +64,7 @@ export async function callChatModel(
   cfg: ProviderConfig,
   system: string,
   user: string,
-  opts: { temperature: number; maxTokens: number },
+  opts: { temperature: number; maxTokens: number; reasoning?: "none" },
 ): Promise<string> {
   const res = await fetch(cfg.url, {
     method: "POST",
@@ -81,6 +81,22 @@ export async function callChatModel(
       ],
       temperature: opts.temperature,
       max_tokens: opts.maxTokens,
+      // REASONING OFF, where the call does not want thinking (2026-07-22).
+      //
+      // The configured model (deepseek-v4-flash) is a REASONING model. Measured on the live
+      // endpoint, the two small-budget calls were silently destroyed by it: /api/classify
+      // (80 tokens) returned `{"themes":[]}` on every single call — model theme-understanding was
+      // dead in production and grounding ran on keywords alone — and /api/compose (160 tokens)
+      // came back cut mid-word ("Capek bang", "…apalagi kalau semu") or empty, which the caller
+      // then reported as a wall-rejection. /api/answer at 520 tokens was unaffected, which is what
+      // pinned the cause to budget rather than prompt.
+      //
+      // OpenRouter's docs claim reasoning tokens do not consume the `max_tokens` response budget,
+      // but they also require max_tokens to exceed the reasoning budget — and the observed
+      // behaviour is unambiguous. So both levers are pulled: ask for no thinking here, AND stop
+      // running these budgets near the line (see FRAMING_PARAMS / THEME params). A warmth sentence
+      // and a label pick do not need a chain of thought.
+      ...(opts.reasoning === "none" ? { reasoning: { effort: "none" } } : {}),
     }),
   });
 

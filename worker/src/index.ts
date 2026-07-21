@@ -288,7 +288,12 @@ async function handleClassify(request: Request, env: Env): Promise<Response> {
   let raw: string;
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
-    raw = await callChatModel(cfg, THEME_SYSTEM_PROMPT, user, { temperature: 0.2, maxTokens: 80 });
+    // 80 tokens against a reasoning model returned `[]` on EVERY live call — model theme-under-
+    // standing was silently dead in production and every question grounded on the keyword lexicon
+    // alone. It failed invisibly because `[]` is also the legitimate "nothing matched" answer, so
+    // the degraded path looked exactly like the healthy one. Picking a few labels needs no thinking
+    // and no essay, but it does need room to answer at all.
+    raw = await callChatModel(cfg, THEME_SYSTEM_PROMPT, user, { temperature: 0.2, maxTokens: 200, reasoning: "none" });
   } catch {
     return json({ themes: [] }, 200, request); // failure → browser keeps the keyword lexicon
   }

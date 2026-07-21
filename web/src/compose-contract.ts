@@ -70,9 +70,18 @@ Bad example (never do this — it authors meaning): "Ayat ini artinya Allah meny
 /**
  * The framing call's sampling params — ONE definition shared by the Worker (prod) and the offline
  * eval harness (`src/eval/`), so tuning the prompt offline reflects exactly what ships. temp 0.7
- * gives the warmth room to vary; 160 tokens is a sentence or two, never an essay.
+ * gives the warmth room to vary.
+ *
+ * `reasoning: "none"` and the raised ceiling are one fix, not two (2026-07-22). At 160 tokens
+ * against a REASONING model this call shipped fragments to real readers — measured live: "Capek
+ * bang", "Capek banget, ya, apalagi kalau semu", cut mid-word, straight into an Arabic verse card.
+ * Roughly half of the remaining calls returned nothing and fell back to the canned opener. The
+ * ceiling is now well clear of the line rather than 30 tokens above a good answer; the length rule
+ * lives in the PROMPT ("one or two sentences"), which is where a style rule belongs. A token cap is
+ * a truncation device, never a style device — enforcing brevity with it is what produced "Capek
+ * bang".
  */
-export const FRAMING_PARAMS = { temperature: 0.7, maxTokens: 160 } as const;
+export const FRAMING_PARAMS = { temperature: 0.7, maxTokens: 400, reasoning: "none" } as const;
 
 /**
  * Build the exact user message the framing model receives — the person's words plus the feeling
