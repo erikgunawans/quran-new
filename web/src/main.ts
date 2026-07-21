@@ -186,8 +186,13 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
     case "knowledge": {
       // Re-derived from the KB, never resurrected from disk. Null (network fail, or the topic no
       // longer matches) degrades to the honest silence — never a blank answer.
+      //
+      // An EMPTY entry list is not a failure and must NOT degrade here: knowledge.ts returns one
+      // deliberately for a broad definitional question ("siapa Allah?"), and knowledgeHtml already
+      // renders the honest topic pointer for that case. Bailing on `!k.entries.length` made that
+      // branch unreachable, so the pointer this lane exists to give never rendered.
       const k = await retrieveKnowledge(t.q);
-      if (!k || !k.entries.length) return renderTurn({ q: t.q, kind: "silence" }, animate);
+      if (!k) return renderTurn({ q: t.q, kind: "silence" }, animate);
       return knowledgeHtml(k);
     }
 

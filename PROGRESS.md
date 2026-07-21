@@ -8,7 +8,33 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — the "honest silence" on broad questions was a RENDER bug; quick-pills matched
+## 2026-07-22 (latest) — the knowledge-pointer fix ported to the LIVE app (one line, dead code revived)
+
+Erik approved porting yesterday's demo fix into `web/src`. **The live app turned out to need only ONE line** —
+and the discovery is the interesting part: `knowledgeHtml()` in `web/src/main.ts` (lines ~289-298) **already
+contained a fully-written pointer branch** for the empty-entries case, complete with a Peta deep-link and the
+comment *"This is what 'who is Allah?' reaches: the index is a predicate list, not a definition."*
+
+But `renderTurn`'s guard — `if (!k || !k.entries.length) return silence` — short-circuited **before** ever
+calling it. The author wrote the pointer and then made it **unreachable**. Fix is to drop `|| !k.entries.length`
+so `knowledgeHtml` handles the empty case it was already written to handle. No new copy invented for prod.
+
+**Verified (live app on `bun run dev`, not just reasoned):**
+- "allah itu siapa sih?" → *"Pertanyaan soal **Allah Subhanahu wa ta'ala** itu luas — dan aku nggak mau ngarang.
+  Tapi di knowledge base kami ada **329 entri** soal ini, dikumpulkan **Ustadz Muhammad Thalib**…"* + link
+  `#/peta/allah-subhanahu-wa-ta-ala`. The dead branch renders.
+- **Regression check:** a NARROW question ("riba") still returns real entries (2, Ekonomi Islam) via the normal
+  `knowledgeHtml` path. Only the previously-unreachable branch changed.
+- `bun test` → **685 pass / 0 fail**. `bun run typecheck` → 6 errors, **identical with and without the change**
+  (pre-existing `caches`/`Cache` DOM-lib errors in `quran.ts` under the root tsconfig) — proved by stashing the
+  edit and re-running, not assumed.
+
+**NOT DEPLOYED — prod deploys are gated to Erik.** He runs `bun run build && cd worker && bunx wrangler deploy`
+(and `--env synthesis` for new-quranku-ai). Both editions share this `main.ts`, so one build fixes both.
+
+---
+
+## 2026-07-21 — the "honest silence" on broad questions was a RENDER bug; quick-pills matched
 
 `31b8f78`, deployed version `8e7fff3c`. Erik: *"why does 'allah itu siapa sih?' answer like this again? I
 thought we've fixed it."* It was never the matcher, and nothing regressed — the fix from `1a60e5a` works.
