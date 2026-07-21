@@ -27,6 +27,11 @@ matches the canonical app — consistent with the draft framing. Dropped "Tanya"
 at the top of the footer, info icon + one line: *"Draf New-Quranku. Versi penyempurnaan dari QuranKu — bukan situs
 resmi, hanya demo untuk menguji fitur baru."* Doubles as an honesty/anti-impersonation signal for the clone.
 
+**Follow-up (`42ea01d`, version `1805305b`):** Erik's call — the footer **Navigasi** links now route to the demo's
+OWN pages (`#/beranda`, `#/mushaf`, `#/audio`, `#/bookmark`, `#/tematik`; labels kept as the original's), so those
+stay inside the demo. Only the no-equivalent links (Tentang Aplikasi, Donasi, Aplikasi Android) remain external to
+the real QuranKu; Kirim Email stays mailto. Verified live via DOM href read-back.
+
 ---
 
 ## 2026-07-21 — "Topik Hari Ini" card matched to QuranKu; Tanya calmed; ship-safe demo assets
