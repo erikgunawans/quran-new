@@ -8,7 +8,28 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — "Topik Hari Ini" card matched to QuranKu; Tanya calmed; ship-safe demo assets
+## 2026-07-21 (latest) — demo footer matched to QuranKu verbatim + draft disclaimer card
+
+`28f7fde`, deployed `new-quranku-demo-proxy` version `631a8322`, verified LIVE (render + all 9 hrefs read back
+from the live DOM). Demo-only (`web/demo/index.html` + `demo.css`); prod build untouched.
+
+**Footer now reproduces QuranKu's exactly** (Erik: "exactly the same content as the original one, every single
+one of them ... make the link correct"). Extracted the real footer from quran.tarjamahtafsiriyah.com via
+`interceptor eval --main`. Was invented columns with every link dead-ending at `#/beranda` (+ a non-original
+"Tanya" link). Now: **Navigasi** (Beranda `/`, Mushaf Madinah `/mushaf`, Audio Quran `/audio-quran`, Penanda
+`/bookmarks`, Indeks Tematik `/thematic-index`), **Informasi** (Tentang Aplikasi `/about`, Donasi `/donate`),
+**Hubungi Kami** (Kirim Email `mailto:mahad.annabawi@gmail.com`, Aplikasi Android → Play Store), the data-source
+note ("Menggunakan data dari Quran Tafsiriyah API & Quran.com API."), and the two-line copyright bar. All nav
+links point to the **real QuranKu absolute URLs** (opening in a new tab) so every one is genuinely correct and
+matches the canonical app — consistent with the draft framing. Dropped "Tanya" from the footer (not in the original).
+
+**Draft disclaimer card** (Erik: "put a disclaimer ... a nice card ... a small one"). Small emerald-tinted card
+at the top of the footer, info icon + one line: *"Draf New-Quranku. Versi penyempurnaan dari QuranKu — bukan situs
+resmi, hanya demo untuk menguji fitur baru."* Doubles as an honesty/anti-impersonation signal for the clone.
+
+---
+
+## 2026-07-21 — "Topik Hari Ini" card matched to QuranKu; Tanya calmed; ship-safe demo assets
 
 Session of demo polish (`2b0de50`), deployed to `new-quranku-demo-proxy` version `489a2d35`, all verified LIVE
 on demo-quranku.axiara.ai. Demo-only (`web/demo/*` + `web/vite.demo.config.ts`); prod build (`web/dist`) untouched.
