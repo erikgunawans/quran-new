@@ -261,6 +261,17 @@ function nurBubble(inner: string, loading = false): HTMLDivElement {
 }
 
 /** The scholar's Indeks Tematik entries (knowledge lane), verbatim + cited — never reworded. */
+/**
+ * A broad topic question the index holds no specific line for. Saying nothing is worse than
+ * saying "I don't have a reviewed answer, but here is his whole chapter on it" — and the Tematik
+ * accordion opens straight onto that category.
+ */
+function knowledgePointerHtml(k: KnowledgeAnswer): string {
+  return `<p class="qk-said">Aku belum punya jawaban ringkas yang sudah ditinjau untuk pertanyaan seluas itu — dan aku tidak mau mengarangnya.</p>
+    <p class="qk-said">Tapi <b>Indeks Tematik</b> punya <b>${k.totalEntries} entri</b> tentang <b>${esc(k.category)}</b>, disusun oleh Ustadz Muhammad Thalib — itu tempat terbaik untuk memulai.</p>
+    <div class="qk-verse-acts"><a class="qk-act" href="#/tematik/${encodeURIComponent(k.slug)}">Buka ${esc(k.category)} →</a></div>`;
+}
+
 function knowledgeHtml(k: KnowledgeAnswer): string {
   const shown = k.entries.length, total = k.totalEntries;
   const items = k.entries
@@ -325,7 +336,12 @@ async function renderTurn(t: Turn): Promise<string> {
     }
     case "knowledge": {
       const k = await retrieveKnowledge(t.q);
-      return k && k.entries.length ? knowledgeHtml(k) : SILENCE;
+      if (!k) return SILENCE;
+      // Empty entries is NOT a failure — knowledge.ts returns them on purpose for a broad
+      // definitional question ("siapa Allah?"), where ranking on the category's own name would
+      // just return arbitrary lines. The documented answer is an honest pointer to the topic;
+      // gating on entries.length threw that away and showed generic silence instead.
+      return k.entries.length ? knowledgeHtml(k) : knowledgePointerHtml(k);
     }
     case "silence":
       return SILENCE;

@@ -261,12 +261,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* Akses Cepat pills — emerald-tinted (QuranKu's exact style) */
 .qk-quick-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+/* Like the original: the pills are plain white; only the featured "Indeks Tematik" is tinted. */
 .qk-quick {
+  display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; text-decoration: none;
-  background: rgba(22, 162, 73, 0.1); color: var(--qk-primary); border: 1px solid rgba(22, 162, 73, 0.2);
-  transition: background .2s var(--qk-ease);
+  background: var(--qk-card); color: var(--qk-fg); border: 1px solid var(--qk-border);
+  transition: background .2s var(--qk-ease), border-color .2s var(--qk-ease), color .2s var(--qk-ease);
 }
-.qk-quick:hover { background: rgba(22, 162, 73, 0.18); }
+.qk-quick:hover { border-color: var(--qk-primary); color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-quick.is-featured {
+  background: var(--qk-primary-wash); color: var(--qk-primary); border-color: rgba(22, 162, 73, 0.2);
+}
+.qk-quick.is-featured:hover { background: rgba(22, 162, 73, 0.18); }
+.qk-quick svg { flex: none; }
 
 /* Topik Hari Ini card */
 /* ── "Topik Hari Ini" — elevated card with a green ornament bar on top (mirrors QuranKu) ── */
