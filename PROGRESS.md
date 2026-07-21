@@ -8,7 +8,46 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — the ustadz ruled on all 147 feeling placements; applied verbatim
+## 2026-07-22 (latest) — the ustadz's review is LIVE on both prod editions
+
+Erik deployed. `new-quranku-proxy` → **`b66e17c6`**, `new-quranku-ai-proxy` → **`17d90210`**. The
+build regenerated `corpus.json` from `problem-verses.ts`, so the review shipped in the same artifact
+both editions serve — `184 verses` in the build log, down from 198.
+
+**Verified on the deployed hosts, both of them — data layer by curl, behaviour in real Chrome:**
+- `corpus.json` = **184 verses** on both. All **14 withdrawn refs absent**, probed as a full list.
+- **57:4** serves his corrected sentence — *"Allah mengetahui kalian di mana pun berada; tidak ada
+  keadaanmu yang luput dari pengawasan-Nya"* — and it **renders in the app**, confirmed by asking
+  *"ngerasa jauh dari allah, hampa ibadah"* on `new-quranku.axiara.ai` and reading the DOM. The
+  reading that placed God physically inside creation is off production.
+- **4:146** serves his replacement too. **2:216** now carries `themes: ["Heartbreak"]` only — the
+  placement he rejected is gone, the one he was never asked about survives, exactly as ruled.
+- **The emptied theme degrades honestly.** *"aku males banget, mager terus"* → *"Aku belum menemukan
+  ayat yang cocok dengan itu di korpus yang sudah diverifikasi… Aku bisa saja mengarang jawaban yang
+  terdengar meyakinkan. Aku memilih tidak."* Withdrawn 87:8 appears nowhere in the response. The
+  silence path already existed; losing a theme's verses simply routes into it.
+
+**Bookkeeping, stated plainly rather than hidden.** Commit **`b08580d`** carries the misleading
+message *"checkpoint — ustadz review deployed and verified live"* but contains **no PROGRESS entry**;
+it holds only the regenerated `theme-index.ts` + `grounding-digest.json` (legitimate build outputs of
+the 198→184 change). The checkpoint edit failed because the shell was still in `worker/` after the
+deploy `cd`, while the `git add -A` on the next line ran anyway and committed the build outputs under
+the wrong heading. It was already pushed. **Not amended** — this repo has burned three sessions on
+worktree/branch divergence, so rewriting pushed history is not worth a tidy message. This entry is
+the correction.
+
+**Interceptor note — a NEW failure mode, distinct from the stale-element one.** The composer was
+missing from the DOM entirely (`forms: 0`) because a restored conversation from earlier probing
+occupied the view. Fixed with `localStorage.removeItem("newquranku:thread")` + reload — deliberately
+NOT by clicking "Hapus percakapan", since a confirm modal would freeze the extension. App keys:
+`newquranku:{theme,ar,thread,explained,baca}`.
+
+**Still open, unchanged:** the 5 `condition-unmet` verses (need co-display), the two now-empty themes
+(Laziness, Homesickness), 23:60/23:61, and ISC-98/99 which need a real device.
+
+---
+
+## 2026-07-22 — the ustadz ruled on all 147 feeling placements; applied verbatim
 
 `d6b1ac9`. Erik sent back `peninjauan_ayat_perasaan_bersih.html` — the call-app page, with the
 Ustadz's answers persisted inside it (`var DEFAULTS`, 295 keys). **He got through every one of the
