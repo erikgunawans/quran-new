@@ -9,6 +9,7 @@
    Nothing here touches the live New-Quranku app; it only IMPORTS its pure retrieval modules.
    ════════════════════════════════════════════════════════════════════ */
 import { SURAH_INDEX, CORPUS_VERSION } from "../src/surah-index.ts";
+import { JUZ, juzLabel } from "../src/juz.ts";
 import { idName, idMeaning } from "./surah-id.ts";
 import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
@@ -166,10 +167,89 @@ function surahCardHtml(s: (typeof SURAH_INDEX)[number], hrefPrefix: string): str
   </li>`;
 }
 
+/* ── shared juz card (same visual language as the surah card) ─────────── */
+function juzCardHtml(j: (typeof JUZ)[number]): string {
+  // Deep-links to the exact ayah the juz opens on, not just its surah — landing on 2:1 when the
+  // juz actually begins at 2:142 would be the app quietly disagreeing with its own boundary.
+  const surahCount = j.es - j.s + 1;
+  const span = surahCount === 1 ? "1 surah" : `${surahCount} surah`;
+  return `<li>
+    <a class="qk-surah-card" href="#/mushaf/${j.s}/${j.a}" aria-label="${esc(juzLabel(j.n))}">
+      <div class="qk-sc-top">
+        <div class="qk-sc-left">
+          <span class="qk-sc-num">${j.n}</span>
+          <span class="qk-sc-name">
+            <span class="qk-sc-tl">Juz ${j.n}</span>
+            <span class="qk-sc-en">${esc(idName(j.s, j.from))} ${j.a} – ${esc(idName(j.es, j.to))} ${j.ea}</span>
+          </span>
+        </div>
+      </div>
+      <div class="qk-sc-meta">
+        <span class="qk-sc-rev meccan">${span}</span>
+        <span class="qk-sc-ayahs">${j.ayahs} Ayat</span>
+      </div>
+    </a>
+  </li>`;
+}
+
 /* ── Beranda: the 114-surah grid (cards open the Mushaf reader) ───────── */
 function renderSurahGrid(): void {
   const grid = $<HTMLUListElement>("#qk-surah-grid");
   grid.innerHTML = SURAH_INDEX.map((s) => surahCardHtml(s, "#/mushaf/")).join("");
+}
+
+/* ── Beranda: the 30-juz grid ────────────────────────────────────────── */
+function renderJuzGrid(): void {
+  const grid = $<HTMLUListElement>("#qk-surah-grid");
+  grid.innerHTML = JUZ.map((j) => juzCardHtml(j)).join("");
+}
+
+/**
+ * The Surah / Juz tabs.
+ *
+ * These three buttons have been inert decoration since the demo was built — `is-active` was
+ * hardcoded on "Surah" and nothing listened. Now that two of them have data behind them, an
+ * inert third would read as broken rather than unbuilt, so "Urutan Wahyu" is explicitly
+ * disabled with a title explaining why: SURAH_INDEX carries no revelation-order field. The
+ * order exists in the pinned Tanzil metadata (`order` on each <sura>), so this is a small
+ * follow-on, not a dead end — but shipping a tab that silently does nothing is the thing to avoid.
+ */
+function wireListTabs(): void {
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".qk-tabs .qk-tab"));
+  if (tabs.length === 0) return;
+
+  const find = document.querySelector<HTMLInputElement>("#qk-surah-find");
+  const blurb = document.querySelector<HTMLElement>(".qk-surah-head p");
+
+  const select = (idx: number): void => {
+    tabs.forEach((t, i) => {
+      t.classList.toggle("is-active", i === idx);
+      t.setAttribute("aria-selected", i === idx ? "true" : "false");
+    });
+    if (idx === 1) {
+      renderJuzGrid();
+      if (blurb) blurb.textContent = "Jelajahi 30 juz dalam Al-Qur'an.";
+      if (find) find.placeholder = "Cari juz, nomor, nama surah...";
+    } else {
+      renderSurahGrid();
+      if (blurb) blurb.textContent = "Jelajahi 114 surah dalam Al-Qur'an.";
+      if (find) find.placeholder = "Cari nama surah, arti, nomor...";
+    }
+    // The filter box matches on rendered text, so a stale query would hide every new card.
+    if (find && find.value.trim().length > 0) {
+      find.value = "";
+      find.dispatchEvent(new Event("input"));
+    }
+  };
+
+  tabs.forEach((tab, i) => {
+    if (i === 2) {
+      tab.disabled = true;
+      tab.title = "Belum tersedia — urutan wahyu belum ada di indeks surah.";
+      return;
+    }
+    tab.addEventListener("click", () => select(i));
+  });
 }
 
 /* ── Beranda: live clock ─────────────────────────────────────────────── */
@@ -1259,6 +1339,7 @@ wireTheme();
 wireTanyaHeadline();
 renderSurahGrid();
 wireSurahFind();
+wireListTabs();
 wireTanya();
 void restoreThread();
 startClock();
