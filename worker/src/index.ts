@@ -58,6 +58,7 @@ const MAX_QUESTION_LEN = 600;
 const ALLOWED_ORIGINS = new Set([
   "https://new-quranku.axiara.ai",
   "https://new-quranku-ai.axiara.ai",
+  "https://demo-quranku.axiara.ai",
   "http://localhost:5173",
   "http://localhost:8787",
 ]);

@@ -63,3 +63,31 @@ ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
 # The AI-authoring edition — this var unlocks /api/answer on this deploy only.
 EDITION = "synthesis"
+
+# ── env: demo — the QuranKu-clone showcase (demo-quranku.axiara.ai) ────────────────────────────────
+#
+# A THIRD Worker + route, SAME codebase, but serving the ISOLATED demo bundle (web/dist-demo, built by
+# `bun run demo:build`) instead of web/dist. This deploy is a static host only: the demo's Tanya calls
+# the synthesis Worker cross-origin (https://new-quranku-ai.axiara.ai/api/*), so this Worker never needs
+# its own OPENROUTER_API_KEY. EDITION stays `principled` to keep /api/answer dark here as a matter of course.
+#
+# DEPLOY:  bun run demo:build && cd worker && bunx wrangler deploy --env demo
+# DNS (once): add a PROXIED placeholder AAAA `demo-quranku` → 100:: on the axiara.ai zone (same trick as
+#   new-quranku / new-quranku-ai); the route below then binds the Worker to the hostname.
+# CORS (once): add https://demo-quranku.axiara.ai to ALLOWED_ORIGINS in src/index.ts and redeploy the
+#   synthesis Worker (--env synthesis), or the demo's Tanya is CORS-blocked.
+[env.demo]
+name = "new-quranku-demo-proxy"
+routes = [
+  { pattern = "demo-quranku.axiara.ai/*", zone_name = "axiara.ai" }
+]
+
+[env.demo.assets]
+directory = "../web/dist-demo"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[env.demo.vars]
+ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
+OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+EDITION = "principled"
