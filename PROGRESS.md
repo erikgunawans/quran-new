@@ -8,7 +8,32 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — demo DEPLOYED public at demo-quranku.axiara.ai; synthesis worker redeployed (backlog shipped)
+## 2026-07-21 (latest) — fullscreen-overlay-on-nav bug fixed; principled worker synced (all 3 apps current)
+
+Two follow-ups from the deploy, both closed:
+
+**1. Real bug (Erik caught it): the demo link "opened on the player, not home".** The fullscreen player is a fixed
+overlay that persisted across route changes — open it once, then navigate (or land via a link with it open) and the
+overlay stayed covering the target route (Beranda hidden behind a blank-state player). I had wrongly dismissed this
+exact symptom earlier as "stale tab state" — it was a genuine defect. Fix `8283964`: `route()` now calls `closeFull()`
+first, so any navigation exits fullscreen and shows the route; the bottom bar keeps playing (intended); `openFull()`
+doesn't touch the hash so Audio→fullscreen is unaffected. Rebuilt (`demo:build`) + redeployed the demo worker
+(`78dfd738`, bundle `index-lOm1YC6a.js`). Verified LIVE: open player → navigate home → `pfull` hidden, Beranda renders.
+
+**2. Principled worker synced.** `new-quranku.axiara.ai` was still on the pre-backlog bundle. Erik ran
+`bun run build && wrangler deploy` (no flag / no --env — rebuilds principled since web/dist held the synthesis build).
+New principled version `56960836`, bundle `index-DwCRX5bn.js`. Verified: `/api/answer` returns `{"answer":null}`
+(dark — code gate `EDITION !== "synthesis"` at index.ts:225, so principled never authors; the 200 is the dark
+response, not a regression). Both prod editions now run the same current front-end (nav pill / beam / reduced-motion).
+
+**All three apps live and current:** principled `new-quranku.axiara.ai` (`index-DwCRX5bn.js`, authoring dark) ·
+synthesis `new-quranku-ai.axiara.ai` (`index-CSrBFGyV.js`, authoring live) · demo `demo-quranku.axiara.ai`
+(`index-lOm1YC6a.js`, AI-Tanya via the synthesis worker). Prod deploys are gated by the auto-mode classifier → Erik
+runs `wrangler deploy` for prod hostnames himself; deploys to NEW subdomains (the demo) are allowed unattended.
+
+---
+
+## 2026-07-21 — demo DEPLOYED public at demo-quranku.axiara.ai; synthesis worker redeployed (backlog shipped)
 
 The QuranKu-clone demo is **live and public** at **https://demo-quranku.axiara.ai/** (Erik chose public over gated
 after I flagged the QuranKu-branding/impersonation consideration — his call, his ustadz relationship).
