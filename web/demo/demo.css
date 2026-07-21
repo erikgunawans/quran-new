@@ -663,6 +663,54 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-tema-search input { flex: 1; border: none; outline: none; background: none; font: inherit; font-size: 15px; color: var(--qk-fg); }
 .qk-tema-search input::placeholder { color: var(--qk-muted); }
 
+/* ── Peta Tematik 3D — the baked cosmos, lazily mounted ──────────────────
+   Deliberately dark in both themes: luminous points need darkness to bloom. It reads as a
+   framed object on the page (like a photograph), not as app chrome. */
+.qk-peta {
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(23, 24, 28, 0.04); overflow: hidden; margin-bottom: 18px;
+  transition: box-shadow .25s var(--qk-ease), border-color .25s var(--qk-ease);
+}
+.qk-peta:hover { box-shadow: 0 10px 26px rgba(23, 24, 28, 0.08); }
+.qk-peta:has(.qk-peta-head[aria-expanded="true"]) { border-color: rgba(22, 162, 73, 0.32); box-shadow: 0 16px 38px rgba(22, 162, 73, 0.10); }
+.qk-peta-head { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px 20px; background: none; text-align: left; cursor: pointer; transition: background .2s var(--qk-ease); }
+.qk-peta-head:hover { background: var(--qk-primary-wash); }
+.qk-peta-ico { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--qk-primary); background: var(--qk-primary-wash); }
+.qk-peta-head[aria-expanded="true"] .qk-peta-ico { background: var(--qk-primary); color: #fff; }
+.qk-peta-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.qk-peta-name { font-family: var(--qk-f-display); font-weight: 700; font-size: 16px; color: var(--qk-fg); }
+.qk-peta-head[aria-expanded="true"] .qk-peta-name { color: var(--qk-primary); }
+.qk-peta-sub { font-size: 12.5px; color: var(--qk-muted); }
+.qk-peta-chev { flex: none; color: var(--qk-muted); transition: transform .25s var(--qk-ease); }
+.qk-peta-head[aria-expanded="true"] .qk-peta-chev { transform: rotate(180deg); color: var(--qk-primary); }
+.qk-peta-loading { margin: 0; padding: 26px; text-align: center; color: var(--qk-muted); font-size: 14px; }
+
+.pc-frame {
+  position: relative;
+  background: radial-gradient(120% 100% at 50% 0%, #16211c 0%, #0d1512 60%, #0a0f0d 100%);
+  border-top: 1px solid var(--qk-border);
+}
+.pc-canvas { display: block; width: 100%; height: min(70vh, 560px); touch-action: none; cursor: grab; }
+.pc-canvas:active { cursor: grabbing; }
+.pc-hud { position: absolute; top: 12px; left: 14px; display: flex; flex-direction: column; gap: 6px; }
+.pc-check { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: rgba(255, 255, 255, 0.78); cursor: pointer; user-select: none; }
+.pc-check input { accent-color: #22c55e; min-width: 16px; min-height: 16px; }
+.pc-help { position: absolute; right: 14px; bottom: 10px; margin: 0; font-size: 11.5px; color: rgba(255, 255, 255, 0.42); }
+/* The legend is real DOM, not canvas text — selectable, translatable, screen-readable. */
+.pc-legend {
+  list-style: none; margin: 0; padding: 14px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 5px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pc-legend li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: rgba(255, 255, 255, 0.8); min-height: 24px; }
+.pc-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.pc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-n { color: rgba(255, 255, 255, 0.42); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .pc-canvas { height: 60vh; }
+  .pc-help { display: none; }   /* no hover on touch; the hint is noise there */
+}
+
 .qk-tema-list { display: flex; flex-direction: column; gap: 14px; }
 @media (prefers-reduced-motion: no-preference) {
   .qk-tcat-body:not([hidden]), .qk-tentry-body:not([hidden]) { animation: qk-acc-in .3s var(--qk-ease); }

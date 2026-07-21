@@ -21,6 +21,9 @@ import { rememberTurn, loadThread, clearThread, hasThread, turnFromHits, type Tu
 import { detectCrisis, crisisReply } from "../src/crisis.ts";
 import { matchAqidah, aqidahById, type AqidahEntry } from "../src/aqidah.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "../src/knowledge.ts";
+// The baked 3D cosmos built for the Indeks Tematik: 1,632 verse-stars around 13 category hubs.
+// Coordinates are precomputed (src/app/build-peta-3d.ts) — this only draws them, no solver.
+import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "../src/peta-cosmos.ts";
 
 /** The shape both the curated corpus (Reading) and a shard verse (ShardVerse.p/.c) satisfy. */
 type ReadingLike = { text: string; translator: string; translation_type: string } | null;
@@ -561,8 +564,62 @@ function refRange(rs: PetaRef[]): string {
   return min === max ? String(min) : `${min}-${max}`;
 }
 
+/* The 3D cosmos: mounted lazily, and torn down whenever the page is rebuilt so a stale
+   canvas never keeps its animation frame running. */
+let cosmosHandle: CosmosHandle | undefined;
+
+function wirePeta(): void {
+  const btn = document.getElementById("qk-peta-btn");
+  const slot = document.getElementById("qk-peta-slot");
+  if (!btn || !slot) return;
+  let loaded = false;
+  btn.addEventListener("click", () => {
+    const open = slot.hidden;
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    slot.hidden = !open;
+    if (!open || loaded) return;
+    slot.innerHTML = `<p class="qk-peta-loading">Memuat peta…</p>`;
+    // 46 KB, fetched here and nowhere else — never opening the map costs nothing.
+    void (async () => {
+      try {
+        const res = await fetch("/peta/cosmos.json");
+        if (!res.ok) throw new Error("gagal memuat peta");
+        const cosmos = (await res.json()) as Cosmos;
+        slot.innerHTML = `
+          <div class="pc-frame">
+            <canvas class="pc-canvas" aria-label="Peta tematik 3D: ${cosmos.meta.verses} ayat mengelilingi ${cosmos.meta.cats} kategori. Seret untuk memutar, gulir untuk memperbesar, klik bintang untuk membuka ayat."></canvas>
+            <div class="pc-hud">
+              <label class="pc-check"><input type="checkbox" class="pc-auto" checked> Putar otomatis</label>
+              <label class="pc-check"><input type="checkbox" class="pc-bridges"> Hanya ayat penghubung</label>
+            </div>
+            <p class="pc-help">seret untuk memutar · gulir untuk zoom · klik bintang untuk membuka ayat</p>
+            ${legendHtml(cosmos)}
+          </div>`;
+        const canvas = slot.querySelector<HTMLCanvasElement>(".pc-canvas");
+        if (!canvas) return;
+        cosmosHandle?.destroy();
+        // A star IS a verse — clicking one lands on the reader at that exact ayah.
+        cosmosHandle = mountCosmos(canvas, cosmos, (surah, ayah) => {
+          location.hash = `#/mushaf/${surah}/${ayah}`;
+        });
+        slot.querySelector<HTMLInputElement>(".pc-auto")?.addEventListener("change", (e) => {
+          cosmosHandle?.setAutoRotate((e.target as HTMLInputElement).checked);
+        });
+        slot.querySelector<HTMLInputElement>(".pc-bridges")?.addEventListener("change", (e) => {
+          cosmosHandle?.setBridgesOnly((e.target as HTMLInputElement).checked);
+        });
+        loaded = true;
+      } catch {
+        slot.innerHTML = `<p class="qk-peta-loading">Gagal memuat peta. Coba lagi.</p>`;
+      }
+    })();
+  });
+}
+
 async function renderTematik(slug?: string): Promise<void> {
   const el = $("#qk-tematik");
+  cosmosHandle?.destroy();
+  cosmosHandle = undefined;
   el.innerHTML = `<div class="qk-lead qk-thinking">Memuat…</div>`;
   try {
     const idx = await fetchJson<PetaIndex>("/peta/index.json");
@@ -576,6 +633,17 @@ async function renderTematik(slug?: string): Promise<void> {
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input id="qk-tema-find" type="search" placeholder="Cari tema, nama surah, atau topik…" aria-label="Cari tema, nama surah, atau topik" autocomplete="off">
       </div>
+      <section class="qk-peta">
+        <button class="qk-peta-head" id="qk-peta-btn" type="button" aria-expanded="false">
+          <span class="qk-peta-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg></span>
+          <span class="qk-peta-body">
+            <span class="qk-peta-name">Peta Tematik 3D</span>
+            <span class="qk-peta-sub">1.632 ayat mengelilingi 13 tema — seret untuk memutar, klik bintang untuk membuka ayat</span>
+          </span>
+          <svg class="qk-peta-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qk-peta-slot" id="qk-peta-slot" hidden></div>
+      </section>
       <div class="qk-tema-list">${idx.categories.map((c) => `
         <section class="qk-tcat" data-slug="${esc(c.slug)}" data-name="${esc(c.category.toLowerCase())}">
           <button class="qk-tcat-head" type="button" aria-expanded="false">
@@ -594,6 +662,7 @@ async function renderTematik(slug?: string): Promise<void> {
 
 function wireTematik(slug?: string): void {
   const el = $("#qk-tematik");
+  wirePeta();
   for (const head of el.querySelectorAll<HTMLButtonElement>(".qk-tcat-head")) {
     head.addEventListener("click", () => void toggleCategory(head.closest(".qk-tcat") as HTMLElement));
   }
