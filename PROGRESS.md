@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — QuranKu clone DEMO built: 6 functional tabs behind their skin, reusing our engines
+## 2026-07-21 (latest) — demo pixel-verification unblocked; player wrap bug + audio gap fixed
+
+Screenshots finally worked. The all-session blocker (demo tab in a minimized 2nd Chrome window) cleared once
+Erik un-minimized + maximized the window (1280px). Key mechanics learned: **`interceptor screenshot`
+(DOM-render, focus-independent, follows the *tracked* tab) is the right tool — NOT `--pixel`**, which follows
+OS window focus and, with 3 windows open, kept returning a stale cached frame of a different tab. DOM-render
+times out (>15s) on full-page or heavy sections (blurs/gradients/conic beam), so capture **per element**
+(`--selector`); small elements rasterize fine. `interceptor open --reuse` can spawn a NEW minimized window —
+drive one tracked tab and navigate via `location.hash` (eval `--main`) to avoid window churn.
+
+**Verified (real screenshots, not DOM-diff):**
+- **Beranda** — header (logo/nav/Beranda pill/Tanya BARU/Masuk), hero title (60px, wraps to 2 lines, `scrollW==clientW` so NO overflow — the earlier "clipped" crop was a selector-render artifact), teal prayer panel (live clock, Hijri date, 5 cards, Dzuhur active). Faithful.
+- **Fullscreen player** — populates correctly via the real flow (Al-Fatihah / الفاتحة / 001 / Ayat N dari M / Mishary). The "blank —" seen first was stale state in an abandoned dup tab, NOT a bug.
+- **Tematik** — "Indeks Tematik Al-Qur'an · Oleh Ustadz Muhammad Thalib" + all 13 categories correct; card = green numbered badge + name + entry count + chevron.
+
+**Fixed (2 commits, demo-only, `web/dist` mtime never moved):**
+- `4c60e14` — `.qk-pfull-mode` + `.qk-pfull-ayah` were flex items at constrained width with `white-space:normal`, so "MODE SURAH" and "Ayat N dari M" wrapped (the digit spilled below the pill onto the qari name). Added `white-space:nowrap`. Verified single-line by re-capture.
+- `a194192` — `.qk-au-grid` gap 16px → 20px to match the original (Erik wants faithful-clone parity).
+
+**State:** anchor origin/main was `87cded7`; now 2 commits ahead locally (`4c60e14`, `a194192`), **NOT pushed, NOT
+deployed** (demo is dev-only at localhost:5173/demo/). Working tree clean. Cleaned up ~14 duplicate demo tabs
+from prior automation (Erik's real work tabs left untouched). Pre-existing, not mine: root `tsc` fails on
+`web/src/quran.ts` (`caches`/`Cache` globals) — doesn't affect builds.
+
+**Open / next:** (1) push the 2 commits when Erik's ready; (2) decide whether to deploy the demo anywhere;
+(3) the surah-grid full-page capture still times out — capture it in row-chunks if a pixel pass is wanted.
+
+---
+
+## 2026-07-21 — QuranKu clone DEMO built: 6 functional tabs behind their skin, reusing our engines
 
 A full separate demo that presents as the real QuranKu (their look) with our improvements wired in. **Isolated
 from the live app and prod** — new files under `web/demo/`, a dedicated `web/vite.demo.config.ts` → `web/dist-demo/`
