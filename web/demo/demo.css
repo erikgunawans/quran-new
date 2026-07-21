@@ -851,6 +851,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-pfull-speeds button { padding: 8px 16px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--qk-muted); transition: background .2s var(--qk-ease), color .2s var(--qk-ease); }
 .qk-pfull-speeds button.is-active { background: #fff; color: var(--qk-fg); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
 
+/* Dark: the bar and the fullscreen scrim are light slabs by default, and the play button
+   is near-black — on a dark scrim that inverts, so the primary control goes light. */
+:root[data-theme="dark"] .qk-pbar {
+  background: rgba(16, 18, 21, 0.97); box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="dark"] .qk-pfull { background: rgba(10, 11, 13, 0.72); }
+:root[data-theme="dark"] .qk-pfull-icon { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .qk-pfull-icon:hover { background: rgba(255, 255, 255, 0.18); }
+:root[data-theme="dark"] .qk-pfull-controls .qk-pfull-icon { background: transparent; }
+:root[data-theme="dark"] .qk-pfull-controls .qk-pfull-icon:hover { background: rgba(255, 255, 255, 0.12); }
+:root[data-theme="dark"] .qk-pfull-play { background: #f1f3f5; color: #17181c; }
+:root[data-theme="dark"] .qk-pfull-speeds { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .qk-pfull-speeds button.is-active {
+  background: rgba(255, 255, 255, 0.92); color: #17181c; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
 @media (max-width: 700px) {
   .qk-pbar { grid-template-columns: auto 1fr auto; gap: 10px; padding: 10px 12px; }
   .qk-pbar-qari, .qk-pvol { display: none; }
