@@ -509,22 +509,26 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
       </button>` : ""}
     </div>
     <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(v.ar)}</div>
-    ${readingHtml(v.p, true)}
-    ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
-    <div class="qk-verse-tools">
-      ${canPlay ? `<button class="qk-vt" type="button" data-play="${surah}" data-ayah="${v.a}" aria-label="Putar ayat ini" title="Putar">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5-12-7.5Z"/></svg>
-      </button>` : ""}
-      <button class="qk-vt" type="button" data-copy aria-label="Salin ayat" title="Salin">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      </button>
-      <button class="qk-vt qk-bm-btn${on ? " is-on" : ""}" type="button" aria-label="Simpan ayat" aria-pressed="${on}" title="Simpan"
-        data-ref="${esc(ref)}" data-surah="${esc(surahName)}" data-ar="${esc(v.ar)}" data-tr="${esc(tr)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
-      </button>
-      <button class="qk-vt" type="button" data-share aria-label="Bagikan ayat" title="Bagikan">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
-      </button>
+    <div class="qk-verse-body">
+      <div class="qk-verse-tools">
+        ${canPlay ? `<button class="qk-vt" type="button" data-play="${surah}" data-ayah="${v.a}" aria-label="Putar ayat ini" title="Putar">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5-12-7.5Z"/></svg>
+        </button>` : ""}
+        <button class="qk-vt" type="button" data-copy aria-label="Salin ayat" title="Salin">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button class="qk-vt qk-bm-btn${on ? " is-on" : ""}" type="button" aria-label="Simpan ayat" aria-pressed="${on}" title="Simpan"
+          data-ref="${esc(ref)}" data-surah="${esc(surahName)}" data-ar="${esc(v.ar)}" data-tr="${esc(tr)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
+        </button>
+        <button class="qk-vt" type="button" data-share aria-label="Bagikan ayat" title="Bagikan">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+        </button>
+      </div>
+      <div class="qk-verse-readings">
+        ${readingHtml(v.p, true)}
+        ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
+      </div>
     </div>
   </article>`;
 }

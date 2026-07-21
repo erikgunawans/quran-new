@@ -585,12 +585,18 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .qk-harf:not([hidden]) { animation: qk-acc-in .28s var(--qk-ease); }
 }
 
-/* Per-ayah tools — a horizontal row along the bottom of the card. A left rail (as the
-   original uses) would carve a permanent gutter out of every card and shrink the reading
-   measure on mobile; a bottom row also matches the Tematik entry cards. */
+/* Per-ayah tools — a vertical rail down the LEFT of the translations, as the original does.
+   The rail sits beside the readings (not the Arabic), so the tafsiriyah band is inset by the
+   gutter rather than the icons floating over it. */
+.qk-verse-body { display: flex; align-items: stretch; border-top: 1px solid var(--qk-border); }
+/* the rail can be taller than a short translation — let the readings fill the row so the
+   tafsiriyah band reaches the card's bottom edge instead of leaving a strip of bare card */
+.qk-verse-readings { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.qk-verse-readings > .qk-reading.primary { flex: 1; }
+.qk-verse-readings .qk-reading:first-child { border-top: none; }
 .qk-verse-tools {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 14px; border-top: 1px solid var(--qk-border);
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 12px 8px; border-right: 1px solid var(--qk-border);
 }
 .qk-vt {
   width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center;
