@@ -8,7 +8,40 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — donation widget: collapses to a pill, expands on hover
+## 2026-07-21 (latest) — dark theme, wider header, donation pill click-toggle, heading marks
+
+Three asks in one stretch. All demo-only, web typecheck clean, prod build untouched.
+
+**1. Donation widget corrected again (`21da6f2`, version `40e68653`).** My hover-expand read of the video was
+wrong. Erik's spec: the pill **slides in from the left and stays**; **CLICK** (not hover) opens the card; the
+card's **X closes it and the pill slides back in from the left**. It's a pill ⇄ card loop with **no permanent
+dismissal** (the localStorage dismiss was removed). Implemented with an `is-pre` class released 600ms after
+boot so the first entrance also slides in, and `is-open` parking the pill at `translateX(-110%)`.
+
+**2. Section heading marks (`21da6f2`).** Gold star on "Akses Cepat", gold hash on "Jelajahi Topik", green book
+on "Topik Al-Qur'an Hari Ini" — inline `.qk-h-ico` spans so the h2 layout is untouched.
+
+**3. Dark theme + header geometry (`e9a710e`, version `7f9190d7`).**
+- Header: logo 40→46px, wordmark 22→24px, and the header row gets its OWN wider container
+  (`.qk-header .qk-container { max-width: 1720px; padding: 0 40px }`) instead of the 1280px page column.
+  Measured live: brand now 40px from the left (was ~140px), Masuk 55px from the right.
+- **The moon toggle had never been wired — there was no theme code in the app at all.** Added a
+  `:root[data-theme="dark"]` token block; because every component reads the tokens, the whole app follows.
+  Emerald brightened to `#22c55e` for dark (light `#16a249` is too low-contrast on near-black); bg `#0a0b0d`,
+  card `#16181c`, fg `#e9ecef`, border `#282c33`. The two hardcoded translucent surfaces (header glass, right
+  rail) were tokenised (`--qk-glass`, `--qk-glass-border`, `--qk-rail-bg`) so they swap too.
+- `wireTheme()`: persists to localStorage, defaults to `prefers-color-scheme`, swaps the moon/sun glyph, sets
+  `color-scheme` for native controls. Verified live in dark on Beranda, Tematik, footer, Tanya; toggle works
+  both directions and persists.
+
+**Known light-theme leftovers in dark (not yet addressed):** the crisis card (`#fff8f3`/`#e6b8a2`) and the
+fullscreen player's white overlays still use light values — the player sits on its own gradient so it reads
+fine, but the crisis card would look pale on dark. Also the beranda "Akses Cepat" quick-pills are ALL
+emerald-tinted whereas the original tints only "Indeks Tematik".
+
+---
+
+## 2026-07-21 — donation widget: collapses to a pill, expands on hover
 
 `8ca051f`, deployed version `d29a931a`, verified LIVE. Erik supplied a screen recording of the real site
 (`~/Downloads/donasi.mp4`, 26s) — read it by extracting frames with `ffmpeg` (contact sheets at 1fps, then an
