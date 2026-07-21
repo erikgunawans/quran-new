@@ -768,7 +768,12 @@ async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> 
     if (a) {
       const target = document.getElementById(`ayat-${n}-${a}`);
       if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        // "auto", not "smooth" — this is an ARRIVAL, not an in-page nudge. Al-Baqarah is ~60,000px
+        // tall, and a smooth scroll across that took over 12 seconds to reach a quarter of the way:
+        // tapping Juz 2 looked like it had dumped you at 2:1 and then drifted. Landing instantly is
+        // what a deep link means. The juz grid made this obvious, but it equally affects bookmarks
+        // and Tematik's "Lihat di Surah", which use this same anchor path.
+        target.scrollIntoView({ behavior: "auto", block: "center" });
         target.classList.add("is-target");
         window.setTimeout(() => target.classList.remove("is-target"), 2600);
       }
