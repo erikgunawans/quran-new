@@ -8,7 +8,35 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — dark theme, wider header, donation pill click-toggle, heading marks
+## 2026-07-21 (latest) — Tanya headline: landing treatment + rotating invitation, always two lines
+
+`23f6a71` then `79c4477`, deployed versions `12ce3be5` → `ca4f697d`. Demo-only, typecheck clean.
+
+**Treatment.** Erik: "i dont like the font type, make it similar like the one in the landing page." The font was
+ALREADY identical (Poppins 800 via `--qk-f-display`) — what differed was the treatment. The Tanya headline now
+carries the WHOLE emerald→gold gradient at the landing hero's setting (58px, -1.5px tracking) instead of a solid
+dark first line. Dark mode brightens both hero gradients to `#34d399→#f5d97a` (`#16a249` goes muddy on black).
+
+**Rotating copy** ("surprise me"). Seven wordings of the same invitation — pour your heart out, ask freely, no
+judgment — opening on the familiar "Tanya apa saja. / Tanpa perlu sungkan." then wandering the rest shuffled,
+swapping every 6.8s with a lift/fade. Pauses when off-screen: mid-conversation, another route, or a background tab.
+
+**Always exactly two lines** (Erik's follow-up: "keep the words in 2 lines only, utilize the horizontal space,
+reduce the font size if necessary"). First attempt shortened the copy to fit — wrong lever. Now:
+`.qk-tanya` widens 720→960px for the headline while thread/composer/extras stay pinned at the 720px reading
+width; the two lines are `nowrap` block spans in a flex column (a third line is impossible); `fitHeadline()`
+scales the type down (cap 58, floor 22) when a wording would overflow and re-runs on load, swap, and resize;
+a constant `min-height` (2× cap) keeps the box fixed so rotation never shifts the page. The warmer, longer
+wordings were restored since length stopped being a constraint — at 960px all seven still set at the full 58px.
+
+**Debug note worth keeping:** live verification first reported the lines wrapping (heights 116/174/232) and the
+old CSS hash — it was a STALE BROWSER TAB, not a bad deploy. `curl` against the edge showed the correct new
+bundle. Closing every demo tab and opening exactly one fresh confirmed it: container 912px, `nowrap` applied,
+all variants 116px. When browser and curl disagree, trust curl and suspect the tab.
+
+---
+
+## 2026-07-21 — dark theme, wider header, donation pill click-toggle, heading marks
 
 Three asks in one stretch. All demo-only, web typecheck clean, prod build untouched.
 
