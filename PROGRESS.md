@@ -8,7 +8,54 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — framing now answers the person; and a grief bug fell out of testing it
+## 2026-07-22 (latest) — the grief bug was a DOUBLE-COUNT, not a missing model call
+
+`2b6c878`, deployed `6ad0890e` on principled (`index-CKv9aah0.js`). **Synthesis still one bundle
+behind** (`index-De89BZxR.js`) — the chained deploy command was truncated at the final `bunx` for the
+SECOND time. Use the short form: `cd worker && bunx wrangler deploy --env synthesis`.
+
+**I proposed the wrong fix, and testing caught it before it was built.** The recommendation Erik
+approved was "run the model classifier on ambiguous keyword hits". Checked first: passing the
+correct theme into `retrieve()` changed the output **not at all** —
+
+    without modelThemes:             17:23 [Family], 3:185 [Grief]
+    with modelThemes=[Grief & loss]: 17:23 [Family], 3:185 [Grief]   ← identical
+
+`modelThemes` only applies in an `else if`: when keywords already matched, the model's reading is
+discarded for that verse. So option (c) would have added a model hop on **55% of real inputs**
+(measured over 22 realistic questions) and fixed nothing. **Verify that a fix moves the number
+BEFORE building it** — the plan was approved and still wrong.
+
+**The real defect: a theme keyword scored twice.** Overlap is documented RANK-ONLY, meant to break
+ties between verses a feeling already qualified. But a keyword phrase is made of ordinary words, so
+a caption repeating it banked the same signal at +10 and again at +2/word:
+
+    17:23 [Family] = "orang tua"(10) + orang(2) + tua(2) = 14
+    3:185 [Grief]  = "kehilangan"(10) + orang(2)         = 12
+
+Echoing someone's vocabulary is not understanding their situation; the scorer treated them as the
+same thing. Words already consumed by a theme-keyword match no longer score again as overlap.
+
+**Result — no model call, no latency, no cost.** `"baru kehilangan orang tua"` → **3:185** then
+14:41 (*Doa Ibrahim — ampunilah aku dan kedua orang tuaku*), with 17:23 out of the top 3 entirely.
+`"kehilangan ibu"` / `"ibu ku meninggal"` → **2:156**, *inna lillahi wa inna ilaihi raji'un* — what
+is actually recited at a death. The corpus had the right verse all along; the scorer could not reach
+it. Verified live in real Chrome, framing and verse together.
+
+**Side effect, judged an improvement:** `"lagi banyak utang, stress"` now leads with 29:60 (*Allah
+yang memberi rezeki*) instead of 2:280 — which reads *"kalau yang berutang lagi kesulitan, beri dia
+waktu"*, i.e. it addresses the **creditor**, and we had been showing it to people drowning in debt.
+It only led because "utang" was double-counted. 2:280 still surfaces where it fits
+(`"kasih tempo utang"`). 685 tests green; 10 known-good retrievals spot-checked.
+
+**RESIDUAL, deliberately not fixed:** 17:23 can still appear SECOND on some phrasings
+(`"baru ditinggal ayah"`, `"ibu ku meninggal"`) because Family is a legitimate keyword hit and theme
+diversification fills slot two. Removing it needs a bereavement-specific suppression rule — the
+brittle special-casing rejected earlier. Erik's call.
+
+---
+
+## 2026-07-22 — framing now answers the person; and a grief bug fell out of testing it
 
 `3043efe` + `7a8b350`, deployed `dfb9d301` (principled). **Synthesis was NOT deployed** — the
 command was cut off mid-line, so `new-quranku-ai` still serves `index-3mGZZsdq.js` with the old 4s
