@@ -8,7 +8,31 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-21 (latest) — demo Tanya rebuilt as the full AI chat (matches new-quranku-ai); audio "bug" was stale tabs
+## 2026-07-21 (latest) — REAL fix: `[hidden]` was overridden by class `display`, so the player covered every page
+
+The "demo keeps opening on the audio player" bug was REAL all along — I misdiagnosed it three times (as
+"stale state", "stale tabs", "--pixel capture artifact") before finding it. **Root cause:** `.qk-pfull`
+(and `.qk-pbar`, `.qk-thread-clear`) set an explicit `display` in demo.css. A class selector `(0,1,0)`
+ties the UA `[hidden]{display:none}` rule on specificity and author order wins — so the `hidden` attribute
+did NOTHING. `#qk-pfull` rendered `display:flex; position:fixed; inset:0` over EVERY route on a fresh load
+(blank surah, pl.surah=0 → the "—"/001 defaults Erik kept seeing). `closeFull()` and the earlier
+`route()→closeFull` fix set `.hidden=true` — a no-op against the class's `display:flex`.
+
+**Fix (`d666c25`):** `[hidden] { display:none !important; }` reset at the top of demo.css → the attribute is
+authoritative everywhere. Verified LIVE via **computed display** (not `.hidden`): fresh load of
+demo-quranku.axiara.ai shows Beranda, `#qk-pfull` computed `display:none`, not on screen; the player still
+OPENS on Audio→fullscreen (name populated) and CLOSES on navigation; the clear-button hidden bug fixed too.
+Bundle `index-DqVEk2ig.js`, worker `6b217718`.
+
+**Process lesson (banked in memory):** to test "is it hidden", read `getComputedStyle().display` +
+`getBoundingClientRect()`, NEVER the `.hidden` property — a class `display` rule can keep a "hidden" element
+on screen. Interceptor `--pixel` shots that "kept showing the player" were CORRECT; I dismissed real pixel
+evidence as stale three times while trusting `.hidden:true` evals. When Erik's screenshot contradicts the
+eval, the screenshot wins.
+
+---
+
+## 2026-07-21 — demo Tanya rebuilt as the full AI chat (matches new-quranku-ai); "audio bug" misattributed to stale tabs
 
 **1. The recurring "demo opens on the audio player" report was stale tabs, not a live bug.** A genuinely
 fresh load already showed home (player hidden) after the nav-overlay fix. What Erik kept seeing were
