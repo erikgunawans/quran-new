@@ -227,11 +227,17 @@ const SILENCE = `<div class="qk-silence">
    We persist what the engine DECIDED (a ref, hits, an AI prose turn) via thread.ts and re-derive
    the markup here, so a restored thread is always current markup — never resurrected HTML. */
 const thread = (): HTMLDivElement => $<HTMLDivElement>("#qk-thread");
-const tanyaHero = (): HTMLElement | null => document.querySelector<HTMLElement>("#qk-tanya-hero");
 const clearBtn = (): HTMLButtonElement => $<HTMLButtonElement>("#qk-thread-clear");
 
 function refreshClear(): void { clearBtn().hidden = !hasThread(); }
-function endHero(): void { const h = tanyaHero(); if (h) h.hidden = true; }
+/** Landing-only content (intro hero + seed/promise extras) shows on an empty Tanya, hides once chatting. */
+function showLanding(show: boolean): void {
+  for (const sel of ["#qk-tanya-hero", "#qk-tanya-extras"]) {
+    const el = document.querySelector<HTMLElement>(sel);
+    if (el) el.hidden = !show;
+  }
+}
+function endHero(): void { showLanding(false); }
 const scrollTo = (el: HTMLElement): void => el.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
 function meBubble(q: string): HTMLDivElement {
@@ -444,8 +450,7 @@ function wireTanya(): void {
     clearThread();
     thread().replaceChildren();
     refreshClear();
-    const h = tanyaHero();
-    if (h) h.hidden = false;
+    showLanding(true);
   });
 
   // Homepage search → route into Tanya and run it, so the feature is discoverable from Beranda.

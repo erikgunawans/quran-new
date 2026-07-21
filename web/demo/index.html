@@ -181,11 +181,32 @@
     <div class="qk-container qk-tanya">
 
       <div class="qk-tanya-hero" id="qk-tanya-hero">
-        <span class="qk-tanya-kicker">Fitur baru</span>
-        <h1>Ceritakan yang kamu <span class="qk-hero-accent">rasakan</span></h1>
-        <p>Tulis pakai bahasamu sendiri. QuranKu carikan ayatnya — lalu kamu lihat sendiri
-           terjemah maknanya dan terjemah harfiahnya, dengan sumber yang disebutkan namanya.</p>
+        <span class="qk-tanya-kicker">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4L12 3Z"/><path d="M19 15l.7 1.8L21.5 17l-1.8.7L19 19.5l-.7-1.8L16.5 17l1.8-.5L19 15Z"/></svg>
+          Ustadz AI · ditenagai Al-Qur'an
+        </span>
+        <h1>Tanya apa saja.<br><span class="qk-tanya-accent">Tanpa perlu sungkan.</span></h1>
+        <p>Ceritakan yang kamu rasakan, atau tanyakan apa pun — seperti punya ustadz sendiri
+           yang selalu ada. Setiap jawaban disusun dari ayat Al-Qur'an, dengan sumbernya disebutkan.</p>
+      </div>
 
+      <div class="qk-thread" id="qk-thread" aria-live="polite"></div>
+
+      <div class="qk-composer" id="qk-composer">
+        <form class="qk-ask" id="qk-ask">
+          <textarea id="qk-q" rows="1" placeholder="Ceritakan atau tanyakan apa saja…" autocomplete="off" aria-label="Ceritakan atau tanyakan apa saja"></textarea>
+          <button class="qk-ask-send" id="qk-send" type="submit" disabled aria-label="Kirim">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </form>
+        <p class="qk-ask-trust">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+          Berdasarkan Al-Qur'an · ayat dicantumkan · bukan pengganti fatwa ustadz
+        </p>
+      </div>
+
+      <div class="qk-tanya-extras" id="qk-tanya-extras">
+        <p class="qk-tanya-try">Coba mulai dari sini</p>
         <div class="qk-seeds">
           <button class="qk-seed">aku lagi capek banget</button>
           <button class="qk-seed">lagi banyak utang, stress</button>
@@ -193,16 +214,21 @@
           <button class="qk-seed">cemas terus tiap malam</button>
         </div>
         <p class="qk-tanya-hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+        <div class="qk-tanya-promises">
+          <span class="qk-promise">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            Tanpa dihakimi
+          </span>
+          <span class="qk-promise">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+            Berdasar Al-Qur'an
+          </span>
+          <span class="qk-promise">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10M7 12h6"/><path d="M4 4h16v12H8l-4 4V4Z"/></svg>
+            Sumber disebutkan
+          </span>
+        </div>
       </div>
-
-      <div class="qk-thread" id="qk-thread" aria-live="polite"></div>
-
-      <form class="qk-ask" id="qk-ask">
-        <textarea id="qk-q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off" aria-label="Ceritakan apa yang kamu rasakan"></textarea>
-        <button class="qk-ask-send" id="qk-send" type="submit" disabled aria-label="Kirim">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-        </button>
-      </form>
 
       <button class="qk-thread-clear" id="qk-thread-clear" type="button" hidden>
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
