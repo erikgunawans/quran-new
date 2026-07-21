@@ -308,6 +308,44 @@ for (const p of passages) {
 const tierOf = (id: string) => sources.find((s) => s.id === id)?.authority_tier ?? 9;
 const langOf = (id: string) => sources.find((s) => s.id === id)?.lang ?? "id";
 
+/**
+ * Build the context passage for a conditionally-approved verse.
+ *
+ * Every failure here is a `fail()`, not a fallback. A co-display range that silently came back
+ * short would put the verse on screen without the context it was approved inside — which is the
+ * precise thing the condition exists to prevent, and it would do it quietly.
+ */
+function buildPassage(
+  s: number,
+  a: number,
+  range: readonly [number, number],
+): { ayah: number; arabic: string; primary: ReturnType<typeof reading>; companion: ReturnType<typeof reading> }[] {
+  const [from, to] = range;
+  if (from > to) fail(`${s}:${a} co-display range ${from}-${to} is inverted`);
+  if (a < from || a > to) {
+    fail(
+      `${s}:${a} co-display range ${s}:${from}-${to} does not contain the verse it is context for.\n` +
+        `  A passage that omits its own subject is a mis-transcription of the reviewer's condition.`,
+    );
+  }
+  const bound = index.find((x) => x.n === s) ?? fail(`no surah ${s}`);
+  if (to > bound.ayahs) fail(`${s}:${a} co-display range ends at ${to}, but surah ${s} has ${bound.ayahs} ayahs`);
+
+  const out = [];
+  for (let n = from; n <= to; n++) {
+    const id = `ayah:${s}:${n}`;
+    const ay = ayahs.find((x) => x.id === id) ?? fail(`missing ${id} for co-display of ${s}:${a}`);
+    const tr = trByAyah.get(id) ?? [];
+    out.push({
+      ayah: n,
+      arabic: stripBasmalah(s, n, ay.text_uthmani),
+      primary: reading(tr.find((t) => t.display_role === "primary")),
+      companion: reading(tr.find((t) => t.display_role === "companion")),
+    });
+  }
+  return out;
+}
+
 const verses = PROBLEM_VERSES.map((v) => {
   const [s, a] = v.ref;
   const id = `ayah:${s}:${a}`;
@@ -331,6 +369,10 @@ const verses = PROBLEM_VERSES.map((v) => {
     why: v.why,
     primary,
     companion,
+    // A conditional approval: the reviewer allowed this verse only inside a passage. The range is
+    // emitted as CONTEXT — same corpus text, no caption of ours on any of it — and `ref` above
+    // stays the verse the theme points at.
+    passage: v.codisplay ? buildPassage(s, a, v.codisplay.range) : undefined,
     tafsir: (passagesByAyah.get(id) ?? [])
       .map((p) => ({ source_id: p.source_id, text: trim(p.text), lang: langOf(p.source_id) }))
       // Indonesian first. An English tafsir rendered to an Indonesian reader is the exact
@@ -435,10 +477,32 @@ const NEVER_TOGETHER: [string, string, string][] = [
   ["4:146", "4:145", "4:146 is the exception to 4:145's threat against the hypocrites — the reviewer's note says WAJIB ditampilkan sendiri"],
   ["4:17", "4:18", "4:18 narrows 4:17's open door with a threat — the reviewer's note says jangan tampilkan berdampingan"],
 ];
-const curated = new Set(verses.map((v) => v.ref));
+/**
+ * The set of refs that can REACH A SCREEN — curated verses plus every ayah a co-display range
+ * expands to.
+ *
+ * Co-display opened a second door. The gate below used to compare curated refs only, which was
+ * complete when a curated ref was the only way a verse could be rendered. It no longer is: give
+ * 4:146 a range of 4:145–146 and the forbidden pair is on screen together while `curated` never
+ * contains 4:145 at all. The ban would still "hold" — over a set that no longer describes what
+ * the reader sees.
+ *
+ * So the gate compares what is DISPLAYABLE, not what is curated. Both partners are checked in
+ * both directions, because a companion is just as visible as a subject.
+ */
+const displayable = new Set(verses.map((v) => v.ref));
+for (const v of verses) {
+  for (const p of v.passage ?? []) displayable.add(`${v.surah}:${p.ayah}`);
+}
 for (const [a, b, why] of NEVER_TOGETHER) {
-  if (curated.has(a) && curated.has(b)) {
-    fail(`${a} and ${b} are both in the feeling corpus, and a reviewer forbade showing them together.\n  ${why}\n  Drop one, or take it to the reviewer — do not silence this gate.`);
+  if (displayable.has(a) && displayable.has(b)) {
+    const via = (r: string): string =>
+      verses.some((v) => v.ref === r) ? "curated" : "pulled in by a co-display range";
+    fail(
+      `${a} and ${b} can both reach the screen, and a reviewer forbade showing them together.\n` +
+        `  ${a} is ${via(a)}; ${b} is ${via(b)}.\n  ${why}\n` +
+        `  Drop one, or narrow the co-display range — do not silence this gate.`,
+    );
   }
 }
 

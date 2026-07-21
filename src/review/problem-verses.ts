@@ -55,6 +55,31 @@ export interface ProblemVerse {
    * quietly is a scholar's name on an approval he did not give.
    */
   readonly ruling?: { readonly verdict: "pas" | "ganti" | "cabut"; readonly note: string };
+  /**
+   * The reviewer approved this verse ONLY as part of a passage — "tampilkan QS 92:5–7 bersama".
+   *
+   * This is the machine-readable half of a conditional approval. Until it existed, such verses had
+   * exactly two possible fates and both were wrong: ship the verse alone (a scholar's name on an
+   * approval he did not give) or withdraw it (his approval thrown away). They were withdrawn, which
+   * is the safer wrong answer, and it emptied two whole feelings.
+   *
+   * `range` is an ayah span in the SAME surah as `ref`, inclusive, and MUST contain `ref` — a
+   * passage that does not include the verse it is the context for is a mis-transcription, and
+   * build-corpus fails on it rather than shipping it.
+   *
+   * The verse at `ref` stays the one the theme points at and the one `why` describes; the rest of
+   * the range is context rendered around it, never re-captioned. Showing more of the Qur'an is
+   * safe; putting our sentence on more of it is not.
+   *
+   * Two things this does NOT relax. The passage text is still the pinned corpus, and every ref the
+   * range expands to is still checked against NEVER_TOGETHER in build-corpus.ts — otherwise
+   * co-display would become a side door for putting a forbidden pair on screen together.
+   */
+  readonly codisplay?: {
+    readonly range: readonly [from: number, to: number];
+    /** The reviewer's condition, verbatim — the sentence that makes this range non-negotiable. */
+    readonly note: string;
+  };
 }
 
 /** Provenance for every `ruling` below. Uniform, so it is stated once instead of 133 times. */
