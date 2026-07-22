@@ -15,6 +15,8 @@ import { idName, idMeaning } from "./surah-id.ts";
 // verse whole (so a reviewer's co-display condition cannot be left behind), `shardCardHtml` draws a
 // plain mushaf ayah that has no curation to carry.
 import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
+import { esc } from "../src/esc.ts";
+import { todayPick, todayCardHtml } from "./today.ts";
 import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -153,8 +155,10 @@ const $ = <T extends HTMLElement>(sel: string): T => {
   if (!el) throw new Error(`missing ${sel}`);
   return el;
 };
-const esc = (s: string): string =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// `esc` is imported from ../src/esc.ts (see the card import above), not redefined here. The local
+// copy that used to live at this line escaped &, <, >, " but NOT ' — so the demo had two escapers
+// of different strength, and the 47 call sites below were on the weaker one while the verse card
+// was on the stronger. esc.ts is a pure, DOM-free module; there is no reason for a second one.
 
 /* ── shared surah card (Beranda + Mushaf index) ──────────────────────── */
 function surahCardHtml(s: (typeof SURAH_INDEX)[number], hrefPrefix: string, byRevelation = false): string {
@@ -303,32 +307,11 @@ async function renderToday(): Promise<void> {
   if (!el) return;
   const c = await ensureCorpus();
   if (!c) { el.remove(); return; }
-  /**
-   * This slot shows ONE ayah, alone, in its own markup — no neighbours, by design. So a verse a
-   * reviewer approved only inside a passage is not eligible for it, and that is a property of the
-   * SLOT, not of the current picks: the fallback is positional (`verses[0]` is whatever the builder
-   * emits first), so the day a conditional verse lands at that index the home screen would show it
-   * bare. Filtering the candidate pool is the only version of this that stays true after a rebuild.
-   */
-  const eligible = c.verses.filter((v) => !v.passage?.length);
-  // A verse of consolation, present in the curated corpus (falls back to the first if absent).
-  const pick =
-    eligible.find((v) => v.ref === "94:6") ??
-    eligible.find((v) => v.ref === "2:286") ??
-    eligible[0];
+  // The pick rule and this slot's markup live in today.ts so they can be tested — the eligibility
+  // filter that keeps conditionally-approved verses off the home screen is the whole invariant here.
+  const pick = todayPick(c.verses);
   if (!pick) { el.remove(); return; }
-  const tr = pick.primary?.text ?? pick.companion?.text ?? "";
-  const ayah = pick.ref.split(":")[1] ?? pick.ref;
-  el.innerHTML = `
-    <div class="qk-today-head">
-      <h3 class="qk-today-topic">${esc(pick.surah_name)}</h3>
-      <p class="qk-today-ref">Ayat ${esc(ayah)}</p>
-    </div>
-    <div class="qk-today-ar" dir="rtl" lang="ar">${esc(pick.arabic)}</div>
-    <p class="qk-today-tr">${esc(tr)}</p>
-    <div class="qk-today-foot">
-      <a class="qk-today-btn" href="#/tanya">Baca Selengkapnya</a>
-    </div>`;
+  el.innerHTML = todayCardHtml(pick);
 }
 
 /* ── Beranda: filter the surah grid ──────────────────────────────────── */

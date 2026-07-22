@@ -48,6 +48,13 @@ export function passageHtml(
 ): string {
   if (!passage?.length) return "";
 
+  /**
+   * TWIN: `passageEl` in web/src/verse.ts uses this identical predicate. Two doctrinal invariants
+   * ride on this one line — the subject is skipped so it never prints twice, and neighbours land on
+   * the correct side of it — and each copy is pinned by its own test file. Changing one (a `<=`, a
+   * reversed side) leaves the other silently correct and its twin silently wrong, and nothing in
+   * the repo compares them. If you edit this line, edit verse.ts too.
+   */
   const rows = passage.filter((p) => (side === "before" ? p.ayah < subject : p.ayah > subject));
   if (rows.length === 0) return "";
 

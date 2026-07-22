@@ -112,8 +112,11 @@ describe("the classes the stylesheet depends on", () => {
     const html = curatedCardHtml(straddlingVerse);
     const css = await Bun.file(new URL("./demo.css", import.meta.url)).text();
     for (const cls of ["qk-passage", "qk-passage-before", "qk-passage-after", "qk-passage-ayah", "qk-passage-ref", "qk-passage-ar", "qk-passage-tr"]) {
-      expect(html).toContain(cls);
-      expect(css).toContain(`.${cls}`);
+      // Boundary-matched, NOT substring. `.qk-passage` is a substring of `.qk-passage-before`, so
+      // a plain toContain would let the bare `.qk-passage` rule — the one carrying the visual
+      // subordination this test exists to defend — be deleted outright while still passing.
+      expect(html).toMatch(new RegExp(`class="[^"]*\\b${cls}\\b`));
+      expect(css).toMatch(new RegExp(`\\.${cls}\\s*[,{]`));
     }
   });
 });
@@ -128,12 +131,30 @@ describe("the whole range reaches the reader", () => {
     }
   });
 
-  test("neighbours appear in mushaf order, not merely present", () => {
-    const html = curatedCardHtml(verse({ ref: "23:60", surah: 23, ayah: 60, arabic: "AR_60", passage: range23 }));
+  /**
+   * This pins the SPLIT, not a sort, and the fixture is shuffled so it can actually fail.
+   *
+   * The earlier version of this test fed a pre-sorted fixture and asserted 57<58<59<60<61. That
+   * proved nothing: `passageHtml` does not sort, it preserves input order, so the assertion was
+   * satisfied by the literal array and no renderer change could break it. What the renderer DOES
+   * decide is which side of the subject each ayah lands on — so that is what gets tested, with an
+   * input deliberately out of order.
+   *
+   * Intra-group ordering is the BUILDER's contract, enforced where it belongs: build-corpus.ts
+   * emits the range with `for (let n = from; n <= to; n++)` and fail()s a range that omits its own
+   * subject. Sorting again here would defend against something the build makes impossible.
+   */
+  test("every ayah lands on the correct side of the subject, even from a shuffled range", () => {
+    const shuffled: PassageAyah[] = [59, 57, 61, 58, 60].map((a) => ({
+      ayah: a,
+      arabic: `AR_${a}`,
+      primary: { text: `TR_${a}` },
+    }));
+    const html = curatedCardHtml(verse({ ref: "23:60", surah: 23, ayah: 60, arabic: "AR_60", passage: shuffled }));
     const at = (a: number): number => html.indexOf(`AR_${a}`);
-    expect(at(57)).toBeLessThan(at(58));
-    expect(at(58)).toBeLessThan(at(59));
-    expect(at(59)).toBeLessThan(at(60)); // subject sits in its true position
-    expect(at(60)).toBeLessThan(at(61));
+    // the subject renders once, in its true position between the two groups
+    expect(html.split("AR_60").length - 1).toBe(1);
+    for (const before of [57, 58, 59]) expect(at(before)).toBeLessThan(at(60));
+    for (const after of [61]) expect(at(after)).toBeGreaterThan(at(60));
   });
 });

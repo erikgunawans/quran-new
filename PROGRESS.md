@@ -8,7 +8,45 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — three apps became one, and coverage got measured instead of assumed
+## 2026-07-22 (latest) — co-display reached the demo, and an optional parameter turned out to be the hazard
+
+The blocker on restoring the 7 conditionally-approved verses is cleared: the demo's own card
+renders a required passage (`e3706b8`, `6cfa35d`). Mirrors `verse.ts` — split at the subject,
+subject skipped, neighbours get Arabic and the interpretive reading only. Not collapsible, and a
+test asserts the passage is never inside the `qk-harf` disclosure the literal companion uses.
+
+**The mechanism had the regression it exists to prevent sitting inside it.** `passage` was an
+optional sixth positional argument, so deleting it at a call site type-checked clean and passed
+every test — the verse would have rendered without its context, silently, forever. The card now
+takes the curated verse WHOLE (`curatedCardHtml`), and `shardCardHtml` says in its own signature
+that it draws an uncurated mushaf ayah. There is no argument left to forget.
+
+**Two reviewers independently said: delete the parse, don't guard it.** I had added a regex +
+throw to stop `"20:"` becoming ayah 0 (`Number("")` is 0, an integer). But `corpus.json` emits
+`surah`/`ayah` as numbers and the ref is BUILT from them — `verse.ts` never had a parse or a
+failure mode. The throw was also unguarded: no caller wraps the render, so it would have taken
+down the whole answer, worse than the bare verse it prevented. Parse gone, throw gone, 10 tests
+deleted rather than ported.
+
+**A fifth render path nobody counted.** The Beranda's "ayat hari ini" shows one ayah alone in
+bespoke markup and falls back positionally to `verses[0]`, so a rebuild could have put a
+conditional verse on the home screen bare. Its candidate pool now excludes verses with a passage —
+a property of the slot, which survives a rebuild, not of today's picks.
+
+**Typecheck lied to me a third time, and this time I built the lie.** I read `tsc` output through
+`tail` and the new error was at the TOP. Worse: `bun run typecheck` chains with `&&`, so the root
+project's pre-existing `quran.ts` failure short-circuits and **the web project never runs at all**.
+Check `npx tsc --noEmit -p web/tsconfig.json` directly; the npm script alone is not evidence.
+
+**Found, not fixed — the blocker for restoring the verses.** `share.ts` and `share-image.ts` both
+take a `VerseCard` (the type that carries `passage`) and render the verse alone; neither file
+contains the string `passage`. Reachable from `main.ts` and `read.ts`. The day the 7 verses land,
+a reader can tap Bagikan and send the ayah to WhatsApp stripped of the context it was approved
+inside — the one path where it can never be corrected. Harmless today (0 verses carry a passage).
+
+Suite 809/0. Corpus unchanged at 184 verses. No verse restored.
+
+## 2026-07-22 — three apps became one, and coverage got measured instead of assumed
 
 **THE ESTATE IS NOW ONE APP.** `new-quranku` and `new-quranku-ai` are DELETED from Cloudflare;
 `demo-quranku.axiara.ai` is the only surface, serving `index-CH1O-gYQ.js`. The old hostnames

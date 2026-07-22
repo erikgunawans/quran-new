@@ -220,6 +220,10 @@ const ayahMark = (ayah: number): string =>
  * exactly the over-reach the condition guards against.
  */
 function passageEl(v: VerseCard, side: "before" | "after"): string {
+  // TWIN: `passageHtml` in web/demo/passage.ts uses this identical predicate — the demo draws its
+  // own card and cannot import this DOM module. Both copies carry the same two invariants (skip the
+  // subject; put each neighbour on the correct side) and each is pinned by its own test file, so a
+  // change here that is not mirrored there fails silently on the surface Erik demos.
   const rows = (v.passage ?? []).filter((p) =>
     side === "before" ? p.ayah < v.ayah : p.ayah > v.ayah,
   );
