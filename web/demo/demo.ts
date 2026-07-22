@@ -11,6 +11,10 @@
 import { SURAH_INDEX, CORPUS_VERSION } from "../src/surah-index.ts";
 import { JUZ, juzLabel } from "../src/juz.ts";
 import { idName, idMeaning } from "./surah-id.ts";
+// The verse card, extracted so it can be tested. Two entry points: `curatedCardHtml` takes a corpus
+// verse whole (so a reviewer's co-display condition cannot be left behind), `shardCardHtml` draws a
+// plain mushaf ayah that has no curation to carry.
+import { curatedCardHtml, shardCardHtml, readingHtml, type ReadingLike } from "./card.ts";
 import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -27,9 +31,6 @@ import { knowledgeOnly, looksFactual } from "../src/question-form.ts";
 // The baked 3D cosmos built for the Indeks Tematik: 1,632 verse-stars around 13 category hubs.
 // Coordinates are precomputed (src/app/build-peta-3d.ts) — this only draws them, no solver.
 import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "../src/peta-cosmos.ts";
-
-/** The shape both the curated corpus (Reading) and a shard verse (ShardVerse.p/.c) satisfy. */
-type ReadingLike = { text: string; translator: string; translation_type: string } | null;
 
 /**
  * THE AI ENGINE — synthesis. This demo runs the *AI-authoring* edition (new-quranku-ai), not the
@@ -302,11 +303,19 @@ async function renderToday(): Promise<void> {
   if (!el) return;
   const c = await ensureCorpus();
   if (!c) { el.remove(); return; }
+  /**
+   * This slot shows ONE ayah, alone, in its own markup — no neighbours, by design. So a verse a
+   * reviewer approved only inside a passage is not eligible for it, and that is a property of the
+   * SLOT, not of the current picks: the fallback is positional (`verses[0]` is whatever the builder
+   * emits first), so the day a conditional verse lands at that index the home screen would show it
+   * bare. Filtering the candidate pool is the only version of this that stays true after a rebuild.
+   */
+  const eligible = c.verses.filter((v) => !v.passage?.length);
   // A verse of consolation, present in the curated corpus (falls back to the first if absent).
   const pick =
-    c.verses.find((v) => v.ref === "94:6") ??
-    c.verses.find((v) => v.ref === "2:286") ??
-    c.verses[0];
+    eligible.find((v) => v.ref === "94:6") ??
+    eligible.find((v) => v.ref === "2:286") ??
+    eligible[0];
   if (!pick) { el.remove(); return; }
   const tr = pick.primary?.text ?? pick.companion?.text ?? "";
   const ayah = pick.ref.split(":")[1] ?? pick.ref;
@@ -351,50 +360,8 @@ async function ensureCorpus(): Promise<Corpus | null> {
   return corpus;
 }
 
-function readingHtml(r: ReadingLike, primary: boolean): string {
-  if (!r || !r.text.trim()) return "";
-  const tag = r.translation_type === "literal" ? "Terjemahan Harfiah" : "Terjemahan Makna";
-  return `<div class="qk-reading${primary ? " primary" : ""}">
-    <span class="qk-reading-tag">${tag}</span>
-    <div class="qk-reading-txt">${esc(r.text)}</div>
-    <div class="qk-reading-by">oleh <b>${esc(r.translator)}</b></div>
-  </div>`;
-}
-
-/**
- * A verse card in the Tanya thread.
- *
- * The literal Kemenag rendering is COLLAPSED behind a disclosure, exactly as the reader does it
- * (Erik, 2026-07-22 — the answer surface was showing both renderings stacked open while the reader
- * hid one, so the same verse looked like two different products depending on where you met it).
- *
- * Which one hides is not arbitrary. Terjemahan Makna — the tafsiriyah — is the reading this app
- * exists to put in front of people, so it stays visible; the literal translation is the comparison
- * you reach for, not the thing you are handed. Collapsing it also stops an answer becoming a wall
- * of two near-identical paragraphs, which is what made the Tanya result hard to read.
- *
- * The companion may be absent (some verses ship one voice); the disclosure is only emitted when
- * there is genuinely something behind it, so a chevron never opens onto nothing.
- */
-function cardHtml(ref: string, surahName: string, arabic: string, primary: ReadingLike, companion: ReadingLike): string {
-  const harf = companion ? readingHtml(companion, false) : "";
-  return `<article class="qk-verse">
-    <div class="qk-verse-head">
-      <span class="qk-verse-ref">${esc(ref)}</span>
-      <span class="qk-verse-surah">${esc(surahName)}</span>
-      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
-        <span>Terjemahan Harfiah</span>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-      </button>` : ""}
-    </div>
-    <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(arabic)}</div>
-    ${readingHtml(primary, true)}
-    ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
-  </article>`;
-}
-
-const verseHtml = (hit: Hit): string =>
-  cardHtml(hit.verse.ref, hit.verse.surah_name, hit.verse.arabic, hit.verse.primary, hit.verse.companion);
+/** A retrieved hit — curated, so the verse goes through whole and its condition travels with it. */
+const verseHtml = (hit: Hit): string => curatedCardHtml(hit.verse);
 
 const SILENCE = `<div class="qk-silence">
   <p>Aku belum menemukan ayat yang benar-benar cocok untuk itu — dan aku tidak mau
@@ -460,7 +427,7 @@ async function aqidahHtml(e: AqidahEntry): Promise<string> {
   const paras = e.answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     .map((p) => `<p class="qk-ai-said">${esc(p)}</p>`).join("");
   const cards = (await Promise.all(e.refs.map(async (r) => {
-    try { const v = await loadAyah(r.surah, r.ayah); return cardHtml(`${r.surah}:${r.ayah}`, displayName(r.surah), v.ar, v.p, v.c); }
+    try { const v = await loadAyah(r.surah, r.ayah); return shardCardHtml(`${r.surah}:${r.ayah}`, displayName(r.surah), v.ar, v.p, v.c); }
     catch { return ""; }
   }))).join("");
   return `<div class="qk-ai">${paras}</div>${cards}<p class="qk-ai-note">Jawaban ini ditinjau oleh Ustadz Ahmad Isrofiel Mardlatillah.</p>`;
@@ -488,7 +455,7 @@ async function renderTurn(t: Turn): Promise<string> {
     case "ayah": {
       const v = await loadAyah(t.surah, t.ayah);
       return `<p class="qk-said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` +
-        cardHtml(`${t.surah}:${t.ayah}`, displayName(t.surah), v.ar, v.p, v.c);
+        shardCardHtml(`${t.surah}:${t.ayah}`, displayName(t.surah), v.ar, v.p, v.c);
     }
     case "hits": {
       const c = await ensureCorpus();
@@ -637,7 +604,10 @@ function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): string
   const cards = refs
     .map((r) => c.verses.find((v) => v.ref === r))
     .filter((v): v is NonNullable<typeof v> => v !== undefined)
-    .map((v) => cardHtml(v.ref, v.surah_name, v.arabic, v.primary, v.companion))
+    // The lane that most needs the passage: the model AUTHORED prose from these verses, so the
+    // reader meets the verse as the evidence for a paragraph. Approved-inside-a-passage has to
+    // mean the passage is there too.
+    .map((v) => curatedCardHtml(v))
     .join("");
   return `<div class="qk-ai">${paras}</div>` + cards + AI_NOTE;
 }

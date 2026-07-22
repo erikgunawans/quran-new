@@ -649,6 +649,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   font-family: var(--qk-f-ar); font-size: 30px; line-height: 2; direction: rtl; text-align: right;
   color: var(--qk-fg); padding: 20px 24px 24px;
 }
+/* ── co-display: context a reviewer REQUIRED around a verse ──────────────
+   Subordinate, never hidden. Smaller Arabic and a muted translation so the subject ayah still
+   reads as the subject — but no chevron and no `hidden`: the condition is "tampilkan bersama",
+   and context you can dismiss is not a condition. */
+.qk-passage { padding: 14px 24px; background: var(--qk-border); background: color-mix(in srgb, var(--qk-border) 35%, transparent); }
+.qk-passage-before { border-bottom: 1px solid var(--qk-border); }
+.qk-passage-after { border-top: 1px solid var(--qk-border); }
+.qk-passage-ayah + .qk-passage-ayah { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--qk-border); }
+.qk-passage-ref { font-size: 12px; font-weight: 600; color: var(--qk-muted); font-variant-numeric: tabular-nums; }
+.qk-passage-ar {
+  font-family: var(--qk-f-ar); font-size: 22px; line-height: 2; direction: rtl; text-align: right;
+  color: var(--qk-fg); opacity: 0.85; margin-top: 4px;
+}
+.qk-passage-tr { margin: 6px 0 0; font-size: 15px; line-height: 1.65; color: var(--qk-muted); }
 .qk-reading { padding: 16px 18px; border-top: 1px solid var(--qk-border); }
 .qk-reading:first-of-type { border-top: none; }
 .qk-reading.primary { background: var(--qk-primary-wash); }
