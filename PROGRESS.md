@@ -38,13 +38,37 @@ a property of the slot, which survives a rebuild, not of today's picks.
 project's pre-existing `quran.ts` failure short-circuits and **the web project never runs at all**.
 Check `npx tsc --noEmit -p web/tsconfig.json` directly; the npm script alone is not evidence.
 
+**Then /pre-ship turned convention into enforcement.** Three more passes over the same diff, each
+finding what the last could not. `/review` found the Beranda's guard was ONE untested line inside a
+DOM-booting module: delete it and all 20 tests stayed green while a conditional verse shipped bare
+on the home screen. Extracted to `today.ts` (`todayPick` + `todayCardHtml`) with 9 tests. It also
+found the demo carried TWO escapers — the local one in demo.ts escaped `& < > "` but not `'`, while
+card.ts/passage.ts used the stronger shared `esc.ts`; 47 call sites were on the weak copy.
+
+`/codex` (GPT-5.4) then found the seam my own comment admitted was only a convention:
+`shardCardHtml` took six loose primitives, so any caller could spread a curated verse's fields in
+and strip its passage. It now takes the `ShardVerse` itself — fields named `a`/`ar`/`p`/`c`, which a
+curated `Verse` cannot satisfy structurally. Proven by writing the exact attack and typechecking
+it: TS2345. `todayCardHtml` likewise now takes a `StandaloneVerse` (`passage?: never`), so handing
+it a conditional verse is a compile error rather than a silent drop. Three silent-drop paths, all
+now type errors.
+
+**Two of my own tests could not fail.** One asserted mushaf order against a PRE-SORTED fixture —
+`passageHtml` preserves input order, so the literal array satisfied it. Now shuffled input pinning
+what the renderer actually decides (which SIDE of the subject each ayah lands on); intra-group order
+is the builder's contract. The other matched CSS classes by substring, and `.qk-passage` is a
+substring of `.qk-passage-before`, so the bare rule could be deleted and still pass.
+
 **Found, not fixed — the blocker for restoring the verses.** `share.ts` and `share-image.ts` both
 take a `VerseCard` (the type that carries `passage`) and render the verse alone; neither file
 contains the string `passage`. Reachable from `main.ts` and `read.ts`. The day the 7 verses land,
 a reader can tap Bagikan and send the ayah to WhatsApp stripped of the context it was approved
 inside — the one path where it can never be corrected. Harmless today (0 verses carry a passage).
+The `StandaloneVerse` pattern above is the fix.
 
-Suite 809/0. Corpus unchanged at 184 verses. No verse restored.
+**SHIPPED to origin/main** — `cd9a010..167e16e`, 5 commits, remote SHA verified against HEAD.
+Suite 818/0. `web/demo` typecheck 0 errors (3 remaining match the origin/main baseline). Corpus
+unchanged at 184 verses. No verse restored — that is next, and it is gated on the share leak.
 
 ## 2026-07-22 — three apps became one, and coverage got measured instead of assumed
 
