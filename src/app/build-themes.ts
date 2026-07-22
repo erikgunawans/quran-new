@@ -39,6 +39,11 @@ const grouped = order.map((theme) => ({
     ayah: v.ref[1],
     ref: `${v.ref[0]}:${v.ref[1]}`,
     why: v.why,
+    // The reviewer's condition travels into the theme browser too. This surface renders from
+    // shards, not corpus.json, so it gets the RANGE and loads the neighbouring ayahs itself —
+    // without this the browser would show a conditionally-approved verse stripped of the context
+    // it was approved inside, which is the one thing the condition forbids.
+    ...(v.codisplay ? { codisplay: v.codisplay.range } : {}),
   })),
 }));
 
@@ -69,6 +74,8 @@ export interface ThemeVerse {
   readonly ayah: number;
   readonly ref: string;
   readonly why: string;
+  /** Inclusive ayah range this verse must be shown inside, if the reviewer required one. */
+  readonly codisplay?: readonly [number, number];
 }
 
 export interface ThemeGroup {

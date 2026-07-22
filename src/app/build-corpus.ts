@@ -49,6 +49,8 @@ interface Surah {
   name_en: string;
   ayah_count: number;
   revelation_type: string;
+  /** Sequence the surah was revealed in, 1-114 — not its position in the mushaf. */
+  order_revealed: number;
 }
 
 const ayahs = await load<Ayah>("ayahs.json");

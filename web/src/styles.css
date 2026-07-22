@@ -553,6 +553,42 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   letter-spacing: normal;
 }
 
+/* ── Required context: the co-display passage ────────────────────────────────
+   Ayahs a reviewer required around a conditionally-approved verse ("tampilkan QS 92:5-7 bersama").
+
+   Subordinate to their subject but NOT hidden and NOT collapsible: the condition is that they are
+   shown together, and a chevron would make the context dismissible. Quieter Arabic, muted
+   translation, and an inset rule that reads as "this belongs to the verse next to it" rather than
+   as a separate card. The subject verse keeps full contrast, so the eye still lands on it first. */
+.passage { background: var(--surface-2); }
+.passage-before { border-bottom: 1px solid var(--line); }
+.passage-after { border-top: 1px solid var(--line); }
+
+.passage-ayah { padding: 2px 0 6px; position: relative; }
+.passage-ayah + .passage-ayah { border-top: 1px dashed var(--line); }
+
+.passage-ref {
+  display: block; padding: 8px 26px 0;
+  font-variant-numeric: tabular-nums; font-size: var(--step--2);
+  color: var(--ink-3); opacity: 0.75;
+}
+
+/* Smaller than the subject's Arabic, still scaling with the reader's A- pill. */
+.passage-ayah .ar {
+  font-size: calc(var(--ar-size) * 0.82);
+  padding: 6px 26px 10px;
+  color: var(--ink-2);
+  text-shadow: none;
+}
+.passage-tr {
+  padding: 0 26px 10px;
+  color: var(--ink-2); font-size: var(--step--1); line-height: 1.7;
+}
+
+@media (max-width: 640px) {
+  .passage-ref, .passage-ayah .ar, .passage-tr { padding-left: 16px; padding-right: 16px; }
+}
+
 /* ── Islamic craft: the mushaf ayah-end medallion ────────────────────────────
    An 8-pointed khātam star holding the ayah number in Arabic-Indic digits, sitting at the end of
    the Arabic line like a printed mushaf. Emerald line-work only — this is content ornament, so by

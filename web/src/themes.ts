@@ -20,7 +20,7 @@
  * handler covers this surface too, instead of a third, duplicated click listener.
  */
 import { announce } from "./announce.ts";
-import { displayName, loadAyah, ShardError } from "./quran.ts";
+import { displayName, loadAyah, loadSurah, ShardError } from "./quran.ts";
 import { bindActs, clearReadCards, registerReadCard } from "./read.ts";
 import { THEME_INDEX } from "./theme-index.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
@@ -112,9 +112,24 @@ export async function renderTheme(mount: HTMLElement, slug: string): Promise<voi
   for (const v of group.verses) {
     try {
       const ayah = await loadAyah(v.surah, v.ayah);
+      // A conditionally-approved verse is only approved INSIDE its passage, so this surface
+      // loads the neighbours from the same shard before rendering. If that load fails the card
+      // is skipped entirely rather than shown bare — better a gap in the list than a verse
+      // stripped of the context a scholar made a condition of approving it.
+      let passage: VerseCard["passage"];
+      if (v.codisplay) {
+        const [from, to] = v.codisplay;
+        const shard = await loadSurah(v.surah);
+        passage = shard.verses
+          .filter((x) => x.a >= from && x.a <= to)
+          .map((x) => ({ ayah: x.a, arabic: x.ar, primary: x.p, companion: x.c }));
+        if (passage.length !== to - from + 1) continue;
+      }
+
       const card: VerseCard = {
         ...fromShard(ayah, v.surah, displayName(v.surah)),
         why: v.why,
+        passage,
         lazyTafsir: true,
       };
       registerReadCard(card);

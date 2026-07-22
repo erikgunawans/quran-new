@@ -173,6 +173,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               primary: v.primary,
               companion: v.companion,
               why: v.why,
+              passage: v.passage,
               tafsirStack: tafsirStackHtml(v.tafsir, voices),
               continueTo: true,
               animate,
@@ -237,6 +238,9 @@ function aiHtml(prose: string, refs: readonly string[], animate: boolean): strin
         primary: v.primary,
         companion: v.companion,
         why: v.why,
+        // A conditional approval travels WITH the verse. Dropping it here would render the verse
+        // alone on a surface the reviewer only approved it inside.
+        passage: v.passage,
         tafsirStack: tafsirStackHtml(v.tafsir, voices),
         continueTo: true,
         animate,

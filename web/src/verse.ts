@@ -166,6 +166,13 @@ export interface VerseCard {
   companion: Reading | null;
   /** Curation note. Chat shows it; the reading surface does not (it is per-question context). */
   why?: string;
+  /**
+   * Context the reviewer REQUIRED around this verse. Rendered, never optional.
+   *
+   * Includes the subject verse itself (the builder enforces that), so `passageEl` skips it while
+   * laying out the neighbours — otherwise the ayah would appear twice on its own card.
+   */
+  passage?: { ayah: number; arabic: string; primary: Reading | null; companion: Reading | null }[];
   /** Pre-loaded tafsir STACK html (chat's 55 curated verses only, from `corpus.json`). Rendered
    * inside the depth disclosure, below the literal companion. Takes priority over `lazyTafsir`. */
   tafsirStack?: string;
@@ -210,6 +217,42 @@ const AYAH_STAR =
 const ayahMark = (ayah: number): string =>
   `<span class="ayah-mark" aria-hidden="true">${AYAH_STAR}<span class="num">${toArabicIndic(ayah)}</span></span>`;
 
+/**
+ * The context ayahs a conditional approval requires, laid out around their subject.
+ *
+ * The reviewer's condition is "tampilkan bersama" — shown TOGETHER — so this is not a disclosure
+ * and does not collapse. A chevron would make the context dismissible, and a condition you can
+ * dismiss is not a condition.
+ *
+ * `side` splits the range at the subject: neighbours before it render above, neighbours after it
+ * render below, so the passage reads in mushaf order with the subject in its true position. The
+ * subject itself is skipped — it already renders in full, with the caption and the tafsir.
+ *
+ * Context ayahs get the Arabic and the interpretive reading only. No `why`, no tafsir, no actions:
+ * our sentence belongs to the verse that was captioned, and putting it on the neighbours would be
+ * exactly the over-reach the condition guards against.
+ */
+function passageEl(v: VerseCard, side: "before" | "after"): string {
+  const rows = (v.passage ?? []).filter((p) =>
+    side === "before" ? p.ayah < v.ayah : p.ayah > v.ayah,
+  );
+  if (rows.length === 0) return "";
+
+  return `
+    <div class="passage passage-${side}" role="group" aria-label="Ayat sekitar ${v.ref}">
+      ${rows
+        .map(
+          (p) => `
+        <div class="passage-ayah">
+          <span class="passage-ref" aria-hidden="true">${v.surah}:${p.ayah}</span>
+          <p class="ar" dir="rtl" lang="ar">${esc(p.arabic)}${ayahMark(p.ayah)}</p>
+          ${p.primary ? `<p class="passage-tr">${esc(p.primary.text)}</p>` : ""}
+        </div>`,
+        )
+        .join("")}
+    </div>`;
+}
+
 export function verseEl(v: VerseCard): string {
   const flag = FLAGGED[v.ref];
 
@@ -221,9 +264,13 @@ export function verseEl(v: VerseCard): string {
         ${v.why ? `<span class="why">${esc(v.why)}</span>` : ""}
       </header>
 
+      ${passageEl(v, "before")}
+
       <p class="ar" dir="rtl" lang="ar">${esc(v.arabic)}${ayahMark(v.ayah)}</p>
 
       ${v.primary ? readingEl(v.primary, true) : ""}
+
+      ${passageEl(v, "after")}
 
       ${flag ? `<div class="caution"><b aria-hidden="true">${ICON_WARNING}</b><span>${flag}</span></div>` : ""}
 

@@ -43,6 +43,17 @@ export interface Verse {
   primary: Reading | null;
   companion: Reading | null;
   tafsir: { source_id: string; text: string; lang: string }[];
+  /**
+   * Context the reviewer REQUIRED around this verse — "tampilkan QS 92:5–7 bersama".
+   *
+   * Present only on conditionally-approved verses. When it is present the passage is not optional
+   * decoration: the approval is for the verse read inside it, so a surface that renders the verse
+   * must render the passage too. Absent on every other verse, which is nearly all of them.
+   *
+   * `why` still describes the verse at `ref` and nothing else. No caption of ours goes on the
+   * surrounding ayahs.
+   */
+  passage?: { ayah: number; arabic: string; primary: Reading | null; companion: Reading | null }[];
 }
 
 export interface Corpus {

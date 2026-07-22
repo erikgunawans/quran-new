@@ -11,6 +11,8 @@ export interface ThemeVerse {
   readonly ayah: number;
   readonly ref: string;
   readonly why: string;
+  /** Inclusive ayah range this verse must be shown inside, if the reviewer required one. */
+  readonly codisplay?: readonly [number, number];
 }
 
 export interface ThemeGroup {
