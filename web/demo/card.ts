@@ -15,6 +15,9 @@
  * takes the object too — a positional seam one layer down is the same seam, just less visible.
  */
 import { esc } from "../src/esc.ts";
+// `ShardVerse` is imported for its FIELD NAMES (a/ar/p/c), which is what makes a curated `Verse`
+// structurally unable to reach `shardCardHtml`. Type-only — no runtime coupling to quran.ts.
+import type { ShardVerse } from "../src/quran.ts";
 import { passageHtml, type PassageAyah } from "./passage.ts";
 
 /**
@@ -114,24 +117,25 @@ export function curatedCardHtml(v: CuratedVerse): string {
  * act as opening a printed mushaf. The main reader draws direct lookups the same way
  * (`web/src/main.ts` `case "ayah"`).
  *
+ * TAKES THE SHARD VERSE ITSELF, AND THAT IS THE ENFORCEMENT. This used to take six loose
+ * primitives, which meant any caller holding a CURATED verse could spread its fields in
+ * (`v.surah, v.ayah, v.surah_name, v.arabic, v.primary, v.companion`) and render a reviewed verse
+ * bare — the passage silently gone. Exactly the regression the two-entry-point split exists to
+ * stop, one seam further out, and a comment saying "this should feel uncomfortable to reach for"
+ * is not enforcement. `ShardVerse` names its fields `a`/`ar`/`p`/`c`, so a `Verse` cannot satisfy
+ * it structurally: the downgrade is now a type error, not a discipline.
+ *
  * `passage` is OMITTED from the constructed verse rather than passed as `undefined` — under
  * `exactOptionalPropertyTypes` those are different things, and omission is the honest one: this
  * verse has no curation to carry, rather than curation that happens to be absent.
  */
-export const shardCardHtml = (
-  surah: number,
-  ayah: number,
-  surahName: string,
-  arabic: string,
-  primary: ReadingLike,
-  companion: ReadingLike,
-): string =>
+export const shardCardHtml = (surah: number, surahName: string, v: ShardVerse): string =>
   curatedCardHtml({
-    ref: `${surah}:${ayah}`,
+    ref: `${surah}:${v.a}`,
     surah,
-    ayah,
+    ayah: v.a,
     surah_name: surahName,
-    arabic,
-    primary,
-    companion,
+    arabic: v.ar,
+    primary: v.p,
+    companion: v.c,
   });

@@ -96,7 +96,7 @@ describe("the required context is not behind the disclosure the companion is beh
 
 describe("a shard ayah is a different act and says so", () => {
   test("a plain mushaf lookup renders the verse with no passage markup", () => {
-    const html = shardCardHtml(20, 26, "Taha", "AR", { text: "TR", translator: "Uji", translation_type: "interpretive" }, null);
+    const html = shardCardHtml(20, "Taha", { a: 26, ar: "AR", p: { text: "TR", translator: "Uji", translation_type: "interpretive" }, c: null });
     expect(html).toContain("AR");
     expect(html).not.toContain("qk-passage");
   });

@@ -410,7 +410,7 @@ async function aqidahHtml(e: AqidahEntry): Promise<string> {
   const paras = e.answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     .map((p) => `<p class="qk-ai-said">${esc(p)}</p>`).join("");
   const cards = (await Promise.all(e.refs.map(async (r) => {
-    try { const v = await loadAyah(r.surah, r.ayah); return shardCardHtml(r.surah, r.ayah, displayName(r.surah), v.ar, v.p, v.c); }
+    try { const v = await loadAyah(r.surah, r.ayah); return shardCardHtml(r.surah, displayName(r.surah), v); }
     catch { return ""; }
   }))).join("");
   return `<div class="qk-ai">${paras}</div>${cards}<p class="qk-ai-note">Jawaban ini ditinjau oleh Ustadz Ahmad Isrofiel Mardlatillah.</p>`;
@@ -438,7 +438,7 @@ async function renderTurn(t: Turn): Promise<string> {
     case "ayah": {
       const v = await loadAyah(t.surah, t.ayah);
       return `<p class="qk-said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` +
-        shardCardHtml(t.surah, t.ayah, displayName(t.surah), v.ar, v.p, v.c);
+        shardCardHtml(t.surah, displayName(t.surah), v);
     }
     case "hits": {
       const c = await ensureCorpus();

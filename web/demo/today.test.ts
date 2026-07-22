@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { todayPick, todayCardHtml } from "./today.ts";
+import { todayPick, todayCardHtml, type StandaloneVerse } from "./today.ts";
 import type { CuratedVerse } from "./card.ts";
 
 /**
@@ -10,7 +10,8 @@ import type { CuratedVerse } from "./card.ts";
  * verse bare on the Beranda — a verse displayed without the passage the ustadz made a condition of
  * approving it, on the most-seen surface in the app.
  */
-const v = (ref: string, over: Partial<CuratedVerse> = {}): CuratedVerse => ({
+/** An ordinary verse carrying no reviewer condition — so it builds a `StandaloneVerse` outright. */
+const v = (ref: string, over: Partial<StandaloneVerse> = {}): StandaloneVerse => ({
   ref,
   surah: Number(ref.split(":")[0]),
   ayah: Number(ref.split(":")[1]),
@@ -21,9 +22,12 @@ const v = (ref: string, over: Partial<CuratedVerse> = {}): CuratedVerse => ({
   ...over,
 });
 
-/** A verse the reviewer approved only inside a passage. */
-const conditional = (ref: string): CuratedVerse =>
-  v(ref, { passage: [{ ayah: 5, arabic: "AR_5", primary: { text: "TR_5" } }] });
+/** A verse the reviewer approved only inside a passage. Deliberately a `CuratedVerse`: it is the
+ *  shape `todayPick` must reject, and the one `todayCardHtml` can no longer be handed. */
+const conditional = (ref: string): CuratedVerse => ({
+  ...v(ref),
+  passage: [{ ayah: 5, arabic: "AR_5", primary: { text: "TR_5" } }],
+});
 
 describe("a conditionally-approved verse is never eligible for the one-verse slot", () => {
   test("skipped even when it is the preferred pick", () => {
@@ -62,10 +66,18 @@ describe("the slot's markup cannot show a passage, which is why the pick rule mu
     expect(html).toContain("Ayat 286");
   });
 
-  test("emits no passage markup even if handed a verse that carries one", () => {
-    // Proving the hazard is real: the markup silently drops the passage. That is not a bug in this
-    // function — it is a teaser card by design — it is the reason todayPick must never send one here.
-    const html = todayCardHtml(conditional("92:7"));
+  test("a conditional verse can no longer even be HANDED to this renderer", () => {
+    // `todayCardHtml` takes StandaloneVerse (`passage?: never`), so the line below is a COMPILE
+    // error without the cast — which is the actual protection, and it is why this test needs one.
+    //
+    // An earlier version of this test called `todayCardHtml(conditional("92:7"))` directly and
+    // asserted the markup came out bare. It passed, and it was pinning the hazard rather than the
+    // guard: it documented that the renderer silently drops a reviewer's condition. Codex flagged
+    // exactly that. The cast keeps the runtime evidence of what dropping looks like, while the
+    // `@ts-expect-error` proves no real caller can reach it.
+    // @ts-expect-error — a verse carrying `passage` is not a StandaloneVerse; that is the point.
+    const unreachable: StandaloneVerse = conditional("92:7");
+    const html = todayCardHtml(unreachable);
     expect(html).not.toContain("qk-passage");
     expect(html).not.toContain("AR_5");
   });
