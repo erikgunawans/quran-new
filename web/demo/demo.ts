@@ -14,7 +14,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 // The verse card, extracted so it can be tested. Two entry points: `curatedCardHtml` takes a corpus
 // verse whole (so a reviewer's co-display condition cannot be left behind), `shardCardHtml` draws a
 // plain mushaf ayah that has no curation to carry.
-import { curatedCardHtml, shardCardHtml, readingHtml, type ReadingLike } from "./card.ts";
+import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
 import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -427,7 +427,7 @@ async function aqidahHtml(e: AqidahEntry): Promise<string> {
   const paras = e.answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     .map((p) => `<p class="qk-ai-said">${esc(p)}</p>`).join("");
   const cards = (await Promise.all(e.refs.map(async (r) => {
-    try { const v = await loadAyah(r.surah, r.ayah); return shardCardHtml(`${r.surah}:${r.ayah}`, displayName(r.surah), v.ar, v.p, v.c); }
+    try { const v = await loadAyah(r.surah, r.ayah); return shardCardHtml(r.surah, r.ayah, displayName(r.surah), v.ar, v.p, v.c); }
     catch { return ""; }
   }))).join("");
   return `<div class="qk-ai">${paras}</div>${cards}<p class="qk-ai-note">Jawaban ini ditinjau oleh Ustadz Ahmad Isrofiel Mardlatillah.</p>`;
@@ -455,7 +455,7 @@ async function renderTurn(t: Turn): Promise<string> {
     case "ayah": {
       const v = await loadAyah(t.surah, t.ayah);
       return `<p class="qk-said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` +
-        shardCardHtml(`${t.surah}:${t.ayah}`, displayName(t.surah), v.ar, v.p, v.c);
+        shardCardHtml(t.surah, t.ayah, displayName(t.surah), v.ar, v.p, v.c);
     }
     case "hits": {
       const c = await ensureCorpus();

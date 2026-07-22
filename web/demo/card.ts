@@ -11,17 +11,39 @@
  * its own signature, that it is drawing an ayah loaded from a surah shard, which carries no
  * `passage` because shards hold no curation. Previously this was one function with an optional
  * sixth positional argument: dropping it at a call site type-checked clean and passed every test,
- * which is precisely the regression the co-display mechanism exists to prevent.
+ * which is precisely the regression the co-display mechanism exists to prevent. The shared body
+ * takes the object too — a positional seam one layer down is the same seam, just less visible.
  */
 import { esc } from "../src/esc.ts";
 import { passageHtml, type PassageAyah } from "./passage.ts";
 
-/** The shape both the curated corpus (Reading) and a shard verse (ShardVerse.p/.c) satisfy. */
+/**
+ * The shape both the curated corpus (`Reading`) and a shard verse (`ShardVerse.p`/`.c`) satisfy.
+ *
+ * Deliberately WIDER than `retrieve.ts`'s `Reading`, and it must stay that way. `Reading` types
+ * `translation_type` as the union `"literal" | "interpretive"`; `ShardVerse` widens it to `string`.
+ * Importing `Reading` here looks like the tidier move — it is the same three fields — but it makes
+ * every shard-backed call site a type error, because one card serves both sources. The widening is
+ * the feature.
+ */
 export type ReadingLike = { text: string; translator: string; translation_type: string } | null;
 
-/** A curated verse, as it comes off `corpus.json`. Passed whole so `passage` travels with it. */
+/**
+ * A curated verse, as it comes off `corpus.json`.
+ *
+ * Structural rather than `Pick<Verse, …>`, for the same reason as `ReadingLike`: `Verse.passage`
+ * requires each context ayah to carry a full `Reading` AND a `companion`, while this card renders
+ * only the neighbour's text (see `PassageAyah`). Picking from `Verse` would drag both constraints
+ * in and reject the looser shape the demo genuinely uses.
+ *
+ * The tradeoff is real and worth naming: if the corpus grows a SECOND must-render field, this type
+ * will not notice. That risk is carried by the co-display tests in `card.test.ts` and by the build
+ * gate in `build-corpus.ts`, not by the type.
+ */
 export interface CuratedVerse {
   ref: string;
+  surah: number;
+  ayah: number;
   surah_name: string;
   arabic: string;
   primary: ReadingLike;
@@ -58,40 +80,26 @@ export function readingHtml(r: ReadingLike, primary: boolean): string {
  * "tampilkan bersama"; the collapsed companion is our editorial choice about a translation. One is
  * ours to make, the other is not.
  */
-function card(
-  ref: string,
-  surahName: string,
-  arabic: string,
-  primary: ReadingLike,
-  companion: ReadingLike,
-  passage: readonly PassageAyah[] | undefined,
-): string {
-  const harf = companion ? readingHtml(companion, false) : "";
+export function curatedCardHtml(v: CuratedVerse): string {
+  // `readingHtml` already returns "" for an absent or blank reading, so this doubles as the
+  // "is there anything behind the chevron?" test — no separate null check needed.
+  const harf = readingHtml(v.companion, false);
   return `<article class="qk-verse">
     <div class="qk-verse-head">
-      <span class="qk-verse-ref">${esc(ref)}</span>
-      <span class="qk-verse-surah">${esc(surahName)}</span>
+      <span class="qk-verse-ref">${esc(v.ref)}</span>
+      <span class="qk-verse-surah">${esc(v.surah_name)}</span>
       ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
         <span>Terjemahan Harfiah</span>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>` : ""}
     </div>
-    ${passageHtml(ref, passage, "before")}
-    <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(arabic)}</div>
-    ${readingHtml(primary, true)}
-    ${passageHtml(ref, passage, "after")}
+    ${passageHtml(v.surah, v.ayah, v.passage, "before")}
+    <div class="qk-verse-ar" dir="rtl" lang="ar">${esc(v.arabic)}</div>
+    ${readingHtml(v.primary, true)}
+    ${passageHtml(v.surah, v.ayah, v.passage, "after")}
     ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
   </article>`;
 }
-
-/**
- * A curated verse from `corpus.json` — the lanes where the app OFFERS a verse as an answer.
- *
- * Takes the verse whole. A conditional approval travels with it, so there is no way to render one
- * of these and leave the required context behind.
- */
-export const curatedCardHtml = (v: CuratedVerse): string =>
-  card(v.ref, v.surah_name, v.arabic, v.primary, v.companion, v.passage);
 
 /**
  * An ayah loaded from a surah shard — a direct `20:26` lookup, or an anchor on a reviewed answer.
@@ -101,13 +109,24 @@ export const curatedCardHtml = (v: CuratedVerse): string =>
  * act as opening a printed mushaf. The main reader draws direct lookups the same way
  * (`web/src/main.ts` `case "ayah"`).
  *
- * The parameter list is long on purpose. It is the seam where a curated verse could be smuggled in
- * field-by-field and lose its passage on the way, so it should be uncomfortable to reach for.
+ * `passage` is OMITTED from the constructed verse rather than passed as `undefined` — under
+ * `exactOptionalPropertyTypes` those are different things, and omission is the honest one: this
+ * verse has no curation to carry, rather than curation that happens to be absent.
  */
 export const shardCardHtml = (
-  ref: string,
+  surah: number,
+  ayah: number,
   surahName: string,
   arabic: string,
   primary: ReadingLike,
   companion: ReadingLike,
-): string => card(ref, surahName, arabic, primary, companion, undefined);
+): string =>
+  curatedCardHtml({
+    ref: `${surah}:${ayah}`,
+    surah,
+    ayah,
+    surah_name: surahName,
+    arabic,
+    primary,
+    companion,
+  });
