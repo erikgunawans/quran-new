@@ -11,21 +11,21 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | Hasil | Jumlah | Porsi |
 | --- | ---: | ---: |
 | Jawaban akidah (ditinjau ustadz) | 0 | 0% |
-| Entri Indeks Tematik | 26 | 25% |
+| Entri Indeks Tematik | 34 | 33% |
 | Ayat dari jalur perasaan | 39 | 38% |
-| Hanya penunjuk kategori | 26 | 25% |
+| Hanya penunjuk kategori | 18 | 17% |
 | Tidak ada jawaban | 13 | 13% |
 
-**Terjawab: 65/104 (63%). Belum: 39 (38%).**
+**Terjawab: 73/104 (70%). Belum: 31 (30%).**
 
 ## Per jenis pertanyaan
 
 | Jenis | Terjawab | Total | Porsi |
 | --- | ---: | ---: | ---: |
-| aqidah | 12 | 28 | 43% |
-| fiqh | 14 | 30 | 47% |
-| ibadah | 7 | 12 | 58% |
+| aqidah | 13 | 28 | 46% |
+| fiqh | 17 | 30 | 57% |
 | quran | 4 | 6 | 67% |
+| ibadah | 11 | 12 | 92% |
 | feeling | 18 | 18 | 100% |
 | life | 10 | 10 | 100% |
 
@@ -59,10 +59,10 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | apa itu sabar menurut al quran | aqidah | Ayat dari jalur perasaan | 2:153 |
 | apa itu taubat | aqidah | Ayat dari jalur perasaan | 3:135, 20:82 |
 | apa itu riya | aqidah | Ayat dari jalur perasaan | 4:146, 31:18 |
-| kenapa harus sholat | aqidah | Hanya penunjuk kategori | Ibadah — tidak ada entri spesifik |
+| kenapa harus sholat | aqidah | Entri Indeks Tematik | Ibadah — 8 entri |
 | kenapa ada penderitaan kalau allah maha penyayang | aqidah | Ayat dari jalur perasaan | 6:54 |
 | homo itu hukumnya apa sih di islam? | fiqh | Entri Indeks Tematik | Membangun Pribadi Shalih — 1 entri |
-| hukum lgbt | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
+| hukum lgbt | fiqh | Entri Indeks Tematik | Membangun Pribadi Shalih — 2 entri |
 | hukum pacaran dalam islam | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
 | hukum mendengarkan musik | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
 | apa hukum riba | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 3 entri |
@@ -75,8 +75,8 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | hukum nikah beda agama | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 2 entri |
 | hukum aborsi | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
 | hukum bunuh diri | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 8 entri |
-| hukum ghibah | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
-| hukum korupsi | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
+| hukum ghibah | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 1 entri |
+| hukum korupsi | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 1 entri |
 | hukum poligami | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
 | hukum warisan anak perempuan | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 8 entri |
 | hukum makan babi | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 8 entri |
@@ -89,20 +89,20 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | hukum childfree | fiqh | Hanya penunjuk kategori | Perintah dan Larangan — tidak ada entri spesifik |
 | hukum nikah siri | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 1 entri |
 | hukum bohong demi kebaikan | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 8 entri |
-| hukum meninggalkan sholat | fiqh | Entri Indeks Tematik | Ibadah — 3 entri |
+| hukum meninggalkan sholat | fiqh | Entri Indeks Tematik | Ibadah — 8 entri |
 | hukum durhaka sama orang tua | fiqh | Entri Indeks Tematik | Perintah dan Larangan — 6 entri |
-| bagaimana cara sholat | ibadah | Hanya penunjuk kategori | Ibadah — tidak ada entri spesifik |
+| bagaimana cara sholat | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | cara wudhu yang benar | ibadah | Entri Indeks Tematik | Ibadah — 1 entri |
 | apa itu zakat | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | apa itu haji | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | puasa ramadhan wajib ga | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
-| sholat tahajud gimana | ibadah | Hanya penunjuk kategori | Ibadah — tidak ada entri spesifik |
+| sholat tahajud gimana | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | cara taubat nasuha | ibadah | Tidak ada jawaban | tidak ada apa pun |
 | doa sebelum tidur | ibadah | Ayat dari jalur perasaan | 2:186 |
-| berapa rakaat sholat subuh | ibadah | Hanya penunjuk kategori | Ibadah — tidak ada entri spesifik |
+| berapa rakaat sholat subuh | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | apa itu sedekah jariyah | ibadah | Entri Indeks Tematik | Ibadah — 1 entri |
 | kapan waktu mustajab berdoa | ibadah | Ayat dari jalur perasaan | 2:186 |
-| cara sholat jamak | ibadah | Hanya penunjuk kategori | Ibadah — tidak ada entri spesifik |
+| cara sholat jamak | ibadah | Entri Indeks Tematik | Ibadah — 8 entri |
 | aku sedang sedih | feeling | Ayat dari jalur perasaan | 2:156 |
 | aku capek banget | feeling | Ayat dari jalur perasaan | 2:286 |
 | aku kangen ibu | feeling | Ayat dari jalur perasaan | 12:84, 17:23 |

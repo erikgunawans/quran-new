@@ -22,12 +22,14 @@
 import { DEMO_QUESTIONS, type DemoQuestion } from "./demo-questions.ts";
 
 // The lanes fetch their shards by URL; serve them from the built output instead of a server.
-globalThis.fetch = (async (input: RequestInfo | URL) => {
+// Typed without DOM lib types: this runs under the root tsconfig, which has no DOM — the whole
+// reason peta-data.ts exists. `unknown` keeps it honest rather than reaching for `any`.
+globalThis.fetch = (async (input: unknown) => {
   const u = String(input);
   const path = `web/public${u.startsWith("/") ? u : `/${u}`}`;
   const text = await Bun.file(path).text();
-  return { ok: true, json: async () => JSON.parse(text) } as Response;
-}) as typeof fetch;
+  return { ok: true, json: async () => JSON.parse(text) };
+}) as unknown as typeof fetch;
 
 const { retrieveKnowledge } = await import("../../web/src/knowledge.ts");
 const { AQIDAH, isReviewed, matchAqidah } = await import("../../web/src/aqidah.ts");

@@ -235,9 +235,12 @@ describe("bridges — the connective tissue", () => {
 });
 
 describe("coexistence and containment", () => {
-  test("Anti: peta.ts imports esc from verse.ts — it does not re-implement it (3 copies already exist)", async () => {
+  // esc moved verse.ts -> esc.ts (2026-07-22). The point of this test was never the FILE, it was
+  // that peta.ts must not grow a fourth private copy. verse.ts was a DOM module, so importing it
+  // for a pure string function dragged `document` into Bun scripts that never touch a page.
+  test("Anti: peta.ts imports esc from the shared module — it does not re-implement it", async () => {
     const src = await Bun.file("web/src/peta.ts").text();
-    expect(src).toMatch(/import\s*\{[^}]*\besc\b[^}]*\}\s*from\s*"\.\/verse\.ts"/);
+    expect(src).toMatch(/import\s*\{[^}]*\besc\b[^}]*\}\s*from\s*"\.\/esc\.ts"/);
     expect(src).not.toMatch(/const esc\s*=/);
     expect(src).not.toMatch(/function esc\s*\(/);
   });

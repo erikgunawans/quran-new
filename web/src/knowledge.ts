@@ -16,11 +16,12 @@
  * ROUTING. It runs ONLY as a fallback after the feeling path finds nothing (main.ts), so a real
  * feeling is never hijacked into a topic dump. Unknown topic → null → the honest silence stands.
  */
-import { loadCategory, loadIndex, type PetaIndex } from "./peta.ts";
+import { loadCategory, loadIndex, type PetaIndex } from "./peta-data.ts";
 import { isFeelingWord, norm, phraseHit, questionForms } from "./retrieve.ts";
 export { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
 import { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
 import { TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
+import { vocabularyForms } from "./vocabulary.ts";
 
 /**
  * Question keywords → Peta category slug. Deliberately CONSERVATIVE: a topic must be named fairly
@@ -188,10 +189,14 @@ const FRAME_ALIAS = new Set<string>([
 
 /** Categories whose entries actually contain this word, strongest first. */
 function categoriesContaining(w: string): readonly string[] {
-  const direct = TOPIC_SUBJECTS[w];
-  const slots =
-    direct ?? TOPIC_SUBJECTS[Object.keys(TOPIC_SUBJECTS).find((k) => stemReach(w, k)) ?? ""];
-  return (slots ?? []).map((i) => TOPIC_SLUGS[i]).filter((x): x is string => x !== undefined);
+  // Naming variants first: someone typing `ghibah` is asking about entries written `menggunjing`,
+  // and the index only knows the latter. See vocabulary.ts for what may and may not go in there.
+  for (const form of vocabularyForms(w)) {
+    const slots =
+      TOPIC_SUBJECTS[form] ?? TOPIC_SUBJECTS[Object.keys(TOPIC_SUBJECTS).find((k) => stemReach(form, k)) ?? ""];
+    if (slots) return slots.map((i) => TOPIC_SLUGS[i]).filter((x): x is string => x !== undefined);
+  }
+  return [];
 }
 
 /** Match a question to a single topic. Returns the highest-scoring category slug, or null. */
@@ -323,7 +328,9 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
         // asking about the entry that says "Homoseksual", and requiring identical tokens meant the
         // index could hold a subject and still be unreachable by the word anyone would type.
         // Sense-checking uses the WRITTEN word, since that is what actually appears in the text.
-        const written = words.has(w) ? w : [...words].find((x) => stemReach(w, x));
+        const written = vocabularyForms(w)
+          .map((form) => (words.has(form) ? form : [...words].find((x) => stemReach(form, x))))
+          .find((x) => x !== undefined);
         if (written === undefined || !hasOwnSense(e.text, written)) continue;
         score += 1;
         // …and a hit on the question's FRAME is not a hit on its subject. See subjectWords.

@@ -14,22 +14,9 @@ import { hasAudio, nowPlaying } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
 import { RELATED_VERSES } from "./related-verses.ts";
 
-/**
- * Escape for HTML — including single quotes.
- *
- * `'` was missing. Nothing currently breaks, because every attribute here is double-quoted — but
- * that is a property of today's templates, not of this function, and the next person to write
- * `data-x='${esc(v)}'` would open an injection with no warning. The verse text is scripture and
- * the translator names come from a pinned corpus, so the risk is theoretical; the loaded gun
- * pointing at the next contributor is not.
- */
-export const esc = (s: string) =>
-  s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+export { esc } from "./esc.ts";
+import { esc } from "./esc.ts";
+
 
 /**
  * Verse-action icons, matching the header's own icon language (viewBox 24, stroke 1.7,

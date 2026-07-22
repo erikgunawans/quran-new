@@ -25,7 +25,7 @@
  * The 3D positions, the clustering, and the bridge geometry are OURS — computed by intersecting
  * his citations. peta.ts names that seam on the page.
  */
-import { esc } from "./verse.ts";
+import { esc } from "./esc.ts";
 
 export interface CosmosCat {
   readonly slug: string;
