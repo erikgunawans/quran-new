@@ -13,6 +13,7 @@ import { renderIndex, renderSurah } from "./read.ts";
 import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
+import { looksFactual } from "./question-form.ts";
 import { aqidahById, aqidahRef, matchAqidah, type AqidahEntry } from "./aqidah.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
@@ -446,6 +447,22 @@ async function ask(question: string) {
     // Knowledge fallback. A topic/theology question ("siapakah Allah?") lands on the feeling path's
     // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
     // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
+    // FACTUAL-FORM FIRST. The block below runs on the feeling path's silence, which protects a real
+    // feeling from being hijacked by a topic match. That guard only ever ran one way, though, and
+    // the reverse hijack was wide open: 94 feeling keywords are also subjects the index covers, so
+    // "apa itu zakat" answered with 2:261 (the reward of charity) and never reached Ibadah's eight
+    // entries on zakat. A question in factual form therefore gets the knowledge lanes FIRST, and
+    // still falls through to whatever feelings found if they hold nothing.
+    if (!synthesized && turn.kind !== "silence" && ref.kind === "not-a-ref" && looksFactual(q)) {
+      const aq = matchAqidah(q);
+      if (aq) {
+        turn = { q, kind: "aqidah", id: aq.id };
+      } else {
+        const knowledge = await retrieveKnowledge(q);
+        if (knowledge && knowledge.entries.length > 0) turn = { q, kind: "knowledge", slug: knowledge.slug };
+      }
+    }
+
     if (!synthesized && turn.kind === "silence") {
       // Reviewed-aqidah first: a broad definitional question ("siapakah Allah?") gets the ustadz's
       // own reviewed answer when one exists. Until the review sheet is filled, this returns null and

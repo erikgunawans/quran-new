@@ -23,6 +23,7 @@ import { rememberTurn, loadThread, clearThread, hasThread, turnFromHits, type Tu
 import { detectCrisis, crisisReply } from "../src/crisis.ts";
 import { matchAqidah, aqidahById, type AqidahEntry } from "../src/aqidah.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "../src/knowledge.ts";
+import { looksFactual } from "../src/question-form.ts";
 // The baked 3D cosmos built for the Indeks Tematik: 1,632 verse-stars around 13 category hubs.
 // Coordinates are precomputed (src/app/build-peta-3d.ts) — this only draws them, no solver.
 import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "../src/peta-cosmos.ts";
@@ -544,6 +545,18 @@ async function resolveTurn(q: string): Promise<Turn> {
   if (ai) return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
 
   const turn = turnFromHits(q, retrieve(c, q, 2, modelThemes));
+
+  // FACTUAL-FORM FIRST — see question-form.ts. The feeling lexicon claims 94 words the scholar's
+  // index also covers, so "apa itu zakat" was answered with a verse about charity's reward instead
+  // of reaching Ibadah. A question shaped as a question tries the knowledge lanes before settling
+  // for whatever the feeling lane matched on a keyword.
+  if (looksFactual(q)) {
+    const aq = matchAqidah(q);
+    if (aq) return { q, kind: "aqidah", id: aq.id };
+    const k = await retrieveKnowledge(q);
+    if (k && k.entries.length > 0) return { q, kind: "knowledge", slug: k.slug };
+  }
+
   if (turn.kind === "silence") {
     const aq = matchAqidah(q);
     if (aq) return { q, kind: "aqidah", id: aq.id };
