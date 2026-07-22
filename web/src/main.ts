@@ -13,7 +13,7 @@ import { renderIndex, renderSurah } from "./read.ts";
 import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
-import { looksFactual } from "./question-form.ts";
+import { knowledgeOnly, looksFactual } from "./question-form.ts";
 import { aqidahById, aqidahRef, matchAqidah, type AqidahEntry } from "./aqidah.ts";
 import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
@@ -453,13 +453,17 @@ async function ask(question: string) {
     // "apa itu zakat" answered with 2:261 (the reward of charity) and never reached Ibadah's eight
     // entries on zakat. A question in factual form therefore gets the knowledge lanes FIRST, and
     // still falls through to whatever feelings found if they hold nothing.
-    if (!synthesized && turn.kind !== "silence" && ref.kind === "not-a-ref" && looksFactual(q)) {
+    if (!synthesized && ref.kind === "not-a-ref" && looksFactual(q)) {
       const aq = matchAqidah(q);
       if (aq) {
         turn = { q, kind: "aqidah", id: aq.id };
       } else {
         const knowledge = await retrieveKnowledge(q);
+        // Pointer and silence BEAT a feeling match, but only for shapes where a feeling answer
+        // would be wrong rather than merely second-best — see knowledgeOnly(). How-to questions
+        // keep their fall-through, because scripture often does answer "how do I do X".
         if (knowledge && knowledge.entries.length > 0) turn = { q, kind: "knowledge", slug: knowledge.slug };
+        else if (knowledgeOnly(q)) turn = knowledge ? { q, kind: "knowledge", slug: knowledge.slug } : { q, kind: "silence" };
       }
     }
 

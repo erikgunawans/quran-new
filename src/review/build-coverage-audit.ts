@@ -34,7 +34,7 @@ globalThis.fetch = (async (input: unknown) => {
 const { retrieveKnowledge } = await import("../../web/src/knowledge.ts");
 const { AQIDAH, isReviewed, matchAqidah } = await import("../../web/src/aqidah.ts");
 const { retrieve } = await import("../../web/src/retrieve.ts");
-const { looksFactual } = await import("../../web/src/question-form.ts");
+const { looksFactual, knowledgeOnly } = await import("../../web/src/question-form.ts");
 
 const corpus = JSON.parse(await Bun.file("web/public/corpus.json").text());
 
@@ -53,6 +53,11 @@ async function resolve(q: string): Promise<Omit<Row, keyof DemoQuestion>> {
     const k = await retrieveKnowledge(q);
     if (k && k.entries.length > 0)
       return { lane: "INDEX", detail: `${k.entries.length} entri`, category: k.category };
+    // Only shapes where a feeling answer would be WRONG stop here; how-to questions fall through.
+    if (knowledgeOnly(q)) {
+      if (k) return { lane: "POINTER", detail: "tidak ada entri spesifik", category: k.category };
+      return { lane: "SILENCE", detail: "tidak ada apa pun", category: null };
+    }
   }
   const hits = retrieve(corpus, q, 2, []) as { verse: { ref: string } }[];
   if (hits.length > 0)

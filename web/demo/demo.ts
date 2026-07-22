@@ -23,7 +23,7 @@ import { rememberTurn, loadThread, clearThread, hasThread, turnFromHits, type Tu
 import { detectCrisis, crisisReply } from "../src/crisis.ts";
 import { matchAqidah, aqidahById, type AqidahEntry } from "../src/aqidah.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "../src/knowledge.ts";
-import { looksFactual } from "../src/question-form.ts";
+import { knowledgeOnly, looksFactual } from "../src/question-form.ts";
 // The baked 3D cosmos built for the Indeks Tematik: 1,632 verse-stars around 13 category hubs.
 // Coordinates are precomputed (src/app/build-peta-3d.ts) — this only draws them, no solver.
 import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "../src/peta-cosmos.ts";
@@ -550,11 +550,20 @@ async function resolveTurn(q: string): Promise<Turn> {
   // index also covers, so "apa itu zakat" was answered with a verse about charity's reward instead
   // of reaching Ibadah. A question shaped as a question tries the knowledge lanes before settling
   // for whatever the feeling lane matched on a keyword.
+  // A factual question NEVER falls through to the feeling lane. It gets a reviewed answer, the
+  // scholar's entries, an honest topic pointer, or silence — in that order.
+  //
+  // Falling through was worse than silence and it was hiding inside the "answered" count: "apa aja
+  // yang termasuk dosa besar" matched the keyword `dosa` and returned a verse about mercy. Someone
+  // asking which sins are gravest was handed reassurance instead, and the app looked confident
+  // while missing the question entirely.
   if (looksFactual(q)) {
     const aq = matchAqidah(q);
     if (aq) return { q, kind: "aqidah", id: aq.id };
     const k = await retrieveKnowledge(q);
     if (k && k.entries.length > 0) return { q, kind: "knowledge", slug: k.slug };
+    // Only shapes where a feeling answer would be WRONG stop here; how-to questions fall through.
+    if (knowledgeOnly(q)) return k ? { q, kind: "knowledge", slug: k.slug } : { q, kind: "silence" };
   }
 
   if (turn.kind === "silence") {

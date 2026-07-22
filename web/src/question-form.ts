@@ -22,8 +22,28 @@
  * today's behaviour exactly.
  */
 
-/** First person openers: this person is telling us about themselves, not asking a question. */
-const PERSONAL = /^\s*(aku|saya|gue|gua|gw|ane|kami|aq)\b/i;
+/**
+ * First person ANYWHERE, not just as an opener.
+ *
+ * It began as `^(aku|saya|...)` because the shapes below were narrow enough that only an opener
+ * could collide. Widening to "kenapa…" broke that: "kenapa aku selalu gagal" is a reasoning SHAPE
+ * wrapped around a person talking about themselves, and it must stay in the feeling lane. If the
+ * sentence mentions the asker, the asker is the subject.
+ */
+const PERSONAL = /\b(aku|saya|gue|gua|gw|ane|aq)\b/i;
+
+/**
+ * First person carried by the `-ku` POSSESSIVE SUFFIX rather than a standalone pronoun.
+ *
+ * "kenapa hidupku susah terus ya" names no pronoun at all, yet it is plainly someone talking about
+ * their own life — and with "kenapa" now a factual shape, it was about to be routed to the
+ * knowledge lanes and answered with silence. Caught by its own regression test.
+ *
+ * An explicit stem list rather than a `\w+ku` pattern, which would swallow `berlaku`, `perilaku`
+ * and `pelaku` — all ordinary words in exactly the ruling questions this must not touch.
+ */
+const PERSONAL_SUFFIX =
+  /\b(hidup|hati|diri|dosa|nasib|badan|jiwa|keluarga|ibu|ayah|orangtua|anak|suami|istri|kerja|masalah|beban|umur|rezeki|iman|amal|usaha|doa|mimpi|hubungan)ku\b/i;
 
 /**
  * Shapes that unambiguously ASK.
@@ -43,8 +63,22 @@ const FACTUAL: readonly RegExp[] = [
   /\bhukum(nya)?\b/i, // hukum X / X hukumnya apa
   /\bhalal\s+atau\s+haram\b/i,
   /\b(boleh|dilarang|wajib|haram)\s?(kah)?\b.*\?/i, // boleh ga sih ...?
-  /\bcara(nya)?\s+\w/i, // cara wudhu, bagaimana caranya sholat
   /\bdalil\b/i,
+  // ── Erik's 2026-07-22 set exposed these. All were being answered by the feeling lane, which
+  // matched a keyword and returned a consolation verse: "apa aja yang termasuk dosa besar" got a
+  // verse about mercy because it contains `dosa`. Counted as answered; entirely wrong.
+  /\b(kenapa|mengapa|knp)\b/i, // kenapa syirik dosa paling parah
+  /\bapa\s?(aja|saja)\b/i, // apa aja yang termasuk dosa besar
+  /\bbeda(nya|kah)?\b/i, // beda takdir mubram sama muallaq
+  /\bapakah\b/i, // apakah dosa besar bisa diampuni
+  /\b(sebutkan|jelaskan|uraikan|urutin|urutkan)\b/i, // sebutkan rukun islam yang 5
+  /\bterm?asuk\b/i, // yang termasuk kategori ...
+  /\bkeutamaan\b/i, // keutamaan membaca ayat kursi
+  // Colloquial yes/no RULING questions — "tetep dosa ngga?", "sah atau ngga ya?". These carry no
+  // question word at all, so nothing above caught them, and they landed in the feeling lane: a
+  // question about whether chatting is sinful was answered with a verse about God's mercy.
+  /\b(dosa|boleh|haram|halal|wajib|sah|batal|makruh)\s+(ngga|nggak|nga|gak|ga|kah|atau)\b/i,
+  /\b(sah|batal|dosa)\s+(atau|apa)\s+(ngga|nggak|gak|ga|tidak)\b/i,
 ];
 
 /**
@@ -53,9 +87,38 @@ const FACTUAL: readonly RegExp[] = [
  * A first-person opener always wins: "aku bingung sama takdir" is someone struggling, even though
  * it names a subject the index covers. The feeling lane owns that sentence.
  */
+/**
+ * How-to shapes: factual, but a pastoral answer can still be RIGHT.
+ *
+ * Split out of FACTUAL after "gimana cara berbakti sama orang tua" regressed from two well-chosen
+ * verses on honouring parents to nothing at all. "How do I do X" often has a legitimate answer in
+ * scripture; "which things count as X" does not. So these prefer the knowledge lanes but may still
+ * fall through, while the shapes above may not.
+ */
+const HOW_TO: readonly RegExp[] = [
+  /\bcara(nya)?\s+\w/i, // cara wudhu, bagaimana caranya sholat
+  /\bgimana\b/i,
+  /\bbagaimana\b/i,
+];
+
+/** True when the question's SHAPE asks for information rather than states a feeling. */
 export function looksFactual(question: string): boolean {
   const q = question.trim();
   if (!q) return false;
-  if (PERSONAL.test(q)) return false;
+  if (PERSONAL.test(q) || PERSONAL_SUFFIX.test(q)) return false;
+  return FACTUAL.some((re) => re.test(q)) || HOW_TO.some((re) => re.test(q));
+}
+
+/**
+ * True when a feeling-lane answer would be WRONG rather than merely second-best.
+ *
+ * "apa aja yang termasuk dosa besar" answered with a verse about mercy is confidently wrong; that
+ * question must end in a pointer or silence instead. A how-to question is not in that category, so
+ * it is excluded here and keeps its fall-through.
+ */
+export function knowledgeOnly(question: string): boolean {
+  const q = question.trim();
+  if (!q) return false;
+  if (PERSONAL.test(q) || PERSONAL_SUFFIX.test(q)) return false;
   return FACTUAL.some((re) => re.test(q));
 }
