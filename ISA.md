@@ -2,8 +2,8 @@
 project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
-phase: execute
-progress: 199/204
+phase: verify
+progress: 207/212
 mode: build
 started: 2026-07-13
 updated: 2026-07-22
@@ -413,6 +413,17 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-205: the model classifier is skipped when the keyword lexicon already matched — `main.ts` gates the `/api/classify` call on `keywordThemeHits(q).size === 0`, so the common (keyword-hit) case pays zero model latency and the model is spent only on misses. Shared `keywordThemeHits()` extracted from `retrieve()` (behavior byte-identical). Verified: `retrieve-model-themes.test.ts` (keyword phrase → theme present → skip; miss → empty → call). Full suite 495/0.
 - [x] ISC-206: the composer retries once on a wall-rejection before falling back. VERIFIED 2026-07-18 — deployed Worker code fetched via the Cloudflare API confirms the `for (attempt<2)` retry loop is live; under SPARSE traffic (6 calls, 6s apart) the live-framing rate is **0/6 null ≈ 100%**. IMPORTANT CORRECTION: the elevated null rates seen while burst-testing (17–50%, and the earlier "~80%/~20%" in ISC-202.2) were **OpenRouter RATE-LIMITING my test bursts** (429 → `callChatModel` throws → null), NOT wall rejections — a measurement artifact of hammering the endpoint. Genuine wall-rejections are rare; the retry only fires on those. **Caveat (not fixed, by design): under real high concurrent load, OpenRouter rate-limiting would cause fallbacks and the retry marginally amplifies request rate. Fine at demo scale; revisit (queue/backoff/rate-limit rule) if traffic spikes.**
 
+**Co-display reaches the demo (2026-07-22) — the blocker on restoring the 7 conditional verses**
+
+- [x] ISC-207: the demo's own verse card renders a required passage — `web/demo/passage.ts` mirrors `verse.ts`'s `passageEl` (split at subject, subject skipped, before above / after below). Verified: `bun test web/demo/` 30/0; live pixel probe in real Chrome at 20:26 inside 20:25–28 shows Musa's du'a in unbroken mushaf order, light and dark theme.
+- [x] ISC-208: neighbours carry no caption of ours — no translation tag, no translator byline, no verse actions, no `why`. Verified: `passage.test.ts` "our words stay on the verse they were written for".
+- [x] ISC-209: Anti: the required passage is never dismissible — no `<details>`, `<summary>`, `aria-expanded`, or `hidden` attribute wraps it, and it is never nested inside the `qk-harf` disclosure the literal companion legitimately uses. Verified: `passage.test.ts` + `card.test.ts` (asserts both passage sides precede the `qk-harf` element).
+- [x] ISC-210: Anti: a curated verse cannot be rendered with its condition dropped — the card takes the verse WHOLE (`curatedCardHtml(v)`), so there is no argument to omit. The shard-backed lanes call `shardCardHtml`, which names in its signature that it draws an uncurated mushaf ayah. Verified: `card.test.ts` wiring tests; `rg cardHtml web/demo/demo.ts` shows all four call sites repointed.
+- [x] ISC-211: the Beranda "ayat hari ini" slot — a FIFTH render path that never used the card — cannot show a conditionally-approved verse alone. Its candidate pool now excludes any verse carrying a `passage`, which is a property of the slot rather than of today's picks (its fallback is positional `verses[0]`, so a rebuild could otherwise land a conditional verse on the home screen). Verified: `demo.ts` `renderToday()` filters `eligible`.
+- [x] ISC-212: Anti: a malformed ref cannot silently misplace the subject — the guard matches `/^(\d+):(\d+)$/` whole. A digits-only check ADMITTED `"20:"` (`Number("")` is 0, an integer), placing the subject at ayah 0 so the entire range counted as "after" it and stacked below the verse, subject included. Verified: `passage.test.ts` `test.each` over 8 near-miss refs.
+- [x] ISC-213: the whole range reaches the reader, once each, in mushaf order. Verified: `card.test.ts` count assertion over 23:57–61 (each ayah exactly once) and index-ordering assertion with the subject in its true position.
+- [x] ISC-214: Anti: no verse was restored this run — restoring before every surface can render a passage is the half-approved ship the mechanism exists to prevent. Verified: `corpus.json` has 0 verses carrying `passage`; 5 entries remain `kind: "condition-unmet"` in `problem-verses.ts`.
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -805,7 +816,58 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
   heading gradient," and it enters the test surface as a criterion when the redesign ports to the app
   (tracked: F-GOLD-BOUNDARY), not before — the redesign is still a Stitch prototype in `.scratch/`.
 
+- **2026-07-22 — The shard-backed lanes render without a passage, deliberately.** Two of the demo's
+  five verse-render paths load from surah shards, which hold no curation and therefore no `passage`:
+  the direct `20:26` ref lookup, and the anchors on a reviewed aqidah answer. They keep that
+  behaviour, mirroring the main reader (`web/src/main.ts` `case "ayah"`). The reasoning: on a direct
+  lookup the app makes no claim — no `why`, no theme, no curation, just "Ini Taha 20:26" — which is
+  the same act as opening a printed mushaf. The condition attaches to *our offering a verse as an
+  answer*, not to the verse existing. Recorded as a decision rather than left implicit because it is
+  genuinely arguable: the stated reason for two of the seven (41:35 "berdiri sebagai kelanjutan ayat
+  34", 92:7 "bergantung pada syarat di ayat sebelumnya") is a property of the TEXT, which is true no
+  matter who asked. Worth putting to the ustadz at the meeting. A smaller related gap: the main
+  reader gives a direct lookup a "Baca lanjutan" link into the surah; the demo's card has no
+  `continueTo`, so its lookup is a dead end where the reader's is a doorway. Not fixed here.
+- **2026-07-22 — The pair-duplication case is known, unfixed, and Erik's call.** Two of the seven
+  conditional verses are PAIRS inside one range (20:25 + 20:26 in 20:25–28; 23:60 + 23:61 in
+  23:57–61). If both members co-retrieve in one answer — and the demo returns exactly 2 hits, so a
+  pair consumes the whole answer — each renders its own card with its own copy of the range. Every
+  ayah then appears exactly twice, and each subject appears once as a headline verse and once
+  demoted to grey context for its sibling. Not a doctrinal failure: the required context is fully
+  present on both cards and no caption is transplanted. It is a presentation defect — a stutter and
+  a status inversion mid-scroll — and it is guaranteed the first time a pair co-retrieves. Deferred
+  to the restore step (1b), where the options are visible: merge co-ranged hits into one card, or
+  suppress a hit already displayed as a neighbour.
+- **2026-07-22 — Delegation floor met at 1 of 2 (show your math).** Forge ran an adversarial pass
+  over the diff and earned its cost — it found the fifth render path (`renderToday`), the truncated-
+  ref guard hole, and the wiring test gap, all three of which are fixed above. The second delegation
+  would have been Anvil for whole-project context, and it was not spent: the change touches one
+  directory (`web/demo/`) against a reference implementation (`web/src/verse.ts`) already read in
+  full, so long-context reasoning had nothing to reach for that a direct read had not already
+  supplied.
+
 ## Changelog
+
+**2026-07-22 — An optional parameter cannot enforce a condition.**
+- **conjectured:** that co-display was safe on the demo once `cardHtml` accepted a `passage` and the
+  corpus-backed call sites passed it — the mechanism was built, the render path was correct, and the
+  tests over the renderer all passed.
+- **refuted by:** an adversarial read of the diff. Deleting `, hit.verse.passage` from the call site
+  type-checked clean and left all 13 tests green. The tests proved the renderer, not the wiring, so
+  the single most likely future regression — a call site quietly dropping the passage — was
+  invisible to both the compiler and the suite. The mechanism whose entire purpose is "this verse
+  cannot appear without its context" had "forgetting the context" as a silent, compiling operation.
+  A second reading found a fifth render path (the Beranda's ayat-hari-ini) that never called the card
+  at all, and a guard that admitted `"20:"` and placed the subject at ayah 0.
+- **learned:** an enforcement mechanism has to be enforced at the type of its input, not at the
+  diligence of its callers. Passing the verse WHOLE removes the argument there was to forget; two
+  named entry points make "this one has no curation to carry" a statement the signature makes rather
+  than an omission a reader has to notice. And a renderer's test suite is not the mechanism's test
+  suite: what needed pinning was which call sites must pass a passage, which is exactly what no test
+  covered.
+- **criterion now:** ISC-210 (a curated verse cannot be rendered with its condition dropped),
+  ISC-211 (the one-verse-alone slot excludes conditional verses by pool, not by pick), ISC-212 (a
+  malformed ref throws rather than misplacing the subject).
 
 **2026-07-17 — The "no gold" rule conflated a hue with an anti-pattern.**
 - **conjectured:** that gold had to be banned outright — "No gold. Not one token." (DESIGN.md) — because
