@@ -8,7 +8,78 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — a screenshot finally worked, and it caught a bug the API probes had cleared
+## 2026-07-22 (latest) — three apps became one, and coverage got measured instead of assumed
+
+**THE ESTATE IS NOW ONE APP.** `new-quranku` and `new-quranku-ai` are DELETED from Cloudflare;
+`demo-quranku.axiara.ai` is the only surface, serving `index-CH1O-gYQ.js`. The old hostnames
+return 522 — routes gone, DNS placeholder AAAA records still on the zone (harmless, cleanable).
+
+**The deletion order was the whole safety margin.** The demo depended on the app being deleted
+for ALL THREE model calls (`/api/answer`, `/api/classify`, `/api/compose` all pointed at
+new-quranku-ai). Cutting first would have silently degraded Tanya to keyword retrieval with no
+fallback to diagnose against. So the demo was made self-sufficient first — same-origin `/api/*`,
+its own key, `EDITION: synthesis` — and PROVEN so before anything was removed.
+
+**The secret uploaded EMPTY on the first attempt and printed "Success!".** wrangler's hidden
+prompt gets no stdin through the harness `!`. Caught by a controlled probe: same payload, same
+second, against the Worker that still had a good key — it authored, the demo returned null. Had
+the deletion gone first, that control would not have existed. **Never trust a wrangler secret
+"Success" through the harness; always probe before relying on it.**
+
+**A LIVE BUG FOUND AND FIXED EN ROUTE.** `new-quranku-ai` had been serving the PRINCIPLED
+bundle — both prod hostnames were on the same hash. Both editions build to the same `web/dist`
+with different flags, so deploying them back-to-back without rebuilding between ships one bundle
+to both. Fixed, then rendered moot by the deletion.
+
+**COVERAGE IS NOW MEASURED, NOT ASSUMED.** `bun run app:coverage-audit` runs the real lanes over
+141 questions (`src/review/demo-questions.ts`) and emits `docs/review/coverage-audit.md` +
+`docs/review/ustadz-worklist.md`. Measured against a worktree at the pre-fix commit, routing work
+took the original set 53% → 64%. Erik then added 37 casual-register questions which score 42%;
+combined **82/141 (58%)**.
+
+**58% is the NO-MODEL FLOOR, not what the ustadz will see.** The audit measures the principled
+lanes. The live demo fronts everything with the AI pass, which often does better — and can do
+worse in a way the audit cannot see, by authoring fluently from wrongly-retrieved verses. A
+true live-answer eval needs a human reading every row; it does not exist yet.
+
+**Erik's 37 questions found WRONG ANSWERS, not just gaps.** Six were counted as answered while
+returning consolation verses: "apa aja yang termasuk dosa besar" matched the keyword `dosa` and
+got a verse about mercy. Fixed by widening `looksFactual` (kenapa / apa aja / beda / apakah /
+sebutkan / "dosa ngga?") and by stopping factual questions falling through to the feeling lane.
+Split into two predicates after over-correcting: `knowledgeOnly()` stops at pointer/silence,
+`looksFactual()` allows how-to to fall through — because making everything knowledge-only
+regressed "gimana cara berbakti sama orang tua" from two good verses to nothing.
+
+`PERSONAL` also had to learn the `-ku` suffix: "kenapa hidupku susah terus ya" names no pronoun
+but is plainly someone in distress. Explicit stem list, not `\w+ku`, which swallows berlaku /
+pelaku / perilaku.
+
+**Other work this session.** Terjemah → Terjemahan across all surfaces (Erik's ruling). Juz data
+from the already-pinned Tanzil metadata, 30 spans verified to tile all 6,236 ayahs. All three
+Beranda tabs wired (Surah / Juz / Urutan Wahyu) — they had been inert markup. Deep links now
+land instantly instead of smooth-scrolling 60,000px over 12 seconds. Topic routing fixed so a
+subject present in the index reaches its own category. A vocabulary layer makes the ustadz's
+existing work findable in the reader's words (ghibah → menggunjing), which took ibadah 58% → 92%.
+
+**The line vocabulary.ts must not cross, and I crossed it once.** `musik → bernyanyi` is a fiqh
+association, not a naming variant; `knowledge.test.ts` caught it. `vocabulary.test.ts` now
+asserts pinjol→riba, asuransi→judi, aborsi→membunuh anak and others are ABSENT, each with the
+ruling it would smuggle in.
+
+**Typecheck is clean for the first time in a long while.** DOM rot traced to its root: `peta.ts`
+is the rendering module but `knowledge.ts` only wanted its loaders, so Bun scripts dragged
+`document` into a no-DOM tsconfig. Split at the data seam (`peta-data.ts`), `esc` moved to
+`esc.ts`. That rot came from running tests but not typecheck — twice.
+
+**Co-display: mechanism and rendering BUILT, no verse restored.** Schema, corpus emit with
+fail-fast invariants, and the NEVER_TOGETHER gate extended to cover co-display ranges (proven by
+injecting the 4:145/4:146 bypass — the build failed correctly). Reader card and theme browser
+render passages, not collapsible, no caption on neighbours. Restoring the 7 verses is gated on
+the demo's own `cardHtml` rendering passages too — restoring first would ship half-approved.
+
+Suite 789/0. Corpus unchanged at 184 verses.
+
+## 2026-07-22 — a screenshot finally worked, and it caught a bug the API probes had cleared
 
 Two fixes, NEITHER DEPLOYED (`ef8c0df`, `d67b40e`). Erik asked to hold the deploy.
 
