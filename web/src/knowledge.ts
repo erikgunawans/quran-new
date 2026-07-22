@@ -17,7 +17,10 @@
  * feeling is never hijacked into a topic dump. Unknown topic → null → the honest silence stands.
  */
 import { loadCategory, loadIndex, type PetaIndex } from "./peta.ts";
-import { norm, OVERLAP_STOP, phraseHit, questionForms } from "./retrieve.ts";
+import { isFeelingWord, norm, phraseHit, questionForms } from "./retrieve.ts";
+export { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
+import { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
+import { TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
 
 /**
  * Question keywords → Peta category slug. Deliberately CONSERVATIVE: a topic must be named fairly
@@ -54,78 +57,6 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "karakteristik-negara-bersyari-ah": ["negara", "syariah", "pemerintahan", "khilafah", "politik", "pemimpin", "hukum islam"],
 };
 
-/**
- * Function/filler words that must not carry entry-ranking signal (mirrors retrieve.ts's discipline).
- *
- * This list started at ~45 words and was too thin: entries are terse index lines, so a single shared
- * function word was enough to qualify one. "tentang" ("about") pulled 12 entries for a question about
- * the Prophet; "atas" ("upon") pulled 7 for the where-is-Allah question, where it is a preposition
- * ("saksi atas kebenaran"), not the spatial "above" the asker meant.
- *
- * Frequency/IDF weighting was measured as the alternative and REJECTED: in a corpus of terse lines
- * every offending word is rare in its own category ("tentang" 4.1%, "atas" 2.1%, "haram" 1.8%) —
- * right beside the legitimate "riba" (2.9%). Frequency cannot tell signal from noise here; word
- * class can. Hence: prepositions, conjunctions, particles, pronouns, and the speech-act verbs people
- * open questions with ("ceritakan", "jelaskan", "sebutkan") carry no topical signal and are dropped.
- *
- * Deliberately NOT here: topical nouns, including loaded ones like "hukum", "riba", "arsy", "nabi".
- * Those are the scholar's subject matter and must keep their signal.
- */
-const KNOWLEDGE_EXTRA = [
-  // Beyond the shared function words: prepositions, relators and the speech-act verbs people open a
-  // question with. These earn their place here because index entries are terse, so a single shared
-  // function word was enough to qualify one ("tentang" pulled 12 entries for a question about the Prophet).
-  "tentang", "atas", "bawah", "dalam", "luar", "oleh", "kepada", "bagi", "antara", "hingga",
-  "sampai", "secara", "serta", "bahwa", "agar", "supaya", "jika", "bila", "ketika", "saat",
-  "setelah", "sebelum", "selama", "tanpa", "yaitu", "yakni", "terhadap", "menurut", "melalui",
-  "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
-  "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
-  "sangat", "sekali", "hanya", "masih", "pernah", "selalu", "kadang", "mungkin", "harus", "perlu",
-  "ingin", "mohon", "mana", "sama", "soal", "biar", "banget", "nih", "kok",
-];
-
-/**
- * Indonesian function words that carry no ranking signal.
- *
- * Built ON TOP of retrieve.ts's OVERLAP_STOP rather than beside it. The two lists used to be
- * hand-maintained copies "mirroring" each other, and they had already drifted — this file grew to
- * ~112 words while OVERLAP_STOP stayed at 57, so the same word could be noise on one side and signal
- * on the other. Sharing the base means a fix lands once instead of on whichever side the bug was
- * reported from.
- */
-const STOP = new Set<string>([...OVERLAP_STOP, ...KNOWLEDGE_EXTRA]);
-
-/**
- * Corpus-frame words: generic across an Islamic index regardless of category, so they discriminate
- * nothing. This generalises the existing nameWords rule — that drops a category's OWN name ("allah"
- * in the Allah category, which matches nearly every entry there) — to words that are framing
- * everywhere. Someone asking "hukum mendengarkan musik dalam islam" uses "islam" to frame the
- * question, not to name its topic; ranking on it returned 8 entries about Islam in general
- * (df: islam 29/626, agama 32/626 in Perintah dan Larangan) and nothing about music.
- *
- * Consequence, and it is the right one: a bare "apa itu islam" now has no discriminating word left
- * and returns the honest topic pointer instead of arbitrary entries — exactly what the existing
- * "who is Allah" test already pins for the same reason.
- */
-const FRAME = new Set<string>(["islam", "islami", "muslim", "agama", "ajaran"]);
-
-/**
- * Question-frame nouns: they name the KIND of question, never its subject.
- *
- * In "hukum pacaran dalam islam", `hukum` says *what is being asked* — the ruling on something — and
- * `pacaran` says *what it is being asked about*. `hukum` cannot go in FRAME or STOP: it is a real
- * content word that matches real law entries, and "apa hukum qishas" should absolutely find the
- * qishas lines. It is only noise when it matched INSTEAD of the subject.
- *
- * Frequency cannot make this distinction and was measured, not assumed: in Perintah dan Larangan
- * `hukum` is 6/626 (1.0%) — RARER than `riba` in Ekonomi (2/69, 2.9%) and barely commoner than the
- * legitimate `zina` (3/626, 0.5%). An IDF threshold would rank `hukum` as MORE specific than `riba`
- * and rank the noise above the signal. This is the second time frequency has been tried against this
- * index and the second time it has failed; the separator is word CLASS, as it was before.
- *
- * See `subjectHit` for how this is used.
- */
-const QUESTION_FRAME = new Set<string>(["hukum", "hukumnya", "syariat", "syariah", "dalil", "cara", "caranya"]);
 
 const MAX_ENTRIES = 8;
 
@@ -185,24 +116,151 @@ export interface KnowledgeAnswer {
   readonly entries: readonly KnowledgeEntry[];
 }
 
+/** Shortest token that may stand in for a longer one. Below this, prefixes are particles. */
+const MIN_STEM = 4;
+
+/**
+ * Does an asked word reach a written one?
+ *
+ * Exact, or the ASKED word being a prefix of the WRITTEN one — "homo" reaches "homoseksual". The
+ * index is written in formal vocabulary while people ask in clipped casual forms, so requiring
+ * identical tokens meant the index could hold a subject and still be unreachable by the word
+ * anyone would actually type.
+ *
+ * ONE DIRECTION ONLY, and the asymmetry is load-bearing. Allowing the written word to be the
+ * shorter one let "mendengarkan" reach "mendengar", which surfaced entries for
+ * "hukum mendengarkan musik" — a question whose actual subject (musik) the index does not cover at
+ * all. A verb form reaching a shorter stem is how a frame word starts answering for a missing
+ * subject, which knowledge.test.ts pins against precisely because it shipped once before.
+ *
+ * Prefix, never substring — substring would let "ana" reach "zina".
+ */
+export function stemReach(asked: string, written: string): boolean {
+  if (asked === written) return true;
+  return asked.length >= MIN_STEM && written.length > asked.length && written.startsWith(asked);
+}
+
+/**
+ * The words in a question that could name a SUBJECT the index might cover.
+ *
+ * Feeling words are excluded, and that exclusion is the load-bearing part. The feeling lane runs
+ * first and owns "sedih", "capek", "kangen"; if the topic lane picked them up on the rebound, a
+ * person saying they are sad would be handed a chapter of commands and prohibitions. Baseline
+ * behaviour is that such questions route NOWHERE, and that is correct, not a gap.
+ */
+const INTERROGATIVE = new Set<string>([
+  "apa", "apakah", "apaan", "siapa", "siapakah", "kenapa", "mengapa", "kapan", "kapankah",
+  "mana", "dimana", "kemana", "bagaimana", "gimana", "gmn", "bagaimanakah", "berapa", "adakah",
+  "boleh", "bolehkah", "harus", "haruskah", "itu", "yang",
+]);
+
+function subjectWordsOf(q: string): string[] {
+  return norm(q)
+    .split(/[\s-]+/)
+    .filter(
+      (w) =>
+        w.length >= MIN_STEM &&
+        !STOP.has(w) &&
+        !FRAME.has(w) &&
+        !QUESTION_FRAME.has(w) &&
+        // Interrogatives name the SHAPE of a question, never its subject. "bagaimana" occurs in
+        // plenty of entry texts, so without this it routed "bagaimana cara sholat" away from
+        // Ibadah and into whichever category happened to use the word most.
+        !INTERROGATIVE.has(w) &&
+        !isFeelingWord(w),
+    );
+}
+
+/**
+ * Alias words that name the KIND of question rather than its subject.
+ *
+ * These are the ruling vocabulary — halal/haram/wajib/boleh and friends — which is essentially the
+ * whole alias list of `perintah-dan-larangan`. That category answers "what is the ruling on X",
+ * so matching it tells us the question's SHAPE and nothing about X. `ibadah` is the contrast: its
+ * aliases ("sholat", "puasa", "zakat") are real subjects, so a hit there is grounded and must not
+ * be second-guessed.
+ */
+const FRAME_ALIAS = new Set<string>([
+  "perintah", "larangan", "hukum", "halal", "haram", "wajib", "sunnah", "makruh", "mubah",
+  "syariat", "syari at", "boleh", "gak boleh", "ga boleh", "nggak boleh", "bolehkah",
+  "berdosa", "dosa ga", "dosa gak", "dilarang", "diperbolehkah", "diperbolehkan",
+]);
+
+/** Categories whose entries actually contain this word, strongest first. */
+function categoriesContaining(w: string): readonly string[] {
+  const direct = TOPIC_SUBJECTS[w];
+  const slots =
+    direct ?? TOPIC_SUBJECTS[Object.keys(TOPIC_SUBJECTS).find((k) => stemReach(w, k)) ?? ""];
+  return (slots ?? []).map((i) => TOPIC_SLUGS[i]).filter((x): x is string => x !== undefined);
+}
+
 /** Match a question to a single topic. Returns the highest-scoring category slug, or null. */
 export function matchTopic(question: string): string | null {
   const q = norm(question);
   if (!q) return null;
+
+
   // Split on hyphens too, so "al-quran" yields the whole word "quran" for the alias match.
   const forms = questionForms(q);
-  let best: { slug: string; score: number } | null = null;
+  let best: { slug: string; score: number; grounded: boolean } | null = null;
   for (const [slug, aliases] of Object.entries(TOPIC_ALIASES)) {
     let score = 0;
+    // Did this category match on a real subject term, or only on ruling vocabulary?
+    let grounded = false;
     for (const a of aliases) {
       // Same matcher the theme lexicon uses. This used to be whole-word-only, so "hukumnya",
       // "sholatnya" and "zakatku" matched no topic while their bare forms did — the app quietly
       // required people to strip their own suffixes. Multi-word aliases are space-bounded rather
       // than raw substrings, for the reason documented on phraseHit.
-      if (a.includes(" ") ? phraseHit(` ${q} `, a) : forms.has(a)) score += 1;
+      if (a.includes(" ") ? phraseHit(` ${q} `, a) : forms.has(a)) {
+        score += 1;
+        if (!FRAME_ALIAS.has(a)) grounded = true;
+      }
     }
-    if (score > 0 && (!best || score > best.score)) best = { slug, score };
+    if (score > 0 && (!best || score > best.score)) best = { slug, score, grounded };
   }
+
+  /**
+   * Subject correction.
+   *
+   * Alias scoring above matches how a question is FRAMED. That is usually right, and it stays the
+   * primary route. But "homo itu hukumnya apa sih di islam?" scored on `hukum` and `larangan`,
+   * landed on Perintah dan Larangan's 626 entries, and pointed there confidently — while the entry
+   * it wanted ("Homoseksual", QS 7:80) sat in Membangun Pribadi Shalih, a category the router never
+   * considered. The index HELD the answer and the router could not reach it.
+   *
+   * So the alias result is kept UNLESS the question names a subject that the chosen category does
+   * not contain and some other category does. Deliberately narrow: it only fires where the alias
+   * route is demonstrably wrong, so every question that already routed correctly still does.
+   */
+  // A grounded alias hit is curation naming the subject outright — never overridden. "bagaimana
+  // cara sholat" matches `ibadah` on "sholat" itself; the fact that Ibadah's entry TEXTS happen to
+  // spell it differently is not evidence the route is wrong.
+  if (best?.grounded) return best.slug;
+
+  /**
+   * Correct only when EVERY subject word is covered somewhere.
+   *
+   * The conservative half of the rule, and it is what keeps the fix from becoming the bug it
+   * replaced. "hukum mendengarkan musik" has two subject words: `mendengarkan`, which the index
+   * uses freely (about listening to the Qur'an), and `musik`, which it does not cover at all.
+   * Correcting on the covered word alone would route a question about music into a chapter about
+   * scripture and answer confidently about the wrong thing — the exact failure knowledge.test.ts
+   * pins, because it shipped once already.
+   *
+   * If any named subject is absent from the whole index, we do not know enough to overrule the
+   * alias, and silence remains the honest outcome.
+   */
+  const subjects = subjectWordsOf(q);
+  const coverage = subjects.map((w) => ({ w, holders: categoriesContaining(w) }));
+  if (coverage.length > 0 && coverage.every((c) => c.holders.length > 0)) {
+    for (const { holders } of coverage) {
+      if (best && holders.includes(best.slug)) return best.slug; // alias category has it — keep
+    }
+    const holder = coverage[0]?.holders[0];
+    if (holder) return holder;
+  }
+
   return best?.slug ?? null;
 }
 
@@ -261,7 +319,12 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
       let onSubject = false;
       // A hit only counts in the asker's sense — see SENSE_COLLOCATIONS (haram: forbidden vs sacred).
       for (const w of qWords) {
-        if (!words.has(w) || !hasOwnSense(e.text, w)) continue;
+        // Exact first, then the written form this asked word reaches: someone typing "homo" is
+        // asking about the entry that says "Homoseksual", and requiring identical tokens meant the
+        // index could hold a subject and still be unreachable by the word anyone would type.
+        // Sense-checking uses the WRITTEN word, since that is what actually appears in the text.
+        const written = words.has(w) ? w : [...words].find((x) => stemReach(w, x));
+        if (written === undefined || !hasOwnSense(e.text, written)) continue;
         score += 1;
         // …and a hit on the question's FRAME is not a hit on its subject. See subjectWords.
         if (!subjectWords.size || !QUESTION_FRAME.has(w)) onSubject = true;

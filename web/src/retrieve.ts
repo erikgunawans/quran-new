@@ -232,6 +232,18 @@ export const MODEL_THEME_MATCH = "(dari ceritamu)";
  * correspond to real corpus themes — 83 hand-typed strings across a build boundary that nothing
  * else checks, where a typo silently disables a feeling's keyword path. */
 export const lexiconThemes = (): readonly string[] => Object.keys(LEXICON);
+
+/**
+ * Every keyword the FEELING lexicon claims, flattened.
+ *
+ * Exists so the topic router can refuse to treat a feeling word as a subject. "aku sedang sedih"
+ * must reach the topic index and find NOTHING — a person saying they are sad, handed a chapter of
+ * commands and prohibitions, has been answered by a machine that heard a keyword and not a person.
+ * The feeling lane runs first and owns these words; the topic lane must not pick them up on the
+ * rebound.
+ */
+const FEELING_WORDS: ReadonlySet<string> = new Set(Object.values(LEXICON).flat().flatMap((t) => t.split(/\s+/)));
+export const isFeelingWord = (w: string): boolean => FEELING_WORDS.has(w);
 export const openerThemes = (): readonly string[] => Object.keys(OPENERS);
 
 export interface Hit {
