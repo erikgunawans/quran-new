@@ -66,12 +66,19 @@ EDITION = "synthesis"
 
 # ── env: demo — the QuranKu-clone showcase (demo-quranku.axiara.ai) ────────────────────────────────
 #
-# A THIRD Worker + route, SAME codebase, but serving the ISOLATED demo bundle (web/dist-demo, built by
-# `bun run demo:build`) instead of web/dist. This deploy is a static host only: the demo's Tanya calls
-# the synthesis Worker cross-origin (https://new-quranku-ai.axiara.ai/api/*), so this Worker never needs
-# its own OPENROUTER_API_KEY. EDITION stays `principled` to keep /api/answer dark here as a matter of course.
+# The SURVIVING app as of 2026-07-22. Serves the ISOLATED demo bundle (web/dist-demo, built by
+# `bun run demo:build`) instead of web/dist.
+#
+# It used to be a static host only, borrowing the synthesis Worker's key cross-origin at
+# https://new-quranku-ai.axiara.ai/api/*. Retiring the other two apps would have left the surviving
+# one depending on a deleted one, so this Worker now holds its OWN key and serves its own /api/*.
+# Same-origin, so there is no CORS surface here at all.
+#
+# EDITION is `synthesis` because the demo IS the AI-authoring edition — /api/answer must be live
+# here or Tanya degrades to keyword retrieval and canned openers.
 #
 # DEPLOY:  bun run demo:build && cd worker && bunx wrangler deploy --env demo
+# SECRET (once): cd worker && bunx wrangler secret put OPENROUTER_API_KEY --env demo
 # DNS (once): add a PROXIED placeholder AAAA `demo-quranku` → 100:: on the axiara.ai zone (same trick as
 #   new-quranku / new-quranku-ai); the route below then binds the Worker to the hostname.
 # CORS (once): add https://demo-quranku.axiara.ai to ALLOWED_ORIGINS in src/index.ts and redeploy the
@@ -90,4 +97,4 @@ not_found_handling = "single-page-application"
 [env.demo.vars]
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
-EDITION = "principled"
+EDITION = "synthesis"

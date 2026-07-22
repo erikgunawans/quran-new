@@ -35,11 +35,22 @@ type ReadingLike = { text: string; translator: string; translation_type: string 
  * principled retrieval one. `synthesizeAnswer` gathers byte-exact grounding, hands it to the model,
  * and guards the prose. The model lives behind the edge Worker's /api/answer (it holds the key).
  *
- * The stock `liveAnswerModel` posts to a RELATIVE /api/answer — which does not exist on localhost —
- * so the demo uses this model, pointed at the deployed synthesis Worker (CORS-verified). Same
- * contract, same guard, same fail-closed degradation as the live app; only the URL is absolute.
+ * SELF-HOSTED SINCE 2026-07-22. These three calls used to point at
+ * https://new-quranku-ai.axiara.ai — the demo was a keyless static host borrowing the synthesis
+ * Worker's key cross-origin. When the other two apps were retired, that made the surviving app
+ * depend on a deleted one, so the demo Worker now holds its own key and serves its own /api/*.
+ *
+ * Same-origin in production, which also means no CORS surface at all. Localhost has no Worker
+ * behind it, so dev falls back to the deployed demo host — the one case that still needs an
+ * absolute URL.
  */
-const AI_ANSWER_ENDPOINT = "https://new-quranku-ai.axiara.ai/api/answer";
+const API_ORIGIN =
+  typeof location !== "undefined" && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+    ? "https://demo-quranku.axiara.ai"
+    : "";
+const apiUrl = (path: string): string => `${API_ORIGIN}${path}`;
+
+const AI_ANSWER_ENDPOINT = apiUrl("/api/answer");
 const AI_TIMEOUT_MS = 20000;
 
 const demoAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<string> => {
@@ -67,7 +78,7 @@ const demoAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<string>
  * liveThemeModel → /api/classify). Without this the demo would ground on keywords alone and answer
  * more thinly on inputs phrased outside the lexicon. Absolute URL for the same reason as answer.
  */
-const AI_CLASSIFY_ENDPOINT = "https://new-quranku-ai.axiara.ai/api/classify";
+const AI_CLASSIFY_ENDPOINT = apiUrl("/api/classify");
 const CLASSIFY_TIMEOUT_MS = 4000;
 
 const demoThemeModel: ThemeModel = async (ctx: ThemeContext): Promise<string[]> => {
@@ -109,7 +120,7 @@ const demoThemeModel: ThemeModel = async (ctx: ThemeContext): Promise<string[]> 
  * away good prose one call in four, invisibly — the endpoint logged a success for a line nobody
  * ever read. Do not lower this without re-measuring.
  */
-const AI_COMPOSE_ENDPOINT = "https://new-quranku-ai.axiara.ai/api/compose";
+const AI_COMPOSE_ENDPOINT = apiUrl("/api/compose");
 const COMPOSE_TIMEOUT_MS = 8000;
 
 const demoFramingModel: FramingModel = async (ctx: ComposeContext): Promise<string> => {
