@@ -8,7 +8,31 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — a nafkah question got a parents verse; now it defers to a human ustadz
+## 2026-07-23 (latest) — codex hardened the nafkah gate both ways, and it's live
+
+The `/codex` adversarial review (GPT-5.4, PASS/no-P1) earned its keep on a fix that already passed
+842 tests. It found the gate cut BOTH ways, and both are now fixed + deployed:
+
+- **False positive (the sharp one):** `nafkah` has two senses. "cari nafkah" is *earning a living*,
+  not spousal maintenance — "capek cari nafkah, gimana biar tenang" is a tired breadwinner who should
+  get comfort, and the coarse `q.includes("nafkah")` gate would have shipped them to a family-law
+  ustadz. Now `NAFKAH_EARNING` vetoes the livelihood sense and `NAFKAH_MARITAL` REQUIRES the marital
+  sense (spouse actor or a give/withhold verb) before deferring.
+- **False negatives:** ruling-framed rights questions without harus/bagaimana/gimana slipped through
+  to a mismatched verse/KB card — "boleh minta cerai?", "hak istri kalau tidak dinafkahi apa?",
+  "hukumnya apa?". Frame widened: boleh/hak/kewajiban/hukum/gugat/cerai.
+- **main.ts corpus-throw** no longer overrides a referral (now matches demo.ts's pre-corpus return).
+
+19 refer tests pin Codex's cases in BOTH directions; suite 842/0; typecheck clean bar the 3 baseline
+errors. Committed `eed67da`, pushed. **DEPLOYED** (Erik ran it) — `new-quranku-demo-proxy` version
+`3509ae70`. Live-verified via Interceptor: "capek cari nafkah, gimana biar tenang" → warm AI answer
+(At-Talaq 65:7 "kemudahan setelah kesulitan"), no referral; "suami tidak kasih nafkah, hukumnya apa?"
+→ instant referral, no card. Both senses correct on live.
+
+**Lesson:** a keyword gate that DEFERS/SILENCES must disambiguate word senses — a substring test cuts
+both ways, and the author's own tests won't catch it (they share the author's blind spot). Codex did.
+
+## 2026-07-23 — a nafkah question got a parents verse; now it defers to a human ustadz
 
 **THE BUG (from Erik's screenshot).** "suami saya ga ngasih nafkah, saya harus bagaimana?" on the
 live demo returned QS 17:23 (honouring PARENTS) as a grounding card, under an AI answer that itself
