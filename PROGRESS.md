@@ -8,7 +8,34 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — the review package for the ustadz was built, and web/src was decided dark
+## 2026-07-23 (latest) — a nafkah question got a parents verse; now it defers to a human ustadz
+
+**THE BUG (from Erik's screenshot).** "suami saya ga ngasih nafkah, saya harus bagaimana?" on the
+live demo returned QS 17:23 (honouring PARENTS) as a grounding card, under an AI answer that itself
+said the verse did not address nafkah. Deterministic trace: "suami" is a keyword in the broad
+`Family` theme; the only Family-tagged verses are 17:23/17:24 (parents) and 30:21 (spouses); all tie
+at +10 and the surah-ascending tie-break puts 17:23 first. The relevant spouse verse (2:187) is
+unreachable because the bare word "suami" isn't in the `Marriage & spouse` lexicon. Underneath: the
+corpus has NO nafkah verse (it's fiqh), and the scholar KB's only nafkah line is 65:6 (a pregnant
+divorcée's maintenance) — so surfacing the KB would just swap one mismatch for another. The AI's
+deferral TEXT was correct; the card beneath it was retrieval's mistake, surfaced.
+
+**THE FIX — honest silence, Erik's call.** New narrow gate `needsFamilyLawScholar(q)` in retrieve.ts:
+fires only when the question contains the maintenance root "nafkah" AND an action frame
+(harus/bagaimana/gimana/langkah/solusi/cara). A bare definition ("apa itu nafkah") still reaches the
+KB. New `refer` Turn kind; both orchestrators (principled `main.ts` + live `demo.ts`) short-circuit to
+it BEFORE the feeling and KB lanes and before any model hop, so no verse OR KB card can attach — only
+a pointer to a human ustadz who does family law. `retrieve()` itself is UNCHANGED (a test pins that it
+still returns 17:23 for the query, proving the gate belongs in the orchestrator, not the scorer).
+
+**VERIFIED end-to-end in real Chrome** (Interceptor, local `dist-demo` static bundle, no worker — the
+referral is network-free by construction). Nafkah query → the referral copy, zero verse card. Control
+"aku lagi capek banget" → normal feeling opener + verse card intact, so the gate is narrow. Suite
+**835/0** (+12); `tsc -p web/tsconfig.json` clean bar the 3 known baseline errors (main.ts/themes.ts).
+Committed `def53ea`, pushed. **NOT deployed — demo deploy is Erik's gated call:**
+`bun run demo:build && cd worker && bunx wrangler deploy --env demo`.
+
+## 2026-07-23 — the review package for the ustadz was built, and web/src was decided dark
 
 **THE CO-DISPLAY MECHANISM IS NOW A REVIEWABLE ARTIFACT for Ustadz Ahmad Isrofiel.** He approved the
 *condition* ("tampilkan bersama") in writing but had never seen the *built mechanism*. Generated a
