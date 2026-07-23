@@ -17,7 +17,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
 import { esc } from "../src/esc.ts";
 import { todayPick, todayCardHtml } from "./today.ts";
-import { retrieve, compose, type Corpus, type Hit } from "../src/retrieve.ts";
+import { retrieve, compose, needsFamilyLawScholar, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
 import { composeFraming, type ComposeContext, type FramingModel } from "../src/compose-contract.ts";
@@ -352,6 +352,15 @@ const SILENCE = `<div class="qk-silence">
   surah dan ayatnya langsung (misalnya <b>2:255</b>).</p>
 </div>`;
 
+/** A marital rights/obligation question (nafkah): fiqh, not feeling. No verse, no KB — a pointer to
+ * a human ustadz who does family law. See needsFamilyLawScholar() in ../src/retrieve.ts. */
+const REFER = `<div class="qk-silence">
+  <p>Ini soal <b>hak dan kewajiban dalam rumah tangga</b> — termasuk nafkah. Aku menemani lewat
+  perasaan, dan aku tidak mau menyodorkan ayat yang tidak pas atau seolah memberi putusan hukum keluarga.</p>
+  <p>Untuk hal seperti ini, sebaiknya kamu tanya <b>ustadz atau tokoh agama yang paham hukum keluarga</b> —
+  mereka bisa menjelaskan hak dan langkah yang bisa kamu tempuh dengan lengkap.</p>
+</div>`;
+
 /* ── the chat thread ─────────────────────────────────────────────────
    Matches the live new-quranku-ai edition: an accumulating conversation, not a single answer.
    We persist what the engine DECIDED (a ref, hits, an AI prose turn) via thread.ts and re-derive
@@ -467,6 +476,8 @@ async function renderTurn(t: Turn): Promise<string> {
       // gating on entries.length threw that away and showed generic silence instead.
       return k.entries.length ? knowledgeHtml(k) : knowledgePointerHtml(k);
     }
+    case "refer":
+      return REFER;
     case "silence":
       return SILENCE;
   }
@@ -483,6 +494,10 @@ async function resolveTurn(q: string): Promise<Turn> {
   if (ref.kind === "no-such-ayah") return { q, kind: "no-such-ayah", surah: ref.surah.n, ayah: ref.ayah };
   if (ref.kind === "surah") return { q, kind: "surah", surah: ref.surah.n };
   if (ref.kind === "ayah") return { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah };
+
+  // A marital rights/obligation question (nafkah) is fiqh, not feeling: never a verse OR the KB,
+  // only a pointer to a human ustadz. Decided before any model hop and every lane below.
+  if (needsFamilyLawScholar(q)) return { q, kind: "refer" };
 
   const c = await ensureCorpus();
   if (!c) return { q, kind: "silence" };

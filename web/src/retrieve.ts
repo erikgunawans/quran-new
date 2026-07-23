@@ -412,6 +412,30 @@ export function isRulingQuestion(question: string): boolean {
   return PROCEDURAL.test(q) && RITUAL_NOUNS.some((n) => (n.includes(" ") ? q.includes(n) : forms.has(n)));
 }
 
+/**
+ * A marital rights/obligation question — the case that exposed this: "suami saya ga ngasih nafkah,
+ * saya harus bagaimana?".
+ *
+ * Nafkah (spousal maintenance) is a matter of hak & kewajiban — fiqh, not feeling. This app answers
+ * feelings and refuses rulings, and the failure here was worse than a ruling wrongly answered: the
+ * word "suami" hit the broad `Family` theme, which surfaced a verse about honouring PARENTS (17:23)
+ * under an answer that itself said the verse did not fit. The scholar KB holds no real answer either
+ * (its one nafkah line, 65:6, is about a pregnant divorcée). So the honest move is neither a verse
+ * nor silence dressed as "no ayat found" — it is to point the person to a human ustadz who does
+ * family law. See PROGRESS 2026-07-23.
+ *
+ * Deliberately NARROW. `nafkah` is a distinctive maintenance root (also inside "menafkahi",
+ * "nafkahnya"), so a substring test catches every form without the false hits a feeling word like
+ * `cerai` would bring. It only fires when the person asks what to DO about it — an action on a
+ * rights matter — so a bare definition ("apa itu nafkah") still reaches the scholar's index.
+ */
+const REFER_ACTION_FRAME = /\b(harus|bagaimana|gimana|gmn|langkah|solusi|cara|caranya)\b/;
+export function needsFamilyLawScholar(question: string): boolean {
+  const q = norm(question);
+  if (!q.includes("nafkah")) return false;
+  return REFER_ACTION_FRAME.test(q);
+}
+
 export function keywordThemeHits(question: string): Map<string, string[]> {
   const themeScore = new Map<string, string[]>();
   const q = norm(question);

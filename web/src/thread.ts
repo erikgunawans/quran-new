@@ -69,6 +69,10 @@ export type Turn =
   // restore would show different words than the reader first saw. The refs re-render as cards from
   // the corpus. Never produced by the principled build.
   | { q: string; kind: "ai"; prose: string; refs: string[] }
+  // A question this feeling app must not answer with a verse OR the KB — a marital rights/obligation
+  // matter (nafkah) that belongs to a human ustadz who does family law. Carries only the question;
+  // the deferral copy is re-derived at render time. See needsFamilyLawScholar() in retrieve.ts.
+  | { q: string; kind: "refer" }
   | { q: string; kind: "silence" };
 
 interface Stored {

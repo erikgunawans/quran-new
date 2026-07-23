@@ -10,7 +10,7 @@ import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
-import { compose, keywordThemeHits, retrieve, type Corpus, type Voice } from "./retrieve.ts";
+import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
 import { knowledgeOnly, looksFactual } from "./question-form.ts";
@@ -141,6 +141,14 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       card.lazyTafsir = true; // Path B1 — a direct ref lookup gets the same tafsir access reading/themes do
       return `<p class="said">Ini ${esc(displayName(t.surah))} ${t.surah}:${t.ayah}.</p>` + mount(card);
     }
+
+    case "refer":
+      return `
+        <p class="said">Ini soal hak dan kewajiban dalam rumah tangga — termasuk nafkah.</p>
+        <div class="silence">
+          <p>Aku menemani lewat <b>perasaan</b>, dan aku memilih tidak menyodorkan ayat yang tidak pas atau seolah memberi putusan hukum keluarga.</p>
+          <p>Untuk hal seperti ini, sebaiknya kamu tanya <b>ustadz atau tokoh agama yang paham hukum keluarga</b> — mereka bisa menjelaskan hak dan langkah yang bisa kamu tempuh dengan lengkap.</p>
+        </div>`;
 
     case "silence":
       return `
@@ -343,6 +351,9 @@ function announceTurn(t: Turn): void {
     case "ai":
       say("Menampilkan jawaban yang disusun AI berdasarkan ayat-ayatnya. Bukan fatwa.");
       break;
+    case "refer":
+      say("Ini soal hukum keluarga. New-Quranku menyarankan bertanya kepada ustadz.");
+      break;
     default:
       break;
   }
@@ -413,8 +424,13 @@ async function ask(question: string) {
     // already right and instant; the model is only needed for the MISSES ("ngerasa Tuhan udah nyerah
     // sama aku"). Skipping it on keyword-hits keeps the common case snappy (one fewer model hop).
     // Guarded to the closed corpus set, additive, and degrades to [] on any failure.
+    // A marital rights/obligation question (nafkah) is fiqh, not feeling: it must never surface a
+    // verse OR the KB, only a pointer to a human ustadz. Decided BEFORE the model themes and every
+    // lane below, so it costs no model hop and nothing downstream can override it.
+    const referral = ref.kind === "not-a-ref" && needsFamilyLawScholar(q);
+
     const modelThemes =
-      ref.kind === "not-a-ref" && corpus && keywordThemeHits(q).size === 0
+      !referral && ref.kind === "not-a-ref" && corpus && keywordThemeHits(q).size === 0
         ? await understandThemes(q, corpus.themes, liveThemeModel, () => [])
         : [];
 
@@ -427,7 +443,9 @@ async function ask(question: string) {
             ? { q, kind: "surah", surah: ref.surah.n }
             : ref.kind === "ayah"
               ? { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah }
-              : turnFromHits(q, corpus ? retrieve(corpus, q, 2, modelThemes) : []);
+              : referral
+                ? { q, kind: "refer" }
+                : turnFromHits(q, corpus ? retrieve(corpus, q, 2, modelThemes) : []);
 
     if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
 
@@ -436,7 +454,7 @@ async function ask(question: string) {
     // rejected the output — synthesizeAnswer returns null and we fall straight through to the
     // principled resolution below, so this edition is never worse than the trustworthy one.
     let synthesized = false;
-    if (isSynthesis() && ref.kind === "not-a-ref" && corpus) {
+    if (isSynthesis() && ref.kind === "not-a-ref" && corpus && !referral) {
       const ai = await synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
       if (ai) {
         turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
@@ -453,7 +471,7 @@ async function ask(question: string) {
     // "apa itu zakat" answered with 2:261 (the reward of charity) and never reached Ibadah's eight
     // entries on zakat. A question in factual form therefore gets the knowledge lanes FIRST, and
     // still falls through to whatever feelings found if they hold nothing.
-    if (!synthesized && ref.kind === "not-a-ref" && looksFactual(q)) {
+    if (!synthesized && !referral && ref.kind === "not-a-ref" && looksFactual(q)) {
       const aq = matchAqidah(q);
       if (aq) {
         turn = { q, kind: "aqidah", id: aq.id };
