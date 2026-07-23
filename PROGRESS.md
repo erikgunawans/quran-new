@@ -8,7 +8,17 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — the ustadz confirmed the co-display mechanism; last review gate closed
+## 2026-07-23 (latest) — ISC-98/99 formally parked; queue is clean, estate stable
+
+Erik's call: **park ISC-98/99** (the real-device ≤375px breakpoint probes). Rationale is tooling, not
+risk — this Interceptor build has no viewport-resize, so the CSS-injection workaround only verifies the
+CSS the breakpoint switches *to*, never that it *fires* at the right width. On an already-stable single
+surface (demo-quranku) that is low-value verification, and it was the sole item holding the standing
+queue open. Reversible the moment a resize-capable Interceptor path or a physical ≤375px device is
+available — un-park then and run the probe. **The standing queue is now empty; next work is a fresh
+direction from Erik.** No code touched.
+
+## 2026-07-23 — the ustadz confirmed the co-display mechanism; last review gate closed
 
 Ustadz Ahmad Isrofiel Mardlatillah reviewed the *built* co-display rendering (not just the condition
 he'd approved in writing) and **confirmed it**. He was shown the byte-accurate review package covering
