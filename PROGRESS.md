@@ -8,7 +8,26 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — the seven conditional verses returned, and the merge was dead code
+## 2026-07-23 (latest) — the review package for the ustadz was built, and web/src was decided dark
+
+**THE CO-DISPLAY MECHANISM IS NOW A REVIEWABLE ARTIFACT for Ustadz Ahmad Isrofiel.** He approved the
+*condition* ("tampilkan bersama") in writing but had never seen the *built mechanism*. Generated a
+private review page directly from `web/public/corpus.json` (never hand-typed the Arabic — byte-spliced
+per the normalization hazard): 5 passage cards / 7 subject verses (41:35, 92:7, 20:25, 20:26, 106:4,
+23:60, 23:61), each showing the subject ayah gold-highlighted with both Terjemahan Makna + Harfiah,
+context ayahs carrying the meaning reading in mushaf order, and the approved caption (curly `Ka’bah`
+intact). Framing copy in plain Bahasa spells out the one ask: is the context range enough and each
+caption right — if not, name the ayah. Link handed to Erik to forward. **Awaiting the ustadz.** No
+code touched; the artifact lives in the session scratchpad, not the repo.
+
+**web/src (principled, AI-free edition): DECIDED DARK — Erik's call.** Its egress leak is already
+closed and merged, so the code sits latent-safe. Leaving it un-deployed preserves the one-app estate
+(demo-quranku only) consolidated days ago. Reversible anytime; not re-fragmenting the estate now.
+
+**ISC-98/99 (≤375px probes): still hard-blocked** on Interceptor's lack of viewport-resize in this
+build. Needs a real narrow device or a resize-capable path — untouched, no path opened this session.
+
+## 2026-07-23 — the seven conditional verses returned, and the merge was dead code
 
 **THE SEVEN ARE RESTORED to the corpus** (184→191 verses): 41:35 (Anger, 41:34–35), 92:7 (Laziness,
 92:5–7), 20:25+20:26 (StudyStress, 20:25–28), 106:4 (Homesickness, 106:1–4), 23:60+23:61 (Fear of
