@@ -8,7 +8,20 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — codex hardened the nafkah gate both ways, and it's live
+## 2026-07-23 (latest) — the ustadz confirmed the co-display mechanism; last review gate closed
+
+Ustadz Ahmad Isrofiel Mardlatillah reviewed the *built* co-display rendering (not just the condition
+he'd approved in writing) and **confirmed it**. He was shown the byte-accurate review package covering
+all 5 passages / 7 subject verses. This closes the last open review item on the seven: they were
+already live on demo-quranku, and that live status is now scholar-sanctioned rather than
+pending-review. No deploy needed for the approval. Recorded in `docs/review/codisplay-confirmation-2026-07-23.md`.
+
+**Standing queue after this session:** original resume item 1 (co-display before the ustadz) CLOSED;
+item 2 (web/src principled app) resolved dark; item 3 (ISC-98/99 ≤375px probes) still BLOCKED on
+Interceptor's lack of viewport-resize — needs a real narrow device or a resize-capable path. That is
+the only open item; decide test-on-device vs. formally park.
+
+## 2026-07-23 — codex hardened the nafkah gate both ways, and it's live
 
 The `/codex` adversarial review (GPT-5.4, PASS/no-P1) earned its keep on a fix that already passed
 842 tests. It found the gate cut BOTH ways, and both are now fixed + deployed:
