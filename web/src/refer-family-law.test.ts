@@ -17,13 +17,19 @@ import { needsFamilyLawScholar, retrieve, type Corpus } from "./retrieve.ts";
  */
 const corpus = (await Bun.file("web/public/corpus.json").json()) as Corpus;
 
-describe("needsFamilyLawScholar — fires on a rights/obligation question asked as an action", () => {
+describe("needsFamilyLawScholar — fires on a marital rights/obligation question", () => {
   const REFERS = [
     "suami saya ga ngasih nafkah, saya harus bagaimana?",
     "suami tidak menafkahi saya harus gimana",
     "gimana kalau suami ga kasih nafkah",
     "istri minta nafkah tapi ga dikasih, langkah apa yang harus diambil",
-    "nafkahnya ga cukup, aku harus gimana",
+    // Ruling-framed rights questions — no plain action word, but still a rights matter. These slipped
+    // through to a mismatched verse/KB card before the frame was widened (adversarial review 2026-07-23).
+    "suami tidak memberi nafkah, boleh minta cerai?",
+    "suami ga nafkahin aku, bolehkah aku menolak?",
+    "hak istri kalau tidak dinafkahi apa?",
+    "suami tidak kasih nafkah, hukumnya apa?",
+    "suami tidak menafkahi, apa hak saya?",
   ];
   for (const q of REFERS) test(q, () => expect(needsFamilyLawScholar(q)).toBe(true));
 });
@@ -33,6 +39,11 @@ describe("needsFamilyLawScholar — stays out of the feeling and definition lane
     // A bare definition belongs to the scholar's Indeks Tematik, not a human-ustadz deferral.
     "apa itu nafkah",
     "nafkah itu apa sih",
+    // EARNING sense of nafkah — livelihood hardship, not marital rights. A tired breadwinner must get
+    // the feeling lane, never a family-law deferral (the false positive adversarial review caught).
+    "aku capek cari nafkah, gimana biar tenang?",
+    "aku sedih nafkahku seret, harus kuat gimana?",
+    "nafkah lagi susah, aku harus sabar bagaimana?",
     // No nafkah at all — these are feelings/other topics and must reach their own lanes untouched.
     "aku sedih banget hari ini",
     "suami ku selingkuh, aku harus gimana",

@@ -447,7 +447,9 @@ async function ask(question: string) {
                 ? { q, kind: "refer" }
                 : turnFromHits(q, corpus ? retrieve(corpus, q, 2, modelThemes) : []);
 
-    if (ref.kind === "not-a-ref" && !corpus) throw new Error("corpus");
+    // A referral needs no corpus, KB, or model — never throw it into the error path. (Matches demo.ts,
+    // which returns the refer turn before ensureCorpus.)
+    if (ref.kind === "not-a-ref" && !corpus && !referral) throw new Error("corpus");
 
     // SYNTHESIS edition (new-quranku-ai only). For any question, let the model author a grounded
     // answer from what retrieval found. On ANY failure — nothing to ground, model down, or the guard

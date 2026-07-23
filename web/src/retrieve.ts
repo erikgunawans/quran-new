@@ -424,15 +424,26 @@ export function isRulingQuestion(question: string): boolean {
  * nor silence dressed as "no ayat found" — it is to point the person to a human ustadz who does
  * family law. See PROGRESS 2026-07-23.
  *
- * Deliberately NARROW. `nafkah` is a distinctive maintenance root (also inside "menafkahi",
- * "nafkahnya"), so a substring test catches every form without the false hits a feeling word like
- * `cerai` would bring. It only fires when the person asks what to DO about it — an action on a
- * rights matter — so a bare definition ("apa itu nafkah") still reaches the scholar's index.
+ * Deliberately NARROW, and it disambiguates the two senses of `nafkah` — because getting that wrong
+ * cuts both ways (adversarial review, 2026-07-23):
+ *   - EARNING sense ("cari/mencari/nyari nafkah" = working for a living) is livelihood hardship, not
+ *     a rights matter. "capek cari nafkah, gimana biar tenang" is a tired breadwinner who should get
+ *     comfort from the feeling lane, never a family-law deferral. Vetoed first.
+ *   - MARITAL-maintenance sense requires a spouse actor (suami/istri) or a give/withhold-nafkah verb
+ *     (ngasih/beri/menafkahi/dinafkahi …). A bare "apa itu nafkah" has neither, so it still reaches
+ *     the scholar's index as a definition.
+ * Only then, when the person asks what to DO or whether it is allowed (action OR ruling frame — the
+ * ruling words matter too: "boleh minta cerai?", "hak istri kalau tidak dinafkahi apa?", "hukumnya
+ * apa?" are all rights questions that lack the plain action words), does it defer to a human ustadz.
  */
-const REFER_ACTION_FRAME = /\b(harus|bagaimana|gimana|gmn|langkah|solusi|cara|caranya)\b/;
+const NAFKAH_EARNING = /\b(cari|mencari|nyari|nyariin|kejar|mengejar|banting tulang)\b[^.?!]{0,16}nafkah|nafkah[^.?!]{0,8}(seret|seretnya)/;
+const NAFKAH_MARITAL = /\b(suami|istri|isteri|pasangan)\b|rumah tangga|nafkahi|\b(kasih|ngasih|ngasi|kasi|beri|memberi|kasihi|dikasih|diberi|minta)\b(\s+\w+){0,2}\s+nafkah|nafkah(\s+\w+){0,2}\s+\b(suami|istri)\b/;
+const REFER_ACTION_FRAME = /\b(harus|bagaimana|gimana|gmn|langkah|solusi|cara|caranya|boleh|bolehkah|hak|kewajiban|hukum|hukumnya|gugat|cerai)\b/;
 export function needsFamilyLawScholar(question: string): boolean {
   const q = norm(question);
   if (!q.includes("nafkah")) return false;
+  if (NAFKAH_EARNING.test(q)) return false; // livelihood, not marital rights → feeling lane
+  if (!NAFKAH_MARITAL.test(q)) return false; // require the spousal-maintenance sense
   return REFER_ACTION_FRAME.test(q);
 }
 
