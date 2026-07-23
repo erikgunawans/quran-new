@@ -44,6 +44,13 @@ AI/synthesis grounding cards both render `curatedCardHtml` (with passage).
 **Suite 823/0** (+5 tests). `tsc -p web/tsconfig.json`: 3 errors, all the pre-existing origin/main
 baseline (`main.ts`/`themes.ts`), none in changed files. Corpus + digest + themes + peta rebuilt.
 
+**DEPLOYED same session (Erik ran it).** `new-quranku-demo-proxy` version `7575a233` →
+demo-quranku.axiara.ai (`bun run demo:build && wrangler deploy --env demo`; secret untouched).
+Live-probed with Interceptor: "stres mau ujian besok" surfaced **20:26 through the AI/synthesis
+lane** rendering the full **20:25–28** passage in mushaf order — 25 context, 26 the captioned
+subject (Terjemahan Makna + translator), 27/28 context. The seven are live and correct. (OS
+screenshot blocked by a minimized Chrome window — DOM/text was the stronger structural proof.)
+
 ## 2026-07-22 — co-display reached the demo, and an optional parameter turned out to be the hazard
 
 The blocker on restoring the 7 conditionally-approved verses is cleared: the demo's own card
