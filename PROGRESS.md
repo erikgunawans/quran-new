@@ -8,7 +8,43 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-22 (latest) — co-display reached the demo, and an optional parameter turned out to be the hazard
+## 2026-07-23 (latest) — the seven conditional verses returned, and the merge was dead code
+
+**THE SEVEN ARE RESTORED to the corpus** (184→191 verses): 41:35 (Anger, 41:34–35), 92:7 (Laziness,
+92:5–7), 20:25+20:26 (StudyStress, 20:25–28), 106:4 (Homesickness, 106:1–4), 23:60+23:61 (Fear of
+insincerity, 23:57–61). Each carries its `codisplay.range` and the ustadz's REPLACEMENT caption
+(verdict "ganti", byte-exact from the review JSON incl. curly `Ka’bah`). Five were un-withdrawn;
+23:60/23:61 were net-new (the 2026-07-20 fragment review had dropped 23:61 as referent-less).
+Applied via committed `src/review/apply-conditional-restore.ts`. **NOT deployed — deploy is Erik's
+gated call**; local `demo:build` bundle verified to carry all 7 passages.
+
+**THE MERGE ERIK CHOSE WAS DROPPED — it solved a collision retrieval makes impossible.** Erik picked
+"merge co-ranged pairs into one card." Building it, I read `retrieve.ts`: its one-verse-per-feeling
+diversification makes both members of a pair (same single theme) mutually exclusive in any one
+answer, and each verse's range already includes its sibling. So the twice-shown stutter cannot
+occur. Dropped as dead code, surfaced to Erik, pinned by `retrieve.test.ts` (ISC-220). The
+checkpoint's "share leak" was also mis-framed as live/blocking — the demo's answer cards have no
+share button, so the leak was latent in the non-deployed `web/src`.
+
+**TWO BUILD GATES LEARNED A PRINCIPLED EXEMPTION.** 23:60/23:61 tripped the fragment gate (lowercase
+opener) and the backref gate ("mereka itulah"). Both now exempt any verse whose `codisplay` range
+starts before the subject — a preceding ayah in the same passage IS the proof the reader gets the
+sentence's beginning. Not an allowlist (the advisor wanted one): the general rule is tied to a real
+invariant `buildPassage` enforces, generalises correctly, and a non-co-displayed fragment still
+fails loudly. Two LEXICON themes (Laziness, Homesickness) re-enabled per the code's own "restore the
+moment a reviewed verse lands" note.
+
+**LATENT EGRESS LEAK CLOSED (web/src, not deployed).** `share.ts` `shareText` now carries the whole
+approved passage in mushaf order; the subject keeps its labelled dual rendering, neighbours the
+Arabic + interpretive reading only. `share-image` refuses a passage verse (no faithful single card)
+and `shareVerseImage` degrades to the passage-carrying text. Proven: neutralising the passage branch
+turns the egress test RED. Co-display verified across all three answer lanes — principled hits AND
+AI/synthesis grounding cards both render `curatedCardHtml` (with passage).
+
+**Suite 823/0** (+5 tests). `tsc -p web/tsconfig.json`: 3 errors, all the pre-existing origin/main
+baseline (`main.ts`/`themes.ts`), none in changed files. Corpus + digest + themes + peta rebuilt.
+
+## 2026-07-22 — co-display reached the demo, and an optional parameter turned out to be the hazard
 
 The blocker on restoring the 7 conditionally-approved verses is cleared: the demo's own card
 renders a required passage (`e3706b8`, `6cfa35d`). Mirrors `verse.ts` — split at the subject,

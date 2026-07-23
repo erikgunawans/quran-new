@@ -62,6 +62,11 @@ export async function renderVerseCardImage(v: VerseCard): Promise<Blob | null> {
   // regardless of where this runs.
   if (!v.primary && !v.companion) return null;
   if (!v.companion) return null;
+  // A conditionally-approved verse may not leave as a single-ayah card. Its scholar's approval holds
+  // only inside its passage ("tampilkan bersama"), and this card renders exactly one ayah — cropping
+  // the context is the whole risk. So it refuses; the plain-text egress (which carries the full
+  // passage) is the honest carrier, and `share.ts` degrades the image button to it.
+  if (v.passage?.length) return null;
   if (typeof document === "undefined" || typeof document.createElement !== "function") return null;
 
   const style = getComputedStyle(document.documentElement);

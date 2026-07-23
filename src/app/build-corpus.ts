@@ -404,8 +404,10 @@ const FRAGMENT_OK: Record<string, string> = {
   "13:28": "reads as a complete thought; part of the original curated 55",
   "20:26": "a complete du'a on its own — Musa's 'mudahkanlah urusanku'",
   "18:24": "the clause carries its own instruction (say insya Allah)",
-  // Reviewed 2026-07-20. 23:61 and 113:5 were DROPPED from the feeling corpus rather than blessed
-  // (see the reasoning at their old sites in problem-verses.ts), so they no longer reach this gate.
+  // Reviewed 2026-07-20. 113:5 was DROPPED from the feeling corpus rather than blessed (see the
+  // reasoning at its old site in problem-verses.ts), so it no longer reaches this gate. 23:60/23:61
+  // RETURNED 2026-07-23 with a co-display range (23:57–61) — they are exempted by the lead-in rule
+  // below, not by an entry here, because the range renders their sentence's beginning above them.
   //
   // 25:70 is blessed, and it is the one case where the missing referent is not a loss. "kecuali"
   // hangs off 25:68's gravest sins — shirk, murder, zina — but everything AFTER it is a complete,
@@ -420,7 +422,12 @@ const FRAGMENT_OK: Record<string, string> = {
 // previous ayah. A capitalised "Dan…"/"Adapun…" is ordinary Qur'anic style and reads fine alone;
 // an earlier draft of this gate flagged 25:74, 17:29 and 4:146 on that basis and was simply wrong.
 const fragments = verses.filter((v) => /^[a-z]/.test((v.primary?.text ?? "").trim()));
-const unacknowledged = fragments.filter((v) => !(v.ref in FRAGMENT_OK));
+// A fragment is fine when co-display renders a preceding ayah above it: the reader is handed the
+// sentence's beginning, not a beginningless clause. A `codisplay` range that starts before the
+// subject is the machine-readable proof of exactly that, so it exempts the fragment on its own — no
+// manual FRAGMENT_OK entry needed, and any future co-displayed fragment is covered automatically.
+const hasLeadIn = (v: (typeof fragments)[number]): boolean => (v.passage ?? []).some((p) => p.ayah < v.ayah);
+const unacknowledged = fragments.filter((v) => !(v.ref in FRAGMENT_OK) && !hasLeadIn(v));
 if (unacknowledged.length) {
   fail(
     `${unacknowledged.length} verse(s) open mid-sentence with no entry in FRAGMENT_OK: ` +
@@ -444,13 +451,14 @@ const needsReview = fragments.filter((v) => FRAGMENT_OK[v.ref]?.startsWith("REVI
  * Nothing found that for weeks. The synthesis answer eval found it on its first real run, judging
  * groundedness against grounding the app itself had chosen — which is the argument for the eval.
  *
- * So: a second, narrower probe for a back-reference in the opening sentence. It matches exactly one
- * verse across the corpus today (2:112, now dropped), so it costs nothing and holds the line.
+ * So: a second, narrower probe for a back-reference in the opening sentence. Today it matches 2:112
+ * (dropped) and 23:61 — but 23:61's referent (23:57–60) is rendered above it by co-display, so the
+ * same lead-in rule that exempts a fragment exempts a backref: the ayah it points at IS on screen.
  */
 const BACKREF = /^[^.]*\b(semacam itu|demikian itu|yang demikian|hal itu|itulah)\b/i;
 const BACKREF_OK: Record<string, string> = {};
 const backrefs = verses.filter((v) => BACKREF.test((v.primary?.text ?? "").split(/(?<=\.)\s/)[0] ?? ""));
-const danglers = backrefs.filter((v) => !(v.ref in BACKREF_OK));
+const danglers = backrefs.filter((v) => !(v.ref in BACKREF_OK) && !hasLeadIn(v));
 if (danglers.length) {
   fail(
     `${danglers.length} verse(s) open by pointing back at an ayah the reader cannot see: ` +

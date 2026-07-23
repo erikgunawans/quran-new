@@ -364,6 +364,7 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   // Envy & comparison
   { ref: [4, 32], themes: ["Envy & comparison"], why: "Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya.", ruling: { verdict: "ganti", note: "Ayat ini tepat untuk iri dan kebiasaan membandingkan diri, karena melarang menginginkan kelebihan yang Allah berikan kepada orang lain dan mengarahkan kita memohon karunia-Nya. Ganti kalimat menjadi: “Jangan menginginkan kelebihan orang lain; mohonlah kepada Allah sebagian dari karunia-Nya.”" } },
   // Anger
+  { ref: [41, 35], themes: ["Anger"], why: "Membalas keburukan dengan cara yang lebih baik memerlukan kesabaran dan bagian kebaikan yang besar.", ruling: { verdict: "ganti", note: "Maknanya cocok sebagai lanjutan nasihat menghadapi kemarahan, tetapi ayat 35 berdiri sebagai kelanjutan ayat 34. Tampilkan QS 41:34–35 bersama, lalu gunakan kalimat: “Membalas keburukan dengan cara yang lebih baik memerlukan kesabaran dan bagian kebaikan yang besar.”" }, codisplay: { range: [34, 35], note: "Tampilkan QS 41:34–35 bersama." } },
   { ref: [3, 134], themes: ["Anger"], why: "Mereka yang menahan amarah dan memaafkan orang lain", ruling: { verdict: "pas", note: "Pas. Ayat ini secara langsung memuji orang yang menahan amarah dan memaafkan manusia. Tetap sampaikan bahwa menahan amarah tidak berarti membiarkan kekerasan atau kezaliman tanpa batas." } },
   // Loneliness
   { ref: [50, 16], themes: ["Loneliness"], why: "Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk kesepian sebagai pengingat bahwa Allah mengetahui bisikan hati, tetapi jangan memahami kedekatan ini sebagai kedekatan fisik. Ganti kalimat menjadi: “Allah mengetahui bisikan hatimu dan lebih dekat daripada urat lehermu; tidak ada isi hatimu yang tersembunyi dari-Nya.”" } },
@@ -517,13 +518,12 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [57, 4], themes: ["Far from God"], why: "Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya.", ruling: { verdict: "ganti", note: "Pas untuk rasa jauh dari Allah, tetapi kebersamaan Allah dipahami melalui ilmu, pengawasan, pertolongan, dan kuasa-Nya, bukan keberadaan fisik di dalam makhluk. Ganti menjadi: “Allah mengetahui kalian di mana pun berada; tidak ada keadaanmu yang luput dari pengawasan-Nya.”" } },
   { ref: [3, 8], themes: ["Far from God"], why: "Doa bagi hati yang takut menjauh setelah pernah diberi petunjuk", ruling: { verdict: "pas", note: "Pas. Ini doa orang berilmu agar hati tidak disimpangkan setelah mendapat petunjuk dan agar diberi rahmat. Sangat tepat untuk rasa takut menjauh dari Allah." } },
   // Fear of insincerity
-  // 23:61 DROPPED (fragment review, 2026-07-20). It opens "mereka itulah" and the referent is the
-  // whole of 23:57-60 — and every one of those ayahs is ITSELF a lowercase continuation, so there is
-  // no standalone verse anywhere in the passage to swap in. Alone, "mereka itulah orang-orang yang
-  // berusaha keras menaati Allah" points at nobody, and a person afraid their worship is hollow reads
-  // it as a description of BETTER people than them — the exact inversion of the comfort intended
-  // (23:60 is the trembling heart). Fear of insincerity keeps 4:146. Proposed for the ustadz: ship
-  // 23:57-61 as one passage, or let him choose a different verse. See docs/review/fragment-review.md.
+  // 23:60 + 23:61 RESTORED (2026-07-23) on the ustadz's 2026-07-22 ruling: ship 23:57–61 as one
+  // passage. The referent-less-fragment problem the 2026-07-20 review flagged — 23:61 opens "mereka
+  // itulah" pointing at nobody, 23:60 is the trembling heart — is exactly what co-display resolves:
+  // both are shown inside 23:57–61, so neither ever stands alone. See docs/review/fragment-review.md.
+  { ref: [23, 60], themes: ["Fear of insincerity"], why: "Mereka beramal sambil takut karena akan kembali kepada Tuhan.", ruling: { verdict: "ganti", note: "Maknanya sangat tepat untuk takut amal tidak diterima, sebagaimana penjelasan hadis tentang orang yang salat, puasa, dan bersedekah namun tetap takut. Tampilkan bersama QS 23:57–61 atau minimal 23:60–61; ganti kalimat menjadi: “Mereka beramal sambil takut karena akan kembali kepada Tuhan.”" }, codisplay: { range: [57, 61], note: "Tampilkan bersama QS 23:57–61 atau minimal 23:60–61." } },
+  { ref: [23, 61], themes: ["Fear of insincerity"], why: "Mereka itulah yang bersegera dalam kebaikan dan menjadi yang terdepan melakukannya.", ruling: { verdict: "ganti", note: "Ayat ini adalah kelanjutan yang menjelaskan bahwa orang-orang dengan rasa takut tersebut justru bersegera dalam kebaikan. Tampilkan bersama QS 23:60 dan gunakan kalimat: “Mereka itulah yang bersegera dalam kebaikan dan menjadi yang terdepan melakukannya.”" }, codisplay: { range: [57, 61], note: "Tampilkan bersama QS 23:57–61." } },
   // Struggling with consistency
   { ref: [73, 20], themes: ["Struggling with consistency"], why: "Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten.", ruling: { verdict: "ganti", note: "Ayat ini memberi keringanan khusus dalam qiyamullail setelah Allah mengetahui keterbatasan umat, bukan izin umum meninggalkan kewajiban. Ganti menjadi: “Allah mengetahui keterbatasan kalian dalam salat malam, lalu memberi keringanan; lakukan yang mampu secara konsisten.”" } },
   // Burnout
@@ -534,12 +534,15 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   { ref: [4, 28], themes: ["Overwhelm"], why: "Allah tahu manusia diciptakan lemah, dan Dia meringankan bebannya", ruling: { verdict: "pas", note: "Pas. Dalam konteks keringanan syariat, Allah menyatakan hendak meringankan beban karena manusia diciptakan lemah. Ini menumbuhkan rahmat tanpa menghapus tanggung jawab." } },
   { ref: [23, 62], themes: ["Overwhelm"], why: "Tidak ada yang dibebani di luar kemampuannya, termasuk kamu", ruling: { verdict: "pas", note: "Pas. Allah tidak membebani seseorang kecuali sesuai kesanggupannya, dan catatan di sisi-Nya berbicara benar. Hindari memakai ayat ini untuk menyalahkan orang yang sedang kewalahan atau menolak bantuan." } },
   // Laziness
+  { ref: [92, 7], themes: ["Laziness"], why: "Bagi yang memberi, bertakwa, dan membenarkan kebaikan, Allah memudahkan jalan menuju kemudahan.", ruling: { verdict: "ganti", note: "Boleh dipakai, tetapi ayat ini bergantung pada syarat di ayat sebelumnya: memberi, bertakwa, dan membenarkan pahala terbaik. Tampilkan QS 92:5–7 bersama dan ganti menjadi: “Bagi yang memberi, bertakwa, dan membenarkan kebaikan, Allah memudahkan jalan menuju kemudahan.”" }, codisplay: { range: [5, 7], note: "Tampilkan QS 92:5–7 bersama." } },
   // JobLoss
   { ref: [29, 62], themes: ["JobLoss"], why: "Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya.", ruling: { verdict: "ganti", note: "Pas untuk kehilangan pekerjaan sebagai pengingat bahwa keluasan dan kesempitan rezeki berada dalam ilmu Allah, tetapi bukan janji pekerjaan baru segera. Ganti menjadi: “Allah melapangkan dan menyempitkan rezeki bagi siapa yang Dia kehendaki; Dia mengetahui keadaan hamba-hamba-Nya.”" } },
   { ref: [42, 12], themes: ["JobLoss"], why: "Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya.", ruling: { verdict: "ganti", note: "Pas sebagai penguatan bahwa kunci langit dan bumi milik Allah, tetapi kalimat ‘satu pintu tertutup bukan akhir’ adalah refleksi, bukan teks ayat. Ganti menjadi: “Milik Allah kunci-kunci langit dan bumi; Dia melapangkan dan menyempitkan rezeki menurut ilmu-Nya.”" } },
   // Direction
   { ref: [1, 6], themes: ["Direction"], why: "Doa paling sederhana saat tak tahu harus ke mana", ruling: { verdict: "pas", note: "Pas. Doa memohon jalan yang lurus adalah permohonan paling mendasar ketika arah hidup tidak jelas. Ia dibaca berulang dalam setiap rakaat dan harus diikuti usaha mencari ilmu serta nasihat yang baik." } },
   // StudyStress
+  { ref: [20, 26], themes: ["StudyStress"], why: "Mudahkanlah urusanku, lepaskan kekakuan lidahku, agar mereka memahami ucapanku.", ruling: { verdict: "ganti", note: "Boleh dipakai, tetapi ayat ini adalah bagian dari rangkaian doa Nabi Musa, bukan dua kata yang berdiri sendiri untuk ujian sekolah. Tampilkan QS 20:25–28 dan gunakan: “Mudahkanlah urusanku, lepaskan kekakuan lidahku, agar mereka memahami ucapanku.”" }, codisplay: { range: [25, 28], note: "Tampilkan QS 20:25–28 bersama." } },
+  { ref: [20, 25], themes: ["StudyStress"], why: "Ya Tuhanku, lapangkanlah dadaku.", ruling: { verdict: "ganti", note: "Boleh dibaca saat menghadapi ujian sebagai doa memohon kelapangan dada, tetapi konteksnya adalah Nabi Musa menerima tugas dakwah yang berat. Tampilkan bersama QS 20:25–28 dan ganti menjadi: “Ya Tuhanku, lapangkanlah dadaku.”" }, codisplay: { range: [25, 28], note: "Tampilkan bersama QS 20:25–28." } },
   { ref: [96, 5], themes: ["StudyStress"], why: "Dia yang mengajari manusia apa yang belum diketahuinya", ruling: { verdict: "pas", note: "Pas. Ayat menegaskan bahwa Allah mengajarkan manusia apa yang sebelumnya tidak diketahui. Ini baik untuk belajar selama disertai usaha, disiplin, dan kejujuran akademik." } },
   // EffortNotEnough
   { ref: [3, 195], themes: ["EffortNotEnough"], why: "Allah tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan", ruling: { verdict: "pas", note: "Pas. Allah menegaskan tidak menyia-nyiakan amal siapa pun, laki-laki maupun perempuan. Kalimat pendamping tepat." } },
@@ -577,6 +580,7 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
   // Longing
   { ref: [12, 96], themes: ["Longing"], why: "Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang.", caveat: "Ini bagian narasi pertemuan kembali, bukan janji umum; pastikan tidak terbaca sebagai jaminan bahwa setiap orang yang dirindukan pasti kembali", ruling: { verdict: "ganti", note: "Boleh dipakai sebagai akhir kisah rindu Nabi Ya’qub, tetapi bukan jaminan bahwa setiap orang yang dirindukan akan kembali. Ganti menjadi: “Kisah Ya’qub berakhir dengan kabar gembira; jadikan ia teladan berharap kepada Allah, bukan janji hasil yang sama bagi semua orang.”" } },
   // Homesickness
+  { ref: [106, 4], themes: ["Homesickness"], why: "Dalam perjalanan dagang Quraisy, Allah mengingatkan nikmat pangan dan keamanan; bersyukurlah kepada Tuhan pemilik Ka’bah.", ruling: { verdict: "ganti", note: "Boleh dipakai untuk syukur atas pangan dan keamanan dalam perjalanan, tetapi harus dibaca bersama QS Quraisy 106:1–4. Ganti menjadi: “Dalam perjalanan dagang Quraisy, Allah mengingatkan nikmat pangan dan keamanan; bersyukurlah kepada Tuhan pemilik Ka’bah.”" }, codisplay: { range: [1, 4], note: "Harus dibaca bersama QS Quraisy 106:1–4." } },
   // Shame
   { ref: [40, 7], themes: ["Shame"], why: "Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah.", caveat: "Ayat aslinya tentang malaikat pemikul 'Arsy; pastikan pembingkaian 'ada yang mendoakanmu' tidak melebihi makna ayat", ruling: { verdict: "ganti", note: "Boleh dipakai untuk mengangkat rasa malu, tetapi kalimat sekarang menambahkan ‘menutupi aib’ yang tidak disebut ayat. Ganti menjadi: “Para malaikat pemikul ‘Arsy memohonkan ampun bagi orang beriman yang bertaubat dan mengikuti jalan Allah.”" } },
   // Regret over the past
@@ -601,23 +605,21 @@ export const PROBLEM_VERSES: readonly ProblemVerse[] = [
  * `cabut` is his own verdict: the placement was wrong and the verse came out of the app. It had
  * been live, and he was told plainly on the call that "jangan dipakai" would mean withdrawal.
  *
- * `condition-unmet` is NOT his verdict. He allowed these, conditioned on displaying the
- * neighbouring ayat, which one-verse-per-theme retrieval cannot do. They return the day
- * co-display exists; until then his condition is unmet and his approval does not hold.
+ * `condition-unmet` was NOT his verdict. He allowed those, conditioned on displaying the
+ * neighbouring ayat, which one-verse-per-theme retrieval could not do — so they were parked here.
+ * Co-display now exists on every render path (2026-07-23), so his condition is met and all five
+ * (41:35, 92:7, 20:25, 20:26, 106:4) have RETURNED to PROBLEM_VERSES above, each carrying its
+ * `codisplay.range`. None remain here; the `condition-unmet` kind stays in the type for provenance.
+ * See `apply-conditional-restore.ts` and ISA.md ISC-215..223.
  */
 export const WITHDRAWN: readonly { readonly ref: string; readonly kind: "cabut" | "condition-unmet"; readonly why: string }[] = [
-  { ref: "41:35", kind: "condition-unmet", why: "ayat 35 berdiri sebagai kelanjutan ayat 34 — minta QS 41:34–35 ditampilkan bersama" },
   { ref: "19:25", kind: "cabut", why: "Jangan dipakai untuk tema umum mengasuh sendirian. Perintah menggoyang pohon kurma berada dalam kisah persalinan Maryam; metafora “kamu cukup menggoyang, sisanya Allah” terlalu jauh dari teks dan dapat mengecilkan beratnya pengasuhan." },
   { ref: "29:56", kind: "cabut", why: "Jangan dipakai sebagai slogan umum bahwa selalu ada tempat untuk memulai hidup baru. Ayat ini memerintahkan orang beriman berpindah ketika tidak leluasa menyembah Allah; konteksnya hijrah demi ibadah, bukan setiap perubahan hidup." },
   { ref: "87:8", kind: "cabut", why: "Jangan dipakai sebagai motivasi umum bagi orang malas atau menunda. Ayat ini adalah janji Allah kepada Nabi untuk memudahkan beliau menuju jalan kemudahan dalam tugas wahyu; kalimat aplikasi mengubah alamat khusus menjadi slogan pribadi." },
-  { ref: "92:7", kind: "condition-unmet", why: "bergantung pada syarat di ayat sebelumnya — minta QS 92:5–7 ditampilkan bersama" },
-  { ref: "20:25", kind: "condition-unmet", why: "minta ditampilkan bersama QS 20:25–28" },
-  { ref: "20:26", kind: "condition-unmet", why: "bagian dari rangkaian doa; minta ditampilkan bersama QS 20:25–28" },
   { ref: "22:40", kind: "cabut", why: "Jangan dipakai untuk tema umum ‘dizalimi’. Konteksnya adalah orang beriman yang diusir karena agama dan pembelaan terhadap tempat ibadah; pemakaian pada konflik kantor atau keluarga berisiko mengaburkan konteks dan memanaskan keadaan." },
   { ref: "19:96", kind: "cabut", why: "Jangan dipakai sebagai ayat khusus pernikahan atau pasangan. Ayat menjelaskan bahwa Allah menanamkan kasih sayang bagi orang beriman dan beramal saleh secara umum, bukan janji hubungan romantis atau keberhasilan rumah tangga." },
   { ref: "51:49", kind: "cabut", why: "Jangan dipakai sebagai janji bahwa setiap orang pasti mendapatkan pasangan hidup. Ayat ini berbicara tentang tanda kebesaran Allah dalam penciptaan segala sesuatu berpasangan, bukan kepastian jodoh individual." },
   { ref: "4:19", kind: "cabut", why: "Jangan dipakai untuk orang yang sedang menghadapi perceraian secara umum. Ayat ini menata perlakuan terhadap perempuan dan kehidupan rumah tangga, bukan menyuruh semua orang bertahan; pemakaiannya dapat menekan korban kekerasan atau menyudutkan perempuan." },
   { ref: "9:118", kind: "cabut", why: "Jangan dipakai untuk penolakan sehari-hari. Ayat ini berbicara tentang tiga sahabat yang ditangguhkan penerimaan taubatnya dan dikucilkan sebagai disiplin agama; menggunakannya untuk penolakan romantis atau sosial dapat menimbulkan rasa bersalah yang keliru." },
   { ref: "28:85", kind: "cabut", why: "Jangan dipakai sebagai janji umum bagi perantau bahwa pasti pulang ke tempat asal. Ayat ini ditujukan kepada Nabi dan ditafsirkan berkaitan dengan pengembalian beliau ke tempat kembali; universalisasi kalimat aplikasi terlalu jauh." },
-  { ref: "106:4", kind: "condition-unmet", why: "harus dibaca bersama QS Quraisy 106:1–4" },
 ] as const;

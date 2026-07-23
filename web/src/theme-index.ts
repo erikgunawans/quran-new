@@ -420,6 +420,16 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     "theme": "Marah",
     "verses": [
       {
+        "surah": 41,
+        "ayah": 35,
+        "ref": "41:35",
+        "why": "Membalas keburukan dengan cara yang lebih baik memerlukan kesabaran dan bagian kebaikan yang besar.",
+        "codisplay": [
+          34,
+          35
+        ]
+      },
+      {
         "surah": 3,
         "ayah": 134,
         "ref": "3:134",
@@ -1352,6 +1362,37 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
+    "theme": "Takut riya atau munafik",
+    "verses": [
+      {
+        "surah": 23,
+        "ayah": 60,
+        "ref": "23:60",
+        "why": "Mereka beramal sambil takut karena akan kembali kepada Tuhan.",
+        "codisplay": [
+          57,
+          61
+        ]
+      },
+      {
+        "surah": 23,
+        "ayah": 61,
+        "ref": "23:61",
+        "why": "Mereka itulah yang bersegera dalam kebaikan dan menjadi yang terdepan melakukannya.",
+        "codisplay": [
+          57,
+          61
+        ]
+      },
+      {
+        "surah": 4,
+        "ayah": 146,
+        "ref": "4:146",
+        "why": "Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman."
+      }
+    ]
+  },
+  {
     "theme": "Susah istiqamah",
     "verses": [
       {
@@ -1403,6 +1444,21 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
+    "theme": "Malas & menunda",
+    "verses": [
+      {
+        "surah": 92,
+        "ayah": 7,
+        "ref": "92:7",
+        "why": "Bagi yang memberi, bertakwa, dan membenarkan kebaikan, Allah memudahkan jalan menuju kemudahan.",
+        "codisplay": [
+          5,
+          7
+        ]
+      }
+    ]
+  },
+  {
     "theme": "Kehilangan pekerjaan",
     "verses": [
       {
@@ -1433,6 +1489,26 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
   {
     "theme": "Stres ujian & belajar",
     "verses": [
+      {
+        "surah": 20,
+        "ayah": 26,
+        "ref": "20:26",
+        "why": "Mudahkanlah urusanku, lepaskan kekakuan lidahku, agar mereka memahami ucapanku.",
+        "codisplay": [
+          25,
+          28
+        ]
+      },
+      {
+        "surah": 20,
+        "ayah": 25,
+        "ref": "20:25",
+        "why": "Ya Tuhanku, lapangkanlah dadaku.",
+        "codisplay": [
+          25,
+          28
+        ]
+      },
       {
         "surah": 96,
         "ayah": 5,
@@ -1515,6 +1591,21 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
     ]
   },
   {
+    "theme": "Merantau",
+    "verses": [
+      {
+        "surah": 106,
+        "ayah": 4,
+        "ref": "106:4",
+        "why": "Dalam perjalanan dagang Quraisy, Allah mengingatkan nikmat pangan dan keamanan; bersyukurlah kepada Tuhan pemilik Ka’bah.",
+        "codisplay": [
+          1,
+          4
+        ]
+      }
+    ]
+  },
+  {
     "theme": "Merasa terlalu banyak dosa",
     "verses": [
       {
@@ -1522,17 +1613,6 @@ export const THEME_INDEX: readonly ThemeGroup[] = [
         "ayah": 17,
         "ref": "4:17",
         "why": "Bertaubatlah segera setelah berbuat salah; Allah menerima taubat orang yang kembali sebelum terlambat."
-      }
-    ]
-  },
-  {
-    "theme": "Takut riya atau munafik",
-    "verses": [
-      {
-        "surah": 4,
-        "ayah": 146,
-        "ref": "4:146",
-        "why": "Orang yang bertaubat, memperbaiki diri, berpegang teguh kepada Allah, dan mengikhlaskan agama akan bersama orang beriman."
       }
     ]
   }

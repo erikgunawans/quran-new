@@ -81,3 +81,26 @@ describe("the diversity rule still holds", () => {
     expect(retrieve(corpus, "sedih, cemas, utang, dosa, capek").length).toBeLessThanOrEqual(2);
   });
 });
+
+/**
+ * Why the conditional pairs never need a "merge into one card" render.
+ *
+ * 20:25 + 20:26 are both ONLY StudyStress; 23:60 + 23:61 are both ONLY Fear of insincerity. The
+ * one-verse-per-feeling diversification above therefore makes the two members of a pair mutually
+ * exclusive in any single answer — the second always finds its only theme already claimed and is
+ * skipped. So the "both members co-retrieve and each repeats the shared range" stutter the ISA once
+ * feared cannot occur, and no merge renderer exists to be tested. If retrieval ever changes to allow
+ * two same-theme verses, THIS test fails first, before a reader ever sees the duplication.
+ */
+describe("a conditional pair never co-retrieves into one answer", () => {
+  const atMostOne = (q: string, pair: [string, string]) => {
+    const got = new Set(refs(q));
+    expect(Number(got.has(pair[0])) + Number(got.has(pair[1]))).toBeLessThanOrEqual(1);
+  };
+  test("StudyStress surfaces at most one of 20:25 / 20:26", () => {
+    atMostOne("stres mau ujian belajar susah", ["20:25", "20:26"]);
+  });
+  test("Fear of insincerity surfaces at most one of 23:60 / 23:61", () => {
+    atMostOne("takut amal ku ga diterima riya", ["23:60", "23:61"]);
+  });
+});

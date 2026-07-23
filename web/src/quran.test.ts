@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { displayName, findSurah, parseRef, SURAH_INDEX, surahMeta } from "./quran.ts";
 import { shareText } from "./share.ts";
+import { renderVerseCardImage } from "./share-image.ts";
 import { FLAGGED, type VerseCard } from "./verse.ts";
 
 /**
@@ -175,6 +176,47 @@ describe("egress — an interpretation must never leave dressed as scripture", (
     const t = shareText(card());
     expect(t).toContain("QS Ash-Sharh 94:5");
     expect(t).toContain("فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا");
+  });
+});
+
+describe("egress — a conditional verse carries the whole passage it was approved in", () => {
+  const reading = (text: string) => ({ text, translator: "Ustadz Muhammad Thalib" });
+  const conditional = card({
+    ref: "20:26",
+    surah: 20,
+    ayah: 26,
+    surah_name: "Ta Ha",
+    arabic: "وَيَسِّرْ لِىٓ أَمْرِى",
+    primary: reading("Mudahkanlah urusanku."),
+    companion: { text: "dan mudahkanlah untukku urusanku,", translator: "Kementerian Agama Republik Indonesia" },
+    passage: [
+      { ayah: 25, arabic: "رَبِّ ٱشْرَحْ لِى صَدْرِى", primary: reading("Ya Tuhanku, lapangkanlah dadaku."), companion: null },
+      { ayah: 26, arabic: "وَيَسِّرْ لِىٓ أَمْرِى", primary: reading("Mudahkanlah urusanku."), companion: null },
+      { ayah: 27, arabic: "وَٱحْلُلْ عُقْدَةً مِّن لِّسَانِى", primary: reading("Lepaskan kekakuan lidahku."), companion: null },
+      { ayah: 28, arabic: "يَفْقَهُوا۟ قَوْلِى", primary: reading("agar mereka memahami ucapanku."), companion: null },
+    ],
+  });
+
+  test("every ayah of the approved range travels, in mushaf order, under the range ref", () => {
+    const t = shareText(conditional);
+    expect(t).toContain("QS Ta Ha 20:25-28");
+    for (const ay of [25, 26, 27, 28]) expect(t).toContain(`(20:${ay})`);
+    expect(t.indexOf("(20:25)")).toBeLessThan(t.indexOf("(20:26)"));
+    expect(t.indexOf("(20:26)")).toBeLessThan(t.indexOf("(20:27)"));
+    expect(t.indexOf("(20:27)")).toBeLessThan(t.indexOf("(20:28)"));
+    expect(t).toContain("Lepaskan kekakuan lidahku."); // the neighbour's text is present
+  });
+
+  test("Anti: only the captioned subject carries our labelled dual rendering — neighbours are not re-captioned", () => {
+    const t = shareText(conditional);
+    expect(t.match(/Terjemahan makna/g)?.length).toBe(1);
+    expect(t.match(/Terjemahan harfiah/g)?.length).toBe(1);
+  });
+
+  test("Anti: a conditional verse can never leave as a single-ayah image card", async () => {
+    // No blob is ever produced for a passage-carrying verse — the image path refuses it, so the
+    // plain-text egress above (which carries the whole passage) is the only carrier it degrades to.
+    expect(await renderVerseCardImage(conditional)).toBeNull();
   });
 });
 
