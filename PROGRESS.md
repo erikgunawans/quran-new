@@ -8,7 +8,23 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-24 (latest) — the app now answers AS THE USTADZ (warm, model-led, grounded in our ayat)
+## 2026-07-24 (latest) — DEPLOYED + live-verified: the warm ustadz voice is live
+
+Two deploys landed it: worker `8ca5de58` (warm voice) then assets+worker `9d366f09` (named-citation
+card fix + numeric-ref prompt). **Live-verified on demo-quranku via Interceptor:**
+- "apa aja sih kewajiban anak kepada orang tua" → a warm, relating ustadz answer (meets the person,
+  teaches *ihsan*, teaches berbakti-after-death, holds the syirik-limit) citing 17:23 / 2:83 / 29:8.
+- **Inline refs are clickable** (`QS Al-Isra' ayat 23` → `#/mushaf/17/23`) AND the **verse cards render
+  below** in our translation — 17:23 as the curated card (Makna + Harfiah, "oleh Ustadz Muhammad
+  Thalib"), 2:83 / 29:8 from the mushaf shard. AI-composed label present.
+- Boundary holds: "suami tidak kasih nafkah, saya harus bagaimana?" → still defers to a human ustadz.
+
+**The live-caught gap** (worth remembering): the model cites in NAMED form ("QS Al-Isra' ayat 23"), so
+the numeric-only card extractor (`refsInProse`) rendered ZERO cards on the first warm deploy while the
+inline links worked (linkifyRefs already resolved names). Fixed with `resolvedRefsInProse` (named +
+numeric) + a prompt that requires the numbers so the worker guard validates. Est. stable green.
+
+## 2026-07-24 — the app now answers AS THE USTADZ (warm, model-led, grounded in our ayat)
 
 Erik reframed the product: the card-dump/brush-off felt un-ustadz-like. The app should REPRESENT the
 ustadz — talk to people, relate, and reach for the ayah the way an ustadz does (in our translation),
