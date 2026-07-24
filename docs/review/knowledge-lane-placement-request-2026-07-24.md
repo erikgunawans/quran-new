@@ -2,7 +2,11 @@
 
 **Date:** 2026-07-24
 **Reviewer:** Ustadz Ahmad Isrofiel Mardlatillah
-**Status:** ⏳ Awaiting the ustadz (package built + handed to Erik to forward)
+**Status:** ❌ CLOSED — MOOT. Erik decided (2026-07-24) no sign-off is needed. The card lane this
+package pitched was replaced hours later by the warm AI-authored voice (see PROGRESS 2026-07-24
+"answers AS THE USTADZ"): the Peta captions are now grounding HINTS to the model, not displayed
+verbatim as the answer, and every answer carries the AI-composed / not-a-fatwa label, so no
+scholar attribution rides on it. The review artifact was never forwarded. Kept for history only.
 **Related code:** `web/src/knowledge.ts` (`TOPIC_PINS` / `matchPin` / `retrievePinned`), commit `7d148f4`.
 Live on demo-quranku.axiara.ai as of version `4eb23c66`.
 
