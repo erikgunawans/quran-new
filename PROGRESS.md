@@ -8,7 +8,40 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-24 (latest) — DEPLOYED + live-verified
+## 2026-07-24 (latest) — the app now answers AS THE USTADZ (warm, model-led, grounded in our ayat)
+
+Erik reframed the product: the card-dump/brush-off felt un-ustadz-like. The app should REPRESENT the
+ustadz — talk to people, relate, and reach for the ayah the way an ustadz does (in our translation),
+not dump verses or say "no ayah for that." **Grilled the direction** (AskUserQuestion): I pushed back
+hard on his first pick ("answer everything incl. binding rulings") — highest-liability choice, reverses
+the nafkah referral, attaches a real scholar's name to unreviewed fatwa — and he moved to the **warm-
+teacher boundary**. Locked: (1) model leads warmly; (2) cites any of 6236 ayat, always in OUR Tarjamah
+Tafsiriyah; (3) defers only binding halal/haram verdicts on contested/situational matters to a human.
+
+**The brush-off was structural.** `answer.ts` grounded ONLY on the 191 corpus via `retrieve()` and
+BAILED to null (→ the brush-off) when thin; `answer-guard` whitelisted citations to that grounding.
+Rebuild: synthesizeAnswer no longer bails (model leads; verses/pins are hints, not a fence) and renders
+exactly the ayat the model CITED; `bad_ref` flips from whitelist → "resolves to a REAL ayah"
+(`isRealAyah`, shared via quran.ts); the `fatwa` guard stays as the warm-teacher line. Prompt rewritten
+to the warm-ustadz voice. **The Worker duplicates the guard** — `worker/src/index.ts` `/api/answer` had
+to change identically (validate citations against `isRealAyah`, drop the empty-grounding bail), or it
+would reject every any-ayah citation before it reached the browser. `demo.ts` resolveTurn: AI LEADS
+again (removed the card-dump pre-emption); aqidah + nafkah referral still pre-empt; knowledge/hits/
+silence are fallbacks. `aiAnswerHtml` renders any cited ayah from the mushaf shard + our translation.
+
+Suite **860/0** (+9); web + worker typecheck clean bar the 3 web baseline errors. Deterministic floor
+verified in real Chrome (nafkah referral intact; AI degrades safely to the knowledge card when the old
+worker rejects). **WARM BEHAVIOR NEEDS THE NEW WORKER DEPLOYED** — the live worker runs old code and
+rejects the warm answer, so a local preview shows the safe fallback, not the new voice. Committed
+`30681fd`, pushed. **NOT deployed — Erik's gated call** (deploys assets + worker); verify live right after.
+
+**Also affects new-quranku-ai** (synthesis edition, main.ts) — it shares synthesizeAnswer, so it
+inherits the warm voice + real-ayah guard. Its `aiHtml` still renders cited cards corpus-only (drops
+out-of-corpus cited verses; prose intact). Left untouched to avoid its baseline-typecheck surface —
+flag if that edition still matters. **The ustadz review package is now moot** (it pitched the card lane
+we just replaced) — hold off forwarding it; rebuild around the warm answer once this lands.
+
+## 2026-07-24 — DEPLOYED + live-verified
 
 Erik ran the deploy: `new-quranku-demo-proxy` version **`4eb23c66`**, live on demo-quranku.axiara.ai.
 Live-verified via Interceptor: "apa aja sih kewajiban anak kepada orang tua" → the correct 4-entry
