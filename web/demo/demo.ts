@@ -1366,6 +1366,10 @@ function wireFloating(): void {
 }
 
 /* ── boot ────────────────────────────────────────────────────────────── */
+// Identity beacon (issue 01): the static HTML shell is served straight from the edge (Worker
+// bypassed), so a fresh visitor's signed cookie is minted here — one uncacheable ping on load,
+// before any interaction. Fire-and-forget; a failure leaves the app exactly as before.
+void fetch(apiUrl("/api/identity"), { credentials: "same-origin" }).catch(() => {});
 wireTheme();
 wireTanyaHeadline();
 renderSurahGrid();

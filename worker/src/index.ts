@@ -85,6 +85,13 @@ export default {
 async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // Identity beacon (issue 01): an uncacheable worker path the SPA pings on load, so a fresh visitor
+    // gets their signed cookie even though the static HTML shell is served (cookie-free) straight from
+    // the edge cache and never runs the Worker. The cookie itself is attached by withIdentityCookie.
+    if (url.pathname === "/api/identity") {
+      return json({ ok: true }, 200, request);
+    }
+
     if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);

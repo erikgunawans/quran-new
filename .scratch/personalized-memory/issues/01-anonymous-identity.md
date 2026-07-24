@@ -26,7 +26,9 @@ expose `user_id` to the app. No PII, no fingerprinting — just an opaque handle
 - [x] No PII, no device fingerprint stored — opaque 128-bit hex id only.
 - [x] Scoped to `[env.demo]` only; principled + synthesis Workers untouched. — code in demo Worker;
       secret is `--env demo` only.
-- [ ] **Live-verified on `demo-quranku` via Interceptor** — pending secret + deploy (see Comments).
+- [x] **Live-verified on `demo-quranku`** — `GET /api/identity` on production: fresh → signed
+      cookie + `Cache-Control: no-store`; valid cookie → stable (no re-set); tampered → rejected,
+      fresh id. Beacon confirmed in the shipped bundle.
 
 ## Comments
 
@@ -43,3 +45,11 @@ mint/verify, timing-safe compare), wired into `worker/src/index.ts` `fetch` via 
 
 Until (1), the code is live-safe but dormant (no cookie). After (1)+(2), Interceptor should show a
 `qk_uid` Set-Cookie that is stable across reloads.
+
+**2026-07-25 — Shipped live + caching fix.** Secret set (`wrangler secret put --env demo`), Worker +
+demo deployed (Version 8df399c2). **Caching gotcha found & fixed:** the `[assets]` binding serves the
+static HTML shell straight from the edge (`cf-cache-status: HIT`), *bypassing the Worker*, so the
+document load never minted. Fix: (a) a dedicated uncacheable `GET /api/identity` beacon the SPA pings
+on boot (`web/demo/demo.ts`), and (b) `withIdentityCookie` now stamps `Cache-Control: private,
+no-store` on any minting response so a per-user cookie can never land in a shared cache. Live-verified
+via curl on the endpoint (mint / stable / tamper-reject all pass). **T1 done.**

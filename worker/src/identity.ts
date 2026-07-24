@@ -91,5 +91,9 @@ export function withIdentityCookie(response: Response, identity: Identity): Resp
   if (!identity.setCookie) return response;
   const r = new Response(response.body, response);
   r.headers.append("Set-Cookie", identity.setCookie);
+  // A per-user cookie must NEVER land in a shared/edge cache — else the next visitor inherits this
+  // identity. Mark any minting response uncacheable, regardless of path.
+  r.headers.set("Cache-Control", "private, no-store");
+  r.headers.set("Cloudflare-CDN-Cache-Control", "no-store");
   return r;
 }
