@@ -31,7 +31,15 @@ import {
   type GroundingVerse,
 } from "../../web/src/answer-contract.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
-import { ensureIdentity, withIdentityCookie } from "./identity.ts";
+import { ensureIdentity, withIdentityCookie, type Identity } from "./identity.ts";
+import {
+  recordEvent,
+  addBookmark,
+  removeBookmark,
+  addNote,
+  setReadingPosition,
+  type D1Database,
+} from "./store.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -53,6 +61,16 @@ export interface Env {
   /** Encrypted secret — `wrangler secret put IDENTITY_HMAC_SECRET --env demo`. Keys the signed
    *  anonymous-identity cookie (issue 01). Absent → identity degrades off (no cookie), app unaffected. */
   IDENTITY_HMAC_SECRET?: string;
+  /** D1 binding (wrangler.toml [[env.demo.d1_databases]]) — the personalized-memory raw truth layer
+   *  (issue 02). Absent → memory writes degrade to no-ops, app unaffected. */
+  DB?: D1Database;
+}
+
+/** Minimal ExecutionContext — inline (Worker keeps `types: []`). `waitUntil` defers memory writes so
+ *  they never delay the user's response. */
+interface ExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+  passThroughOnException(): void;
 }
 
 /** Cap the prompt surface: a companion line needs a sentence, not an essay, and an uncapped body is
@@ -73,16 +91,16 @@ const MAX_GROUNDING_ITEMS = 8;
 const MAX_GROUNDING_TEXT = 800;
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Anonymous identity (issue 01): resolve or mint the signed `qk_uid` before routing, then attach
     // any fresh cookie to whatever response the route produces — so it lands on API and asset paths alike.
     const identity = await ensureIdentity(request, env.IDENTITY_HMAC_SECRET);
-    const response = await route(request, env);
+    const response = await route(request, env, ctx, identity);
     return withIdentityCookie(response, identity);
   },
 };
 
-async function route(request: Request, env: Env): Promise<Response> {
+async function route(request: Request, env: Env, ctx: ExecutionContext, identity: Identity): Promise<Response> {
     const url = new URL(request.url);
 
     // Identity beacon (issue 01): an uncacheable worker path the SPA pings on load, so a fresh visitor
@@ -92,11 +110,19 @@ async function route(request: Request, env: Env): Promise<Response> {
       return json({ ok: true }, 200, request);
     }
 
+    // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
+    // rides an /api/* path (the static shell bypasses the Worker — see memory: demo-worker-edge-bypass).
+    if (url.pathname === "/api/events") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
+      return handleEvents(request, env, identity);
+    }
+
     if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       if (url.pathname === "/api/compose") return handleCompose(request, env);
-      if (url.pathname === "/api/answer") return handleAnswer(request, env);
+      if (url.pathname === "/api/answer") return handleAnswer(request, env, ctx, identity);
       return handleClassify(request, env);
     }
 
@@ -242,7 +268,7 @@ async function verifyGrounding<T extends { ref: string; text: string }>(items: T
   return items.filter((_, idx) => ok[idx] === true);
 }
 
-async function handleAnswer(request: Request, env: Env): Promise<Response> {
+async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, identity: Identity): Promise<Response> {
   // The authoring endpoint exists in one codebase but must only be live on the synthesis edition.
   // On the principled deploy EDITION is unset → this returns null and the app authors nothing.
   if (env.EDITION !== "synthesis") return json({ answer: null }, 200, request);
@@ -255,6 +281,12 @@ async function handleAnswer(request: Request, env: Env): Promise<Response> {
   }
 
   const question = asBoundedString(body.question);
+
+  // Memory (issue 02): log the question to the raw layer — deferred so it never delays the answer, and
+  // best-effort so a D1 hiccup can't break the response. Only the question text is stored, no PII.
+  if (env.DB && identity.userId && question) {
+    ctx.waitUntil(recordEvent(env.DB, identity.userId, "question", { question }, Date.now()).catch(() => {}));
+  }
   // Bound it, THEN prove it is ours. Forged grounding is dropped here, before the model ever sees it.
   const verses = await verifyGrounding(sanitizeGrounding(body.verses, true) as GroundingVerse[], env);
   const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
@@ -282,6 +314,61 @@ async function handleAnswer(request: Request, env: Env): Promise<Response> {
   }
 
   return json({ answer }, 200, request);
+}
+
+// ── /api/events — the memory write path (issue 02) ────────────────────────────
+
+interface EventBody {
+  kind?: unknown;
+  ref?: unknown;
+  text?: unknown;
+}
+
+/** Client-driven memory writes: read position, bookmark/unbookmark, note. Keyed by the T1 identity.
+ *  Degrades to a no-op (never 500s) when the DB binding or a signed identity is absent. */
+async function handleEvents(request: Request, env: Env, identity: Identity): Promise<Response> {
+  const userId = identity.userId;
+  if (!env.DB || !userId) return json({ ok: false }, 200, request); // memory off → no-op, app unaffected
+
+  let body: EventBody;
+  try {
+    body = (await request.json()) as EventBody;
+  } catch {
+    return json({ ok: false }, 400, request);
+  }
+
+  const kind = typeof body.kind === "string" ? body.kind : "";
+  const ref = typeof body.ref === "string" ? body.ref.slice(0, 32) : "";
+  const now = Date.now();
+
+  try {
+    switch (kind) {
+      case "read":
+        if (!ref) return json({ ok: false }, 400, request);
+        await setReadingPosition(env.DB, userId, ref, now);
+        await recordEvent(env.DB, userId, "read", { ref }, now);
+        break;
+      case "bookmark":
+        if (!ref) return json({ ok: false }, 400, request);
+        await addBookmark(env.DB, userId, ref, now);
+        break;
+      case "unbookmark":
+        if (!ref) return json({ ok: false }, 400, request);
+        await removeBookmark(env.DB, userId, ref);
+        break;
+      case "note": {
+        const text = typeof body.text === "string" ? body.text : "";
+        if (!ref || !text) return json({ ok: false }, 400, request);
+        await addNote(env.DB, userId, ref, text, now);
+        break;
+      }
+      default:
+        return json({ ok: false, error: "unknown kind" }, 400, request);
+    }
+  } catch {
+    return json({ ok: false }, 200, request); // D1 failure → degrade, never 500 the UX
+  }
+  return json({ ok: true }, 200, request);
 }
 
 // ── /api/classify — the theme understander (recognize, never invent) ──────────

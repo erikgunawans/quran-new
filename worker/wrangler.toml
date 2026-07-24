@@ -98,3 +98,10 @@ not_found_handling = "single-page-application"
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
 EDITION = "synthesis"
+
+# Personalized-memory raw truth layer (issue 02 / T2). Demo-only. Apply the schema with:
+#   cd worker && bunx wrangler d1 execute new-quranku-demo-memory --env demo --remote --file migrations/0001_init.sql
+[[env.demo.d1_databases]]
+binding = "DB"
+database_name = "new-quranku-demo-memory"
+database_id = "5c522383-6614-4353-91e3-32fba36de5c0"
