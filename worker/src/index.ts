@@ -38,6 +38,10 @@ import {
   removeBookmark,
   addNote,
   setReadingPosition,
+  getBookmarks,
+  getNotes,
+  getReadingPosition,
+  getQuestions,
   type D1Database,
 } from "./store.ts";
 
@@ -116,6 +120,14 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       return handleEvents(request, env, identity);
+    }
+
+    // Memory read-back (issue 03): the user's own bookmarks, notes, question history, reading position.
+    // Zero inference — pure raw-layer reads. Per-user, so never cacheable.
+    if (url.pathname === "/api/memory") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "GET") return json({ error: "GET only" }, 405, request);
+      return handleMemoryRead(request, env, identity);
     }
 
     if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
@@ -369,6 +381,36 @@ async function handleEvents(request: Request, env: Env, identity: Identity): Pro
     return json({ ok: false }, 200, request); // D1 failure → degrade, never 500 the UX
   }
   return json({ ok: true }, 200, request);
+}
+
+// ── /api/memory — the read-back (issue 03), zero inference ─────────────────────
+
+const EMPTY_MEMORY = { bookmarks: [], notes: [], questions: [], position: null };
+
+/** The user's own memory: bookmarks, notes, recent questions, reading position — straight from the raw
+ *  layer, no KV, no inference. Per-user → `no-store`. Degrades to empty when DB/identity absent. */
+async function handleMemoryRead(request: Request, env: Env, identity: Identity): Promise<Response> {
+  const userId = identity.userId;
+  const empty = () => noStore(json(EMPTY_MEMORY, 200, request));
+  if (!env.DB || !userId) return empty();
+  try {
+    const [bookmarks, notes, questions, position] = await Promise.all([
+      getBookmarks(env.DB, userId),
+      getNotes(env.DB, userId),
+      getQuestions(env.DB, userId),
+      getReadingPosition(env.DB, userId),
+    ]);
+    return noStore(json({ bookmarks, notes, questions, position }, 200, request));
+  } catch {
+    return empty();
+  }
+}
+
+/** Mark a per-user API response uncacheable — a shared edge cache must never hold one user's memory. */
+function noStore(response: Response): Response {
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Cloudflare-CDN-Cache-Control", "no-store");
+  return response;
 }
 
 // ── /api/classify — the theme understander (recognize, never invent) ──────────

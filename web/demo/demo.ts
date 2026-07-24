@@ -718,10 +718,17 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
         <button class="qk-vt" type="button" data-share aria-label="Bagikan ayat" title="Bagikan">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
         </button>
+        <button class="qk-vt" type="button" data-note aria-label="Tambah catatan pribadi" title="Catatan">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
       </div>
       <div class="qk-verse-readings">
         ${readingHtml(v.p, true)}
         ${harf ? `<div class="qk-harf" hidden>${harf}</div>` : ""}
+      </div>
+      <div class="qk-note-box" hidden>
+        <textarea class="qk-note-input" rows="2" maxlength="2000" placeholder="Tulis catatan pribadi untuk ayat ini…"></textarea>
+        <button class="qk-note-save" type="button">Simpan catatan</button>
       </div>
     </div>
   </article>`;
@@ -763,6 +770,29 @@ function wireVerseTools(scope: HTMLElement): void {
       } catch { /* cancelled */ }
     });
   }
+  // Personal notes (issue 03): toggle the inline editor, save to the raw layer.
+  for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-note]")) {
+    b.addEventListener("click", () => {
+      const box = b.closest(".qk-verse")?.querySelector<HTMLElement>(".qk-note-box");
+      if (!box) return;
+      box.hidden = !box.hidden;
+      if (!box.hidden) box.querySelector("textarea")?.focus();
+    });
+  }
+  for (const b of scope.querySelectorAll<HTMLButtonElement>(".qk-note-save")) {
+    b.addEventListener("click", () => {
+      const verse = b.closest<HTMLElement>(".qk-verse");
+      const ta = verse?.querySelector<HTMLTextAreaElement>(".qk-note-input");
+      const ref = verse?.dataset.ref ?? "";
+      const text = ta?.value.trim() ?? "";
+      if (!ref || !text) return;
+      logMemory("note", ref, text);
+      if (ta) ta.value = "";
+      const box = verse?.querySelector<HTMLElement>(".qk-note-box");
+      if (box) box.hidden = true;
+      toast("Catatan disimpan");
+    });
+  }
 }
 
 async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> {
@@ -790,6 +820,8 @@ async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> 
       <div class="qk-ayat">${shard.verses.map((v) => ayahHtml(n, shard.name, v)).join("")}</div>`;
     wireBookmarkButtons(el);
     wireVerseTools(el);
+    // Track reading position (issue 03): opening a surah records where the user is, for "continue reading".
+    logMemory("read", `${n}:${anchorAyah ? Number(anchorAyah) || 1 : 1}`);
     const a = anchorAyah ? Number(anchorAyah) : 0;
     if (a) {
       const target = document.getElementById(`ayat-${n}-${a}`);
@@ -1158,6 +1190,74 @@ function renderAudio(): void {
   markAudioGrid();
 }
 
+/* ── MEMORY: server-backed, identity-scoped, zero inference (issue 03) ─────── */
+interface ServerMemory {
+  bookmarks: { ref: string; ts: number }[];
+  notes: { ref: string; text: string; ts: number }[];
+  questions: { question: string; ts: number }[];
+  position: { ref: string; ts: number } | null;
+}
+/** Fire-and-forget write to the raw layer. Rides /api/* so the Worker sees it (the static shell
+ *  bypasses the Worker — see the demo-worker-edge-bypass note). Failures are silently ignored. */
+function logMemory(kind: string, ref?: string, text?: string): void {
+  void fetch(apiUrl("/api/events"), {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ kind, ref, text }),
+  }).catch(() => {});
+}
+async function fetchMemory(): Promise<ServerMemory | null> {
+  try {
+    const res = await fetch(apiUrl("/api/memory"), { credentials: "same-origin" });
+    if (!res.ok) return null;
+    return (await res.json()) as ServerMemory;
+  } catch {
+    return null;
+  }
+}
+/** Split a "surah:ayah" ref into a mushaf deep-link hash. */
+function refHref(ref: string): string {
+  const [s, a] = ref.split(":");
+  return `#/mushaf/${encodeURIComponent(s ?? "")}${a ? `/${encodeURIComponent(a)}` : ""}`;
+}
+/** Append the server-backed memory (continue-reading, questions, notes) below the local bookmarks. */
+async function hydrateMemorySection(el: HTMLElement): Promise<void> {
+  const mem = await fetchMemory();
+  if (!mem) return;
+  const parts: string[] = [];
+  if (mem.position) {
+    parts.push(
+      `<section class="qk-mem"><h2>Lanjutkan membaca</h2>` +
+        `<p><a href="${refHref(mem.position.ref)}">QS ${esc(mem.position.ref)}</a></p></section>`,
+    );
+  }
+  if (mem.questions.length) {
+    parts.push(
+      `<section class="qk-mem"><h2>Pertanyaan terakhir</h2><ul class="qk-mem-list">` +
+        mem.questions.slice(0, 8).map((q) => `<li>${esc(q.question)}</li>`).join("") +
+        `</ul></section>`,
+    );
+  }
+  if (mem.notes.length) {
+    parts.push(
+      `<section class="qk-mem"><h2>Catatan</h2><ul class="qk-mem-list">` +
+        mem.notes
+          .map((n) => `<li><a href="${refHref(n.ref)}">QS ${esc(n.ref)}</a> — ${esc(n.text)}</li>`)
+          .join("") +
+        `</ul></section>`,
+    );
+  }
+  if (!parts.length) return;
+  const wrap = document.createElement("div");
+  wrap.className = "qk-mem-wrap";
+  wrap.innerHTML =
+    `<div class="qk-page-head"><h1>Riwayat &amp; Catatan</h1>` +
+    `<p>Tersimpan untukmu — tanpa perlu login.</p></div>` +
+    parts.join("");
+  el.appendChild(wrap);
+}
+
 /* ── BOOKMARK: saved verses (localStorage) ───────────────────────────── */
 interface Bookmark { ref: string; surah: string; ar: string; tr: string }
 const BM_KEY = "qk-demo-bookmarks";
@@ -1179,6 +1279,8 @@ function wireBookmarkButtons(scope: HTMLElement): void {
       const on = toggleBookmark({ ref: b.dataset.ref ?? "", surah: b.dataset.surah ?? "", ar: b.dataset.ar ?? "", tr: b.dataset.tr ?? "" });
       b.classList.toggle("is-on", on);
       b.setAttribute("aria-pressed", String(on));
+      // Dual-write to the raw layer so bookmarks feed the derived profile (T4) and follow the identity.
+      logMemory(on ? "bookmark" : "unbookmark", b.dataset.ref ?? "");
     });
   }
 }
@@ -1193,6 +1295,7 @@ function renderBookmark(): void {
         <p class="qk-empty-lead">Belum ada ayat yang disimpan.</p>
         <p>Buka <a href="#/mushaf">Mushaf</a>, lalu ketuk ikon bookmark pada sebuah ayat untuk menyimpannya di sini.</p>
       </div>`;
+    void hydrateMemorySection(el);
     return;
   }
   el.innerHTML =
@@ -1207,8 +1310,14 @@ function renderBookmark(): void {
       <div class="qk-reading primary"><span class="qk-reading-tag">Terjemahan Makna</span><div class="qk-reading-txt">${esc(bm.tr)}</div></div>
     </article>`).join("");
   for (const b of el.querySelectorAll<HTMLButtonElement>(".qk-bm-remove")) {
-    b.addEventListener("click", () => { saveBookmarks(getBookmarks().filter((x) => x.ref !== b.dataset.ref)); renderBookmark(); });
+    b.addEventListener("click", () => {
+      const ref = b.dataset.ref ?? "";
+      saveBookmarks(getBookmarks().filter((x) => x.ref !== ref));
+      logMemory("unbookmark", ref); // keep the raw layer in sync with the local removal
+      renderBookmark();
+    });
   }
+  void hydrateMemorySection(el);
 }
 
 /* ── router ──────────────────────────────────────────────────────────── */

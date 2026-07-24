@@ -99,6 +99,62 @@ export async function getEvents(db: D1Database, userId: string): Promise<EventRo
   return res.results;
 }
 
+export interface BookmarkRow {
+  ref: string;
+  ts: number;
+}
+export interface NoteRow {
+  ref: string;
+  text: string;
+  ts: number;
+}
+export interface PositionRow {
+  ref: string;
+  ts: number;
+}
+export interface QuestionRow {
+  question: string;
+  ts: number;
+}
+
+export async function getBookmarks(db: D1Database, userId: string): Promise<BookmarkRow[]> {
+  const res = await db
+    .prepare("SELECT ref, ts FROM bookmarks WHERE user_id = ? ORDER BY ts DESC")
+    .bind(userId)
+    .all<BookmarkRow>();
+  return res.results;
+}
+
+export async function getNotes(db: D1Database, userId: string): Promise<NoteRow[]> {
+  const res = await db
+    .prepare("SELECT ref, text, ts FROM notes WHERE user_id = ? ORDER BY ts DESC")
+    .bind(userId)
+    .all<NoteRow>();
+  return res.results;
+}
+
+export async function getReadingPosition(db: D1Database, userId: string): Promise<PositionRow | null> {
+  return db.prepare("SELECT ref, ts FROM reading_position WHERE user_id = ?").bind(userId).first<PositionRow>();
+}
+
+/** Recent questions (newest first), parsed out of the event log's JSON payload. */
+export async function getQuestions(db: D1Database, userId: string, limit = 20): Promise<QuestionRow[]> {
+  const res = await db
+    .prepare("SELECT payload, ts FROM events WHERE user_id = ? AND kind = 'question' ORDER BY ts DESC LIMIT ?")
+    .bind(userId, limit)
+    .all<{ payload: string | null; ts: number }>();
+  const out: QuestionRow[] = [];
+  for (const row of res.results) {
+    try {
+      const q = (JSON.parse(row.payload ?? "{}") as { question?: string }).question ?? "";
+      if (q) out.push({ question: q, ts: row.ts });
+    } catch {
+      /* skip malformed payload */
+    }
+  }
+  return out;
+}
+
 // ── delete (the "Forget me" path, issue 08) ────────────────────────────────────
 
 /** Hard-delete every row for a user across all tables. Not soft-delete. */

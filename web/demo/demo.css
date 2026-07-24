@@ -1183,3 +1183,23 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ── Memory: personal notes + Riwayat section (issue 03 / T3) ───────────────── */
+.qk-note-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.qk-note-input {
+  width: 100%; box-sizing: border-box; resize: vertical; min-height: 52px;
+  padding: 9px 11px; font: inherit; font-size: 14px; color: var(--qk-fg);
+  background: var(--qk-bg); border: 1px solid var(--qk-border); border-radius: var(--qk-radius);
+}
+.qk-note-input:focus { outline: none; border-color: var(--qk-primary); }
+.qk-note-save {
+  align-self: flex-end; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600;
+  color: #fff; background: var(--qk-primary); border: 0; border-radius: 999px; cursor: pointer;
+}
+.qk-mem-wrap { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--qk-border); }
+.qk-mem { margin-top: 18px; }
+.qk-mem > h2 { font-size: 15px; font-weight: 700; color: var(--qk-fg); margin: 0 0 8px; }
+.qk-mem-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.qk-mem-list li { color: var(--qk-muted); font-size: 14px; line-height: 1.5; }
+.qk-mem a { color: var(--qk-primary); text-decoration: none; font-weight: 600; }
+.qk-mem a:hover { text-decoration: underline; }
