@@ -10,9 +10,10 @@ const ctx = (over: Partial<AnswerContext> = {}): AnswerContext => ({
 
 describe("SYNTHESIS_SYSTEM_PROMPT — the fences a careless edit must not remove", () => {
   test.each([
-    ["grounding-only", /only that material|jangan mengutip|not in the list/i],
+    ["cite only REAL ayat", /real ayah/i],
+    ["always answer, never brush off", /always answer|never say ["“]?there is no verse/i],
     ["no Arabic", /never write arabic/i],
-    ["not a mufti", /not a mufti|fatwa/i],
+    ["not a mufti (warm-teacher boundary)", /not a mufti|binding verdict/i],
     ["not a scholar / humble", /not.*scholar|humble/i],
   ])("still teaches %s", (_label, re) => {
     expect(SYNTHESIS_SYSTEM_PROMPT).toMatch(re);
@@ -33,8 +34,9 @@ describe("buildAnswerUserMessage — hands the model the question + its groundin
     expect(msg).toContain("2:255");
   });
 
-  test("states plainly when no verses were retrieved (so the model won't invent)", () => {
+  test("when nothing was auto-retrieved, invites the model to cite any real ayah it's sure of", () => {
     const msg = buildAnswerUserMessage(ctx({ verses: [] }));
     expect(msg).toMatch(/tidak ada ayat/i);
+    expect(msg).toMatch(/ayat lain yang kamu yakin/i);
   });
 });

@@ -7,10 +7,15 @@
  *
  *   - `arabic`     (HARD) — no Arabic script in the prose. Scripture renders as cards from the
  *                  sha256-pinned corpus; the model writes only Indonesian.
- *   - `bad_ref`    (HARD) — every verse reference the model writes MUST be one we handed it as
- *                  grounding. A reference the model produced on its own is, by definition, ungrounded
- *                  — the exact hallucination this whole app refuses. band.ts shipped the wrong verse
- *                  twice; a model does it confidently. So we whitelist: cite only what retrieval found.
+ *   - `bad_ref`    (HARD) — every verse reference the model writes MUST resolve to a REAL ayah
+ *                  (surah 1–114, ayah within that surah's bounds). The app now lets the model reach
+ *                  for any ayah in the Qur'an — Erik's "refer to the Aya and the translation we have":
+ *                  we render OUR official translation for whatever it cites, so breadth is safe as long
+ *                  as the reference is real. What is NOT safe is a citation to an ayah that does not
+ *                  exist (Nur once told people real ayahs did not exist; a model invents them
+ *                  confidently). So this rule no longer whitelists the grounding — it validates the
+ *                  reference against the mushaf. The caller passes `isCitable`, which answers exactly
+ *                  that question.
  *   - `fatwa`      (HARD) — no fiqh VERDICT. `SYNTHESIS_SYSTEM_PROMPT` rule 3 tells the model it is not
  *                  a mufti, but a prompt is a request, not a wall, and this file previously had no
  *                  backstop for the single failure this app most needs to refuse: an authored ruling
@@ -90,11 +95,11 @@ export function fatwaShape(prose: string): string | null {
 }
 
 /**
- * Guard an authored answer against the grounding it was built from. `allowedRefs` is the set of
- * "surah:ayah" strings for every verse AND scholar entry we handed the model — the only citations it
- * may legitimately produce.
+ * Guard an authored answer. `isCitable(ref)` decides whether a "surah:ayah" the model wrote is a
+ * legitimate citation — for the live app that is "does this ayah exist in the mushaf"; a test may
+ * pass a set membership instead. The Arabic and fatwa rules are unconditional.
  */
-export function guardAnswerProse(prose: string, allowedRefs: ReadonlySet<string>): AnswerGuardResult {
+export function guardAnswerProse(prose: string, isCitable: (ref: string) => boolean): AnswerGuardResult {
   const violations: AnswerViolation[] = [];
 
   const arabic = ARABIC.exec(prose);
@@ -105,9 +110,9 @@ export function guardAnswerProse(prose: string, allowedRefs: ReadonlySet<string>
 
   for (const m of prose.matchAll(REF_IN_PROSE)) {
     const ref = normRef(m[1]!, m[2]!);
-    if (!allowedRefs.has(ref)) {
+    if (!isCitable(ref)) {
       violations.push({ kind: "bad_ref", detail: ref });
-      break; // one ungrounded citation is enough to reject the whole answer
+      break; // one bad citation is enough to reject the whole answer
     }
   }
 
@@ -118,18 +123,29 @@ export function guardAnswerProse(prose: string, allowedRefs: ReadonlySet<string>
  * Return the model's answer only when it clears the wall; otherwise null, so the caller falls back
  * to the principled edition's honest behaviour for this turn.
  */
-export function safeAnswer(prose: string, allowedRefs: ReadonlySet<string>): string | null {
+export function safeAnswer(prose: string, isCitable: (ref: string) => boolean): string | null {
   const trimmed = prose.trim();
   if (!trimmed) return null;
-  return guardAnswerProse(trimmed, allowedRefs).ok ? trimmed : null;
+  return guardAnswerProse(trimmed, isCitable).ok ? trimmed : null;
 }
 
-/** Build the whitelist of citable refs from grounding ref strings ("surah:ayah"). */
-export const allowedRefsFrom = (refs: Iterable<string>): Set<string> => {
+/** Extract every well-formed "surah:ayah" reference from prose, normalised and de-duped, in order. */
+export const refsInProse = (prose: string): string[] => {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const m of prose.matchAll(REF_IN_PROSE)) {
+    const ref = normRef(m[1]!, m[2]!);
+    if (!seen.has(ref)) { seen.add(ref); out.push(ref); }
+  }
+  return out;
+};
+
+/** A citable-predicate that accepts only refs in a fixed set (used by tests and eval harnesses). */
+export const allowedRefsFrom = (refs: Iterable<string>): ((ref: string) => boolean) => {
   const set = new Set<string>();
   for (const r of refs) {
     const m = /(\d{1,3})\s*[:.]\s*(\d{1,3})/.exec(r);
     if (m) set.add(normRef(m[1]!, m[2]!));
   }
-  return set;
+  return (ref: string) => set.has(ref);
 };

@@ -14,18 +14,25 @@
  * principled edition, never worse.
  */
 import type { AnswerContext, AnswerModel, GroundingEntry, GroundingVerse } from "./answer-contract.ts";
-import { allowedRefsFrom, safeAnswer } from "./answer-guard.ts";
+import { refsInProse, safeAnswer } from "./answer-guard.ts";
 import { retrieveKnowledge } from "./knowledge.ts";
+import { isRealAyah } from "./quran.ts";
 import { retrieve, type Corpus } from "./retrieve.ts";
+
+// Re-export so existing importers (answer.test.ts) keep resolving it here; the definition lives in
+// quran.ts, next to surahMeta, so the Worker can share it without pulling retrieval into its bundle.
+export { isRealAyah } from "./quran.ts";
 
 /** Bound the grounding: enough context to answer, small enough to stay cheap and on-prompt. */
 const MAX_VERSES = 5;
 const MAX_ENTRIES = 6;
+/** Cap the verse cards rendered under an answer, so a citation-heavy reply doesn't become a wall. */
+const MAX_CARDS = 5;
 
 export interface SynthesisAnswer {
-  /** The model's authored prose — already guarded (no Arabic, citations all grounded). */
+  /** The model's authored prose — already guarded (no Arabic, every citation a real ayah, no verdict). */
   readonly prose: string;
-  /** The grounding verses to render as cards below the prose (byte-exact, from the corpus). */
+  /** The ayat the model ACTUALLY CITED, to render as cards below the prose (in our translation). */
   readonly refs: readonly string[];
 }
 
@@ -74,8 +81,13 @@ export async function gatherGrounding(
 }
 
 /**
- * Produce a grounded, guarded answer, or null if it can't be grounded/authored safely. The caller
- * treats null as "do what the principled edition would do".
+ * Produce a warm, guarded answer as the app's ustadz voice, or null if it can't be authored safely.
+ * The caller treats null as "do what the principled edition would do".
+ *
+ * The model LEADS now: it answers warmly and may cite any real ayah (we render our own translation
+ * for whatever it cites). The retrieved verses/pins are handed to it as PREFERRED grounding, not a
+ * fence. The guard still holds the three hard lines — no Arabic, no non-existent ayah, no fatwa
+ * verdict — and on any breach we fall back, never worse than the trustworthy edition.
  */
 export async function synthesizeAnswer(
   corpus: Corpus,
@@ -83,8 +95,7 @@ export async function synthesizeAnswer(
   modelThemes: string[],
   model: AnswerModel,
 ): Promise<SynthesisAnswer | null> {
-  const { verses, entries, refs } = await gatherGrounding(corpus, question, modelThemes);
-  if (verses.length === 0 && entries.length === 0) return null; // nothing to ground on → fall back
+  const { verses, entries } = await gatherGrounding(corpus, question, modelThemes);
 
   const ctx: AnswerContext = { question, verses, entries };
   let prose: string;
@@ -94,10 +105,12 @@ export async function synthesizeAnswer(
     return null; // model error/timeout → fall back to principled
   }
 
-  // The whitelist is every ref we handed the model — verses AND scholar entries.
-  const allowed = allowedRefsFrom([...refs, ...entries.map((e) => e.ref)]);
-  const safe = safeAnswer(prose, allowed);
-  if (safe === null) return null; // Arabic or an ungrounded citation → fall back
+  // Citations are validated against the mushaf, not a whitelist: any real ayah is fair game, a
+  // non-existent one sinks the whole answer. Arabic and fatwa-verdict rules are unconditional.
+  const safe = safeAnswer(prose, isRealAyah);
+  if (safe === null) return null;
 
+  // Render exactly the ayat the model cited (validated, de-duped, capped) — not the grounding hints.
+  const refs = refsInProse(safe).filter(isRealAyah).slice(0, MAX_CARDS);
   return { prose: safe, refs };
 }

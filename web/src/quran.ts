@@ -86,6 +86,15 @@ const bySurah = new Map<number, SurahMeta>(SURAH_INDEX.map((s) => [s.n, s]));
 
 export const surahMeta = (n: number): SurahMeta | undefined => bySurah.get(n);
 
+/** Does "surah:ayah" name a real ayah in the mushaf (surah 1–114, ayah within its bounds)? */
+export function isRealAyah(ref: string): boolean {
+  const m = /^(\d{1,3}):(\d{1,3})$/.exec(ref.trim());
+  if (!m) return false;
+  const meta = surahMeta(Number(m[1]));
+  const ayah = Number(m[2]);
+  return !!meta && ayah >= 1 && ayah <= meta.ayahs;
+}
+
 // ── name matching ────────────────────────────────────────────────────────────
 //
 // People do not type "18:10". They type "al kahfi", "yasin", "ar-rahman" — the surah by name,

@@ -6,7 +6,9 @@
  * itself: the model behaved perfectly given what it was handed, and what it was handed was wrong.
  */
 import { describe, expect, test } from "bun:test";
-import { gatherGrounding } from "./answer.ts";
+import { gatherGrounding, isRealAyah, synthesizeAnswer } from "./answer.ts";
+import { refsInProse } from "./answer-guard.ts";
+import type { AnswerContext } from "./answer-contract.ts";
 import type { Corpus } from "./retrieve.ts";
 
 // Serve the built Peta shards from disk so retrieveKnowledge runs with no server.
@@ -74,5 +76,63 @@ describe("gatherGrounding — only refs that exist in the mushaf may be citable"
     const g = await gatherGrounding(corpus, q, []);
     expect(g.verses).toEqual([]); // so the KB lane really did run — emptiness is the filter's doing
     expect(g.entries).toEqual([]);
+  });
+});
+
+describe("isRealAyah — a citation is legitimate only if the ayah exists", () => {
+  test("real ayat pass", () => {
+    expect(isRealAyah("17:23")).toBe(true); // Al-Isra has 111
+    expect(isRealAyah("2:255")).toBe(true); // Ayat al-Kursi
+    expect(isRealAyah("114:6")).toBe(true); // last surah, last ayah
+  });
+  test("non-existent ayat fail", () => {
+    expect(isRealAyah("8:77")).toBe(false); // Al-Anfal ends at 75
+    expect(isRealAyah("115:1")).toBe(false); // no surah 115
+    expect(isRealAyah("2:300")).toBe(false); // Al-Baqarah ends at 286
+    expect(isRealAyah("nonsense")).toBe(false);
+  });
+});
+
+describe("refsInProse — extracts what the model actually cited, in order, de-duped", () => {
+  test("named + numeric forms, first-ayah of a range, no repeats", () => {
+    expect(refsInProse("Lihat QS Al-Isra 17:23 dan QS Luqman 31:14, lalu 17:23 lagi."))
+      .toEqual(["17:23", "31:14"]);
+  });
+});
+
+describe("synthesizeAnswer — the model leads, guarded to real ayat and no verdict", () => {
+  const model = (prose: string) => (_ctx: AnswerContext) => Promise.resolve(prose);
+
+  test("cites a REAL ayah beyond the retrieved grounding — breadth is allowed now", async () => {
+    const ai = await synthesizeAnswer(
+      corpus,
+      "gimana sih adab ke orang tua",
+      [],
+      model("Berbakti kepada orang tua itu inti. Lihat QS Al-Isra 17:23."),
+    );
+    expect(ai).not.toBeNull();
+    expect(ai!.refs).toEqual(["17:23"]); // rendered card = what the model actually cited
+  });
+
+  test("a warm answer with NO citation still ships — no more brush-off bail", async () => {
+    // "syarat pribadi shalih khianat" grounds on nothing (see above); the old code bailed to null.
+    const ai = await synthesizeAnswer(
+      corpus,
+      "syarat pribadi shalih khianat",
+      [],
+      model("Menjaga amanah itu berat, dan niatmu untuk memperbaiki diri sudah satu langkah baik."),
+    );
+    expect(ai).not.toBeNull();
+    expect(ai!.refs).toEqual([]);
+  });
+
+  test("a non-existent ayah sinks the whole answer", async () => {
+    const ai = await synthesizeAnswer(corpus, "cerita tentang khianat", [], model("Lihat QS 8:77."));
+    expect(ai).toBeNull();
+  });
+
+  test("a fatwa verdict is rejected — the warm-teacher boundary holds", async () => {
+    const ai = await synthesizeAnswer(corpus, "hukum riba", [], model("Riba itu haram hukumnya."));
+    expect(ai).toBeNull();
   });
 });

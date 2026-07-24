@@ -20,7 +20,8 @@
 import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
-import { allowedRefsFrom, guardAnswerProse } from "../../web/src/answer-guard.ts";
+import { guardAnswerProse } from "../../web/src/answer-guard.ts";
+import { isRealAyah } from "../../web/src/quran.ts";
 import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
   ANSWER_PARAMS,
@@ -144,12 +145,15 @@ async function handleCompose(request: Request, env: Env): Promise<Response> {
   return json({ prose }, 200, request);
 }
 
-// ── /api/answer — the SYNTHESIS edition's authored answer (new-quranku-ai) ────
+// ── /api/answer — the app's warm authored answer (ustadz voice) ───────────────
 //
-// The MODEL authors here (the opposite of /api/compose), but only from grounding the caller supplies,
-// and the SAME guard the browser runs (answer-guard) runs here on egress: no Arabic, and every cited
-// reference must be one of the grounding refs. A rejected or failed generation returns {answer:null}
-// and the browser falls back to the principled behaviour. One retry on a guard reject, like compose.
+// The MODEL leads here (the opposite of /api/compose): it answers warmly and may cite ANY real ayah,
+// for which the app renders its own translation. The grounding the caller supplies is PREFERRED
+// context, not a fence, and is still verified verbatim-ours (verifyGrounding) so no forged scholarship
+// reaches the model. The SAME guard the browser runs (answer-guard) runs here on egress: no Arabic,
+// no fatwa verdict, and every cited reference must resolve to a REAL ayah (isRealAyah) — a non-existent
+// citation sinks the answer. A rejected or failed generation returns {answer:null} and the browser
+// falls back to the principled behaviour. One retry on a guard reject, like compose.
 
 interface AnswerBody {
   question?: unknown;
@@ -235,19 +239,21 @@ async function handleAnswer(request: Request, env: Env): Promise<Response> {
   // Bound it, THEN prove it is ours. Forged grounding is dropped here, before the model ever sees it.
   const verses = await verifyGrounding(sanitizeGrounding(body.verses, true) as GroundingVerse[], env);
   const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
-  if (!question || (verses.length === 0 && entries.length === 0)) return json({ answer: null }, 200, request);
+  // The model now leads and can answer without any grounding, so only the question is required. Empty
+  // grounding just means fewer suggested verses, never a refusal.
+  if (!question) return json({ answer: null }, 200, request);
 
   const user = buildAnswerUserMessage({ question, verses, entries });
-  const allowed = allowedRefsFrom([...verses.map((v) => v.ref), ...entries.map((e) => e.ref)]);
 
   let answer: string | null = null;
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
     // One retry on a guard reject (a fresh generation usually clears it), exactly like compose. A
-    // model error/timeout is caught below and NOT retried.
+    // model error/timeout is caught below and NOT retried. Citations are validated against the real
+    // mushaf (isRealAyah), not the grounding — the model may reach for any ayah, just not a fake one.
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const candidate = (await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, ANSWER_PARAMS))?.trim();
-      if (candidate && guardAnswerProse(candidate, allowed).ok) {
+      if (candidate && guardAnswerProse(candidate, isRealAyah).ok) {
         answer = candidate;
         break;
       }

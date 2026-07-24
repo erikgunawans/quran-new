@@ -468,7 +468,7 @@ async function renderTurn(t: Turn): Promise<string> {
     }
     case "ai": {
       const c = await ensureCorpus();
-      return c ? aiAnswerHtml(c, t.prose, t.refs) : SILENCE;
+      return c ? await aiAnswerHtml(c, t.prose, t.refs) : SILENCE;
     }
     case "aqidah": {
       const e = aqidahById(t.id);
@@ -492,9 +492,10 @@ async function renderTurn(t: Turn): Promise<string> {
 }
 
 /**
- * Decide the turn — the SAME resolution order as the live app's ask(): direct reference first
- * (any of the 6236 ayat), then AI synthesis, then principled hits, then the knowledge/aqidah lanes,
- * then honest silence. Returns only the persistable DECISION; renderTurn() draws it.
+ * Decide the turn. The app now answers as the ustadz would: the MODEL LEADS with a warm answer
+ * grounded in our ayat. Order: direct reference → the two hard floors that outrank the model
+ * (a family-law referral, a reviewed aqidah answer) → the model → and only if the model bows out,
+ * the principled fallbacks (reviewed index, hits, honest silence). Returns the persistable DECISION.
  */
 async function resolveTurn(q: string): Promise<Turn> {
   const ref = parseRef(q);
@@ -503,47 +504,36 @@ async function resolveTurn(q: string): Promise<Turn> {
   if (ref.kind === "surah") return { q, kind: "surah", surah: ref.surah.n };
   if (ref.kind === "ayah") return { q, kind: "ayah", surah: ref.surah.n, ayah: ref.ayah };
 
-  // A marital rights/obligation question (nafkah) is fiqh, not feeling: never a verse OR the KB,
-  // only a pointer to a human ustadz. Decided before any model hop and every lane below.
+  // The warm-teacher boundary's hard floor: a marital rights/obligation question (nafkah) is a
+  // binding fiqh verdict on someone's situation, not teaching — it defers to a human ustadz, before
+  // any model hop. The prompt asks the model to defer these too; this is the deterministic backstop.
   if (needsFamilyLawScholar(q)) return { q, kind: "refer" };
 
   const c = await ensureCorpus();
   if (!c) return { q, kind: "silence" };
 
-  // Pass 1 — the theme classifier broadens retrieval (same as the live app); [] on any failure.
   const modelThemes = await understandThemes(q, c.themes, demoThemeModel, () => []);
 
-  // FACTUAL-FORM FIRST, AND BEFORE THE MODEL. A factual question is answered by the REVIEWED index
-  // before the AI gets a turn. The AI grounds on whatever verses happen to rank, and for a question
-  // with a direction — "kewajiban anak KEPADA orang tua" (the child's duty) — that is the wrong-way
-  // verses: the parent→child and orphan rules. That ordering is exactly what shipped the brush-off
-  // ("belum menemukan… rujuk sendiri ke Al-Isra") while the index held "Kewajiban anak berbakti pada
-  // orang tua". So a reviewed aqidah answer or a CONFIDENT index hit (entries > 0) wins here, before
-  // synthesis. A factual question also never falls through to the feeling lane. See question-form.ts.
-  const factual = looksFactual(q);
-  const kAns = factual ? await retrieveKnowledge(q) : null;
-  if (factual) {
-    const aq = matchAqidah(q);
-    if (aq) return { q, kind: "aqidah", id: aq.id };
-    if (kAns && kAns.entries.length > 0) return { q, kind: "knowledge", slug: kAns.slug };
-  }
+  // A REVIEWED human answer (Ustadz Ahmad Isrofiel's verbatim aqidah) outranks the model — it is the
+  // ustadz's actual vetted words, which is exactly what the app aspires to sound like.
+  const aq = matchAqidah(q);
+  if (aq) return { q, kind: "aqidah", id: aq.id };
 
-  // Pass 2 — the AI authors a grounded answer. Null (nothing to ground / model down / guard reject)
-  // falls through to the principled resolution, so this edition is never worse than the trustworthy one.
+  // The model LEADS: a warm answer in the ustadz voice, grounded in our ayat (any real ayah, our
+  // translation). Retrieval verses and the curated pins reach it as grounding hints inside
+  // synthesizeAnswer. Null (model down / guard reject) falls back below — never worse than principled.
   const ai = await synthesizeAnswer(c, q, modelThemes, demoAnswerModel);
   if (ai) return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
 
+  // FALLBACKS, only when the model bowed out. A factual question still never drops to the feeling
+  // lane: the reviewed index, an honest topic pointer, or silence. Otherwise: hits, else silence.
   const turn = turnFromHits(q, retrieve(c, q, 2, modelThemes));
-
-  // A factual question the model declined still never falls to the feeling lane: the reviewed
-  // entries (already fetched above), an honest topic pointer, or silence — in that order. This
-  // catches shapes where a feeling answer would be WRONG ("apa aja yang termasuk dosa besar" once
-  // matched the keyword `dosa` and returned a verse about mercy) but the index had no confident hit.
-  if (factual && knowledgeOnly(q)) return kAns ? { q, kind: "knowledge", slug: kAns.slug } : { q, kind: "silence" };
-
+  if (looksFactual(q)) {
+    const k = await retrieveKnowledge(q);
+    if (k && k.entries.length > 0) return { q, kind: "knowledge", slug: k.slug };
+    if (knowledgeOnly(q)) return k ? { q, kind: "knowledge", slug: k.slug } : { q, kind: "silence" };
+  }
   if (turn.kind === "silence") {
-    const aq = matchAqidah(q);
-    if (aq) return { q, kind: "aqidah", id: aq.id };
     const k = await retrieveKnowledge(q);
     if (k) return { q, kind: "knowledge", slug: k.slug };
   }
@@ -602,21 +592,24 @@ async function restoreThread(): Promise<void> {
 }
 
 /** Render the AI-authored answer: guarded prose (paragraphs) + grounding verses + the AI label. */
-function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): string {
+async function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): Promise<string> {
   const paras = prose
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean)
     .map((p) => `<p class="qk-ai-said">${linkifyRefs(p)}</p>`)
     .join("");
-  const cards = refs
-    .map((r) => c.verses.find((v) => v.ref === r))
-    .filter((v): v is NonNullable<typeof v> => v !== undefined)
-    // The lane that most needs the passage: the model AUTHORED prose from these verses, so the
-    // reader meets the verse as the evidence for a paragraph. Approved-inside-a-passage has to
-    // mean the passage is there too.
-    .map((v) => curatedCardHtml(v))
-    .join("");
+  // The model cites any real ayah; we render OUR translation for each. A curated verse keeps its
+  // rich card (both renderings, any co-display); anything else loads from the mushaf shard so the
+  // reader always meets the verse the answer leaned on — in our own Tarjamah Tafsiriyah.
+  const cards = (await Promise.all(refs.map(async (r) => {
+    const curated = c.verses.find((v) => v.ref === r);
+    if (curated) return curatedCardHtml(curated);
+    const [s, a] = r.split(":").map(Number);
+    if (!s || !a) return "";
+    try { return shardCardHtml(s, displayName(s), await loadAyah(s, a)); }
+    catch { return ""; } // a shard that fails to load just drops its card, never breaks the answer
+  }))).join("");
   return `<div class="qk-ai">${paras}</div>` + cards + AI_NOTE;
 }
 

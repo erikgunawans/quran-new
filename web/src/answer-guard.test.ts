@@ -58,12 +58,12 @@ describe("safeAnswer — the caller's fall-back gate", () => {
   });
 });
 
-describe("allowedRefsFrom — normalises grounding refs to surah:ayah", () => {
+describe("allowedRefsFrom — a predicate over normalised grounding refs", () => {
   test("parses the scholar's display form and the bare form", () => {
-    const set = allowedRefsFrom(["QS. Al-Ikhlas, 112:1", "2:255"]);
-    expect(set.has("112:1")).toBe(true);
-    expect(set.has("2:255")).toBe(true);
-    expect(set.has("4:82")).toBe(false);
+    const citable = allowedRefsFrom(["QS. Al-Ikhlas, 112:1", "2:255"]);
+    expect(citable("112:1")).toBe(true);
+    expect(citable("2:255")).toBe(true);
+    expect(citable("4:82")).toBe(false);
   });
 });
 
