@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { linkifyRefs } from "./linkify.ts";
+import { linkifyRefs, resolvedRefsInProse } from "./linkify.ts";
 
 /**
  * The model writes verse references in prose. We link them into the mushaf — but only ones we can
@@ -47,5 +47,16 @@ describe("linkifyRefs — model prose references become mushaf links, safely", (
 
   test("prose with no reference is returned escaped, unchanged in meaning", () => {
     expect(linkifyRefs("Semoga kamu tenang <3")).toBe("Semoga kamu tenang &lt;3");
+  });
+});
+
+describe("resolvedRefsInProse — the ayat to render as cards, resolving names AND numbers", () => {
+  test("recognises the NAMED form the model actually writes (this was the missing-cards bug)", () => {
+    const prose = "Lihat QS Al-Isra' ayat 23, lalu QS Al-Baqarah ayat 83 dan QS Al-Ankabut ayat 8.";
+    expect(resolvedRefsInProse(prose)).toEqual(["17:23", "2:83", "29:8"]);
+  });
+  test("numeric + named mix, in order, de-duped, only real ayat", () => {
+    expect(resolvedRefsInProse("2:255 dan QS Luqman ayat 14, lalu 2:255 lagi, dan QS Narnia ayat 3"))
+      .toEqual(["2:255", "31:14"]);
   });
 });

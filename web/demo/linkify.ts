@@ -69,3 +69,30 @@ export function linkifyRefs(raw: string): string {
   for (const s of kept) { out += esc(raw.slice(pos, s.start)) + s.html; pos = s.end; }
   return out + esc(raw.slice(pos));
 }
+
+/**
+ * The real ayat a piece of prose cites, as "surah:ayah", in order and de-duped — resolving BOTH the
+ * named form ("QS Al-Isra' ayat 23") and the numeric form ("17:23"). This is what the answer renders
+ * as cards, so it must recognise exactly what linkifyRefs turns into links: the model writes citations
+ * in words far more often than in numbers, and a numeric-only reader would show no cards under a warm
+ * answer full of "QS … ayat …". Only ayat that actually exist are returned.
+ */
+export function resolvedRefsInProse(raw: string): string[] {
+  const found: { pos: number; ref: string }[] = [];
+  const add = (pos: number, n: number | null, ayah: number) => {
+    if (n === null || !Number.isFinite(ayah)) return;
+    const meta = surahMeta(n);
+    if (!meta || ayah < 1 || ayah > meta.ayahs) return;
+    found.push({ pos, ref: `${n}:${ayah}` });
+  };
+  const NAMED = /(?:qs\.?\s+|surah\s+|surat\s+)([a-z'’\-]+(?:\s+[a-z'’\-]+)?)\s+ayat\s+(\d{1,3})(?:\s*[-–]\s*\d{1,3})?/gi;
+  const NUM = /(?:qs\.?\s*)?\b(\d{1,3}):(\d{1,3})\b/gi;
+  let m: RegExpExecArray | null;
+  while ((m = NAMED.exec(raw)) !== null) add(m.index, SURAH_NAME_TO_N.get(foldSurahName(m[1]!)) ?? null, Number(m[2]));
+  while ((m = NUM.exec(raw)) !== null) add(m.index, Number(m[1]), Number(m[2]));
+  found.sort((a, b) => a.pos - b.pos);
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const f of found) { if (!seen.has(f.ref)) { seen.add(f.ref); out.push(f.ref); } }
+  return out;
+}

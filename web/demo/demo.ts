@@ -17,7 +17,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
 import { esc } from "../src/esc.ts";
 import { todayPick, todayCardHtml } from "./today.ts";
-import { linkifyRefs } from "./linkify.ts";
+import { linkifyRefs, resolvedRefsInProse } from "./linkify.ts";
 import { retrieve, compose, needsFamilyLawScholar, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -599,10 +599,14 @@ async function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): 
     .filter(Boolean)
     .map((p) => `<p class="qk-ai-said">${linkifyRefs(p)}</p>`)
     .join("");
+  // Cards for exactly the ayat the prose CITED — resolved from the prose itself (named or numeric),
+  // so they always match the inline links. The stored `refs` are a numeric-only fallback for replay.
+  const cited = resolvedRefsInProse(prose);
+  const cardRefs = (cited.length ? cited : refs.filter((r) => /^\d+:\d+$/.test(r))).slice(0, 5);
   // The model cites any real ayah; we render OUR translation for each. A curated verse keeps its
   // rich card (both renderings, any co-display); anything else loads from the mushaf shard so the
   // reader always meets the verse the answer leaned on — in our own Tarjamah Tafsiriyah.
-  const cards = (await Promise.all(refs.map(async (r) => {
+  const cards = (await Promise.all(cardRefs.map(async (r) => {
     const curated = c.verses.find((v) => v.ref === r);
     if (curated) return curatedCardHtml(curated);
     const [s, a] = r.split(":").map(Number);
