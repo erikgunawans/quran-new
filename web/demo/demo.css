@@ -540,7 +540,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .qk-know-item { padding: 13px 15px; border: 1px solid var(--qk-border); border-radius: 12px; background: var(--qk-card); }
 .qk-know-txt { margin: 0 0 6px; color: var(--qk-fg); font-size: 15px; line-height: 1.6; }
 .qk-know-ref { font-size: 13px; font-weight: 600; color: var(--qk-primary); }
+a.qk-know-ref {
+  display: inline-block; text-decoration: none;
+  border-bottom: 1px solid transparent; transition: border-color .2s var(--qk-ease);
+}
+a.qk-know-ref:hover { border-color: var(--qk-primary); }
+.qk-know-ref-plain { color: var(--qk-muted); font-weight: 600; cursor: default; }
 .qk-know-src { font-size: 13px; color: var(--qk-muted); margin: 2px 0 0; }
+
+/* Inline verse reference inside model prose — a resolved link into the mushaf. */
+.qk-ref-link {
+  color: var(--qk-primary); text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--qk-primary) 40%, transparent);
+  transition: border-color .2s var(--qk-ease);
+}
+.qk-ref-link:hover { border-bottom-color: var(--qk-primary); }
 
 /* Crisis card — deliberately off-brand so it reads as an interruption, calm but urgent. */
 .crisis {

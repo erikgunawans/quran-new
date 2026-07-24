@@ -59,6 +59,39 @@ describe("retrieveKnowledge — the scholar's own entries, verbatim and cited", 
   });
 });
 
+describe("curated pins — the reviewed allowlist that overrides direction-blind ranking", () => {
+  // Word-overlap ranking surfaced the parent→child and orphan verses for "kewajiban anak KEPADA
+  // orang tua" because those entries literally contain "anak"/"orang tua"; the actual answer
+  // (17:23, phrased "berbakti pada orang tua", and 2:83 "ibu-bapak") scored low and was buried.
+  test("'kewajiban anak kepada orang tua' → the pinned birrul-walidain entries, in order", async () => {
+    const k = await retrieveKnowledge("apa aja sih kewajiban anak kepada orang tua");
+    expect(k).not.toBeNull();
+    expect(k!.slug).toBe("kewajiban-anak-kepada-orang-tua");
+    expect(k!.source.author).toBe("Ustadz Muhammad Thalib");
+    expect(k!.entries.map((e) => `${e.surah}:${e.ayah}`)).toEqual(["17:23", "2:83", "29:8", "46:15"]);
+    // The child's DUTY leads — not the parent→child / orphan rules ranking used to surface.
+    expect(k!.entries[0]!.text).toContain("Kewajiban anak berbakti");
+    // 2:83 must carry the perintah caption ("ibu-bapak"), NOT keluarga's orphan caption for the
+    // same verse — the shard-keyed lookup is what disambiguates them.
+    expect(k!.entries[1]!.text).toContain("ibu-bapak");
+    expect(k!.entries.every((e) => e.resolvable)).toBe(true);
+  });
+
+  test("the pin recognises the natural phrasings people type", async () => {
+    for (const q of ["berbakti kepada orang tua gimana caranya", "birrul walidain itu apa"]) {
+      const k = await retrieveKnowledge(q);
+      expect(k?.slug).toBe("kewajiban-anak-kepada-orang-tua");
+    }
+  });
+
+  test("a NEARBY but different topic is NOT captured by the pin", async () => {
+    // "kewajiban anak yatim" is the orphan's rights, not birrul walidain — it must fall through to
+    // the general router, never the pin.
+    const k = await retrieveKnowledge("kewajiban terhadap anak yatim apa saja");
+    expect(k?.slug).not.toBe("kewajiban-anak-kepada-orang-tua");
+  });
+});
+
 /**
  * Noise matching — found by the synthesis answer eval's dry-run (2026-07-20).
  *

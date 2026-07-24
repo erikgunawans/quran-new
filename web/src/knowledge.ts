@@ -270,11 +270,119 @@ export function matchTopic(question: string): string | null {
 }
 
 /**
- * Surface the scholar's entries for the question's topic. Ranks entries by content-word overlap; a
- * broad question (no overlap) simply takes the leading entries — the whole category is on-topic. All
- * text is verbatim; all attribution rides with it (the caller renders source + derivative note).
+ * Curated topic pins — the narrow, reviewed allowlist that overrides ranking.
+ *
+ * The general path ranks entries by word overlap, which is blind to DIRECTION. "kewajiban anak
+ * kepada orang tua" (a child's duty) surfaces verses that merely contain "anak"/"orang tua" as
+ * OBJECTS — the parent→child and orphan rules (24:58, 2:220, 2:233, 4:2…) — while the actual answer,
+ * 17:23 "Kewajiban anak berbakti pada orang tua", is phrased with "ibu-bapak", scores zero, and is
+ * buried. Word overlap cannot see that a question is about the child's obligation, not the child.
+ *
+ * For well-known topics where ranking fails this way, we PIN the canonical entries by reference.
+ * The content stays the scholar's verbatim, attributed index text — we curate only WHICH of his
+ * entries answer the topic. That curated ref-list is exactly what the reviewing ustadz signs off on.
+ * A pin may span categories (birrul walidain's four entries live in two shards), so assembly loads
+ * every shard the pin names and pulls entries by their leading ref.
+ */
+/** A pinned entry, named by its shard because the SAME verse carries different captions in different
+ * categories — 2:83 is "Berbakti kepada ibu-bapak" in perintah-dan-larangan but "Wajib berbuat baik
+ * pada anak yatim" in keluarga. The shard disambiguates which of the scholar's captions we mean. */
+interface PinRef {
+  readonly shard: string;
+  readonly surah: number;
+  readonly ayah: number;
+}
+interface TopicPin {
+  readonly slug: string;
+  readonly category: string;
+  /** Phrases that route to this pin; matched space-bounded, like the alias lexicon. */
+  readonly triggers: readonly string[];
+  /** Canonical entries, in display order. Each names the shard its caption comes from. */
+  readonly refs: readonly PinRef[];
+}
+
+const TOPIC_PINS: readonly TopicPin[] = [
+  {
+    slug: "kewajiban-anak-kepada-orang-tua",
+    category: "Kewajiban anak kepada orang tua",
+    triggers: [
+      "kewajiban anak kepada orang tua", "kewajiban anak pada orang tua",
+      "kewajiban anak terhadap orang tua", "kewajiban anak ke orang tua",
+      "kewajiban anak sama orang tua", "kewajiban anak buat orang tua",
+      "berbakti kepada orang tua", "berbakti pada orang tua", "berbakti ke orang tua",
+      "birrul walidain", "durhaka kepada orang tua", "durhaka pada orang tua",
+    ],
+    refs: [
+      { shard: "keluarga", surah: 17, ayah: 23 }, //           Kewajiban anak berbakti pada orang tua
+      { shard: "perintah-dan-larangan", surah: 2, ayah: 83 }, // Berbakti kepada ibu-bapak
+      { shard: "perintah-dan-larangan", surah: 29, ayah: 8 }, // the limit — refuse only when pushed to syirik
+      { shard: "keluarga", surah: 46, ayah: 15 }, //           Anak usia 40 sadar hutang budi pada orang tua
+    ],
+  },
+];
+
+/** Does the question name a pinned topic? Space-bounded phrase match, like the alias lexicon. */
+export function matchPin(question: string): TopicPin | null {
+  const q = ` ${norm(question)} `;
+  for (const pin of TOPIC_PINS) {
+    if (pin.triggers.some((t) => phraseHit(q, t))) return pin;
+  }
+  return null;
+}
+
+/** Assemble a pin into a KnowledgeAnswer: the scholar's verbatim entries, in the curated order. */
+async function retrievePinned(pin: TopicPin): Promise<KnowledgeAnswer | null> {
+  const shardNames = [...new Set(pin.refs.map((r) => r.shard))];
+  let index: PetaIndex;
+  let shards: Awaited<ReturnType<typeof loadCategory>>[];
+  try {
+    const loaded = await Promise.all([loadIndex(), ...shardNames.map((s) => loadCategory(s))]);
+    index = loaded[0] as PetaIndex;
+    shards = loaded.slice(1) as Awaited<ReturnType<typeof loadCategory>>[];
+  } catch {
+    return null; // a failed fetch keeps the honest silence; it never takes the chat down
+  }
+  // Index every entry by "shard:surah:ayah" (its LEADING ref) — the shard is part of the key because
+  // one verse can carry different captions in different categories, and the pin names which it wants.
+  const byRef = new Map<string, KnowledgeEntry>();
+  shardNames.forEach((name, i) => {
+    for (const st of shards[i]!.subtopics) {
+      for (const e of st.entries) {
+        const first = e.refs[0];
+        if (!first) continue;
+        const key = `${name}:${first.surah}:${first.ayah}`;
+        if (!byRef.has(key)) {
+          byRef.set(key, {
+            text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah,
+            resolvable: first.resolvable, subtopic: st.subtopic,
+          });
+        }
+      }
+    }
+  });
+  // Pull the pinned refs in curated order; skip any the index no longer carries rather than fake it.
+  const entries = pin.refs
+    .map((r) => byRef.get(`${r.shard}:${r.surah}:${r.ayah}`))
+    .filter((e): e is KnowledgeEntry => e !== undefined);
+  if (entries.length === 0) return null; // pin points at nothing → fall through, do not invent
+  return { slug: pin.slug, category: pin.category, totalEntries: entries.length, source: index.source, entries };
+}
+
+/**
+ * Surface the scholar's entries for the question's topic. A curated pin wins first (ranking is blind
+ * to direction); otherwise ranks entries by content-word overlap; a broad question (no overlap)
+ * simply takes the leading entries — the whole category is on-topic. All text is verbatim; all
+ * attribution rides with it (the caller renders source + derivative note).
  */
 export async function retrieveKnowledge(question: string): Promise<KnowledgeAnswer | null> {
+  // A reviewed pin overrides the ranker for the handful of topics where overlap surfaces the wrong
+  // direction. If the pin matches but its shards fail to load, fall through to general routing.
+  const pin = matchPin(question);
+  if (pin) {
+    const pinned = await retrievePinned(pin);
+    if (pinned) return pinned;
+  }
+
   const slug = matchTopic(question);
   if (!slug) return null;
 

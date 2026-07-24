@@ -17,6 +17,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
 import { esc } from "../src/esc.ts";
 import { todayPick, todayCardHtml } from "./today.ts";
+import { linkifyRefs } from "./linkify.ts";
 import { retrieve, compose, needsFamilyLawScholar, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -407,7 +408,14 @@ function knowledgePointerHtml(k: KnowledgeAnswer): string {
 function knowledgeHtml(k: KnowledgeAnswer): string {
   const shown = k.entries.length, total = k.totalEntries;
   const items = k.entries
-    .map((e) => `<div class="qk-know-item"><p class="qk-know-txt">${esc(e.text)}</p><span class="qk-know-ref">${esc(e.ref)}</span></div>`)
+    .map((e) => {
+      // Resolvable refs deep-link into the mushaf; the few the index cites that are not in the
+      // mushaf are shown but never linked — a jump we cannot honour is its own small lie.
+      const ref = e.resolvable
+        ? `<a class="qk-know-ref" href="#/mushaf/${e.surah}/${e.ayah}">${esc(e.ref)} →</a>`
+        : `<span class="qk-know-ref qk-know-ref-plain">${esc(e.ref)}</span>`;
+      return `<div class="qk-know-item"><p class="qk-know-txt">${esc(e.text)}</p>${ref}</div>`;
+    })
     .join("");
   return `<p class="qk-said">Ini yang ada di <b>Indeks Tematik</b> untuk topik <b>${esc(k.category)}</b>${total > shown ? ` (${shown} dari ${total} entri)` : ""}:</p>
     <div class="qk-know">${items}</div>
@@ -504,6 +512,22 @@ async function resolveTurn(q: string): Promise<Turn> {
 
   // Pass 1 — the theme classifier broadens retrieval (same as the live app); [] on any failure.
   const modelThemes = await understandThemes(q, c.themes, demoThemeModel, () => []);
+
+  // FACTUAL-FORM FIRST, AND BEFORE THE MODEL. A factual question is answered by the REVIEWED index
+  // before the AI gets a turn. The AI grounds on whatever verses happen to rank, and for a question
+  // with a direction — "kewajiban anak KEPADA orang tua" (the child's duty) — that is the wrong-way
+  // verses: the parent→child and orphan rules. That ordering is exactly what shipped the brush-off
+  // ("belum menemukan… rujuk sendiri ke Al-Isra") while the index held "Kewajiban anak berbakti pada
+  // orang tua". So a reviewed aqidah answer or a CONFIDENT index hit (entries > 0) wins here, before
+  // synthesis. A factual question also never falls through to the feeling lane. See question-form.ts.
+  const factual = looksFactual(q);
+  const kAns = factual ? await retrieveKnowledge(q) : null;
+  if (factual) {
+    const aq = matchAqidah(q);
+    if (aq) return { q, kind: "aqidah", id: aq.id };
+    if (kAns && kAns.entries.length > 0) return { q, kind: "knowledge", slug: kAns.slug };
+  }
+
   // Pass 2 — the AI authors a grounded answer. Null (nothing to ground / model down / guard reject)
   // falls through to the principled resolution, so this edition is never worse than the trustworthy one.
   const ai = await synthesizeAnswer(c, q, modelThemes, demoAnswerModel);
@@ -511,25 +535,11 @@ async function resolveTurn(q: string): Promise<Turn> {
 
   const turn = turnFromHits(q, retrieve(c, q, 2, modelThemes));
 
-  // FACTUAL-FORM FIRST — see question-form.ts. The feeling lexicon claims 94 words the scholar's
-  // index also covers, so "apa itu zakat" was answered with a verse about charity's reward instead
-  // of reaching Ibadah. A question shaped as a question tries the knowledge lanes before settling
-  // for whatever the feeling lane matched on a keyword.
-  // A factual question NEVER falls through to the feeling lane. It gets a reviewed answer, the
-  // scholar's entries, an honest topic pointer, or silence — in that order.
-  //
-  // Falling through was worse than silence and it was hiding inside the "answered" count: "apa aja
-  // yang termasuk dosa besar" matched the keyword `dosa` and returned a verse about mercy. Someone
-  // asking which sins are gravest was handed reassurance instead, and the app looked confident
-  // while missing the question entirely.
-  if (looksFactual(q)) {
-    const aq = matchAqidah(q);
-    if (aq) return { q, kind: "aqidah", id: aq.id };
-    const k = await retrieveKnowledge(q);
-    if (k && k.entries.length > 0) return { q, kind: "knowledge", slug: k.slug };
-    // Only shapes where a feeling answer would be WRONG stop here; how-to questions fall through.
-    if (knowledgeOnly(q)) return k ? { q, kind: "knowledge", slug: k.slug } : { q, kind: "silence" };
-  }
+  // A factual question the model declined still never falls to the feeling lane: the reviewed
+  // entries (already fetched above), an honest topic pointer, or silence — in that order. This
+  // catches shapes where a feeling answer would be WRONG ("apa aja yang termasuk dosa besar" once
+  // matched the keyword `dosa` and returned a verse about mercy) but the index had no confident hit.
+  if (factual && knowledgeOnly(q)) return kAns ? { q, kind: "knowledge", slug: kAns.slug } : { q, kind: "silence" };
 
   if (turn.kind === "silence") {
     const aq = matchAqidah(q);
@@ -597,7 +607,7 @@ function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): string
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p class="qk-ai-said">${esc(p)}</p>`)
+    .map((p) => `<p class="qk-ai-said">${linkifyRefs(p)}</p>`)
     .join("");
   const cards = refs
     .map((r) => c.verses.find((v) => v.ref === r))
