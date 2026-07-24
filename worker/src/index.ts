@@ -44,6 +44,7 @@ import {
   getQuestions,
   type D1Database,
 } from "./store.ts";
+import { maybeDistill, readProfile, type KVNamespace } from "./distill.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -68,6 +69,9 @@ export interface Env {
   /** D1 binding (wrangler.toml [[env.demo.d1_databases]]) — the personalized-memory raw truth layer
    *  (issue 02). Absent → memory writes degrade to no-ops, app unaffected. */
   DB?: D1Database;
+  /** KV binding (wrangler.toml [[env.demo.kv_namespaces]]) — the derived profile (issue 04). Absent →
+   *  distillation is a no-op, app unaffected. */
+  PROFILE_KV?: KVNamespace;
 }
 
 /** Minimal ExecutionContext — inline (Worker keeps `types: []`). `waitUntil` defers memory writes so
@@ -111,7 +115,21 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
     // gets their signed cookie even though the static HTML shell is served (cookie-free) straight from
     // the edge cache and never runs the Worker. The cookie itself is attached by withIdentityCookie.
     if (url.pathname === "/api/identity") {
+      // Session start → re-distill the profile if there's new activity (issue 04). Deferred via
+      // waitUntil so it never blocks the beacon; maybeDistill skips itself when nothing is new.
+      if (env.DB && env.PROFILE_KV && identity.userId) {
+        ctx.waitUntil(maybeDistill(env, identity.userId, Date.now()).catch(() => {}));
+      }
       return json({ ok: true }, 200, request);
+    }
+
+    // Derived profile read-back (issue 04): the billboard-safe interest tags + summary. Per-user,
+    // never cached. Powers T5 discovery and the user-visible "what we remember" surface (issue 08).
+    if (url.pathname === "/api/profile") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "GET") return json({ error: "GET only" }, 405, request);
+      if (!identity.userId) return noStore(json({ profile: null }, 200, request));
+      return noStore(json({ profile: await readProfile(env, identity.userId) }, 200, request));
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it

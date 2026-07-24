@@ -105,3 +105,9 @@ EDITION = "synthesis"
 binding = "DB"
 database_name = "new-quranku-demo-memory"
 database_id = "5c522383-6614-4353-91e3-32fba36de5c0"
+
+# Derived profile (issue 04 / T4). The regenerable distillation of the raw D1 log — interest tags +
+# a 2-line summary, one small blob per user, read fast on every request.
+[[env.demo.kv_namespaces]]
+binding = "PROFILE_KV"
+id = "7a6791bf601a44d88af64e2ae6de9ec3"
