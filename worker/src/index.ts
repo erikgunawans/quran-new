@@ -31,6 +31,7 @@ import {
   type GroundingVerse,
 } from "../../web/src/answer-contract.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
+import { ensureIdentity, withIdentityCookie } from "./identity.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -49,6 +50,9 @@ export interface Env {
   /** Which edition this deploy is — "synthesis" unlocks /api/answer. Absent/"principled" keeps the
    *  authoring endpoint dark, so the trustworthy deploy can never author even via a direct POST. */
   EDITION?: string;
+  /** Encrypted secret — `wrangler secret put IDENTITY_HMAC_SECRET --env demo`. Keys the signed
+   *  anonymous-identity cookie (issue 01). Absent → identity degrades off (no cookie), app unaffected. */
+  IDENTITY_HMAC_SECRET?: string;
 }
 
 /** Cap the prompt surface: a companion line needs a sentence, not an essay, and an uncapped body is
@@ -70,6 +74,15 @@ const MAX_GROUNDING_TEXT = 800;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // Anonymous identity (issue 01): resolve or mint the signed `qk_uid` before routing, then attach
+    // any fresh cookie to whatever response the route produces — so it lands on API and asset paths alike.
+    const identity = await ensureIdentity(request, env.IDENTITY_HMAC_SECRET);
+    const response = await route(request, env);
+    return withIdentityCookie(response, identity);
+  },
+};
+
+async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
@@ -97,8 +110,7 @@ export default {
       return fresh;
     }
     return response;
-  },
-};
+}
 
 // ── /api/compose — the framing prose (point, never author) ────────────────────
 
