@@ -8,7 +8,14 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-24 (latest) — DEPLOYED + live-verified: the warm ustadz voice is live
+## 2026-07-24 (latest) — decision: demo-quranku is the ONLY surface; new-quranku-ai parked
+
+Erik: "we stick only with demo-quranku.axiara.ai." The dangling new-quranku-ai thread is CLOSED — do
+NOT mirror the shard-card fix into `main.ts` `aiHtml`, do not redeploy that edition. `web/src` still
+inherits the warm-voice logic in code (via shared `answer.ts`) but that's incidental; new-quranku-ai
+is not maintained. demo-quranku is the single live surface. **No open items.**
+
+## 2026-07-24 — DEPLOYED + live-verified: the warm ustadz voice is live
 
 Two deploys landed it: worker `8ca5de58` (warm voice) then assets+worker `9d366f09` (named-citation
 card fix + numeric-ref prompt). **Live-verified on demo-quranku via Interceptor:**
