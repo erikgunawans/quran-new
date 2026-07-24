@@ -8,7 +8,18 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-24 (latest) — the "kewajiban anak" brush-off was two precedence bugs, not a missing source
+## 2026-07-24 (latest) — DEPLOYED + live-verified
+
+Erik ran the deploy: `new-quranku-demo-proxy` version **`4eb23c66`**, live on demo-quranku.axiara.ai.
+Live-verified via Interceptor: "apa aja sih kewajiban anak kepada orang tua" → the correct 4-entry
+knowledge answer (17:23, 2:83, 29:8, 46:15) with clickable `→` mushaf links; control
+"suami tidak kasih nafkah, hukumnya apa?" → still refers to a human ustadz (the reorder did NOT
+regress the nafkah gate — `needsFamilyLawScholar` still runs before the knowledge lane). The one
+open item stands: **Ustadz Ahmad Isrofiel's OK on surfacing the Indeks Tematik as direct Tanya
+answers** (placement + the birrul-walidain ref list). It is LIVE ahead of that sign-off — flag if
+that ordering matters to Erik.
+
+## 2026-07-24 — the "kewajiban anak" brush-off was two precedence bugs, not a missing source
 
 **Erik's screenshot:** "apa aja sih kewajiban anak kepada orang tua" got an AI brush-off ("belum
 menemukan… rujuk sendiri ke Al-Isra") + a proposal to fetch knowledge from online and cross-check.
