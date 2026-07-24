@@ -421,7 +421,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: linear-gradient(to right bottom, #34d399, #f5d97a);
   -webkit-background-clip: text; background-clip: text;
 }
-.qk-tanya-hero > p { color: var(--qk-muted); font-size: 17px; line-height: 1.6; max-width: 47ch; margin: 0 auto; }
+.qk-tanya-hero > p { color: var(--qk-muted); font-size: 14px; line-height: 1.6; max-width: 76ch; margin: 0 auto; }
 
 /* ── the living composer ────────────────────────────────────────────────────
    The wide ambient aurora that used to live here (inset -80px -32px, blurred 22px) was removed
