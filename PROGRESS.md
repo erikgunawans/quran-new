@@ -8,7 +8,38 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-23 (latest) — ISC-98/99 formally parked; queue is clean, estate stable
+## 2026-07-24 (latest) — the "kewajiban anak" brush-off was two precedence bugs, not a missing source
+
+**Erik's screenshot:** "apa aja sih kewajiban anak kepada orang tua" got an AI brush-off ("belum
+menemukan… rujuk sendiri ke Al-Isra") + a proposal to fetch knowledge from online and cross-check.
+Grilling (skill) killed that premise: 17:23/17:24/31:14 were ALREADY in the corpus, and the demo
+ALREADY imports `retrieveKnowledge`. The failure was **two precedence bugs**:
+
+1. **Ordering** — `demo.ts` ran `synthesizeAnswer` (AI) BEFORE the knowledge lane, so the model
+   answered a factual question it should defer. Fix: a factual question (`looksFactual`) consults the
+   reviewed index first; a confident hit (`entries>0`) or aqidah pre-empts the model.
+2. **Direction-blind ranking** — word-overlap surfaced parent→child/orphan verses (24:58, 2:220,
+   4:2…) because they contain "anak"/"orang tua" as OBJECTS, burying 17:23 ("berbakti pada orang
+   tua") and 2:83 ("ibu-bapak"). Fix (Erik chose it): a **curated topic-pin layer** in `knowledge.ts`
+   — topic → hand-picked, **shard-keyed** Peta entry refs (one verse carries different captions in
+   different categories: 2:83 = "ibu-bapak" in perintah, "anak yatim" in keluarga). Content stays
+   Ustadz Thalib's verbatim + attributed; we curate only the selection. Seeded **birrul walidain
+   only** (17:23, 2:83, 29:8, 46:15).
+3. **Links** — `knowledgeHtml` refs are now `#/mushaf/s/a` deep-links (were plain spans); new
+   `demo/linkify.ts` turns model-prose refs into mushaf links, but only when they resolve to a real
+   surah+ayah (unresolvable stays plain text — no wrong jump).
+
+Suite **852/0** (+10); web typecheck clean bar the 3 baseline errors; `demo:build` OK. **Verified in
+real Chrome** (Interceptor, local `dist-demo`, network-free): correct 4-entry answer, refs clickable,
+17:23 → Al-Isra. Committed `7d148f4`, **pushed**. **NOT deployed — demo deploy is Erik's gated call**
+(`bun run demo:build && cd worker && bunx wrangler deploy --env demo`).
+
+**OPEN — the one gate before this ships:** surfacing the Indeks Tematik as *direct Tanya answers* is a
+new placement Ustadz Ahmad Isrofiel hasn't OK'd (he's approved the Peta pages, not this use). Needs
+his sign-off on: (a) placement, (b) the birrul-walidain ref list. Lighter than a wording review —
+content is his verbatim, attributed text. Also decide any further pin topics beyond birrul walidain.
+
+## 2026-07-23 — ISC-98/99 formally parked; queue is clean, estate stable
 
 Erik's call: **park ISC-98/99** (the real-device ≤375px breakpoint probes). Rationale is tooling, not
 risk — this Interceptor build has no viewport-resize, so the CSS-injection workaround only verifies the
