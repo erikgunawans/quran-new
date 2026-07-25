@@ -700,8 +700,38 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
   .qk-thinking { animation: qk-pulse 1.3s ease-in-out infinite; }
   @keyframes qk-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 }
-.qk-ai { display: flex; flex-direction: column; gap: 12px; }
-.qk-ai-said { color: var(--qk-fg); font-size: 17px; line-height: 1.7; margin: 0; }
+/* The answer as an illuminated placard — a considered, scholarly reply, not a plain chat line.
+   Framed with a gold double-border, crowned by the traditional ۞ (rub-el-hizb) marker, set in a
+   serif manuscript voice. Bold text renders in emerald so emphasis actually lands. */
+.qk-ai {
+  position: relative;
+  display: flex; flex-direction: column; gap: 14px;
+  margin: 4px 0 8px;
+  padding: 30px 30px 26px;
+  background:
+    radial-gradient(150% 100% at 50% -12%, rgba(201, 162, 39, 0.08), transparent 55%),
+    var(--qk-card);
+  border: 1px solid var(--qk-border);
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 4px var(--qk-card), inset 0 0 0 5px rgba(201, 162, 39, 0.22);
+}
+.qk-ai::before {
+  content: "۞";
+  text-align: center;
+  font-family: var(--qk-f-ar);
+  font-size: 26px; line-height: 1;
+  color: #c9a227;
+  margin: 0 auto 2px;
+}
+:root[data-theme="dark"] .qk-ai::before { color: #efc851; }
+:root[data-theme="dark"] .qk-ai { box-shadow: inset 0 0 0 4px var(--qk-card), inset 0 0 0 5px rgba(239, 200, 81, 0.24); }
+.qk-ai-said {
+  font-family: var(--qk-f-ar);
+  color: var(--qk-fg);
+  font-size: 19px; line-height: 1.9; margin: 0;
+}
+.qk-ai-said strong { font-weight: 700; color: var(--qk-primary); }
+.qk-ai-said em { font-style: italic; }
 .qk-ai-note {
   margin: 4px 0 4px; padding-top: 12px; border-top: 1px solid var(--qk-primary);
   font-size: 14px; line-height: 1.55; color: var(--qk-muted);

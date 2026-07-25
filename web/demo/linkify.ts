@@ -71,6 +71,19 @@ export function linkifyRefs(raw: string): string {
 }
 
 /**
+ * Inline markdown the model emits in prose — `**bold**` and `*italic*` — rendered to HTML. Run AFTER
+ * `linkifyRefs`, on its escaped, link-safe output: the model's asterisks survive HTML-escaping as
+ * literal text, so without this they render raw (the "**word**" bug). Link labels are verse refs and
+ * never contain asterisks, so converting on the linkified string can't corrupt an <a> tag. Bold is
+ * matched before italic so `**` is consumed first and never mistaken for two single `*`.
+ */
+export function renderInlineMarkdown(html: string): string {
+  return html
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*\n]+?)\*/g, "<em>$1</em>");
+}
+
+/**
  * The real ayat a piece of prose cites, as "surah:ayah", in order and de-duped — resolving BOTH the
  * named form ("QS Al-Isra' ayat 23") and the numeric form ("17:23"). This is what the answer renders
  * as cards, so it must recognise exactly what linkifyRefs turns into links: the model writes citations

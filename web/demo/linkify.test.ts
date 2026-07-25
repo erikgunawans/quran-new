@@ -1,5 +1,25 @@
 import { describe, expect, test } from "bun:test";
-import { linkifyRefs, resolvedRefsInProse } from "./linkify.ts";
+import { linkifyRefs, renderInlineMarkdown, resolvedRefsInProse } from "./linkify.ts";
+
+describe("renderInlineMarkdown", () => {
+  test("**bold** → <strong>", () => {
+    expect(renderInlineMarkdown("ada **114 surah** di sana")).toBe("ada <strong>114 surah</strong> di sana");
+  });
+  test("*italic* → <em>", () => {
+    expect(renderInlineMarkdown("kata *rezeki* itu")).toBe("kata <em>rezeki</em> itu");
+  });
+  test("multiple bolds in one line, non-greedy", () => {
+    expect(renderInlineMarkdown("**a** dan **b**")).toBe("<strong>a</strong> dan <strong>b</strong>");
+  });
+  test("bold wrapping a linkified ref stays intact", () => {
+    const linked = linkifyRefs("lihat **QS Al-Baqarah ayat 286** ya");
+    expect(renderInlineMarkdown(linked)).toContain("<strong><a class=\"qk-ref-link\"");
+    expect(renderInlineMarkdown(linked)).toContain("</a></strong>");
+  });
+  test("a lone asterisk (bullet) is left alone", () => {
+    expect(renderInlineMarkdown("* butir pertama")).toBe("* butir pertama");
+  });
+});
 
 /**
  * The model writes verse references in prose. We link them into the mushaf — but only ones we can

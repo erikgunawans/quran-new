@@ -17,7 +17,7 @@ import { idName, idMeaning } from "./surah-id.ts";
 import { curatedCardHtml, shardCardHtml, readingHtml } from "./card.ts";
 import { esc } from "../src/esc.ts";
 import { todayPick, todayCardHtml } from "./today.ts";
-import { linkifyRefs, resolvedRefsInProse } from "./linkify.ts";
+import { linkifyRefs, renderInlineMarkdown, resolvedRefsInProse } from "./linkify.ts";
 import { retrieve, compose, needsFamilyLawScholar, type Corpus, type Hit } from "../src/retrieve.ts";
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
@@ -464,7 +464,7 @@ async function renderTurn(t: Turn): Promise<string> {
       const hits = verses.map((v) => ({ verse: v, score: 1, matched: [] as string[] }));
       // Live framing, with the canned opener as the safety net — never worse than before.
       const lead = await composeFraming(hits, t.q, demoFramingModel, compose(hits, t.q));
-      return (lead ? `<div class="qk-lead">${esc(lead)}</div>` : "") + hits.map(verseHtml).join("");
+      return (lead ? `<div class="qk-lead">${renderInlineMarkdown(esc(lead))}</div>` : "") + hits.map(verseHtml).join("");
     }
     case "ai": {
       const c = await ensureCorpus();
@@ -597,7 +597,7 @@ async function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): 
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p class="qk-ai-said">${linkifyRefs(p)}</p>`)
+    .map((p) => `<p class="qk-ai-said">${renderInlineMarkdown(linkifyRefs(p))}</p>`)
     .join("");
   // Cards for exactly the ayat the prose CITED — resolved from the prose itself (named or numeric),
   // so they always match the inline links. The stored `refs` are a numeric-only fallback for replay.
