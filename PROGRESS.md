@@ -8,7 +8,64 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-24 (latest) — decision: demo-quranku is the ONLY surface; new-quranku-ai parked
+## 2026-07-25 (latest) — Personalized Memory Phase 1 SHIPPED + pre-UAT improvements; repo public
+
+Huge session, all live on **demo-quranku** and pushed to a new **PUBLIC** repo
+**github.com/erikgunawans/quran-new** (`main` tracks `quran-new/main`, HEAD before this checkpoint =
+`b59cd23`). The legacy `origin` = nur remote is left intact.
+
+**Personalized Memory — Phase 1 COMPLETE (the "grows into you" loop, all live + verified):**
+- T1 identity — signed anonymous `qk_uid` cookie (`worker/src/identity.ts`, HMAC via secret
+  `IDENTITY_HMAC_SECRET`). Minted on load via the `/api/identity` beacon (the static shell bypasses
+  the Worker — per-user logic MUST ride `/api/*`, see memory `demo-worker-edge-bypass`).
+- T2 D1 raw layer — DB `new-quranku-demo-memory` (bound `DB`); `events/bookmarks/notes/reading_position`
+  (migration `0001`); `worker/src/store.ts`. Writes via `/api/events` + question logged on `/api/answer`.
+- T3 utility read-back — `/api/memory`; "Riwayat & Catatan" on the Bookmark tab (continue-reading,
+  question history, notes) — later redesigned into a polished card grid.
+- T4 distillation — KV `PROFILE_KV`; `worker/src/distill.ts` re-distills the full log → interest tags +
+  2-line summary each session (skip if no new events); `/api/profile`.
+- T5 discovery — additive "Lanjutkan dari yang kamu jelajahi" chips on the Tanya landing (answer path
+  untouched — proven by diff).
+- T6 magic-link — `worker/src/auth.ts` (stateless HMAC tokens) + `accounts` table (migration `0002`) +
+  Resend sender. Cross-device portability verified live; **real email verified end-to-end** (Resend
+  test mode `onboarding@resend.dev` → erik@axiara.ai → clicked → account bound).
+- 08-partial honesty surface — transparency notice + visible derived profile + "Forget me"
+  (`/api/forget` purges D1+KV). Answer-label + per-tag edit deferred to Phase 2.
+
+**UI polish:** Tanya subtitle → 2 lines; AI answers render `**bold**`/`*italic*` + an illuminated
+placard (gold frame + ۞ + Amiri serif); Bookmark/Riwayat rebuilt as a card grid.
+
+**Pre-UAT improvements (from the 2026-07-25 ustadz meeting):**
+1. Label "Terjemahan Harfiah" → "Terjemahan Kemenag" (demo cards + mushaf).
+2. Interleaved verse cards — surah card sits right below the answer segment that cites it
+   (answer placard → surah card → continuation placard), not dumped at the bottom.
+3. Synthesis prompt (`web/src/answer-contract.ts` rule 6): Tarjamah Tafsiriyah is the home/primary
+   reference; fair to Kemenag but not "pegangan utama".
+4. Speech: mic in the composer (speech→text, id-ID) + "Dengarkan" read-aloud (text→speech) — Web
+   Speech API, graceful on unsupported browsers (Chrome recommended for UAT).
+
+**UAT plan** captured at `.scratch/uat/UAT-PLAN.md` (two-audience: ustadz doctrine + user experience).
+
+**Secrets on demo (wrangler, never committed):** `IDENTITY_HMAC_SECRET`, `RESEND_API_KEY`. Var
+`RESEND_FROM = onboarding@resend.dev` (Resend TEST mode — only emails the account owner).
+
+**Testing gotchas (memory `curl-testing-demo-worker`):** "flaky writes" were test-harness only —
+zsh does NOT word-split unquoted `$J`; use cookie jars (`-c/-b`) not hand-parsed cookies; warm up
+after `wrangler deploy` (first requests hit a propagating Worker).
+
+### Next, in order
+1. Erik's remaining pre-UAT improvements from the meeting (TBD list).
+2. Optional: build the in-app "Masukan" feedback button → D1 (parked in UAT-PLAN.md).
+3. Freeze the build → run the UAT per `.scratch/uat/UAT-PLAN.md`.
+4. Later: Phase 2 personalized ANSWERS — 06 framing injection + 08 answer-label + 09 scholar-wall,
+   ships as a gated unit with the ustadz, behind the framing-vs-core wall.
+
+### Open items waiting on Erik
+- Resend **production** domain verification on axiara.ai (to email ANY user; test mode only emails him).
+- Decide whether the in-app "Masukan" button is in scope for the UAT session.
+- Provide the rest of the meeting's improvement list.
+
+## 2026-07-24 — decision: demo-quranku is the ONLY surface; new-quranku-ai parked
 
 Erik: "we stick only with demo-quranku.axiara.ai." The dangling new-quranku-ai thread is CLOSED — do
 NOT mirror the shard-card fix into `main.ts` `aiHtml`, do not redeploy that edition. `web/src` still
