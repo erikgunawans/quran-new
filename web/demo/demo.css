@@ -1203,3 +1203,21 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
 .qk-mem-list li { color: var(--qk-muted); font-size: 14px; line-height: 1.5; }
 .qk-mem a { color: var(--qk-primary); text-decoration: none; font-weight: 600; }
 .qk-mem a:hover { text-decoration: underline; }
+
+/* ── Honesty surface: profile chips + Forget-me (issue 08) ─────────────────── */
+.qk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+.qk-chip {
+  padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--qk-primary);
+  background: var(--qk-primary-wash); border-radius: 999px;
+}
+.qk-mem-sum { color: var(--qk-muted); font-size: 14px; line-height: 1.55; margin: 0; }
+.qk-forget { margin-top: 26px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qk-forget-btn, .qk-forget-no {
+  padding: 8px 15px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--qk-muted); background: transparent; border: 1px solid var(--qk-border); border-radius: 999px;
+}
+.qk-forget-yes {
+  padding: 8px 15px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: #fff; background: #dc2626; border: 0; border-radius: 999px;
+}
+.qk-forget-ask { font-size: 14px; color: var(--qk-fg); font-weight: 600; }

@@ -1221,25 +1221,63 @@ function refHref(ref: string): string {
   const [s, a] = ref.split(":");
   return `#/mushaf/${encodeURIComponent(s ?? "")}${a ? `/${encodeURIComponent(a)}` : ""}`;
 }
-/** Append the server-backed memory (continue-reading, questions, notes) below the local bookmarks. */
+interface DerivedProfile {
+  interest_tags: string[];
+  summary: string;
+}
+async function fetchProfile(): Promise<DerivedProfile | null> {
+  try {
+    const res = await fetch(apiUrl("/api/profile"), { credentials: "same-origin" });
+    if (!res.ok) return null;
+    return ((await res.json()) as { profile: DerivedProfile | null }).profile;
+  } catch {
+    return null;
+  }
+}
+/** Hard-purge everything the app remembers about this user — D1 + KV + local bookmarks (issue 08). */
+async function forgetMe(): Promise<void> {
+  try {
+    await fetch(apiUrl("/api/forget"), { method: "POST", credentials: "same-origin" });
+  } catch {
+    /* best-effort — still clear local + re-render */
+  }
+  try {
+    localStorage.removeItem(BM_KEY);
+  } catch {
+    /* private mode */
+  }
+  toast("Semua datamu sudah dihapus.");
+  renderBookmark();
+}
+
+/** Append the visible memory (what we learned + history) and the honest controls below the bookmarks. */
 async function hydrateMemorySection(el: HTMLElement): Promise<void> {
-  const mem = await fetchMemory();
-  if (!mem) return;
+  const [mem, profile] = await Promise.all([fetchMemory(), fetchProfile()]);
   const parts: string[] = [];
-  if (mem.position) {
+  if (profile && (profile.interest_tags.length || profile.summary)) {
+    parts.push(
+      `<section class="qk-mem"><h2>Yang kami kenali tentang minatmu</h2>` +
+        (profile.interest_tags.length
+          ? `<div class="qk-chips">${profile.interest_tags.map((t) => `<span class="qk-chip">${esc(t)}</span>`).join("")}</div>`
+          : "") +
+        (profile.summary ? `<p class="qk-mem-sum">${esc(profile.summary)}</p>` : "") +
+        `</section>`,
+    );
+  }
+  if (mem?.position) {
     parts.push(
       `<section class="qk-mem"><h2>Lanjutkan membaca</h2>` +
         `<p><a href="${refHref(mem.position.ref)}">QS ${esc(mem.position.ref)}</a></p></section>`,
     );
   }
-  if (mem.questions.length) {
+  if (mem?.questions.length) {
     parts.push(
       `<section class="qk-mem"><h2>Pertanyaan terakhir</h2><ul class="qk-mem-list">` +
         mem.questions.slice(0, 8).map((q) => `<li>${esc(q.question)}</li>`).join("") +
         `</ul></section>`,
     );
   }
-  if (mem.notes.length) {
+  if (mem?.notes.length) {
     parts.push(
       `<section class="qk-mem"><h2>Catatan</h2><ul class="qk-mem-list">` +
         mem.notes
@@ -1253,9 +1291,25 @@ async function hydrateMemorySection(el: HTMLElement): Promise<void> {
   wrap.className = "qk-mem-wrap";
   wrap.innerHTML =
     `<div class="qk-page-head"><h1>Riwayat &amp; Catatan</h1>` +
-    `<p>Tersimpan untukmu — tanpa perlu login.</p></div>` +
-    parts.join("");
+    `<p>Demo ini mengingat yang kamu jelajahi untuk membantumu — anonim, tanpa login. Kamu bisa menghapusnya kapan saja.</p></div>` +
+    parts.join("") +
+    `<div class="qk-forget"><button class="qk-forget-btn" type="button">Hapus semua data saya</button></div>`;
   el.appendChild(wrap);
+  wireForget(wrap);
+}
+/** Two-step inline confirm for the Forget-me button — no blocking browser dialog. */
+function wireForget(wrap: HTMLElement): void {
+  const btn = wrap.querySelector<HTMLButtonElement>(".qk-forget-btn");
+  const box = btn?.parentElement;
+  if (!btn || !box) return;
+  btn.addEventListener("click", () => {
+    box.innerHTML =
+      `<span class="qk-forget-ask">Yakin hapus semua data yang tersimpan?</span>` +
+      `<button class="qk-forget-yes" type="button">Ya, hapus</button>` +
+      `<button class="qk-forget-no" type="button">Batal</button>`;
+    box.querySelector(".qk-forget-yes")?.addEventListener("click", () => void forgetMe());
+    box.querySelector(".qk-forget-no")?.addEventListener("click", () => renderBookmark());
+  });
 }
 
 /* ── BOOKMARK: saved verses (localStorage) ───────────────────────────── */

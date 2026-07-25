@@ -42,9 +42,10 @@ import {
   getNotes,
   getReadingPosition,
   getQuestions,
+  deleteUser,
   type D1Database,
 } from "./store.ts";
-import { maybeDistill, readProfile, type KVNamespace } from "./distill.ts";
+import { maybeDistill, readProfile, deleteProfile, type KVNamespace } from "./distill.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -130,6 +131,14 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (request.method !== "GET") return json({ error: "GET only" }, 405, request);
       if (!identity.userId) return noStore(json({ profile: null }, 200, request));
       return noStore(json({ profile: await readProfile(env, identity.userId) }, 200, request));
+    }
+
+    // Forget me (issue 08): hard-purge everything for this user — D1 rows AND the KV profile. Not
+    // soft-delete. The honest, complete control that lets collection stay transparent.
+    if (url.pathname === "/api/forget") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
+      return handleForget(request, env, identity);
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
@@ -422,6 +431,19 @@ async function handleMemoryRead(request: Request, env: Env, identity: Identity):
   } catch {
     return empty();
   }
+}
+
+/** Hard-purge every trace of a user — D1 rows and the KV profile (issue 08 "Forget me"). */
+async function handleForget(request: Request, env: Env, identity: Identity): Promise<Response> {
+  const userId = identity.userId;
+  if (!userId) return noStore(json({ ok: false }, 200, request));
+  try {
+    if (env.DB) await deleteUser(env.DB, userId);
+    await deleteProfile(env, userId);
+  } catch {
+    return noStore(json({ ok: false }, 200, request));
+  }
+  return noStore(json({ ok: true }, 200, request));
 }
 
 /** Mark a per-user API response uncacheable — a shared edge cache must never hold one user's memory. */

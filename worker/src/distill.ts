@@ -137,6 +137,12 @@ export async function maybeDistill(env: Env, userId: string, now: number): Promi
   await env.PROFILE_KV.put(profileKey(userId), JSON.stringify(profile));
 }
 
+/** Delete the derived profile (the KV half of "Forget me", issue 08). */
+export async function deleteProfile(env: Env, userId: string): Promise<void> {
+  if (!env.PROFILE_KV) return;
+  await env.PROFILE_KV.delete(profileKey(userId));
+}
+
 /** Read the current derived profile (null if none). Used by the read endpoint. */
 export async function readProfile(env: Env, userId: string): Promise<Profile | null> {
   if (!env.PROFILE_KV) return null;
