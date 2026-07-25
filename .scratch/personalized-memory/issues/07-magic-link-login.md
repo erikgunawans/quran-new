@@ -19,8 +19,11 @@ Minimal data: **email only**, no password.
 
 ## Acceptance
 
-- [x] Magic link verifies. — token roundtrip (sign/verify/expiry/tamper/wrong-secret/swapped-email)
-      unit-tested (8 tests) + live verify proven. **Email SEND is dormant** until Resend is set up (below).
+- [x] Magic link verifies. — token roundtrip unit-tested (8 tests) + live verify proven. **Email SEND
+      verified live (2026-07-25):** Resend test mode (`onboarding@resend.dev`) sent to `erik@axiara.ai`
+      → Erik clicked → `accounts` row for `erik@axiara.ai` created. Full chain works. (Production —
+      emailing ANY user — still needs an `axiara.ai` domain verified in Resend; test mode only emails
+      the Resend account owner.)
 - [x] The current anonymous history carries into the account on binding — first login: the account
       adopts THIS device's id as canonical, so the device's existing memory becomes the account's.
 - [x] Login on a second device resolves the *same* identity → same memory. — **VERIFIED live**: device B

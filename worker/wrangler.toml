@@ -98,6 +98,10 @@ not_found_handling = "single-page-application"
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
 EDITION = "synthesis"
+# Magic-link From (issue 07). Resend TEST mode: `onboarding@resend.dev` delivers only to the Resend
+# account owner's own email — enough to verify the flow. For production (email ANY user), verify a
+# domain on axiara.ai in Resend and change this to e.g. "QuranKu <no-reply@axiara.ai>".
+RESEND_FROM = "QuranKu <onboarding@resend.dev>"
 
 # Personalized-memory raw truth layer (issue 02 / T2). Demo-only. Apply the schema with:
 #   cd worker && bunx wrangler d1 execute new-quranku-demo-memory --env demo --remote --file migrations/0001_init.sql
