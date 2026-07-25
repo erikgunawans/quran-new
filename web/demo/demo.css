@@ -1226,28 +1226,71 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
   align-self: flex-end; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600;
   color: #fff; background: var(--qk-primary); border: 0; border-radius: 999px; cursor: pointer;
 }
-.qk-mem-wrap { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--qk-border); }
-.qk-mem { margin-top: 18px; }
-.qk-mem > h2 { font-size: 15px; font-weight: 700; color: var(--qk-fg); margin: 0 0 8px; }
-.qk-mem-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-.qk-mem-list li { color: var(--qk-muted); font-size: 14px; line-height: 1.5; }
-.qk-mem a { color: var(--qk-primary); text-decoration: none; font-weight: 600; }
-.qk-mem a:hover { text-decoration: underline; }
-
-/* ── Honesty surface: profile chips + Forget-me (issue 08) ─────────────────── */
-.qk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
-.qk-chip {
-  padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--qk-primary);
-  background: var(--qk-primary-wash); border-radius: 999px;
+/* ── Riwayat & Catatan — the memory hub, a card grid to match the rest of the app ─── */
+.qk-mem-wrap { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--qk-border); }
+.qk-mgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 640px) { .qk-mgrid { grid-template-columns: 1fr; } }
+.qk-mcard {
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 16px;
+  padding: 20px 22px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 }
-.qk-mem-sum { color: var(--qk-muted); font-size: 14px; line-height: 1.55; margin: 0; }
-.qk-forget { margin-top: 26px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qk-mcard-wide { grid-column: 1 / -1; }
+.qk-mcard-head { display: flex; align-items: center; gap: 11px; margin-bottom: 15px; }
+.qk-mcard-head h2 { font-family: var(--qk-f-display); font-weight: 700; font-size: 16px; color: var(--qk-fg); margin: 0; }
+.qk-mi { width: 18px; height: 18px; }
+.qk-mcard-head .qk-mi {
+  width: 34px; height: 34px; padding: 8px; box-sizing: border-box; flex: 0 0 auto;
+  color: var(--qk-primary); background: var(--qk-primary-wash); border-radius: 10px;
+}
+.qk-mcard .qk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.qk-mcard .qk-chip {
+  padding: 5px 13px; font-size: 13px; font-weight: 600; color: var(--qk-primary);
+  background: var(--qk-primary-wash); border: 0; border-radius: 999px; cursor: default;
+}
+.qk-mcard-sum { color: var(--qk-muted); font-size: 14.5px; line-height: 1.6; margin: 0; }
+
+/* continue reading — a proper CTA row */
+.qk-cont {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px; text-decoration: none; border-radius: 12px;
+  background: var(--qk-bg); border: 1px solid var(--qk-border);
+}
+.qk-cont:hover { border-color: var(--qk-primary); }
+.qk-cont-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.qk-cont-ref { font-family: var(--qk-f-display); font-weight: 700; font-size: 16px; line-height: 1.25; color: var(--qk-fg); white-space: nowrap; }
+.qk-cont-name { font-size: 13px; line-height: 1.25; color: var(--qk-muted); }
+.qk-cont-go { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; color: var(--qk-primary); white-space: nowrap; }
+.qk-cont-go .qk-mi { width: 16px; height: 16px; }
+
+/* recent questions — each a clickable row that re-asks */
+.qk-qlist { display: flex; flex-direction: column; gap: 8px; }
+.qk-qrow {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
+  padding: 11px 14px; font: inherit; font-size: 14px; color: var(--qk-fg); cursor: pointer;
+  background: var(--qk-bg); border: 1px solid var(--qk-border); border-radius: 10px;
+}
+.qk-qrow:hover { border-color: var(--qk-primary); color: var(--qk-primary); }
+.qk-qrow > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qk-qrow .qk-mi { width: 16px; height: 16px; flex: 0 0 auto; opacity: 0.45; }
+.qk-qrow:hover .qk-mi { opacity: 1; }
+
+/* notes */
+.qk-notelist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.qk-notelist li { display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 1.5; }
+.qk-notelist a { color: var(--qk-primary); text-decoration: none; font-weight: 600; font-size: 13px; }
+.qk-notelist span { color: var(--qk-fg); }
+
+/* forget — an understated footer action */
+.qk-forget { margin-top: 22px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .qk-forget-btn, .qk-forget-no {
-  padding: 8px 15px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
   color: var(--qk-muted); background: transparent; border: 1px solid var(--qk-border); border-radius: 999px;
 }
+.qk-forget-btn:hover { color: #dc2626; border-color: #dc2626; }
+.qk-forget-btn .qk-mi { width: 15px; height: 15px; }
 .qk-forget-yes {
-  padding: 8px 15px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 9px 16px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
   color: #fff; background: #dc2626; border: 0; border-radius: 999px;
 }
 .qk-forget-ask { font-size: 14px; color: var(--qk-fg); font-weight: 600; }

@@ -1276,51 +1276,79 @@ async function forgetMe(): Promise<void> {
   renderBookmark();
 }
 
-/** Append the visible memory (what we learned + history) and the honest controls below the bookmarks. */
+const svg = (p: string): string =>
+  `<svg class="qk-mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const IC_SPARK = svg(`<path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4L12 3Z"/>`);
+const IC_BOOK = svg(`<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/>`);
+const IC_CHAT = svg(`<path d="M7 8h10M7 12h6"/><path d="M4 4h16v12H8l-4 4V4Z"/>`);
+const IC_NOTE = svg(`<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>`);
+const IC_ARROW = svg(`<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>`);
+const IC_TRASH = svg(`<path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/>`);
+
+/** Append the visible memory (what we learned + history) as a polished card grid, plus honest controls. */
 async function hydrateMemorySection(el: HTMLElement): Promise<void> {
   const [mem, profile] = await Promise.all([fetchMemory(), fetchProfile()]);
-  const parts: string[] = [];
+  const cards: string[] = [];
+
   if (profile && (profile.interest_tags.length || profile.summary)) {
-    parts.push(
-      `<section class="qk-mem"><h2>Yang kami kenali tentang minatmu</h2>` +
+    cards.push(
+      `<section class="qk-mcard qk-mcard-wide"><div class="qk-mcard-head">${IC_SPARK}<h2>Yang kami kenali tentang minatmu</h2></div>` +
         (profile.interest_tags.length
           ? `<div class="qk-chips">${profile.interest_tags.map((t) => `<span class="qk-chip">${esc(t)}</span>`).join("")}</div>`
           : "") +
-        (profile.summary ? `<p class="qk-mem-sum">${esc(profile.summary)}</p>` : "") +
+        (profile.summary ? `<p class="qk-mcard-sum">${esc(profile.summary)}</p>` : "") +
         `</section>`,
     );
   }
   if (mem?.position) {
-    parts.push(
-      `<section class="qk-mem"><h2>Lanjutkan membaca</h2>` +
-        `<p><a href="${refHref(mem.position.ref)}">QS ${esc(mem.position.ref)}</a></p></section>`,
+    const s = Number(mem.position.ref.split(":")[0]);
+    cards.push(
+      `<section class="qk-mcard"><div class="qk-mcard-head">${IC_BOOK}<h2>Lanjutkan membaca</h2></div>` +
+        `<a class="qk-cont" href="${refHref(mem.position.ref)}">` +
+        `<span class="qk-cont-info"><span class="qk-cont-ref">QS ${esc(mem.position.ref)}</span>` +
+        `<span class="qk-cont-name">${esc(displayName(s))}</span></span>` +
+        `<span class="qk-cont-go">Lanjutkan ${IC_ARROW}</span></a></section>`,
     );
   }
   if (mem?.questions.length) {
-    parts.push(
-      `<section class="qk-mem"><h2>Pertanyaan terakhir</h2><ul class="qk-mem-list">` +
-        mem.questions.slice(0, 8).map((q) => `<li>${esc(q.question)}</li>`).join("") +
-        `</ul></section>`,
+    cards.push(
+      `<section class="qk-mcard"><div class="qk-mcard-head">${IC_CHAT}<h2>Pertanyaan terakhir</h2></div>` +
+        `<div class="qk-qlist">` +
+        mem.questions
+          .slice(0, 8)
+          .map((q) => `<button class="qk-qrow" type="button" data-q="${esc(q.question)}"><span>${esc(q.question)}</span>${IC_ARROW}</button>`)
+          .join("") +
+        `</div></section>`,
     );
   }
   if (mem?.notes.length) {
-    parts.push(
-      `<section class="qk-mem"><h2>Catatan</h2><ul class="qk-mem-list">` +
+    cards.push(
+      `<section class="qk-mcard qk-mcard-wide"><div class="qk-mcard-head">${IC_NOTE}<h2>Catatan</h2></div>` +
+        `<ul class="qk-notelist">` +
         mem.notes
-          .map((n) => `<li><a href="${refHref(n.ref)}">QS ${esc(n.ref)}</a> — ${esc(n.text)}</li>`)
+          .map((n) => `<li><a href="${refHref(n.ref)}">QS ${esc(n.ref)}</a><span>${esc(n.text)}</span></li>`)
           .join("") +
         `</ul></section>`,
     );
   }
-  if (!parts.length) return;
+  if (!cards.length) return;
+
   const wrap = document.createElement("div");
   wrap.className = "qk-mem-wrap";
   wrap.innerHTML =
     `<div class="qk-page-head"><h1>Riwayat &amp; Catatan</h1>` +
     `<p>Demo ini mengingat yang kamu jelajahi untuk membantumu — anonim, tanpa login. Kamu bisa menghapusnya kapan saja.</p></div>` +
-    parts.join("") +
-    `<div class="qk-forget"><button class="qk-forget-btn" type="button">Hapus semua data saya</button></div>`;
+    `<div class="qk-mgrid">${cards.join("")}</div>` +
+    `<div class="qk-forget"><button class="qk-forget-btn" type="button">${IC_TRASH}<span>Hapus semua data saya</span></button></div>`;
   el.appendChild(wrap);
+
+  // A past question re-asks itself — history becomes a way back into the conversation.
+  for (const b of wrap.querySelectorAll<HTMLButtonElement>(".qk-qrow")) {
+    b.addEventListener("click", () => {
+      if (!location.hash.startsWith("#/tanya")) location.hash = "#/tanya";
+      void ask(b.dataset.q ?? "");
+    });
+  }
   wireForget(wrap);
 }
 /** Two-step inline confirm for the Forget-me button — no blocking browser dialog. */
