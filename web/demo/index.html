@@ -209,6 +209,13 @@
       </div>
 
       <div class="qk-tanya-extras" id="qk-tanya-extras">
+        <!-- Personalized discovery (issue 05 / T5). Additive only — populated from the derived profile,
+             each chip ASKS about a topic the user has explored. Hidden on cold start. Never reorders or
+             replaces the default seeds below, and never touches the answer path. -->
+        <div class="qk-you" id="qk-you" hidden>
+          <p class="qk-tanya-try">Lanjutkan dari yang kamu jelajahi</p>
+          <div class="qk-seeds" id="qk-you-seeds"></div>
+        </div>
         <p class="qk-tanya-try">Coba mulai dari sini</p>
         <div class="qk-seeds">
           <button class="qk-seed">aku lagi capek banget</button>

@@ -1234,6 +1234,32 @@ async function fetchProfile(): Promise<DerivedProfile | null> {
     return null;
   }
 }
+/**
+ * Personalized discovery (issue 05 / T5): surface the user's interest tags on the Tanya landing as
+ * "continue exploring" chips, each of which ASKS about that topic. ADDITIVE ONLY — it adds a rail of
+ * suggestions; it never reorders, filters, or replaces the default seeds, and never touches the answer
+ * path (ask/resolveTurn are untouched). Hidden on cold start (no profile). Anonymous users get it too.
+ */
+async function hydratePersonalizedSeeds(): Promise<void> {
+  const you = document.getElementById("qk-you");
+  const host = document.getElementById("qk-you-seeds");
+  if (!you || !host) return;
+  const profile = await fetchProfile();
+  const tags = profile?.interest_tags ?? [];
+  if (!tags.length) {
+    you.hidden = true;
+    return;
+  }
+  host.innerHTML = tags.slice(0, 6).map((t) => `<button class="qk-seed" type="button">${esc(t)}</button>`).join("");
+  for (const b of host.querySelectorAll<HTMLButtonElement>(".qk-seed")) {
+    b.addEventListener("click", () => {
+      if (!location.hash.startsWith("#/tanya")) location.hash = "#/tanya";
+      void ask(b.textContent ?? "");
+    });
+  }
+  you.hidden = false;
+}
+
 /** Hard-purge everything the app remembers about this user — D1 + KV + local bookmarks (issue 08). */
 async function forgetMe(): Promise<void> {
   try {
@@ -1533,6 +1559,7 @@ function wireFloating(): void {
 // bypassed), so a fresh visitor's signed cookie is minted here — one uncacheable ping on load,
 // before any interaction. Fire-and-forget; a failure leaves the app exactly as before.
 void fetch(apiUrl("/api/identity"), { credentials: "same-origin" }).catch(() => {});
+void hydratePersonalizedSeeds(); // additive discovery rail (issue 05), populated from the derived profile
 wireTheme();
 wireTanyaHeadline();
 renderSurahGrid();
