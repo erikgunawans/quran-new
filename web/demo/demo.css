@@ -724,6 +724,9 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
   margin: 0 auto 2px;
 }
 :root[data-theme="dark"] .qk-ai::before { color: #efc851; }
+/* Continuation placards (interleaved after a verse card) carry no ornament — only the opening one does. */
+.qk-ai-cont::before { content: none; }
+.qk-ai-cont { padding-top: 24px; }
 :root[data-theme="dark"] .qk-ai { box-shadow: inset 0 0 0 4px var(--qk-card), inset 0 0 0 5px rgba(239, 200, 81, 0.24); }
 .qk-ai-said {
   font-family: var(--qk-f-ar);
@@ -1321,3 +1324,29 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
   color: #fff; background: var(--qk-primary); border: 0; border-radius: 999px;
 }
 .qk-login-note { margin: 14px 0 0; font-size: 12px; color: var(--qk-muted); line-height: 1.5; }
+
+/* ── Speech: mic (speech→text) + read-aloud (text→speech) ──────────────────── */
+.qk-ask-mic {
+  flex: none; width: 48px; height: 48px; border-radius: 13px; position: relative; z-index: 1;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--qk-bg); color: var(--qk-muted); border: 1px solid var(--qk-border);
+  transition: color .2s var(--qk-ease), border-color .2s var(--qk-ease), background .2s var(--qk-ease);
+}
+.qk-ask-mic svg { width: 20px; height: 20px; }
+.qk-ask-mic:hover { color: var(--qk-primary); border-color: var(--qk-primary); }
+.qk-ask-mic.is-listening {
+  color: #fff; background: #dc2626; border-color: #dc2626;
+  animation: qk-mic-pulse 1.2s ease-in-out infinite;
+}
+@keyframes qk-mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+.qk-speak { display: none; }
+body.has-tts .qk-speak {
+  display: inline-flex; align-items: center; gap: 7px; margin: 6px 0 0;
+  padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--qk-primary); background: var(--qk-primary-wash); border: 0; border-radius: 999px;
+}
+.qk-speak .qk-mi { width: 16px; height: 16px; }
+.qk-speak.is-speaking { color: #fff; background: var(--qk-primary); }

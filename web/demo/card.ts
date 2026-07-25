@@ -56,7 +56,7 @@ export interface CuratedVerse {
 
 export function readingHtml(r: ReadingLike, primary: boolean): string {
   if (!r || !r.text.trim()) return "";
-  const tag = r.translation_type === "literal" ? "Terjemahan Harfiah" : "Terjemahan Makna";
+  const tag = r.translation_type === "literal" ? "Terjemahan Kemenag" : "Terjemahan Makna";
   return `<div class="qk-reading${primary ? " primary" : ""}">
     <span class="qk-reading-tag">${tag}</span>
     <div class="qk-reading-txt">${esc(r.text)}</div>
@@ -91,13 +91,13 @@ export function curatedCardHtml(v: CuratedVerse): string {
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(v.ref)}</span>
       <span class="qk-verse-surah">${esc(v.surah_name)}</span>
-      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
+      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan Kemenag">
         <!-- Erik, 2026-07-22: the disclosure must name what it opens. "Harfiah" alone is an
              adjective floating next to a chevron — the reader has to already know that the
              literal Kemenag rendering is the thing being hidden. Full noun phrase.
              MIRRORED in demo.ts ayahHtml, which emits this same button for the mushaf card.
              (No backticks in this comment — it lives inside a template literal.) -->
-        <span>Terjemahan Harfiah</span>
+        <span>Terjemahan Kemenag</span>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>` : ""}
     </div>

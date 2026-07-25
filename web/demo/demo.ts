@@ -592,29 +592,62 @@ async function restoreThread(): Promise<void> {
 }
 
 /** Render the AI-authored answer: guarded prose (paragraphs) + grounding verses + the AI label. */
+/** Render OUR translation card for a cited ref — curated (rich) or loaded from the mushaf shard. */
+async function answerCardFor(c: Corpus, ref: string): Promise<string> {
+  const curated = c.verses.find((v) => v.ref === ref);
+  if (curated) return curatedCardHtml(curated);
+  const [s, a] = ref.split(":").map(Number);
+  if (!s || !a) return "";
+  try {
+    return shardCardHtml(s, displayName(s), await loadAyah(s, a));
+  } catch {
+    return ""; // a shard that fails to load just drops its card, never breaks the answer
+  }
+}
+
 async function aiAnswerHtml(c: Corpus, prose: string, refs: readonly string[]): Promise<string> {
-  const paras = prose
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((p) => `<p class="qk-ai-said">${renderInlineMarkdown(linkifyRefs(p))}</p>`)
-    .join("");
-  // Cards for exactly the ayat the prose CITED — resolved from the prose itself (named or numeric),
-  // so they always match the inline links. The stored `refs` are a numeric-only fallback for replay.
-  const cited = resolvedRefsInProse(prose);
-  const cardRefs = (cited.length ? cited : refs.filter((r) => /^\d+:\d+$/.test(r))).slice(0, 5);
-  // The model cites any real ayah; we render OUR translation for each. A curated verse keeps its
-  // rich card (both renderings, any co-display); anything else loads from the mushaf shard so the
-  // reader always meets the verse the answer leaned on — in our own Tarjamah Tafsiriyah.
-  const cards = (await Promise.all(cardRefs.map(async (r) => {
-    const curated = c.verses.find((v) => v.ref === r);
-    if (curated) return curatedCardHtml(curated);
-    const [s, a] = r.split(":").map(Number);
-    if (!s || !a) return "";
-    try { return shardCardHtml(s, displayName(s), await loadAyah(s, a)); }
-    catch { return ""; } // a shard that fails to load just drops its card, never breaks the answer
-  }))).join("");
-  return `<div class="qk-ai">${paras}</div>` + cards + AI_NOTE;
+  // INTERLEAVE (ustadz's request, 2026-07-25): the verse card sits right below the answer segment that
+  // cites it, not dumped at the bottom. We walk paragraphs, close the current prose placard when a
+  // paragraph first cites a new ayah, drop that ayah's card, then open the next placard. Result reads:
+  // answer placard → surah card → answer placard → surah card → …
+  const paras = prose.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const shown = new Set<string>();
+  const blocks: string[] = [];
+  let seg: string[] = [];
+  let first = true;
+  const flushSeg = (): void => {
+    if (!seg.length) return;
+    blocks.push(`<div class="qk-ai${first ? "" : " qk-ai-cont"}">${seg.join("")}</div>`);
+    first = false;
+    seg = [];
+  };
+
+  for (const p of paras) {
+    seg.push(`<p class="qk-ai-said">${renderInlineMarkdown(linkifyRefs(p))}</p>`);
+    const fresh: string[] = [];
+    for (const r of resolvedRefsInProse(p)) {
+      if (shown.has(r) || shown.size >= 5) continue; // cap total cards; each verse shown once
+      shown.add(r);
+      fresh.push(r);
+    }
+    if (fresh.length) {
+      flushSeg(); // close the placard up to and including this paragraph…
+      for (const r of fresh) blocks.push(await answerCardFor(c, r)); // …then its verse card(s)
+    }
+  }
+  flushSeg(); // trailing paragraphs with no further citation
+
+  // Fallback: prose cited nothing resolvable, but replay handed us numeric refs — show them at the end.
+  if (shown.size === 0) {
+    for (const r of refs.filter((x) => /^\d+:\d+$/.test(x)).slice(0, 5)) {
+      blocks.push(await answerCardFor(c, r));
+    }
+  }
+  const speak =
+    `<button class="qk-speak" type="button" aria-label="Dengarkan jawaban">` +
+    `<svg class="qk-mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>` +
+    `<span>Dengarkan</span></button>`;
+  return `<div class="qk-answer">${blocks.join("")}${AI_NOTE}${speak}</div>`;
 }
 
 function wireTanya(): void {
@@ -694,11 +727,11 @@ function ayahHtml(surah: number, surahName: string, v: ShardVerse): string {
     <div class="qk-verse-head">
       <span class="qk-verse-ref">${esc(ref)}</span>
       <span class="qk-verse-surah">${esc(surahName)}</span>
-      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan harfiah">
+      ${harf ? `<button class="qk-harf-btn" type="button" aria-expanded="false" aria-label="Tampilkan terjemahan Kemenag">
         <!-- Erik, 2026-07-22: the disclosure must name what it opens. "Harfiah" alone is an
              adjective floating next to a chevron — the reader has to already know that the
              literal Kemenag rendering is the thing being hidden. Full noun phrase. -->
-        <span>Terjemahan Harfiah</span>
+        <span>Terjemahan Kemenag</span>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>` : ""}
     </div>
@@ -743,7 +776,7 @@ function wireVerseTools(scope: HTMLElement): void {
       const open = box.hidden;
       box.hidden = !open;
       b.setAttribute("aria-expanded", open ? "true" : "false");
-      b.setAttribute("aria-label", open ? "Sembunyikan terjemahan harfiah" : "Tampilkan terjemahan harfiah");
+      b.setAttribute("aria-label", open ? "Sembunyikan terjemahan Kemenag" : "Tampilkan terjemahan Kemenag");
     });
   }
   for (const b of scope.querySelectorAll<HTMLButtonElement>("[data-play]")) {
@@ -800,7 +833,7 @@ async function renderMushaf(param?: string, anchorAyah?: string): Promise<void> 
   const n = param ? Number(param) : 0;
   if (!n || n < 1 || n > 114) {
     el.innerHTML =
-      `<div class="qk-page-head"><h1>Mushaf</h1><p>Baca Al-Qur'an per ayat — terjemah makna dan terjemah harfiah berdampingan, dengan sumber yang disebutkan namanya. 114 surah.</p></div>` +
+      `<div class="qk-page-head"><h1>Mushaf</h1><p>Baca Al-Qur'an per ayat — terjemah makna dan terjemah Kemenag berdampingan, dengan sumber yang disebutkan namanya. 114 surah.</p></div>` +
       `<ul class="qk-surah-grid">${SURAH_INDEX.map((s) => surahCardHtml(s, "#/mushaf/")).join("")}</ul>`;
     return;
   }
@@ -1651,6 +1684,78 @@ function wireLogin(): void {
   document.getElementById("qk-masuk")?.addEventListener("click", () => openLogin());
 }
 
+/* ── SPEECH: mic → text (composer), and read an answer aloud (Web Speech API) ── */
+function wireSpeech(): void {
+  const ta = document.getElementById("qk-q") as HTMLTextAreaElement | null;
+  const mic = document.getElementById("qk-mic") as HTMLButtonElement | null;
+
+  // Speech → text: the mic dictates into the composer (id-ID). Hidden entirely on browsers without it.
+  const SR =
+    (window as unknown as Record<string, unknown>).SpeechRecognition ??
+    (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
+  if (SR && mic && ta) {
+    mic.hidden = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let rec: any = null;
+    let listening = false;
+    const stop = (): void => {
+      try {
+        rec?.stop();
+      } catch {
+        /* already stopped */
+      }
+      listening = false;
+      mic.classList.remove("is-listening");
+    };
+    mic.addEventListener("click", () => {
+      if (listening) return stop();
+      rec = new (SR as new () => unknown)();
+      Object.assign(rec, { lang: "id-ID", interimResults: true, continuous: false });
+      const base = ta.value.trim();
+      rec.onresult = (e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }): void => {
+        let text = "";
+        for (let i = 0; i < e.results.length; i++) text += e.results[i]?.[0]?.transcript ?? "";
+        ta.value = base ? `${base} ${text}` : text;
+        ta.dispatchEvent(new Event("input")); // sync the send button + autosize
+      };
+      rec.onend = stop;
+      rec.onerror = stop;
+      try {
+        rec.start();
+        listening = true;
+        mic.classList.add("is-listening");
+        ta.focus();
+      } catch {
+        stop();
+      }
+    });
+  }
+
+  // Text → speech: read the answer's prose aloud (id-ID). Delegated, so it covers every rendered answer.
+  if ("speechSynthesis" in window) {
+    document.body.classList.add("has-tts");
+    document.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".qk-speak");
+      if (!btn) return;
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        btn.classList.remove("is-speaking");
+        return;
+      }
+      const answer = btn.closest(".qk-answer");
+      const text = answer
+        ? [...answer.querySelectorAll(".qk-ai-said")].map((n) => n.textContent ?? "").join(" ").trim()
+        : "";
+      if (!text) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "id-ID";
+      u.onend = () => btn.classList.remove("is-speaking");
+      btn.classList.add("is-speaking");
+      speechSynthesis.speak(u);
+    });
+  }
+}
+
 /* ── boot ────────────────────────────────────────────────────────────── */
 // Identity beacon (issue 01): the static HTML shell is served straight from the edge (Worker
 // bypassed), so a fresh visitor's signed cookie is minted here — one uncacheable ping on load,
@@ -1658,6 +1763,7 @@ function wireLogin(): void {
 void fetch(apiUrl("/api/identity"), { credentials: "same-origin" }).catch(() => {});
 void hydratePersonalizedSeeds(); // additive discovery rail (issue 05), populated from the derived profile
 wireLogin();
+wireSpeech();
 void checkMagicLink();
 wireTheme();
 wireTanyaHeadline();
