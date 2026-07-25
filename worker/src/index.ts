@@ -31,7 +31,7 @@ import {
   type GroundingVerse,
 } from "../../web/src/answer-contract.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
-import { ensureIdentity, withIdentityCookie, type Identity } from "./identity.ts";
+import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
   recordEvent,
   addBookmark,
@@ -43,9 +43,11 @@ import {
   getReadingPosition,
   getQuestions,
   deleteUser,
+  linkAccount,
   type D1Database,
 } from "./store.ts";
 import { maybeDistill, readProfile, deleteProfile, type KVNamespace } from "./distill.ts";
+import { isValidEmail, normalizeEmail, signMagicToken, verifyMagicToken, sendMagicLink } from "./auth.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -73,6 +75,11 @@ export interface Env {
   /** KV binding (wrangler.toml [[env.demo.kv_namespaces]]) — the derived profile (issue 04). Absent →
    *  distillation is a no-op, app unaffected. */
   PROFILE_KV?: KVNamespace;
+  /** Encrypted secret — `wrangler secret put RESEND_API_KEY --env demo`. Sends magic-link email
+   *  (issue 07). Absent → login is a no-op ("not configured"), app unaffected. */
+  RESEND_API_KEY?: string;
+  /** Plain var — the magic-link From address, on a Resend-verified domain (e.g. "QuranKu <no-reply@axiara.ai>"). */
+  RESEND_FROM?: string;
 }
 
 /** Minimal ExecutionContext — inline (Worker keeps `types: []`). `waitUntil` defers memory writes so
@@ -139,6 +146,19 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       return handleForget(request, env, identity);
+    }
+
+    // Magic-link login (issue 07): request a link, then verify it to bind this device to an account so
+    // memory follows the user across devices. Passwordless, email-only (decision 3 — not Google OAuth).
+    if (url.pathname === "/api/auth/request") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
+      return handleAuthRequest(request, env, url);
+    }
+    if (url.pathname === "/api/auth/verify") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
+      return handleAuthVerify(request, env, identity);
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
@@ -431,6 +451,58 @@ async function handleMemoryRead(request: Request, env: Env, identity: Identity):
   } catch {
     return empty();
   }
+}
+
+// ── /api/auth/* — magic-link login (issue 07) ─────────────────────────────────
+
+interface AuthRequestBody {
+  email?: unknown;
+}
+interface AuthVerifyBody {
+  token?: unknown;
+}
+
+/** Step 1: email a magic link. Returns { sent } — the SPA reports honestly whether email is configured. */
+async function handleAuthRequest(request: Request, env: Env, url: URL): Promise<Response> {
+  if (!env.IDENTITY_HMAC_SECRET) return noStore(json({ ok: false, sent: false }, 200, request));
+  let body: AuthRequestBody;
+  try {
+    body = (await request.json()) as AuthRequestBody;
+  } catch {
+    return noStore(json({ ok: false }, 400, request));
+  }
+  const email = typeof body.email === "string" ? normalizeEmail(body.email) : "";
+  if (!isValidEmail(email)) return noStore(json({ ok: false, error: "invalid_email" }, 400, request));
+
+  const token = await signMagicToken(email, env.IDENTITY_HMAC_SECRET, Date.now());
+  // The SPA reads `#/masuk/<token>` on load and POSTs it to /api/auth/verify.
+  const link = `${url.origin}/#/masuk/${token}`;
+  const sent = await sendMagicLink(env.RESEND_API_KEY, env.RESEND_FROM, email, link);
+  return noStore(json({ ok: true, sent }, 200, request));
+}
+
+/** Step 2: verify the token, bind this device to the account, re-issue the cookie to the canonical id. */
+async function handleAuthVerify(request: Request, env: Env, identity: Identity): Promise<Response> {
+  const secret = env.IDENTITY_HMAC_SECRET;
+  if (!secret || !env.DB || !identity.userId) return noStore(json({ ok: false }, 200, request));
+  let body: AuthVerifyBody;
+  try {
+    body = (await request.json()) as AuthVerifyBody;
+  } catch {
+    return noStore(json({ ok: false }, 400, request));
+  }
+  const token = typeof body.token === "string" ? body.token : "";
+  const email = await verifyMagicToken(token, secret, Date.now());
+  if (!email) return noStore(json({ ok: false, error: "invalid_token" }, 200, request));
+
+  // First login for this email → the account adopts THIS device's id. Later logins → resolve the stored
+  // canonical id and re-point this device's cookie at it, so it now reads the account's memory.
+  const canonical = await linkAccount(env.DB, email, identity.userId, Date.now());
+  const res = noStore(json({ ok: true, email }, 200, request));
+  if (canonical !== identity.userId) {
+    res.headers.append("Set-Cookie", await cookieFor(canonical, secret));
+  }
+  return res;
 }
 
 /** Hard-purge every trace of a user — D1 rows and the KV profile (issue 08 "Forget me"). */

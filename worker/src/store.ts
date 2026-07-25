@@ -157,6 +157,38 @@ export async function getQuestions(db: D1Database, userId: string, limit = 20): 
 
 // ── delete (the "Forget me" path, issue 08) ────────────────────────────────────
 
+// ── accounts (magic-link portability, issue 07) ────────────────────────────────
+
+export interface Account {
+  email: string;
+  canonical_user_id: string;
+}
+
+export async function getAccount(db: D1Database, email: string): Promise<Account | null> {
+  return db
+    .prepare("SELECT email, canonical_user_id FROM accounts WHERE email = ?")
+    .bind(email)
+    .first<Account>();
+}
+
+/**
+ * Resolve the account's canonical user id, creating the account (canonical = this device's id) if new.
+ * Race-safe: `ON CONFLICT DO NOTHING` then re-read, so two simultaneous first-logins converge on one id.
+ */
+export async function linkAccount(
+  db: D1Database,
+  email: string,
+  deviceUserId: string,
+  now: number,
+): Promise<string> {
+  await db
+    .prepare("INSERT INTO accounts (email, canonical_user_id, created_at) VALUES (?, ?, ?) ON CONFLICT (email) DO NOTHING")
+    .bind(email, deviceUserId, now)
+    .run();
+  const account = await getAccount(db, email);
+  return account?.canonical_user_id ?? deviceUserId;
+}
+
 /** Hard-delete every row for a user across all tables. Not soft-delete. */
 export async function deleteUser(db: D1Database, userId: string): Promise<void> {
   await db.batch([

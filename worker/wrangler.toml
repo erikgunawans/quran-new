@@ -111,3 +111,11 @@ database_id = "5c522383-6614-4353-91e3-32fba36de5c0"
 [[env.demo.kv_namespaces]]
 binding = "PROFILE_KV"
 id = "7a6791bf601a44d88af64e2ae6de9ec3"
+
+# Magic-link login (issue 07 / T6). DORMANT until Resend is set up:
+#   1. Create a Resend account, verify a sending domain on axiara.ai (DNS records).
+#   2. cd worker && bunx wrangler secret put RESEND_API_KEY --env demo   (paste the Resend API key)
+#   3. Add the From address below (must be on the verified domain), then redeploy --env demo.
+# Until then, /api/auth/request returns { sent: false } and the login UI says "belum aktif".
+# [env.demo.vars] RESEND_FROM is added there once the domain is verified, e.g.:
+#   RESEND_FROM = "QuranKu <no-reply@axiara.ai>"

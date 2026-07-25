@@ -1221,3 +1221,30 @@ a.qk-know-ref:hover { border-color: var(--qk-primary); }
   color: #fff; background: #dc2626; border: 0; border-radius: 999px;
 }
 .qk-forget-ask { font-size: 14px; color: var(--qk-fg); font-weight: 600; }
+
+/* ── Magic-link login (issue 07) ───────────────────────────────────────────── */
+.qk-login-overlay {
+  position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(10, 11, 13, 0.55); backdrop-filter: blur(2px);
+}
+.qk-login-card {
+  position: relative; width: 100%; max-width: 400px; padding: 28px 24px;
+  background: var(--qk-card); border: 1px solid var(--qk-border); border-radius: 16px;
+}
+.qk-login-card h2 { margin: 0 0 8px; font-size: 20px; color: var(--qk-fg); }
+.qk-login-card > p { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: var(--qk-muted); }
+.qk-login-x {
+  position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; cursor: pointer;
+  border: 0; background: transparent; color: var(--qk-muted); font-size: 16px;
+}
+.qk-login-form { display: flex; flex-direction: column; gap: 10px; }
+.qk-login-form input {
+  padding: 11px 13px; font: inherit; font-size: 15px; color: var(--qk-fg);
+  background: var(--qk-bg); border: 1px solid var(--qk-border); border-radius: var(--qk-radius);
+}
+.qk-login-form input:focus { outline: none; border-color: var(--qk-primary); }
+.qk-login-form button {
+  padding: 11px 16px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  color: #fff; background: var(--qk-primary); border: 0; border-radius: 999px;
+}
+.qk-login-note { margin: 14px 0 0; font-size: 12px; color: var(--qk-muted); line-height: 1.5; }

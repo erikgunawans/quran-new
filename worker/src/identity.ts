@@ -81,9 +81,14 @@ export async function ensureIdentity(request: Request, secret: string | undefine
   }
 
   const userId = mint();
+  return { userId, setCookie: await cookieFor(userId, secret) };
+}
+
+/** Build the signed `Set-Cookie` for a given userId. Used to re-issue identity on login so every device
+ *  of an account resolves the same canonical id (issue 07 cross-device bind). */
+export async function cookieFor(userId: string, secret: string): Promise<string> {
   const value = `${userId}.${await sign(userId, secret)}`;
-  const setCookie = `${COOKIE}=${value}; Path=/; Max-Age=${MAX_AGE}; HttpOnly; Secure; SameSite=Lax`;
-  return { userId, setCookie };
+  return `${COOKIE}=${value}; Path=/; Max-Age=${MAX_AGE}; HttpOnly; Secure; SameSite=Lax`;
 }
 
 /** Attach the identity's `Set-Cookie` to a response, if one was minted this request. */

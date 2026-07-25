@@ -1554,12 +1554,83 @@ function wireFloating(): void {
   });
 }
 
+/* ── LOGIN: magic-link (issue 07) — passwordless, portability across devices ── */
+function openLogin(): void {
+  if (document.getElementById("qk-login-overlay")) return;
+  const overlay = document.createElement("div");
+  overlay.id = "qk-login-overlay";
+  overlay.className = "qk-login-overlay";
+  overlay.innerHTML =
+    `<div class="qk-login-card" role="dialog" aria-modal="true" aria-label="Masuk">` +
+    `<button class="qk-login-x" type="button" aria-label="Tutup">✕</button>` +
+    `<h2>Simpan perjalananmu</h2>` +
+    `<p>Masukkan email untuk menerima tautan masuk — tanpa kata sandi. Riwayat, bookmark, dan minatmu akan mengikutimu di perangkat lain.</p>` +
+    `<form class="qk-login-form" id="qk-login-form">` +
+    `<input type="email" id="qk-login-email" placeholder="email@kamu.com" autocomplete="email" required />` +
+    `<button type="submit">Kirim tautan</button></form>` +
+    `<p class="qk-login-note">Kami hanya menyimpan emailmu — bukan lewat Google. Kamu bisa menghapus semuanya kapan saja.</p>` +
+    `</div>`;
+  document.body.appendChild(overlay);
+  const close = (): void => overlay.remove();
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) close();
+  });
+  overlay.querySelector(".qk-login-x")?.addEventListener("click", close);
+  overlay.querySelector<HTMLFormElement>("#qk-login-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = overlay.querySelector<HTMLInputElement>("#qk-login-email")?.value.trim() ?? "";
+    if (email) void submitLogin(email, close);
+  });
+  overlay.querySelector<HTMLInputElement>("#qk-login-email")?.focus();
+}
+async function submitLogin(email: string, close: () => void): Promise<void> {
+  try {
+    const res = await fetch(apiUrl("/api/auth/request"), {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const d = (await res.json()) as { ok?: boolean; sent?: boolean; error?: string };
+    if (d.error === "invalid_email") toast("Email tidak valid.");
+    else if (d.sent) {
+      toast("Cek emailmu — tautan masuk sudah dikirim.");
+      close();
+    } else toast("Login email belum aktif di demo ini.");
+  } catch {
+    toast("Gagal mengirim. Coba lagi.");
+  }
+}
+/** On load, a `#/masuk/<token>` link verifies and binds this device to the account. */
+async function checkMagicLink(): Promise<void> {
+  const m = location.hash.match(/^#\/masuk\/(.+)$/);
+  if (!m) return;
+  try {
+    const res = await fetch(apiUrl("/api/auth/verify"), {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: m[1] }),
+    });
+    const d = (await res.json()) as { ok?: boolean; email?: string };
+    toast(d.ok ? `Berhasil masuk sebagai ${d.email}.` : "Tautan tidak valid atau kedaluwarsa.");
+  } catch {
+    toast("Gagal memverifikasi tautan.");
+  }
+  location.hash = "#/beranda"; // strip the token from the URL
+}
+function wireLogin(): void {
+  document.getElementById("qk-masuk")?.addEventListener("click", () => openLogin());
+}
+
 /* ── boot ────────────────────────────────────────────────────────────── */
 // Identity beacon (issue 01): the static HTML shell is served straight from the edge (Worker
 // bypassed), so a fresh visitor's signed cookie is minted here — one uncacheable ping on load,
 // before any interaction. Fire-and-forget; a failure leaves the app exactly as before.
 void fetch(apiUrl("/api/identity"), { credentials: "same-origin" }).catch(() => {});
 void hydratePersonalizedSeeds(); // additive discovery rail (issue 05), populated from the derived profile
+wireLogin();
+void checkMagicLink();
 wireTheme();
 wireTanyaHeadline();
 renderSurahGrid();
