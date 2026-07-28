@@ -73,6 +73,11 @@ export type Turn =
   // matter (nafkah) that belongs to a human ustadz who does family law. Carries only the question;
   // the deferral copy is re-derived at render time. See needsFamilyLawScholar() in retrieve.ts.
   | { q: string; kind: "refer" }
+  // An ENUMERATION-COUNT question ("ada berapa jumlah nabi") whose total the mushaf does not state in
+  // a single ayah — the figures are hadith-based. Never keyword-dumps a topic; carries only the
+  // question, the honest pointer copy is re-derived at render time. See looksLikeCount() in
+  // question-form.ts. Curated ustadz-reviewed count answers (if added) outrank this via the aqidah lane.
+  | { q: string; kind: "count-defer" }
   | { q: string; kind: "silence" };
 
 interface Stored {

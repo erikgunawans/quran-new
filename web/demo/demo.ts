@@ -30,7 +30,7 @@ import { rememberTurn, loadThread, clearThread, hasThread, turnFromHits, type Tu
 import { detectCrisis, crisisReply } from "../src/crisis.ts";
 import { matchAqidah, aqidahById, type AqidahEntry } from "../src/aqidah.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "../src/knowledge.ts";
-import { knowledgeOnly, looksFactual } from "../src/question-form.ts";
+import { knowledgeOnly, looksFactual, looksLikeCount } from "../src/question-form.ts";
 // The baked 3D cosmos built for the Indeks Tematik: 1,632 verse-stars around 13 category hubs.
 // Coordinates are precomputed (src/app/build-peta-3d.ts) — this only draws them, no solver.
 import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "../src/peta-cosmos.ts";
@@ -362,6 +362,18 @@ const REFER = `<div class="qk-silence">
   mereka bisa menjelaskan hak dan langkah yang bisa kamu tempuh dengan lengkap.</p>
 </div>`;
 
+/* An enumeration-count question ("ada berapa jumlah nabi dan rasul"): the total isn't stated in a
+ * single ayah — the figures come from hadits, beyond what we cite from the mushaf. We refuse to
+ * invent a number and refuse to keyword-dump the nearest topic. Honest pointer instead. The specific
+ * figures belong to a curated, ustadz-reviewed answer (aqidah lane), not to this fallback copy. */
+const COUNT_DEFER = `<div class="qk-silence">
+  <p>Soal <b>jumlah pastinya</b>, itu nggak selalu disebutkan dalam satu ayat — sebagian angkanya
+  datang dari hadits atau penjelasan ulama, di luar yang bisa aku kutip langsung dari mushaf. Aku
+  nggak mau ngarang angka.</p>
+  <p>Untuk kepastian angkanya, sebaiknya kamu tanyakan ke <b>ustadz</b>. Atau persempit pertanyaanmu
+  ke ayat atau kisah tertentu — itu bisa aku bantu telusuri.</p>
+</div>`;
+
 /* ── the chat thread ─────────────────────────────────────────────────
    Matches the live new-quranku-ai edition: an accumulating conversation, not a single answer.
    We persist what the engine DECIDED (a ref, hits, an AI prose turn) via thread.ts and re-derive
@@ -486,6 +498,8 @@ async function renderTurn(t: Turn): Promise<string> {
     }
     case "refer":
       return REFER;
+    case "count-defer":
+      return COUNT_DEFER;
     case "silence":
       return SILENCE;
   }
@@ -528,6 +542,14 @@ async function resolveTurn(q: string): Promise<Turn> {
   // FALLBACKS, only when the model bowed out. A factual question still never drops to the feeling
   // lane: the reviewed index, an honest topic pointer, or silence. Otherwise: hits, else silence.
   const turn = turnFromHits(q, retrieve(c, q, 2, modelThemes));
+
+  // An enumeration-count question ("ada berapa jumlah nabi dan rasul") has no answer in a single
+  // ayah — the figures are hadith-based. It must never keyword-dump the nearest Indeks Tematik topic
+  // (which matched *Muhammad* for "berapa nabi") NOR pass off loose hits as a count. An honest
+  // pointer, ahead of both. A curated ustadz-reviewed count answer, if added, wins earlier via the
+  // aqidah lane (line ~519); the model still led above. See looksLikeCount() in question-form.ts.
+  if (looksLikeCount(q)) return { q, kind: "count-defer" };
+
   if (looksFactual(q)) {
     const k = await retrieveKnowledge(q);
     if (k && k.entries.length > 0) return { q, kind: "knowledge", slug: k.slug };

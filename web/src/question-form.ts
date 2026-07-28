@@ -122,3 +122,33 @@ export function knowledgeOnly(question: string): boolean {
   if (PERSONAL.test(q) || PERSONAL_SUFFIX.test(q)) return false;
   return FACTUAL.some((re) => re.test(q));
 }
+
+/**
+ * ENUMERATION-COUNT shapes: "how many X are there" — where the answer is a total the mushaf does
+ * not state in a single ayah (the figures come from hadith, e.g. the number of prophets/messengers).
+ *
+ * The fallback used to keyword-match these to the nearest Indeks Tematik topic and dump its entries:
+ * "ada berapa jumlah nabi dan rasul" landed on the topic *Muhammad* (himself a rasul), an answer to
+ * a question nobody asked. A list of verse citations can never BE a count, so a count question must
+ * never render a topic dump — it gets an honest pointer instead (see COUNT_DEFER / resolveTurn).
+ *
+ * Deliberately narrow: it keys on the QUANTITY NOUN "jumlah"/"banyak" ("total of a category")
+ * co-occurring with "berapa", NOT on "berapa" alone. That is the line between the unbounded total
+ * this must catch ("berapa jumlah nabi") and a bounded, answerable list the index handles well
+ * ("Rukun Iman ada berapa aja") — the latter carries no "jumlah/banyak" and keeps its current
+ * behaviour, as does a specific count like "berapa rakaat sholat subuh". A first-person opener always
+ * stays in the feeling lane, same as the shapes above.
+ */
+const COUNT: readonly RegExp[] = [
+  /\bberapa\s+(banyak|jumlah)\b/i, // berapa banyak nabi, berapa jumlah rasul
+  /\b(jumlah|banyak)\b[^?]*\bberapa\b/i, // jumlah nabi itu berapa
+  /\bberapa\b[^?]*\b(jumlah|banyak)\b/i, // ada berapa sih jumlah nabi dan rasul
+  /\bberapa\s+jumlahnya\b/i, // nabi berapa jumlahnya
+];
+
+export function looksLikeCount(question: string): boolean {
+  const q = question.trim();
+  if (!q) return false;
+  if (PERSONAL.test(q) || PERSONAL_SUFFIX.test(q)) return false;
+  return COUNT.some((re) => re.test(q));
+}

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { knowledgeOnly, looksFactual } from "./question-form.ts";
+import { knowledgeOnly, looksFactual, looksLikeCount } from "./question-form.ts";
 
 /**
  * The whole point of this predicate is knowing when NOT to fire. A false positive sends someone in
@@ -109,6 +109,43 @@ describe("how-to keeps its fall-through", () => {
       expect(knowledgeOnly(q)).toBe(false);
     },
   );
+});
+
+/**
+ * Enumeration-count questions ("how many X are there"). These have no answer in a single ayah —
+ * the total is hadith/ulama knowledge — so the fallback must NOT keyword-dump the nearest topic
+ * (which matched *Muhammad* for "berapa nabi"). The detector keys on the quantity noun jumlah/banyak,
+ * so a bounded answerable list ("Rukun Iman ada berapa aja") and a specific count ("berapa rakaat")
+ * are deliberately left to the knowledge lane.
+ */
+describe("enumeration-count shapes route to the honest count-defer", () => {
+  test.each([
+    "ada berapa sih jumlah nabi dan rasul?",
+    "berapa jumlah nabi dan rasul",
+    "berapa banyak malaikat",
+    "jumlah nabi itu berapa sih",
+    "nabi ada berapa jumlahnya",
+  ])("%j is a count question", (q) => {
+    expect(looksLikeCount(q)).toBe(true);
+  });
+
+  test.each([
+    "Rukun Iman ada berapa aja ya? Tolong urutin dari yang pertama sampai terakhir", // bounded list — index answers it
+    "berapa rakaat sholat subuh", // specific answerable count
+    "apa itu nabi", // a definition, not a count
+    "siapa nabi terakhir", // identity, not a count
+  ])("%j is NOT a count question", (q) => {
+    expect(looksLikeCount(q)).toBe(false);
+  });
+
+  test("a first-person opener stays in the feeling lane even with count phrasing", () => {
+    expect(looksLikeCount("aku bingung, sebenarnya jumlah dosaku ada berapa")).toBe(false);
+  });
+
+  test("empty and whitespace are never a count question", () => {
+    expect(looksLikeCount("")).toBe(false);
+    expect(looksLikeCount("   ")).toBe(false);
+  });
 });
 
 describe("first person still wins over every new shape", () => {
