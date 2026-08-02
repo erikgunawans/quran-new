@@ -8,7 +8,55 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-07-25 (latest) — Personalized Memory Phase 1 SHIPPED + pre-UAT improvements; repo public
+## 2026-08-02 (latest) — count-defer guard SHIPPED; Dorar hadith CLI built; review-gated count answer wired
+
+Three linked deliverables this session, all on **quran-new/main**.
+
+**1. Honest count-defer guard — SHIPPED + live-verified (commit `db87a66`).**
+Erik caught `"ada berapa jumlah nabi dan rasul"` keyword-dumping the wrong Indeks Tematik topic
+(*Muhammad*). Root cause: the AI lane bows out (a count isn't in a single ayah), then the fallback
+matched `nabi/rasul` to the nearest topic. Fix: `looksLikeCount()` in `web/src/question-form.ts`
+(keys on the quantity noun **jumlah/banyak** + `berapa`, NOT `berapa` alone — so bounded lists like
+"Rukun Iman ada berapa" keep the knowledge lane) + a warm `count-defer` render in `web/demo/demo.ts`
+`resolveTurn` (before the topic-dump, overrides weak hits) + `count-defer` Turn kind in `thread.ts`.
+62/62 unit tests. **Deployed to demo-quranku.axiara.ai (version `2829097a`), live-verified in real
+Chrome** (count question → honest defer; "Rukun Iman ada berapa" → not hijacked).
+
+**2. Dorar (الدرر السنية) hadith CLI — built, live-verified, promoted to library.**
+Via `/printing-press https://dorar.net/en`. Standalone Go CLI at `~/printing-press/library/dorar/dorar-pp-cli`
+(NOT in this repo). `find <q>` → clean structured graded records (text, narrator, grader, source,
+grade) parsed from Dorar's HTML-in-JSON; `--grade`/`--grader` filters; `grades`/`narrators`
+aggregations; `sql` read-only offline cache. Cloudflare cleared via Chrome UA in `required_headers`
+(Go default UA gets 403). Scorecard 87/A, dogfood 13/13. **Known gap (Erik's accepted call):** the
+framework `sync`/`profile`/`workflow` are inert — Dorar is search-only, so `find` self-caches instead.
+Not published publicly.
+
+**3. Review-gated count-answer stub — wired, sourced from Dorar (commit `8a99e81`).**
+Added pending aqidah stub `jumlah-nabi-rasul` to `web/src/aqidah.ts` (`answer:""` — the app authored
+NO theology). Dorar surfaced that the popular "124,000 nabi / 315 rasul" figure rests on a hadith
+graded **weak (ضعيف)** by Ibn Baz, Ibn 'Utsaimin, and al-Albani → evidence in
+`docs/review/jumlah-nabi-rasul-evidence.md` for the ustadz. Sheet rebuilt (`docs/review/aqidah-review.md`,
+now 8 questions). Verified pending: `matchAqidah` returns null → live demo still shows the count-defer.
+Once Ustadz Ahmad Isrofiel authors it, the aqidah lane (runs before the fallback) serves his reviewed
+words. That's the Option-1→Option-2 design fully wired: honest interim live, reviewed answer gated.
+
+**Also this session:** `/understand` knowledge graph of the repo (514 nodes / 9 layers) written to
+`.understand-anything/` (gitignored — regenerable).
+
+### Next, in order
+1. Hand the aqidah review sheet (`docs/review/aqidah-review.md`, Q8) to Ustadz Ahmad Isrofiel; on his
+   verbatim answer + confirmed ayat, transcribe into the `jumlah-nabi-rasul` stub → goes live.
+2. Erik's remaining pre-UAT improvements from the ustadz meeting (still TBD list).
+3. Optional in-app "Masukan" feedback button → D1 (parked in `.scratch/uat/UAT-PLAN.md`).
+4. Freeze the demo build → run the UAT per `.scratch/uat/UAT-PLAN.md`.
+
+### Open items waiting on Erik
+- The rest of the ustadz-meeting improvement list.
+- Whether the in-app "Masukan" button is in scope for the UAT session.
+- Ustadz Ahmad Isrofiel to author the `jumlah-nabi-rasul` answer (and any other aqidah stubs).
+- Resend production domain verification on axiara.ai (test mode only emails the owner).
+
+## 2026-07-25 — Personalized Memory Phase 1 SHIPPED + pre-UAT improvements; repo public
 
 Huge session, all live on **demo-quranku** and pushed to a new **PUBLIC** repo
 **github.com/erikgunawans/quran-new** (`main` tracks `quran-new/main`, HEAD before this checkpoint =

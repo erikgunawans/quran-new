@@ -27,3 +27,6 @@ web/public/tafsir/
 # understand-anything analysis output (regenerable)
 .ua/
 web/src/.ua/
+
+# understand-anything knowledge graph (regenerable via /understand)
+.understand-anything/
