@@ -281,10 +281,48 @@ _topik terkait: **Membangun Pribadi Shalih**_
 
 ---
 
+## 8. Ada berapa jumlah nabi dan rasul?
+
+_tanpa topik tunggal_
+
+> ⚠️ **Catatan:** Pertanyaan 'jumlah pasti' yang sensitif. Yang tetap dari Al-Qur'an: 25 nabi disebut namanya, dan Allah menegaskan ada rasul yang TIDAK diceritakan kepada kita (QS 4:164, 40:78). Angka populer '124.000 nabi / 315 rasul' berasal dari hadits (Abu Dzar/Abu Umamah) yang DINILAI LEMAH (ضعيف) oleh Ibnu Baz, tidak dikuatkan Ibnu 'Utsaimin, dan disebut lemah sanadnya oleh Al-Albani — bukti berperingkat dari Ensiklopedia Dorar di docs/review/jumlah-nabi-rasul-evidence.md. Mohon Ustadz menetapkan sikap dan redaksinya; kami tidak mengarang angka.
+
+**Usulan ayat rujukan dari kami** _(silakan Ustadz koreksi, ganti, atau tambah — ini hanya usulan, bukan ketetapan):_
+
+- QS. An-Nisa, 4:164
+- QS. Gafir, 40:78
+- QS. Al-An'am, 6:83
+- QS. An-Nisa, 4:163
+
+**Tingkat jawaban** — mohon Ustadz pilih **satu**:
+
+- ☐ **A — Boleh dielaborasi.** Pertanyaan ini sudah mapan dan tidak diperdebatkan. Aplikasi boleh menyusun
+  jawaban ringkas **hanya dari ayat yang Ustadz setujui** di bawah. Kami akan menunjukkan **satu contoh
+  jawaban** untuk Ustadz setujui sebelum tayang. Untuk pilihan ini, Ustadz cukup menetapkan ayatnya.
+- ☐ **B — Saya tulis sendiri.** Pertanyaan ini lebih halus, atau ingin Ustadz jawab persis dengan kata-kata
+  sendiri. Tuliskan jawabannya di bawah.
+- ☐ **C — Cukup tunjuk topik.** Sebaiknya tidak dijawab; biarkan aplikasi menunjuk ke daftar topik seperti
+  sekarang.
+
+**Ayat rujukan yang Ustadz setujui** _(untuk pilihan A atau B — boleh pakai usulan di atas, ganti, atau tambah):_
+
+- QS. ______ : ______
+- QS. ______ : ______
+
+**Jawaban Ustadz** _(hanya untuk pilihan B — 2–5 kalimat, bahasa sederhana, bukan tafsir panjang; cukup yang menjawab pertanyaan ini dengan lurus):_
+
+> ________________________________________________________________
+>
+> ________________________________________________________________
+>
+> ________________________________________________________________
+
+---
+
 ## Persetujuan
 
 - **Ditinjau oleh:** Ustadz Ahmad Isrofiel Mardlatillah
 - **Tanggal:** ____________________
 - **Tanda tangan / persetujuan:** ____________________
 
-_Status sekarang: **7 dari 7** pertanyaan masih menunggu jawaban Ustadz._
+_Status sekarang: **8 dari 8** pertanyaan masih menunggu jawaban Ustadz._

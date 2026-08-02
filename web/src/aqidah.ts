@@ -123,6 +123,22 @@ export const AQIDAH: readonly AqidahEntry[] = [
     answer: "",
     refs: [],
   },
+  {
+    id: "jumlah-nabi-rasul",
+    topic: null,
+    question: "Ada berapa jumlah nabi dan rasul?",
+    aliases: ["jumlah nabi rasul", "berapa jumlah nabi", "berapa jumlah rasul", "berapa nabi rasul"],
+    // Deliberately sparse — like di-mana-allah, this is a "jumlah pasti" question where the popular
+    // total rests on a hadith graded WEAK (ضعيف) by Ibn Baz, Ibn 'Utsaimin, and al-Albani (sourced,
+    // ranked, in docs/review/jumlah-nabi-rasul-evidence.md via the Dorar encyclopedia). We propose
+    // ONLY the solid Qur'anic anchors — the naming lists and the two ayat stating not all messengers
+    // were named to us — and take NO stance on a total. Until the ustadz authors this, it stays a
+    // pending stub: matchAqidah returns nothing and the app degrades to the honest count-defer.
+    suggestedRefs: [{ surah: 4, ayah: 164 }, { surah: 40, ayah: 78 }, { surah: 6, ayah: 83 }, { surah: 4, ayah: 163 }],
+    note: "Pertanyaan 'jumlah pasti' yang sensitif. Yang tetap dari Al-Qur'an: 25 nabi disebut namanya, dan Allah menegaskan ada rasul yang TIDAK diceritakan kepada kita (QS 4:164, 40:78). Angka populer '124.000 nabi / 315 rasul' berasal dari hadits (Abu Dzar/Abu Umamah) yang DINILAI LEMAH (ضعيف) oleh Ibnu Baz, tidak dikuatkan Ibnu 'Utsaimin, dan disebut lemah sanadnya oleh Al-Albani — bukti berperingkat dari Ensiklopedia Dorar di docs/review/jumlah-nabi-rasul-evidence.md. Mohon Ustadz menetapkan sikap dan redaksinya; kami tidak mengarang angka.",
+    answer: "",
+    refs: [],
+  },
 ];
 
 /** A stub is live ONLY when the ustadz has authored both a prose answer and confirmed its verses. */
