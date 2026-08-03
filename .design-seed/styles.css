@@ -1,0 +1,180 @@
+/* ════════════════════════════════════════════════════════════════════
+   New-QuranKu — Design Language (seed for claude.ai/design)
+   Light is the register. Scripture owns the width. Structure, not filigree.
+   Bright emerald = ACTIONS ONLY. Deep forest carries weight. Gold is the
+   signature — the hero green→gold heading and the celestial ground — NEVER
+   gold ornament ON content (no gold frame/rule/hairline/edge on what is read).
+   Values are verbatim from web/src/styles.css. Fonts via Google Fonts.
+   ════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..500;1,9..144,400..500&family=Plus+Jakarta+Sans:wght@400..800&display=swap');
+
+/* ── LIGHT: the default register ───────────────────────────────────── */
+:root {
+  --bg:          oklch(0.978 0.007 160);   /* pale green-white, not paper-white */
+  --surface:     oklch(1.000 0.000 0);     /* the card */
+  --surface-2:   oklch(0.955 0.017 165);   /* the wash */
+  --line:        oklch(0.927 0.010 165);
+  --line-strong: oklch(0.889 0.017 163);
+
+  --ink:   oklch(0.219 0.024 167);         /* primary text */
+  --ink-2: oklch(0.416 0.021 169);         /* secondary text */
+  --ink-3: oklch(0.509 0.021 166);         /* muted text */
+
+  /* primary = the READABLE emerald: links, labels, pressed states, icons (8.2:1 on --surface) */
+  --primary:       oklch(0.416 0.083 165);
+  --primary-ink:   oklch(1.000 0.000 0);
+  --primary-wash:  oklch(0.955 0.017 165);
+  --primary-line:  oklch(0.627 0.129 165 / 0.45);
+
+  /* action = the ONE bright surface, reserved for what the reader can DO (send, CTA, their
+     own words, the mark). Carries white text; lightness pinned by WCAG AA (4.94:1), not taste. */
+  --action:      oklch(0.532 0.112 163);
+  --action-2:    oklch(0.542 0.092 188);
+  --action-grad: linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%);
+  --action-ink:  oklch(1.000 0.000 0);
+
+  /* forest = weight without shouting. Prayer sidebar, resume bar, ayah badges. */
+  --forest:      oklch(0.375 0.073 166);
+  --forest-grad: linear-gradient(145deg, oklch(0.375 0.073 166) 0%, oklch(0.370 0.058 195) 60%, oklch(0.365 0.060 235) 100%);
+
+  /* clay = the only spark. Decorative rules and accents; never body text. */
+  --clay: oklch(0.586 0.091 49);
+
+  /* the ambient light behind everything — dimmer in the dark room, never absent */
+  --wash-1: oklch(0.627 0.129 165 / 0.08);
+  --wash-2: oklch(0.542 0.092 188 / 0.05);
+
+  --caution:      oklch(0.520 0.135 55);
+  --caution-wash: oklch(0.520 0.135 55 / 0.10);
+
+  --glow: none;
+  --shadow-pop: 0 8px 28px oklch(0.20 0.01 155 / 0.10);
+
+  /* Type: Amiri = scripture (the hero); Fraunces = display (only where the app addresses the
+     reader); Plus Jakarta Sans = UI + prose (deliberately quiet). */
+  --f-ar: "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
+  --f-ui: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-display: "Fraunces", Georgia, serif;
+
+  /* Modular type scale (1.2 ratio) */
+  --step--1: 0.833rem; --step-0: 1rem; --step-1: 1.2rem;
+  --step-2: 1.44rem; --step-3: 1.728rem; --step-4: 2.074rem;
+  --ar-size: 2.1rem;   /* user-scalable scripture, independent of UI */
+
+  /* 4pt spacing scale — rhythm from a defined set, never arbitrary numbers */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
+
+  /* Radius: soft-card language (14–16), pill on chips. NOT over-round (22–26 is the tell). */
+  --r: 14px; --r-lg: 16px; --r-input: 18px;
+
+  /* Depth: hairline borders + DEFINED shadows (≤10px blur). Never border + wide 40–70px shadow. */
+  --sh-sm: 0 1px 2px oklch(0.30 0.04 160 / 0.05);
+  --sh:    0 1px 3px oklch(0.30 0.04 160 / 0.06), 0 4px 10px oklch(0.30 0.04 160 / 0.04);
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);   /* no bounce */
+  --t:    200ms var(--ease);
+
+  --z-sticky: 10; --z-sheet-backdrop: 20; --z-sheet: 30; --z-toast: 40;  /* semantic z, never 9999 */
+
+  color-scheme: light;
+}
+
+/* ── DARK: the 2am room. Composed, not inverted. Only bg/surface/ink flips.
+   Brand colors (--action, --forest, --clay) are theme-INVARIANT. ──────── */
+:root[data-theme="dark"] {
+  --bg: oklch(0.175 0.018 165); --surface: oklch(0.225 0.020 165);
+  --surface-2: oklch(0.275 0.022 165); --line: oklch(0.320 0.018 165);
+  --line-strong: oklch(0.395 0.020 165);
+  --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
+  --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
+  --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
+  --caution: oklch(0.780 0.140 55); --caution-wash: oklch(0.780 0.140 55 / 0.12);
+  --wash-1: oklch(0.627 0.129 165 / 0.10); --wash-2: oklch(0.542 0.092 188 / 0.07);
+  --glow: none; --shadow-pop: 0 8px 28px oklch(0.10 0.01 165 / 0.55);
+  --sh-sm: 0 1px 2px oklch(0.08 0.01 165 / 0.40);
+  --sh:    0 1px 3px oklch(0.08 0.01 165 / 0.45), 0 4px 10px oklch(0.08 0.01 165 / 0.35);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { background: var(--bg); }
+body {
+  background: transparent;   /* the celestial ground paints on fixed pseudos behind everything */
+  color: var(--ink-2);
+  font-family: var(--f-ui);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* ── CELESTIAL GROUND — "signs in the heavens." Painted on fixed pseudos (z -2 / -1)
+   behind ALL content; never touches layout. Gold lives HERE (atmosphere), never on content.
+   Default = recede (calm, no crescent); [data-landing] = rich (crescent + gold glow + stars). */
+:root {
+  --_crescent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E");
+  --cel-sky: linear-gradient(180deg,#eaf1ea 0%,#f4f7f3 46%,#fbfbf6 100%);
+  --cel-stars:
+    radial-gradient(1px 1px at 20% 12%,rgba(70,110,90,.16),transparent),
+    radial-gradient(1px 1px at 70% 16%,rgba(70,110,90,.12),transparent),
+    radial-gradient(86% 72% at 50% 46%, transparent 62%, rgba(70,90,80,.08) 100%);
+}
+/* rich celestial (home / landing): the crescent + a green→gold glow + more stars */
+:root[data-landing] {
+  --cel-sky:
+    var(--_crescent) 86% 38px / 56px 56px no-repeat,
+    radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.15), transparent 55%),
+    linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
+  --cel-stars:
+    radial-gradient(1.1px 1.1px at 22% 12%,rgba(70,110,90,.30),transparent),
+    radial-gradient(1px 1px at 68% 14%,rgba(70,110,90,.24),transparent),
+    radial-gradient(1px 1px at 45% 9%,rgba(70,110,90,.20),transparent),
+    radial-gradient(78% 66% at 50% 45%, transparent 60%, rgba(70,90,80,.10) 100%);
+}
+/* dark night sky */
+:root[data-theme="dark"] {
+  --cel-sky: radial-gradient(120% 80% at 50% 0%, #10241f 0%, transparent 60%), linear-gradient(180deg,#0c1a17 0%,#0a1613 60%,#08110f 100%);
+  --cel-stars:
+    radial-gradient(1.1px 1.1px at 22% 12%,rgba(210,235,220,.55),transparent),
+    radial-gradient(1px 1px at 68% 14%,rgba(210,235,220,.40),transparent),
+    radial-gradient(1px 1px at 45% 9%,rgba(210,235,220,.30),transparent);
+}
+body::before { content:""; position:fixed; inset:0; z-index:-2; background:var(--cel-sky); background-size:cover; pointer-events:none; }
+body::after  { content:""; position:fixed; inset:0; z-index:-1; background:var(--cel-stars); pointer-events:none; }
+
+/* ── THE SIGNATURE: the hero green→gold type gradient. Gold as TYPOGRAPHY (allowed ground). */
+.qk-hero-gradient {
+  background: linear-gradient(90deg, #16a249 0%, #f0c851 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-family: var(--f-display); font-weight: 500;
+}
+
+/* ── A few base primitives the design agent can build on (idiom = var(--*) tokens) ── */
+.qk-card {
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: var(--s-5);
+  box-shadow: var(--sh);            /* hairline + defined shadow, never a wide ghost shadow */
+}
+.qk-action {                        /* the ONE bright surface — what the reader can DO */
+  background: var(--action-grad); color: var(--action-ink);
+  border: 0; border-radius: var(--r-input); padding: var(--s-3) var(--s-5);
+  font-family: var(--f-ui); font-weight: 600; cursor: pointer;
+  transition: filter var(--t);
+}
+.qk-action:hover { filter: brightness(1.04); }
+.qk-chip {                          /* topic chip / pill */
+  background: var(--primary-wash); color: var(--primary);
+  border: 1px solid var(--primary-line); border-radius: 999px;
+  padding: var(--s-1) var(--s-3); font-size: var(--step--1);
+}
+.qk-attribution {                   /* the signature: source named INLINE, in the reading surface */
+  color: var(--ink-3); font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+.qk-arabic { font-family: var(--f-ar); font-size: var(--ar-size); line-height: 2; direction: rtl; }
+.qk-display { font-family: var(--f-display); }
