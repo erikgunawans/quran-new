@@ -8,7 +8,51 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-02 (latest) — count-defer guard SHIPPED; Dorar hadith CLI built; review-gated count answer wired
+## 2026-08-04 (latest) — design-language seed → claude.ai/design; combined QuranKu v3 PRD; worktree cleanup
+
+Planning/design session on **quran-new/main** (no app-code changes; docs + an external design upload).
+
+**1. Worktree cleanup + PRD rescue (commit `ea6a5d5`).**
+Four worktrees existed under `.claude/worktrees/`. Rescued the **QuranKu v2 Agentic-Edition PRD** (result
+of an earlier `/grilling`, was untracked/only-in-worktree) into `main` at `.scratch/agent-edition/PRD.md`.
+Pruned 2 stale worktrees (`jaunty-tinkering-codd`, `unified-kindling-prism` — their commit was already in
+main). Left alone: `sprightly-prancing-waffle` (locked/live session) and `harfiah-collapse` (still holds 1
+unmerged commit `fix(demo): collapse the Kemenag reading in chat cards` — orphaned, merge-or-drop TBD).
+
+**2. Design-language seed → claude.ai/design (commit `da9208b`).**
+`/design-sync` doesn't apply — the app is vanilla-TS HTML-string rendering, no component library. Instead
+built a **design-LANGUAGE seed** in `.design-seed/` (self-contained `styles.css` = the oklch celestial
+token system light/dark + Google fonts + green→gold signature + base primitives; `README.md` conventions
+header; `guidelines/` = full DESIGN.md + the v3 direction). Uploaded via the DesignSync tool to a new
+claude.ai/design **Design System project** `597513c3-b953-4faa-b913-03b4a3be4085`
+(https://claude.ai/design/p/597513c3-b953-4faa-b913-03b4a3be4085). Pin recorded in `.design-sync/config.json`.
+Attach that design system when designing v3 → on-brand output. (No components/screenshots — language only.)
+
+**3. Combined QuranKu v3 PRD (commit `b869e4f`).**
+Merged two PRDs into `.scratch/quranku-v3/PRD.md`: the **Agentic Edition** (`.scratch/agent-edition/PRD.md`,
+decided architecture) + the **UAT-feedback PRD** (Erik's Downloads file, triage-stage user demand). Framing:
+agent edition = delivery vehicle, UAT = validated demand; ~60% of UAT asks already served by the agent's 12
+tools. Centerpiece = a reconciliation table (served / defect / needs-review / conflict) + **3 real conflicts
+surfaced as decisions**: (4.1) corpus wall vs. depth demand, (4.2) reminders/notifications in-or-out,
+(4.3) accounts vs. privacy (recommend local-only). Noted the Dorar CLI + aqidah pipeline as the sourcing
+de-risker for content-review items. **Awaiting Erik's decisions.**
+
+### Next, in order
+1. **Erik answers the 4 open questions on the combined v3 PRD** (`.scratch/quranku-v3/PRD.md` § 0, 4.1, 4.2, 9):
+   framing confirm · corpus wall (widen/hold/middle) · reminders&notifications (in/out) · reviewer identity
+   ("Pak Darus" vs Ustadz Ahmad Isrofiel). Fold his calls into the doc.
+2. Hand the aqidah review sheet (`docs/review/aqidah-review.md`, Q8 jumlah-nabi-rasul) to the ustadz; on his
+   verbatim answer, transcribe into the `jumlah-nabi-rasul` stub → goes live.
+3. Decide `harfiah-collapse` worktree's orphaned Kemenag-collapse fix: merge or drop (show its diff first).
+4. Erik's remaining pre-UAT improvements (still TBD list); freeze demo → UAT per `.scratch/uat/UAT-PLAN.md`.
+
+### Open items waiting on Erik
+- The 4 combined-v3-PRD decisions (above).
+- The rest of the ustadz-meeting improvement list.
+- Ustadz Ahmad Isrofiel to author the `jumlah-nabi-rasul` answer (+ other aqidah stubs).
+- Resend production domain verification on axiara.ai (test mode only emails the owner).
+
+## 2026-08-02 — count-defer guard SHIPPED; Dorar hadith CLI built; review-gated count answer wired
 
 Three linked deliverables this session, all on **quran-new/main**.
 
