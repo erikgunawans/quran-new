@@ -8,7 +8,49 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-04 (latest) — design-language seed → claude.ai/design; combined QuranKu v3 PRD; worktree cleanup
+## 2026-08-04 (latest) — v3 PRD decisions RESOLVED; harfiah orphan DROPPED (superseded)
+
+Planning session on **quran-new/main** (docs + git hygiene; no app-code changes).
+
+**1. Combined v3 PRD — 4 open decisions resolved by Erik (commit `9973c8a`).** Folded into `.scratch/quranku-v3/PRD.md`:
+- **§0 framing → agent spine is the vehicle.** First release = agent spine + defect fixes together.
+- **§4.1 corpus wall → WIDEN** (Erik chose full widen over the recommended curated-middle). Sourced content
+  expansion (asbābun nuzūl + multiple tafsir + story sources), each canonical + ustadz-reviewed via §5 infra,
+  never generated. Supersedes `A`'s "hold the wall" thesis. Phase-3 gate is now OPEN. ⚠️ **New bottleneck:**
+  all widen content routes through ONE reviewer (Ustadz Ahmad Isrofiel) — his review throughput is v3 Phase-3
+  critical path, not engineering. Size his availability before Phase-3 planning.
+- **§4.2 reminders/notifications → SEPARATE LATER TRACK.** Out of v3, parked as post-v3 opt-in track (quiet-hours,
+  freq caps). Qibla (F010) stays in v3 (safe one-shot sensor). `jadwalSalat` times stay; scheduler does not.
+- **§9 reviewer → "Pak Darus" = Ustadz Ahmad Isrofiel Mardlatillah, same person.** One reviewer of record.
+- **§4.3 accounts/privacy → STILL OPEN**, recommendation stands (local-only, no cross-device sync). Not in the 4.
+- Roadmap Phases 3/4, reconciliation-table conflict rows, sign-off table all updated to match.
+
+**2. Orphaned `harfiah-collapse` commit `e41c3a7` → DROPPED (was going to merge; evidence reversed it).**
+Attempted the approved merge; it conflicted because **main moved past the branch on Jul 25**. Main extracted
+card rendering into `web/demo/card.ts` (`curatedCardHtml`), which **already collapses the Kemenag reading behind
+the disclosure** — the branch's exact goal — with Erik's preferred **"Terjemahan Kemenag"** label (the branch
+would have regressed it to "Harfiah") and restore-safe wiring (`wireVerseTools` on chat bubbles AND restored
+turns). The branch's only novel idea (delegated wiring) is marginal and main doesn't need it. Merging would
+regress + duplicate. Aborted merge; **dropped** the branch (local + `origin` remote) + removed its worktree.
+Nothing functional lost. `e41c3a7` recoverable via reflog. Worktrees now: primary + locked `sprightly-...-waffle`.
+
+**3. Aqidah Q8 (`jumlah-nabi-rasul`) — packet ready, BLOCKED on the ustadz.** Verified the stub is correctly
+pending (`answer: ""`, never matched/rendered → app degrades to honest count-defer), evidence file
+`docs/review/jumlah-nabi-rasul-evidence.md` present, review-sheet §8 note asks him to set position + wording.
+Hand-over ready; no code until he authors the verbatim answer.
+
+### Next, in order
+1. **Erik's remaining pre-UAT improvement list (still TBD)** — the ustadz-meeting items. Needed to proceed to freeze.
+2. Hand aqidah review-sheet §8 to Ustadz Ahmad Isrofiel; transcribe his verbatim answer into the stub → goes live.
+3. Confirm §4.3 (local-only) if you want it locked; size the ustadz's review throughput for the §4.1 WIDEN content.
+4. Freeze demo build → run UAT per `.scratch/uat/UAT-PLAN.md`.
+
+### Open items waiting on Erik / the ustadz
+- Erik: the pre-UAT improvement list; §4.3 final confirm; reviewer-availability for WIDEN scope.
+- Ustadz Ahmad Isrofiel: author `jumlah-nabi-rasul` (+ other aqidah stubs); approve WIDEN sources when scoped.
+- Resend production domain verification on axiara.ai (test mode only emails the owner).
+
+## 2026-08-04 — design-language seed → claude.ai/design; combined QuranKu v3 PRD; worktree cleanup
 
 Planning/design session on **quran-new/main** (no app-code changes; docs + an external design upload).
 
