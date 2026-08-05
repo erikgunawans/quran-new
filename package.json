@@ -35,7 +35,8 @@
     "demo:build": "bun run app:corpus && bun run app:juz && bun run app:topic-subjects && vite build web --config web/vite.demo.config.ts",
     "app:caveat-sheet": "bun run src/review/build-caveat-sheet.ts",
     "app:grounding-digest": "bun run src/app/build-grounding-digest.ts",
-    "app:split-expansion": "bun run src/review/split-feelings-expansion.ts"
+    "app:split-expansion": "bun run src/review/split-feelings-expansion.ts",
+    "app:peta-graph": "bun run src/app/build-peta-graph.ts"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",

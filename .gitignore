@@ -30,3 +30,7 @@ web/src/.ua/
 
 # understand-anything knowledge graph (regenerable via /understand)
 .understand-anything/
+
+# graphify working output (16MB of cache + regenerable graphs)
+graphify-out/
+.planning/graphs/.last-build-snapshot.json
