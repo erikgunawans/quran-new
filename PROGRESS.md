@@ -8,7 +8,74 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-04 (latest) — v3 PRD decisions RESOLVED; harfiah orphan DROPPED (superseded)
+## 2026-08-05 (latest) — Peta Tematik ayah graph: builder, contract, explorer (PR #1 MERGED `e1dd156`)
+
+Tooling/infra session on **quran-new/main**. No app-code or corpus changes; one new build script,
+one new doc, two new artifacts.
+
+**1. The thematic map is now a graph — `bun run app:peta-graph`.** Every ayah is a node; the ayahs
+cited under more than one category are the bridges between themes. **518 of 1628 ayahs bridge 2+
+categories** — that is Ustadz Thalib's curation, not an inference, and the build asserts it against
+`web/public/peta/index.json` rather than trusting a constant. 1678 nodes / 2538 edges / 13 kategori /
+37 named subtopik / 2501 sitasi. Top connectors: QS 33:33 and QS 2:185, each spanning 6 categories.
+- `src/app/build-peta-graph.ts` — folds the 15 peta shards against `data/canonical/`. Arabic spliced
+  byte-identically and **asserted** against `ayahs.json`; both translations keep their corpus
+  `display_role` (Thalib primary, Kemenag companion) so consumers do not re-rank the scholars.
+- **16 invariants, three checked against `index.json` itself.** Refuses to write on drift.
+- The five flat categories (single `null` subtopic, 736 entries) attach to the **category** node —
+  inventing a "None" subtopic would put a label in the graph the source never wrote. Hence 37 named
+  subtopics, not 42.
+- `docs/reference/peta-tematik-graph.md` — the integration contract, source chain, invariants, traps.
+- **Verified:** rebuild from the primary checkout is **byte-identical** to the committed artifact.
+
+**2. `graph-ayah.json` is committed even though it is reproducible — deliberately.** `data/` is
+gitignored, so a fresh clone *cannot* rebuild it. The artifact is the contract for other apps.
+
+**3. Standalone explorer — `.planning/graphs/peta-tematik-explorer.html`, 3.06 MB → 0.71 MB (77%).**
+Opens from disk, no server, no network. Focus/dim, double-click isolate, BFS path-finding between any
+two nodes, "ayat serumpun" (verses sharing the most themes), 13 category toggles, Makkiyah/Madaniyah
+filter, connector leaderboard, deep-link hash, light/dark.
+- Payload gzip+base64, inflated via native `DecompressionStream` (2333 KB → 627 KB). Restructuring to
+  short keys first was measured and **rejected** — only 47 KB better after gzip, not worth the risk.
+- Amiri subset to the **65 Arabic codepoints the corpus actually uses** (141 KB → 52 KB); coverage
+  verified against the font's cmap, not by eyeballing widths.
+- **vis-network removed entirely** (629 KB) for a batched canvas renderer: nodes bucketed by colour so
+  ~12 canvas ops replace ~1678 per frame, positions precomputed so there is no stabilisation wait.
+
+**4. ⚠️ The "broken movement" was the tooling, not the app.** Chased a 5.5 fps drag down to a
+**1300× canvas slowdown caused by the Interceptor Chrome extension**, which wraps
+`beginPath`/`fill`/`stroke` to record commands. Same work in a Web Worker (uninstrumented): a
+2538-segment stroke costs **0.33 ms vs 432 ms**. Memory was never involved — 24 MB of a 4192 MB heap.
+**Benchmark rendering in a window without that extension.**
+
+**5. ⚠️ Corpus defect found, NOT fixed: 12 records contain `U+FFFD`**, all in Thalib's Tarjamah
+Tafsiriyah; the Arabic is clean. Affects QS 2:197, 4:59, 6:151, 7:46-48, 7:175, 19:19, 21:96, 23:28,
+46:35, 81:26 (`syari<?>at`, `Al-Qur<?>an`, `A<?>raaf` ×7). Restored in the explorer only, by context
+classification, with Erik's approval — **`data/canonical/` is untouched and still corrupted**, so the
+live app still renders them. Worth fixing at the ingest layer.
+
+**6. graphify: repo knowledge graph built, and its hard limit found.** Full LLM pipeline over 47 docs
+via 5 subagents → 1528 nodes / 2742 edges / 54 communities. **`/gsd-graphify build` is code-only by
+construction** and can never widen; and `.json`/`.csv`/`.html` are in none of graphify's extension
+sets, so the peta shards are permanently invisible to it — which is why the ayah graph is built
+directly instead. Output + its 207-entry semantic cache preserved in `graphify-out/` (gitignored).
+
+**7. Also shipped:** three component cards pushed to the `New-QuranKu Design Language` project on
+claude.ai/design (`components/{data-viz/thematic-scale,scripture/ayah-card,patterns/graph-explorer}.html`)
+— it had 84 tokens but **zero components**. ⚠️ The data-viz card uses gold as a data mark, which
+**exceeds Law 2's stated two placements**; the card says so and asks for an explicit amendment before
+adoption. Erik's ruling still open. A private Artifact of the graph was also published.
+
+**Housekeeping.** Worktree `quizzical-exploring-quilt` unlocked, symlink removed, its graphify output
+preserved into the primary — safe to `git worktree remove --force`. ⚠️ Repo `CLAUDE.md` still claims
+*"No PRs (no remote)"*, which is wrong — `quran-new` → `github.com/erikgunawans/quran-new`.
+
+**Next:** rule on the gold law (Law 2) for the data-viz scale; fix the 12 `U+FFFD` records at ingest;
+decide whether the explorer's ayah card should adopt depth-disclosure like the design-system card does.
+
+---
+
+## 2026-08-04 — v3 PRD decisions RESOLVED; harfiah orphan DROPPED (superseded)
 
 Planning session on **quran-new/main** (docs + git hygiene; no app-code changes).
 
