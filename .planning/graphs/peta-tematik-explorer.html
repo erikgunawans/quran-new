@@ -524,7 +524,7 @@ function detail(id){
     if(th) h+='<div class="k">Tarjamah Tafsiriyah</div><p class="tr">'+esc(th)+
               '</p><div class="src">Ustadz Muhammad Thalib</div>';
     if(d['Terjemah Kemenag'])
-      h+='<details><summary>Terjemahan harfiah</summary><p class="tr sec">'+
+      h+='<details><summary>Terjemahan Kemenag</summary><p class="tr sec">'+
          esc(d['Terjemah Kemenag'])+'</p><div class="src">Kementerian Agama RI</div></details>';
     var ents=Object.keys(d).filter(function(k){return k.indexOf('Entri ')===0;});
     if(ents.length){
