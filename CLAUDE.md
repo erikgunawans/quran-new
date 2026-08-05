@@ -4,7 +4,7 @@
 
 ### Issue tracker
 
-Issues and PRDs live as local markdown under `.scratch/<feature>/`. No PRs (no remote). See `docs/agents/issue-tracker.md`.
+Issues and PRDs live as local markdown under `.scratch/<feature>/` — not GitHub Issues. The repo does have a remote (`quran-new` → github.com/erikgunawans/quran-new) and lands work via PR (PR #1 merged through it). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
