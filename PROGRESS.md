@@ -8,7 +8,44 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-05 (latest) — Peta Tematik ayah graph: builder, contract, explorer (PR #1 MERGED `e1dd156`)
+## 2026-08-06 (latest) — Dorar tafsir → OKF knowledge base (§4.1 WIDEN sourcing layer), 3 languages
+
+Session opened as a quran-new resume, then pivoted to building the **§4.1 WIDEN sourced-tafsir layer**.
+The KB itself lives **outside this repo** at `~/printing-press/library/tafseer-okf/` (not a git repo —
+sibling to the daleel & dorar CLIs); full record in memory `tafseer-okf.md`. This repo's tree is
+otherwise unchanged except this checkpoint.
+
+**Quran-new fixes landed earlier this session (already pushed, in `79204db`'s lineage):**
+- `de123f3` — corrected CLAUDE.md's false "no remote" claim (quran-new remote exists, PR #1 merged).
+- `dd04d53` — `scripts/fix-fffd.ts`: reproducible U+FFFD apostrophe repair for Thalib Tarjamah Tafsiriyah.
+  Fixed **13 ain/apostrophe chars across 9 records** in `data/canonical/translations.json` (gitignored, so
+  the script is the tracked record). **4 speech-quote delimiters HELD** (19:19, 6:151, 23:28) pending the
+  source quote convention. **Live app needs a rebuild+redeploy** to pick up the corpus fix.
+- `79204db` — explorer disclosure label aligned to "Terjemahan Kemenag" (was already collapsed; only the
+  label diverged from web/demo/card.ts). Pruned two merged worktrees + branches.
+
+**The KB (in printing-press) — Dorar موسوعة التفسير → Open Knowledge Format (Google Cloud markdown+YAML):**
+- **ar/ COMPLETE** — 1345 files (114 intros + 1231 passages), 67 MB, **all 6236 ayahs byte-exact** from
+  `data/canonical/ayahs.json` (Arabic never retyped; Dorar's glyph-font ayah text avoided). Full 7-section
+  tafsir + footnotes lifted to `## المراجع`. Tools: `crawl.go` (CF-clearing fetch + og:title passage
+  discovery), `build.ts`. Bugs caught by self-validation: Arabic dual-form `الآيتان` (2-ayah passages),
+  Dorar source typo `لآيات`.
+- **en/ COMPLETE** — Dorar's OFFICIAL English edition, 1344 files, **6227/6236** (the 9 missing — 4:94,
+  9:96, 20:17-23 — are genuine OMISSIONS in Dorar's English, all present in ar/). English per-verse tafsir
+  is ABRIDGED (overall-meaning only); intros are full. Bugs caught & fixed: non-sequential global IDs
+  (name-based remanifest from cache), rate-limit retries, range-split `-p2` suffixing.
+- **id/ Al-Fatihah ONLY** (template, awaiting ustadz) — verse translation is a **deterministic byte-exact
+  splice** (Thalib Tarjamah Tafsiriyah PRIMARY + Kemenag companion, both from corpus, NEVER AI); only
+  Dorar's tafsir PROSE is AI Ar→Id (labeled unreviewed); whole inline ayahs kept Arabic. Reviewer =
+  Ustadz Ahmad Isrofiel. HTML view published: claude.ai/code/artifact/bd72ab37-7fce-4452-8a9a-d4ab280b7564.
+
+**Verification discipline paid off repeatedly** — every crawl bug (5 total across ar+en) was caught by the
+byte-exact coverage validator, never shipped. Also: did NOT trust a background run that lost its completion
+record after a session interrupt — re-validated and found it was actually incomplete (5729/6236).
+
+**Rights:** Erik owns the licensing question (private research KB only for now). No redistribution.
+
+## 2026-08-05 — Peta Tematik ayah graph: builder, contract, explorer (PR #1 MERGED `e1dd156`)
 
 Tooling/infra session on **quran-new/main**. No app-code or corpus changes; one new build script,
 one new doc, two new artifacts.
