@@ -8,7 +8,34 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — UI batch DEPLOYED to prod (new-quranku.axiara.ai)
+## 2026-08-08 (latest) — Hadis section LIVE on prod (Ṣaḥīḥayn, Arabic-only)
+
+Erik: "source them" (Hadis + Fikih). Investigated the KBs on disk — both had real blockers, surfaced
+honestly instead of shipping a shortcut:
+- **Hadis** (`~/printing-press/library/tafseer-okf/okf/hadith`, 14,736 Ṣaḥīḥayn): Arabic is canonical
+  public-domain; the English is sunnah.com data stamped `license: "private research use"`, and there's
+  **no Indonesian** at all. Erik chose **ship Arabic-only v1 now**.
+- **Fikih** (`~/printing-press/library/daleel`): a reverse-engineered scrape of HalalCreative's
+  daleel.id, Arabic-only — not ours to republish. A background research agent confirmed **no open-
+  licensed Indonesian fiqh corpus exists**; clean path is dalil-only. Erik chose **dalil-only build +
+  draft permission letters** (Kemenag + IslamHouse). Fikih build is the next work item.
+
+**Hadis SHIPPED (commit `4d23e31`, Worker version `a6539643`).** New pipeline `src/app/build-hadith.ts`
+reads vendored `data/hadith-src/` (gitignored, copied from tafseer-okf), extracts **Arabic + structural
+metadata only** (kitab, bab, number, grade, sunnah.com link) — the English translation and narrator line
+are DROPPED at build time. Arabic is **byte-sliced** from source, never retyped (arabic-normalization
+hazard). Emits sharded `web/public/hadith/index.json` + `<collection>/<book>.json` (gitignored build
+artifact, like corpus.json; in the `build` chain via `app:hadith`). Reader: `web/src/hadith.ts` (data +
+loaders, mirrors peta-data), `sections.ts` renders collection→kitab→hadith, `main.ts` adds the
+`#/hadis/<collection>/<book>` route. Honest note on every Hadis surface: teks Arab kanonik, terjemahan
+Indonesia menyusul setelah lisensinya jelas + ustadz review. **912 tests pass** (added `hadith.test.ts`,
+11 cases incl. no-Latin-leak + count invariants); zero new typecheck errors (the 6 `quran.ts` `caches`
+errors pre-date this work). Verified live in real Chrome: 2 collections, 154 kitab, byte-exact Arabic,
+grade badges, sunnah.com attribution links. Engine untouched.
+
+---
+
+## 2026-08-08 — UI batch DEPLOYED to prod (new-quranku.axiara.ai)
 
 Short session. Erik green-lit shipping the four un-deployed UI commits. `bun run build` (bundle 155KB) +
 `cd worker && bunx wrangler deploy` (default env = principled). New Worker version **`c776a065`**; 3 modified
