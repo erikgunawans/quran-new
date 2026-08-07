@@ -22,6 +22,7 @@ import {
   type HadithCollectionMeta,
   type Hadith as HadithRecord,
 } from "./hadith.ts";
+import { FIQH_AREAS, type FiqhArea } from "./fikih.ts";
 
 // ── Hadis ────────────────────────────────────────────────────────────────────
 
@@ -129,27 +130,58 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
     </div>`;
 }
 
-// ── Fikih (placeholder — gated on a licensed source + scholar sign-off) ────────
+// ── Fikih (dalil-only — a doorway into the sourced hadith, never a ruling) ─────
 
-export function renderFikih(mount: HTMLElement): void {
+interface KitabInfo {
+  readonly ar: string;
+  readonly hadith: number;
+}
+
+const collLabel = (id: string): string => (id === "bukhari" ? "Bukhari" : id === "muslim" ? "Muslim" : id);
+
+function fiqhCard(a: FiqhArea, lookup: Map<string, KitabInfo>): string {
+  const chips = a.refs
+    .map((r) => {
+      const info = lookup.get(`${r.collection}/${r.book}`);
+      if (!info) return "";
+      return `
+        <a class="fikih-kitab" href="#/hadis/${esc(r.collection)}/${r.book}">
+          <span class="fikih-kitab-ar" dir="rtl" lang="ar">${esc(info.ar)}</span>
+          <span class="fikih-kitab-meta">${collLabel(r.collection)} · ${info.hadith} hadis</span>
+        </a>`;
+    })
+    .join("");
+  return `
+    <section class="fikih-card">
+      <h2 class="fikih-title">${esc(a.title)}</h2>
+      <p class="fikih-sub">${esc(a.sub)}</p>
+      <div class="fikih-kitab-list">${chips}</div>
+    </section>`;
+}
+
+export async function renderFikih(mount: HTMLElement): Promise<void> {
+  mount.innerHTML = `<div class="read-index"><p class="hadith-note">Memuat Fikih…</p></div>`;
+  const lookup = new Map<string, KitabInfo>();
+  try {
+    const index = await loadHadithIndex();
+    for (const c of index.collections) {
+      for (const b of c.books) lookup.set(`${c.id}/${b.no}`, { ar: b.ar, hadith: b.hadith });
+    }
+  } catch (err) {
+    mount.innerHTML = errorView("Fikih", err);
+    return;
+  }
+
   mount.innerHTML = `
-    <div class="read-index section-stub">
+    <div class="read-index fikih-index">
       <header class="tematik-head">
         <div class="tematik-head-l">
           <h1 class="qk-hero-gradient tematik-title">Fikih</h1>
-          <p class="tematik-sub">Hukum-hukum amal ibadah dan muamalah — beserta dalilnya.</p>
+          <p class="tematik-sub">Pintu ke dalilnya — tiap amal ibadah menautkan ke kitab hadis Ṣaḥīḥ yang menaunginya, menurut susunan para imam.</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <div class="stub-card" role="note">
-        <span class="stub-badge">Dalam penyusunan</span>
-        <p class="stub-lead">Bagian Fikih sedang kami siapkan. Tujuannya menampilkan pembahasan fikih dari rujukan yang tepercaya, dengan dalil dari Al-Qur'an dan Sunnah — bukan pendapat kami.</p>
-        <ul class="stub-plans">
-          <li>Telusuri topik fikih: thaharah, salat, puasa, zakat, muamalah, dan lainnya.</li>
-          <li>Setiap pembahasan membawa dalil dan rujukannya, bukan kesimpulan tanpa sumber.</li>
-          <li>Tautan ke ayat dan hadis terkait agar mudah ditelusuri sampai ke asalnya.</li>
-        </ul>
-        <p class="stub-note">Kami menampilkan karya ulama apa adanya dan tidak berfatwa. Bagian ini baru terbit setelah sumbernya jelas dan ditinjau oleh ustadz yang menaunginya.</p>
-      </div>
+      <p class="hadith-note" role="note">Ini <b>pintu masuk ke dalil</b>, bukan uraian hukum — kami tidak berfatwa. Tiap topik menautkan ke kitab hadis yang relevan (susunan Imam al-Bukhārī & Muslim sendiri). Uraian fikih beserta dalil Al-Qur'an dari rujukan berlisensi menyusul setelah ditinjau ustadz.</p>
+      <div class="fikih-grid">${FIQH_AREAS.map((a) => fiqhCard(a, lookup)).join("")}</div>
     </div>`;
 }

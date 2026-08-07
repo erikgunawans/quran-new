@@ -675,7 +675,7 @@ async function route() {
   if (hash === "#/fikih") {
     markNav("fikih");
     showRead();
-    renderFikih(readView);
+    await renderFikih(readView);
     return;
   }
 

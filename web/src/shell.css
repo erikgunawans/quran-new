@@ -614,3 +614,24 @@
   .hadith-kitab-grid { grid-template-columns: 1fr 1fr; }
   .hadith-ar { line-height: 1.9; }
 }
+
+/* ── Fikih — dalil-only doorway into the sourced hadith ────────────────────────────────────────── */
+.fikih-index { padding-top: 6px; }
+.fikih-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.fikih-card {
+  padding: 18px 20px 20px; border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--sh-sm); animation: qkin 300ms var(--ease) both;
+}
+.fikih-title { margin: 0; font-size: clamp(18px, 2vw, 22px); color: var(--ink); }
+.fikih-sub { margin: 5px 0 14px; font-size: 14px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
+.fikih-kitab-list { display: flex; flex-direction: column; gap: 8px; }
+.fikih-kitab {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none;
+  color: inherit; background: var(--primary-wash); transition: border-color var(--t), transform var(--t);
+}
+.fikih-kitab:hover { border-color: var(--primary-line); transform: translateX(2px); }
+.fikih-kitab-ar { font-family: var(--f-ar, "Amiri", serif); font-size: 18px; line-height: 1.4; color: var(--ink); }
+.fikih-kitab-meta { font-family: var(--f-ui); font-size: 12px; color: var(--ink-3); flex: none; }
+
+@media (max-width: 560px) { .fikih-grid { grid-template-columns: 1fr; } }
