@@ -48,10 +48,12 @@ beforeEach(() => {
 });
 
 describe("peta index — the 13 categories", () => {
-  test("renders one row per category, from the real index", async () => {
+  test("renders one card per category, from the real index", async () => {
     mockFetch({ "/peta/index.json": INDEX });
     await renderPetaIndex(mount);
-    expect(mount.querySelectorAll(".peta-list .trow").length).toBe(13);
+    // The Tematik reskin (86a347b) replaced the .peta-list/.trow rows with the .tematik-grid masonry
+    // of .tema-card links — one card per category. The count contract is unchanged: 13 categories.
+    expect(mount.querySelectorAll(".tematik-grid .tema-card").length).toBe(13);
     expect(INDEX.categories.length).toBe(13);
   });
 

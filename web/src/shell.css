@@ -30,7 +30,7 @@
 .qk-shell[data-nav="closed"] .qk-sidebar { width: 0; padding-left: 0; padding-right: 0; opacity: 0; pointer-events: none; }
 
 .qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 16px; }
-.qk-brand { display: flex; align-items: center; gap: 10px; }
+.qk-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .qk-brand img { width: 46px; height: 46px; object-fit: contain; display: block; }
 /* The wordmark — green→gold Fraunces gradient, per the design. `.qk-hero-gradient` had no base
    rule anywhere, so the brand was rendering as plain Plus-Jakarta in the inherited link colour. */
@@ -59,6 +59,7 @@
 .qk-nav a {
   display: flex; align-items: center; gap: 12px; padding: 12px 15px;
   font: 500 16px/1 var(--f-ui); color: var(--ink-2); border-radius: var(--r); cursor: pointer;
+  text-decoration: none;
 }
 .qk-nav a:hover { background: var(--primary-wash); color: var(--ink); }
 .qk-nav a[aria-current="page"] { background: var(--primary-wash); color: var(--primary); }
@@ -181,6 +182,10 @@
 
 /* ── Neutralize the old centered shell so content flows in the panel ──── */
 .qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
+/* Off the landing the composer is docked (position:fixed; bottom:0), so it floats over the
+   scroll surface. Reserve room beneath the content — otherwise the last filmstrip card / masonry
+   row / chat message can't scroll clear of the ~100px glass bar and stays occluded at rest. */
+:root:not([data-landing]) .qk-panel-body .app { padding-bottom: clamp(120px, 13vh, 160px); }
 .qk-panel-body .top { display: none; }           /* nav + brand now live in the sidebar */
 .qk-panel-body #chat, .qk-panel-body #read { width: min(1060px, 100%); margin: 0 auto; }
 .qk-panel-body .thread { padding-top: 1rem; }
@@ -424,7 +429,10 @@
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .qk-panel-body #read .surah-list::-webkit-scrollbar { display: none; }
-.qk-panel-body #read .surah-list > li { flex: none; scroll-snap-align: center; height: min(60vh, 540px); margin: 0; }
+/* Height is capped so the card foot (surah name) clears the docked composer instead of hiding
+   under it. The 380px offset covers the panel top bar, the Baca header + "Lanjutkan baca" bar,
+   the ~88px composer, and breathing room; the clamp keeps cards readable on tall and short viewports. */
+.qk-panel-body #read .surah-list > li { flex: none; scroll-snap-align: center; height: clamp(300px, calc(100dvh - 380px), 540px); margin: 0; }
 
 .qk-panel-body #read .srow {
   position: relative; display: flex; flex-direction: column; height: 100%;
