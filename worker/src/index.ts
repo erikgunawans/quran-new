@@ -177,11 +177,20 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       return handleMemoryRead(request, env, identity);
     }
 
-    if (url.pathname === "/api/compose" || url.pathname === "/api/classify" || url.pathname === "/api/answer") {
+    if (
+      url.pathname === "/api/compose" ||
+      url.pathname === "/api/classify" ||
+      url.pathname === "/api/find-surah" ||
+      url.pathname === "/api/answer"
+    ) {
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       if (url.pathname === "/api/compose") return handleCompose(request, env);
       if (url.pathname === "/api/answer") return handleAnswer(request, env, ctx, identity);
+      // /api/find-surah is navigation, not authoring — safe on the principled edition. Like
+      // /api/classify it recognizes from a CLOSED set (the real 114 surahs the client passes), so
+      // the model can never invent a surah that does not exist.
+      if (url.pathname === "/api/find-surah") return handleFindSurah(request, env);
       return handleClassify(request, env);
     }
 
@@ -566,6 +575,80 @@ async function handleClassify(request: Request, env: Env): Promise<Response> {
 
   // guardThemes drops anything not in the closed set, so parse loosely and let the wall clean up.
   return json({ themes: guardThemes(parseThemeList(raw), valid) }, 200, request);
+}
+
+// ── /api/find-surah — AI-supported surah finder (recognize from the closed 114, never invent) ──
+//
+// The Al-Qur'an "Cari Surah" box: the client sends the person's words + the closed list of all 114
+// surahs (n + a human label), and the model returns the ONE surah number that best fits — a theme,
+// a story, a feeling, or a name in any language/spelling. Same optimized model path as /api/classify.
+// Closed-set guarded, so a reply outside the passed numbers becomes null and the browser falls back
+// to its keyword matcher. No keyword matching here — this IS the semantic layer Erik asked for.
+
+interface FindSurahBody {
+  query?: unknown;
+  surahs?: unknown;
+  provider?: unknown;
+}
+
+const FIND_SURAH_SYSTEM =
+  `Kamu membantu orang menemukan SATU surah Al-Qur'an dari yang mereka tulis. ` +
+  `Mereka boleh menyebut tema, kisah, perasaan, atau nama surah dalam bahasa/ejaan apa pun ` +
+  `(mis. "sabar", "kisah Nabi Yusuf", "sapi", "the opening", "kahfi"). ` +
+  `Pilih HANYA dari daftar surah yang diberikan. Jawab dengan JSON persis: {"n": <nomor>} ` +
+  `atau {"n": null} bila tidak ada yang cocok. Jangan menulis penjelasan.`;
+
+function isSurahEntry(s: unknown): s is { n: number; label: string } {
+  if (typeof s !== "object" || s === null) return false;
+  const r = s as Record<string, unknown>;
+  return typeof r.n === "number" && typeof r.label === "string";
+}
+
+async function handleFindSurah(request: Request, env: Env): Promise<Response> {
+  let body: FindSurahBody;
+  try {
+    body = (await request.json()) as FindSurahBody;
+  } catch {
+    return json({ n: null }, 400, request);
+  }
+
+  const query = asBoundedString(body.query);
+  const surahs = Array.isArray(body.surahs) ? body.surahs.filter(isSurahEntry) : [];
+  if (!query || surahs.length === 0) return json({ n: null }, 200, request);
+
+  const valid = new Set(surahs.map((s) => s.n));
+  const user =
+    `Daftar surah (pilih satu nomor dari sini):\n` +
+    surahs.map((s) => `${s.n}. ${s.label}`).join("\n") +
+    `\n\nYang ditulis orang itu:\n"""${query}"""\n\n` +
+    `Kembalikan {"n": <nomor>} untuk surah yang paling cocok, atau {"n": null}.`;
+
+  let raw: string;
+  try {
+    const cfg = resolveProvider(providerOf(body.provider), env);
+    // A reasoning model needs room even to emit one number — the classify budget lesson applies.
+    raw = await callChatModel(cfg, FIND_SURAH_SYSTEM, user, { temperature: 0.1, maxTokens: 200, reasoning: "none" });
+  } catch {
+    return json({ n: null }, 200, request); // failure → browser keeps its keyword fallback
+  }
+
+  const n = parseSurahNumber(raw);
+  return json({ n: n !== null && valid.has(n) ? n : null }, 200, request);
+}
+
+/** Pull a surah number out of the model's reply, tolerating {"n":2}, "2", or a stray line of prose. */
+function parseSurahNumber(raw: string): number | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && "n" in parsed) {
+      const n = (parsed as Record<string, unknown>).n;
+      if (typeof n === "number") return Math.trunc(n);
+    }
+  } catch {
+    /* fall through to a loose scan */
+  }
+  const m = raw.match(/\d+/);
+  return m ? Number.parseInt(m[0], 10) : null;
 }
 
 // ── proxy ─────────────────────────────────────────────────────────────────────

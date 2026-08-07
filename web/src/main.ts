@@ -9,9 +9,10 @@ import { closeExplainer, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
-import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
+import { CORPUS_VERSION, displayName, evictStaleCaches, findSurah, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
-import { renderIndex, renderSurah } from "./read.ts";
+import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
+import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih } from "./sections.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
@@ -724,8 +725,31 @@ form.addEventListener("submit", (e) => {
   input.value = "";
   input.style.height = "auto";
   send.disabled = true;
+  // On the Al-Qur'an surface the box is a surah FINDER, not the companion prompt — it must never
+  // open the chat/answer view. Everywhere else it asks.
+  if (location.hash === "#/baca") {
+    void searchBaca(q);
+    return;
+  }
   void ask(q);
 });
+
+// "Cari Surah": the model finds the surah (semantic — a theme, a story, a feeling, any language or
+// spelling) and we spin the wheel straight to it. The keyword findSurah() is ONLY the fallback for
+// when the model is unavailable — never the primary path (Erik: no annoying keyword search).
+async function searchBaca(q: string): Promise<void> {
+  let n: number | null = null;
+  try {
+    n = await findSurahLive(q);
+  } catch {
+    n = null; // endpoint/model down → fall through to the keyword matcher
+  }
+  if (n === null) {
+    const hit = findSurah(q);
+    n = hit ? hit.n : null;
+  }
+  if (n !== null) gotoSurahInWheel(n);
+}
 
 input.addEventListener("input", () => {
   input.style.height = "auto";

@@ -183,6 +183,16 @@ const fold = (s: string): string =>
 // THE INDEX
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Lets the "Cari Surah" composer (main.ts) spin the mounted wheel to a surah without reaching into
+// the renderIndex closure. Set while the index is mounted; each mount rebinds it to its own wheel.
+let wheelGoto: ((n: number) => void) | null = null;
+/** Centre (and thereby open) surah `n` in the wheel. Returns false if the index isn't mounted. */
+export function gotoSurahInWheel(n: number): boolean {
+  if (!wheelGoto) return false;
+  wheelGoto(n);
+  return true;
+}
+
 // `off` = signed distance from the opened centre card. It rides onto the <li> as a `--off` custom
 // property (absolute distance) so shell.css can taper each neighbour smoothly toward a slim
 // book-spine the further it sits from the middle — a shelf that opens at the centre (Erik).
@@ -307,6 +317,15 @@ export function renderIndex(mount: HTMLElement): void {
   const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
   prevBtn?.addEventListener("click", () => rotate(-1));
   nextBtn?.addEventListener("click", () => rotate(1));
+
+  // Bind the external goto hook to THIS wheel — the "Cari Surah" search spins straight to a match.
+  wheelGoto = (n: number): void => {
+    const idx = SURAH_INDEX.findIndex((s) => s.n === n);
+    if (idx < 0) return;
+    centre = idx;
+    renderWheel();
+    announceCentre();
+  };
 
   // Left/right arrow keys rotate the wheel when the strip (or an arrow) holds focus.
   mount.querySelector<HTMLElement>(".baca-strip")?.addEventListener("keydown", (e) => {
