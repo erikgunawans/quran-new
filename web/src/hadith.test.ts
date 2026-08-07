@@ -81,13 +81,38 @@ describe("hadith corpus — the emitted shards", () => {
 });
 
 describe("hadith index render", () => {
-  test("one section per collection, one card per kitab, from the real index", async () => {
+  test("one tab + panel per collection, one card per kitab, from the real index", async () => {
     mockFetch({ "/hadith/index.json": INDEX });
     await renderHadis(mount);
-    expect(mount.querySelectorAll(".hadith-collection").length).toBe(2);
+    expect(mount.querySelectorAll(".hadith-tab").length).toBe(2);
+    expect(mount.querySelectorAll(".hadith-panel").length).toBe(2);
+    // exactly one panel is visible at a time (tabs, not a 154-kitab wall)
+    expect(mount.querySelectorAll(".hadith-panel:not([hidden])").length).toBe(1);
     const cards = mount.querySelectorAll(".hadith-kitab-grid .hadith-kitab").length;
     const kitab = INDEX.collections.reduce((n: number, c: { books: unknown[] }) => n + c.books.length, 0);
     expect(cards).toBe(kitab);
+  });
+
+  test("switching tabs reveals the other collection's panel", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    const tabs = mount.querySelectorAll<HTMLButtonElement>(".hadith-tab");
+    tabs[1]!.click();
+    const visible = mount.querySelector<HTMLElement>(".hadith-panel:not([hidden])");
+    expect(visible?.dataset.coll).toBe("muslim");
+    expect(tabs[1]!.getAttribute("aria-selected")).toBe("true");
+  });
+
+  test("the filter hides kitab cards that match neither number nor Arabic name", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    const filter = mount.querySelector<HTMLInputElement>(".hadith-filter")!;
+    filter.value = "8"; // kitab 8 in the visible (Bukhari) panel
+    filter.dispatchEvent(new Event("input"));
+    const panel = mount.querySelector<HTMLElement>(".hadith-panel:not([hidden])")!;
+    const visibleCards = [...panel.querySelectorAll<HTMLElement>(".hadith-kitab")].filter((c) => !c.hidden);
+    expect(visibleCards.length).toBeGreaterThan(0);
+    expect(visibleCards.every((c) => (c.dataset.search ?? "").includes("8"))).toBe(true);
   });
 
   test("kitab cards link into the drilldown route", async () => {

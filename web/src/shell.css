@@ -551,26 +551,46 @@
 /* ── Hadis — Ṣaḥīḥayn browse (Arabic-only) ─────────────────────────────────────────────────────── */
 .hadith-index, .hadith-book { padding-top: 6px; }
 .hadith-note {
-  margin: 4px 0 26px; padding: 13px 16px; border: 1px solid var(--line); border-left: 3px solid var(--primary-line);
+  margin: 4px 0 26px; padding: 13px 16px; border: 1px solid var(--primary-line);
   border-radius: var(--r-md, 12px); background: var(--primary-wash); color: var(--ink-2);
   font-size: 14px; line-height: 1.55; max-width: 72ch; text-wrap: pretty;
 }
 .hadith-note b { color: var(--ink); }
 
-.hadith-collection { margin: 0 0 34px; }
-.hadith-coll-title {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 14px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: clamp(19px, 2vw, 24px);
+/* Collection tabs + filter — so the reader meets one collection at a time, not a 154-kitab wall. */
+.hadith-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; }
+.hadith-tabs { display: inline-flex; gap: 6px; background: var(--primary-wash); padding: 4px; border-radius: 999px; }
+.hadith-tab {
+  font-family: var(--f-ui); cursor: pointer; border: 0; background: transparent; color: var(--ink-2);
+  padding: 7px 15px; border-radius: 999px; font-size: 14px; font-weight: 500;
+  transition: background var(--t), color var(--t);
 }
-.hadith-coll-title [lang="ar"] { font-family: var(--f-ar, "Amiri", serif); font-weight: 700; }
-.hadith-coll-latin { font-family: var(--f-ui); font-size: 13px; font-weight: 500; color: var(--ink-3); letter-spacing: .01em; }
+.hadith-tab.is-active { background: var(--surface); color: var(--primary); box-shadow: var(--sh-sm); }
+.hadith-tab-n { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.hadith-tab.is-active .hadith-tab-n { color: var(--ink-3); }
+.hadith-filter {
+  flex: 1 1 220px; max-width: 320px; font-family: var(--f-ui); font-size: 14px; color: var(--ink);
+  padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  transition: border-color var(--t);
+}
+.hadith-filter::placeholder { color: var(--ink-3); }
+.hadith-filter:focus-visible { outline: none; border-color: var(--primary-line); }
+.hadith-empty { margin: 18px 2px; font-family: var(--f-ui); font-size: 14px; color: var(--ink-3); }
+
+/* Loading skeleton — kitab-card shaped, not a spinner. */
+.hadith-sk-head { height: 40px; width: 40%; max-width: 260px; border-radius: 10px; background: var(--primary-wash); margin: 6px 0 24px; }
+.hadith-sk-card { height: 74px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--primary-wash); }
+@media (prefers-reduced-motion: no-preference) {
+  .hadith-sk-head, .hadith-sk-card { animation: hadith-sk 1.3s var(--ease) infinite alternate; }
+}
+@keyframes hadith-sk { from { opacity: .55; } to { opacity: 1; } }
 
 .hadith-kitab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .hadith-kitab {
   display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 2px 12px;
   align-items: center; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-lg);
   background: var(--surface); box-shadow: var(--sh-sm); text-decoration: none; color: inherit;
-  transition: transform var(--t), box-shadow var(--t), border-color var(--t); animation: qkin 300ms var(--ease) both;
+  transition: transform var(--t), box-shadow var(--t), border-color var(--t);
 }
 .hadith-kitab:hover { transform: translateY(-2px); border-color: var(--primary-line); box-shadow: var(--sh-md, var(--sh-sm)); }
 .hadith-kitab-no {
@@ -584,17 +604,17 @@
 .hadith-crumb { font-family: var(--f-ui); font-size: 13px; color: var(--ink-3); margin: 0 0 6px; }
 .hadith-crumb a { color: var(--ink-2); text-decoration: none; }
 .hadith-crumb a:hover { color: var(--primary); }
-.hadith-book .tematik-title[lang="ar"] { font-family: var(--f-ar, "Amiri", serif); }
+.hadith-book .tematik-title[lang="ar"] { font-family: var(--f-ar, "Amiri", serif); color: var(--primary); }
 
 .hadith-list { display: flex; flex-direction: column; gap: 26px; }
 .hadith-bab-block { display: flex; flex-direction: column; gap: 12px; }
 .hadith-bab {
-  margin: 8px 0 2px; font-family: var(--f-ar, "Amiri", serif); font-size: 20px; font-weight: 700;
+  margin: 8px 0 2px; font-family: var(--f-ar, "Amiri", serif); font-size: calc(var(--ar-size) * 0.62); font-weight: 700;
   line-height: 1.5; color: var(--primary); text-align: right;
 }
 .hadith-card {
   padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--r-lg);
-  background: var(--surface); box-shadow: var(--sh-sm); animation: qkin 300ms var(--ease) both;
+  background: var(--surface); box-shadow: var(--sh-sm);
 }
 .hadith-meta { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-family: var(--f-ui); }
 .hadith-no { font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
@@ -602,7 +622,8 @@
   font-size: 11.5px; letter-spacing: .04em; color: var(--primary); border: 1px solid var(--primary-line);
   border-radius: 999px; padding: 3px 9px; background: var(--primary-wash);
 }
-.hadith-ar { font-size: clamp(19px, 2.2vw, 24px); line-height: 2.05; color: var(--ink); margin: 0; }
+/* Scales with the reader's A/A/A control (--ar-size), like every other reading-surface Arabic. */
+.hadith-ar { font-size: calc(var(--ar-size) * 0.85); line-height: 2.05; color: var(--ink); margin: 0; }
 .hadith-src {
   display: inline-block; margin: 14px 0 0; font-family: var(--f-ui); font-size: 13px;
   color: var(--ink-3); text-decoration: none; border-bottom: 1px solid var(--line);
@@ -620,7 +641,7 @@
 .fikih-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 .fikih-card {
   padding: 18px 20px 20px; border: 1px solid var(--line); border-radius: var(--r-lg);
-  background: var(--surface); box-shadow: var(--sh-sm); animation: qkin 300ms var(--ease) both;
+  background: var(--surface); box-shadow: var(--sh-sm);
 }
 .fikih-title { margin: 0; font-size: clamp(18px, 2vw, 22px); color: var(--ink); }
 .fikih-sub { margin: 5px 0 14px; font-size: 14px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
@@ -635,3 +656,9 @@
 .fikih-kitab-meta { font-family: var(--f-ui); font-size: 12px; color: var(--ink-3); flex: none; }
 
 @media (max-width: 560px) { .fikih-grid { grid-template-columns: 1fr; } }
+
+/* Cards are visible by default; the entrance fade applies ONLY when motion is welcome and uses
+   `forwards`, never `both` (DESIGN.md) — a backgrounded mid-render can never strand a card invisible. */
+@media (prefers-reduced-motion: no-preference) {
+  .hadith-kitab, .hadith-card, .fikih-card { animation: qkin 300ms var(--ease) forwards; }
+}

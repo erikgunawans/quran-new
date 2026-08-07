@@ -160,6 +160,30 @@ describe("WCAG AA — the action color carries white text", () => {
   });
 });
 
+/**
+ * The Hadis/Fikih surfaces use `--primary-wash` as a TEXT background — the grade chip carries
+ * `--primary`, the kitab-meta + crumb carry `--ink-3`. In light the wash is solid (== surface2,
+ * already covered above), but in dark it is TRANSLUCENT (primary at 0.14 over --surface), so its
+ * effective colour — and the contrast on top of it — must be composited, not read from a token.
+ * This is exactly the "audited the wrong pair" gap DESIGN.md records: the wash was never a text bg
+ * until these surfaces made it one.
+ */
+function over([r, g, b]: [number, number, number], alpha: number, bg: [number, number, number]): [number, number, number] {
+  return [r * alpha + bg[0] * (1 - alpha), g * alpha + bg[1] * (1 - alpha), b * alpha + bg[2] * (1 - alpha)];
+}
+describe("WCAG AA — text on the translucent primary-wash (dark register)", () => {
+  const wash = over(DARK.primary, 0.14, DARK.surface); // --primary-wash: oklch(.76 .128 165 / .14) over --surface
+  test("grade chip: primary on the wash ≥ 4.5:1", () => {
+    expect(contrast(DARK.primary, wash)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+  test("kitab-meta / crumb: ink3 on the wash ≥ 4.5:1", () => {
+    expect(contrast(DARK.ink3, wash)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+  test("note body: ink2 on the wash ≥ 4.5:1", () => {
+    expect(contrast(DARK.ink2, wash)).toBeGreaterThanOrEqual(AA_BODY);
+  });
+});
+
 test("in the dark room, scripture out-luminates every piece of chrome", () => {
   // If a UI element ever glows brighter than the verse, the design has inverted its own thesis.
   const inkL = luminance(DARK.ink);
