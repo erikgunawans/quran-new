@@ -26,7 +26,6 @@ import { understandThemes } from "./theme-understand.ts";
 import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
-import { renderTheme, renderThemeIndex } from "./themes.ts";
 import { migrateStorage } from "./migrate-storage.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
@@ -190,7 +189,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
         <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
         <div class="silence">
           <p>Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak — aku menemani lewat <b>perasaan</b>, bukan menjawab soal ajaran, hukum, atau arti sebuah ayat.</p>
-          <p>Kalau kamu nyari <b>topik atau konsep</b> — misalnya tentang Allah, sabar, atau rezeki — coba buka <a href="#/peta">Peta</a> atau <a href="#/tema">Tema</a>. Kalau kamu lagi <b>ngerasain sesuatu</b>, ceritakan aja pakai kata-katamu sendiri. Atau sebutkan <b>surah dan ayatnya langsung</b>, misalnya <b>18:10</b>.</p>
+          <p>Kalau kamu nyari <b>topik atau konsep</b> — misalnya tentang Allah, sabar, atau rezeki — coba buka <a href="#/peta">Tematik</a>. Kalau kamu lagi <b>ngerasain sesuatu</b>, ceritakan aja pakai kata-katamu sendiri. Atau sebutkan <b>surah dan ayatnya langsung</b>, misalnya <b>18:10</b>.</p>
         </div>`;
 
     case "hits": {
@@ -323,7 +322,7 @@ function aqidahHtml(e: AqidahEntry): string {
     .join("");
 
   const more = e.topic
-    ? `<p class="know-more"><a href="#/peta/${esc(e.topic)}">Telusuri lebih lanjut di Peta →</a></p>`
+    ? `<p class="know-more"><a href="#/peta/${esc(e.topic)}">Telusuri lebih lanjut di Tematik →</a></p>`
     : "";
 
   return (
@@ -351,7 +350,7 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
   if (!k.entries.length) {
     return (
       `<p class="said">Pertanyaan soal <b>${esc(k.category)}</b> itu luas — dan aku nggak mau ngarang. Tapi di knowledge base kami ada <b>${k.totalEntries} entri</b> soal ini, dikumpulkan <b>${esc(k.source.author)}</b>, masing-masing langsung menunjuk ke ayatnya. Coba persempit pertanyaanmu, atau telusuri langsung:</p>` +
-      `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Telusuri ${k.totalEntries} entri tentang ${esc(k.category)} di Peta →</a></p>` +
+      `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Telusuri ${k.totalEntries} entri tentang ${esc(k.category)} di Tematik →</a></p>` +
       credit
     );
   }
@@ -367,7 +366,7 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
   return (
     `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>` +
     `<ul class="know-list">${entries}</ul>` +
-    `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Lihat semua ${k.totalEntries} entri tentang ${esc(k.category)} di Peta →</a></p>` +
+    `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Lihat semua ${k.totalEntries} entri tentang ${esc(k.category)} di Tematik →</a></p>` +
     credit
   );
 }
@@ -589,8 +588,8 @@ function showRead() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "tema" | "peta") {
-  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), tema: $<HTMLAnchorElement>("#nav-tema"), peta: $<HTMLAnchorElement>("#nav-peta") };
+function markNav(mode: "tanya" | "baca" | "peta") {
+  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), peta: $<HTMLAnchorElement>("#nav-peta") };
   for (const [key, el] of Object.entries(links)) {
     if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
@@ -608,18 +607,17 @@ async function route() {
   // Idempotent on every route pass.
   document.documentElement.toggleAttribute(
     "data-wide",
-    hash === "#/baca" || hash === "#/tema" || hash === "#/peta",
+    hash === "#/baca" || hash === "#/peta",
   );
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
-  const t = hash.match(/^#\/tema\/([a-z0-9-]+)$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
-  // Verse-reading surfaces (a surah, a theme's verses) get a DEEPER — but still calm — night sky, so
-  // the scripture glows against it. Distinct from the RICH sky (crescent/gold/twinkle) reserved for
-  // the companion home + cosmos: reading gets depth and reverence, never decoration. Idempotent.
-  document.documentElement.toggleAttribute("data-reading", Boolean(m) || Boolean(t));
+  // Verse-reading surfaces (a surah) get a DEEPER — but still calm — night sky, so the scripture
+  // glows against it. Distinct from the RICH sky (crescent/gold/twinkle) reserved for the companion
+  // home + cosmos: reading gets depth and reverence, never decoration. Idempotent.
+  document.documentElement.toggleAttribute("data-reading", Boolean(m));
 
   if (m) {
     markNav("baca");
@@ -635,22 +633,6 @@ async function route() {
     return;
   }
 
-  if (t) {
-    markNav("tema");
-    showRead();
-    await renderTheme(readView, t[1]!);
-    return;
-  }
-
-  if (hash === "#/tema") {
-    markNav("tema");
-    showRead();
-    renderThemeIndex(readView);
-    return;
-  }
-
-  // Peta Tematik sits BESIDE /tema, deliberately — the 12-theme lexicon also feeds chat
-  // retrieval scoring, so replacing it would touch the retrieval path for a browsing win.
   if (p) {
     markNav("peta");
     showRead();

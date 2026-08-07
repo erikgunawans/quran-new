@@ -10,7 +10,9 @@ import { describe, expect, test } from "bun:test";
 
 const SOURCE_BUNDLE = Bun.file("docs/reference/indeks-tematik/indeks-tematik.json");
 const INDEX_FILE = Bun.file("web/public/peta/index.json");
-const THEMES_FILE = Bun.file("web/src/themes.ts");
+// slugify's canonical home moved to the build script when the Tema browse view (themes.ts) was
+// deleted; the shards are named by THIS function, so the drift guard now watches it here.
+const SLUGIFY_FILE = Bun.file("src/app/build-peta.ts");
 const SURAH = (n: number) => Bun.file(`web/public/surah/${n}.json`);
 
 interface SourceSecondaryRef {
@@ -152,7 +154,7 @@ const LOCAL_SLUGIFY_SOURCE = `
 `;
 
 const sourceCategories: SourceCategory[] = (await SOURCE_BUNDLE.json()) as SourceCategory[];
-const themesSource = await THEMES_FILE.text();
+const slugifySource = await SLUGIFY_FILE.text();
 const surahShards: SurahShard[] = await Promise.all(
   Array.from({ length: 114 }, (_, i) => SURAH(i + 1).json() as Promise<SurahShard>),
 );
@@ -371,8 +373,8 @@ describe("Anti: representation drift never becomes a silent fork", () => {
     expect(offenders).toEqual([]);
   });
 
-  test("Anti: slugify has not drifted from web/src/themes.ts", () => {
-    expect(normalizeSource(extractSlugifyBody(themesSource))).toBe(normalizeSource(LOCAL_SLUGIFY_SOURCE));
+  test("Anti: slugify has not drifted from src/app/build-peta.ts", () => {
+    expect(normalizeSource(extractSlugifyBody(slugifySource))).toBe(normalizeSource(LOCAL_SLUGIFY_SOURCE));
   });
 });
 
@@ -574,8 +576,8 @@ function normalizeSource(source: string): string {
 }
 
 function extractSlugifyBody(source: string): string {
-  const match = source.match(/export const slugify = \(theme: string\): string =>\s*([\s\S]*?);/u);
-  if (!match?.[1]) throw new Error("Could not extract slugify from web/src/themes.ts");
+  const match = source.match(/(?:export )?const slugify = \(theme: string\): string =>\s*([\s\S]*?);/u);
+  if (!match?.[1]) throw new Error("Could not extract slugify from src/app/build-peta.ts");
   return match[1];
 }
 

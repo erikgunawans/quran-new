@@ -64,7 +64,6 @@ export function isLandingDocked(doc: Document = document): boolean {
 export function isChatRoute(hash: string): boolean {
   return !(
     /^#\/surah\/\d/.test(hash) ||
-    /^#\/tema(?:\/|$)/.test(hash) ||
     /^#\/peta(?:\/|$)/.test(hash) ||
     hash === "#/baca"
   );

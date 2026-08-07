@@ -79,7 +79,7 @@ const derivativeNoteEl = (): string =>
   `<p class="peta-derivative">Penautan ayat dan keterangan “muncul di N tema” adalah tambahan kami untuk memudahkan penelusuran — bukan bagian dari indeks aslinya.</p>`;
 
 const backEl = (): string =>
-  `<a class="back back-top" href="#/peta"><span aria-hidden="true">←</span> Kembali ke Peta Tematik</a>`;
+  `<a class="back back-top" href="#/peta"><span aria-hidden="true">←</span> Kembali ke Tematik</a>`;
 
 // index.json is 1.5 KB and never changes within a session; a category shard is up to ~104 KB.
 // Both are cached so navigating peta → surah → peta costs nothing. Only successful fetches

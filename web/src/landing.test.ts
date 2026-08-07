@@ -171,8 +171,6 @@ describe("syncLanding — driven by the route, in BOTH directions", () => {
 
   const readingRoutes = [
     "#/baca",
-    "#/tema",
-    "#/tema/sabar",
     "#/surah/18",
     "#/surah/18#10",
     // Peta Tematik — a reading door. Omitting these is how the landing would dock over the
