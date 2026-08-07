@@ -166,20 +166,31 @@
     radial-gradient(1.2px 1.2px at 45% 9%,rgba(210,235,220,.28),transparent);
 }
 
-/* the panel top bar: the toggle when the sidebar is closed + display controls */
+/* The display controls FLOAT at the panel's top-right instead of occupying a 66px bar above the
+   content — that bar pushed every section title far below the sidebar logo. Out of flow now, so the
+   scroll body starts at the panel's top and section names rise to the logo line (Erik). */
 .qk-panel-top {
-  position: relative; z-index: 2; flex: none;
+  position: absolute; top: 0; right: 0; z-index: 5;
   display: flex; align-items: center; gap: 14px;
-  padding: 18px 22px 4px;
+  padding: 13px 18px;
 }
+.qk-panel-top .spacer { display: none; } /* the bar hugs the right now — no growing spacer needed */
 .qk-shell[data-nav="open"] #panel-toggle { display: none; }
-.qk-panel-top .spacer { flex: 1; }
+/* When the sidebar is closed the toggle must stay reachable at the top-LEFT to reopen it, clear of
+   the floated controls on the right. */
+.qk-panel-top #panel-toggle { position: fixed; top: 11px; left: 12px; z-index: 6; }
 
-/* the scrolling content area of the panel */
+/* the scrolling content area of the panel — starts at the very top; padding lifts the first section
+   title to sit level with the sidebar logo (~26px from the panel top). */
 .qk-panel-body {
   position: relative; z-index: 1; flex: 1; min-height: 0;
   overflow-y: auto; display: flex; flex-direction: column;
+  padding-top: 14px;
 }
+/* Section headers reserve a right gutter so their tools (search, Kembali, view toggles) never slide
+   under the floated display controls that now sit at the panel's top-right. The chat's "Hapus
+   percakapan" bar sits at the same top-right, so it gets the same gutter. */
+.qk-panel-body .baca-head, .qk-panel-body .tematik-head, .qk-panel-body .thread-tools { padding-right: 260px; }
 
 /* ── Neutralize the old centered shell so content flows in the panel ──── */
 .qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
