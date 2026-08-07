@@ -1,0 +1,140 @@
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { afterAll, beforeEach, describe, expect, test } from "bun:test";
+
+GlobalRegistrator.register();
+
+const { renderHadis, renderHadisBook } = await import("./sections.ts");
+const { resetHadithCache, findCollection } = await import("./hadith.ts");
+
+afterAll(async () => {
+  await GlobalRegistrator.unregister();
+});
+
+/**
+ * The Hadis surface, under the same rights guarantee the Peta Tematik tests enforce.
+ *
+ * The corpus is ARABIC ONLY on purpose (build-hadith.ts drops the "private research use" English).
+ * These tests defend two separate claims: the DATA is faithful and translation-free, and the
+ * RENDERER shows it without leaking English or inventing content. Fixtures are real slices of the
+ * emitted shards read from disk — a hand-written fixture would only prove the renderer matches my
+ * imagination. The shards are a build artifact; `bun run app:hadith` must have run.
+ */
+const readJSON = async (p: string) => JSON.parse(await Bun.file(p).text());
+
+const INDEX = await readJSON("web/public/hadith/index.json");
+const BUKHARI_1 = await readJSON("web/public/hadith/bukhari/1.json");
+
+const mockFetch = (routes: Record<string, unknown>) => {
+  globalThis.fetch = (async (url: string | URL) => {
+    const key = String(url);
+    const body = routes[key];
+    if (body === undefined) return { ok: false, status: 404, json: async () => ({}) } as Response;
+    return { ok: true, status: 200, json: async () => body } as Response;
+  }) as typeof fetch;
+};
+
+let mount: HTMLElement;
+beforeEach(() => {
+  resetHadithCache();
+  document.body.innerHTML = `<div id="read"></div>`;
+  mount = document.querySelector<HTMLElement>("#read")!;
+});
+
+describe("hadith corpus — the emitted shards", () => {
+  test("both Ṣaḥīḥs, 14,736 hadith total, counts internally consistent", () => {
+    expect(INDEX.total).toBe(14736);
+    const ids = INDEX.collections.map((c: { id: string }) => c.id);
+    expect(ids).toEqual(["bukhari", "muslim"]);
+    for (const c of INDEX.collections) {
+      const summed = c.books.reduce((n: number, b: { hadith: number }) => n + b.hadith, 0);
+      expect(summed).toBe(c.hadith);
+    }
+    const grand = INDEX.collections.reduce((n: number, c: { hadith: number }) => n + c.hadith, 0);
+    expect(grand).toBe(INDEX.total);
+  });
+
+  test("a shard carries byte-nonempty Arabic, a grade, and a sunnah.com link — and NO translation", () => {
+    const h = BUKHARI_1.babs[0].hadith[0];
+    expect(h.ar.length).toBeGreaterThan(0);
+    expect(h.grade).toBe("sahih");
+    expect(h.url).toContain("sunnah.com");
+    // The English body must never ship. No hadith text carries a run of Latin letters.
+    for (const bab of BUKHARI_1.babs) {
+      for (const one of bab.hadith) {
+        expect(/[A-Za-z]{3,}/.test(one.ar)).toBe(false);
+      }
+    }
+  });
+
+  test("shard shape (no translation, narrator, or English titles smuggled in)", () => {
+    const h = BUKHARI_1.babs[0].hadith[0];
+    expect(Object.keys(h).sort()).toEqual(["ar", "grade", "n", "url"]);
+    expect(BUKHARI_1.book).toEqual({ no: 1, ar: BUKHARI_1.book.ar });
+    expect(BUKHARI_1.book.ar).not.toMatch(/[A-Za-z]/);
+  });
+
+  test("findCollection resolves ids and rejects unknown ones", () => {
+    expect(findCollection(INDEX, "bukhari")?.name).toBe("Sahih al-Bukhari");
+    expect(findCollection(INDEX, "muslim")?.name).toBe("Sahih Muslim");
+    expect(findCollection(INDEX, "nope")).toBeUndefined();
+  });
+});
+
+describe("hadith index render", () => {
+  test("one section per collection, one card per kitab, from the real index", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    expect(mount.querySelectorAll(".hadith-collection").length).toBe(2);
+    const cards = mount.querySelectorAll(".hadith-kitab-grid .hadith-kitab").length;
+    const kitab = INDEX.collections.reduce((n: number, c: { books: unknown[] }) => n + c.books.length, 0);
+    expect(cards).toBe(kitab);
+  });
+
+  test("kitab cards link into the drilldown route", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    const first = mount.querySelector<HTMLAnchorElement>(".hadith-kitab")!;
+    expect(first.getAttribute("href")).toMatch(/^#\/hadis\/bukhari\/\d+$/);
+  });
+
+  test("the honesty note about withheld translation is always present", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    expect(mount.querySelector(".hadith-note")).not.toBeNull();
+    expect(mount.textContent).toContain("Terjemahan Indonesia menyusul");
+  });
+
+  test("a failed index fetch shows a message, not a blank pane", async () => {
+    mockFetch({});
+    await renderHadis(mount);
+    expect(mount.querySelector(".hadith-note")).not.toBeNull();
+    expect(mount.textContent).toContain("Gagal memuat");
+  });
+});
+
+describe("hadith book render", () => {
+  test("renders bab blocks and hadith cards with Arabic + source", async () => {
+    mockFetch({ "/hadith/index.json": INDEX, "/hadith/bukhari/1.json": BUKHARI_1 });
+    await renderHadisBook(mount, "bukhari", 1);
+    const totalHadith = BUKHARI_1.babs.reduce((n: number, b: { hadith: unknown[] }) => n + b.hadith.length, 0);
+    expect(mount.querySelectorAll(".hadith-card").length).toBe(totalHadith);
+    expect(mount.querySelectorAll(".hadith-ar").length).toBe(totalHadith);
+    expect(mount.querySelectorAll(".hadith-src").length).toBe(totalHadith);
+    // Arabic is right-to-left and marked as Arabic for the screen reader.
+    const ar = mount.querySelector<HTMLElement>(".hadith-ar")!;
+    expect(ar.getAttribute("dir")).toBe("rtl");
+    expect(ar.getAttribute("lang")).toBe("ar");
+  });
+
+  test("breadcrumb names the collection", async () => {
+    mockFetch({ "/hadith/index.json": INDEX, "/hadith/bukhari/1.json": BUKHARI_1 });
+    await renderHadisBook(mount, "bukhari", 1);
+    expect(mount.querySelector(".hadith-crumb")?.textContent).toContain("Sahih al-Bukhari");
+  });
+
+  test("a failed shard fetch shows a message, not a blank pane", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadisBook(mount, "bukhari", 999);
+    expect(mount.textContent).toContain("Gagal memuat");
+  });
+});

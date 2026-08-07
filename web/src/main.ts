@@ -12,7 +12,7 @@ import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
-import { renderHadis, renderFikih } from "./sections.ts";
+import { renderHadis, renderHadisBook, renderFikih } from "./sections.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
@@ -624,6 +624,7 @@ async function route() {
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
+  const h = hash.match(/^#\/hadis\/([a-z]+)\/(\d{1,3})$/);
   // Verse-reading surfaces (a surah) get a DEEPER — but still calm — night sky, so the scripture
   // glows against it. Distinct from the RICH sky (crescent/gold/twinkle) reserved for the companion
   // home + cosmos: reading gets depth and reverence, never decoration. Idempotent.
@@ -657,10 +658,17 @@ async function route() {
     return;
   }
 
+  if (h) {
+    markNav("hadis");
+    showRead();
+    await renderHadisBook(readView, h[1]!, Number(h[2]));
+    return;
+  }
+
   if (hash === "#/hadis") {
     markNav("hadis");
     showRead();
-    renderHadis(readView);
+    await renderHadis(readView);
     return;
   }
 
