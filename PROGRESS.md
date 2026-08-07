@@ -8,7 +8,33 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Hadis section LIVE on prod (Ṣaḥīḥayn, Arabic-only)
+## 2026-08-08 (latest) — Fikih section LIVE on prod (dalil-only) + permission letters drafted
+
+Same session, after Hadis. Erik chose **dalil-only build + draft permission asks** for Fikih.
+
+**Fikih SHIPPED (commit `0f230c2`, Worker version `d0820755`).** No open-licensed Indonesian fiqh
+corpus exists, so v1 is a **doorway, not a treatise**: `web/src/fikih.ts` holds 10 core amal areas
+(thaharah, salat, zakat, puasa, haji, jenazah, nikah, talak, muamalah, makanan), each mapped to the
+Ṣaḥīḥayn kitab the imams themselves placed the material under — no authored ruling, no fatwa. The
+module stores **only `(collection, book)` refs**; the Arabic kitab name is read from the built hadith
+index at render time (never retyped). `renderFikih` (now async) renders cards whose chips link into
+`#/hadis/<collection>/<book>`. Honest note on the surface: "pintu masuk ke dalil, bukan uraian hukum
+— kami tidak berfatwa." 918 tests pass (added `fikih.test.ts`, 6 cases incl. every ref resolves + no
+Arabic/ruling in the data). Verified live: 10 cards, 32 kitab chips, corpus Arabic, note present;
+Hadis still live alongside.
+
+**Permission letters drafted** — `docs/review/fikih-sourcing-permission-requests.md` (commit `35965a5`):
+Kemenag ("Fiqih Ibadah") + IslamHouse ("Ringkasan Fiqih Islam"), Bahasa Indonesia, IndonesianPolish
+pass, `[…]` placeholders for Erik to fill and send. Erik sends (external msg = his call). Any granted
+source still routes through Ustadz Isrofiel before it ships. Third option noted: rumahfiqih.com.
+
+Deploy note: post-deploy edge propagation briefly served the previous bundle (curl + browser both saw
+old `index-CweyfAgX.js` for ~seconds) — settled to the Fikih bundle `index-C84hbqSY.js`. Same transient
+seen on the Hadis deploy; verify with a `?cb=` cache-bust after a short wait, not instantly.
+
+---
+
+## 2026-08-08 — Hadis section LIVE on prod (Ṣaḥīḥayn, Arabic-only)
 
 Erik: "source them" (Hadis + Fikih). Investigated the KBs on disk — both had real blockers, surfaced
 honestly instead of shipping a shortcut:
