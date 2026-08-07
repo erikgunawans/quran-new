@@ -8,7 +8,21 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-07 (latest) — U+FFFD LIVE on prod, big UI batch, Hadis/Fikih sections, rotating Al-Qur'an wheel
+## 2026-08-08 (latest) — UI batch DEPLOYED to prod (new-quranku.axiara.ai)
+
+Short session. Erik green-lit shipping the four un-deployed UI commits. `bun run build` (bundle 155KB) +
+`cd worker && bunx wrangler deploy` (default env = principled). New Worker version **`c776a065`**; 3 modified
+assets uploaded (index.html + hashed css/js). Anchor unchanged — no new code, this ships commits already on
+`quran-new/main` through `7d04b30`. **Verified live in real Chrome (Interceptor):** server 200 serving new
+hashes `index-S5TAi2gu.js` / `index-CTA2WhHY.css`; the driven tab loaded the new bundle (no service worker);
+rendered nav is **Tanya · Al Qur'an · Hadis · Fikih · Tematik**; zero network errors. Gotcha: the browser
+HTTP-cached the old `index.html` (showed stale nav Tanya/Baca/Tema/Peta on first read) — a `?v=` cache-bust
+navigate fetched the new index. **Synthesis (new-quranku-ai) left DOWN (522) per Erik's call.** Hadis/Fikih
+remain honest placeholders; Ustadz Ahmad review still pending.
+
+---
+
+## 2026-08-07 — U+FFFD LIVE on prod, big UI batch, Hadis/Fikih sections, rotating Al-Qur'an wheel
 
 Long follow-on session. **Anchor `quran-new/main` `7d04b30`**, tree clean, 901 tests pass / 0 fail
 throughout. First session where the UI was actually **eyeballed** — the default DOM-render `screenshot`
