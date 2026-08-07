@@ -187,16 +187,16 @@ const fold = (s: string): string =>
 const indexRow = (s: SurahMeta): string => `
   <li>
     <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
+      <span class="srow-girih" aria-hidden="true"></span>
       <span class="srow-top">
-        <span class="srow-n">${s.n}</span>
+        <span class="srow-n">${String(s.n).padStart(3, "0")}</span>
         <span class="srow-rev ${s.rev}">${revID(s.rev)}</span>
       </span>
-      <span class="srow-mid">
-        <span class="srow-id">
-          <span class="srow-tl">${esc(displayName(s.n))}</span>
-          <span class="srow-meta">${s.ayahs} ayat</span>
-        </span>
-        <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+      <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+      <span class="srow-foot">
+        <span class="srow-tl">${esc(displayName(s.n))}</span>
+        <span class="srow-meta">${s.ayahs} ayat</span>
+        <span class="srow-gloss">${esc(displayName(s.n))} — ${s.ayahs} ayat, surah ke-${s.n} dalam mushaf.</span>
       </span>
     </a>
   </li>`;
@@ -225,28 +225,36 @@ export function renderIndex(mount: HTMLElement): void {
     : "";
 
   mount.innerHTML = `
-    <div class="read-index">
-      <header class="read-intro">
-        <h1>Baca <em>Al-Qur'an</em></h1>
-        <p>Seratus empat belas surah, semuanya ada di sini. Buka yang mana pun — Al-Kahfi di hari Jumat, atau apa pun yang kamu butuhkan malam ini.</p>
+    <div class="read-index baca-index">
+      <header class="baca-head">
+        <div class="baca-head-l">
+          <h1 class="qk-hero-gradient baca-title">Baca Qur'an</h1>
+          <p class="baca-sub">114 surah. Panah menggeser barisan; yang di tengah terbuka.</p>
+        </div>
+        <div class="baca-head-r">
+          <div class="find">
+            <label class="sr" for="surah-cari">Cari surah berdasarkan nama atau nomor</label>
+            <input
+              id="surah-cari"
+              class="find-in"
+              type="search"
+              placeholder="Cari surah…"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              enterkeyhint="search">
+          </div>
+          <a class="tematik-back" href="#/">Kembali</a>
+        </div>
       </header>
 
       ${resume}
 
-      <div class="find">
-        <label class="sr" for="surah-cari">Cari surah berdasarkan nama atau nomor</label>
-        <input
-          id="surah-cari"
-          class="find-in"
-          type="search"
-          placeholder="Cari surah…"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-          enterkeyhint="search">
+      <div class="baca-strip">
+        <button class="baca-arrow baca-prev" type="button" aria-label="Surah sebelumnya" title="Sebelumnya">‹</button>
+        <ul class="surah-list" id="surah-list">${SURAH_INDEX.map(indexRow).join("")}</ul>
+        <button class="baca-arrow baca-next" type="button" aria-label="Surah berikutnya" title="Berikutnya">›</button>
       </div>
-
-      <ul class="surah-list" id="surah-list">${SURAH_INDEX.map(indexRow).join("")}</ul>
 
       <p class="no-hit" id="surah-none" hidden>
         Tidak ada surah dengan nama itu. Coba nomornya, atau sepotong namanya saja.
@@ -302,6 +310,44 @@ export function renderIndex(mount: HTMLElement): void {
   };
 
   input.addEventListener("input", apply);
+
+  // ── Filmstrip behaviour (design frame `quranA`) ────────────────────────────
+  // The list is a horizontal scroll-snap strip; arrows nudge it one card, and whichever card sits
+  // nearest the strip's centre "opens" (widens + reveals its gloss). Pure presentation over the same
+  // rows the filter drives — a hidden (filtered-out) card is skipped so the centre never lands on it.
+  const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
+  const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
+  const smooth: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const cardStep = (): number => (list.querySelector<HTMLElement>(".srow")?.offsetWidth ?? 240) + 10;
+  prevBtn?.addEventListener("click", () => list.scrollBy({ left: -cardStep(), behavior: smooth }));
+  nextBtn?.addEventListener("click", () => list.scrollBy({ left: cardStep(), behavior: smooth }));
+
+  const openCentre = (): void => {
+    const mid = list.scrollLeft + list.clientWidth / 2;
+    let best: HTMLAnchorElement | null = null;
+    let bestD = Infinity;
+    for (const row of rows) {
+      const li = row.parentElement as HTMLElement | null;
+      if (!li || li.hidden) continue;
+      const centre = li.offsetLeft + li.offsetWidth / 2;
+      const d = Math.abs(centre - mid);
+      if (d < bestD) {
+        bestD = d;
+        best = row;
+      }
+    }
+    for (const row of rows) row.classList.toggle("is-open", row === best);
+  };
+  let raf: number | undefined;
+  const scheduleOpen = (): void => {
+    if (raf !== undefined) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(openCentre);
+  };
+  list.addEventListener("scroll", scheduleOpen, { passive: true });
+  input.addEventListener("input", scheduleOpen); // re-open a visible card after filtering
+  // Open the centred card immediately (synchronous — never wait on rAF, which a backgrounded tab
+  // throttles to never); the scroll/scroll-filter handlers keep it in sync from there.
+  openCentre();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

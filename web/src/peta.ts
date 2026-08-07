@@ -156,6 +156,33 @@ function bridgeEl(entry: PetaEntry, index: PetaIndex): string {
   return `<p class="peta-bridge">Ayat ini muncul di ${slugs.size + 1} tema: ${names.join(", ")}</p>`;
 }
 
+/**
+ * Arabic calligraphy per category — the labels shown on the design's Tematik cards, keyed by slug.
+ * These are DECORATIVE theme titles (standard Arabic nouns, not Qur'anic verse text), transcribed
+ * from the claude.ai/design mockup at Erik's direction. Flagged for Ustadz Ahmad's spot-check; not
+ * spliced from the corpus, so no byte-exact contract applies here.
+ */
+const TEMATIK_AR: Record<string, string> = {
+  "allah-subhanahu-wa-ta-ala": "الله",
+  "muhammad-shallallahu-alaihi-wasallam": "محمد",
+  "al-qur-an-taurat-injil-dan-zabur": "الكتب",
+  ibadah: "العبادة",
+  "perintah-dan-larangan": "الأمر والنهي",
+  "hijrah-jihad-dan-perang": "الجهاد",
+  "rahasia-kejiwaan-manusia-dalam-al-qur-an": "النفس",
+  "prinsip-prinsip-pendidikan-islam": "التربية",
+  keluarga: "الأسرة",
+  sosial: "المجتمع",
+  "ekonomi-islam": "الاقتصاد",
+  "membangun-pribadi-shalih": "الصلاح",
+  "karakteristik-negara-bersyari-ah": "الدولة",
+};
+
+/** Bento height: taller cards carry more ayat. Scaled off the largest category so the grid breathes
+ * like the design (Perintah dan Larangan towers; Sosial is a tile). */
+const tematikCardH = (entries: number, max: number): number =>
+  Math.round(158 + (Math.min(entries, max) / max) * 188);
+
 /** The 13 categories. Fetches index.json ONLY — no category shard is touched here. */
 export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
   bindActs();
@@ -172,40 +199,44 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
   }
 
   const t = index.totals;
+  const maxEntries = Math.max(...index.categories.map((c) => c.entries));
   mount.innerHTML = `
-    <div class="read-index peta-index">
-      <header class="read-intro">
-        <h1>Peta <em>Tematik</em></h1>
-        <p>Seluruh Qur'an dipetakan lewat topik: ${t.categories} kategori, ${t.entries.toLocaleString("id-ID")} entri, menunjuk ke ${t.verses.toLocaleString("id-ID")} ayat. Telusuri kategori, lalu subtopik, sampai ke ayatnya. Kalau ingin mulai dari perasaan, bukan topik, buka <b>Tema</b>.</p>
-        ${creditEl(index.source)}
-        ${derivativeNoteEl()}
+    <div class="read-index tematik-index">
+      <header class="tematik-head">
+        <div class="tematik-head-l">
+          <h1 class="qk-hero-gradient tematik-title">Tematik</h1>
+          <p class="tematik-sub">Tiga belas tema besar Al-Qur'an, dengan jumlah ayat yang menyinggungnya.</p>
+        </div>
+        <div class="tematik-head-r">
+          <button class="tematik-vbtn is-active" type="button" aria-pressed="true">Kartu</button>
+          <button class="tematik-vbtn peta-map-toggle" type="button" aria-expanded="false" aria-controls="peta-map-slot">Peta Tematik</button>
+          <a class="tematik-back" href="#/">Kembali</a>
+        </div>
       </header>
 
-      <div class="peta-map-wrap">
-        <button class="peta-map-toggle" type="button" aria-expanded="false" aria-controls="peta-map-slot">
-          Lihat peta tematik 3D
-          <span class="peta-map-hint">${t.verses.toLocaleString("id-ID")} ayat, ${t.bridges.toLocaleString("id-ID")} di antaranya menghubungkan lebih dari satu tema</span>
-        </button>
-        <div id="peta-map-slot" class="peta-map-slot" hidden></div>
-      </div>
+      <div id="peta-map-slot" class="peta-map-slot" hidden></div>
 
-      <ul class="theme-list peta-list">
-        ${index.categories.map((c, i) => `
-          <li>
-            <a class="trow" href="#/peta/${esc(c.slug)}">
-              <span class="trow-n" aria-hidden="true">${i + 1}</span>
-              <span class="trow-body">
-                <span class="trow-name">${esc(c.category)}</span>
-                <span class="trow-count">${c.entries.toLocaleString("id-ID")} entri</span>
-              </span>
-              <span class="trow-go" aria-hidden="true">→</span>
-            </a>
-          </li>`).join("")}
-      </ul>
+      <div class="tematik-grid">
+        ${index.categories
+          .map(
+            (c) => `
+          <a class="tema-card" href="#/peta/${esc(c.slug)}" style="--tema-h:${tematikCardH(c.entries, maxEntries)}px">
+            <span class="tema-girih" aria-hidden="true"></span>
+            <span class="tema-ar" dir="rtl" lang="ar">${esc(TEMATIK_AR[c.slug] ?? "")}</span>
+            <span class="tema-body">
+              <span class="tema-name">${esc(c.category)}</span>
+              <span class="tema-count">${c.entries.toLocaleString("id-ID")} ayat</span>
+            </span>
+          </a>`,
+          )
+          .join("")}
+      </div>
+      ${creditEl(index.source)}
+      ${derivativeNoteEl()}
     </div>`;
 
   bindMapToggle(mount);
-  say(`Peta Tematik — ${t.categories} kategori tersedia.`);
+  say(`Tematik — ${t.categories} tema tersedia.`);
 }
 
 /**
