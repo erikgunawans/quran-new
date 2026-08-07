@@ -12,6 +12,7 @@ import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
 import { renderIndex, renderSurah } from "./read.ts";
+import { renderHadis, renderFikih } from "./sections.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
@@ -588,8 +589,14 @@ function showRead() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "peta") {
-  const links = { tanya: $<HTMLAnchorElement>("#nav-tanya"), baca: $<HTMLAnchorElement>("#nav-baca"), peta: $<HTMLAnchorElement>("#nav-peta") };
+function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih") {
+  const links = {
+    tanya: $<HTMLAnchorElement>("#nav-tanya"),
+    baca: $<HTMLAnchorElement>("#nav-baca"),
+    peta: $<HTMLAnchorElement>("#nav-peta"),
+    hadis: $<HTMLAnchorElement>("#nav-hadis"),
+    fikih: $<HTMLAnchorElement>("#nav-fikih"),
+  };
   for (const [key, el] of Object.entries(links)) {
     if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
@@ -607,8 +614,11 @@ async function route() {
   // Idempotent on every route pass.
   document.documentElement.toggleAttribute(
     "data-wide",
-    hash === "#/baca" || hash === "#/peta",
+    hash === "#/baca" || hash === "#/peta" || hash === "#/hadis" || hash === "#/fikih",
   );
+  // The Al-Qur'an wheel page keeps its docked composer small + translucent until hovered/focused
+  // (Erik) — a browse surface, not a chat one. This marker scopes that treatment in shell.css.
+  document.documentElement.toggleAttribute("data-baca", hash === "#/baca");
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
@@ -644,6 +654,20 @@ async function route() {
     markNav("peta");
     showRead();
     await renderPetaIndex(readView);
+    return;
+  }
+
+  if (hash === "#/hadis") {
+    markNav("hadis");
+    showRead();
+    renderHadis(readView);
+    return;
+  }
+
+  if (hash === "#/fikih") {
+    markNav("fikih");
+    showRead();
+    renderFikih(readView);
     return;
   }
 

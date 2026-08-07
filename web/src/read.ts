@@ -184,9 +184,9 @@ const fold = (s: string): string =>
 // THE INDEX
 // ═══════════════════════════════════════════════════════════════════════════
 
-const indexRow = (s: SurahMeta): string => `
+const indexRow = (s: SurahMeta, open = false): string => `
   <li>
-    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
+    <a class="srow${open ? " is-open" : ""}" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
       <span class="srow-girih" aria-hidden="true"></span>
       <span class="srow-top">
         <span class="srow-n">${String(s.n).padStart(3, "0")}</span>
@@ -238,7 +238,7 @@ export function renderIndex(mount: HTMLElement): void {
       <header class="baca-head">
         <div class="baca-head-l">
           <h1 class="qk-hero-gradient baca-title">Baca Qur'an</h1>
-          <p class="baca-sub">114 surah. Panah menggeser barisan; yang di tengah terbuka.</p>
+          <p class="baca-sub">114 surah, memutar seperti roda. Al-Fatihah di tengah — ke kanan menuju Al-Baqarah, ke kiri menuju An-Nas. Yang di tengah terbuka.</p>
         </div>
         <div class="baca-head-r">
           <div class="find">
@@ -259,10 +259,10 @@ export function renderIndex(mount: HTMLElement): void {
 
       ${resume}
 
-      <div class="baca-strip">
-        <button class="baca-arrow baca-prev" type="button" aria-label="Surah sebelumnya" title="Sebelumnya">‹</button>
-        <ul class="surah-list" id="surah-list">${SURAH_INDEX.map(indexRow).join("")}</ul>
-        <button class="baca-arrow baca-next" type="button" aria-label="Surah berikutnya" title="Berikutnya">›</button>
+      <div class="baca-strip" role="group" aria-label="Pemutar surah — panah kiri/kanan untuk memutar">
+        <button class="baca-arrow baca-prev" type="button" aria-label="Putar ke surah sebelumnya" title="Sebelumnya">‹</button>
+        <ul class="surah-list" id="surah-list"></ul>
+        <button class="baca-arrow baca-next" type="button" aria-label="Putar ke surah berikutnya" title="Berikutnya">›</button>
       </div>
 
       <p class="no-hit" id="surah-none" hidden>
@@ -273,90 +273,92 @@ export function renderIndex(mount: HTMLElement): void {
   const input = mount.querySelector<HTMLInputElement>("#surah-cari");
   const list = mount.querySelector<HTMLUListElement>("#surah-list");
   const none = mount.querySelector<HTMLParagraphElement>("#surah-none");
-  // If any of the three is missing the markup above changed underneath us. Filtering is an
-  // enhancement — the 114 links are already on the page and still work. Leave them be.
+  // If any of the three is missing the markup above changed underneath us. The rest is an
+  // enhancement over an already-navigable page. Leave it be.
   if (!input || !list || !none) return;
 
-  const rows = Array.from(list.querySelectorAll<HTMLAnchorElement>(".srow"));
-  let pending: ReturnType<typeof setTimeout> | undefined;
+  // ── The rotating wheel (Erik's spec) ───────────────────────────────────────
+  // Not a linear strip but a CIRCULAR carousel: `centre` is the surah in the middle (opened), and
+  // a fixed window of neighbours flanks it. The window wraps modulo 114, so left of Al-Fatihah (0)
+  // sits An-Nas (113) and right of it Al-Baqarah (1); the arrows rotate the wheel either way forever.
+  // We re-render the small visible window on each turn (≤9 nodes) rather than scroll 114 — that is
+  // what makes the wrap seamless, which a scroll container cannot do.
+  const N = SURAH_INDEX.length; // 114
+  const WINDOW = 2; // neighbours shown each side of the centre
+  let centre = 0; // Al-Fatihah opens in the middle
 
+  const renderWheel = (): void => {
+    const cards: string[] = [];
+    for (let off = -WINDOW; off <= WINDOW; off++) {
+      const s = SURAH_INDEX[(centre + off + N) % N];
+      if (s) cards.push(indexRow(s, off === 0));
+    }
+    list.innerHTML = cards.join("");
+  };
+
+  let pending: ReturnType<typeof setTimeout> | undefined;
+  const announceCentre = (): void => {
+    if (pending !== undefined) clearTimeout(pending);
+    pending = setTimeout(() => {
+      const s = SURAH_INDEX[centre];
+      if (s) say(`${displayName(s.n)} di tengah, surah ke-${s.n}.`);
+    }, 250);
+  };
+
+  const rotate = (dir: number): void => {
+    centre = (centre + dir + N) % N;
+    renderWheel();
+    announceCentre();
+  };
+
+  const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
+  const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
+  prevBtn?.addEventListener("click", () => rotate(-1));
+  nextBtn?.addEventListener("click", () => rotate(1));
+
+  // Left/right arrow keys rotate the wheel when the strip (or an arrow) holds focus.
+  mount.querySelector<HTMLElement>(".baca-strip")?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") {
+      rotate(-1);
+      e.preventDefault();
+    } else if (e.key === "ArrowRight") {
+      rotate(1);
+      e.preventDefault();
+    }
+  });
+
+  // Search spins the wheel to the first matching surah rather than filtering a list. findSurah owns
+  // the curated alias vocabulary ("kahfi"→Al-Kahf, "yasin"→Yaseen) that a bare substring misses.
   const apply = (): void => {
     const raw = input.value.trim();
     const q = fold(input.value);
-
-    // A substring match over the corpus transliteration is not enough, and the gap is the
-    // whole P0 in a new costume: the corpus says "Al-Kahf" and "Yaseen", while an Indonesian
-    // types "kahfi" and "yasin" — neither is a substring of the other, so the index would tell
-    // them the surah does not exist. quran.ts already owns that vocabulary in findSurah()'s
-    // curated alias table. We reuse it rather than forking a second, dumber name-matcher here.
-    const alias = raw === "" ? undefined : findSurah(raw);
-    let hits = 0;
-
-    for (const row of rows) {
-      const match =
-        q === "" ||
-        (row.dataset["find"] ?? "").includes(q) ||
-        (alias !== undefined && String(alias.n) === row.dataset["n"]);
-      if (match) hits++;
-      const li = row.parentElement;
-      if (li) li.hidden = !match;
+    if (raw === "") {
+      none.hidden = true;
+      return;
     }
-
-    none.hidden = hits > 0;
-
-    // Debounced: a screen reader announcing on every keystroke is noise, not help.
-    if (pending !== undefined) clearTimeout(pending);
-    const typed = input.value.trim();
-    pending = setTimeout(() => {
-      say(
-        q === ""
-          ? `Menampilkan semua ${rows.length} surah.`
-          : hits === 0
-            ? `Tidak ada surah yang cocok dengan "${typed}".`
-            : `${hits} surah cocok.`,
-      );
-    }, 300);
-  };
-
-  input.addEventListener("input", apply);
-
-  // ── Filmstrip behaviour (design frame `quranA`) ────────────────────────────
-  // The list is a horizontal scroll-snap strip; arrows nudge it one card, and whichever card sits
-  // nearest the strip's centre "opens" (widens + reveals its gloss). Pure presentation over the same
-  // rows the filter drives — a hidden (filtered-out) card is skipped so the centre never lands on it.
-  const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
-  const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
-  const smooth: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-  const cardStep = (): number => (list.querySelector<HTMLElement>(".srow")?.offsetWidth ?? 240) + 10;
-  prevBtn?.addEventListener("click", () => list.scrollBy({ left: -cardStep(), behavior: smooth }));
-  nextBtn?.addEventListener("click", () => list.scrollBy({ left: cardStep(), behavior: smooth }));
-
-  const openCentre = (): void => {
-    const mid = list.scrollLeft + list.clientWidth / 2;
-    let best: HTMLAnchorElement | null = null;
-    let bestD = Infinity;
-    for (const row of rows) {
-      const li = row.parentElement as HTMLElement | null;
-      if (!li || li.hidden) continue;
-      const centre = li.offsetLeft + li.offsetWidth / 2;
-      const d = Math.abs(centre - mid);
-      if (d < bestD) {
-        bestD = d;
-        best = row;
+    const alias = findSurah(raw);
+    let found = -1;
+    for (let i = 0; i < N; i++) {
+      const s = SURAH_INDEX[i];
+      if (!s) continue;
+      const hay = `${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`;
+      if (hay.includes(q) || (alias !== undefined && alias.n === s.n)) {
+        found = i;
+        break;
       }
     }
-    for (const row of rows) row.classList.toggle("is-open", row === best);
+    if (found >= 0) {
+      centre = found;
+      none.hidden = true;
+      renderWheel();
+      announceCentre();
+    } else {
+      none.hidden = false;
+    }
   };
-  let raf: number | undefined;
-  const scheduleOpen = (): void => {
-    if (raf !== undefined) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(openCentre);
-  };
-  list.addEventListener("scroll", scheduleOpen, { passive: true });
-  input.addEventListener("input", scheduleOpen); // re-open a visible card after filtering
-  // Open the centred card immediately (synchronous — never wait on rAF, which a backgrounded tab
-  // throttles to never); the scroll/scroll-filter handlers keep it in sync from there.
-  openCentre();
+  input.addEventListener("input", apply);
+
+  renderWheel();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

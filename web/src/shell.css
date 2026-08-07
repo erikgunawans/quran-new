@@ -436,16 +436,22 @@
 .baca-index .find { margin: 0; }
 
 .baca-strip { position: relative; }
+/* The rotating wheel: a centred row whose overflow is clipped, so the flanking spines fade off both
+   panel edges (coverflow). No scrolling — read.ts re-renders the windowed cards and the arrows spin
+   it; centring keeps the opened middle card dead-centre in the panel at any width. */
 .qk-panel-body #read .surah-list {
-  display: flex; flex-direction: row; gap: 10px; list-style: none; margin: 0;
-  padding: 4px 2px 14px; overflow-x: auto; scroll-snap-type: x mandatory;
-  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
+  list-style: none; margin: 0; padding: 4px 2px 14px; overflow: hidden;
 }
-.qk-panel-body #read .surah-list::-webkit-scrollbar { display: none; }
 /* Height is capped so the card foot (surah name) clears the docked composer instead of hiding
    under it. The 380px offset covers the panel top bar, the Baca header + "Lanjutkan baca" bar,
    the ~88px composer, and breathing room; the clamp keeps cards readable on tall and short viewports. */
-.qk-panel-body #read .surah-list > li { flex: none; scroll-snap-align: center; height: clamp(300px, calc(100dvh - 380px), 540px); margin: 0; }
+.qk-panel-body #read .surah-list > li { flex: none; height: clamp(300px, calc(100dvh - 380px), 540px); margin: 0; }
+/* Each turn re-renders the window; the cards ease in so a rotation reads as motion, not a jump. */
+@keyframes qkrot { from { opacity: 0; transform: scale(.955); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .qk-panel-body #read .surah-list .srow { animation: qkrot .26s var(--ease) both; }
+}
 
 .qk-panel-body #read .srow {
   position: relative; display: flex; flex-direction: column; height: 100%;
@@ -502,3 +508,31 @@
 .baca-arrow:hover { transform: translateY(-50%) scale(1.08); box-shadow: 0 6px 14px rgba(12,40,30,.18); }
 .baca-prev { left: -10px; }
 .baca-next { right: -10px; }
+
+/* ── Al-Qur'an page: the composer rests small + translucent, grows on hover/focus (Erik) ──────
+   It's a browse surface, so the docked chat box shouldn't shout. Higher specificity than the base
+   docked-composer rule (extra [data-baca]) so it wins; the glass/background is inherited from there. */
+:root[data-baca]:not([data-landing]) #composer-bar form {
+  width: min(320px, 100%); opacity: .5; transform: scale(.9); transform-origin: bottom center;
+  transition: width .24s var(--ease), opacity .24s var(--ease), transform .24s var(--ease);
+}
+:root[data-baca]:not([data-landing]) #composer-bar form:hover,
+:root[data-baca]:not([data-landing]) #composer-bar:focus-within form {
+  width: min(720px, 100%); opacity: 1; transform: none;
+}
+
+/* ── Section placeholders — Hadis & Fikih (in preparation) ────────────────────────────────────── */
+.section-stub { padding-top: 6px; }
+.stub-card {
+  max-width: 640px; margin: 34px auto 0; padding: 26px 30px 28px;
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--sh-sm);
+}
+:root[data-theme="dark"] .stub-card { border-color: rgba(150,220,185,.16); background: rgba(12,26,20,.5); }
+.stub-badge {
+  display: inline-block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--primary); border: 1px solid var(--primary-line); border-radius: 999px; padding: 5px 11px;
+}
+.stub-lead { font-size: clamp(15px, 1.6vw, 18px); color: var(--ink); line-height: 1.55; margin: 16px 0 0; text-wrap: pretty; }
+.stub-plans { margin: 16px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.stub-note { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-3); line-height: 1.5; text-wrap: pretty; }
