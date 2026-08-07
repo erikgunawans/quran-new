@@ -144,20 +144,9 @@
               <h1 class="qk-hero-gradient">Tanya Apapun</h1>
               <p>Tulis apa yang sedang kamu rasakan. QuranKu mencarikan ayat, terjemahan, dan tafsirnya — lengkap dengan sumbernya.</p>
 
-              <!-- The composer docks here on landing (landing.ts moves #composer-bar before .seeds). -->
-
-              <div class="seeds">
-                <button class="seed">aku lagi capek banget</button>
-                <button class="seed">lagi banyak utang, stress</button>
-                <button class="seed">baru kehilangan orang tua</button>
-                <button class="seed">cemas terus tiap malam</button>
-              </div>
-
-              <button class="lucky" id="lucky" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v4M3 5h4M6 17v4M4 19h4"/><path d="m13 4 2.5 6L22 12l-6.5 2L13 20l-2.5-6L4 12l6.5-2L13 4Z"/></svg>
-                <span>Kejutkan aku</span>
-              </button>
-              <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+              <!-- The composer docks here on landing. With .seeds removed, dockLanding() falls to
+                   hero.append(bar), so the composer seats right under the invitation — a clean
+                   hero: greeting, headline, invitation, composer, nothing below. -->
             </section>
           </main>
         </section>

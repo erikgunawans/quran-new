@@ -10,10 +10,14 @@
 /* ── The two-layer shell ─────────────────────────────────────────────── */
 .qk-shell {
   position: fixed; inset: 0;
-  display: flex; gap: 0; padding: 10px;
+  display: flex; gap: 0;
+  /* Tighter gap on top/right/bottom so the inner panel grows; the left keeps a hair more so the
+     sidebar doesn't kiss the panel edge. */
+  padding: 6px 6px 6px 8px;
   background: var(--surface-2);
 }
-:root[data-theme="dark"] .qk-shell { background: #08110f; }
+/* Outer layer, bolder: a deeper green-black so it reads distinctly darker than the inner panel. */
+:root[data-theme="dark"] .qk-shell { background: #050f0c; }
 
 /* ── Sidebar (outer layer) ───────────────────────────────────────────── */
 .qk-sidebar {
@@ -102,9 +106,12 @@
 .qk-panel {
   flex: 1; min-width: 0; position: relative;
   border-radius: 20px; overflow: hidden;
+  /* A thin hairline edge — the inner/outer distinction is carried by the color step between the
+     bolder panel ground and the deeper shell, so the line itself stays quiet. */
   border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(40,70,60,.07);
   display: flex; flex-direction: column;
 }
+:root[data-theme="dark"] .qk-panel { border-color: rgba(150,220,185,.20); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
 /* the celestial ground, scoped to the panel (not the body) — recede by default */
 .qk-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -116,8 +123,21 @@
               radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.17), transparent 58%),
               linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
 }
+/* Inner layer, bolder: a richer emerald ground with a stronger top glow and a warm gold wash at
+   the foot — distinctly lighter/greener than the deep shell so the two layers read apart. */
 :root[data-theme="dark"] .qk-panel::before {
-  background: radial-gradient(120% 80% at 50% 0%, #10241f 0%, transparent 60%), linear-gradient(180deg,#0c1a17 0%,#0a1613 60%,#08110f 100%);
+  background:
+    radial-gradient(90% 45% at 50% 100%, rgba(240,200,81,.12), transparent 62%),
+    radial-gradient(120% 82% at 50% 0%, #1a4034 0%, transparent 62%),
+    linear-gradient(180deg,#0f271f 0%,#0d2019 55%,#0a1813 100%);
+}
+/* Dark landing gets the crescent + a warmer glow, matching the design mockup. */
+:root[data-theme="dark"][data-landing] .qk-panel::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 92% 92px / 62px 62px no-repeat,
+    radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.16), transparent 58%),
+    radial-gradient(120% 82% at 50% 0%, #1d4a3b 0%, transparent 62%),
+    linear-gradient(180deg,#0f271f 0%,#0d2019 50%,#0a1813 100%);
 }
 /* faint stars on the panel */
 .qk-panel::after {
