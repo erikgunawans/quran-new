@@ -121,7 +121,49 @@ New-QuranKu · [email] · [situs/kontak]
 
 ---
 
+## Surat D — Kementerian Agama RI, untuk terjemahan Indonesia hadis Ṣaḥīḥayn
+
+**Kepada:** Direktorat Bimas Islam / Lajnah Pentashihan Mushaf Al-Qur'an, Kementerian Agama RI
+**Perihal:** Permohonan izin menampilkan terjemahan Indonesia hadis Ṣaḥīḥ al-Bukhārī & Ṣaḥīḥ Muslim di aplikasi New-QuranKu
+
+Assalamu'alaikum warahmatullahi wabarakatuh.
+
+Kami pengembang **New-QuranKu**, aplikasi Al-Qur'an berbahasa Indonesia yang gratis dan bersifat dakwah.
+Bagian **Hadis** aplikasi kami kini menampilkan teks Arab **Ṣaḥīḥ al-Bukhārī dan Ṣaḥīḥ Muslim** yang kanonik
+beserta sumber dan derajatnya. Namun sebagian besar pembaca kami belum bisa membaca Arab, sehingga mereka
+belum dapat memahami isinya.
+
+Kami ingin menyertakan **terjemahan Indonesia** yang tepercaya di samping teks Arabnya. Pegangan kami tegas:
+kami menampilkan karya ulama **apa adanya**, tidak mengarang, tidak menafsirkan sendiri. Karena itu kami
+tidak memakai terjemahan apa pun sebelum izinnya jelas.
+
+Melalui surat ini kami memohon **izin tertulis** untuk menampilkan terjemahan Indonesia hadis kedua kitab
+tersebut — bila Kementerian memiliki atau dapat menunjuk terjemahan resmi yang berlisensi — dengan kesanggupan:
+
+- teks ditampilkan **utuh, tanpa diubah**, di samping teks Arab aslinya;
+- **atribusi jelas** ke penerjemah dan ke Kementerian Agama RI;
+- penggunaan **nirlaba** pada aplikasi gratis;
+- kami siap mengikuti syarat lain yang Bapak/Ibu tetapkan.
+
+Bila terjemahan hadis tidak berada di bawah Kementerian, kami mohon arahan ke rujukan resmi yang berlisensi.
+
+Atas perhatian dan kebaikannya, kami sampaikan terima kasih.
+
+Wassalamu'alaikum warahmatullahi wabarakatuh.
+
+Hormat kami,
+[Nama Erik] — [jabatan]
+New-QuranKu · [email] · [situs/kontak]
+
+---
+
 ## Catatan pelaksanaan
+
+- **Terjemahan hadis (Surat D)** — belum tentu ada di bawah Kemenag. Bila tidak, sumber terjemahan Ṣaḥīḥayn
+  berbahasa Indonesia umumnya **komersial** (mis. Ensiklopedi Hadits / penerbit terjemahan Bukhari-Muslim);
+  perlu pencarian sumber tersendiri + negosiasi lisensi. **Transliterasi otomatis sudah dicoba dan ditolak**
+  (kualitas: menggarble salawat yang tak berharakat; lagipula transliterasi menolong pelafalan, bukan
+  pemahaman). Fix pemahaman yang benar = terjemahan berlisensi, bukan transliterasi.
 
 - **Rumah Fiqih** (Surat C) bernuansa perbandingan mazhab — hak cipta dipegang RFI, tapi pemiliknya jelas
   dan bisa dihubungi (situs, email, atau media sosial Ustadz Ahmad Sarwat). Realistis untuk diminta izinnya.

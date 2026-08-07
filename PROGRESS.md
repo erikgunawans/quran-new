@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Fikih section LIVE on prod (dalil-only) + permission letters drafted
+## 2026-08-08 (latest) — impeccable critique of Hadis/Fikih + fixes LIVE; transliteration rejected on evidence
+
+`$impeccable critique` (product register) on the Hadis/Fikih sections — two independent assessments
+(design-review agent + detector/browser). Score 23/40 (mid-range). Snapshot at
+`.impeccable/critique/2026-08-07T18-41-22Z__web-src-sections-ts.md`. Erik chose "everything incl transliteration".
+
+**Fixes SHIPPED (commit `6a04389`, Worker `596ed947`), verified live:**
+- **Motion law-break** (DESIGN.md L140 "forwards, never both"): dropped `qkin … both` on the new cards;
+  content visible by default, entrance fade only under `prefers-reduced-motion: no-preference`. (Backgrounded
+  mid-render could have stranded Arabic at opacity 0 on mid-range Android.)
+- **Adjustable-Arabic hard-req break**: `.hadith-ar`/`.hadith-bab` were fixed clamps overriding `--ar-size`
+  (the reader A/A/A control, `main.ts:868`). Now scale with it — verified 28→43px live.
+- **Gold-on-content**: `qk-hero-gradient` was gilding the **Amiri kitab title** + error title — removed
+  (calligraphy-as-decoration ban); Arabic title now solid `--primary`.
+- **Side-stripe**: `.hadith-note` `border-left:3px` → full 1px border.
+- **Wayfinding**: the 154-kitab wall → collection **tabs** + number/Arabic **filter** + skeleton loader.
+- `contrast.test.ts`: added alpha-composited tests for text on the dark translucent `--primary-wash`.
+  923 tests pass. (Detector false-positive noted: gradient-text/layout-transition hits were all
+  pre-existing app code outside the new blocks; contrast measured AA in both themes, scripture 15.56:1.)
+
+**Transliteration — built, tested, REJECTED (evidence).** No transliterator existed; built a rule-based
+Arabic→Latin one. On real hadith it garbled the **unvoweled** salawat (صلى الله عليه وسلم → "shla al-lh
+lyh wslm") — a fundamental failure (can't vowel unvoweled text without guessing, which `quran.ts:55` refuses).
+Prototype removed, not shipped. **Reframe:** transliteration aids recitation, not understanding; the real fix
+for the Hadis "wall" is a **licensed Indonesian translation** — Erik chose to add a hadith-translation ask
+(Surat D, Kemenag) to `docs/review/fikih-sourcing-permission-requests.md`.
+
+---
+
+## 2026-08-08 — Fikih section LIVE on prod (dalil-only) + permission letters drafted
 
 Same session, after Hadis. Erik chose **dalil-only build + draft permission asks** for Fikih.
 
