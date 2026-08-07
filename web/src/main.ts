@@ -1,5 +1,7 @@
 import "./styles.css";
 import "./read.css";
+import "./shell.css";
+import "./shell.ts";
 import { announce } from "./announce.ts";
 import { toggleAudio } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
@@ -932,7 +934,7 @@ function initToTop(): void {
   btn.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: scrollBehavior() });
     // Return focus to the top of the document so keyboard users land where they were sent.
-    document.querySelector<HTMLElement>(".mark")?.focus();
+    document.querySelector<HTMLElement>(".qk-brand")?.focus();
   });
 }
 

@@ -1,0 +1,205 @@
+/* ════════════════════════════════════════════════════════════════════
+   New-QuranKu — AI Chat shell (from claude.ai/design "QuranKu AI Chat")
+   Two-layer shell: a collapsible sidebar on the outer layer, a celestial
+   inner panel that owns the reading width. Values translated from the design
+   into the app's own tokens (--action, --forest, celestial ground, .qk-*).
+   Loaded AFTER styles.css so the shell layout supersedes the old centered
+   .app/.top/.composer chrome; the reading surfaces render unchanged inside.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── The two-layer shell ─────────────────────────────────────────────── */
+.qk-shell {
+  position: fixed; inset: 0;
+  display: flex; gap: 0; padding: 10px;
+  background: var(--surface-2);
+}
+:root[data-theme="dark"] .qk-shell { background: #08110f; }
+
+/* ── Sidebar (outer layer) ───────────────────────────────────────────── */
+.qk-sidebar {
+  width: 300px; flex: none;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 16px 16px;
+  overflow: hidden;
+  transition: width var(--t), padding var(--t), opacity var(--t);
+}
+.qk-shell[data-nav="closed"] .qk-sidebar { width: 0; padding-left: 0; padding-right: 0; opacity: 0; pointer-events: none; }
+
+.qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 16px; }
+.qk-brand { display: flex; align-items: center; gap: 10px; }
+.qk-brand img { width: 46px; height: 46px; object-fit: contain; display: block; }
+.qk-brand .qk-hero-gradient { font-size: 25px; }
+
+.qk-iconbtn {
+  border: 0; background: transparent; cursor: pointer; color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 8px;
+}
+.qk-iconbtn:hover { background: var(--primary-wash); color: var(--ink); }
+
+.qk-newchat {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 13px 15px; font: 600 16px/1 var(--f-ui); color: var(--ink); cursor: pointer;
+}
+.qk-newchat .kbd { margin-left: auto; font-size: 12px; color: var(--ink-3); font-weight: 500; }
+
+.qk-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.qk-nav a {
+  display: flex; align-items: center; gap: 12px; padding: 12px 15px;
+  font: 500 16px/1 var(--f-ui); color: var(--ink-2); border-radius: var(--r); cursor: pointer;
+}
+.qk-nav a:hover { background: var(--primary-wash); color: var(--ink); }
+.qk-nav a[aria-current="page"] { background: var(--primary-wash); color: var(--primary); }
+.qk-nav a svg { width: 20px; height: 20px; flex: none; }
+
+.qk-riwayat { margin-top: 20px; padding: 0 15px 6px; font: 500 12px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.qk-history { display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
+.qk-history a { padding: 10px 15px; font-size: 15px; color: var(--ink-2); border-radius: var(--r); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-history a:hover { background: var(--primary-wash); color: var(--ink); }
+.qk-history a[aria-current="true"] { background: var(--primary-wash); border: 1px solid var(--primary-line); color: var(--ink); }
+
+.qk-user { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 14px 15px 2px; border-top: 1px solid var(--line); }
+.qk-user .avatar { width: 32px; height: 32px; border-radius: 999px; background: var(--forest-grad); flex: none; }
+.qk-user span { font-size: 15px; color: var(--ink); }
+
+/* ── Inner panel (the celestial reading surface) ─────────────────────── */
+.qk-panel {
+  flex: 1; min-width: 0; position: relative;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(40,70,60,.07);
+  display: flex; flex-direction: column;
+}
+/* the celestial ground, scoped to the panel (not the body) — recede by default */
+.qk-panel::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.10), transparent 58%),
+              linear-gradient(180deg,#e6f0ea 0%,#f4f7f3 42%,#fbfbf6 100%);
+}
+:root[data-landing] .qk-panel::before {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
+              radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.17), transparent 58%),
+              linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
+}
+:root[data-theme="dark"] .qk-panel::before {
+  background: radial-gradient(120% 80% at 50% 0%, #10241f 0%, transparent 60%), linear-gradient(180deg,#0c1a17 0%,#0a1613 60%,#08110f 100%);
+}
+/* faint stars on the panel */
+.qk-panel::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(1.4px 1.4px at 22% 12%,rgba(70,110,90,.24),transparent),
+    radial-gradient(1.3px 1.3px at 68% 14%,rgba(70,110,90,.18),transparent),
+    radial-gradient(1.3px 1.3px at 45% 9%,rgba(70,110,90,.15),transparent),
+    radial-gradient(1.2px 1.2px at 12% 30%,rgba(70,110,90,.13),transparent),
+    radial-gradient(1.2px 1.2px at 79% 19%,rgba(70,110,90,.13),transparent),
+    radial-gradient(78% 66% at 50% 45%, transparent 62%, rgba(70,90,80,.08) 100%);
+}
+:root[data-theme="dark"] .qk-panel::after {
+  background:
+    radial-gradient(1.3px 1.3px at 22% 12%,rgba(210,235,220,.5),transparent),
+    radial-gradient(1.2px 1.2px at 68% 14%,rgba(210,235,220,.36),transparent),
+    radial-gradient(1.2px 1.2px at 45% 9%,rgba(210,235,220,.28),transparent);
+}
+
+/* the panel top bar: the toggle when the sidebar is closed + display controls */
+.qk-panel-top {
+  position: relative; z-index: 2; flex: none;
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px 4px;
+}
+.qk-shell[data-nav="open"] #panel-toggle { display: none; }
+.qk-panel-top .spacer { flex: 1; }
+
+/* the scrolling content area of the panel */
+.qk-panel-body {
+  position: relative; z-index: 1; flex: 1; min-height: 0;
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+
+/* ── Neutralize the old centered shell so content flows in the panel ──── */
+.qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
+.qk-panel-body .top { display: none; }           /* nav + brand now live in the sidebar */
+.qk-panel-body #chat, .qk-panel-body #read { width: min(1060px, 100%); margin: 0 auto; }
+.qk-panel-body .thread { padding-top: 1rem; }
+
+/* ── Tanya hero (landing) ────────────────────────────────────────────── */
+.qk-panel-body #hello {
+  min-height: calc(100dvh - 200px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 24px 40px; gap: 0;
+}
+.qk-hero-salam {
+  font-family: var(--f-ar); font-weight: 400; font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.7; margin: 0 0 6px; direction: rtl;
+  background-image:
+    linear-gradient(100deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 62%),
+    linear-gradient(90deg,#16a249 0%,#f0c851 100%);
+  background-size: 220% 100%,100% 100%; background-repeat: no-repeat;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: qkshine 3.6s var(--ease) infinite;
+}
+.qk-panel-body #hello h1 {
+  font-family: var(--f-display); font-weight: 500;
+  font-size: clamp(56px, 9vw, 104px); line-height: 1.02; letter-spacing: -.03em; margin: 0 0 18px;
+  background: linear-gradient(90deg,#16a249 0%,#f0c851 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.qk-panel-body #hello h1 em { font-style: normal; }
+.qk-panel-body #hello > p { font-size: clamp(17px,2vw,21px); color: var(--ink-2); margin: 0 0 40px; max-width: 680px; text-wrap: pretty; }
+
+/* the seeds → chips */
+.qk-panel-body .seeds { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+.qk-panel-body .seed {
+  font-family: var(--f-ui); cursor: pointer;
+  background: rgba(255,255,255,.62); border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 11px 20px; font-size: 15px; color: var(--ink-2); backdrop-filter: blur(14px);
+  transition: border-color var(--t), color var(--t);
+}
+.qk-panel-body .seed:hover { border-color: var(--primary-line); color: var(--primary); }
+:root[data-theme="dark"] .qk-panel-body .seed { background: rgba(255,255,255,.06); }
+
+/* ── The glass composer, hero-sized on landing, docked on conversation ── */
+.composer {
+  border-radius: 23px;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 4px 10px rgba(40,70,60,.08);
+  -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%);
+}
+:root[data-theme="dark"] .composer { background: rgba(20,40,34,.55); border-color: rgba(255,255,255,.10); }
+
+/* Landing: the composer sits inside the hero, wide and glowing (dockLanding moved it here). */
+:root[data-landing] #composer-bar {
+  position: static; width: min(1060px, 100%); margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(40,70,60,.08),
+    0 0 0 6px rgba(22,162,73,.10),
+    -10px 0 22px -4px rgba(22,162,73,.24), 10px 0 22px -4px rgba(240,200,81,.26),
+    0 10px 22px -6px rgba(120,180,110,.20);
+}
+:root[data-landing] #composer-bar form { padding: 22px 24px; gap: 14px; }
+:root[data-landing] #composer-bar textarea { font-size: 22px; }
+
+/* Conversation: docked at the bottom of the panel, offset by the sidebar width. */
+:root:not([data-landing]) #composer-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky);
+  padding: 0 0 14px; display: flex; justify-content: center;
+  padding-left: 310px; transition: padding-left var(--t);
+}
+.qk-shell[data-nav="closed"] ~ #composer-bar { padding-left: 10px; }
+:root:not([data-landing]) #composer-bar form {
+  width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 12px 16px;
+}
+
+/* keyframes */
+@keyframes qkshine { 0% { background-position: 120% 0, 0 0; } 100% { background-position: -120% 0, 0 0; } }
+@keyframes qkin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes qkpulse { 0%,100% { opacity: .35; } 50% { opacity: .9; } }
+
+/* ── Small screens: sidebar overlays, panel is full-bleed ─────────────── */
+@media (max-width: 820px) {
+  .qk-shell { padding: 0; }
+  .qk-panel { border-radius: 0; border: 0; }
+  .qk-sidebar { position: absolute; z-index: var(--z-sheet); left: 0; top: 0; bottom: 0; width: 84vw; max-width: 320px; background: var(--surface); box-shadow: var(--shadow-pop); }
+  .qk-shell[data-nav="closed"] .qk-sidebar { width: 0; }
+  :root:not([data-landing]) #composer-bar, .qk-shell[data-nav="closed"] ~ #composer-bar { padding-left: 0; }
+}

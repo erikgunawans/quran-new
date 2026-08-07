@@ -11,152 +11,159 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Fraunces speaks only where
-     the app addresses the reader; Plus Jakarta Sans carries everything else.
-
-     Weights are requested as VARIABLE RANGES (400..800), never as a list of static cuts. The
-     reader's bandwidth is a moral constraint, and this is where that gets decided: asking for
-     `wght@400;500;600;700;800` ships five separate files per subset — 548 KB for an Indonesian
-     reader (latin+arabic). The same weights as one variable range cost 414 KB. Measured, not
-     assumed. Adding a weight to this list is never free; adding it inside the range is. -->
+     the app addresses the reader; Plus Jakarta Sans carries everything else. Variable ranges
+     (400..800), never a list of static cuts — measured bandwidth, not assumed. -->
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400..500;1,9..144,400..500&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="app" id="app">
-  <header class="top">
-    <a class="mark" href="#/" aria-label="New-Quranku — beranda">
-      <span class="emblem" aria-hidden="true">ق</span>
-      <span class="latin">New-Quranku</span>
-    </a>
+<!-- The two-layer shell (from claude.ai/design "QuranKu AI Chat"): a collapsible sidebar on the
+     outer layer, a celestial inner panel that owns the reading width. data-nav toggles the sidebar.
+     Every engine hook (#chat/#thread/#hello/#band/#read/#composer/#q/#send, nav-*, display-*) is
+     preserved so main.ts and its modules bind unchanged. -->
+<div class="qk-shell" id="shell" data-nav="open">
 
-    <nav class="nav" aria-label="Utama">
-      <a class="nav-link" href="#/" id="nav-tanya" aria-label="Tanya">
-        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h12v-8.5"/></svg>
+  <aside class="qk-sidebar" id="sidebar">
+    <div class="qk-side-head">
+      <a class="qk-brand" href="#/" aria-label="QuranKu — beranda">
+        <img src="/quranku2.1.png" alt="" width="46" height="46" />
+        <span class="qk-hero-gradient qk-display">QuranKu</span>
+      </a>
+      <button class="qk-iconbtn" id="side-toggle" type="button" aria-label="Sembunyikan sidebar" title="Sembunyikan sidebar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M10 4v16"></path></svg>
+      </button>
+    </div>
+
+    <button class="qk-newchat" id="newchat" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--action)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+      Obrolan baru
+      <span class="kbd">⌘K</span>
+    </button>
+
+    <nav class="qk-nav" aria-label="Utama">
+      <a href="#/" id="nav-tanya" aria-label="Tanya">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h12v-8.5"/></svg>
         <span>Tanya</span>
       </a>
-      <a class="nav-link" href="#/baca" id="nav-baca" aria-label="Baca">
-        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.4 5.4 8.4 5.1 6 5.3v12.5c2.4-.2 4.4.1 6 1.3 1.6-1.2 3.6-1.5 6-1.3V5.3c-2.4-.2-4.4.1-6 1.3Z"/><path d="M12 6.6v12.5"/></svg>
+      <a href="#/baca" id="nav-baca" aria-label="Baca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.6C10.4 5.4 8.4 5.1 6 5.3v12.5c2.4-.2 4.4.1 6 1.3 1.6-1.2 3.6-1.5 6-1.3V5.3c-2.4-.2-4.4.1-6 1.3Z"/><path d="M12 6.6v12.5"/></svg>
         <span>Baca</span>
       </a>
-      <a class="nav-link" href="#/tema" id="nav-tema" aria-label="Tema">
-        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-6.8-4.2-6.8-9.1A3.6 3.6 0 0 1 12 8a3.6 3.6 0 0 1 6.8 2.9C18.8 15.8 12 20 12 20Z"/></svg>
+      <a href="#/tema" id="nav-tema" aria-label="Tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-6.8-4.2-6.8-9.1A3.6 3.6 0 0 1 12 8a3.6 3.6 0 0 1 6.8 2.9C18.8 15.8 12 20 12 20Z"/></svg>
         <span>Tema</span>
       </a>
-      <a class="nav-link" href="#/peta" id="nav-peta" aria-label="Peta">
-        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20v-6M12 20V8M18 20v-9"/></svg>
+      <a href="#/peta" id="nav-peta" aria-label="Peta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20v-6M12 20V8M18 20v-9"/></svg>
         <span>Peta</span>
       </a>
     </nav>
 
-    <!-- Persistent access to the SAME explainer #hello nudges toward once — explain.ts's
-         openExplainer() dialog, not a separate popover, so there's one explainer, not two. -->
-    <button class="icon-btn" id="info" data-explain="open" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/>
-      </svg>
-    </button>
+    <span class="qk-riwayat">Riwayat</span>
+    <div class="qk-history" id="history"></div>
 
-    <!-- theme + Arabic size: inline controls on tablet/desktop; on phones they collapse behind
-         one trigger (below the tablet breakpoint in styles.css) so the header row doesn't carry
-         nine 44px targets across a thumb's reach. Same elements either way — CSS repositions
-         the panel, nothing is duplicated. -->
-    <div class="display-pop" id="display-pop">
-      <button class="icon-btn display-trigger" id="display-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="display-panel" aria-label="Tampilan: mode dan ukuran teks" title="Tampilan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 6h11M4 12h16M4 18h7"/><circle cx="18" cy="6" r="2"/><circle cx="9" cy="18" r="2"/>
-        </svg>
+    <div class="qk-user"><span class="avatar" aria-hidden="true"></span><span>Masuk</span></div>
+  </aside>
+
+  <div class="qk-panel" id="panel">
+    <div class="qk-panel-top">
+      <button class="qk-iconbtn" id="panel-toggle" type="button" aria-label="Tampilkan sidebar" title="Tampilkan sidebar">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M10 4v16"></path></svg>
       </button>
-      <div class="pop" id="display-panel" role="dialog" aria-label="Tampilan" hidden>
-        <div class="pop-row">
-          <span>Mode</span>
-          <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="pop-row">
-          <span>Ukuran Arab</span>
-          <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
-            <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
-            <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
-            <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
+      <span class="spacer"></span>
+
+      <!-- The one explainer: "why two translations", contextual on verse cards + here. -->
+      <button class="icon-btn" id="info" data-explain="open" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none"/></svg>
+      </button>
+
+      <!-- theme + Arabic size -->
+      <div class="display-pop" id="display-pop">
+        <button class="icon-btn display-trigger" id="display-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="display-panel" aria-label="Tampilan: mode dan ukuran teks" title="Tampilan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 12h16M4 18h7"/><circle cx="18" cy="6" r="2"/><circle cx="9" cy="18" r="2"/></svg>
+        </button>
+        <div class="pop" id="display-panel" role="dialog" aria-label="Tampilan" hidden>
+          <div class="pop-row">
+            <span>Mode</span>
+            <button class="icon-btn" id="theme" aria-label="Ganti mode terang/gelap" title="Ganti mode">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+            </button>
+          </div>
+          <div class="pop-row">
+            <span>Ukuran Arab</span>
+            <div class="size" id="size" role="group" aria-label="Ukuran teks Arab">
+              <button data-size="s" aria-pressed="false" title="Teks Arab kecil">A</button>
+              <button data-size="m" aria-pressed="true"  title="Teks Arab sedang" style="font-size:1rem">A</button>
+              <button data-size="l" aria-pressed="false" title="Teks Arab besar" style="font-size:1.2rem">A</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- Corpus failed to load. Reading still works — the surah index is inlined, not fetched. -->
-  <div class="boot-error" id="boot-error" role="alert" hidden></div>
+    <div class="qk-panel-body">
+      <div class="app" id="app">
+        <!-- Corpus failed to load. Reading still works — the surah index is inlined, not fetched. -->
+        <div class="boot-error" id="boot-error" role="alert" hidden></div>
 
-  <section id="chat">
-    <main class="thread" id="thread">
-      <section class="hello" id="hello">
-        <!-- The app notices what time it is for you. Arabic first — it is the greeting a
-             Muslim already knows, not decoration. The Latin line is written by greet.ts. -->
-        <div class="greet">
-          <div class="greet-ar" dir="rtl" lang="ar">ٱلسَّلَامُ عَلَيْكُمْ</div>
-          <p class="greet-la" id="greet-la"></p>
-        </div>
-        <h1>Ada apa <em>hari ini?</em></h1>
-        <p>Cerita saja pakai bahasa kamu sendiri. Aku carikan ayatnya — lalu kamu lihat sendiri siapa yang mengatakan apa.</p>
-        <!-- Four diverse feelings, not six. The point is to show "type how you feel", not to
-             enumerate every state. A calmer first screen for a reader who may be in distress. -->
-        <div class="seeds">
-          <button class="seed">aku lagi capek banget</button>
-          <button class="seed">lagi banyak utang, stress</button>
-          <button class="seed">baru kehilangan orang tua</button>
-          <button class="seed">cemas terus tiap malam</button>
-        </div>
-        <!-- "I'm feeling lucky" for someone who doesn't know how to start: drops a random real-shaped
-             question into the field (never auto-sends — the person sees it first, then decides). -->
-        <button class="lucky" id="lucky" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v4M3 5h4M6 17v4M4 19h4"/><path d="m13 4 2.5 6L22 12l-6.5 2L13 20l-2.5-6L4 12l6.5-2L13 4Z"/></svg>
-          <span>Kejutkan aku</span>
-        </button>
-        <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+        <section id="chat">
+          <main class="thread" id="thread">
+            <section class="hello" id="hello">
+              <!-- The hero: Arabic greeting first (the salam a Muslim already knows), then the app
+                   addresses the reader. greet.ts writes the time-aware latin line into #greet-la. -->
+              <div class="greet-ar qk-hero-salam" dir="rtl" lang="ar">ٱلسَّلَامُ عَلَيْكُمْ</div>
+              <p class="greet-la" id="greet-la"></p>
+              <h1 class="qk-hero-gradient">Tanya Apapun</h1>
+              <p>Tulis apa yang sedang kamu rasakan. QuranKu mencarikan ayat, terjemahan, dan tafsirnya — lengkap dengan sumbernya.</p>
 
-        <!-- The "why two translations" explainer is NOT parked here on the empty landing anymore.
-             It lives where the confusion actually happens: inline on every verse card's translation
-             label (data-explain="open", see verse.ts) and on the header #info button. Contextual, not
-             upfront clutter. -->
-      </section>
+              <!-- The composer docks here on landing (landing.ts moves #composer-bar before .seeds). -->
 
-      <!-- The band: scripture owns the width, prayer is a utility sidebar. The asymmetry is
-           the point — a 50/50 split would say the two carry equal weight. Both are painted
-           by JS (band.ts) because both depend on the corpus and on the reader's clock. -->
-      <div class="band" id="band" hidden>
-        <section class="aod" id="aod" aria-labelledby="aod-label"></section>
-        <aside class="prayer" id="prayer" aria-label="Waktu salat"></aside>
+              <div class="seeds">
+                <button class="seed">aku lagi capek banget</button>
+                <button class="seed">lagi banyak utang, stress</button>
+                <button class="seed">baru kehilangan orang tua</button>
+                <button class="seed">cemas terus tiap malam</button>
+              </div>
+
+              <button class="lucky" id="lucky" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v4M3 5h4M6 17v4M4 19h4"/><path d="m13 4 2.5 6L22 12l-6.5 2L13 20l-2.5-6L4 12l6.5-2L13 4Z"/></svg>
+                <span>Kejutkan aku</span>
+              </button>
+              <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
+            </section>
+
+            <!-- The band: scripture owns the width, prayer is a utility sidebar. Painted by band.ts. -->
+            <div class="band" id="band" hidden>
+              <section class="aod" id="aod" aria-labelledby="aod-label"></section>
+              <aside class="prayer" id="prayer" aria-label="Waktu salat"></aside>
+            </div>
+          </main>
+        </section>
+
+        <!-- The reading surface. You cannot have a Qur'an app you cannot read the Qur'an in. -->
+        <section id="read" hidden></section>
+
+        <p class="sr" id="live" role="status" aria-live="polite"></p>
       </div>
-    </main>
-  </section>
-
-  <!-- The reading surface. You cannot have a Qur'an app you cannot read the Qur'an in. -->
-  <section id="read" hidden></section>
-
-  <p class="sr" id="live" role="status" aria-live="polite"></p>
+    </div>
+  </div>
 </div>
 
+<!-- The composer is a body-level sibling so landing.ts can move it between the hero (landing) and
+     the docked bottom bar (conversation). shell.css positions each state, offset by the sidebar. -->
 <div class="composer" id="composer-bar">
   <form id="composer">
     <label class="sr" for="q">Ceritakan apa yang kamu rasakan</label>
-    <textarea id="q" rows="1" placeholder="Ceritakan apa yang kamu rasakan…" autocomplete="off"></textarea>
+    <textarea id="q" rows="1" placeholder="aku lagi capek banget…" autocomplete="off"></textarea>
     <button class="send" id="send" type="submit" disabled aria-label="Kirim">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 19V5M5 12l7-7 7 7"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
   </form>
 </div>
 
-<!-- Back-to-top: appears after a screen of scroll, returns the reader to the top. Sits above the
-     composer bar (bottom-right) so it never overlaps the input. main.ts (initToTop) unhides + wires it. -->
+<!-- Back-to-top: appears after a screen of scroll. main.ts (initToTop) unhides + wires it. -->
 <button class="to-top" id="to-top" type="button" hidden aria-label="Kembali ke atas" title="Kembali ke atas">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12 19V6M5 12l7-7 7 7"/>
-  </svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6M5 12l7-7 7 7"/></svg>
 </button>
 
 <script type="module" src="/src/main.ts"></script>

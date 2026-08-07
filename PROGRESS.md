@@ -8,7 +8,38 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-06 (latest) — Dorar tafsir → OKF knowledge base (§4.1 WIDEN sourcing layer), 3 languages
+## 2026-08-07 (latest) — New-QuranKu AI Chat UI (increment 1) · aqeedah + Ṣaḥīḥayn OKF · U+FFFD live
+
+Long session, three threads. The KB work lives **outside this repo** at `~/printing-press/library/tafseer-okf/`
+(not git; full record in memory `tafseer-okf.md`); this repo carries the app UI + the corpus-fix propagation.
+
+**1. New AI Chat UI — increment 1 landed in `web/` (from claude.ai/design "QuranKu AI Chat").**
+Imported the shared Claude Design project (`b2b1120e…`, via `/design-login`) and implemented the two-layer
+shell + Tanya hero, wired to the **existing** answer engine (nothing in retrieve/compose/answer/thread/tafsir
+changed). New: `web/src/shell.css`, `web/src/shell.ts` (sidebar toggle + Obrolan-baru/⌘K), rewritten
+`web/index.html` (sidebar + celestial `.qk-panel`, all engine hooks preserved), `web/public/quranku2.1.png`
+(logo). One line in `main.ts` (`.mark`→`.qk-brand`). Verified STRUCTURALLY via Interceptor (dev server
+`localhost:5173`, text extraction shows the full render in order); visual screenshot blocked by Erik's many
+front tabs — not yet eyeballed. **Increment 2 (not started): the conversation rendering** — user bubbles,
+agent tool-trace, ayah cards with the depth→tafsir-stack toggle (design frame 1c → `verse.ts`/`tafsir.ts`).
+Decisions locked with Erik: chat-core-first sequencing; adopt the sidebar shell (replaces top-nav).
+
+**2. U+FFFD curly-quote repair is now LIVE in the shipped corpus.** Erik supplied the convention (curly
+“ ” U+201C/U+201D). `scripts/fix-fffd.ts` (committed `3945f6f`) repaired **3 of 4** double-quote U+FFFD:
+19:19 (open+close), 6:151 (open). **23:28 HELD** — single-quote du'a, distinct convention, 1 U+FFFD left.
+Running the dev build (`app:corpus`) propagated this + the earlier apostrophe fixes into `web/public/surah/*.json`
+(surah 2,4,6,7,19,21,46,81) — verified 19:19 now reads `berfirman: “Sunguh…`, only surah 23 still holds U+FFFD.
+**Committed here = shipped corpus corrected; REDEPLOY is still Erik-gated.**
+
+**3. tafseer-okf KB widened (external, non-git).** AQEEDAH edition COMPLETE — Dorar موسوعة العقيدة, 1454 OKF
+files across 49 kitab (tree-structured, plain-Unicode, no glyph-splice; PUA guard; Forge-hardened builder).
+HADITH Ṣaḥīḥayn edition COMPLETE — Bukhari 7277 + Muslim 7459 = **14,736** hadith, from sunnah.com/AhmedBaset
+(NOT Dorar — its hadith is search-only). Added **باب (bab) sub-grouping** (crawled all 154 sunnah.com book
+pages; per-kitab position/sequence alignment since Muslim numbering ≠ dataset; 14,736/14,736 mapped, 0 unmatched)
+and a **cross-collection topical index** (24 shared themes, matched on the compilers' own kitab names). Full
+detail in memory `tafseer-okf.md`.
+
+## 2026-08-06 — Dorar tafsir → OKF knowledge base (§4.1 WIDEN sourcing layer), 3 languages
 
 Session opened as a quran-new resume, then pivoted to building the **§4.1 WIDEN sourced-tafsir layer**.
 The KB itself lives **outside this repo** at `~/printing-press/library/tafseer-okf/` (not a git repo —
