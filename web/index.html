@@ -59,6 +59,34 @@
       </a>
     </nav>
 
+    <!-- The two utilities Erik pulled off the landing: "Ayat untukmu" + the prayer schedule now
+         live here as click-to-reveal disclosures (closed by default). band.ts still binds
+         #band/#aod/#prayer by id and paints them here, wherever they sit in the DOM. -->
+    <div class="qk-tools" aria-label="Alat">
+      <details class="qk-tool" id="tool-aod">
+        <summary class="qk-tool-sum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.4 5.6 6.1.5-4.6 4 1.4 5.9L12 15.9 6.7 19l1.4-5.9-4.6-4 6.1-.5z"/></svg>
+          <span>Ayat untukmu</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <div class="qk-tool-body">
+          <div class="band" id="band" hidden>
+            <section class="aod" id="aod" aria-labelledby="aod-label"></section>
+          </div>
+        </div>
+      </details>
+      <details class="qk-tool" id="tool-prayer">
+        <summary class="qk-tool-sum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>Waktu salat</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <div class="qk-tool-body">
+          <aside class="prayer" id="prayer" aria-label="Waktu salat"></aside>
+        </div>
+      </details>
+    </div>
+
     <span class="qk-riwayat">Riwayat</span>
     <div class="qk-history" id="history"></div>
 
@@ -131,12 +159,6 @@
               </button>
               <p class="hint">Atau sebutkan langsung surah dan ayatnya — <b>18:10</b>, <b>yasin</b>, <b>2:255</b>.</p>
             </section>
-
-            <!-- The band: scripture owns the width, prayer is a utility sidebar. Painted by band.ts. -->
-            <div class="band" id="band" hidden>
-              <section class="aod" id="aod" aria-labelledby="aod-label"></section>
-              <aside class="prayer" id="prayer" aria-label="Waktu salat"></aside>
-            </div>
           </main>
         </section>
 
