@@ -32,7 +32,15 @@
 .qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 16px; }
 .qk-brand { display: flex; align-items: center; gap: 10px; }
 .qk-brand img { width: 46px; height: 46px; object-fit: contain; display: block; }
-.qk-brand .qk-hero-gradient { font-size: 25px; }
+/* The wordmark — green→gold Fraunces gradient, per the design. `.qk-hero-gradient` had no base
+   rule anywhere, so the brand was rendering as plain Plus-Jakarta in the inherited link colour. */
+.qk-hero-gradient {
+  font-family: var(--f-display); font-weight: 500;
+  background: linear-gradient(92deg, #16a249 0%, #4ba33f 42%, #f0c851 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.qk-brand .qk-hero-gradient { font-size: 26px; letter-spacing: -.01em; }
 
 .qk-iconbtn {
   border: 0; background: transparent; cursor: pointer; color: var(--ink-3);
@@ -123,20 +131,19 @@
               radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.17), transparent 58%),
               linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
 }
-/* Inner layer, bolder: a richer emerald ground with a stronger top glow and a warm gold wash at
-   the foot — distinctly lighter/greener than the deep shell so the two layers read apart. */
+/* Inner layer, bolder: a richer emerald ground with a warm gold wash at the foot — distinctly
+   lighter/greener than the deep shell so the two layers read apart. NO top glow (Erik: remove the
+   glimpse of light at the top on dark). */
 :root[data-theme="dark"] .qk-panel::before {
   background:
     radial-gradient(90% 45% at 50% 100%, rgba(240,200,81,.12), transparent 62%),
-    radial-gradient(120% 82% at 50% 0%, #1a4034 0%, transparent 62%),
     linear-gradient(180deg,#0f271f 0%,#0d2019 55%,#0a1813 100%);
 }
-/* Dark landing gets the crescent + a warmer glow, matching the design mockup. */
+/* Dark landing gets the crescent + the warm foot-glow — still no top light. */
 :root[data-theme="dark"][data-landing] .qk-panel::before {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 92% 92px / 62px 62px no-repeat,
     radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.16), transparent 58%),
-    radial-gradient(120% 82% at 50% 0%, #1d4a3b 0%, transparent 62%),
     linear-gradient(180deg,#0f271f 0%,#0d2019 50%,#0a1813 100%);
 }
 /* faint stars on the panel */
@@ -224,10 +231,12 @@
 }
 :root[data-theme="dark"] .composer { background: rgba(20,40,34,.55); border-color: rgba(255,255,255,.10); }
 
-/* Landing: the composer sits inside the hero — sized proportional to the panel and adaptive to the
-   viewport (min() picks the smaller of a vw share and a hard cap), glowing (dockLanding moved it). */
+/* Landing: the composer sits inside the hero — width is PANEL-relative (min(680px, 100%) against
+   #hello, not the viewport), so it stays centered and never overflows no matter how the screen or
+   the sidebar changes width. dockLanding() moved it here; the hero's align-items:center + margin
+   auto keep it dead-centre in the inner panel. */
 :root[data-landing] #composer-bar {
-  position: static; width: min(68vw, 680px); max-width: 94%; margin: 0 auto;
+  position: static; width: min(680px, 100%); margin: 0 auto;
   box-shadow: 0 4px 10px rgba(40,70,60,.08),
     0 0 0 6px rgba(22,162,73,.10),
     -10px 0 22px -4px rgba(22,162,73,.24), 10px 0 22px -4px rgba(240,200,81,.26),
