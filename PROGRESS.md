@@ -8,7 +8,59 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-07 (latest) — New-QuranKu AI Chat UI (increment 1) · aqeedah + Ṣaḥīḥayn OKF · U+FFFD live
+## 2026-08-07 (latest) — AI Chat UI increments 2–3: conversation, landing polish, palette, Tematik + Baca reskins
+
+Follow-on session to increment 1. **Five commits on `quran-new/main`, all pushed** (anchor `86a347b`);
+tree clean at wrap. All work verified in real Chrome via Interceptor **DOM + computed styles on the
+driven tab** — NOT by pixel screenshot: the OS capture keeps grabbing whichever of Erik's ~15 Chrome
+tabs is visually front (caught MiroFish every time), and `tab switch` can't override it. **Erik still
+needs to eyeball everything by fronting the localhost:5173 tab.** Engine (retrieve/compose/answer/
+thread/tafsir/aqidah/knowledge) untouched throughout — every change is markup + CSS + presentation JS.
+
+**1. `17fd50c` — increment 2, the conversation rendering (design frame 1c).** `traceEl()`/`settledTrace()`
+in main.ts: the agent tool-trace, **re-derived from the turn's decision** (real query, hit count,
+tafsir refs) — not faked. `skeleton()` upgraded from shimmer to the live trace (pending pulse dots).
+Trace prepends the `hits` answer, persists, and rebuilds identically on restore (thread.ts contract).
+shell.css reskin of `.msg`/`.verse`/`.reading`/`.depth` → user bubble, glass ayah card, ref→chip,
+depth toggle→pill (tafsir stack unchanged). Verified: bubble, trace w/ live values, 2:286 card,
+depth→Kemenag+Sa'di+Markaz stack.
+
+**2. `a812e7f` — landing hero shrunk + two cards moved to sidebar.** h1 `clamp(38,5.4vw,68)` (was 104),
+composer adaptive; the "Ayat untukmu" + prayer cards pulled OFF the landing into the sidebar as native
+`<details>` toggles (closed by default, reveal on click). band.ts untouched — kept `#band/#aod/#prayer`
+ids, `mountBand()` paints in place. Verified: h1=68px, 2 sidebar tools, band gone from landing.
+
+**3. `54f0551` — bolder two-layer palette + bare landing.** Outer shell `#050f0c`, inner panel richer
+emerald `#0f271f`, thin faint border `rgba(150,220,185,.20)` (distinction via colour step, not a heavy
+line), shell gap `10px`→`6px 6px 6px 8px` (bigger inner panel). Removed the seed chips, "Kejutkan aku",
+and the hint below the composer.
+
+**4. `36be2ef` — wordmark + centering + top glow.** `.qk-hero-gradient` had NO base rule anywhere →
+"QuranKu" was rendering as plain blue Plus-Jakarta; defined the green→gold Fraunces gradient. Landing
+composer `68vw`→`min(680px,100%)` (panel-relative, centered at any width). Removed the dark inner-panel
+top glow ("glimpse of light"); kept crescent + foot-glow.
+
+**5. `86a347b` — Tematik masonry + Baca filmstrip (design frames).** **Tematik** (`renderPetaIndex`,
+`#/peta`): the 13 scholarly categories now render as the design's 4-col CSS-columns bento (height scaled
+by ayat count), girih + **gold Arabic calligraphy per category** (transcribed from the mockup at Erik's
+direction — `TEMATIK_AR` map in peta.ts, **flagged for Ustadz Ahmad's spot-check**, NOT spliced corpus
+text), Kartu/Peta Tematik/Kembali header. **Baca** (`renderIndex`, `#/baca`): the 114-surah list is now
+a horizontal scroll-snap **filmstrip** — tall glass cards, prev/next arrows, a **centre card that opens**
+(widens + reveals gloss) via a synchronous nearest-centre pass (init is direct, NOT rAF — a backgrounded
+tab throttles rAF to never). Search filter + hide-the-`<li>` logic untouched. Verified: Tematik 13 cards/
+4 cols/"Allah… 329 ayat/الله"; Baca 114 cards, scroll-snap, 1 open (Al-Baqarah, gloss shown).
+
+**Tests:** 522 pass / 65 fail / 12 errors — **identical to HEAD baseline every commit** (the fails are
+pre-existing corpus-load failures, not from this session). Typecheck: no NEW errors (3 pre-existing in
+main.ts confirmed on HEAD; peta.ts + read.ts clean).
+
+**Design source:** claude.ai/design "QuranKu AI Chat" (`b2b1120e…`), scratchpad `qk-design/chat.dc.html`
+frames 1a/1c (chat), `tematikA` (Tematik), `quranA` (Baca). U+FFFD corpus fix from increment 1 still
+Erik-gated for redeploy. tafseer-okf KB (aqeedah 1454 + Ṣaḥīḥayn 14,736) remains external/non-git.
+
+---
+
+## 2026-08-07 — New-QuranKu AI Chat UI (increment 1) · aqeedah + Ṣaḥīḥayn OKF · U+FFFD live
 
 Long session, three threads. The KB work lives **outside this repo** at `~/printing-press/library/tafseer-okf/`
 (not git; full record in memory `tafseer-okf.md`); this repo carries the app UI + the corpus-fix propagation.
