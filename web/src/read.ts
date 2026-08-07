@@ -186,13 +186,22 @@ const fold = (s: string): string =>
 
 const indexRow = (s: SurahMeta): string => `
   <li>
-    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}">
+    <a class="srow" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
       <span class="srow-girih" aria-hidden="true"></span>
       <span class="srow-top">
         <span class="srow-n">${String(s.n).padStart(3, "0")}</span>
         <span class="srow-rev ${s.rev}">${revID(s.rev)}</span>
       </span>
-      <span class="srow-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+      <!-- Collapsed: Arabic + name run up the spine (design frame quranA, s.shut). Decorative —
+           the accessible name lives on the anchor's aria-label, so these can be aria-hidden. -->
+      <span class="srow-spine" aria-hidden="true">
+        <span class="srow-spine-line">
+          <span class="srow-spine-ar" dir="rtl" lang="ar">${esc(s.ar)}</span>
+          <span class="srow-spine-tl">${esc(displayName(s.n))}</span>
+        </span>
+      </span>
+      <!-- Open (centered card): the full cluster. -->
+      <span class="srow-ar" dir="rtl" lang="ar" aria-hidden="true">${esc(s.ar)}</span>
       <span class="srow-foot">
         <span class="srow-tl">${esc(displayName(s.n))}</span>
         <span class="srow-meta">${s.ayahs} ayat</span>
