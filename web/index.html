@@ -26,7 +26,7 @@
   <aside class="qk-sidebar" id="sidebar">
     <div class="qk-side-head">
       <a class="qk-brand" href="#/" aria-label="QuranKu — beranda">
-        <img src="/quranku2.1.png" alt="" width="46" height="46" />
+        <img src="/quranku-logo.png" alt="" width="46" height="46" />
         <span class="qk-hero-gradient qk-display">QuranKu</span>
       </a>
       <button class="qk-iconbtn" id="side-toggle" type="button" aria-label="Sembunyikan sidebar" title="Sembunyikan sidebar">
@@ -103,6 +103,12 @@
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M10 4v16"></path></svg>
       </button>
       <span class="spacer"></span>
+
+      <!-- Kembali lives here on the Al-Qur'an surface (Erik: beside the info icon), shown only on
+           #/baca via [data-baca] in shell.css. It leaves the browse index back to the companion home. -->
+      <a class="top-back" id="top-back" href="#/">
+        <span aria-hidden="true">←</span> Kembali
+      </a>
 
       <!-- The one explainer: "why two translations", contextual on verse cards + here. -->
       <button class="icon-btn" id="info" data-explain="open" aria-label="Kenapa ada dua terjemahan?" title="Kenapa ada dua terjemahan?">

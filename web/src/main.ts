@@ -619,6 +619,9 @@ async function route() {
   // The Al-Qur'an wheel page keeps its docked composer small + translucent until hovered/focused
   // (Erik) — a browse surface, not a chat one. This marker scopes that treatment in shell.css.
   document.documentElement.toggleAttribute("data-baca", hash === "#/baca");
+  // On the Al-Qur'an surface the docked box doubles as the surah finder, so it invites a search
+  // rather than a feeling. Everywhere else it is the companion prompt. (Erik: composer says "Cari Surah".)
+  input.placeholder = hash === "#/baca" ? "Cari Surah" : "aku lagi capek banget…";
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");

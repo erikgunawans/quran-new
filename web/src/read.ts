@@ -18,7 +18,6 @@
  */
 import {
   BASMALAH,
-  findSurah,
   isCached,
   loadSurah,
   displayName,
@@ -184,8 +183,11 @@ const fold = (s: string): string =>
 // THE INDEX
 // ═══════════════════════════════════════════════════════════════════════════
 
-const indexRow = (s: SurahMeta, open = false): string => `
-  <li>
+// `off` = signed distance from the opened centre card. It rides onto the <li> as a `--off` custom
+// property (absolute distance) so shell.css can taper each neighbour smoothly toward a slim
+// book-spine the further it sits from the middle — a shelf that opens at the centre (Erik).
+const indexRow = (s: SurahMeta, open = false, off = 0): string => `
+  <li data-off="${off}" style="--off:${Math.abs(off)}">
     <a class="srow${open ? " is-open" : ""}" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
       <span class="srow-girih" aria-hidden="true"></span>
       <span class="srow-top">
@@ -225,57 +227,47 @@ export function renderIndex(mount: HTMLElement): void {
   // "Lanjutkan baca" — only when there is a real place to return to. loadBookmark already validated
   // it against the inlined index, so this link can never point at a verse that does not exist.
   const bm = loadBookmark();
-  const resume = bm
-    ? `<a class="resume" href="#/surah/${bm.surah}#${bm.ayah}">
-        <span class="resume-k">Lanjutkan baca</span>
-        <span class="resume-w">${esc(displayName(bm.surah))} · ayat ${bm.ayah}</span>
-        <span class="resume-go" aria-hidden="true">→</span>
-      </a>`
-    : "";
+  // The single resume link became a "Riwayat Bacaan" dropdown (Erik): a native <details> so it is
+  // keyboard- and screen-reader-friendly with no JS. Closed by default; opens to the place you left.
+  const history = `
+    <details class="baca-history">
+      <summary class="baca-history-sum">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span>Riwayat Bacaan</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="baca-history-body">
+        ${bm
+          ? `<a class="baca-history-item" href="#/surah/${bm.surah}#${bm.ayah}">
+               <span class="baca-history-w">${esc(displayName(bm.surah))} · ayat ${bm.ayah}</span>
+               <span class="baca-history-k">Lanjutkan baca <span aria-hidden="true">→</span></span>
+             </a>`
+          : `<p class="baca-history-empty">Belum ada riwayat bacaan. Buka satu surah untuk memulai.</p>`}
+      </div>
+    </details>`;
 
   mount.innerHTML = `
     <div class="read-index baca-index">
       <header class="baca-head">
         <div class="baca-head-l">
-          <h1 class="qk-hero-gradient baca-title">Baca Qur'an</h1>
-          <p class="baca-sub">114 surah, memutar seperti roda. Al-Fatihah di tengah — ke kanan menuju Al-Baqarah, ke kiri menuju An-Nas. Yang di tengah terbuka.</p>
-        </div>
-        <div class="baca-head-r">
-          <div class="find">
-            <label class="sr" for="surah-cari">Cari surah berdasarkan nama atau nomor</label>
-            <input
-              id="surah-cari"
-              class="find-in"
-              type="search"
-              placeholder="Cari surah…"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-              enterkeyhint="search">
-          </div>
-          <a class="tematik-back" href="#/">Kembali</a>
+          <h1 class="qk-hero-gradient baca-title">Al Qur'an</h1>
+          <p class="baca-sub">Al Qur'an dan Tafsir</p>
         </div>
       </header>
 
-      ${resume}
+      ${history}
 
       <div class="baca-strip" role="group" aria-label="Pemutar surah — panah kiri/kanan untuk memutar">
         <button class="baca-arrow baca-prev" type="button" aria-label="Putar ke surah sebelumnya" title="Sebelumnya">‹</button>
         <ul class="surah-list" id="surah-list"></ul>
         <button class="baca-arrow baca-next" type="button" aria-label="Putar ke surah berikutnya" title="Berikutnya">›</button>
       </div>
-
-      <p class="no-hit" id="surah-none" hidden>
-        Tidak ada surah dengan nama itu. Coba nomornya, atau sepotong namanya saja.
-      </p>
     </div>`;
 
-  const input = mount.querySelector<HTMLInputElement>("#surah-cari");
   const list = mount.querySelector<HTMLUListElement>("#surah-list");
-  const none = mount.querySelector<HTMLParagraphElement>("#surah-none");
-  // If any of the three is missing the markup above changed underneath us. The rest is an
-  // enhancement over an already-navigable page. Leave it be.
-  if (!input || !list || !none) return;
+  // If the list is missing the markup above changed underneath us. The rest is an enhancement over
+  // an already-navigable page. Leave it be.
+  if (!list) return;
 
   // ── The rotating wheel (Erik's spec) ───────────────────────────────────────
   // Not a linear strip but a CIRCULAR carousel: `centre` is the surah in the middle (opened), and
@@ -291,7 +283,7 @@ export function renderIndex(mount: HTMLElement): void {
     const cards: string[] = [];
     for (let off = -WINDOW; off <= WINDOW; off++) {
       const s = SURAH_INDEX[(centre + off + N) % N];
-      if (s) cards.push(indexRow(s, off === 0));
+      if (s) cards.push(indexRow(s, off === 0, off));
     }
     list.innerHTML = cards.join("");
   };
@@ -326,37 +318,6 @@ export function renderIndex(mount: HTMLElement): void {
       e.preventDefault();
     }
   });
-
-  // Search spins the wheel to the first matching surah rather than filtering a list. findSurah owns
-  // the curated alias vocabulary ("kahfi"→Al-Kahf, "yasin"→Yaseen) that a bare substring misses.
-  const apply = (): void => {
-    const raw = input.value.trim();
-    const q = fold(input.value);
-    if (raw === "") {
-      none.hidden = true;
-      return;
-    }
-    const alias = findSurah(raw);
-    let found = -1;
-    for (let i = 0; i < N; i++) {
-      const s = SURAH_INDEX[i];
-      if (!s) continue;
-      const hay = `${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`;
-      if (hay.includes(q) || (alias !== undefined && alias.n === s.n)) {
-        found = i;
-        break;
-      }
-    }
-    if (found >= 0) {
-      centre = found;
-      none.hidden = true;
-      renderWheel();
-      announceCentre();
-    } else {
-      none.hidden = false;
-    }
-  };
-  input.addEventListener("input", apply);
 
   renderWheel();
 }
