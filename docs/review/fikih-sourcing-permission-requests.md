@@ -84,11 +84,47 @@ New-QuranKu · [email] · [situs/kontak]
 
 ---
 
+## Surat C — Rumah Fiqih Indonesia (Ustadz Ahmad Sarwat, Lc., MA)
+
+**Kepada:** Rumah Fiqih Indonesia (rumahfiqih.com) / Ustadz Ahmad Sarwat
+**Perihal:** Permohonan izin menampilkan buku-buku fikih Rumah Fiqih di aplikasi New-QuranKu
+
+Assalamu'alaikum warahmatullahi wabarakatuh.
+
+Kami pengembang **New-QuranKu**, aplikasi Al-Qur'an berbahasa Indonesia yang gratis dan bersifat dakwah.
+Kami banyak belajar dari buku-buku Rumah Fiqih Indonesia — pembahasannya runut, membumi, dan jujur
+menampilkan perbedaan pendapat antar-mazhab beserta dalilnya. Justru nuansa perbandingan itulah yang kami
+rasa sangat bermanfaat bagi pembaca kami.
+
+Kami sedang menyiapkan bagian **Fikih** di aplikasi kami. Prinsip kami tegas: kami hanya **menampilkan karya
+ulama apa adanya**, tidak mengarang isi agama dan tidak berfatwa. Karena itu kami tidak akan memakai satu
+naskah pun sebelum izinnya jelas.
+
+Melalui surat ini kami memohon **izin tertulis** untuk menampilkan isi buku-buku fikih Rumah Fiqih (mis.
+seri *Fiqih* karya Ustadz Ahmad Sarwat) di dalam aplikasi kami, dengan kesanggupan:
+
+- teks ditampilkan **utuh, tanpa diubah**, sesuai naskah aslinya;
+- **atribusi jelas** ke Ustadz Ahmad Sarwat dan Rumah Fiqih Indonesia di setiap halaman terkait;
+- penggunaan **nirlaba** — aplikasi gratis untuk umum;
+- kami siap mengikuti syarat lain yang Ustadz tetapkan, termasuk judul-judul yang boleh atau tidak boleh
+  ditampilkan.
+
+Bila lebih memudahkan, kami juga senang bila ada bentuk kerja sama yang Ustadz sarankan.
+
+Jazakumullahu khairan atas ilmu dan kebaikannya selama ini.
+
+Wassalamu'alaikum warahmatullahi wabarakatuh.
+
+Hormat kami,
+[Nama Erik] — [jabatan]
+New-QuranKu · [email] · [situs/kontak]
+
+---
+
 ## Catatan pelaksanaan
 
-- **Rumahfiqih.com** (Ustadz Ahmad Sarwat) opsi ketiga bila ingin nuansa perbandingan mazhab —
-  hak cipta dipegang RFI, tapi pemiliknya jelas dan bisa dihubungi. Draf serupa Surat A bisa dibuat
-  saat diperlukan.
+- **Rumah Fiqih** (Surat C) bernuansa perbandingan mazhab — hak cipta dipegang RFI, tapi pemiliknya jelas
+  dan bisa dihubungi (situs, email, atau media sosial Ustadz Ahmad Sarwat). Realistis untuk diminta izinnya.
 - IslamHouse mungkin menjawab dalam bahasa Arab/Inggris; siapkan versi ringkas EN/AR bila perlu.
 - **Verifikasi lisensi dulu, jangan berasumsi.** Reputasi "boleh disebar" tidak sama dengan izin tertulis.
 - Setelah izin turun: seluruh isi tetap lewat **tinjauan Ustadz Isrofiel** (kesesuaian manhaj), baru tayang.
