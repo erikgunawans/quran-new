@@ -75,15 +75,48 @@ function mount(card: VerseCard): string {
   return verseEl(card);
 }
 
-// The composing label is real content (announced to screen readers via #live in ask()), not
-// decoration — the dots are aria-hidden because they're the same idea said twice visually.
+// The agent tool-trace — the visible record of what New-Quranku did to answer, mapped from the
+// design's frame 1c. PRESENTATION ONLY: it re-derives from the turn's decision (the question, the
+// hits, the refs whose tafsir was read) and never drives retrieval. A settled step carries a solid
+// emerald dot; a pending step a pulsing grey one — the same done/pending language the design uses.
+interface TraceStep {
+  label: string;
+  pending?: boolean;
+}
+function traceEl(steps: TraceStep[]): string {
+  return `<div class="qk-trace" role="group" aria-label="Langkah New-Quranku">${steps
+    .map(
+      (s) =>
+        `<div class="qk-step${s.pending ? " pending" : ""}"><span class="qk-dot" aria-hidden="true"></span><span class="qk-step-label">${esc(s.label)}</span></div>`,
+    )
+    .join("")}</div>`;
+}
+
+// The trace a retrieval answer settles into: what actually happened, re-derived from the hits. Rendered
+// at the top of the answer block (design frame 1c) so it persists with the answer — and rebuilds
+// identically on restore, since every value comes from the stored decision, never from disk markup.
+function settledTrace(query: string, refs: string[], readTafsir: boolean): string {
+  const q = query.length > 40 ? `${query.slice(0, 39).trimEnd()}…` : query;
+  const steps: TraceStep[] = [
+    { label: "Memahami pertanyaan" },
+    { label: `cari_ayat("${q}") · ${refs.length} ayat` },
+  ];
+  if (readTafsir) steps.push({ label: `baca_tafsir · ${refs.join(", ")}` });
+  steps.push({ label: "Menyusun jawaban" });
+  return traceEl(steps);
+}
+
+// The composing state, upgraded from a generic shimmer to the live tool-trace (design frame 1a): the
+// first step already settled, the search + compose steps pulsing. `say()` still carries the spoken
+// announcement to #live, so this is purely the visual affordance while retrieval runs.
 function skeleton(): HTMLElement {
   const el = document.createElement("div");
   el.className = "msg nur";
-  el.innerHTML = `<p class="composing"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>New-Quranku sedang menyusun jawaban…</p>
-    <div class="skeleton" aria-hidden="true">
-    <div class="sk-line short"></div><div class="sk-line ar"></div>
-    <div class="sk-line"></div><div class="sk-line short"></div></div>`;
+  el.innerHTML = traceEl([
+    { label: "Memahami pertanyaan" },
+    { label: "Mencari ayat yang relevan", pending: true },
+    { label: "Menyusun jawaban", pending: true },
+  ]);
   return el;
 }
 
@@ -171,10 +204,16 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       // the reader always gets an honest line, and the verses below never wait on it beyond the cap.
       const lead = await composeFraming(hits, t.q, liveFramingModel, compose(hits, t.q));
 
+      // The tafsir stack for each verse, computed once so the trace can tell the truth about whether
+      // `baca_tafsir` actually ran (curated chat verses carry a stack; a bare hit may not).
+      const stacks = verses.map((v) => tafsirStackHtml(v.tafsir, voices));
+      const refs = verses.map((v) => v.ref);
+
       return (
+        settledTrace(t.q, refs, stacks.some(Boolean)) +
         `<p class="said">${lead}</p>` +
         verses
-          .map((v) =>
+          .map((v, i) =>
             mount({
               ref: v.ref,
               surah: v.surah,
@@ -185,7 +224,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               companion: v.companion,
               why: v.why,
               passage: v.passage,
-              tafsirStack: tafsirStackHtml(v.tafsir, voices),
+              tafsirStack: stacks[i],
               continueTo: true,
               animate,
             }),
