@@ -8,7 +8,49 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-07 (latest) — AI Chat UI increments 2–3: conversation, landing polish, palette, Tematik + Baca reskins
+## 2026-08-07 (latest) — U+FFFD LIVE on prod, big UI batch, Hadis/Fikih sections, rotating Al-Qur'an wheel
+
+Long follow-on session. **Anchor `quran-new/main` `7d04b30`**, tree clean, 901 tests pass / 0 fail
+throughout. First session where the UI was actually **eyeballed** — the default DOM-render `screenshot`
+hangs (15s WS timeout) but `interceptor screenshot --pixel` after `tab new --activate` works; the
+`--pixel` capture drifts to Erik's front tab on focus changes, recover with `tab new --activate`.
+
+**1. Corpus U+FFFD fix is LIVE on prod (`4e76c723`).** Found principled + synthesis both **HTTP 522**
+(old Workers still proxying the deleted Cloud Run origin — the "un-synced" item). `bun run build && cd
+worker && bunx wrangler deploy` (default env = principled) fixed the outage AND shipped the fix in one
+go. Post-deploy 522 is transient edge propagation (~seconds) — settled to 200. Byte-verified on the
+served shards: 6:151 + 19:19 curly quotes, 23:28 du'a held (1 U+FFFD by design); reading view renders
+zero replacement glyphs. **IMPORTANT: a principled deploy ships the whole `web/` UI, not just the corpus
+— same build, inseparable; Erik green-lit publishing the new UI.** Synthesis (still 522) + demo (up,
+stale corpus) left as-is per Erik's "principled only". See memory `quranku-ui-redesign-state`.
+
+**2. UI batch — 8 fixes (`92bcffe`) + Baca→Al Qur'an rename (`4e83a21`).** (a) Docked composer is a
+transparent panel-width strip with the glass on the FORM — no band bleeds under the sidebar; (b) composer
+panel-centered at any width; (c) smaller type scale; (d) brand z-index + trim so no card covers the logo;
+(e) bolder dark palette (near-black-green grounds, richer gold foot-glow); (f) Baca inherits it; (g) Peta
+renamed to **Tematik** in nav + copy (route `#/peta` kept); (h) **Tema section deleted** — nav, routes,
+orphaned `themes.ts`; slugify drift-guard repointed to `build-peta.ts`. Bundle 180→153KB.
+
+**3. Hadis + Fikih sections, rotating wheel, hover composer (`850aaec`).** New nav **Hadis** (`#/hadis`)
++ **Fikih** (`#/fikih`) → honest "Dalam penyusunan" placeholders (`sections.ts`); real content is GATED on
+source + licensing + scholar sign-off (KBs are external/non-git — Ṣaḥīḥayn hadith, fiqh/usul corpus).
+**Al-Qur'an index rebuilt as a CIRCULAR wheel**: Al-Fatihah opens in the middle, neighbours wrap modulo 114
+(An-Nas left, Al-Baqarah right), arrows/←→ rotate forever; windowed re-render of ≤5 cards; search spins to
+the match. Composer on `#/baca` rests small+translucent, grows on hover/focus (`data-baca` marker).
+
+**4. Sections lifted to the logo line (`7d04b30`).** The 66px panel-top control bar was floated to the
+panel's top-right (out of flow); section titles now sit level with the sidebar logo (~26px). Headers/chat
+`Hapus percakapan`/surah back-link reserve a 260px right gutter (controls are 248px wide) so nothing slides
+under the floated controls; toggle stays reachable top-left when the sidebar is closed.
+
+**Engine untouched all session** (retrieve/compose/answer/thread/tafsir/aqidah/knowledge). All work is
+markup + CSS + presentation JS + routing. Not deployed since the corpus redeploy — commits 2/3/4 are on
+`quran-new/main` but NOT yet live; a redeploy would ship them (and, unavoidably, is the same build as the
+corpus). tafseer-okf KB + daleel/dorar remain external/non-git.
+
+---
+
+## 2026-08-07 — AI Chat UI increments 2–3: conversation, landing polish, palette, Tematik + Baca reskins
 
 Follow-on session to increment 1. **Five commits on `quran-new/main`, all pushed** (anchor `86a347b`);
 tree clean at wrap. All work verified in real Chrome via Interceptor **DOM + computed styles on the
