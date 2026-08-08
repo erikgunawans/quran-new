@@ -37,3 +37,4 @@ web/src/.ua/
 graphify-out/
 .planning/graphs/.last-build-snapshot.json
 .gstack/
+.worktrees/

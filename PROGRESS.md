@@ -8,7 +8,87 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Tematik reworked: finder, one-screen card wall, exclusive views
+## 2026-08-09 (latest) — The narrow layout's first real probe, then a landing rebuilt on it
+
+Anchor: quran-new/main `89d39dc`. Prod Worker `a3fb7965`, JS `index-BZDwH2RK.js`, CSS `index-Dn-Z8P4I.css`.
+988 tests pass. ISA 225 done / 1 open / 2 deferred-verify.
+
+**ISC-99 closed — and its blocker was a misdiagnosis.** The note read "no OS window-resize
+permission". That was wrong: `osascript … set bounds` works fine and **Chrome on macOS hard-clamps
+its window at 500 CSS px** (375, 400 and 300 all returned `innerWidth: 500`). No real Chrome window
+can show a phone width, which is why two sessions believed the surface was unprobeable. Probed
+instead through DevTools device emulation at 375×812 DPR3 and 320×568 — a real Blink layout, all
+eight width breakpoints evaluating `true` live. Two branches held; three were broken:
+
+- **The surah page showed no Qur'an on a phone.** Both stacked panes were capped at `62dvh`, so at
+  375×812 the preface scroller started at y=376 and the *scripture* scroller at y=876 — entirely
+  below the fold — then offered 286 ayahs through a 503px porthole nested inside the panel. Cap
+  released when stacked; one scroller now.
+- **Releasing that cap would have frozen the bookmark at ayah 1.** `startTracking`'s observer was
+  rooted ON `#surah-body`, and `-75%` of a 250,000px box is a 62,000px band. `scrollBox()` now asks
+  the layout which box scrolls instead of assuming. Caught before it shipped.
+- **Both ⓘ tooltips rendered partly off-screen** (`left: -49px` at 375, fully opaque). CSS alone
+  cannot fix it — the tip needs its vertical anchor on the icon and its horizontal one on the panel,
+  and one absolutely-positioned box gets one containing block — so `pinTip()` corrects the
+  horizontal axis after layout.
+- **8 of 38 controls were under 44px on the glass.** Invisible `::after` hit areas, sized per control
+  against the `.9` body zoom. `#/peta` now reports 0 of 22 failing.
+
+**ISC-110 closed as a side effect** — the probe supplied the visible, non-minimised page its
+deferral had been waiting for. Note the key is `newquranku:baca`, not the `nur:baca` the ISA named;
+the rename outlived the note and the first probe read the dead key and looked like a regression.
+
+**Then the landing was rebuilt on top of that.** Composer widened 468→660px — it could not simply be
+told to be wider, because `:root[data-landing] .app` carries `margin-inline: auto`, and **an auto
+margin on a flex item's CROSS axis overrides `stretch`**, so the whole column sized to its widest
+paragraph and the composer's `width: min(760px, 100%)` was resolving its 100% as 520px. Hero lifted
+(lead-in 23vh→8vh, measured: the offset from panel centre is linear in the padding, 4vh→+17px …
+23vh→+133). Full salam (`وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ`), a dictation mic wired to the browser's
+recogniser rather than left inert, `.qk-panel` 12px→`--r-lg`, and Erik's Al-Qur'an roundel replacing
+the wordmark.
+
+**A DESIGN.md audit found the landing was the least-governed surface in the app.** The composer wore
+the signature gold `#f0c851` as an *edge on a card* — the case § What this is not bans by name; it
+stacked five shadow layers where `--sh` already defines the allowed one; its focus state paired
+`border-color` with `0 16px 40px`, the ghost-card tell verbatim; and the travelling beam's core was
+`oklch(0.96 …)`, near-white, making chrome the brightest pixel on a page whose enforced rule is that
+scripture out-luminates chrome. All corrected. The beam later became a 7s breathing glow *behind*
+the box at Erik's request.
+
+**Mobile now follows the Gemini/Claude phone pattern** (Erik's reference screenshots): composer
+docked to the bottom inset, hero centred above it, chrome as filled circles.
+
+### Doc amendments — the law was edited, not quietly contradicted
+
+Three shipped changes departed from DESIGN.md. Each is recorded there with its reasoning rather than
+left as drift, which is the exact failure the doc's own preamble was written against:
+
+- § Layout gains a `≤820px` paragraph: the composer docks on phones. The desktop rule stands.
+- § Components softens "empty states teach" for the composer placeholder only.
+- § Components' radius scale now owns `.qk-panel` at 16px.
+
+### Traps this session paid for
+
+- **A recorded blocker is a claim, not a fact.** "No window-resize permission" was believed for two
+  sessions and was simply wrong.
+- **The router rewrites the composer placeholder on every route pass.** Changing only the
+  `placeholder` attribute in `index.html` looks correct in the diff and changes nothing on glass.
+- **`zoom: .9` breaks `dvh` arithmetic.** `calc(100dvh - dock)` computes 582px on the glass, not the
+  647 it reads as. Every vertical value here was measured, not derived.
+- **Stale bundles beat `ignoreCache: true`** — three tabs served old JS, and at one point the same
+  bundle hash reported both the old and new placeholder because the app had not booted and the read
+  was hitting the raw HTML attribute. Trust `curl` against the deployed asset, not a tab.
+- **One deploy went out before the test output was read.** Result was fine (the single failure was a
+  pre-existing 5s-timeout flake in `peta.test.ts`, reproducible with changes stashed), but the order
+  was wrong.
+
+**Still open:** ISC-98 — the real-device iOS check of the `visualViewport` composer mitigation. It
+matters more now than it did this morning, because the docked mobile composer depends on that
+handler. Also ISC-111 and ISC-189 remain `[DEFERRED-VERIFY]`.
+
+---
+
+## 2026-08-08 — Tematik reworked: finder, one-screen card wall, exclusive views
 
 Anchor: quran-new/main `2781837`. Prod Worker `cc6a91ea`.
 988 tests pass (session start: 923).

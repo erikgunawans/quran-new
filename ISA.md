@@ -3,10 +3,10 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: complete
-progress: 224/225
+progress: 225/228
 mode: build
 started: 2026-07-13
-updated: 2026-07-23
+updated: 2026-08-09
 ---
 
 # New-Quranku — Ideal State Artifact
