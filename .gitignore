@@ -36,3 +36,4 @@ web/src/.ua/
 # graphify working output (16MB of cache + regenerable graphs)
 graphify-out/
 .planning/graphs/.last-build-snapshot.json
+.gstack/
