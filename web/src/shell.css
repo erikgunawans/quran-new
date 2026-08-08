@@ -503,17 +503,18 @@
    (Erik). The 300px offset reserves the panel top bar, the Baca header + Riwayat Bacaan bar, the
    ~88px docked composer, and a foot gap; the clamp keeps the foot clear on short viewports and lets
    the card grow tall on large ones. */
-/* Each card carries `--off` (absolute distance from the opened centre) from read.ts. The li — which
-   is NOT animated (qkrot lives on .srow) — takes the coverflow depth: neighbours recede in scale and
-   fade the further out they sit, so the row reads as a shelf that opens at the middle (Erik). The
-   width taper is on .srow below; keeping the two on separate elements avoids fighting qkrot's fill. */
+/* Each card carries `--off` (absolute distance from the opened centre), driving BOTH the coverflow
+   depth (scale/opacity here) and the width taper (.srow below). read.ts TWEENS the number in JS with
+   requestAnimationFrame, so all three recompute every frame — the leaving centre narrows while the
+   incoming neighbour widens, fluidly (Erik). No CSS transition: a custom-property transition only
+   interpolates the property on the element that declares it, but the width lives on the child .srow
+   while --off is inherited, so CSS snapped; a per-frame number sidesteps that entirely. */
 .qk-panel-body #read .surah-list > li {
   flex: none; height: clamp(340px, calc(100dvh - 300px), 660px); margin: 0;
   --off: 0;
   transform-origin: center;
   transform: scale(calc(1 - var(--off) * 0.05));
   opacity: calc(1 - var(--off) * 0.12);
-  transition: transform 560ms var(--ease), opacity 560ms var(--ease);
 }
 /* Each turn re-renders the window; the cards ease in so a rotation reads as motion, not a jump. */
 @keyframes qkrot { from { opacity: 0; transform: scale(.955); } to { opacity: 1; transform: none; } }
@@ -523,16 +524,18 @@
 
 .qk-panel-body #read .srow {
   position: relative; display: flex; flex-direction: column; height: 100%;
-  /* Book-spine taper: each step out from the centre trims ~50px, floored at a slim spine width so a
-     far neighbour reads as a standing book, not a card. The centre card (is-open) overrides below. */
-  width: max(94px, calc(clamp(150px, 18vw, 220px) - var(--off, 0) * 50px));
+  /* One continuous book-spine curve keyed to --off: centre widest, each step out tapers ~reciprocally
+     toward a slim standing-book spine (off0 ≈ full, off1 ≈ /2.9, off2 ≈ /4.8, exit ≈ 94px floor).
+     Width is a pure function of --off (set per-frame on THIS element by read.ts's rAF tween), so the
+     card morphs frame-by-frame — no discrete is-open width to snap between. */
+  width: max(94px, calc(clamp(320px, 40vw, 540px) / (1 + var(--off, 0) * 1.9)));
   border-radius: var(--r-lg); overflow: hidden; text-decoration: none;
   border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 22px 26px;
   background: linear-gradient(180deg, rgba(22,162,73,.10) 0%, rgba(24,48,42,.30) 100%);
-  transition: width 560ms var(--ease), border-color var(--t), box-shadow var(--t);
+  transition: border-color var(--t), box-shadow var(--t);
 }
 :root[data-theme="dark"] .qk-panel-body #read .srow { border-color: rgba(210,235,220,.12); background: linear-gradient(180deg, rgba(22,162,73,.12) 0%, rgba(10,26,20,.5) 100%); }
-.qk-panel-body #read .srow.is-open { width: clamp(300px, 40vw, 520px); border-color: var(--primary-line); box-shadow: 0 6px 16px rgba(12,40,30,.2); z-index: 2; }
+.qk-panel-body #read .srow.is-open { border-color: var(--primary-line); box-shadow: 0 6px 16px rgba(12,40,30,.2); z-index: 2; }
 
 .srow-girih {
   position: absolute; top: -14px; right: -14px; width: 210px; height: 210px; pointer-events: none; opacity: .32;

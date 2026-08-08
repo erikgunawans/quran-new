@@ -291,15 +291,52 @@ export function renderIndex(mount: HTMLElement): void {
 
   // Fluid width morph (Erik): a turn must NOT rebuild the row. A fresh <li> has no previous width to
   // animate from, so innerHTML-replacement snaps. Instead we KEEP each card's DOM node across turns,
-  // keyed by surah number, and only rewrite its `--off`/`is-open`. The centre that slides out (off
-  // 0 → -1) shrinks smoothly, the neighbour sliding in (off +1 → 0) stretches — and because their
-  // widths transition, the centred flex row re-lays every frame, so the whole shelf glides.
+  // keyed by surah number, and only move its `--off`. Width, coverflow scale, and opacity are all pure
+  // functions of `--off`, so tweening the NUMBER glides all three: the centre that slides out (off 0 →
+  // 1) narrows while the neighbour sliding in (off 1 → 0) widens, and the flex row re-centres each
+  // frame. We drive --off in JS (requestAnimationFrame) rather than a CSS `transition`, because a CSS
+  // custom-property transition only interpolates the property on the element that DECLARES it — the
+  // width lives on .srow while --off is inherited, so CSS transitions snapped. Setting the concrete
+  // number each frame makes the browser recompute width from it directly, every frame, reliably.
   const nodes = new Map<number, HTMLLIElement>();
-  const setOff = (li: HTMLLIElement, off: number): void => {
+  const DUR = 560; // ms, matches the old transition feel
+  const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3); // fast start, gentle settle
+  const anims = new Map<HTMLLIElement, { from: number; to: number; start: number }>();
+  let raf = 0;
+  const applyOff = (li: HTMLLIElement, v: number): void => {
+    li.dataset.offc = String(v); // current applied value — the start point for the next tween
+    const s = String(v);
+    li.style.setProperty("--off", s); // li: coverflow scale + opacity
+    (li.firstElementChild as HTMLElement | null)?.style.setProperty("--off", s); // .srow: width
+  };
+  const tick = (now: number): void => {
+    let alive = false;
+    for (const [li, a] of anims) {
+      const p = a.start >= now ? 0 : Math.min(1, (now - a.start) / DUR);
+      applyOff(li, a.from + (a.to - a.from) * easeOut(p));
+      if (p >= 1) anims.delete(li);
+      else alive = true;
+    }
+    raf = alive ? requestAnimationFrame(tick) : 0;
+  };
+  // Move a card's --off toward `to`. `animate=false` snaps (fresh cards, first paint); otherwise it
+  // tweens from wherever the card currently SITS (dataset.offc), so a turn interrupted mid-morph by a
+  // fast second turn glides on from its live width instead of jumping — rapid spins stay smooth.
+  const moveOff = (li: HTMLLIElement, to: number, animate: boolean): void => {
+    const from = Number(li.dataset.offc ?? to);
+    if (!animate || Math.abs(from - to) < 0.001) {
+      anims.delete(li);
+      applyOff(li, to);
+      return;
+    }
+    anims.set(li, { from, to, start: performance.now() });
+    if (!raf) raf = requestAnimationFrame(tick);
+  };
+  const setOff = (li: HTMLLIElement, off: number, animate = true): void => {
     li.dataset.off = String(off);
-    li.style.setProperty("--off", String(Math.abs(off)));
     li.style.opacity = "";
-    li.querySelector(".srow")?.classList.toggle("is-open", off === 0);
+    li.querySelector<HTMLElement>(".srow")?.classList.toggle("is-open", off === 0);
+    moveOff(li, Math.abs(off), animate);
   };
 
   const renderWheel = (): void => {
@@ -318,23 +355,26 @@ export function renderIndex(mount: HTMLElement): void {
       if (wanted.has(n)) continue;
       nodes.delete(n);
       (Number(li.dataset.off ?? 0) < 0 ? leftGhosts : rightGhosts).push(li);
-      li.style.setProperty("--off", String(WINDOW + 1));
-      li.style.opacity = "0";
-      setTimeout(() => li.remove(), 560);
+      // Tween --off well past the window: width floors at the spine, opacity (= 1 − off·0.12) fades to
+      // 0, and scale shrinks — the card glides out on its own edge rather than popping. Then drop it.
+      li.dataset.off = "9";
+      moveOff(li, 9, true);
+      setTimeout(() => li.remove(), DUR);
     }
 
     // Final left-to-right order: left ghosts, the live window, right ghosts. Reuse a surviving node
-    // (so its width transitions) or build one fresh (it eases in via qkrot).
+    // (tween its --off) or build one fresh (snap it to its resting --off; it eases in via qkrot).
     const ordered: HTMLLIElement[] = [...leftGhosts];
     for (const { s, off } of want) {
       let li = nodes.get(s.n);
       if (li) {
-        setOff(li, off);
+        setOff(li, off, true);
       } else {
         const tmp = document.createElement("div");
         tmp.innerHTML = indexRow(s, off === 0, off).trim();
         li = tmp.firstElementChild as HTMLLIElement;
         nodes.set(s.n, li);
+        setOff(li, off, false); // snap fresh cards to their resting width (no tween on first paint)
       }
       ordered.push(li);
     }
