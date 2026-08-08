@@ -180,6 +180,76 @@ const TEMATIK_AR: Record<string, string> = {
 
 
 /**
+ * Size the card wall so its heights stay proportional to ayah count AND the whole thing fits one
+ * viewport with nothing to scroll.
+ *
+ * The prototype's proportions are `148 + n*0.52` px, which totals ~3,200px across the 13 themes.
+ * That is roughly six times taller than the space between the header and the docked composer, so
+ * the shape is kept and the magnitude is scaled: every card is multiplied by one factor chosen so
+ * the total lands just inside `columns x columnHeight`. One factor for all of them is what keeps
+ * the comparison honest — "Perintah dan Larangan" stays exactly 626/38 times taller than "Sosial".
+ *
+ * Measured from the live box rather than assumed, and re-run on resize, because the column count is
+ * a media query and the height is a dvh clamp: hard-coding a factor would fit my window and no one
+ * else's. MIN_H keeps the smallest theme tall enough for two lines of title plus its count.
+ */
+const MIN_H = 104;
+
+export function fitTematik(): void {
+  const grid = document.getElementById("tematik-grid");
+  if (!grid || grid.hidden) return;
+  const cards = [...grid.querySelectorAll<HTMLAnchorElement>(".tema-card")];
+  if (!cards.length) return;
+
+  const cs = getComputedStyle(grid);
+  const cols = Number.parseInt(cs.columnCount, 10);
+  const box = grid.getBoundingClientRect().height;
+  // Below the breakpoint the wall scrolls with the page; heights go back to the CSS default.
+  if (!Number.isFinite(cols) || cols < 1 || box < 40) {
+    for (const c of cards) c.style.removeProperty("--tema-h");
+    return;
+  }
+
+  const gap = 14; // matches the margin-bottom in shell.css
+  const raw = cards.map((c) => 148 + Number(c.dataset["n"] ?? 0) * 0.52);
+  const budget = cols * box - cards.length * gap;
+  const total = raw.reduce((a, b) => a + b, 0);
+  let scale = Math.min(1, budget / total);
+
+  const apply = (k: number): void => {
+    for (const [i, c] of cards.entries()) {
+      c.style.setProperty("--tema-h", `${Math.max(MIN_H, Math.round(raw[i]! * k))}px`);
+    }
+  };
+
+  /**
+   * Then shrink until it actually fits, because the arithmetic above is optimistic.
+   *
+   * `break-inside: avoid` means a column ends as soon as the next card would not fit whole, so real
+   * packing always wastes some of `cols x height`. Assuming perfect packing cost "Karakteristik
+   * Negara Bersyari'ah" its place — it spilled into a sixth column and `overflow: hidden` ate it, so
+   * the wall silently showed 12 of 13 themes. A dropped theme is not a layout blemish; it is the
+   * page lying about the index.
+   *
+   * Overflow is detectable: extra columns widen the box, so `scrollWidth > clientWidth` means at
+   * least one card did not make it. Shrink 6% and re-measure, up to a floor.
+   */
+  apply(scale);
+  for (let i = 0; i < 10 && grid.scrollWidth > grid.clientWidth + 1 && scale > 0.2; i++) {
+    scale *= 0.94;
+    apply(scale);
+  }
+}
+
+let fitBound = false;
+/** One listener for the lifetime of the tab; fitTematik no-ops when the wall is not on screen. */
+function bindFit(): void {
+  if (fitBound) return;
+  fitBound = true;
+  addEventListener("resize", () => fitTematik());
+}
+
+/**
  * "Cari Tema" — on this route the docked box is a FINDER, the same contract the Al-Qur'an surface
  * gives it, never the companion prompt.
  *
@@ -247,7 +317,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
         ${index.categories
           .map(
             (c) => `
-          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
+          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-n="${c.entries}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
             <span class="tema-girih" aria-hidden="true"></span>
             <span class="tema-ar" dir="rtl" lang="ar">${esc(TEMATIK_AR[c.slug] ?? "")}</span>
             <span class="tema-body">
@@ -263,6 +333,8 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
     </div>`;
 
   bindMapToggle(mount);
+  bindFit();
+  fitTematik();
   say(`Tematik — ${t.categories} tema tersedia.`);
 }
 
@@ -300,6 +372,7 @@ function bindMapToggle(mount: HTMLElement): void {
   cardsBtn?.addEventListener("click", () => {
     if (slot.hidden) return; // cards are already the visible view
     show("cards");
+    fitTematik(); // the wall had no measurable box while it was display:none
     say("Tampilan kartu.");
   });
 
