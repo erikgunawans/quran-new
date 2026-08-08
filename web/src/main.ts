@@ -10,7 +10,7 @@ import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, findSurah, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
-import { destroyCosmos, renderPetaCategory, renderPetaIndex } from "./peta.ts";
+import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTemaHref } from "./peta.ts";
 import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih } from "./sections.ts";
@@ -622,10 +622,15 @@ async function route() {
   document.documentElement.toggleAttribute("data-baca", hash === "#/baca");
   // On the Al-Qur'an surface the docked box doubles as the surah finder, so it invites a search
   // rather than a feeling. Everywhere else it is the companion prompt. (Erik: composer says "Cari Surah".)
-  input.placeholder = hash === "#/baca" ? "Cari Surah" : "aku lagi capek banget…";
+  input.placeholder =
+    hash === "#/baca" ? "Cari Surah" : hash === "#/peta" ? "Cari Tema" : "aku lagi capek banget…";
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
+  // The Tematik index gives the docked box the same treatment the Al-Qur'an surface does: a
+  // quiet FINDER, not the companion prompt. Distinct from data-cosmos (which owns the sky) so
+  // changing one never silently changes the other.
+  document.documentElement.toggleAttribute("data-tematik", hash === "#/peta");
   const m = hash.match(/^#\/surah\/(\d{1,3})(?:#(\d{1,3}))?$/);
   const p = hash.match(/^#\/peta\/([a-z0-9-]+)$/);
   const h = hash.match(/^#\/hadis\/([a-z]+)\/(\d{1,3})$/);
@@ -731,6 +736,16 @@ form.addEventListener("submit", (e) => {
     void searchBaca(q);
     return;
   }
+  // Tematik: the box is a finder here too. It has already filtered on every keystroke, so submit
+  // only has to resolve the case where exactly one theme is left — then it opens it.
+  if (location.hash === "#/peta") {
+    const only = soleTemaHref();
+    if (only) {
+      filterTema("");
+      location.hash = only;
+    }
+    return;
+  }
   void ask(q);
 });
 
@@ -755,6 +770,8 @@ input.addEventListener("input", () => {
   input.style.height = "auto";
   input.style.height = Math.min(input.scrollHeight, 112) + "px";
   send.disabled = !input.value.trim();
+  // Tematik filters live — thirteen cards are all on screen, so the answer can be instant.
+  if (location.hash === "#/peta") filterTema(input.value);
 });
 
 input.addEventListener("keydown", (e) => {

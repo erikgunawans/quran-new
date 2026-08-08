@@ -178,10 +178,38 @@ const TEMATIK_AR: Record<string, string> = {
   "karakteristik-negara-bersyari-ah": "الدولة",
 };
 
-/** Bento height: taller cards carry more ayat. Scaled off the largest category so the grid breathes
- * like the design (Perintah dan Larangan towers; Sosial is a tile). */
-const tematikCardH = (entries: number, max: number): number =>
-  Math.round(158 + (Math.min(entries, max) / max) * 188);
+
+/**
+ * "Cari Tema" — on this route the docked box is a FINDER, the same contract the Al-Qur'an surface
+ * gives it, never the companion prompt.
+ *
+ * It filters instead of calling a model, and that difference from `searchBaca` is deliberate: there
+ * are 114 surahs and a reader may describe one by feeling, so that search earns a semantic
+ * round-trip. There are THIRTEEN categories, all on screen at once — a network call to choose among
+ * thirteen visible things would be slower and less certain than showing which ones match as you
+ * type. Matches the Indonesian name, the Arabic name, and the slug.
+ */
+export function filterTema(q: string): number {
+  const grid = document.getElementById("tematik-grid");
+  if (!grid) return 0;
+  const needle = q.trim().toLowerCase();
+  let shown = 0;
+  for (const card of grid.querySelectorAll<HTMLAnchorElement>(".tema-card")) {
+    const hit = !needle || (card.dataset["find"] ?? "").includes(needle);
+    card.hidden = !hit;
+    if (hit) shown++;
+  }
+  grid.classList.toggle("is-filtered", Boolean(needle));
+  return shown;
+}
+
+/** The href of the only matching card, or null when the filter is not down to exactly one. */
+export function soleTemaHref(): string | null {
+  const grid = document.getElementById("tematik-grid");
+  if (!grid) return null;
+  const vis = [...grid.querySelectorAll<HTMLAnchorElement>(".tema-card")].filter((c) => !c.hidden);
+  return vis.length === 1 ? vis[0]!.getAttribute("href") : null;
+}
 
 /** The 13 categories. Fetches index.json ONLY — no category shard is touched here. */
 export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
@@ -199,7 +227,6 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
   }
 
   const t = index.totals;
-  const maxEntries = Math.max(...index.categories.map((c) => c.entries));
   mount.innerHTML = `
     <div class="read-index tematik-index">
       <header class="tematik-head">
@@ -208,7 +235,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
           <p class="tematik-sub">Tiga belas tema besar Al-Qur'an, dengan jumlah ayat yang menyinggungnya.</p>
         </div>
         <div class="tematik-head-r">
-          <button class="tematik-vbtn is-active" type="button" aria-pressed="true">Kartu</button>
+          <button class="tematik-vbtn tematik-cards-toggle is-active" type="button" aria-pressed="true">Kartu</button>
           <button class="tematik-vbtn peta-map-toggle" type="button" aria-expanded="false" aria-controls="peta-map-slot">Peta Tematik</button>
           <a class="tematik-back" href="#/">Kembali</a>
         </div>
@@ -216,11 +243,11 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
 
       <div id="peta-map-slot" class="peta-map-slot" hidden></div>
 
-      <div class="tematik-grid">
+      <div class="tematik-grid" id="tematik-grid">
         ${index.categories
           .map(
             (c) => `
-          <a class="tema-card" href="#/peta/${esc(c.slug)}" style="--tema-h:${tematikCardH(c.entries, maxEntries)}px">
+          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
             <span class="tema-girih" aria-hidden="true"></span>
             <span class="tema-ar" dir="rtl" lang="ar">${esc(TEMATIK_AR[c.slug] ?? "")}</span>
             <span class="tema-body">
@@ -248,22 +275,37 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
  */
 function bindMapToggle(mount: HTMLElement): void {
   const btn = mount.querySelector<HTMLButtonElement>(".peta-map-toggle");
+  const cardsBtn = mount.querySelector<HTMLButtonElement>(".tematik-cards-toggle");
   const slot = mount.querySelector<HTMLDivElement>("#peta-map-slot");
+  const grid = mount.querySelector<HTMLDivElement>("#tematik-grid");
   if (!btn || !slot) return;
 
   let loaded = false;
 
-  btn.addEventListener("click", async () => {
-    const open = btn.getAttribute("aria-expanded") === "true";
-    if (open) {
-      btn.setAttribute("aria-expanded", "false");
-      slot.hidden = true;
-      say("Peta ditutup.");
-      return;
-    }
+  /**
+   * Kartu and Peta Tematik are two VIEWS of the same 13 categories, not two panels that stack.
+   * Showing both meant scrolling past a 3D canvas to reach the cards, and left "Kartu" lit while
+   * the map was open — the control lied about the state. Exactly one is visible (Erik, 2026-08-08).
+   */
+  const show = (view: "cards" | "map"): void => {
+    const map = view === "map";
+    slot.hidden = !map;
+    if (grid) grid.hidden = map;
+    btn.setAttribute("aria-expanded", String(map));
+    btn.classList.toggle("is-active", map);
+    cardsBtn?.classList.toggle("is-active", !map);
+    cardsBtn?.setAttribute("aria-pressed", String(!map));
+  };
 
-    btn.setAttribute("aria-expanded", "true");
-    slot.hidden = false;
+  cardsBtn?.addEventListener("click", () => {
+    if (slot.hidden) return; // cards are already the visible view
+    show("cards");
+    say("Tampilan kartu.");
+  });
+
+  btn.addEventListener("click", async () => {
+    if (btn.getAttribute("aria-expanded") === "true") return; // map is already the visible view
+    show("map");
 
     if (loaded) return;
     slot.innerHTML = `<p class="peta-map-loading">Memuat peta…</p>`;
