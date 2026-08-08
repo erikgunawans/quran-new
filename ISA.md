@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E3
 phase: complete
-progress: 225/228
+progress: 226/228
 mode: build
 started: 2026-07-13
 updated: 2026-08-09
@@ -248,7 +248,7 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-108: NO TTL — test "a bookmark from 30 days ago still loads" passes (aged `at`, still returned)
 - [x] ISC-109: `saveBookmark` debounced/coalesced — test "rapid saves coalesce to the latest position" passes (2:1 then 2:255 → 2:255)
 - [x] ISC-110: scrolling updates the persisted position via IntersectionObserver — **LIVE-VERIFIED 2026-08-08** during the ISC-99 probe, which supplied the visible, non-minimized page the old deferral was waiting for. On `#/surah/2` at 375px, scrolling `.qk-panel-body` to 4200 then 9000 moved `localStorage["newquranku:baca"]` from `null` → `{"surah":2,"ayah":1}` → `{"surah":2,"ayah":9}`. Note the key is `newquranku:baca`, not the `nur:baca` this entry originally named — the rename outlived the note, and the first probe read the dead key and looked like a regression. Prior deferral text: CODE verified (grep-confirmed wiring, min-over-persistent-`Set` the advisor validated, per-chunk `observe()`); LIVE firing could NOT be probed because the Chrome window is minimized → `document.visibilityState === "hidden"` → the browser suspends the rendering lifecycle so IO callbacks do not fire (confirmed live: `hidden=true`, `scrollY=0`, `nur:baca=null` after landing; same environment limit as ISC-98/99 and last session's rAF-while-minimized issue). FOLLOW-UP: Erik scrolls a surah in a NON-minimized window and confirms `localStorage["nur:baca"]` advances.
-- [DEFERRED-VERIFY] ISC-111: opening `#/surah/N#A` records `N:A` — the LANDING half verified live (deep-link `#/surah/18#10` renders Al-Kahf, `.verse[data-ref="18:10"]` present, `.landed` fires); the RECORD half shares ISC-110's hidden-document deferral (same FOLLOW-UP)
+- [x] ISC-111: opening `#/surah/N#A` records `N:A` — **FULLY LIVE-VERIFIED 2026-08-09**, both halves. LANDING half (verified earlier): deep-link `#/surah/18#10` renders Al-Kahf, `.verse[data-ref="18:10"]` present, `.landed` fires. RECORD half (closed today): with `newquranku:baca` deleted first so no stale value could fake a pass, deep-linking `#/surah/18#10` in a **foregrounded** tab wrote `{"v":1,"surah":18,"ayah":10}`; a control on a different ref, `#/surah/2#255`, wrote `{"v":1,"surah":2,"ayah":255}` — the value tracks the deep link rather than being a fixed artifact. The deferral was confirmed to be **purely environmental, never a code defect**: the same navigation with `document.visibilityState === "hidden"` left `baca: null` despite `landed: true`, and the write appeared within seconds of `tab switch` making the document visible. Same environment limit ISC-110 shed on 2026-08-09.
 - [x] ISC-112: Anti: `saveBookmark` is called from exactly ONE site — `read.ts:111`, the `renderSurah` observer callback; grep confirms it appears in no other module (not `main.ts`, not `themes.ts`)
 - [x] ISC-113: Leaving a surah disconnects the observer AND cancels the pending debounced write — `stopTracking()` (calls `disconnect()` + `cancelBookmark()`) fires at `renderSurah` entry, `renderIndex` entry, and inside `startTracking`; grep-confirmed
 - [x] ISC-114: With a bookmark set, `renderIndex` shows a "Lanjutkan baca" entry linking to `#/surah/{surah}#{ayah}` — LIVE: `.resume` exists, `href="#/surah/18#10"`
@@ -1181,6 +1181,21 @@ articulation.
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.
+
+**2026-08-09 — ISC-111's record half, and the deferral's cause proven rather than assumed.**
+- ISC-111 (record half): `interceptor eval` deleted `newquranku:baca` (read back `null`), then
+  `navigate https://new-quranku.axiara.ai/#/surah/18#10`. First read returned
+  `{"vis":"hidden","landed":true,"baca":null}` — the deferral reproducing verbatim. `tab switch`
+  to foreground, and the next read returned
+  `{"vis":"visible","baca":"{\"v\":1,\"surah\":18,\"ayah\":10,\"at\":1786218299482}"}`.
+- ISC-111 (control): key cleared again, `#/surah/2#255` →
+  `{"vis":"visible","landed":true,"baca":"{\"v\":1,\"surah\":2,\"ayah\":255}"}`. Two different refs
+  produce two different bookmarks, so the write tracks the deep link and is not a fixed artifact.
+- **Cause established:** the identical navigation produced `null` while hidden and the correct value
+  while visible, with no code change in between. The two-session deferral was `visibilityState`
+  suspending the rendering lifecycle (so IntersectionObserver never delivers), exactly as the
+  ISC-110 note conjectured — now demonstrated with a hidden/visible A-B on one page load rather
+  than inferred.
 
 **Cycle 4 — the 3D cosmos (2026-07-17 resume).** These are build-artifact and source probes, not
 Interceptor live — the cosmos's one live claim (frame rate) is exactly the deferred one.
