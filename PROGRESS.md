@@ -8,7 +8,61 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Preface language toggle (Bahasa Indonesia option) + Terjemahan makna sizing
+## 2026-08-08 (latest) — Tematik reworked: finder, one-screen card wall, exclusive views
+
+Anchor: quran-new/main `8bf7c8d`. Prod Worker `55d78027`, JS `index-LbFm_Y-P.js`, CSS `index-tQz5gTE3.css`.
+988 tests pass (session start: 923).
+
+**Search.** The docked box on `#/peta` is a FINDER, matching the Al-Qur'an contract exactly
+(`data-tematik` mirrors `data-baca`: 320px, opacity .5, grows on hover/focus; placeholder "Cari Tema";
+submit never opens chat). It filters live rather than calling a model — deliberate: 114 surahs justify
+a semantic round-trip because a reader may describe one by feeling, but thirteen categories are all on
+screen, so a network call to choose among thirteen visible things is slower and less certain. Enter
+opens the theme when the filter is down to one.
+
+**The card wall — semi-proportional, one bottom line.** Strict proportionality is what MAKES a masonry
+bottom ragged, so the two asks cannot both be exact. Resolution: N flex columns of equal height, each
+card `flex-grow` = its ayah count. Heights are exactly proportional WITHIN a column and every column
+fills to the bottom. `fitTematik()` balances column SUMS (greedy longest-first), not card counts —
+equal sums mean near-equal scales so the global ranking survives; balancing by count would let three
+small themes alone in a column out-tower the 626. Measured: 5 columns, all bottoms on one line, 626
+tallest at 489px. Surfaces are the claude.ai/design prototype's eight gradients (BG_L/BG_D from
+`~/Downloads/quranku-design.html`) applied by `index % 8`; gaps 14px → 8px. `--tema-cols` is the single
+source of the column count (media queries set it, JS reads it) so the two cannot disagree.
+
+**Views are exclusive.** Kartu and Peta Tematik are two views of one thing. `grid.hidden = true` had
+been doing NOTHING because `display: grid/flex` out-argues `[hidden]` — the exact trap DESIGN.md
+§ Layout documents. My check had read the hidden PROPERTY, not the render, and reported a pass on a
+layout that never changed. Re-asserted; verified `display:none`, 0 cards rendered.
+
+**Attribution.** Credit moved under the subtitle; the two grey caveat lines came off the page onto an
+ⓘ on the credit line (hover + tap + focus, full sentence in the aria-label). The CATEGORY route keeps
+its visible paragraph — the first pass changed both and the F-2 guardrail caught it. That test now
+asserts the index form (tooltip + aria-label) and the category form (paragraph) separately.
+
+**Earlier in the session** (see the three checkpoints below): the split-screen surah page with Dorar's
+preface, the Bahasa Indonesia option, all 114 Indonesian drafts, and a design audit against DESIGN.md
+that fixed six findings.
+
+### Traps this session paid for twice — read before touching layout here
+
+- **`display` out-argues `[hidden]`.** Cost a false "verified". Checking `el.hidden` proves the
+  PROPERTY, never the render. Assert `getComputedStyle(el).display`.
+- **`bun run build && wrangler deploy` does not fail safely.** The build failed, the `&&` still ran,
+  and wrangler shipped the previous `dist`. Check the build's exit code before deploying.
+- **Regex edits on source deleted 191 lines of `peta.ts`** including its record of Ustadz Isrofiel's
+  display permission. Use exact-string replacement with an assert, or bounded indices.
+- **The Interceptor tab drifts** to whatever Chrome focuses, and `vite preview` / prod both serve
+  stale bundles. Compare the loaded `<script src>` against `curl` before believing ANY negative result.
+- **`eval --main` shares one global scope** — a repeated top-level `const` throws a silent
+  SyntaxError and prints `ok`. Wrap probes in an IIFE.
+
+**Still open (ISA ISC-98/99):** no real narrow-viewport (≤375px) probe, and no real-device iOS check.
+Every layout shipped today has a `≤700px`/`≤820px` branch that is CSS-verified only.
+
+---
+
+## 2026-08-08 — Preface language toggle (Bahasa Indonesia option) + Terjemahan makna sizing
 
 Anchor: quran-new/main `b5c1f74`. Prod Worker `7cdfeb8b`, JS `index-BLTTSW9y.js`.
 
