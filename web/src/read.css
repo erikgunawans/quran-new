@@ -867,13 +867,51 @@
 
 /* ── the preface ─────────────────────────────────────────────────────────── */
 #read .surah-intro { color: var(--ink); }
-#read .si-lang {
-  margin: 0 0 12px;
-  font-size: 0.82em;
-  color: var(--ink-2);
+/* Language toggle. Arabic first and default — it is the edition Dorar actually wrote; anything
+   else is derived. An unavailable language stays visible but disabled rather than vanishing. */
+#read .si-langbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
-  padding-bottom: 8px;
 }
+#read .si-langbtn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.82em;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease);
+}
+#read .si-langbtn:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+#read .si-langbtn.on { background: var(--primary-wash); border-color: var(--primary-line); color: var(--ink); font-weight: 600; }
+#read .si-langbtn:disabled { opacity: 0.55; cursor: not-allowed; }
+#read .si-langbtn:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
+#read .si-na { font-size: 0.86em; opacity: 0.8; }
+
+/* The provenance banner for an unofficial edition. Deliberately loud — a machine translation of
+   religious commentary presented as scholarship is the failure that matters on this surface. */
+#read .si-warn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border: 1px solid var(--primary-line);
+  border-left-width: 3px;
+  border-radius: var(--r);
+  background: var(--primary-wash);
+  font-size: 0.86em;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+#read .si-warn b { color: var(--ink); }
 #read .si-sec { margin: 0 0 20px; }
 #read .si-h {
   margin: 0 0 8px;

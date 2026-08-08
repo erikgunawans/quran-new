@@ -381,7 +381,11 @@
 /* the interpretive reading: plain on the glass, its honesty chip intact */
 .qk-panel-body .verse .reading { border-top: 0; padding: 2px 24px 16px; background: transparent; }
 .qk-panel-body .verse .reading.primary { background: transparent; }
-.qk-panel-body .verse .reading .txt { font-size: clamp(16px, 1.8vw, 20px); line-height: 1.6; }
+/* Translation body size. Was clamp(16px, 1.8vw, 20px), which pinned to 20px on any desktop width and
+   left this one block visibly larger than everything around it — the global −10% zoom scaled the rest
+   down but a px ceiling has no opinion about that, so the gap only widened (Erik). Brought to a 17px
+   ceiling: still the most readable thing in the card, no longer the loudest. */
+.qk-panel-body .verse .reading .txt { font-size: clamp(15px, 1.35vw, 17px); line-height: 1.65; }
 
 /* ── the depth toggle → a pill (design 1c), tafsir stack unchanged ───── */
 .qk-panel-body .verse .depth { border-top: 0; padding: 0 24px 18px; }

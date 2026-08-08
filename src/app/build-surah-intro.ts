@@ -50,6 +50,9 @@ import { Glob } from "bun";
 import { mkdir } from "node:fs/promises";
 
 const SRC = "data/surah-intro-src";
+/** Alternate-language sources live at `<SRC_ALT>/<lang>/<nnn>.md`. Sparse by design — today only 1 of 114. */
+const SRC_ALT = "data/surah-intro-src";
+const ALT_LANGS = ["id"] as const;
 const OUT_DIR = "web/public/surah-intro";
 const EXPECTED_SURAHS = 114;
 
@@ -64,6 +67,31 @@ export interface IntroSection {
   readonly body: string;
 }
 
+/**
+ * A non-Arabic edition of the same preface, offered as an OPTION beside the Arabic — never as a
+ * replacement for it, and never unlabelled.
+ *
+ * The only edition that currently exists is an unreviewed machine translation. Its own source file
+ * opens with `⚠ TERJEMAHAN AI, BELUM DITINJAU … Jangan disajikan ke pengguna sebelum ditinjau Ustadz
+ * Ahmad Isrofiel`. Erik asked for it as a reader-selectable option on 2026-08-08, so it ships — but
+ * the provenance fields below travel WITH the text and the renderer is required to display them,
+ * because the failure that actually matters here is a reader mistaking machine output for Dorar's
+ * scholarship. These fields are not metadata; they are part of the content.
+ */
+export interface IntroEdition {
+  readonly lang: string;
+  /** false for anything that is not an edition the rights holder published. */
+  readonly official: boolean;
+  /** e.g. "ai" — how the text came to exist. */
+  readonly translation: string;
+  /** e.g. "unreviewed". */
+  readonly reviewStatus: string;
+  /** Who still has to sign it off. */
+  readonly reviewerNeeded: string;
+  readonly sections: readonly IntroSection[];
+  readonly refs: readonly string[];
+}
+
 export interface SurahIntro {
   readonly n: number;
   readonly nameAr: string;
@@ -76,6 +104,8 @@ export interface SurahIntro {
   readonly sections: readonly IntroSection[];
   /** The numbered المراجع list, one entry per footnote, verbatim. */
   readonly refs: readonly string[];
+  /** Optional alternate editions, keyed by language. Absent when only the Arabic exists. */
+  readonly editions?: Readonly<Record<string, IntroEdition>>;
 }
 
 /**
@@ -114,9 +144,22 @@ const CLASSIFIERS: readonly (readonly [string, IntroKind])[] = [
   ["موضوعات", "topics"],
   ["فضائل", "virtues"],
   ["فضل", "virtues"],
+  // The Indonesian edition writes its headings in Indonesian. Matched lower-cased, and kept in the
+  // same table so the two languages can never drift into different section vocabularies.
+  ["nama-nama", "names"],
+  ["penjelasan makkiyah", "revelation"],
+  ["maksud-maksud", "aims"],
+  ["tema-tema", "topics"],
+  ["keutamaan", "virtues"],
 ];
 
-/** The heading whose section is the footnote apparatus, not prose. */
+/**
+ * The heading whose section is the footnote apparatus, not prose.
+ *
+ * Prefix, not equality: the Indonesian edition keeps the Arabic word and glosses it —
+ * `المراجع (Rujukan)` — so an exact match would silently render the whole footnote apparatus as
+ * body prose.
+ */
 const REFS_HEADING = "المراجع";
 
 /** Render order. `other` trails because it is the per-surah oddity, not part of the standard frame. */
@@ -124,8 +167,9 @@ const KIND_ORDER: readonly IntroKind[] = ["names", "revelation", "aims", "topics
 
 export const classify = (heading: string): IntroKind | "references" => {
   const f = foldHeading(heading);
-  if (f === REFS_HEADING) return "references";
-  for (const [prefix, kind] of CLASSIFIERS) if (f.startsWith(prefix)) return kind;
+  if (f.startsWith(REFS_HEADING)) return "references";
+  const lower = f.toLowerCase();
+  for (const [prefix, kind] of CLASSIFIERS) if (f.startsWith(prefix) || lower.startsWith(prefix)) return kind;
   return "other";
 };
 
@@ -205,17 +249,11 @@ export const splitRefs = (body: string): readonly string[] => {
   return out.filter((s) => s.length > 0);
 };
 
-export const parseIntro = (raw: string, expectN: number): SurahIntro => {
-  const fm = frontmatter(raw);
-  const n = Number(fm["surah"]);
-  if (n !== expectN) throw new Error(`surah ${expectN}: frontmatter says surah=${fm["surah"]}`);
-  if (fm["language"] !== "ar") throw new Error(`surah ${expectN}: language=${fm["language"]}, expected ar`);
-
-  const parsed = sectionsOf(bodyOf(raw));
+/** Split a source file into its ordered prose sections and its footnote list. Language-agnostic. */
+const partsOf = (raw: string): { sections: IntroSection[]; refs: readonly string[] } => {
   const sections: IntroSection[] = [];
   let refs: readonly string[] = [];
-
-  for (const [title, body] of parsed) {
+  for (const [title, body] of sectionsOf(bodyOf(raw))) {
     const kind = classify(title);
     if (kind === "references") {
       refs = splitRefs(body);
@@ -224,9 +262,46 @@ export const parseIntro = (raw: string, expectN: number): SurahIntro => {
     if (!body) continue; // an empty section is nothing to show
     sections.push({ kind, title, body });
   }
-
-  // Render order, stable within a kind (source order preserved for the rare repeated kind).
   sections.sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
+  return { sections, refs };
+};
+
+/**
+ * Parse an alternate-language edition.
+ *
+ * Refuses to emit one that does not declare its provenance. An edition whose `official`/`translation`
+ * /`review_status` fields are missing cannot be labelled honestly downstream, and an unlabelled
+ * machine translation of religious commentary is precisely the artifact this codebase must not ship.
+ */
+export const parseEdition = (raw: string, expectN: number, expectLang: string): IntroEdition => {
+  const fm = frontmatter(raw);
+  if (Number(fm["surah"]) !== expectN) throw new Error(`edition ${expectN}: frontmatter says surah=${fm["surah"]}`);
+  if (fm["language"] !== expectLang) throw new Error(`edition ${expectN}: language=${fm["language"]}`);
+
+  const official = fm["official"] === "true";
+  const translation = fm["translation"] ?? "";
+  const reviewStatus = fm["review_status"] ?? "";
+  const reviewerNeeded = fm["reviewer_needed"] ?? "";
+  if (!official && (!translation || !reviewStatus)) {
+    throw new Error(
+      `edition ${expectN} (${expectLang}): unofficial edition without translation/review_status — ` +
+        `it cannot be labelled honestly, refusing to ship`,
+    );
+  }
+
+  const { sections, refs } = partsOf(raw);
+  if (!sections.length) throw new Error(`edition ${expectN} (${expectLang}): no sections parsed`);
+
+  return { lang: expectLang, official, translation, reviewStatus, reviewerNeeded, sections, refs };
+};
+
+export const parseIntro = (raw: string, expectN: number): SurahIntro => {
+  const fm = frontmatter(raw);
+  const n = Number(fm["surah"]);
+  if (n !== expectN) throw new Error(`surah ${expectN}: frontmatter says surah=${fm["surah"]}`);
+  if (fm["language"] !== "ar") throw new Error(`surah ${expectN}: language=${fm["language"]}, expected ar`);
+
+  const { sections, refs } = partsOf(raw);
 
   const nameAr = fm["surah_name"];
   const src = fm["source"];
@@ -260,6 +335,7 @@ if (import.meta.main) {
   await mkdir(OUT_DIR, { recursive: true });
 
   const index: Record<number, number> = {};
+  const altCount: Record<string, number> = {};
   let totalSections = 0;
 
   for (const f of files) {
@@ -281,7 +357,17 @@ if (import.meta.main) {
     const odd = intro.sections.filter((s) => s.kind === "other").map((s) => s.title);
     if (odd.length) console.log(`  note: surah ${n} unclassified section(s): ${odd.join(" | ")}`);
 
-    await Bun.write(`${OUT_DIR}/${n}.json`, JSON.stringify(intro));
+    // Alternate editions, when one exists for this surah. Absent is the normal case today.
+    const editions: Record<string, IntroEdition> = {};
+    for (const lang of ALT_LANGS) {
+      const f2 = Bun.file(`${SRC_ALT}/${lang}/${String(n).padStart(3, "0")}.md`);
+      if (!(await f2.exists())) continue;
+      editions[lang] = parseEdition(await f2.text(), n, lang);
+      altCount[lang] = (altCount[lang] ?? 0) + 1;
+    }
+
+    const shard: SurahIntro = Object.keys(editions).length ? { ...intro, editions } : intro;
+    await Bun.write(`${OUT_DIR}/${n}.json`, JSON.stringify(shard));
     index[n] = intro.sections.length;
     totalSections += intro.sections.length;
   }
@@ -291,4 +377,10 @@ if (import.meta.main) {
   console.log(
     `surah-intro: ${files.length} surahs, ${totalSections} sections → ${OUT_DIR}/ (Arabic, verbatim, Dorar-attributed)`,
   );
+  for (const lang of ALT_LANGS) {
+    const n = altCount[lang] ?? 0;
+    // Loud on purpose. A 1-of-114 alternate edition is a scaffold, not a feature, and the gap is
+    // the thing a reader will actually hit.
+    console.log(`  alt edition "${lang}": ${n}/${EXPECTED_SURAHS} surahs${n < EXPECTED_SURAHS ? " — SPARSE" : ""}`);
+  }
 }

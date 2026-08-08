@@ -32,7 +32,7 @@ import { announce } from "./announce.ts";
 import { cancelBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
-import { IntroError, introEl, loadIntro } from "./surah-intro.ts";
+import { bindIntroLang, IntroError, introEl, loadIntro } from "./surah-intro.ts";
 
 // ── how much scripture arrives at once ───────────────────────────────────────
 //
@@ -552,6 +552,7 @@ async function hydrateIntro(root: HTMLElement, n: number, mine: number): Promise
     const intro = await loadIntro(n);
     if (token !== mine || !slot.isConnected) return;
     slot.innerHTML = introEl(intro);
+    bindIntroLang(slot, intro);
   } catch (err) {
     if (token !== mine || !slot.isConnected) return;
     const msg = err instanceof IntroError ? err.message : "Gagal memuat pengantar surah.";
