@@ -8,7 +8,26 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Six-part UI pass: composer, global type, colour shelf, transparent Peta (LIVE)
+## 2026-08-08 (latest) — Al Qur'an shelf now LOOPS (An-Nas left of Al-Fatihah, going around)
+
+Anchor: quran-new/main `0ce3581`. Prod Worker `da11ae79`, bundle `index-BOw6GuNK.js`. Erik kept the flat
+shelf's glide/morph (he likes it) but wanted the wrap back: Al-Fatihah centred, **An-Nas (114) to its left,
+Al-Baqarah (2) to its right, going around forever**.
+
+The linear track clamped at the ends (surah 1 pinned left). Now the 114 cards are **TRIPLED** into one row
+(left · home · right copy, 342 cards) so there's always a real surah on both sides. `read.ts` centres the open
+card at its track index with no clamp; after a move settles, a debounced `normalise()` snaps `pos` back to the
+home copy — invisible, because the copies are byte-identical (a ±114 pos shift + matching translate looks like
+nothing moved). `.no-anim` suppresses transitions for that one-frame snap and for resize. Glide + width morph
+are the same 620ms motion as before. Cari Surah (`wheelGoto`) jumps instant to the home-copy match.
+
+Verified live (Interceptor, foreground + prod DOM): initial = Al-Fatihah open, 114 left / 2 right; prev from
+Fatihah glides to An-Nas then normalises to ti 227 (same surah, no visible jump); 114→1→2 wraps on the right.
+923 tests pass; no new type errors.
+
+---
+
+## 2026-08-08 — Six-part UI pass: composer, global type, colour shelf, transparent Peta (LIVE)
 
 Anchor: quran-new/main `4b62de7`. Prod = new-quranku.axiara.ai, Worker `32f7abc9`, bundle `index-CGu3pU9Y.js`.
 Two reference HTML files drove items 5–6 (analyzed by subagents; the Peta port was done by a subagent).
