@@ -8,7 +8,41 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — impeccable critique of Hadis/Fikih + fixes LIVE; transliteration rejected on evidence
+## 2026-08-08 (latest) — Chat bar + Al Qur'an redesign LIVE; AI "Cari Surah" shipped (blocked on model key)
+
+Anchor: quran-new/main `43e7c19`. Three UI asks from Erik, shipped to prod (new-quranku.axiara.ai).
+
+**Commit `01a6b25` — Worker version `beefda45` (LIVE, verified via prod probes):**
+- Tanya landing chat bar → generous two-zone panel (162px tall, was ~70px), chip-free, send bottom-right.
+- Al Qur'an section: title "Baca Qur'an"→"Al Qur'an", subtitle "Al Qur'an dan Tafsir", search bar removed,
+  Kembali moved into panel-top beside the info icon (only on #/baca), docked placeholder "Cari Surah",
+  "Lanjutkan baca" → "Riwayat Bacaan" dropdown (Erik's pick).
+- Surah carousel tapers by distance: open 497px → ±1 154px → ±2 103px (book-spine), fading depth.
+- **Logo "cut" root cause**: `web/public/quranku2.1.png` is a TRUNCATED PNG (no IEND, 192KB, broken since
+  8143a6d). Shipped valid circular `web/public/quranku-logo.png` (same calligraphy, sips re-encode); original
+  left in place. Circle framing ratified by Erik. See memory `quranku-logo-truncated`.
+
+**Commit `43e7c19` — Worker version `fa42487e` (deployed, code-verified; live AI blocked):**
+- AI "Cari Surah": new `/api/find-surah` (worker) mirrors `/api/classify` — client passes the closed 114-surah
+  list, model picks the match (semantic: theme/story/feeling/name in any language). Reuses callChatModel.
+- Client `find-surah-live.ts` + `gotoSurahInWheel(n)` (read.ts) + main.ts baca branch: AI first, keyword
+  findSurah() only as invisible fallback; never opens chat. Verified via local stub + fresh-tab prod probe
+  (wheel centres, chat stays closed).
+- **BLOCKED on live semantic**: principled worker `new-quranku-proxy` has NO secrets (`wrangler secret list`
+  → []) → /api/find-surah (and /api/classify, /api/compose) return null/[] and search falls back to keyword.
+  Erik must run `cd worker && bunx wrangler secret put OPENROUTER_API_KEY` (same key synthesis/demo use; no
+  redeploy needed). See memory `principled-worker-no-key`.
+
+Tests: 923 root + 25 worker pass; typecheck adds no new errors (3 pre-existing main.ts errors only). Also freed
+~9GB disk (uv/pip/go-build/Homebrew caches + web/dist,dist-demo); machine is 99% full, real hog is `~/Downloads`
+(22GB, Erik's files — untouched). Reverted a stray wrangler 3→4 bump + npm package-lock that `bunx wrangler
+deploy` left in the worker (bun-only). NOTE: `web/dist` was deleted for space — a redeploy needs `bun run build`
+first. Task ISAs: `MEMORY/WORK/quranku-alquran-chatbar-logo/ISA.md` (24/24),
+`MEMORY/WORK/quranku-cari-surah-ai/ISA.md` (13/14, ISC-14 deferred on the key).
+
+---
+
+## 2026-08-08 — impeccable critique of Hadis/Fikih + fixes LIVE; transliteration rejected on evidence
 
 `$impeccable critique` (product register) on the Hadis/Fikih sections — two independent assessments
 (design-review agent + detector/browser). Score 23/40 (mid-range). Snapshot at
