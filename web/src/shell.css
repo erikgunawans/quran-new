@@ -524,7 +524,7 @@
 /* Height fills the panel's vertical space down to the docked composer (Erik: close the gap). The 168px
    offset reserves the panel top bar, the Al Qur'an header, the ~88px composer, and a small foot gap;
    the clamp keeps the foot clear on short viewports and lets the card grow tall on large. */
-.qk-panel-body #read .surah-list > li { flex: none; height: clamp(380px, calc(100dvh - 132px), 860px); margin: 0; }
+.qk-panel-body #read .surah-list > li { flex: none; height: clamp(380px, calc(100dvh - 150px), 860px); margin: 0; }
 /* Cards ease in on first paint so the shelf assembles rather than pops. `backwards` (not `both`) so the
    entrance does NOT hold transform:none afterwards — that would block the hover lift below. */
 @keyframes qkin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
