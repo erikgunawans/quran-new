@@ -16,6 +16,7 @@
     "app:themes": "bun run src/app/build-themes.ts",
     "app:peta": "bun run src/app/build-peta.ts",
     "app:peta3d": "bun run src/app/build-peta-3d.ts",
+    "app:peta-standalone": "bun run src/app/build-peta-standalone.ts",
     "app:design": "bun run src/app/build-design-doc.ts",
     "app:curation-sheet": "bun run src/review/build-curation-sheet.ts",
     "app:aqidah-sheet": "bun run src/review/build-aqidah-sheet.ts",
