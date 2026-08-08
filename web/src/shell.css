@@ -508,7 +508,9 @@
    (146 → 560px); neighbours stay slim book-spines — no per-neighbour taper. The width morph and the
    track glide share one 620ms ease, so opening + sliding read as a single motion. read.ts sets the
    track's translateX; CSS carries the transitions. */
-.baca-clip { flex: 1; min-width: 0; overflow: hidden; padding: 4px 0 14px; }
+/* `overflow: clip` + a clip-margin still masks the long track horizontally, but lets a hovered card's
+   lift + shadow bleed a little past the top/bottom instead of being sheared off. */
+.baca-clip { flex: 1; min-width: 0; overflow: clip; overflow-clip-margin: 30px; padding: 4px 0 14px; }
 .qk-panel-body #read .surah-list {
   display: flex; flex-direction: row; align-items: stretch; gap: 10px;
   list-style: none; margin: 0; padding: 0; width: max-content;
@@ -519,13 +521,14 @@
    the loop reset never animates a jump across copies. */
 .qk-panel-body #read .surah-list.no-anim,
 .qk-panel-body #read .surah-list.no-anim .srow { transition: none !important; }
-/* Height fills the panel's vertical space (Erik: cover the area the Riwayat bar used to hold). The
-   250px offset reserves the panel top bar, the Al Qur'an header, the ~88px docked composer, and a
-   foot gap; the clamp keeps the foot clear on short viewports and lets the card grow tall on large. */
-.qk-panel-body #read .surah-list > li { flex: none; height: clamp(360px, calc(100dvh - 250px), 720px); margin: 0; }
-/* Cards ease in on first paint so the shelf assembles rather than pops. */
+/* Height fills the panel's vertical space down to the docked composer (Erik: close the gap). The 168px
+   offset reserves the panel top bar, the Al Qur'an header, the ~88px composer, and a small foot gap;
+   the clamp keeps the foot clear on short viewports and lets the card grow tall on large. */
+.qk-panel-body #read .surah-list > li { flex: none; height: clamp(380px, calc(100dvh - 132px), 860px); margin: 0; }
+/* Cards ease in on first paint so the shelf assembles rather than pops. `backwards` (not `both`) so the
+   entrance does NOT hold transform:none afterwards — that would block the hover lift below. */
 @keyframes qkin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: no-preference) { .qk-panel-body #read .srow { animation: qkin 320ms var(--ease) both; } }
+@media (prefers-reduced-motion: no-preference) { .qk-panel-body #read .srow { animation: qkin 320ms var(--ease) backwards; } }
 @media (prefers-reduced-motion: reduce) { .qk-panel-body #read .surah-list, .qk-panel-body #read .srow { transition: none; } }
 
 .qk-panel-body #read .srow {
@@ -536,7 +539,8 @@
   transition: width 620ms var(--ease), border-color var(--t), box-shadow var(--t), transform var(--t);
 }
 .qk-panel-body #read .srow.is-open { width: 560px; border-color: var(--primary-line); box-shadow: 0 6px 16px rgba(12,40,30,.2); z-index: 2; }
-.qk-panel-body #read .srow:hover { border-color: var(--primary-line); box-shadow: 0 6px 10px rgba(12,40,30,.14); }
+/* Hover pop (Erik): any card — slim or the open one — lifts a little and casts a deeper shadow. */
+.qk-panel-body #read .srow:hover { border-color: var(--primary-line); transform: translateY(-6px); box-shadow: 0 12px 22px rgba(12,40,30,.20); }
 
 /* 8 gradient presets (data-bg 0–7) so the shelf reads as a row of coloured books, not identical tiles
    (Erik's reference). Emerald/sage glass; member 5 carries a warm gold accent. Light first, dark after. */
