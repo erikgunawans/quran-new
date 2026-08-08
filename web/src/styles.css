@@ -1479,3 +1479,44 @@ dialog.explain article { padding: 26px 28px 28px; }
   width: 100%; min-height: 44px; border-radius: 11px;
   background: oklch(1 0 0); color: var(--forest); font-weight: 700; font-size: 14px;
 }
+
+/* ── touch targets ────────────────────────────────────────────────────────── */
+/* Measured on glass at 375px, not estimated: 8 of 38 visible controls on `#/peta` came in under
+   the 44px minimum — `.si-infobtn` 18x18, `.send` 29x29, `.qk-iconbtn` 31x31, `.icon-btn` 40x40,
+   the Tematik pills 37px tall. `.icon-btn` is AUTHORED at 44 and still misses, because `body` runs
+   at `zoom: .9` — every number here is authored ~50 so it lands ~45 on the glass.
+
+   The target grows; the control does not. Nothing here changes a pixel of what is drawn, which is
+   the point: today's composition was tuned by eye and does not need relitigating to be tappable.
+   `inset` is negative by exactly the shortfall, so each pseudo-element is a ~50px authored square
+   centred on its control. `.si-infobtn` already carried this pattern at -15px (48 authored, 43.2
+   on glass — just under); it is widened rather than reinvented. */
+.send,
+.icon-btn,
+.qk-iconbtn,
+.tematik-vbtn,
+.tematik-back { position: relative; }
+
+.send::after,
+.icon-btn::after,
+.qk-iconbtn::after,
+.tematik-vbtn::after,
+.tematik-back::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  /* Pointer-only: the pseudo-element must never sit between the label and a screen reader, and
+     must never paint. It exists for the finger. */
+  pointer-events: auto;
+}
+/* The composer's send is 36 authored in the panel but 32 on the Tematik/Baca surfaces; -9 clears
+   44 on the glass for the smaller one, and the landing's 52px variant simply gains more margin. */
+.send::after      { inset: -9px; }  /* 32 + 18 = 50 */
+.icon-btn::after  { inset: -3px; }  /* 44 +  6 = 50 */
+.qk-iconbtn::after { inset: -10px; } /* measured 29 on glass = 32 authored; 32 + 20 = 52 */
+.tematik-vbtn::after,
+.tematik-back::after { inset: -5px -2px; } /* 41 + 10 = 51 tall; already wide enough */
+
+/* Inline text links inside prose keep their natural 18px line box. WCAG 2.5.8 exempts targets in
+   a sentence, and growing them vertically would make neighbouring lines fight for the same taps —
+   the attribution link under the Tematik subtitle is the one this applies to. */

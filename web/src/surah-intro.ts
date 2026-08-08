@@ -255,9 +255,55 @@ export function bindInfoTips(root: ParentNode): void {
     const open = wrap.dataset["open"] !== "true";
     wrap.dataset["open"] = String(open);
     btn.setAttribute("aria-expanded", String(open));
+    if (open) pinTip(wrap);
     e.preventDefault();
     e.stopPropagation(); // never let the tap fall through to the control behind it
   });
+  root.addEventListener("pointerover", (e) => {
+    const wrap = (e.target as HTMLElement).closest<HTMLElement>(".si-info");
+    if (wrap) pinTip(wrap);
+  });
+  root.addEventListener("focusin", (e) => {
+    const wrap = (e.target as HTMLElement).closest<HTMLElement>(".si-info");
+    if (wrap) pinTip(wrap);
+  });
+}
+
+/** The narrow-viewport branch this compensates for; matches the `max-width: 820px` rule in read.css. */
+const NARROW = "(max-width: 820px)";
+/** Breathing room between the tooltip and the panel edge, in px — the `--s-4` step on the glass. */
+const TIP_GUTTER = 16;
+
+/**
+ * Keep a tooltip inside the panel on narrow viewports.
+ *
+ * The CSS pins `right: 0` to the ⓘ itself, which is only safe while there is room to its left. At
+ * 375px there is not: the preface provenance tip measured `left: -49px` — fully opaque, 49px of it
+ * off-screen. CSS alone cannot fix this, because the tooltip needs its VERTICAL anchor on the icon
+ * (so it hangs off the control you tapped) and its HORIZONTAL anchor on the panel (so it cannot
+ * leave the screen), and one absolutely-positioned box gets exactly one containing block. So the
+ * vertical anchor stays in CSS and the horizontal one is corrected here, as a translation applied
+ * after layout — nothing moves at ≥821px, where the CSS was already correct.
+ */
+function pinTip(wrap: HTMLElement): void {
+  const tip = wrap.querySelector<HTMLElement>(".si-tip");
+  if (!tip) return;
+  tip.style.translate = "";
+  if (!window.matchMedia(NARROW).matches) return;
+
+  // The panel is the box the tooltip must stay inside; fall back to the viewport when it is absent.
+  const panel = wrap.closest(".qk-panel-body") ?? document.documentElement;
+  const bounds = panel.getBoundingClientRect();
+  const left = bounds.left + TIP_GUTTER;
+  const right = bounds.right - TIP_GUTTER;
+
+  // Measure where CSS put it, then shift by exactly the overhang. Left wins if the tip is wider
+  // than the panel — a tooltip clipped at its end is readable; one clipped at its start is not.
+  const r = tip.getBoundingClientRect();
+  let dx = 0;
+  if (r.right > right) dx = right - r.right;
+  if (r.left + dx < left) dx = left - r.left;
+  if (dx !== 0) tip.style.translate = `${Math.round(dx)}px 0`;
 }
 
 /** Close every open tooltip on an outside tap or Escape — one that cannot be dismissed is a modal. */

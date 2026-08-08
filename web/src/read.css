@@ -933,7 +933,9 @@
 #read .si-infobtn { position: relative; }
 /* -15px, not -12px: the app renders at body zoom .9, so a 44px authored target lands at ~40px on
    glass. 20 + 30 = 50 authored = 45 rendered, which is the number that actually matters. */
-#read .si-infobtn::before { content: ""; position: absolute; inset: -15px; border-radius: 999px; }
+/* -16, not -15: the icon is 18px and `body` runs at `zoom: .9`, so -15 gave 48 authored = 43.2 on
+   the glass — a hair under the 44 minimum it was written to satisfy. See styles.css § touch targets. */
+#read .si-infobtn::before { content: ""; position: absolute; inset: -16px; border-radius: 999px; }
 #read .si-infobtn:hover { background: var(--primary-wash); color: var(--ink); border-color: var(--primary-line); }
 #read .si-infobtn:active { background: color-mix(in oklch, var(--primary-wash), var(--primary) 10%); }
 #read .si-infobtn:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
@@ -1026,7 +1028,13 @@
     --sp-rail: auto;
   }
   #read .sp-col { flex: 0 0 auto; transition: none; }
-  #read .sp-scroll { max-height: 62dvh; border: 1px solid var(--line); border-top: 0; }
+  /* Two capped panes stacked put the SCRIPTURE below the fold: at 375x812 the preface scroller
+     started at y=376 and the text scroller at y=876, so opening Al-Baqarah on a phone showed the
+     hero card, Dorar's preface, and no Qur'an — then asked the reader to take 286 ayahs through a
+     503px porthole nested inside the panel. Release the cap when stacked: one scroller, normal
+     scrolling, scripture reachable. `startTracking` follows the scroller rather than assuming it,
+     because this is the line that decides which box the bookmark observer is a percentage OF. */
+  #read .sp-scroll { max-height: none; overflow: visible; border: 1px solid var(--line); border-top: 0; }
   #read .sp-intro .sp-scroll { border-right: 1px solid var(--line); }
   #read .sp-divider { display: none; }
   /* Expanded/collapsed reduces to showing or hiding the body — the bar always stays. */

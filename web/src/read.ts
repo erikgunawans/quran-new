@@ -110,6 +110,25 @@ function stopTracking(): void {
  * stopped being recorded, and Riwayat Bacaan stopped advancing, with nothing on screen to say so.
  * The percentage margin is meaningless without naming the box it is a percentage OF.
  */
+/**
+ * The box `el` actually scrolls inside — `el` itself when it scrolls, else its nearest scrolling
+ * ancestor, else the viewport (`null`).
+ *
+ * `.sp-scroll` is a scroll container at wide widths and, since the narrow branch released its
+ * height cap, plain flow content at ≤820px. Handing a non-scrolling box to `startTracking` is not
+ * an error the browser reports: the observer keeps working, but `-75%` of a 250,000px-tall element
+ * is a 62,000px band, so nearly every verse "intersects", `Math.min` returns 1 forever, and the
+ * bookmark silently freezes at ayah 1 — the same class of failure the comment on `startTracking`
+ * already describes, arriving from the opposite direction. So ask the layout instead of assuming it.
+ */
+function scrollBox(el: Element): Element | null {
+  for (let n: Element | null = el; n && n !== document.body; n = n.parentElement) {
+    if (n.scrollHeight <= n.clientHeight) continue;
+    if (/auto|scroll/.test(getComputedStyle(n).overflowY)) return n;
+  }
+  return null;
+}
+
 function startTracking(surah: number, root: Element | null): void {
   stopTracking();
   const visible = new Set<number>();
@@ -670,8 +689,8 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   if (!verses) return;
 
   // Start watching the scroll now that there are verses to watch, and hand it the opening batch.
-  // `body` IS the text column's scroll container (#surah-body carries .sp-scroll) — see splitEl.
-  startTracking(n, body);
+  // `body` carries .sp-scroll, but that only SCROLLS at wide widths — see scrollBox.
+  startTracking(n, scrollBox(body));
   observeVerses(verses.children);
 
   say(`${displayName(meta.n)} terbuka. ${meta.ayahs} ayat.`);
