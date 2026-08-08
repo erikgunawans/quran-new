@@ -8,7 +8,29 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Al Qur'an shelf now LOOPS (An-Nas left of Al-Fatihah, going around)
+## 2026-08-08 (latest) — Al Qur'an shelf: hover pop + taller cards to meet the chat bar
+
+Anchor: quran-new/main `fd8c309`. Prod Worker `490df855`, CSS `index-D8BxvILg.css` (JS unchanged — CSS-only).
+
+- **Hover pop** (Erik: hovering any card, middle or slim, lifts it): `.qk-panel-body #read .srow:hover`
+  → `transform: translateY(-6px)` + deeper shadow. Two things had to be freed: (1) the `qkin` entrance
+  animation used `fill: both`, which HELD `transform:none` after and blocked the lift — switched to
+  `backwards`; (2) `.baca-clip` was `overflow:hidden`, which sheared the lift/shadow off the top — switched
+  to `overflow:clip` + `overflow-clip-margin:30px` so the pop bleeds out the top while the long track still
+  masks horizontally (the 30px bleed stays in the panel gutter, clear of the sidebar at 277 vs clip 376).
+  A conflicting older `#read .srow:hover` (−1px) in read.css is out-specific'd by the `.qk-panel-body` rule.
+- **Taller cards** (Erik: still a gap to the docked chat bar): height offset `100dvh − 250` → `− 150`
+  (clamp 380 / 100dvh−150 / 860). The gap is roughly viewport-independent (card + viewport scale together),
+  so I left an ~18px safety margin rather than 0 — the foot never touches/overlaps the Cari Surah bar, gloss
+  stays visible. (Deployed 132 first, measured 0px on a tall viewport, bumped to 150 for the margin.)
+
+Verified: prod CSS (curl) carries all three rules; wrap intact (114 left / 2 right / 342 cards). 923 tests
+pass. NOTE: the Interceptor tab kept showing stale browser-cached CSS on reload — curl is authoritative for
+what prod serves; trust the hash/content match over the driven tab's computed styles after a redeploy.
+
+---
+
+## 2026-08-08 — Al Qur'an shelf now LOOPS (An-Nas left of Al-Fatihah, going around)
 
 Anchor: quran-new/main `0ce3581`. Prod Worker `da11ae79`, bundle `index-BOw6GuNK.js`. Erik kept the flat
 shelf's glide/morph (he likes it) but wanted the wrap back: Al-Fatihah centred, **An-Nas (114) to its left,
