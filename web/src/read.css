@@ -762,3 +762,169 @@
   #read .pc-rail { overflow: visible; }
   #read .pc-help { display: none; } /* no hover on touch; the hint is noise there */
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SURAH SPLIT — preface LEFT, scripture RIGHT
+   ═══════════════════════════════════════════════════════════════════════════
+   A surah opens 50/50. Selecting a side gives it the full width and collapses the other to a slim
+   vertical rail that keeps its label and stays clickable — the way back out of a full-width state.
+
+   The divider has no width to animate. What actually moves is the two columns' flex-basis, and the
+   divider is simply the boundary they meet at, so it reads as a slide. 620ms/--ease is the same
+   motion the surah shelf uses, so the two reading surfaces feel like one app. */
+
+#read .surah-split {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  /* Bounded so each column scrolls in place instead of the whole panel growing to the taller of
+     the two. Clamped rather than pure dvh: below ~380px a split is not readable, and past ~1000px
+     the line length stops being a line length. The subtraction clears the surah cartouche above
+     and the docked Cari Surah bar below. */
+  height: clamp(380px, 100dvh - 240px, 1000px);
+  margin-top: 4px;
+}
+
+#read .sp-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* let a column actually shrink instead of its prose forcing it wide */
+  flex: 0 0 50%;
+  transition: flex-basis 620ms var(--ease);
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  #read .sp-col { transition: none; }
+}
+
+/* The slim collapsed rail. 44px keeps it a comfortable tap target at the app's 0.9 zoom. */
+#read .surah-split { --sp-rail: 44px; }
+#read .surah-split[data-pane="intro"] .sp-intro,
+#read .surah-split[data-pane="text"]  .sp-text  { flex-basis: calc(100% - var(--sp-rail)); }
+#read .surah-split[data-pane="intro"] .sp-text,
+#read .surah-split[data-pane="text"]  .sp-intro { flex-basis: var(--sp-rail); }
+
+/* ── the tab / rail ──────────────────────────────────────────────────────── */
+#read .sp-tab {
+  flex: 0 0 auto;
+  appearance: none;
+  background: var(--primary-wash);
+  border: 1px solid var(--line);
+  border-radius: var(--r) var(--r) 0 0;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 14px;
+  cursor: pointer;
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 220ms var(--ease), color 220ms var(--ease);
+}
+#read .sp-tab:hover { background: var(--surface-2); }
+#read .sp-tab:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
+
+/* Collapsed: the tab becomes the whole rail — full height, label turned on its side, so the
+   column still says what it is while holding 44px. */
+#read .surah-split[data-pane="intro"] .sp-text .sp-tab,
+#read .surah-split[data-pane="text"]  .sp-intro .sp-tab {
+  flex: 1 1 auto;
+  border-radius: var(--r);
+  padding: 14px 0;
+  text-align: center;
+}
+#read .surah-split[data-pane="intro"] .sp-text .sp-tab-label,
+#read .surah-split[data-pane="text"]  .sp-intro .sp-tab-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg); /* read bottom-to-top, the usual direction for a left-hand rail */
+  display: inline-block;
+}
+/* Nothing to show in a 44px column — hide the body outright rather than let it reflow to a
+   one-word-per-line column behind the rail. */
+#read .surah-split[data-pane="intro"] .sp-text .sp-scroll,
+#read .surah-split[data-pane="text"]  .sp-intro .sp-scroll { display: none; }
+
+/* ── the scroll surfaces ─────────────────────────────────────────────────── */
+#read .sp-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain; /* reaching the end of the preface must not start scrolling the page */
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 var(--r) var(--r);
+  padding: 14px 16px 24px;
+}
+#read .sp-intro .sp-scroll { border-right: 0; }
+
+/* The divider itself: a hairline the two columns meet at. */
+#read .sp-divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  background: var(--line-strong);
+  margin: 6px 0;
+}
+
+/* ── the preface ─────────────────────────────────────────────────────────── */
+#read .surah-intro { color: var(--ink); }
+#read .si-lang {
+  margin: 0 0 12px;
+  font-size: 0.82em;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+#read .si-sec { margin: 0 0 20px; }
+#read .si-h {
+  margin: 0 0 8px;
+  font-size: 1.02em;
+  font-weight: 700;
+  color: var(--ink);
+}
+#read .si-body p { margin: 0 0 10px; line-height: 2; }
+#read .si-body p:last-child { margin-bottom: 0; }
+
+/* The footnote apparatus. Smaller and quieter than the prose it supports, but present — the
+   references are how Dorar's claims are checkable, and dropping them would misrepresent the work. */
+#read .si-refs { border-top: 1px solid var(--line); padding-top: 14px; }
+#read .si-reflist { margin: 0; padding-inline-start: 1.4em; color: var(--ink-2); font-size: 0.9em; }
+#read .si-reflist li { margin: 0 0 8px; line-height: 1.9; }
+
+/* Attribution. This content is Dorar's; the credit ships with it and is not decoration. */
+#read .si-cred {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 0.84em;
+  color: var(--ink-2);
+}
+#read .si-cred a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+#read .si-cred a:hover { color: var(--ink); }
+
+/* ── narrow: stack, don't squeeze ────────────────────────────────────────── */
+/* Two 50% columns of Arabic prose below ~820px is two columns of nothing. Stack them: the same
+   three states survive, but the collapsed side becomes a full-width bar above/below instead of a
+   vertical rail. */
+@media (max-width: 820px) {
+  #read .surah-split {
+    flex-direction: column;
+    height: auto;
+    --sp-rail: auto;
+  }
+  #read .sp-col { flex: 0 0 auto; transition: none; }
+  #read .sp-scroll { max-height: 62dvh; border: 1px solid var(--line); border-top: 0; }
+  #read .sp-intro .sp-scroll { border-right: 1px solid var(--line); }
+  #read .sp-divider { display: none; }
+  /* Expanded/collapsed reduces to showing or hiding the body — the bar always stays. */
+  #read .surah-split[data-pane="intro"] .sp-text .sp-tab,
+  #read .surah-split[data-pane="text"]  .sp-intro .sp-tab {
+    flex: 0 0 auto; padding: 9px 14px; text-align: start; border-radius: var(--r);
+  }
+  #read .surah-split[data-pane="intro"] .sp-text .sp-tab-label,
+  #read .surah-split[data-pane="text"]  .sp-intro .sp-tab-label {
+    writing-mode: horizontal-tb; transform: none;
+  }
+}

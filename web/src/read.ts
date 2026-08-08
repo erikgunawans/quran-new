@@ -32,6 +32,7 @@ import { announce } from "./announce.ts";
 import { cancelBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
+import { IntroError, introEl, loadIntro } from "./surah-intro.ts";
 
 // ── how much scripture arrives at once ───────────────────────────────────────
 //
@@ -97,13 +98,19 @@ function stopTracking(): void {
 /**
  * Watch a surah's verses and record the topmost one in view.
  *
- * `rootMargin` pulls the root's bottom up to 25% of the viewport, so a verse "intersects" only while
+ * `rootMargin` pulls the root's bottom up to 25% of its height, so a verse "intersects" only while
  * it sits in the top band — i.e. the thing you are actually reading, not everything on screen. Among
  * the band, the topmost verse is simply the one with the smallest ayah number (verses render in
  * order), so we never touch geometry: keep a set of visible ayahs and save their minimum. saveBookmark
  * is debounced, so firing it on every intersection change is free.
+ *
+ * `root` MUST be the element the verses actually scroll inside. When the surah went split-screen the
+ * text column became its own scroll container sitting BELOW the top quarter of the window, so a
+ * viewport-rooted observer could never see a verse in its band — the reading position silently
+ * stopped being recorded, and Riwayat Bacaan stopped advancing, with nothing on screen to say so.
+ * The percentage margin is meaningless without naming the box it is a percentage OF.
  */
-function startTracking(surah: number): void {
+function startTracking(surah: number, root: Element | null): void {
   stopTracking();
   const visible = new Set<number>();
   tracker = new IntersectionObserver(
@@ -116,7 +123,7 @@ function startTracking(surah: number): void {
       }
       if (visible.size) saveBookmark(surah, Math.min(...visible));
     },
-    { rootMargin: "0px 0px -75% 0px", threshold: 0 },
+    { root, rootMargin: "0px 0px -75% 0px", threshold: 0 },
   );
 }
 
@@ -444,6 +451,118 @@ const skeletonEl = (): string => {
   return `<div class="read-sk" aria-hidden="true">${block.repeat(3)}</div>`;
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// THE SPLIT — preface LEFT, scripture RIGHT
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// A surah opens 50/50: Dorar's preface beside the text. Selecting either side slides the divider
+// and gives that side the full width; the other collapses to a slim vertical rail that still shows
+// its label and is still clickable. That rail is the whole reason the collapse is safe — a
+// full-width state you cannot leave is a trap, and a reader who expands the preface must never
+// have to go back through the index to reach the ayahs again.
+//
+// The motion is a flex-basis transition on the two columns, which is what makes the DIVIDER appear
+// to slide: it has no width of its own to animate, it is simply the boundary the two bases meet
+// at. Same 620ms/--ease the surah shelf uses, so the two reading surfaces move alike.
+
+/** The three states of the split. `split` is where every surah opens. */
+type Pane = "split" | "intro" | "text";
+
+const PANE_LABEL: Readonly<Record<Exclude<Pane, "split">, string>> = {
+  intro: "Pengantar Surah",
+  text: "Teks Surah",
+};
+
+/** A preface-shaped wait: heading + prose, at Arabic measure. */
+const introSkeletonEl = (): string => {
+  const block = `
+    <div class="skeleton">
+      <div class="sk-line short"></div>
+      <div class="sk-line"></div>
+      <div class="sk-line"></div>
+    </div>`;
+  return `<div class="read-sk" aria-hidden="true">${block.repeat(2)}</div>`;
+};
+
+/**
+ * Exported for the regression test, not for reuse.
+ *
+ * The load-bearing detail is that `#surah-body` IS the scrolling element (it carries `.sp-scroll`),
+ * because `renderSurah` hands that same node to `startTracking` as the observer root. Nesting
+ * `#surah-body` inside the scroller — an entirely reasonable-looking refactor — would hand the
+ * observer a non-scrolling box and kill reading-position tracking with no error anywhere.
+ */
+export const splitEl = (cached: boolean): string => `
+  <div class="surah-split" data-pane="split">
+    <section class="sp-col sp-intro">
+      <button class="sp-tab" type="button" data-pane-to="intro" aria-expanded="false">
+        <span class="sp-tab-label">${PANE_LABEL.intro}</span>
+      </button>
+      <div class="sp-scroll" id="intro-body">${introSkeletonEl()}</div>
+    </section>
+    <div class="sp-divider" aria-hidden="true"></div>
+    <section class="sp-col sp-text">
+      <button class="sp-tab" type="button" data-pane-to="text" aria-expanded="false">
+        <span class="sp-tab-label">${PANE_LABEL.text}</span>
+      </button>
+      <div class="sp-scroll" id="surah-body">${cached ? "" : skeletonEl()}</div>
+    </section>
+  </div>`;
+
+/**
+ * Wire the two tabs.
+ *
+ * Selecting a side expands it; selecting the SAME side again returns to 50/50. That second rule is
+ * what makes the header double as the way back, so the expanded state has two exits (its own tab
+ * and the opposite rail) rather than one.
+ */
+function bindSplit(root: HTMLElement): void {
+  const split = root.querySelector<HTMLDivElement>(".surah-split");
+  if (!split) return;
+
+  const apply = (pane: Pane): void => {
+    split.dataset["pane"] = pane;
+    for (const t of split.querySelectorAll<HTMLButtonElement>(".sp-tab")) {
+      t.setAttribute("aria-expanded", String(t.dataset["paneTo"] === pane));
+    }
+    if (pane !== "split") announce(`${PANE_LABEL[pane]} ditampilkan penuh.`);
+    else announce("Tampilan terbagi dua.");
+  };
+
+  split.addEventListener("click", (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>(".sp-tab");
+    if (!tab) return;
+    const to = tab.dataset["paneTo"];
+    if (to !== "intro" && to !== "text") return;
+    apply(split.dataset["pane"] === to ? "split" : to);
+  });
+}
+
+/**
+ * Fetch and render the preface into the left column.
+ *
+ * Deliberately independent of the shard load: a slow preface must never hold up the scripture, and
+ * a preface that fails to load must never blank the surah. On failure the column says so and
+ * offers a retry — the text side is untouched either way.
+ */
+async function hydrateIntro(root: HTMLElement, n: number, mine: number): Promise<void> {
+  const slot = root.querySelector<HTMLDivElement>("#intro-body");
+  if (!slot) return;
+  try {
+    const intro = await loadIntro(n);
+    if (token !== mine || !slot.isConnected) return;
+    slot.innerHTML = introEl(intro);
+  } catch (err) {
+    if (token !== mine || !slot.isConnected) return;
+    const msg = err instanceof IntroError ? err.message : "Gagal memuat pengantar surah.";
+    slot.innerHTML = oopsEl(msg, true);
+    slot.querySelector<HTMLButtonElement>(".read-retry")?.addEventListener("click", () => {
+      slot.innerHTML = introSkeletonEl();
+      void hydrateIntro(root, n, mine);
+    });
+  }
+}
+
 /**
  * Never a blank mount. Every failure says what happened.
  *
@@ -492,9 +611,13 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   mount.innerHTML = `
     <div class="surah-view">
       ${headEl(meta)}
-      <div class="surah-body" id="surah-body">${isCached(n) ? "" : skeletonEl()}</div>
+      ${splitEl(isCached(n))}
       <div class="back-bottom">${backEl("")}</div>
     </div>`;
+
+  bindSplit(mount);
+  // The preface loads alongside the shard, never in front of it — see hydrateIntro.
+  void hydrateIntro(mount, n, mine);
 
   const body = mount.querySelector<HTMLDivElement>("#surah-body");
   if (!body) return;
@@ -546,7 +669,8 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
   if (!verses) return;
 
   // Start watching the scroll now that there are verses to watch, and hand it the opening batch.
-  startTracking(n);
+  // `body` IS the text column's scroll container (#surah-body carries .sp-scroll) — see splitEl.
+  startTracking(n, body);
   observeVerses(verses.children);
 
   say(`${displayName(meta.n)} terbuka. ${meta.ayahs} ayat.`);
