@@ -208,7 +208,11 @@
 .qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
 /* On the Tanya landing the .app is capped at 1120px; centre it in the panel so the hero + composer sit
    dead-centre at ANY panel width (Erik) — was left-aligned by the margin:0 above. */
-:root[data-landing] .qk-panel-body .app { margin-inline: auto; }
+/* `margin-inline: auto` is what made the whole landing column shrink-wrap: an auto margin on a flex
+   item's CROSS axis overrides `stretch`, so `.app` sized to its widest child (the invitation) and
+   every percentage below it — including the composer's `width: min(760px, 100%)` — resolved against
+   prose width instead of panel width. Give `.app` a real number and the percentages mean the room. */
+:root[data-landing] .qk-panel-body .app { margin-inline: auto; width: min(1120px, 100%); }
 /* Off the landing the composer is docked (position:fixed; bottom:0), so it floats over the
    scroll surface. Reserve room beneath the content — otherwise the last filmstrip card / masonry
    row / chat message can't scroll clear of the ~100px glass bar and stays occluded at rest. */
@@ -223,8 +227,12 @@
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 0 24px 40px; gap: 0;
 }
+/* The salam carries the full greeting — `wa-raḥmatu -llāhi wa-barakātuh`, roughly three times the
+   text the old `ٱلسَّلَامُ عَلَيْكُمْ` held. The type steps down so it still lands on one line in the
+   panel, and `balance` splits it evenly rather than orphaning `وَبَرَكَاتُهُ` when it must wrap. */
 .qk-hero-salam {
-  font-family: var(--f-ar); font-weight: 400; font-size: clamp(20px, 2.6vw, 32px);
+  font-family: var(--f-ar); font-weight: 400; font-size: clamp(17px, 2vw, 26px);
+  text-wrap: balance;
   line-height: 1.7; margin: 0 0 4px; direction: rtl;
   background-image:
     linear-gradient(100deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 62%),
@@ -281,7 +289,21 @@
    The offset is NOT 1:1 — `#hello` is a `justify-content: center` column, so the centring absorbs
    part of any padding (measured: 100px authored moved the block 66px on glass). `vh`-based so a
    short window shrinks the lead-in rather than pushing the composer off-screen. */
-:root[data-landing] .qk-panel-body #hello { padding-top: clamp(40px, 16.5vh, 120px); }
+:root[data-landing] .qk-panel-body #hello { padding-top: clamp(64px, 23vh, 180px); }
+
+/* The composer was 468px on the glass against a 1010px panel — a thin box in a wide room, and Erik
+   marked a target roughly 1.4x that. It could not simply be told to be wider: `.qk-panel-body`
+   centres its children, so `.app` and everything under it SHRINK-WRAP to their content, which made
+   the composer's own `width: min(760px, 100%)` resolve its 100% against a 520px parent. Giving
+   `#hello` an explicit width is what breaks the loop — the shrink-wrap now has a number to wrap to,
+   and the composer's 100% finally means the panel rather than the prose. */
+:root[data-landing] .qk-panel-body #hello { width: min(781px, 100%); margin-inline: auto; }
+/* ...but the prose must NOT take the new width. 68ch is the measure (DESIGN.md § Typography) and a
+   greeting that ran the full 733px would be the "expanded column ran the full 874px" mistake from
+   the surah preface, made twice. The invitation keeps the width it was tuned at; only the box grows. */
+:root[data-landing] .qk-panel-body #hello > p,
+:root[data-landing] .qk-panel-body #hello > h1,
+:root[data-landing] .qk-panel-body #hello > .greet-ar { max-width: 520px; margin-inline: auto; }
 
 :root[data-landing] #composer-bar {
   position: static; width: min(760px, 100%); margin: 20px auto 0;
@@ -301,7 +323,7 @@
   font-size: clamp(17px, 1.6vw, 19px); line-height: 1.55;
   min-height: 60px; max-height: 200px; padding: 2px 0 0;
 }
-:root[data-landing] #composer-bar .send { align-self: flex-end; }
+/* The send no longer aligns itself — it rides in `.composer-actions` with the mic (styles.css). */
 .qk-panel-body .seeds { margin-top: 22px; }
 
 /* Conversation: the docked bar is a TRANSPARENT, panel-width positioning strip — the glass lives on

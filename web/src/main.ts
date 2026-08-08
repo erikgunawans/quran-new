@@ -8,6 +8,7 @@ import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
+import { initDictation } from "./dictate.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, findSurah, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTemaHref } from "./peta.ts";
@@ -713,6 +714,10 @@ if ($("#hello")) {
     stopBand = stop;
   });
 }
+
+// The mic belongs to the COMPOSER, not the hero — the composer outlives the landing (landing.ts
+// moves the same element into the docked bar), so this is wired once here and never re-run.
+initDictation();
 
 function endLanding(): void {
   destroyLanding();

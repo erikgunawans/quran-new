@@ -1492,12 +1492,14 @@ dialog.explain article { padding: 26px 28px 28px; }
    centred on its control. `.si-infobtn` already carried this pattern at -15px (48 authored, 43.2
    on glass — just under); it is widened rather than reinvented. */
 .send,
+.mic,
 .icon-btn,
 .qk-iconbtn,
 .tematik-vbtn,
 .tematik-back { position: relative; }
 
 .send::after,
+.mic::after,
 .icon-btn::after,
 .qk-iconbtn::after,
 .tematik-vbtn::after,
@@ -1512,6 +1514,7 @@ dialog.explain article { padding: 26px 28px 28px; }
 /* The composer's send is 36 authored in the panel but 32 on the Tematik/Baca surfaces; -9 clears
    44 on the glass for the smaller one, and the landing's 52px variant simply gains more margin. */
 .send::after      { inset: -9px; }  /* 32 + 18 = 50 */
+.mic::after       { inset: -8px; }  /* 36 + 16 = 52 authored; the mic ships at 32 on the glass */
 .icon-btn::after  { inset: -3px; }  /* 44 +  6 = 50 */
 .qk-iconbtn::after { inset: -10px; } /* measured 29 on glass = 32 authored; 32 + 20 = 52 */
 .tematik-vbtn::after,
@@ -1520,3 +1523,35 @@ dialog.explain article { padding: 26px 28px 28px; }
 /* Inline text links inside prose keep their natural 18px line box. WCAG 2.5.8 exempts targets in
    a sentence, and growing them vertically would make neighbouring lines fight for the same taps —
    the attribution link under the Tematik subtitle is the one this applies to. */
+
+/* ── dictation ────────────────────────────────────────────────────────────── */
+/* The mic is a PEER of the send button, not a competitor: same 36px box and radius so the pair reads
+   as one control cluster, but quiet — ghosted like an icon button until you reach for it, because
+   sending is the primary act and dictating is the alternative way to get there. It ships `hidden`
+   and dictate.ts only reveals it where the browser can actually listen. */
+.mic {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border-radius: var(--r); color: var(--ink-3);
+  background: none; border: 0; cursor: pointer; flex-shrink: 0;
+  transition: background var(--t), color var(--t);
+}
+.mic svg { width: 19px; height: 19px; }
+.mic:hover  { background: var(--surface-2); color: var(--ink); }
+.mic:active { background: var(--line); }
+.mic:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
+
+/* Listening. The colour change alone would be invisible to anyone who cannot see it, so the pulse is
+   paired with `aria-pressed` in the markup — the state is announced, not just drawn. */
+.mic.is-live { color: var(--primary); background: var(--primary-wash); }
+@media (prefers-reduced-motion: no-preference) {
+  .mic.is-live { animation: mic-pulse 1.6s ease-in-out infinite; }
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--primary-line); }
+    50%      { box-shadow: 0 0 0 6px transparent; }
+  }
+}
+
+/* The pair travels together. On landing the cluster drops to the bottom-right of the tall box; in
+   the docked bar the form is already a row, so the cluster just sits at its end. */
+.composer-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+:root[data-landing] #composer-bar .composer-actions { align-self: flex-end; }
