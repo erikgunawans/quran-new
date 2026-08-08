@@ -26,7 +26,10 @@
   <aside class="qk-sidebar" id="sidebar">
     <div class="qk-side-head">
       <a class="qk-brand" href="#/" aria-label="QuranKu — beranda">
-        <img src="/quranku-logo.png" alt="" width="46" height="46" />
+        <!-- The Al-Qur'an mark Erik supplied 2026-08-09. New filename on purpose: `quranku2.1.png`
+             was a truncated PNG that rendered "cut" for weeks, so a mark is never re-pointed at an
+             older file here — it is replaced by a new one that has been checked end-to-end. -->
+        <img src="/quranku-mark.png" alt="" width="46" height="46" />
         <span class="qk-hero-gradient qk-display">QuranKu</span>
       </a>
       <button class="qk-iconbtn" id="side-toggle" type="button" aria-label="Sembunyikan sidebar" title="Sembunyikan sidebar">
@@ -175,7 +178,7 @@
 <div class="composer" id="composer-bar">
   <form id="composer">
     <label class="sr" for="q">Ceritakan apa yang kamu rasakan</label>
-    <textarea id="q" rows="1" placeholder="aku lagi capek banget…" autocomplete="off"></textarea>
+    <textarea id="q" rows="1" placeholder="Ceritakan atau tanyakan apa saja…" autocomplete="off"></textarea>
     <!-- Dictation. Speech-to-text is the direction Erik is heading; this is the affordance, wired to
          the browser's own recogniser where it exists so it is never a dead control. dictate.ts owns
          the behaviour and hides the button outright on engines that cannot do it. -->

@@ -623,8 +623,10 @@ async function route() {
   document.documentElement.toggleAttribute("data-baca", hash === "#/baca");
   // On the Al-Qur'an surface the docked box doubles as the surah finder, so it invites a search
   // rather than a feeling. Everywhere else it is the companion prompt. (Erik: composer says "Cari Surah".)
+  // NOTE: this is the live value. The `placeholder` attribute in index.html is only what shows
+  // before the first route pass, so changing one without the other changes nothing you can see.
   input.placeholder =
-    hash === "#/baca" ? "Cari Surah" : hash === "#/peta" ? "Cari Tema" : "aku lagi capek banget…";
+    hash === "#/baca" ? "Cari Surah" : hash === "#/peta" ? "Cari Tema" : "Ceritakan atau tanyakan apa saja…";
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");

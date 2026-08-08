@@ -856,55 +856,44 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 :root[data-landing] .send { width: 52px; height: 52px; border-radius: 13px; }
 :root[data-landing] .send svg { width: 22px; height: 22px; }
 
-/* ── the traveling light ───────────────────────────────────────────────────────
+/* ── the breathing light ───────────────────────────────────────────────────────
    The landing composer IS the page's call to action, so it gets the one moment of "come talk to me"
-   motion: a soft emerald light that glides around its edge. It rides the BORDER only — a conic
-   gradient masked to a ~1.6px ring — never washing the field, so the placeholder stays legible. The
-   ::after is the same beam blurred, so the light reads as luminous rather than drawn. Emerald
-   throughout: the gold law is untouched. Reduced-motion removes it completely — the calm bordered
-   field the app already had is what remains, never a strobe. */
-@property --beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+   motion. This was a beam travelling around the border on a `linear infinite` loop; Erik asked for
+   the light to sit BEHIND the box and pulse slowly instead, and he is right — a moving highlight is
+   a thing your eye tracks, and something you are meant to type into should not be asking to be
+   watched. A glow that swells and settles reads as breathing, which is the same gesture the greeting
+   already makes (3s) and the same posture DESIGN.md § Motion asks for: the interface does not
+   perform. 7s, because slow is the whole point.
+
+   It stays behind the field, never on it, so the placeholder is never washed. Emerald only — the
+   gold law is untouched. Reduced-motion holds it at its dim rest value rather than removing it, so
+   the box keeps its presence without a single frame of movement. */
 :root[data-landing] .composer form { position: relative; }
 
-/* The beam is a DARK-register idea. On white the emerald conic does not read as light emitted from
-   the edge — it reads as a dark scratch dragging around the corner, which is what it looked like.
-   DESIGN.md § Theme asks the opposite of the light register: "a page in daylight: green, open,
-   UNORNAMENTED". So light gets the calm bordered field and its focus ring; dark gets the light. */
+/* Dark-register only. On white the emerald glow does not read as light behind the box — it reads as
+   a smudge under one corner. DESIGN.md § Theme asks the opposite of the light register: "a page in
+   daylight: green, open, UNORNAMENTED". Light gets the calm bordered field and its focus ring. */
 :root { --beam-op: 0; }
 :root[data-theme="dark"] { --beam-op: 1; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --beam-op: 1; } }
-@media (prefers-reduced-motion: no-preference) {
-  :root[data-landing] .composer form::before,
-  :root[data-landing] .composer form::after {
-    content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    /* 9s, not 5.5s. At 5.5 the beam is always in peripheral vision on a page whose whole posture is
-       "the app does not perform gravity at the reader" — slower reads as breathing rather than
-       spinning, and matches the greeting's own 3s cadence in feel. */
-    animation: beam-travel 9s linear infinite;
-  }
-  /* The beam, in emerald only. Its core was `oklch(0.96 0.05 165)` — near-white, and therefore the
-     BRIGHTEST PIXEL ON THE PAGE, sitting on a piece of chrome. DESIGN.md § Theme makes the opposite
-     the enforced rule: "the scripture out-shouts the interface, never the reverse", and
-     `contrast.test.ts` holds chrome below scripture in the dark register. The landing carries no
-     scripture, so no test caught it — but a hot white core on the input is the same mistake the test
-     exists to prevent. Topping out at `--primary` keeps the invitation and drops the strobe. */
-  :root[data-landing] .composer form::before {
-    padding: 1.6px; opacity: var(--beam-op);
-    background: conic-gradient(from var(--beam),
-      transparent 0deg 232deg, var(--primary-line) 312deg, var(--primary) 350deg,
-      var(--primary) 357deg, transparent 360deg);
-  }
-  /* its glow: same rotation, wider and blurred, so the beam looks like it's emitting light */
-  :root[data-landing] .composer form::after {
-    padding: 4px; opacity: calc(var(--beam-op) * 0.34); filter: blur(5px);
-    background: conic-gradient(from var(--beam),
-      transparent 0deg 312deg, var(--primary) 350deg, transparent 360deg);
-  }
+
+:root[data-landing] .composer form::before {
+  content: ""; position: absolute; inset: -10px; border-radius: inherit;
+  pointer-events: none; z-index: -1;
+  background: radial-gradient(60% 120% at 50% 50%,
+    oklch(53.2% .112 163 / .55) 0%, oklch(53.2% .112 163 / .22) 45%, transparent 72%);
+  filter: blur(16px);
+  opacity: calc(var(--beam-op) * 0.55);
 }
-@keyframes beam-travel { to { --beam: 360deg; } }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-landing] .composer form::before { animation: composer-breathe 7s ease-in-out infinite; }
+}
+/* Swell and settle. The range is deliberately narrow — a glow that goes to zero reads as a blink,
+   and a blink is an alert. This is a slow tide. */
+@keyframes composer-breathe {
+  0%, 100% { opacity: calc(var(--beam-op) * 0.34); filter: blur(16px); }
+  50%      { opacity: calc(var(--beam-op) * 0.78); filter: blur(20px); }
+}
 /* the docked bar reserves 8rem of scroll runway it does not need on the landing */
 :root[data-landing] .app { padding-bottom: var(--s-8); }
 

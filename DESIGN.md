@@ -133,8 +133,13 @@ Every interactive element ships **default, hover, focus, active, disabled, loadi
   had to be fixed; it is the most screenshotted surface in the app.
 - **Skeletons**, never spinners in content. An empty bordered box is a hole in the page — drop the
   chrome until there is content (`.aod:empty`).
-- **Empty states teach.** The chat's empty state shows real questions in real language
-  (*"aku lagi capek banget"*), never "Ask me anything."
+- **Empty states teach** — *softened for the composer 2026-08-09, Erik's call.* The rule was written
+  against "Ask me anything", and the composer's placeholder was a real sentence in real language
+  (*"aku lagi capek banget"*) to prove the app takes feelings, not just queries. It now reads
+  *"Ceritakan atau tanyakan apa saja…"* — closer to the open invitation the rule was written to
+  avoid, and chosen deliberately: one specific sentence also *narrows* what a reader thinks they may
+  bring, and naming both verbs (*ceritakan* / *tanyakan*) is what tells them the door is wide. The
+  rule still binds everywhere else — the seeds, the reading surface, every other empty state.
 - **Nothing is invented to fill a gap.** No location → the prayer card says so and offers to ask again;
   it does not guess a city. A prayer the astronomy cannot honestly place renders `—`, not a plausible
   number.
