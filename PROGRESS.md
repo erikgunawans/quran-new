@@ -8,7 +8,36 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Al Qur'an shelf: hover pop + taller cards to meet the chat bar
+## 2026-08-08 (latest) — Header collision, panel widen/de-round, logo z-index, Tanya centre, Peta two-column
+
+Anchor: quran-new/main `c44c11e`. Prod Worker `2f7d06f0`, CSS `index-CAQjRnVG.css`. Six asks (Images #12/#13 + Peta):
+
+- **Riwayat/Kembali collision** (#12): the baca route adds the Kembali button, so the panel-top controls run
+  wider than the header's 260px gutter; the panel's fluid side-padding shrinks at narrow widths (Erik's 1279)
+  and slides the Riwayat Bacaan pill into Kembali. Fix: `:root[data-baca] .baca-head { padding-right: 340px }`
+  — a baca-only wider reserve. Gap verified positive; the collision is width-driven so a fixed gutter that
+  clears the widest (baca) controls fixes it everywhere.
+- **Panel (inner layer) widen + de-round** (#12): sidebar 300→290, shell left pad 8→4, composer offset
+  308→294 (panel left moved ~12px toward the sidebar/red line); `.qk-panel` border-radius 20→12.
+- **Logo z-index** (#12): `.qk-brand` / `.qk-side-head` z-index 3→20 so the top-left logo sits above anything
+  in the corner and is never clipped.
+- **Tanya centre** (#13): the landing `.app` is capped at 1120px but was `margin:0` (left-aligned in the wider
+  panel — hero centred at 782 vs panel centre 860). Added `:root[data-landing] .qk-panel-body .app {
+  margin-inline: auto }` → hero + composer dead-centre at ANY width (panel/app/hero/composer centres all equal;
+  verified `true` on prod).
+- **Peta Tematik two-column** (delegated): reformatted to the reference layout — canvas graph LEFT, a 374px
+  info rail RIGHT (title/source/stats from `cosmos.meta`, detail hint, legend, the two toggles, credit). Grid
+  `minmax(0,1fr) 374px`, stacks below the graph at ≤900px. Canvas resizes to the left cell (`.pc-canvas`
+  absolute-fills `.pc-frame`, `min-width:0` on the frame). `peta.ts` + `read.css`; `peta-cosmos.ts` untouched.
+
+Files: `shell.css` (mine); `peta.ts` + `read.css` (subagent). 923 tests pass; no new type errors. Verified via
+DOM measurement (all six) + a faithful Al Qur'an screenshot. NOTE: Tanya-centre and Peta-rail *visuals* are
+DOM-confirmed only — the Chrome window kept minimizing, so `interceptor screenshot` timed out for those two;
+Erik to eyeball. Judgment calls open to tweak: the panel widen amount (~12px) and the Riwayat↔Kembali gap.
+
+---
+
+## 2026-08-08 — Al Qur'an shelf: hover pop + taller cards to meet the chat bar
 
 Anchor: quran-new/main `fd8c309`. Prod Worker `490df855`, CSS `index-D8BxvILg.css` (JS unchanged — CSS-only).
 
