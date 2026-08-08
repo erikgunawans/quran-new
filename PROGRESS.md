@@ -8,7 +8,42 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Split-screen surah page: Dorar preface left, scripture right
+## 2026-08-08 (latest) — Preface language toggle (Bahasa Indonesia option) + Terjemahan makna sizing
+
+Anchor: quran-new/main `b5c1f74`. Prod Worker `7cdfeb8b`, JS `index-BLTTSW9y.js`.
+
+- **Language toggle on Pengantar Surah.** Arabic first and default — it is the edition Dorar actually
+  wrote; anything else is derived. Selecting a language swaps only `.si-content`, so the Dorar
+  attribution footer never leaves the screen.
+
+- **Coverage is 1 of 114.** Only Al-Fatihah has an Indonesian edition. The other 113 render the button
+  **visible but disabled** with "belum ada" and a title saying why — hiding it would read as "this app
+  has no Indonesian", and an empty pane would read as broken. `bun run app:surah-intro` logs the gap as
+  `alt edition "id": 1/114 — SPARSE` on every run so it can't quietly stay that way.
+
+- **The Indonesian is labelled, not laundered.** It is `translation: ai`, `official: false`,
+  `review_status: unreviewed`, and its own source file opens with *"Jangan disajikan ke pengguna sebelum
+  ditinjau Ustadz Ahmad Isrofiel"*. Erik asked for it as a reader-selectable option, so it ships with a
+  provenance banner naming what it is and who still has to sign it off. `parseEdition` refuses to emit
+  any unofficial edition that doesn't declare `translation`/`review_status` — an unlabelled machine
+  translation of religious commentary is the one artifact this surface must never produce.
+
+- **Rendering the Arabic never exercised.** The Indonesian edition is real markdown, so `**term**` showed
+  as literal asterisks and its numbered list collapsed into one paragraph (Dorar's Arabic is one unbroken
+  line with inline `1- 2-`, so neither ever came up). Inline conversion (`**bold**`→`<strong>`, single
+  `\n`→`<br>`) runs AFTER escaping, so the source still cannot smuggle markup through.
+
+- **Terjemahan makna sizing (Erik: "big by itself while others are already lower").** `shell.css` pinned
+  `.reading .txt` to `clamp(16px, 1.8vw, 20px)` — 20px at any desktop width, against 16px body. The global
+  −10% zoom scaled everything else down but a px ceiling has no opinion about that, so the gap only
+  widened. Now `clamp(15px, 1.35vw, 17px)`; verified 17px live.
+
+975 tests pass (was 961). Verified on prod: toggle renders both languages, Indonesian shows the banner
+with 12 `<strong>` / 22 `<br>` and zero raw `**`, surah 36's button is correctly disabled.
+
+---
+
+## 2026-08-08 — Split-screen surah page: Dorar preface left, scripture right
 
 Anchor: quran-new/main `41835e9`. Prod Worker version `7766613d`, JS `index-BvR9L5N9.js`, CSS `index-BSMcHXl5.css`.
 
