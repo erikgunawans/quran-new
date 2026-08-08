@@ -271,8 +271,20 @@
    form inside it, each with its own fill/border, plus a hard 6px ring — reading as a box-in-a-box.
    Drop this shell's fill, border, and the hard ring so ONLY the form box shows (KIMI-style). The
    soft directional aura stays as ambient glow; the form carries the crisp edge + travelling light. */
+/* Erik moved the whole landing composition down (2026-08-08): the hero text sits mid-panel and the
+   composer below it, rather than both riding high with dead space underneath. `vh`-based rather than
+   a fixed offset so a short window shrinks the lead-in instead of pushing the composer off-screen. */
+/* Erik moved the whole landing composition down (2026-08-08) — the hero text sits mid-panel and
+   the composer below it, instead of both riding high with dead space underneath.
+   Applied to `#hello`, not `.hello`: `.qk-panel-body #hello` is an ID selector and out-specifies any
+   class rule, which is why the first attempt at `.hello` computed to 0.
+   The offset is NOT 1:1 — `#hello` is a `justify-content: center` column, so the centring absorbs
+   part of any padding (measured: 100px authored moved the block 66px on glass). `vh`-based so a
+   short window shrinks the lead-in rather than pushing the composer off-screen. */
+:root[data-landing] .qk-panel-body #hello { padding-top: clamp(40px, 16.5vh, 120px); }
+
 :root[data-landing] #composer-bar {
-  position: static; width: min(760px, 100%); margin: 0 auto;
+  position: static; width: min(760px, 100%); margin: 20px auto 0;
   background: transparent; border: 0;
   box-shadow:
     -10px 0 22px -4px rgba(22,162,73,.24), 10px 0 22px -4px rgba(240,200,81,.26),
