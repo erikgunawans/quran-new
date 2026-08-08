@@ -515,6 +515,10 @@
   transform: translate3d(0,0,0); will-change: transform;
   transition: transform 620ms var(--ease);
 }
+/* read.ts adds .no-anim for one frame to snap the row (the invisible wrap-normalisation + resize) so
+   the loop reset never animates a jump across copies. */
+.qk-panel-body #read .surah-list.no-anim,
+.qk-panel-body #read .surah-list.no-anim .srow { transition: none !important; }
 /* Height fills the panel's vertical space (Erik: cover the area the Riwayat bar used to hold). The
    250px offset reserves the panel top bar, the Al Qur'an header, the ~88px docked composer, and a
    foot gap; the clamp keeps the foot clear on short viewports and lets the card grow tall on large. */

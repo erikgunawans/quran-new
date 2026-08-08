@@ -281,28 +281,50 @@ export function renderIndex(mount: HTMLElement): void {
   // If the markup changed underneath us the rest is an enhancement over an already-navigable page.
   if (!list || !clip || !strip) return;
 
-  // ── The book-shelf (Erik's reference) ──────────────────────────────────────
-  // Not a rotating wheel but a FLAT shelf: all 114 cards sit in one flex row, and the row TRANSLATES
-  // as a unit so the selected card lands dead-centre. Only the selected card widens (146 → 560px); the
-  // rest stay slim book-spines — no per-neighbour tapering. The width morph and the track glide share
-  // ONE 620ms cubic-bezier(.16,1,.3,1) (CSS transitions on .srow width + .surah-list transform), so the
-  // shelf opens and slides in a single motion. Class-toggled width transitions reliably (a direct value
-  // change on the element itself), so no rAF is needed — CSS carries it.
+  // ── The looping book-shelf (Erik) ──────────────────────────────────────────
+  // A FLAT shelf that WRAPS: the open card sits dead-centre with An-Nas (114) to the left of
+  // Al-Fatihah (1) and Al-Baqarah (2) to the right — it goes around forever. We get a seamless loop by
+  // TRIPLING the 114 cards into one flex row and translating the whole row so the open card is centred;
+  // moving past either end just glides into the next copy, then we quietly snap `pos` back to the middle
+  // copy (invisible — the copies are byte-identical). Only the open card widens (146 → 560px); the rest
+  // stay slim spines. Width morph + row glide share ONE 620ms cubic-bezier(.16,1,.3,1) (CSS transitions
+  // on .srow width + .surah-list transform), so opening and sliding read as a single motion — no rAF.
   const N = SURAH_INDEX.length; // 114
+  const COPIES = 3;             // left copy · home copy · right copy → always a real surah on each side
+  const HOME = N;              // the middle copy; real surah r lives at track index HOME + r
   const SHUT = 146, OPEN = 560, GAP = 10, PITCH = SHUT + GAP; // px — MUST match .srow widths in shell.css
-  const TRACK = N * PITCH - GAP + (OPEN - SHUT); // full row width with one card opened
-  let sel = 0; // Al-Fatihah opens first
 
-  list.innerHTML = SURAH_INDEX.map((s, i) => indexRow(s, i === sel, i)).join("");
-  const lis = (): HTMLLIElement[] => Array.from(list.children) as HTMLLIElement[];
+  // Build COPIES×114 cards. Each card's colour preset + href come from its REAL surah, so a clone is
+  // indistinguishable from its original — which is exactly what makes the wrap invisible.
+  let html = "";
+  for (let c = 0; c < COPIES; c++) for (let r = 0; r < N; r++) html += indexRow(SURAH_INDEX[r]!, false, r);
+  list.innerHTML = html;
 
-  // Slide the row so the open card's centre sits at the middle of the clip, clamped so neither end
-  // overscrolls into empty space.
-  const centreTrack = (): void => {
+  let pos = HOME; // track index of the OPEN card (Al-Fatihah in the middle copy)
+  let sel = 0;    // real surah index 0..113
+  let openEl: Element | null = null;
+  const openAt = (ti: number): void => {
+    openEl?.classList.remove("is-open");
+    openEl = list.children[ti]?.querySelector(".srow") ?? null;
+    openEl?.classList.add("is-open");
+  };
+
+  // Centre the open card (at `pos`) in the clip. animate=false suppresses the CSS transitions (used for
+  // the invisible wrap-normalisation and for resize). A ±N shift keeps pos on the physical triple track
+  // and is visually identical, so it only ever matters under extreme continuous scrolling.
+  const place = (animate: boolean): void => {
+    while (pos < 0) pos += N;
+    while (pos >= COPIES * N) pos -= N;
     const view = clip.clientWidth || list.clientWidth;
-    const target = view / 2 - (sel * PITCH + OPEN / 2);
-    const x = Math.round(Math.min(0, Math.max(view - TRACK, target)));
-    list.style.transform = `translate3d(${x}px,0,0)`;
+    const x = Math.round(view / 2 - (pos * PITCH + OPEN / 2));
+    if (animate) {
+      list.style.transform = `translate3d(${x}px,0,0)`;
+    } else {
+      list.classList.add("no-anim");
+      list.style.transform = `translate3d(${x}px,0,0)`;
+      void list.offsetWidth; // commit the no-transition state before re-enabling
+      list.classList.remove("no-anim");
+    }
   };
 
   let pending: ReturnType<typeof setTimeout> | undefined;
@@ -314,51 +336,63 @@ export function renderIndex(mount: HTMLElement): void {
     }, 250);
   };
 
-  const select = (i: number, quiet = false): void => {
-    i = Math.max(0, Math.min(N - 1, i));
-    const cards = lis();
-    cards[sel]?.querySelector(".srow")?.classList.remove("is-open");
-    sel = i;
-    cards[sel]?.querySelector(".srow")?.classList.add("is-open");
-    centreTrack();
-    if (!quiet) announce();
+  // After a move settles, slide `pos` back into the middle copy — invisible, same surah + surroundings.
+  // Debounced so a burst of turns normalises once, after it stops.
+  let norm: ReturnType<typeof setTimeout> | undefined;
+  const normalise = (): void => {
+    if (norm !== undefined) clearTimeout(norm);
+    if (pos >= HOME && pos < HOME + N) return; // already home
+    norm = setTimeout(() => {
+      pos = HOME + (((pos - HOME) % N) + N) % N;
+      openAt(pos);
+      place(false);
+    }, 700);
   };
 
-  // Click a slim card to open it; click the already-open card to enter the surah (its href navigates).
+  // Move the open card to track index `ti`; wraps seamlessly because the shelf is tripled.
+  const goTo = (ti: number, animate = true): void => {
+    pos = ti;
+    sel = (((pos - HOME) % N) + N) % N;
+    openAt(pos);
+    place(animate);
+    announce();
+    normalise();
+  };
+  const step = (dir: number): void => goTo(pos + dir);
+
+  openAt(pos);   // open Al-Fatihah
+  place(false);  // initial centre (the ResizeObserver re-runs this once layout has a width)
+
+  // Click a slim card to bring it to centre; click the open card to enter the surah (its href navigates).
   list.addEventListener("click", (e) => {
     const li = (e.target as Element).closest?.(".srow")?.closest("li");
     if (!li) return;
-    const idx = lis().indexOf(li as HTMLLIElement);
-    if (idx >= 0 && idx !== sel) {
-      e.preventDefault();
-      select(idx);
-    }
+    const ti = [...list.children].indexOf(li as Element);
+    if (ti >= 0 && ti !== pos) { e.preventDefault(); goTo(ti); }
   });
 
   const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
   const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
-  prevBtn?.addEventListener("click", () => select(sel - 1));
-  nextBtn?.addEventListener("click", () => select(sel + 1));
+  prevBtn?.addEventListener("click", () => step(-1));
+  nextBtn?.addEventListener("click", () => step(1));
 
   // Left/right arrow keys shift the shelf when the strip holds focus.
   strip.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") { select(sel - 1); e.preventDefault(); }
-    else if (e.key === "ArrowRight") { select(sel + 1); e.preventDefault(); }
+    if (e.key === "ArrowLeft") { step(-1); e.preventDefault(); }
+    else if (e.key === "ArrowRight") { step(1); e.preventDefault(); }
   });
 
-  // "Cari Surah" slides the shelf straight to a match.
+  // "Cari Surah" jumps straight to a match, centred in the home copy (no wild slide across the shelf).
   wheelGoto = (n: number): void => {
-    const idx = SURAH_INDEX.findIndex((s) => s.n === n);
-    if (idx >= 0) select(idx);
+    const r = SURAH_INDEX.findIndex((s) => s.n === n);
+    if (r >= 0) goTo(HOME + r, false);
   };
 
   // Re-centre when the clip resizes (sidebar toggle, window resize). One observer per mount; the
-  // previous is disconnected so observers never pile up across route changes. The observer also fires
-  // once on observe(), which lands the initial centring once layout has a width.
+  // previous is disconnected so observers never pile up across route changes. Fires once on observe().
   bacaResize?.disconnect();
-  bacaResize = new ResizeObserver(() => centreTrack());
+  bacaResize = new ResizeObserver(() => place(false));
   bacaResize.observe(clip);
-  centreTrack();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
