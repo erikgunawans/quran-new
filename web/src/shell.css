@@ -71,6 +71,14 @@
 .qk-history a { padding: 10px 15px; font-size: 15px; color: var(--ink-2); border-radius: var(--r); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qk-history a:hover { background: var(--primary-wash); color: var(--ink); }
 .qk-history a[aria-current="true"] { background: var(--primary-wash); border: 1px solid var(--primary-line); color: var(--ink); }
+/* A label over nothing is a hole in the page (DESIGN.md § Components — "an empty bordered box is a
+   hole in the page", "empty states teach"). On a first visit RIWAYAT sat above 600px of void. Say
+   what will appear there instead; the line evicts itself the moment there is a first conversation. */
+.qk-history:empty::after {
+  content: "Percakapanmu akan muncul di sini.";
+  display: block; padding: 2px 15px 0;
+  font-size: 13px; line-height: 1.6; color: var(--ink-3); max-width: 24ch;
+}
 
 .qk-user { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 14px 15px 2px; border-top: 1px solid var(--line); }
 .qk-user .avatar { width: 32px; height: 32px; border-radius: 999px; background: var(--forest-grad); flex: none; }
@@ -231,7 +239,7 @@
    text the old `ٱلسَّلَامُ عَلَيْكُمْ` held. The type steps down so it still lands on one line in the
    panel, and `balance` splits it evenly rather than orphaning `وَبَرَكَاتُهُ` when it must wrap. */
 .qk-hero-salam {
-  font-family: var(--f-ar); font-weight: 400; font-size: clamp(17px, 2vw, 26px);
+  font-family: var(--f-ar); font-weight: 400; font-size: clamp(18px, 2.6vw, 34px);
   text-wrap: balance;
   line-height: 1.7; margin: 0 0 4px; direction: rtl;
   background-image:
@@ -308,9 +316,13 @@
 :root[data-landing] #composer-bar {
   position: static; width: min(760px, 100%); margin: 20px auto 0;
   background: transparent; border: 0;
-  box-shadow:
-    -10px 0 22px -4px rgba(22,162,73,.24), 10px 0 22px -4px rgba(240,200,81,.26),
-    0 10px 22px -6px rgba(120,180,110,.20);
+  /* ONE ambient, green only. This carried three coloured glows, and the right-hand one was
+     `rgba(240,200,81,.26)` — `#f0c851`, the signature gold, cast as an edge on the composer card.
+     DESIGN.md § What this is not names that exact case: gold is ground or type, never content, and
+     "no gold frame, rule, hairline, or edge on a card". The glow stays because the composer is the
+     hero and atmosphere is permitted; the gold does not, and neither does lighting one card from
+     three directions at once. */
+  box-shadow: 0 14px 34px -16px oklch(53.2% .112 163 / .38);
 }
 /* Landing composer = the main attraction (Erik): a generous two-zone panel — the invitation types
    across the top, the send button rests at the bottom-right — not a thin utility bar. No Kemenag /

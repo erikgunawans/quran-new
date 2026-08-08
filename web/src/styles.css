@@ -836,14 +836,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: var(--surface);
   border: 1px solid transparent;
   border-radius: var(--r-input);
-  box-shadow: 0 2px 6px oklch(0.30 0.04 160 / 0.06), 0 14px 34px oklch(0.45 0.10 165 / 0.12);
+  /* The app's own shadow token, not a hand-rolled one. This read `0 2px 6px, 0 14px 34px` — a
+     34px-blur shadow on a bordered element, sitting INSIDE the bar's own three glows: five shadow
+     layers on one control. DESIGN.md § Components allows "hairline borders and DEFINED shadows
+     (≤10px blur)" and `--sh` already is exactly that. The bar keeps the atmosphere; the card keeps
+     the definition; neither does both. */
+  box-shadow: var(--sh);
   padding: 9px 9px 9px 22px;
   align-items: center; gap: var(--s-3);
 }
+/* Focus grows a RING, not a blur. The old focus state paired `border-color` with `0 16px 40px` —
+   the border-plus-wide-40-70px-shadow combination DESIGN.md calls the ghost-card tell, verbatim. A
+   ring is also the thing that actually reads as focus; a bigger halo just reads as more glow. */
 :root[data-landing] .composer form:focus-within {
   border-color: var(--primary-line);
-  box-shadow: 0 2px 6px oklch(0.30 0.04 160 / 0.06), 0 16px 40px oklch(0.45 0.10 165 / 0.16),
-              0 0 0 4px var(--primary-wash);
+  box-shadow: var(--sh), 0 0 0 3px var(--primary-wash);
 }
 :root[data-landing] .composer textarea { font-size: 17.5px; padding: 14px 0; }
 :root[data-landing] .send { width: 52px; height: 52px; border-radius: 13px; }
@@ -858,6 +865,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    field the app already had is what remains, never a strobe. */
 @property --beam { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 :root[data-landing] .composer form { position: relative; }
+
+/* The beam is a DARK-register idea. On white the emerald conic does not read as light emitted from
+   the edge — it reads as a dark scratch dragging around the corner, which is what it looked like.
+   DESIGN.md § Theme asks the opposite of the light register: "a page in daylight: green, open,
+   UNORNAMENTED". So light gets the calm bordered field and its focus ring; dark gets the light. */
+:root { --beam-op: 0; }
+:root[data-theme="dark"] { --beam-op: 1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --beam-op: 1; } }
 @media (prefers-reduced-motion: no-preference) {
   :root[data-landing] .composer form::before,
   :root[data-landing] .composer form::after {
@@ -865,20 +880,28 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
-    animation: beam-travel 5.5s linear infinite;
+    /* 9s, not 5.5s. At 5.5 the beam is always in peripheral vision on a page whose whole posture is
+       "the app does not perform gravity at the reader" — slower reads as breathing rather than
+       spinning, and matches the greeting's own 3s cadence in feel. */
+    animation: beam-travel 9s linear infinite;
   }
-  /* the sharp beam: a bright arc with a hot near-white core, trailing off into the emerald line */
+  /* The beam, in emerald only. Its core was `oklch(0.96 0.05 165)` — near-white, and therefore the
+     BRIGHTEST PIXEL ON THE PAGE, sitting on a piece of chrome. DESIGN.md § Theme makes the opposite
+     the enforced rule: "the scripture out-shouts the interface, never the reverse", and
+     `contrast.test.ts` holds chrome below scripture in the dark register. The landing carries no
+     scripture, so no test caught it — but a hot white core on the input is the same mistake the test
+     exists to prevent. Topping out at `--primary` keeps the invitation and drops the strobe. */
   :root[data-landing] .composer form::before {
-    padding: 1.6px;
+    padding: 1.6px; opacity: var(--beam-op);
     background: conic-gradient(from var(--beam),
-      transparent 0deg 210deg, var(--primary-line) 300deg, var(--primary) 338deg,
-      oklch(0.96 0.05 165) 350deg, var(--primary) 358deg, transparent 360deg);
+      transparent 0deg 232deg, var(--primary-line) 312deg, var(--primary) 350deg,
+      var(--primary) 357deg, transparent 360deg);
   }
   /* its glow: same rotation, wider and blurred, so the beam looks like it's emitting light */
   :root[data-landing] .composer form::after {
-    padding: 4px; opacity: 0.5; filter: blur(4px);
+    padding: 4px; opacity: calc(var(--beam-op) * 0.34); filter: blur(5px);
     background: conic-gradient(from var(--beam),
-      transparent 0deg 305deg, var(--primary) 348deg, transparent 360deg);
+      transparent 0deg 312deg, var(--primary) 350deg, transparent 360deg);
   }
 }
 @keyframes beam-travel { to { --beam: 360deg; } }
