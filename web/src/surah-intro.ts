@@ -240,6 +240,42 @@ export function introEl(intro: SurahIntro): string {
 }
 
 /**
+ * Tap-to-open for any `.si-info` tooltip inside `root`.
+ *
+ * Hover and focus are pure CSS; this is the touch path, which is the one that matters on the devices
+ * this app targets. Extracted from the preface binder so the Tematik credit's ⓘ gets the same
+ * behaviour instead of being hover-only — it was, and a touch reader saw nothing.
+ */
+export function bindInfoTips(root: ParentNode): void {
+  root.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".si-infobtn");
+    if (!btn) return;
+    const wrap = btn.closest<HTMLElement>(".si-info");
+    if (!wrap) return;
+    const open = wrap.dataset["open"] !== "true";
+    wrap.dataset["open"] = String(open);
+    btn.setAttribute("aria-expanded", String(open));
+    e.preventDefault();
+    e.stopPropagation(); // never let the tap fall through to the control behind it
+  });
+}
+
+/** Close every open tooltip on an outside tap or Escape — one that cannot be dismissed is a modal. */
+function bindTipDismiss(): void {
+  const closeAll = (): void => {
+    for (const w of document.querySelectorAll<HTMLElement>(".si-info[data-open='true']")) {
+      w.dataset["open"] = "false";
+      w.querySelector(".si-infobtn")?.setAttribute("aria-expanded", "false");
+    }
+  };
+  document.addEventListener("click", closeAll);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAll();
+  });
+}
+bindTipDismiss();
+
+/**
  * Wire the language toggle.
  *
  * Re-renders only `.si-content`; the attribution footer never moves, because every edition —
@@ -250,30 +286,7 @@ export function bindIntroLang(root: ParentNode, intro: SurahIntro): void {
   const content = root.querySelector<HTMLElement>(".si-content");
   if (!bar || !content) return;
 
-  // Tap-to-open for the provenance tooltip. Hover and focus are handled in CSS; this is the touch
-  // path, which is the one that actually matters on the devices this app targets.
-  bar.addEventListener("click", (e) => {
-    const info = (e.target as HTMLElement).closest<HTMLElement>(".si-infobtn");
-    if (!info) return;
-    const wrap = info.closest<HTMLElement>(".si-info");
-    if (!wrap) return;
-    const open = wrap.dataset["open"] !== "true";
-    wrap.dataset["open"] = String(open);
-    info.setAttribute("aria-expanded", String(open));
-    e.stopPropagation(); // do not let the tap fall through and switch language
-  });
-
-  // Tapping anywhere else, or Escape, closes it — a tooltip you cannot dismiss on touch is a modal.
-  const closeAll = (): void => {
-    for (const w of root.querySelectorAll<HTMLElement>(".si-info[data-open='true']")) {
-      w.dataset["open"] = "false";
-      w.querySelector(".si-infobtn")?.setAttribute("aria-expanded", "false");
-    }
-  };
-  document.addEventListener("click", closeAll);
-  document.addEventListener("keydown", (e) => {
-    if ((e as KeyboardEvent).key === "Escape") closeAll();
-  });
+  bindInfoTips(bar);
 
   bar.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".si-langbtn");

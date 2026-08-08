@@ -102,7 +102,14 @@ describe("attribution — F-2, on every route", () => {
   test("our editorial layer is named as ours on BOTH routes — his taxonomy vs our links/bridges", async () => {
     mockFetch({ "/peta/index.json": INDEX });
     await renderPetaIndex(mount);
-    expect(mount.querySelector(".peta-derivative")!.textContent).toContain("tambahan kami");
+    // On the INDEX the caveat rides the credit's ⓘ rather than sitting under the wall (Erik,
+    // 2026-08-08). It is still NAMED AS OURS, which is what F-2 is about — and it is in the
+    // button's accessible name too, so it does not depend on hover to be reachable.
+    const tip = mount.querySelector(".peta-credit .si-tip");
+    expect(tip, "index credit has no derivative-note tooltip").not.toBeNull();
+    expect(tip!.textContent).toContain("tambahan kami");
+    const tipBtn = mount.querySelector(".peta-credit .si-infobtn");
+    expect(tipBtn!.getAttribute("aria-label")).toContain("tambahan kami");
 
     resetPetaCache();
     document.body.innerHTML = `<div id="read"></div>`;

@@ -437,47 +437,43 @@
 .tematik-vbtn.is-active { border-color: var(--primary-line); color: var(--primary); background: var(--primary-wash); }
 .tematik-vbtn:hover, .tematik-back:hover { border-color: var(--primary-line); color: var(--primary); }
 
-/* The card wall — heights carry the data.
+/* The card wall — heights rank the themes, bottoms land on one line.
  *
- * A card's height is proportional to how many ayahs the theme touches, which is the whole point of
- * the arrangement: "Perintah dan Larangan" (626) towers over "Sosial" (38) and you read that before
- * you read a number. Formula and proportions are the claude.ai/design prototype's
- * (`h = 148 + n*0.52`); what this adds is a SCALE, because the prototype's absolute heights total
- * ~3,200px and the whole wall has to fit one viewport with nothing to scroll (Erik).
- *
- * `column-fill: auto` is what makes that work: with a fixed height, cards fill column 1 to the
- * bottom, then column 2, and so on — CSS-native masonry with no JS distribution. peta.ts scales the
- * heights so the content lands inside `columns x height`, and re-scales on resize, so it fits at any
- * window size rather than at the one I happened to test.
- *
- * `overflow: hidden` because there is nothing to scroll to; a scrollbar here would be a UI element
- * advertising content that does not exist. */
-/* The view is a column that fits the panel; the wall takes whatever is left after the header and
-   the attribution, so nothing has to guess a magic offset. Mirrors the prototype's
-   `flex:1;min-height:0`. */
+ * N flex columns of equal height; inside each, a card takes `flex-grow` equal to its ayah count, so
+ * heights are proportional within a column and every column fills to the bottom. peta.ts balances
+ * the column SUMS so the per-column scale is near-identical and the global ranking survives — see
+ * fitTematik(). `--tema-cols` is the single source of the count: the media queries set it, the JS
+ * reads it, so the two can never disagree. */
 .qk-panel-body .tematik-index {
   display: flex; flex-direction: column; min-height: 0;
   height: calc(100dvh - 40px);
 }
-/* The generic composer reserve (`.app` padding-bottom: clamp(120px,13vh,160px)) exists so scrolling
-   content can clear the docked bar. This wall is fixed-height and never scrolls under it, so the
-   reserve is 100px of dead space between the last card and the search bar — Erik asked for the wall
-   to stop right above it. Trimmed to a hairline gap on this route only. */
 :root[data-tematik]:not([data-landing]) .qk-panel-body .app { padding-bottom: 16px; }
+
 .tematik-grid {
+  --tema-cols: 5;
   flex: 1 1 auto;
   min-height: 0;
-  column-count: 5;
-  column-fill: auto;
-  column-gap: 14px;
+  display: flex;
+  gap: 8px;             /* tighter than the old 14px (Erik) */
+  align-items: stretch;
   overflow: hidden;
 }
-/* `display` out-argues `[hidden]` (DESIGN.md § Layout) — the column-count rule above would keep the
-   whole wall painted while the map is open, which is exactly what it did. Re-assert it. */
+/* `display: flex` out-argues `[hidden]` (DESIGN.md § Layout) — re-assert it. */
 .tematik-grid[hidden] { display: none; }
-/* Filtering drops to natural heights: three survivors should not be stretched over five columns. */
-.tematik-grid.is-filtered { column-count: 4; column-fill: balance; flex: 0 0 auto; }
-.tematik-grid.is-filtered .tema-card { height: auto; min-height: 132px; }
+.tema-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+@media (max-width: 1180px) { .tematik-grid { --tema-cols: 4; } }
+@media (max-width: 900px)  { .tematik-grid { --tema-cols: 3; } }
+@media (max-width: 700px) {
+  .qk-panel-body .tematik-index { height: auto; }
+  .tematik-grid { --tema-cols: 2; flex: 0 0 auto; overflow: visible; }
+  .tema-card { flex: 0 0 auto !important; min-height: 132px; }
+}
+.tematik-grid.is-filtered .tema-card { flex: 0 0 auto !important; min-height: 128px; }
+.tematik-grid .tema-card[hidden] { display: none; }
+
+.tema-card { height: auto; min-height: 132px; }
 .tematik-grid .tema-card[hidden] { display: none; }
 @media (max-width: 1180px) { .tematik-grid { column-count: 4; } }
 @media (max-width: 900px)  { .tematik-grid { column-count: 3; } }
@@ -492,18 +488,56 @@
 
 .tema-card {
   position: relative; display: flex; flex-direction: column; justify-content: flex-end;
-  /* `--tema-h` is set by peta.ts from the theme's ayah count, scaled to the viewport. */
-  break-inside: avoid; margin: 0 0 14px; height: var(--tema-h, 170px);
-  overflow: hidden; border-radius: var(--r-lg); text-decoration: none;
-  border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 16px 18px;
-  background: linear-gradient(155deg, rgba(22,162,73,.10) 0%, rgba(24,48,42,.30) 100%);
+  /* `--tema-g` is the theme's ayah count, set by peta.ts. flex-basis 0 so the grow factor alone
+     decides the share — with basis auto the content height would dilute the proportion. */
+  /* 108 authored ≈ 97 on glass at the app's .9 body zoom — the floor a two-line theme name
+     plus its count needs. Below it the longest names ran into the corner accent. */
+  flex: var(--tema-g, 1) 1 0; min-height: 108px;
+  overflow: hidden; border-radius: var(--r); text-decoration: none;
+  border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 13px 15px;
   transition: transform var(--t), box-shadow var(--t), border-color var(--t);
   /* `forwards`, never `both` (DESIGN.md § Motion): `both` back-fills the invisible FROM keyframe
      before the engine runs a frame, so a tab backgrounded mid-load can leave these permanently
      invisible. Fixed here because this rule was being rewritten anyway. */
   animation: qkin 320ms var(--ease) forwards;
 }
-:root[data-theme="dark"] .tema-card { border-color: rgba(210,235,220,.13); background: linear-gradient(155deg, rgba(22,162,73,.15) 0%, rgba(10,26,20,.55) 100%); }
+:root[data-theme="dark"] .tema-card { border-color: rgba(210,235,220,.13); }
+/* On a short card the accent yields to the name — decoration never crowds content. */
+.tema-card.is-short .tema-ar { font-size: 14px; top: 6px; right: 10px; }
+.tema-card.is-short { padding: 10px 12px; }
+.tema-card.is-short .tema-name { font-size: 13.5px; }
+.tema-card.is-short .tema-girih { width: 120px; height: 120px; }
+
+/* The eight card surfaces, verbatim from the claude.ai/design prototype (BG_L / BG_D). Applied by
+   index % 8 so no two neighbours share a ground — the slight colour drift across the wall is the
+   texture Erik asked for, not decoration on any single card. */
+.tema-card[data-bg="0"] { background: radial-gradient(120% 90% at 8% 0%,rgba(255,255,255,.95),transparent 60%),linear-gradient(155deg,rgba(238,248,242,.95),rgba(214,236,224,.95)); }
+.tema-card[data-bg="1"] { background: radial-gradient(110% 80% at 100% 0%,rgba(255,255,255,.92),transparent 62%),linear-gradient(200deg,rgba(228,244,243,.95),rgba(198,228,228,.95)); }
+.tema-card[data-bg="2"] { background: radial-gradient(130% 100% at 0% 100%,rgba(255,255,255,.9),transparent 58%),linear-gradient(140deg,rgba(240,247,229,.95),rgba(214,233,203,.95)); }
+.tema-card[data-bg="3"] { background: linear-gradient(165deg,rgba(226,241,232,.97),rgba(190,220,203,.97)); }
+.tema-card[data-bg="4"] { background: radial-gradient(100% 100% at 50% 0%,rgba(255,255,255,.9),transparent 66%),linear-gradient(180deg,rgba(240,245,238,.96),rgba(210,224,208,.96)); }
+.tema-card[data-bg="5"] { background: radial-gradient(120% 90% at 100% 100%,rgba(240,200,150,.22),transparent 58%),linear-gradient(150deg,rgba(252,250,243,.96),rgba(224,236,222,.96)); }
+.tema-card[data-bg="6"] { background: linear-gradient(210deg,rgba(222,238,231,.97),rgba(178,209,193,.95)); }
+.tema-card[data-bg="7"] { background: radial-gradient(140% 110% at 0% 0%,rgba(255,255,255,.98),transparent 64%),linear-gradient(160deg,rgba(246,251,247,.96),rgba(222,238,228,.96)); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tema-card[data-bg="0"] { background: radial-gradient(120% 90% at 8% 0%,rgba(52,110,86,.5),transparent 62%),linear-gradient(155deg,rgba(26,56,47,.9),rgba(12,29,25,.94)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="1"] { background: radial-gradient(110% 80% at 100% 0%,rgba(40,104,104,.48),transparent 60%),linear-gradient(200deg,rgba(20,52,52,.9),rgba(9,26,27,.94)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="2"] { background: radial-gradient(130% 100% at 0% 100%,rgba(66,112,52,.42),transparent 58%),linear-gradient(140deg,rgba(30,58,40,.9),rgba(14,31,22,.94)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="3"] { background: linear-gradient(165deg,rgba(18,64,48,.94),rgba(8,26,21,.96)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="4"] { background: radial-gradient(100% 100% at 50% 0%,rgba(70,98,80,.4),transparent 64%),linear-gradient(180deg,rgba(28,46,38,.92),rgba(13,24,20,.95)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="5"] { background: radial-gradient(120% 90% at 100% 100%,rgba(176,112,60,.3),transparent 56%),linear-gradient(150deg,rgba(30,52,44,.92),rgba(14,28,24,.95)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="6"] { background: linear-gradient(210deg,rgba(14,50,42,.95),rgba(6,22,19,.96)); }
+  :root:not([data-theme="light"]) .tema-card[data-bg="7"] { background: radial-gradient(140% 110% at 0% 0%,rgba(48,96,78,.45),transparent 62%),linear-gradient(160deg,rgba(24,52,44,.9),rgba(11,27,23,.94)); }
+}
+:root[data-theme="dark"] .tema-card[data-bg="0"] { background: radial-gradient(120% 90% at 8% 0%,rgba(52,110,86,.5),transparent 62%),linear-gradient(155deg,rgba(26,56,47,.9),rgba(12,29,25,.94)); }
+:root[data-theme="dark"] .tema-card[data-bg="1"] { background: radial-gradient(110% 80% at 100% 0%,rgba(40,104,104,.48),transparent 60%),linear-gradient(200deg,rgba(20,52,52,.9),rgba(9,26,27,.94)); }
+:root[data-theme="dark"] .tema-card[data-bg="2"] { background: radial-gradient(130% 100% at 0% 100%,rgba(66,112,52,.42),transparent 58%),linear-gradient(140deg,rgba(30,58,40,.9),rgba(14,31,22,.94)); }
+:root[data-theme="dark"] .tema-card[data-bg="3"] { background: linear-gradient(165deg,rgba(18,64,48,.94),rgba(8,26,21,.96)); }
+:root[data-theme="dark"] .tema-card[data-bg="4"] { background: radial-gradient(100% 100% at 50% 0%,rgba(70,98,80,.4),transparent 64%),linear-gradient(180deg,rgba(28,46,38,.92),rgba(13,24,20,.95)); }
+:root[data-theme="dark"] .tema-card[data-bg="5"] { background: radial-gradient(120% 90% at 100% 100%,rgba(176,112,60,.3),transparent 56%),linear-gradient(150deg,rgba(30,52,44,.92),rgba(14,28,24,.95)); }
+:root[data-theme="dark"] .tema-card[data-bg="6"] { background: linear-gradient(210deg,rgba(14,50,42,.95),rgba(6,22,19,.96)); }
+:root[data-theme="dark"] .tema-card[data-bg="7"] { background: radial-gradient(140% 110% at 0% 0%,rgba(48,96,78,.45),transparent 62%),linear-gradient(160deg,rgba(24,52,44,.9),rgba(11,27,23,.94)); }
+
 .tema-card:hover { transform: scale(1.02); border-color: var(--primary-line); box-shadow: 0 6px 14px rgba(12,40,30,.18); z-index: 2; }
 .tema-girih {
   position: absolute; top: -10px; right: -10px; width: 170px; height: 170px; pointer-events: none; opacity: .55;

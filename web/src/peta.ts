@@ -28,6 +28,7 @@ import { announce } from "./announce.ts";
 import { legendHtml, mountCosmos, type Cosmos, type CosmosHandle } from "./peta-cosmos.ts";
 import { bindActs, clearReadCards } from "./read.ts";
 import { esc } from "./esc.ts";
+import { bindInfoTips } from "./surah-intro.ts";
 import {
   loadCategory,
   loadIndex,
@@ -66,7 +67,7 @@ const UNRESOLVED_NOTE = "rujukan ini tidak kami temukan dalam mushaf — sedang 
  * move it to a footer, do not make it `visually-hidden`. It is the reason we may show any of
  * this at all. */
 const creditEl = (src: PetaIndex["source"]): string =>
-  `<p class="peta-credit">${esc(src.title)} oleh <strong>${esc(src.author)}</strong> — <a href="${esc(src.url)}" rel="noopener noreferrer" target="_blank">quran.tarjamahtafsiriyah.com</a></p>`;
+  `<p class="peta-credit">${esc(src.title)} oleh <strong>${esc(src.author)}</strong> — <a href="${esc(src.url)}" rel="noopener noreferrer" target="_blank">quran.tarjamahtafsiriyah.com</a>${derivativeTipEl()}</p>`;
 
 /** Separating HIS work from OURS.
  *
@@ -75,8 +76,28 @@ const creditEl = (src: PetaIndex["source"]): string =>
  * on a page carrying his name, so a reader could reasonably credit our layer to him — and under
  * UU 28/2014 the author's integrity right makes that our problem to prevent, not his to tolerate.
  * Naming the seam costs one line. */
+const DERIVATIVE_NOTE =
+  "Penautan ayat dan keterangan \u201Cmuncul di N tema\u201D adalah tambahan kami untuk memudahkan " +
+  "penelusuran \u2014 bukan bagian dari indeks aslinya.";
+
+/**
+ * The caveat now rides an ⓘ on the credit line instead of sitting under the wall as two grey lines
+ * (Erik, 2026-08-08). It moved WITH the credit rather than away from it: it exists to separate his
+ * work from ours, so parking it anywhere else on the page would have been worse than folding it in
+ * here. Opens on hover, tap and keyboard focus, and the whole sentence is the button's accessible
+ * name, so it is never hover-only — same contract as the preface's provenance icon.
+ */
+/** The visible paragraph — still what the CATEGORY route shows. Erik only moved the INDEX copy. */
 const derivativeNoteEl = (): string =>
-  `<p class="peta-derivative">Penautan ayat dan keterangan “muncul di N tema” adalah tambahan kami untuk memudahkan penelusuran — bukan bagian dari indeks aslinya.</p>`;
+  `<p class="peta-derivative">${esc(DERIVATIVE_NOTE)}</p>`;
+
+/** The same sentence as an ⓘ on the credit line — the INDEX route's form. */
+const derivativeTipEl = (): string =>
+  `<span class="si-info peta-note" data-open="false">
+     <button class="si-infobtn" type="button" aria-expanded="false" aria-describedby="peta-note-tip"
+             aria-label="Tentang indeks ini: ${esc(DERIVATIVE_NOTE)}">i</button>
+     <span class="si-tip" id="peta-note-tip" role="tooltip"><span>${esc(DERIVATIVE_NOTE)}</span></span>
+   </span>`;
 
 const backEl = (): string =>
   `<a class="back back-top" href="#/peta"><span aria-hidden="true">←</span> Kembali ke Tematik</a>`;
@@ -193,7 +214,22 @@ const TEMATIK_AR: Record<string, string> = {
  * a media query and the height is a dvh clamp: hard-coding a factor would fit my window and no one
  * else's. MIN_H keeps the smallest theme tall enough for two lines of title plus its count.
  */
-const MIN_H = 104;
+/**
+ * Lay the wall out as N flex columns whose bottoms all land on the same line.
+ *
+ * Erik's brief: keep the ranking (626 ayahs is still the tallest card) but stop the ragged bottom —
+ * "semi-proportional". Those two cannot both be exact. Strict proportionality is what MAKES the
+ * bottom ragged, because a column's cards sum to whatever they sum to.
+ *
+ * So: each column is a flex column of fixed height and each card takes `flex-grow: n`. Within a
+ * column heights are exactly proportional to ayah count, and every column fills to the bottom, so
+ * the wall ends on one line. Across columns the scale differs by that column's total — which is the
+ * "semi" part, and why the distribution below balances column SUMS rather than card counts: equal
+ * sums mean equal scales, so the compression is near-uniform and the global ranking survives.
+ * Balancing by count would not: three small themes alone in a column would each inflate to a third
+ * of the height and out-tower the 626.
+ */
+const MIN_H = 84;
 
 export function fitTematik(): void {
   const grid = document.getElementById("tematik-grid");
@@ -201,44 +237,48 @@ export function fitTematik(): void {
   const cards = [...grid.querySelectorAll<HTMLAnchorElement>(".tema-card")];
   if (!cards.length) return;
 
-  const cs = getComputedStyle(grid);
-  const cols = Number.parseInt(cs.columnCount, 10);
-  const box = grid.getBoundingClientRect().height;
-  // Below the breakpoint the wall scrolls with the page; heights go back to the CSS default.
-  if (!Number.isFinite(cols) || cols < 1 || box < 40) {
-    for (const c of cards) c.style.removeProperty("--tema-h");
-    return;
+  const cols = Math.max(1, Number.parseInt(getComputedStyle(grid).getPropertyValue("--tema-cols"), 10) || 1);
+
+  // Greedy longest-first into the currently-lightest column: the standard balanced-partition
+  // heuristic, and it keeps the one huge theme in a column of its own where it belongs.
+  const order = cards
+    .map((c, i) => ({ c, n: Number(c.dataset["n"] ?? 0), i }))
+    .sort((a, b) => b.n - a.n || a.i - b.i);
+  const buckets: { sum: number; items: HTMLAnchorElement[] }[] = Array.from({ length: cols }, () => ({
+    sum: 0,
+    items: [],
+  }));
+  for (const { c, n } of order) {
+    const target = buckets.reduce((lo, b) => (b.sum < lo.sum ? b : lo), buckets[0]!);
+    target.items.push(c);
+    target.sum += n;
   }
 
-  const gap = 14; // matches the margin-bottom in shell.css
-  const raw = cards.map((c) => 148 + Number(c.dataset["n"] ?? 0) * 0.52);
-  const budget = cols * box - cards.length * gap;
-  const total = raw.reduce((a, b) => a + b, 0);
-  let scale = Math.min(1, budget / total);
-
-  const apply = (k: number): void => {
-    for (const [i, c] of cards.entries()) {
-      c.style.setProperty("--tema-h", `${Math.max(MIN_H, Math.round(raw[i]! * k))}px`);
+  // Rebuild the column wrappers. Cards are MOVED, never re-created — re-creating them would restart
+  // the entrance animation on every resize tick.
+  grid.querySelectorAll(".tema-col").forEach((el) => el.remove());
+  for (const b of buckets) {
+    const col = document.createElement("div");
+    col.className = "tema-col";
+    for (const c of b.items) {
+      // Within a column the card's share IS its ayah count.
+      c.style.setProperty("--tema-g", String(Math.max(1, Number(c.dataset["n"] ?? 1))));
+      col.append(c);
     }
-  };
+    grid.append(col);
+  }
 
   /**
-   * Then shrink until it actually fits, because the arithmetic above is optimistic.
+   * Flag the cards the flex share leaves short.
    *
-   * `break-inside: avoid` means a column ends as soon as the next card would not fit whole, so real
-   * packing always wastes some of `cols x height`. Assuming perfect packing cost "Karakteristik
-   * Negara Bersyari'ah" its place — it spilled into a sixth column and `overflow: hidden` ate it, so
-   * the wall silently showed 12 of 13 themes. A dropped theme is not a layout blemish; it is the
-   * page lying about the index.
-   *
-   * Overflow is detectable: extra columns widen the box, so `scrollWidth > clientWidth` means at
-   * least one card did not make it. Shrink 6% and re-measure, up to a floor.
+   * A 38-ayah theme lands around 76px, and at that height a two-line title grows straight into the
+   * Arabic accent in the corner — four of thirteen did. The accent is decoration and the name is the
+   * content, so on a short card the accent gets out of the way. Measured after layout because the
+   * height is a flex outcome, not something computed above.
    */
-  apply(scale);
-  for (let i = 0; i < 10 && grid.scrollWidth > grid.clientWidth + 1 && scale > 0.2; i++) {
-    scale *= 0.94;
-    apply(scale);
-  }
+  requestAnimationFrame(() => {
+    for (const c of cards) c.classList.toggle("is-short", c.getBoundingClientRect().height < 125);
+  });
 }
 
 let fitBound = false;
@@ -303,6 +343,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
         <div class="tematik-head-l">
           <h1 class="qk-hero-gradient tematik-title">Tematik</h1>
           <p class="tematik-sub">Tiga belas tema besar Al-Qur'an, dengan jumlah ayat yang menyinggungnya.</p>
+          ${creditEl(index.source)}
         </div>
         <div class="tematik-head-r">
           <button class="tematik-vbtn tematik-cards-toggle is-active" type="button" aria-pressed="true">Kartu</button>
@@ -316,8 +357,8 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
       <div class="tematik-grid" id="tematik-grid">
         ${index.categories
           .map(
-            (c) => `
-          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-n="${c.entries}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
+            (c, i) => `
+          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-bg="${i % 8}" data-n="${c.entries}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
             <span class="tema-girih" aria-hidden="true"></span>
             <span class="tema-ar" dir="rtl" lang="ar">${esc(TEMATIK_AR[c.slug] ?? "")}</span>
             <span class="tema-body">
@@ -328,11 +369,10 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
           )
           .join("")}
       </div>
-      ${creditEl(index.source)}
-      ${derivativeNoteEl()}
     </div>`;
 
   bindMapToggle(mount);
+  bindInfoTips(mount);
   bindFit();
   fitTematik();
   say(`Tematik — ${t.categories} tema tersedia.`);
