@@ -169,15 +169,40 @@ function bodyEl(sections: readonly IntroSection[], refs: readonly string[], rtl:
  * a reader-selectable option anyway; offering it WITHOUT saying what it is would turn a labelled
  * draft into a false attribution to Dorar, which is a different thing from what he asked for.
  */
-function editionNoticeEl(ed: IntroEdition): string {
+function noticeText(ed: IntroEdition): { head: string; body: string } {
+  const how = ed.translation === "ai" ? "Terjemahan mesin (AI)" : `Terjemahan (${ed.translation})`;
+  const reviewer = ed.reviewerNeeded ? ` Menunggu tinjauan ${ed.reviewerNeeded}.` : "";
+  return {
+    head: `${how} — belum ditinjau.`,
+    body: `Ini terjemahan turunan dari teks Arab Dorar — bukan karya Dorar sendiri, bukan edisi resmi.${reviewer} Untuk rujukan, baca versi Arabnya.`,
+  };
+}
+
+/**
+ * The provenance affordance: an ⓘ beside the language tab, revealing what that edition actually is.
+ *
+ * Erik asked for this on hover (2026-08-08), replacing the persistent banner. Hover ALONE would have
+ * been wrong here: the stated target is a mid-range Android, where hover does not exist, and a
+ * touch reader would then get machine-translated religious commentary with no signal at all. So the
+ * icon opens on hover, on tap, and on keyboard focus, and the full sentence is also the button's
+ * accessible description — a screen reader hears it whether or not the tooltip is ever shown.
+ *
+ * The icon itself is always visible next to the tab, which is the part that has to stay honest: the
+ * disclosure can be one interaction away, but the *existence* of something to disclose cannot be.
+ */
+function infoEl(ed: IntroEdition, lang: string): string {
   if (ed.official) return "";
-  const how = ed.translation === "ai" ? "Terjemahan mesin (AI)" : `Terjemahan (${esc(ed.translation)})`;
-  const reviewer = ed.reviewerNeeded ? ` Menunggu tinjauan ${esc(ed.reviewerNeeded)}.` : "";
+  const { head, body } = noticeText(ed);
+  const tipId = `si-tip-${esc(lang)}`;
   return `
-    <aside class="si-warn" role="note">
-      <b>${how} — belum ditinjau.</b>
-      <span>Ini terjemahan turunan dari teks Arab Dorar — bukan karya Dorar sendiri, bukan edisi resmi.${reviewer} Untuk rujukan, baca versi Arabnya.</span>
-    </aside>`;
+    <span class="si-info" data-open="false">
+      <button class="si-infobtn" type="button" aria-describedby="${tipId}"
+              aria-expanded="false" aria-label="Tentang terjemahan ini: ${esc(head)} ${esc(body)}">i</button>
+      <span class="si-tip" id="${tipId}" role="tooltip">
+        <b>${esc(head)}</b>
+        <span>${esc(body)}</span>
+      </span>
+    </span>`;
 }
 
 /** Language options, Arabic always first because it is the edition Dorar actually wrote. */
@@ -188,15 +213,19 @@ const LANGS: readonly (readonly [string, string])[] = [
 
 export function introEl(intro: SurahIntro): string {
   const tabs = LANGS.map(([code, label]) => {
-    const has = code === "ar" || Boolean(intro.editions?.[code]);
+    const ed = intro.editions?.[code];
+    const has = code === "ar" || Boolean(ed);
     const on = code === "ar";
     // An unavailable language stays VISIBLE but disabled, and says why. Hiding it would read as
     // "this app has no Indonesian"; a dead button that explains itself is the honest middle.
-    return `<button type="button" class="si-langbtn${on ? " on" : ""}" data-lang="${esc(code)}"
+    const btn = `<button type="button" class="si-langbtn${on ? " on" : ""}" data-lang="${esc(code)}"
               aria-pressed="${on}"${has ? "" : ' disabled aria-disabled="true"'}
               title="${has ? esc(label) : "Belum tersedia untuk surah ini"}">${esc(label)}${
                 has ? "" : ' <span class="si-na">belum ada</span>'
               }</button>`;
+    // The ⓘ rides with the tab, not with the content, so the reader can learn what an edition is
+    // BEFORE choosing it rather than after.
+    return ed ? `<span class="si-langopt">${btn}${infoEl(ed, code)}</span>` : btn;
   }).join("");
 
   return `
@@ -221,6 +250,31 @@ export function bindIntroLang(root: ParentNode, intro: SurahIntro): void {
   const content = root.querySelector<HTMLElement>(".si-content");
   if (!bar || !content) return;
 
+  // Tap-to-open for the provenance tooltip. Hover and focus are handled in CSS; this is the touch
+  // path, which is the one that actually matters on the devices this app targets.
+  bar.addEventListener("click", (e) => {
+    const info = (e.target as HTMLElement).closest<HTMLElement>(".si-infobtn");
+    if (!info) return;
+    const wrap = info.closest<HTMLElement>(".si-info");
+    if (!wrap) return;
+    const open = wrap.dataset["open"] !== "true";
+    wrap.dataset["open"] = String(open);
+    info.setAttribute("aria-expanded", String(open));
+    e.stopPropagation(); // do not let the tap fall through and switch language
+  });
+
+  // Tapping anywhere else, or Escape, closes it — a tooltip you cannot dismiss on touch is a modal.
+  const closeAll = (): void => {
+    for (const w of root.querySelectorAll<HTMLElement>(".si-info[data-open='true']")) {
+      w.dataset["open"] = "false";
+      w.querySelector(".si-infobtn")?.setAttribute("aria-expanded", "false");
+    }
+  };
+  document.addEventListener("click", closeAll);
+  document.addEventListener("keydown", (e) => {
+    if ((e as KeyboardEvent).key === "Escape") closeAll();
+  });
+
   bar.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".si-langbtn");
     if (!btn || btn.disabled) return;
@@ -239,6 +293,7 @@ export function bindIntroLang(root: ParentNode, intro: SurahIntro): void {
     }
     const ed = intro.editions?.[lang];
     if (!ed) return; // disabled buttons cannot reach here, but never render an edition we lack
-    content.innerHTML = editionNoticeEl(ed) + bodyEl(ed.sections, ed.refs, false);
+    // The provenance now lives on the tab's ⓘ, so the body is just the edition.
+    content.innerHTML = bodyEl(ed.sections, ed.refs, false);
   });
 }

@@ -138,45 +138,77 @@ describe("introEl — prose is paragraphed, never rewritten", () => {
   });
 });
 
-describe("bindIntroLang — an unofficial edition can never be shown unlabelled", () => {
+describe("provenance — an unofficial edition can never be shown unlabelled", () => {
   const withId = intro({ editions: { id: edition() } });
+
+  const host = (i: SurahIntro): HTMLElement => {
+    const h = document.createElement("div");
+    h.innerHTML = introEl(i);
+    bindIntroLang(h, i);
+    return h;
+  };
+
+  test("the language tab carries an info affordance", () => {
+    expect(host(withId).querySelector(".si-langopt .si-infobtn")).not.toBeNull();
+  });
+
+  test("the tooltip names what the edition is and who must review it", () => {
+    const tip = host(withId).querySelector(".si-tip")!.textContent!;
+    expect(tip).toContain("belum ditinjau");
+    expect(tip).toContain("bukan edisi resmi");
+    expect(tip).toContain("Ustadz Ahmad Isrofiel");
+  });
+
+  test("the full sentence is in the accessible name, so it survives with no hover at all", () => {
+    // The load-bearing assertion. Hover does not exist on the mid-range Android this app targets;
+    // if the disclosure lived only in a hover tooltip, a touch or screen-reader user would get
+    // machine-translated religious commentary with no signal whatsoever.
+    const label = host(withId).querySelector(".si-infobtn")!.getAttribute("aria-label")!;
+    expect(label).toContain("belum ditinjau");
+    expect(label).toContain("bukan edisi resmi");
+  });
+
+  test("the tooltip is inert until asked for", () => {
+    expect(host(withId).querySelector(".si-info")!.getAttribute("data-open")).toBe("false");
+    expect(host(withId).querySelector(".si-infobtn")!.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  test("tapping the icon opens it — the touch path, not just hover", () => {
+    const h = host(withId);
+    h.querySelector<HTMLButtonElement>(".si-infobtn")!.click();
+    expect(h.querySelector(".si-info")!.getAttribute("data-open")).toBe("true");
+    expect(h.querySelector(".si-infobtn")!.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  test("tapping the icon does NOT switch language", () => {
+    const h = host(withId);
+    h.querySelector<HTMLButtonElement>(".si-infobtn")!.click();
+    expect(h.querySelector(".si-content")!.innerHTML).toContain("أسماء السورة");
+  });
+
+  test("an edition marked official gets no info affordance", () => {
+    const off = intro({ editions: { id: edition({ official: true }) } });
+    expect(host(off).querySelector(".si-infobtn")).toBeNull();
+  });
+
+  test("Arabic — Dorar's own edition — carries no provenance warning", () => {
+    const bar = host(withId).querySelector(".si-langbar")!;
+    const arOpt = [...bar.children].find((c) => c.querySelector?.('[data-lang="ar"]') || c.getAttribute?.("data-lang") === "ar");
+    expect(arOpt!.querySelector?.(".si-infobtn") ?? null).toBeNull();
+  });
 
   test("selecting Indonesian renders the Indonesian body", () => {
     expect(pick(withId, "id").querySelector(".si-content")!.innerHTML).toContain("Nama-Nama Surah");
-  });
-
-  test("selecting Indonesian ALWAYS renders the provenance banner", () => {
-    const html = pick(withId, "id").querySelector(".si-content")!.innerHTML;
-    expect(html).toContain("si-warn");
-    expect(html).toContain("belum ditinjau");
-    expect(html).toContain("bukan edisi resmi");
-  });
-
-  test("the banner names who still has to review it", () => {
-    expect(pick(withId, "id").innerHTML).toContain("Ustadz Ahmad Isrofiel");
-  });
-
-  test("an edition marked official gets no banner", () => {
-    const off = intro({ editions: { id: edition({ official: true }) } });
-    expect(pick(off, "id").querySelector(".si-content")!.innerHTML).not.toContain("si-warn");
-  });
-
-  test("switching back to Arabic drops the banner and restores Dorar's text", () => {
-    const host = pick(withId, "id");
-    host.querySelector<HTMLButtonElement>('.si-langbtn[data-lang="ar"]')!.click();
-    const html = host.querySelector(".si-content")!.innerHTML;
-    expect(html).toContain("أسماء السورة");
-    expect(html).not.toContain("si-warn");
   });
 
   test("Dorar keeps the credit on every edition — the footer never moves", () => {
     expect(pick(withId, "id").querySelector(".si-cred a")!.getAttribute("href")).toContain("dorar.net");
   });
 
-  test("a disabled language cannot swap the content", () => {
-    const host = pick(intro(), "id"); // no id edition — button is disabled
-    expect(host.querySelector(".si-content")!.innerHTML).toContain("أسماء السورة");
-    expect(host.querySelector(".si-content")!.innerHTML).not.toContain("si-warn");
+  test("switching back to Arabic restores Dorar's text", () => {
+    const h = pick(withId, "id");
+    h.querySelector<HTMLButtonElement>('.si-langbtn[data-lang="ar"]')!.click();
+    expect(h.querySelector(".si-content")!.innerHTML).toContain("أسماء السورة");
   });
 });
 

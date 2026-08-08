@@ -907,23 +907,76 @@
 #read .si-langbtn:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
 #read .si-na { font-size: 0.86em; opacity: 0.8; }
 
-/* The provenance banner for an unofficial edition. Deliberately loud — a machine translation of
-   religious commentary presented as scholarship is the failure that matters on this surface. */
-#read .si-warn {
+/* The provenance affordance: an ⓘ beside the language tab.
+   Opens on hover (pointer), on :focus-within (keyboard) and on [data-open=true] (tap). Hover alone
+   would be wrong — this app targets a mid-range Android, where hover does not exist, and the thing
+   being disclosed is that the text is machine-translated religious commentary. */
+#read .si-langopt { display: inline-flex; align-items: center; gap: var(--s-1); }
+#read .si-info { position: relative; display: inline-flex; }
+#read .si-infobtn {
+  appearance: none;
+  width: 20px; height: 20px;
+  display: grid; place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: 600 12px/1 var(--f-ui);
+  font-style: italic;
+  cursor: pointer;
+  transition: background var(--t), color var(--t), border-color var(--t);
+}
+/* The visual stays 20px so it sits quietly beside the tab, but the HIT area is 44px. On touch this
+   icon is the only route to knowing the text is machine-translated, so it cannot be a 20px target —
+   see the app-wide touch-target finding in the 2026-08-08 design audit. */
+#read .si-infobtn { position: relative; }
+/* -15px, not -12px: the app renders at body zoom .9, so a 44px authored target lands at ~40px on
+   glass. 20 + 30 = 50 authored = 45 rendered, which is the number that actually matters. */
+#read .si-infobtn::before { content: ""; position: absolute; inset: -15px; border-radius: 999px; }
+#read .si-infobtn:hover { background: var(--primary-wash); color: var(--ink); border-color: var(--primary-line); }
+#read .si-infobtn:active { background: color-mix(in oklch, var(--primary-wash), var(--primary) 10%); }
+#read .si-infobtn:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
+
+#read .si-tip {
+  position: absolute;
+  top: calc(100% + var(--s-2));
+  left: 50%;
+  translate: -50% 0;
+  z-index: var(--z-sticky);
+  width: max-content;
+  max-width: min(320px, 70vw);
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
-  margin: 0 0 var(--s-4);
   padding: var(--s-3) var(--s-4);
   border: 1px solid var(--primary-line);
-  border-left-width: 3px;
   border-radius: var(--r);
-  background: var(--primary-wash);
+  background: var(--surface);
+  box-shadow: var(--sh);
+  color: var(--ink-2);
   font-size: 0.86em;
   line-height: 1.6;
-  color: var(--ink-2);
+  text-align: start;
+  /* Hidden from pointer AND from the a11y tree until shown; the full sentence still reaches screen
+     readers via the button's aria-label, so nothing is lost by keeping this inert at rest. */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t), visibility var(--t);
 }
-#read .si-warn b { color: var(--ink); }
+#read .si-tip b { color: var(--ink); }
+#read .si-info:hover .si-tip,
+#read .si-info:focus-within .si-tip,
+#read .si-info[data-open="true"] .si-tip { opacity: 1; visibility: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  #read .si-tip { transition: none; }
+}
+
+/* Near the right edge of a narrow column the centred tooltip would overflow; pin it to the start. */
+@media (max-width: 820px) {
+  #read .si-tip { left: auto; right: 0; translate: none; max-width: min(320px, 84vw); }
+}
 #read .si-sec { margin: 0 0 var(--s-5); }
 #read .si-h {
   margin: 0 0 var(--s-2);
