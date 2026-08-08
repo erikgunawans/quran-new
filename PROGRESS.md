@@ -8,7 +8,40 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Al Qur'an cards: taller + fluid width morph on the wheel (LIVE)
+## 2026-08-08 (latest) — Six-part UI pass: composer, global type, colour shelf, transparent Peta (LIVE)
+
+Anchor: quran-new/main `4b62de7`. Prod = new-quranku.axiara.ai, Worker `32f7abc9`, bundle `index-CGu3pU9Y.js`.
+Two reference HTML files drove items 5–6 (analyzed by subagents; the Peta port was done by a subagent).
+
+1. **Tanya composer → one box**: the landing `#composer-bar` lost its own fill/border + the hard 6px ring
+   (the nested "middle" box); only the form box remains (KIMI-style), keeping the ambient glow + beam.
+2. **Inner widened**: the form fills the shell (`max-width:100%`, was 700 inside 760).
+3. **Global font −10%**: `body{zoom:.9}` — the app mixes px+rem ~50/50, so no single font token reaches
+   every label; zoom is the one uniform lever. `min-height:calc(100dvh/.9)` keeps the body filling the
+   viewport. Added `white-space:nowrap` on `.qk-nav a` so "Al Qur'an" can't wrap at the smaller scale.
+4. **Riwayat Bacaan → header**: was a full-width bar; now a compact pill in the Al Qur'an header (top-right,
+   left of Kembali) with an absolute overlay panel. Cards grown taller (`clamp(360,100dvh-250,720)`).
+5. **Al Qur'an cards match the reference** (`~/Downloads/QuranKu AI Chat (2).html`): a FLAT shelf, not a
+   wheel — all 114 cards in one flex track that `translateX`-glides as a unit while only the selected card
+   widens 146→560px; width + track share ONE 620ms `cubic-bezier(.16,1,.3,1)`. 8 gradient colour presets
+   per theme (`data-bg`, exact `BG_L`/`BG_D` from the reference). Click a shut card to open it; click the
+   open card to enter the surah. This REPLACES the rAF taper wheel (and its `--off`/`@property` plumbing).
+6. **Peta Tematik transparent + theme-aware** (`Peta Tematik - Transparent/Light.html`): `.pc-frame`
+   transparent in BOTH themes (was a hardcoded dark radial "photograph frame"); `peta-cosmos.ts` swaps
+   HUES / composite mode / alphas / label colours on theme change (darker saturated hues + `source-over`
+   on light, so points read as solid dots not additive-glow washout). Data pipeline / `cosmos.json`
+   untouched. Extra reference features (lafaz-morph, detail card) intentionally NOT ported.
+
+Files: `read.ts`, `shell.css`, `styles.css` (mine); `peta-cosmos.ts`, `read.css` (subagent, item 6).
+923 tests pass; typecheck adds no new errors (3 pre-existing main.ts only). Verified live in a FOREGROUND
+Chrome tab (Interceptor): single-box composer, coloured accordion shelf glide (track −67→−227 / open width
+241→504 synced over 620ms), Riwayat pill in header, taller cards, and the Peta graph transparent in BOTH
+themes with a live theme-swap. Two AskUserQuestion answers locked scope: font = whole app; Riwayat = header
+top-right. web/dist rebuilt before deploy.
+
+---
+
+## 2026-08-08 — Al Qur'an cards: taller + fluid width morph on the wheel (LIVE)
 
 Anchor: quran-new/main `49cf991`. Two asks from Erik on the Al Qur'an carousel, shipped to prod
 (new-quranku.axiara.ai, Worker `652b771f`, bundle `index-DGhEeWAs.js`).
