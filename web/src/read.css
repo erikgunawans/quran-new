@@ -867,6 +867,16 @@
 
 /* ── the preface ─────────────────────────────────────────────────────────── */
 #read .surah-intro { color: var(--ink); }
+
+/* Arabic gets the Arabic face. DESIGN.md: two scripts, two jobs — the Arabic carries the
+   personality. Plus Jakarta Sans (--f-ui) has NO Arabic coverage, so without this the entire
+   preface fell through to whatever Naskh the OS happens to ship: Geeza Pro on macOS, Noto on
+   Android, Traditional Arabic on Windows. Undeclared, unequal, and worst on the mid-range Android
+   this app targets. Scoped by [lang] so the Indonesian edition keeps the UI face. */
+#read .surah-intro [lang="ar"] { font-family: var(--f-ar); }
+/* Naskh sits optically smaller than Latin at the same px, and Amiri's diacritics need the room. */
+#read .si-body[lang="ar"] { font-size: 1.1em; line-height: 2.05; }
+#read .si-reflist[lang="ar"] { font-size: 1.05em; }
 /* Language toggle. Arabic first and default — it is the edition Dorar actually wrote; anything
    else is derived. An unavailable language stays visible but disabled rather than vanishing. */
 #read .si-langbar {
