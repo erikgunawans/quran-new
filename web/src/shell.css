@@ -123,7 +123,14 @@
 /* ── Inner panel (the celestial reading surface) ─────────────────────── */
 .qk-panel {
   flex: 1; min-width: 0; position: relative;
-  border-radius: 12px; overflow: hidden; /* Erik: slightly less round */
+  /* Concentric with the window, and on the scale. Corners nest correctly when the inner radius is
+     the outer one minus the gap between them: the shell insets the panel by 6px inside a browser
+     window whose corner is ~22px, so ~16px is the radius that makes the panel's corner read as
+     parallel to the window's rather than as a tighter curve inside it. 16px is also `--r-lg`, the
+     card radius DESIGN.md § Components locks — the 12px here was the one panel-level value sitting
+     off that scale. (Supersedes the earlier "slightly less round" 20->12: that was about killing
+     the over-round, and 16 is still well under the 22-26 the doc names as the tell.) */
+  border-radius: var(--r-lg); overflow: hidden;
   /* A thin hairline edge — the inner/outer distinction is carried by the color step between the
      bolder panel ground and the deeper shell, so the line itself stays quiet. */
   border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(40,70,60,.07);
@@ -297,7 +304,11 @@
    The offset is NOT 1:1 — `#hello` is a `justify-content: center` column, so the centring absorbs
    part of any padding (measured: 100px authored moved the block 66px on glass). `vh`-based so a
    short window shrinks the lead-in rather than pushing the composer off-screen. */
-:root[data-landing] .qk-panel-body #hello { padding-top: clamp(64px, 23vh, 180px); }
+/* 8vh, not 23vh. Measured rather than guessed: the lead-in and the composer's distance below the
+   panel's centre are linear (4vh->+17px, 8vh->+35, 12vh->+61, 16vh->+87, 20vh->+113, 23vh->+133),
+   so 8vh is the value that puts the box just below centre — Erik's "close to the middle but a
+   little bit lower" — instead of a third of the way down the panel. */
+:root[data-landing] .qk-panel-body #hello { padding-top: clamp(24px, 8vh, 72px); }
 
 /* The composer was 468px on the glass against a 1010px panel — a thin box in a wide room, and Erik
    marked a target roughly 1.4x that. It could not simply be told to be wider: `.qk-panel-body`
