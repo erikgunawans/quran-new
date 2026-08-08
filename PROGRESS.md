@@ -8,7 +8,30 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — AI "Cari Surah" now LIVE end-to-end; model layer unblocked
+## 2026-08-08 (latest) — Al Qur'an cards: taller + fluid width morph on the wheel (LIVE)
+
+Anchor: quran-new/main `49cf991`. Two asks from Erik on the Al Qur'an carousel, shipped to prod
+(new-quranku.axiara.ai, Worker `652b771f`, bundle `index-DGhEeWAs.js`).
+
+**Commit `45cd144` then `49cf991` — both LIVE, verified in a FOREGROUND Chrome tab (Interceptor):**
+- **Taller cards / breathing room**: `<li>` height `clamp(300,100dvh-380,540)` → `clamp(340,100dvh-300,660)`,
+  `.srow` padding `18/20` → `22/26`. Card fills the panel (~334px → ~565px) instead of floating in dead space.
+- **Fluid width morph** (the hard part): the wheel no longer rebuilds `innerHTML` per turn — `renderWheel`
+  reconciles keyed-by-surah, so each card keeps its DOM node across a turn. Width/scale/opacity are pure
+  functions of `--off`; `read.ts` **tweens `--off` numerically with requestAnimationFrame** (ease-out, 560ms).
+  The leaving centre narrows 540→186px while the incoming neighbour widens 186→540px; the flex row re-centres
+  every frame. Exit ghosts tween past the window (spine + fade) on their own edge, then drop.
+  - **Why not CSS**: a CSS custom-property transition only interpolates the property on the element that
+    DECLARES it. Width lives on `.srow` while `--off` is inherited from the `<li>` → CSS snapped. Registering
+    `--off` via `@property` and moving it onto `.srow` both snapped too. A per-frame JS number is the reliable
+    path. **Gotcha logged**: rAF is PAUSED in background tabs, so verifying animation via Interceptor needs a
+    foregrounded tab (`document.visibilityState === "visible"`) — the first "snap" readings were a hidden tab.
+- Verified live: smooth 540→186 / 186→540 curve, 5-card stability under rapid spin, correct centring on Cari
+  Surah goto. 923 root + 25 worker tests unaffected (CSS/DOM-only change); 3 pre-existing main.ts TS errors only.
+
+---
+
+## 2026-08-08 — AI "Cari Surah" now LIVE end-to-end; model layer unblocked
 
 Erik set `OPENROUTER_API_KEY` on the principled worker `new-quranku-proxy`. No redeploy needed —
 `wrangler secret list` now shows the key, and every model endpoint that was silently keyword-only came
