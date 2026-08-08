@@ -593,10 +593,11 @@
 
 /* ── Peta Tematik: the cosmos ─────────────────────────────────────────────────
  *
- * A DARK frame inside a light app. Erik's explicit exception, and not a style whim: luminous
- * points need darkness to be luminous — the same design on white is grey dots. It reads as a
- * framed object on the page (like a photograph), not as app chrome. The boundary is the frame;
- * nothing outside it changes, and the light direction is untouched everywhere else.
+ * A TRANSPARENT frame, theme-aware in both light and dark. The old dark-only radial-gradient
+ * (a "photograph inside a light app") is gone: the frame now lets the app's own page background
+ * show through, and the canvas paints theme-appropriate colours (see peta-cosmos.ts — it swaps
+ * hues, alphas, and composite mode by theme). The canvas clears with clearRect (transparent),
+ * never an opaque fill, so the page background is what shows behind the stars.
  *
  * The 13 category hues live in peta-cosmos.ts, not here — they are canvas fills, not CSS.
  * They are the one place the emerald discipline is deliberately relaxed: categorical colour is
@@ -604,10 +605,14 @@
  */
 #read .pc-frame {
   position: relative;
-  background: radial-gradient(120% 100% at 50% 0%, #16211c 0%, #0d1512 60%, #0a0f0d 100%);
-  border: 1px solid var(--line);
+  background: transparent;
+  border: 1px solid rgba(20, 60, 45, 0.14);
   border-radius: var(--r);
   overflow: hidden;
+}
+:root[data-theme="dark"] #read .pc-frame { border-color: rgba(255, 255, 255, 0.11); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #read .pc-frame { border-color: rgba(255, 255, 255, 0.11); }
 }
 
 #read .pc-canvas {
@@ -632,7 +637,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: var(--step--1);
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--ink-2);
   cursor: pointer;
   user-select: none;
 }
@@ -644,7 +649,7 @@
   bottom: 0.6rem;
   margin: 0;
   font-size: var(--step--2, 0.75rem);
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--ink-3);
 }
 
 /* The legend is real DOM, not canvas text — selectable, translatable, screen-readable. */
@@ -655,19 +660,19 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 0.3rem 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--line);
 }
 #read .pc-legend li {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: var(--step--1);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--ink-2);
   min-height: 24px;
 }
 #read .pc-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 #read .pc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#read .pc-n { color: rgba(255, 255, 255, 0.42); font-variant-numeric: tabular-nums; }
+#read .pc-n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 560px) {
   #read .pc-canvas { height: 60vh; }

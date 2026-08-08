@@ -154,7 +154,12 @@ body {
   font-size: var(--step-0);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  min-height: 100dvh;
+  /* Global type/scale −10% (Erik): the app mixes px and rem sizes ~50/50, so no single font-size
+     token reaches every label. `zoom` uniformly scales all text (and layout) down 10% — the only
+     lever that touches px chrome and rem content alike. min-height is divided back by the zoom so
+     the body still fills the viewport (100dvh ÷ 0.9 renders as exactly 100dvh visually). */
+  zoom: 0.9;
+  min-height: calc(100dvh / 0.9);
 }
 
 /* ============================================================================
@@ -827,7 +832,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin: var(--s-7) 0 0;
 }
 :root[data-landing] .composer form {
-  width: 100%; max-width: 700px;
+  width: 100%; max-width: 100%; /* fill the #composer-bar shell (760px) — the inner is the box now (Erik/KIMI) */
   background: var(--surface);
   border: 1px solid transparent;
   border-radius: var(--r-input);

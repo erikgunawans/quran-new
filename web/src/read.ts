@@ -186,6 +186,8 @@ const fold = (s: string): string =>
 // Lets the "Cari Surah" composer (main.ts) spin the mounted wheel to a surah without reaching into
 // the renderIndex closure. Set while the index is mounted; each mount rebinds it to its own wheel.
 let wheelGoto: ((n: number) => void) | null = null;
+// The shelf's clip-resize observer. Module-level so each mount disconnects the prior one (no pileup).
+let bacaResize: ResizeObserver | null = null;
 /** Centre (and thereby open) surah `n` in the wheel. Returns false if the index isn't mounted. */
 export function gotoSurahInWheel(n: number): boolean {
   if (!wheelGoto) return false;
@@ -193,12 +195,12 @@ export function gotoSurahInWheel(n: number): boolean {
   return true;
 }
 
-// `off` = signed distance from the opened centre card. It rides onto the <li> as a `--off` custom
-// property (absolute distance) so shell.css can taper each neighbour smoothly toward a slim
-// book-spine the further it sits from the middle — a shelf that opens at the centre (Erik).
-const indexRow = (s: SurahMeta, open = false, off = 0): string => `
-  <li data-off="${off}" style="--off:${Math.abs(off)}">
-    <a class="srow${open ? " is-open" : ""}" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
+// One card in the shelf. `i` picks one of the 8 gradient presets (data-bg, styled per theme in
+// shell.css) so the row reads as a coloured shelf of books, not a wall of identical tiles (Erik's
+// reference). `open` is the selected/centre card — it widens; the rest stay slim book-spines.
+const indexRow = (s: SurahMeta, open: boolean, i: number): string => `
+  <li>
+    <a class="srow${open ? " is-open" : ""}" data-bg="${i % 8}" href="#/surah/${s.n}" data-n="${s.n}" data-find="${esc(`${fold(displayName(s.n))} ${fold(s.tl)} ${fold(s.en)} ${s.n}`)}" aria-label="${esc(`${displayName(s.n)} — ${s.ayahs} ayat`)}">
       <span class="srow-girih" aria-hidden="true"></span>
       <span class="srow-top">
         <span class="srow-n">${String(s.n).padStart(3, "0")}</span>
@@ -263,172 +265,100 @@ export function renderIndex(mount: HTMLElement): void {
           <h1 class="qk-hero-gradient baca-title">Al Qur'an</h1>
           <p class="baca-sub">Al Qur'an dan Tafsir</p>
         </div>
+        <div class="baca-head-r">${history}</div>
       </header>
 
-      ${history}
-
-      <div class="baca-strip" role="group" aria-label="Pemutar surah — panah kiri/kanan untuk memutar">
-        <button class="baca-arrow baca-prev" type="button" aria-label="Putar ke surah sebelumnya" title="Sebelumnya">‹</button>
-        <ul class="surah-list" id="surah-list"></ul>
-        <button class="baca-arrow baca-next" type="button" aria-label="Putar ke surah berikutnya" title="Berikutnya">›</button>
+      <div class="baca-strip" role="group" aria-label="Daftar surah — panah kiri/kanan menggeser barisan; yang di tengah terbuka" tabindex="0">
+        <button class="baca-arrow baca-prev" type="button" aria-label="Surah sebelumnya" title="Sebelumnya">‹</button>
+        <div class="baca-clip"><ul class="surah-list" id="surah-list"></ul></div>
+        <button class="baca-arrow baca-next" type="button" aria-label="Surah berikutnya" title="Berikutnya">›</button>
       </div>
     </div>`;
 
   const list = mount.querySelector<HTMLUListElement>("#surah-list");
-  // If the list is missing the markup above changed underneath us. The rest is an enhancement over
-  // an already-navigable page. Leave it be.
-  if (!list) return;
+  const clip = mount.querySelector<HTMLElement>(".baca-clip");
+  const strip = mount.querySelector<HTMLElement>(".baca-strip");
+  // If the markup changed underneath us the rest is an enhancement over an already-navigable page.
+  if (!list || !clip || !strip) return;
 
-  // ── The rotating wheel (Erik's spec) ───────────────────────────────────────
-  // Not a linear strip but a CIRCULAR carousel: `centre` is the surah in the middle (opened), and
-  // a fixed window of neighbours flanks it. The window wraps modulo 114, so left of Al-Fatihah (0)
-  // sits An-Nas (113) and right of it Al-Baqarah (1); the arrows rotate the wheel either way forever.
-  // We re-render the small visible window on each turn (≤9 nodes) rather than scroll 114 — that is
-  // what makes the wrap seamless, which a scroll container cannot do.
+  // ── The book-shelf (Erik's reference) ──────────────────────────────────────
+  // Not a rotating wheel but a FLAT shelf: all 114 cards sit in one flex row, and the row TRANSLATES
+  // as a unit so the selected card lands dead-centre. Only the selected card widens (146 → 560px); the
+  // rest stay slim book-spines — no per-neighbour tapering. The width morph and the track glide share
+  // ONE 620ms cubic-bezier(.16,1,.3,1) (CSS transitions on .srow width + .surah-list transform), so the
+  // shelf opens and slides in a single motion. Class-toggled width transitions reliably (a direct value
+  // change on the element itself), so no rAF is needed — CSS carries it.
   const N = SURAH_INDEX.length; // 114
-  const WINDOW = 2; // neighbours shown each side of the centre
-  let centre = 0; // Al-Fatihah opens in the middle
+  const SHUT = 146, OPEN = 560, GAP = 10, PITCH = SHUT + GAP; // px — MUST match .srow widths in shell.css
+  const TRACK = N * PITCH - GAP + (OPEN - SHUT); // full row width with one card opened
+  let sel = 0; // Al-Fatihah opens first
 
-  // Fluid width morph (Erik): a turn must NOT rebuild the row. A fresh <li> has no previous width to
-  // animate from, so innerHTML-replacement snaps. Instead we KEEP each card's DOM node across turns,
-  // keyed by surah number, and only move its `--off`. Width, coverflow scale, and opacity are all pure
-  // functions of `--off`, so tweening the NUMBER glides all three: the centre that slides out (off 0 →
-  // 1) narrows while the neighbour sliding in (off 1 → 0) widens, and the flex row re-centres each
-  // frame. We drive --off in JS (requestAnimationFrame) rather than a CSS `transition`, because a CSS
-  // custom-property transition only interpolates the property on the element that DECLARES it — the
-  // width lives on .srow while --off is inherited, so CSS transitions snapped. Setting the concrete
-  // number each frame makes the browser recompute width from it directly, every frame, reliably.
-  const nodes = new Map<number, HTMLLIElement>();
-  const DUR = 560; // ms, matches the old transition feel
-  const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3); // fast start, gentle settle
-  const anims = new Map<HTMLLIElement, { from: number; to: number; start: number }>();
-  let raf = 0;
-  const applyOff = (li: HTMLLIElement, v: number): void => {
-    li.dataset.offc = String(v); // current applied value — the start point for the next tween
-    const s = String(v);
-    li.style.setProperty("--off", s); // li: coverflow scale + opacity
-    (li.firstElementChild as HTMLElement | null)?.style.setProperty("--off", s); // .srow: width
-  };
-  const tick = (now: number): void => {
-    let alive = false;
-    for (const [li, a] of anims) {
-      const p = a.start >= now ? 0 : Math.min(1, (now - a.start) / DUR);
-      applyOff(li, a.from + (a.to - a.from) * easeOut(p));
-      if (p >= 1) anims.delete(li);
-      else alive = true;
-    }
-    raf = alive ? requestAnimationFrame(tick) : 0;
-  };
-  // Move a card's --off toward `to`. `animate=false` snaps (fresh cards, first paint); otherwise it
-  // tweens from wherever the card currently SITS (dataset.offc), so a turn interrupted mid-morph by a
-  // fast second turn glides on from its live width instead of jumping — rapid spins stay smooth.
-  const moveOff = (li: HTMLLIElement, to: number, animate: boolean): void => {
-    const from = Number(li.dataset.offc ?? to);
-    if (!animate || Math.abs(from - to) < 0.001) {
-      anims.delete(li);
-      applyOff(li, to);
-      return;
-    }
-    anims.set(li, { from, to, start: performance.now() });
-    if (!raf) raf = requestAnimationFrame(tick);
-  };
-  const setOff = (li: HTMLLIElement, off: number, animate = true): void => {
-    li.dataset.off = String(off);
-    li.style.opacity = "";
-    li.querySelector<HTMLElement>(".srow")?.classList.toggle("is-open", off === 0);
-    moveOff(li, Math.abs(off), animate);
-  };
+  list.innerHTML = SURAH_INDEX.map((s, i) => indexRow(s, i === sel, i)).join("");
+  const lis = (): HTMLLIElement[] => Array.from(list.children) as HTMLLIElement[];
 
-  const renderWheel = (): void => {
-    const want: { s: SurahMeta; off: number }[] = [];
-    for (let off = -WINDOW; off <= WINDOW; off++) {
-      const s = SURAH_INDEX[(centre + off + N) % N];
-      if (s) want.push({ s, off });
-    }
-    const wanted = new Set(want.map((w) => w.s.n));
-
-    // Cards that left the window taper to the spine and fade, then drop. Keep each on its exit side
-    // (its last off sign) so a left-leaving card fades off the left edge, not popping to the right.
-    const leftGhosts: HTMLLIElement[] = [];
-    const rightGhosts: HTMLLIElement[] = [];
-    for (const [n, li] of nodes) {
-      if (wanted.has(n)) continue;
-      nodes.delete(n);
-      (Number(li.dataset.off ?? 0) < 0 ? leftGhosts : rightGhosts).push(li);
-      // Tween --off well past the window: width floors at the spine, opacity (= 1 − off·0.12) fades to
-      // 0, and scale shrinks — the card glides out on its own edge rather than popping. Then drop it.
-      li.dataset.off = "9";
-      moveOff(li, 9, true);
-      setTimeout(() => li.remove(), DUR);
-    }
-
-    // Final left-to-right order: left ghosts, the live window, right ghosts. Reuse a surviving node
-    // (tween its --off) or build one fresh (snap it to its resting --off; it eases in via qkrot).
-    const ordered: HTMLLIElement[] = [...leftGhosts];
-    for (const { s, off } of want) {
-      let li = nodes.get(s.n);
-      if (li) {
-        setOff(li, off, true);
-      } else {
-        const tmp = document.createElement("div");
-        tmp.innerHTML = indexRow(s, off === 0, off).trim();
-        li = tmp.firstElementChild as HTMLLIElement;
-        nodes.set(s.n, li);
-        setOff(li, off, false); // snap fresh cards to their resting width (no tween on first paint)
-      }
-      ordered.push(li);
-    }
-    ordered.push(...rightGhosts);
-
-    let prev: HTMLLIElement | null = null;
-    for (const li of ordered) {
-      if (prev) prev.after(li);
-      else list.prepend(li);
-      prev = li;
-    }
+  // Slide the row so the open card's centre sits at the middle of the clip, clamped so neither end
+  // overscrolls into empty space.
+  const centreTrack = (): void => {
+    const view = clip.clientWidth || list.clientWidth;
+    const target = view / 2 - (sel * PITCH + OPEN / 2);
+    const x = Math.round(Math.min(0, Math.max(view - TRACK, target)));
+    list.style.transform = `translate3d(${x}px,0,0)`;
   };
 
   let pending: ReturnType<typeof setTimeout> | undefined;
-  const announceCentre = (): void => {
+  const announce = (): void => {
     if (pending !== undefined) clearTimeout(pending);
     pending = setTimeout(() => {
-      const s = SURAH_INDEX[centre];
-      if (s) say(`${displayName(s.n)} di tengah, surah ke-${s.n}.`);
+      const s = SURAH_INDEX[sel];
+      if (s) say(`${displayName(s.n)} terbuka, surah ke-${s.n}.`);
     }, 250);
   };
 
-  const rotate = (dir: number): void => {
-    centre = (centre + dir + N) % N;
-    renderWheel();
-    announceCentre();
+  const select = (i: number, quiet = false): void => {
+    i = Math.max(0, Math.min(N - 1, i));
+    const cards = lis();
+    cards[sel]?.querySelector(".srow")?.classList.remove("is-open");
+    sel = i;
+    cards[sel]?.querySelector(".srow")?.classList.add("is-open");
+    centreTrack();
+    if (!quiet) announce();
   };
 
-  const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
-  const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
-  prevBtn?.addEventListener("click", () => rotate(-1));
-  nextBtn?.addEventListener("click", () => rotate(1));
-
-  // Bind the external goto hook to THIS wheel — the "Cari Surah" search spins straight to a match.
-  wheelGoto = (n: number): void => {
-    const idx = SURAH_INDEX.findIndex((s) => s.n === n);
-    if (idx < 0) return;
-    centre = idx;
-    renderWheel();
-    announceCentre();
-  };
-
-  // Left/right arrow keys rotate the wheel when the strip (or an arrow) holds focus.
-  mount.querySelector<HTMLElement>(".baca-strip")?.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") {
-      rotate(-1);
+  // Click a slim card to open it; click the already-open card to enter the surah (its href navigates).
+  list.addEventListener("click", (e) => {
+    const li = (e.target as Element).closest?.(".srow")?.closest("li");
+    if (!li) return;
+    const idx = lis().indexOf(li as HTMLLIElement);
+    if (idx >= 0 && idx !== sel) {
       e.preventDefault();
-    } else if (e.key === "ArrowRight") {
-      rotate(1);
-      e.preventDefault();
+      select(idx);
     }
   });
 
-  renderWheel();
+  const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
+  const nextBtn = mount.querySelector<HTMLButtonElement>(".baca-next");
+  prevBtn?.addEventListener("click", () => select(sel - 1));
+  nextBtn?.addEventListener("click", () => select(sel + 1));
+
+  // Left/right arrow keys shift the shelf when the strip holds focus.
+  strip.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { select(sel - 1); e.preventDefault(); }
+    else if (e.key === "ArrowRight") { select(sel + 1); e.preventDefault(); }
+  });
+
+  // "Cari Surah" slides the shelf straight to a match.
+  wheelGoto = (n: number): void => {
+    const idx = SURAH_INDEX.findIndex((s) => s.n === n);
+    if (idx >= 0) select(idx);
+  };
+
+  // Re-centre when the clip resizes (sidebar toggle, window resize). One observer per mount; the
+  // previous is disconnected so observers never pile up across route changes. The observer also fires
+  // once on observe(), which lands the initial centring once layout has a width.
+  bacaResize?.disconnect();
+  bacaResize = new ResizeObserver(() => centreTrack());
+  bacaResize.observe(clip);
+  centreTrack();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

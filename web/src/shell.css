@@ -60,7 +60,7 @@
 .qk-nav a {
   display: flex; align-items: center; gap: 12px; padding: 11px 14px;
   font: 500 15px/1 var(--f-ui); color: var(--ink-2); border-radius: var(--r); cursor: pointer;
-  text-decoration: none;
+  text-decoration: none; white-space: nowrap; /* "Al Qur'an" must not wrap to two lines */
 }
 .qk-nav a:hover { background: var(--primary-wash); color: var(--ink); }
 .qk-nav a[aria-current="page"] { background: var(--primary-wash); color: var(--primary); }
@@ -252,10 +252,14 @@
    #hello, not the viewport), so it stays centered and never overflows no matter how the screen or
    the sidebar changes width. dockLanding() moved it here; the hero's align-items:center + margin
    auto keep it dead-centre in the inner panel. */
+/* Single box (Erik): the landing composer was two nested boxes — this #composer-bar shell AND the
+   form inside it, each with its own fill/border, plus a hard 6px ring — reading as a box-in-a-box.
+   Drop this shell's fill, border, and the hard ring so ONLY the form box shows (KIMI-style). The
+   soft directional aura stays as ambient glow; the form carries the crisp edge + travelling light. */
 :root[data-landing] #composer-bar {
   position: static; width: min(760px, 100%); margin: 0 auto;
-  box-shadow: 0 4px 10px rgba(40,70,60,.08),
-    0 0 0 6px rgba(22,162,73,.10),
+  background: transparent; border: 0;
+  box-shadow:
     -10px 0 22px -4px rgba(22,162,73,.24), 10px 0 22px -4px rgba(240,200,81,.26),
     0 10px 22px -6px rgba(120,180,110,.20);
 }
@@ -469,17 +473,24 @@
 
 /* "Riwayat Bacaan" — the single resume bar became a native <details> dropdown (Erik). No JS: the
    summary toggles the disclosure; inside sits the place you left off, or an empty-state line. */
-.baca-history { margin: 0 0 18px; max-width: 460px; }
+/* Riwayat Bacaan moved into the header (Erik): a compact control, not a full-width bar. Its panel
+   drops as an absolute overlay so opening it never reflows the header or shoves the shelf down. */
+.baca-history { position: relative; margin: 0; }
 .baca-history-sum {
-  display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none;
-  padding: 12px 16px; border: 1px solid var(--primary-line); border-radius: var(--r-lg);
-  background: var(--primary-wash); color: var(--ink); font: 600 15px/1 var(--f-ui);
+  display: flex; align-items: center; gap: 9px; cursor: pointer; list-style: none; white-space: nowrap;
+  padding: 9px 14px; border: 1px solid var(--primary-line); border-radius: 999px;
+  background: var(--primary-wash); color: var(--ink); font: 600 14px/1 var(--f-ui);
 }
 .baca-history-sum::-webkit-details-marker { display: none; }
 .baca-history-sum svg { width: 19px; height: 19px; color: var(--primary); flex: none; }
 .baca-history-sum .chev { margin-left: auto; width: 18px; height: 18px; color: var(--ink-3); transition: transform var(--t); }
 .baca-history[open] .baca-history-sum .chev { transform: rotate(180deg); }
-.baca-history-body { padding: 6px 2px 0; }
+.baca-history-body {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 20;
+  min-width: 300px; max-width: min(360px, 80vw);
+  padding: 8px; border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--sh);
+}
 .baca-history-item {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 12px 16px; margin-top: 8px; border: 1px solid var(--line); border-radius: var(--r-lg);
@@ -491,51 +502,57 @@
 .baca-history-k { color: var(--primary); font-size: 14px; font-weight: 600; white-space: nowrap; }
 .baca-history-empty { margin: 10px 2px 0; color: var(--ink-3); font-size: 14px; line-height: 1.5; }
 
-.baca-strip { position: relative; }
-/* The rotating wheel: a centred row whose overflow is clipped, so the flanking spines fade off both
-   panel edges (coverflow). No scrolling — read.ts re-renders the windowed cards and the arrows spin
-   it; centring keeps the opened middle card dead-centre in the panel at any width. */
+.baca-strip { position: relative; display: flex; align-items: stretch; }
+/* Flat shelf (Erik's reference): .baca-clip masks the row; .surah-list is ONE long flex track that
+   translateX-glides as a unit so the selected card lands centre. Only the selected card widens
+   (146 → 560px); neighbours stay slim book-spines — no per-neighbour taper. The width morph and the
+   track glide share one 620ms ease, so opening + sliding read as a single motion. read.ts sets the
+   track's translateX; CSS carries the transitions. */
+.baca-clip { flex: 1; min-width: 0; overflow: hidden; padding: 4px 0 14px; }
 .qk-panel-body #read .surah-list {
-  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
-  list-style: none; margin: 0; padding: 4px 2px 14px; overflow: hidden;
+  display: flex; flex-direction: row; align-items: stretch; gap: 10px;
+  list-style: none; margin: 0; padding: 0; width: max-content;
+  transform: translate3d(0,0,0); will-change: transform;
+  transition: transform 620ms var(--ease);
 }
-/* Height fills the panel's vertical space so the card breathes instead of floating in dead space
-   (Erik). The 300px offset reserves the panel top bar, the Baca header + Riwayat Bacaan bar, the
-   ~88px docked composer, and a foot gap; the clamp keeps the foot clear on short viewports and lets
-   the card grow tall on large ones. */
-/* Each card carries `--off` (absolute distance from the opened centre), driving BOTH the coverflow
-   depth (scale/opacity here) and the width taper (.srow below). read.ts TWEENS the number in JS with
-   requestAnimationFrame, so all three recompute every frame — the leaving centre narrows while the
-   incoming neighbour widens, fluidly (Erik). No CSS transition: a custom-property transition only
-   interpolates the property on the element that declares it, but the width lives on the child .srow
-   while --off is inherited, so CSS snapped; a per-frame number sidesteps that entirely. */
-.qk-panel-body #read .surah-list > li {
-  flex: none; height: clamp(340px, calc(100dvh - 300px), 660px); margin: 0;
-  --off: 0;
-  transform-origin: center;
-  transform: scale(calc(1 - var(--off) * 0.05));
-  opacity: calc(1 - var(--off) * 0.12);
-}
-/* Each turn re-renders the window; the cards ease in so a rotation reads as motion, not a jump. */
-@keyframes qkrot { from { opacity: 0; transform: scale(.955); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: no-preference) {
-  .qk-panel-body #read .surah-list .srow { animation: qkrot .26s var(--ease) both; }
-}
+/* Height fills the panel's vertical space (Erik: cover the area the Riwayat bar used to hold). The
+   250px offset reserves the panel top bar, the Al Qur'an header, the ~88px docked composer, and a
+   foot gap; the clamp keeps the foot clear on short viewports and lets the card grow tall on large. */
+.qk-panel-body #read .surah-list > li { flex: none; height: clamp(360px, calc(100dvh - 250px), 720px); margin: 0; }
+/* Cards ease in on first paint so the shelf assembles rather than pops. */
+@keyframes qkin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) { .qk-panel-body #read .srow { animation: qkin 320ms var(--ease) both; } }
+@media (prefers-reduced-motion: reduce) { .qk-panel-body #read .surah-list, .qk-panel-body #read .srow { transition: none; } }
 
 .qk-panel-body #read .srow {
   position: relative; display: flex; flex-direction: column; height: 100%;
-  /* One continuous book-spine curve keyed to --off: centre widest, each step out tapers ~reciprocally
-     toward a slim standing-book spine (off0 ≈ full, off1 ≈ /2.9, off2 ≈ /4.8, exit ≈ 94px floor).
-     Width is a pure function of --off (set per-frame on THIS element by read.ts's rAF tween), so the
-     card morphs frame-by-frame — no discrete is-open width to snap between. */
-  width: max(94px, calc(clamp(320px, 40vw, 540px) / (1 + var(--off, 0) * 1.9)));
+  width: 146px; /* slim book-spine; the selected card widens to 560px (both MUST match read.ts SHUT/OPEN) */
   border-radius: var(--r-lg); overflow: hidden; text-decoration: none;
   border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 22px 26px;
-  background: linear-gradient(180deg, rgba(22,162,73,.10) 0%, rgba(24,48,42,.30) 100%);
-  transition: border-color var(--t), box-shadow var(--t);
+  transition: width 620ms var(--ease), border-color var(--t), box-shadow var(--t), transform var(--t);
 }
-:root[data-theme="dark"] .qk-panel-body #read .srow { border-color: rgba(210,235,220,.12); background: linear-gradient(180deg, rgba(22,162,73,.12) 0%, rgba(10,26,20,.5) 100%); }
-.qk-panel-body #read .srow.is-open { border-color: var(--primary-line); box-shadow: 0 6px 16px rgba(12,40,30,.2); z-index: 2; }
+.qk-panel-body #read .srow.is-open { width: 560px; border-color: var(--primary-line); box-shadow: 0 6px 16px rgba(12,40,30,.2); z-index: 2; }
+.qk-panel-body #read .srow:hover { border-color: var(--primary-line); box-shadow: 0 6px 10px rgba(12,40,30,.14); }
+
+/* 8 gradient presets (data-bg 0–7) so the shelf reads as a row of coloured books, not identical tiles
+   (Erik's reference). Emerald/sage glass; member 5 carries a warm gold accent. Light first, dark after. */
+.qk-panel-body #read .srow[data-bg="0"] { background: radial-gradient(120% 90% at 8% 0%,rgba(255,255,255,.95),transparent 60%),linear-gradient(155deg,rgba(238,248,242,.95),rgba(214,236,224,.95)); }
+.qk-panel-body #read .srow[data-bg="1"] { background: radial-gradient(110% 80% at 100% 0%,rgba(255,255,255,.92),transparent 62%),linear-gradient(200deg,rgba(228,244,243,.95),rgba(198,228,228,.95)); }
+.qk-panel-body #read .srow[data-bg="2"] { background: radial-gradient(130% 100% at 0% 100%,rgba(255,255,255,.9),transparent 58%),linear-gradient(140deg,rgba(240,247,229,.95),rgba(214,233,203,.95)); }
+.qk-panel-body #read .srow[data-bg="3"] { background: linear-gradient(165deg,rgba(226,241,232,.97),rgba(190,220,203,.97)); }
+.qk-panel-body #read .srow[data-bg="4"] { background: radial-gradient(100% 100% at 50% 0%,rgba(255,255,255,.9),transparent 66%),linear-gradient(180deg,rgba(240,245,238,.96),rgba(210,224,208,.96)); }
+.qk-panel-body #read .srow[data-bg="5"] { background: radial-gradient(120% 90% at 100% 100%,rgba(240,200,150,.22),transparent 58%),linear-gradient(150deg,rgba(252,250,243,.96),rgba(224,236,222,.96)); }
+.qk-panel-body #read .srow[data-bg="6"] { background: linear-gradient(210deg,rgba(222,238,231,.97),rgba(178,209,193,.95)); }
+.qk-panel-body #read .srow[data-bg="7"] { background: radial-gradient(140% 110% at 0% 0%,rgba(255,255,255,.98),transparent 64%),linear-gradient(160deg,rgba(246,251,247,.96),rgba(222,238,228,.96)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow { border-color: rgba(210,235,220,.12); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="0"] { background: radial-gradient(120% 90% at 8% 0%,rgba(52,110,86,.5),transparent 62%),linear-gradient(155deg,rgba(26,56,47,.9),rgba(12,29,25,.94)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="1"] { background: radial-gradient(110% 80% at 100% 0%,rgba(40,104,104,.48),transparent 60%),linear-gradient(200deg,rgba(20,52,52,.9),rgba(9,26,27,.94)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="2"] { background: radial-gradient(130% 100% at 0% 100%,rgba(66,112,52,.42),transparent 58%),linear-gradient(140deg,rgba(30,58,40,.9),rgba(14,31,22,.94)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="3"] { background: linear-gradient(165deg,rgba(18,64,48,.94),rgba(8,26,21,.96)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="4"] { background: radial-gradient(100% 100% at 50% 0%,rgba(70,98,80,.4),transparent 64%),linear-gradient(180deg,rgba(28,46,38,.92),rgba(13,24,20,.95)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="5"] { background: radial-gradient(120% 90% at 100% 100%,rgba(176,112,60,.3),transparent 56%),linear-gradient(150deg,rgba(30,52,44,.92),rgba(14,28,24,.95)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="6"] { background: linear-gradient(210deg,rgba(14,50,42,.95),rgba(6,22,19,.96)); }
+:root[data-theme="dark"] .qk-panel-body #read .srow[data-bg="7"] { background: radial-gradient(140% 110% at 0% 0%,rgba(48,96,78,.45),transparent 62%),linear-gradient(160deg,rgba(24,52,44,.9),rgba(11,27,23,.94)); }
 
 .srow-girih {
   position: absolute; top: -14px; right: -14px; width: 210px; height: 210px; pointer-events: none; opacity: .32;

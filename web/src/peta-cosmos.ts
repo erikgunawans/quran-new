@@ -16,10 +16,14 @@
  *     secondary refs, so shipping it would have silently dropped 78 of Ustadz Muhammad Thalib's
  *     verses from a picture bearing his name. THAT was the fatal objection, not the kilobytes.
  *
- * WHY DARK, IN AN APP THAT IS LOCKED LIGHT. Erik's explicit call. A star field is dark the way a
- * photograph is dark — it is a framed object on the page, not app chrome. And it is not a style
- * preference here: luminous points need darkness to be luminous. The same design on white cannot
- * bloom; it is just grey dots. The frame is the boundary; nothing outside it changes.
+ * TRANSPARENT AND THEME-AWARE. The frame is transparent in both themes (see .pc-frame in
+ * read.css) so the app's own page background shows through, and the canvas paints a theme-matched
+ * palette. In DARK it keeps the original luminous look: bright pastels blooming under `lighter`
+ * compositing. In LIGHT an additive pastel is invisible, so it switches to `source-over` with
+ * darker saturated hues painted opaquely, a white gradient tail (no grey halo ring), and dark
+ * labels. All of it lives in the Paint sets below; geometry and animation are theme-independent.
+ * Theme is read from <html data-theme> (falling back to prefers-color-scheme) and re-read on
+ * change via a MutationObserver + matchMedia listener that recolour in place.
  *
  * WHAT IS HIS AND WHAT IS OURS. The categories, their names, and every verse citation are his.
  * The 3D positions, the clustering, and the bridge geometry are OURS — computed by intersecting
@@ -47,16 +51,81 @@ export interface Cosmos {
   readonly verses: readonly CosmosVerse[];
 }
 
-/** 13 hues. Erik's call: categorical colour is doing real work here — it is what makes a cluster
- * readable at a glance — so this is the one surface that leaves the emerald discipline. Tuned to
- * a common lightness/chroma so no single category shouts, and NO GOLD (hue 70–100), which stays
- * banned everywhere per the design gate. */
-const HUES = [
+/** 13 hues, one set per theme. Erik's call: categorical colour is doing real work here — it is
+ * what makes a cluster readable at a glance — so this is the one surface that leaves the emerald
+ * discipline. Tuned to a common lightness/chroma so no single category shouts, and NO GOLD
+ * (hue 70–100), which stays banned everywhere per the design gate.
+ *
+ * DARK: bright pastels that bloom under `lighter` compositing against a dark page.
+ * LIGHT: darker saturated variants — on white, an additive pastel is nearly invisible, so the
+ * light theme paints these opaquely under `source-over`. */
+const HUES_DARK = [
   "#5eead4", "#7dd3fc", "#a5b4fc", "#c4b5fd", "#f0abfc", "#fda4af", "#fdba74",
   "#bef264", "#6ee7b7", "#67e8f9", "#93c5fd", "#d8b4fe", "#f9a8d4",
 ];
+const HUES_LIGHT = [
+  "#0f8f80", "#1f7fb8", "#4f5bc4", "#7145c9", "#a83fb0", "#b8455c", "#a9631f",
+  "#5d7d16", "#12876a", "#12798c", "#2f6fbe", "#8046b8", "#b2417e",
+];
 
-const catColor = (i: number): string => HUES[i % HUES.length]!;
+/**
+ * All theme-dependent paint: hues, bridge-star colour, canvas composite mode, the scalar alphas,
+ * the transparent gradient tail, and the two label colours. The DARK set is verbatim the old
+ * hardcoded behaviour; the LIGHT set is its counterpart tuned for a white page under source-over.
+ *
+ * Everything else — geometry, projection, rotation, twinkle, sprite blitting, hub/star radii — is
+ * theme-independent and untouched.
+ */
+interface Paint {
+  readonly hues: readonly string[];
+  readonly bridge: string;
+  readonly composite: GlobalCompositeOperation;
+  readonly linkAlpha: number;
+  readonly haloBlit: number;
+  readonly hubBloom: number;
+  readonly gradTail: string;
+  readonly labelShadow: string;
+  readonly labelFill: string;
+}
+
+const PAINT_DARK: Paint = {
+  hues: HUES_DARK,
+  bridge: "#ffffff",
+  composite: "lighter",
+  linkAlpha: 0.045,
+  haloBlit: 0.42,
+  hubBloom: 0.3,
+  gradTail: "rgba(0,0,0,0)",
+  labelShadow: "rgba(0,0,0,0.6)",
+  labelFill: "rgba(255,255,255,0.95)",
+};
+
+const PAINT_LIGHT: Paint = {
+  hues: HUES_LIGHT,
+  bridge: "#7c8d95",
+  composite: "source-over",
+  linkAlpha: 0.1,
+  haloBlit: 0.1,
+  hubBloom: 0.16,
+  gradTail: "rgba(255,255,255,0)",
+  labelShadow: "rgba(255,255,255,0.9)",
+  labelFill: "rgba(16,36,30,0.95)",
+};
+
+/** Active theme: explicit `data-theme` wins; otherwise fall back to the OS preference. Undefined
+ * document (SSR guard) is treated as dark, the historical default. */
+function isDarkTheme(): boolean {
+  const t = typeof document !== "undefined" ? document.documentElement.dataset.theme : undefined;
+  if (t === "dark") return true;
+  if (t === "light") return false;
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
+}
+
+const currentPaint = (): Paint => (isDarkTheme() ? PAINT_DARK : PAINT_LIGHT);
+
+/** Legend dots (DOM, rendered once) use the active theme's hues so they match the canvas at load.
+ * The legend does not live-update on a later theme toggle; the canvas does. */
+const catColor = (i: number): string => currentPaint().hues[i % HUES_DARK.length]!;
 
 /**
  * One pre-rendered glow per colour, reused for every star of that colour.
@@ -67,11 +136,17 @@ const catColor = (i: number): string => HUES[i % HUES.length]!;
  *
  * Rendered at a fixed 64px and scaled at blit time: a gradient is smooth, so downscaling it loses
  * nothing a reader can see, and one sprite serves every depth.
+ *
+ * Keyed by colour AND the transparent tail: the tail differs by theme (dark fades toward
+ * rgba(0,0,0,0), light toward rgba(255,255,255,0), otherwise a source-over halo grows a grey ring
+ * on white). Including the tail in the key means a theme switch lazily builds a fresh sprite set
+ * rather than reusing the wrong-tailed cache — at most 28 sprites total, a memcpy to draw.
  */
 const SPRITES = new Map<string, HTMLCanvasElement>();
 
-function haloSprite(color: string): HTMLCanvasElement {
-  const hit = SPRITES.get(color);
+function haloSprite(color: string, tail: string): HTMLCanvasElement {
+  const key = `${color}|${tail}`;
+  const hit = SPRITES.get(key);
   if (hit) return hit;
 
   const size = 64;
@@ -82,11 +157,11 @@ function haloSprite(color: string): HTMLCanvasElement {
   if (g) {
     const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     grad.addColorStop(0, color);
-    grad.addColorStop(1, "rgba(0,0,0,0)");
+    grad.addColorStop(1, tail);
     g.fillStyle = grad;
     g.fillRect(0, 0, size, size);
   }
-  SPRITES.set(color, c);
+  SPRITES.set(key, c);
   return c;
 }
 
@@ -135,10 +210,14 @@ export function mountCosmos(
   // draw calls would be noise; one typed binding says it once.
   const ctx: CanvasRenderingContext2D = maybeCtx;
 
+  // The active paint set, chosen by theme and re-chosen on theme change (see applyPaint below).
+  let paint: Paint = currentPaint();
+  const hueFor = (i: number): string => paint.hues[i % paint.hues.length]!;
+
   const hubs: Hub[] = data.cats.map((c, i) => ({
     x: c.x, y: c.y, z: c.z,
     name: c.name, slug: c.slug, entries: c.entries,
-    color: catColor(i),
+    color: hueFor(i),
     r: 5 + Math.sqrt(c.entries / 626) * 12,
     px: 0, py: 0, scale: 1, persp: 1, depth: 1,
   }));
@@ -151,9 +230,21 @@ export function mountCosmos(
     // Golden-angle phase: deterministic, and adjacent stars never share a beat.
     phase: (i * 2.399963) % (Math.PI * 2),
     r: v[5].length > 1 ? 1.9 : 1.3,
-    color: v[5].length > 1 ? "#ffffff" : catColor(v[5][0] ?? 0),
+    color: v[5].length > 1 ? paint.bridge : hueFor(v[5][0] ?? 0),
     px: 0, py: 0, scale: 1, persp: 1, depth: 1,
   }));
+
+  /**
+   * Re-derive every theme-dependent value in place. Called when the document theme flips. Stars
+   * and hubs recolour by their stored category index; the sprite cache rebuilds lazily because
+   * haloSprite is keyed by colour+tail and the new theme uses new keys. The rAF loop repaints on
+   * its own next frame, so no explicit redraw is needed here.
+   */
+  function applyPaint() {
+    paint = currentPaint();
+    hubs.forEach((hub, i) => { hub.color = hueFor(i); });
+    for (const s of stars) s.color = s.bridge ? paint.bridge : hueFor(s.cats[0] ?? 0);
+  }
 
   let rotY = 0.6;
   let rotX = -0.25;
@@ -214,14 +305,14 @@ export function mountCosmos(
 
     // Links first, underneath — only for bridge stars. Drawing all 2,370 every frame is both
     // slow and visual mud; the bridges are the point, so they are what earns a line.
-    ctx.globalCompositeOperation = "lighter";
+    ctx.globalCompositeOperation = paint.composite;
     for (const s of stars) {
       if (!s.bridge) continue;
       for (const ci of s.cats) {
         const hub = hubs[ci];
         if (!hub) continue;
         ctx.strokeStyle = hub.color;
-        ctx.globalAlpha = 0.045;
+        ctx.globalAlpha = paint.linkAlpha;
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(s.px, s.py);
@@ -248,9 +339,9 @@ export function mountCosmos(
       // of the frame budget spent before drawing a pixel, and several times worse on the
       // mid-range Android in the brief. A halo only depends on colour, so there are 14 of them,
       // not 1,632. Pre-rendered once (see haloSprite), then drawImage'd — which is a memcpy.
-      const sprite = haloSprite(s.color);
+      const sprite = haloSprite(s.color, paint.gradTail);
       const hr = r * 3.2;
-      ctx.globalAlpha = a * 0.42;
+      ctx.globalAlpha = a * paint.haloBlit;
       ctx.drawImage(sprite, s.px - hr, s.py - hr, hr * 2, hr * 2);
 
       ctx.globalAlpha = a;
@@ -266,8 +357,8 @@ export function mountCosmos(
       const r = Math.max(hub.r * hub.persp, 2);
       const g = ctx.createRadialGradient(hub.px, hub.py, 0, hub.px, hub.py, r * 5.5);
       g.addColorStop(0, hub.color);
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.globalAlpha = 0.3;
+      g.addColorStop(1, paint.gradTail);
+      ctx.globalAlpha = paint.hubBloom;
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(hub.px, hub.py, r * 5.5, 0, Math.PI * 2);
@@ -309,9 +400,9 @@ export function mountCosmos(
       // Fade with depth so the far side of the sphere recedes instead of competing.
       const near = Math.max(0, Math.min(1, (2600 + 1000 - hub.depth) / 2000));
       ctx.globalAlpha = 0.45 + near * 0.55;
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillStyle = paint.labelShadow;
       ctx.fillText(hub.name, lx + 1, ly + 1);
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.fillStyle = paint.labelFill;
       ctx.fillText(hub.name, lx, ly);
     }
     ctx.globalAlpha = 1;
@@ -369,6 +460,18 @@ export function mountCosmos(
   canvas.addEventListener("wheel", wheel, { passive: false });
   window.addEventListener("resize", resize);
 
+  // Repaint on theme change from either source: an explicit `data-theme` flip on <html> (the app
+  // toggle) or the OS `prefers-color-scheme` when no explicit theme is set. applyPaint recolours
+  // in place; the rAF loop shows it next frame.
+  const themeMq = window.matchMedia?.("(prefers-color-scheme: dark)");
+  const onTheme = () => applyPaint();
+  themeMq?.addEventListener("change", onTheme);
+  const themeObserver = new MutationObserver(onTheme);
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+
   resize();
   // prefers-reduced-motion: stop the auto-spin AND the twinkle. A field of 1,632 pulsing dots is
   // exactly what that preference exists to prevent.
@@ -384,6 +487,8 @@ export function mountCosmos(
       canvas.removeEventListener("pointerup", up);
       canvas.removeEventListener("wheel", wheel);
       window.removeEventListener("resize", resize);
+      themeMq?.removeEventListener("change", onTheme);
+      themeObserver.disconnect();
     },
     setAutoRotate(on) { auto = on; },
     setBridgesOnly(on) { bridgesOnly = on; },
