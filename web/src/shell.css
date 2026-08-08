@@ -473,6 +473,46 @@
   .qk-sidebar { position: absolute; z-index: var(--z-sheet); left: 0; top: 0; bottom: 0; width: 84vw; max-width: 320px; background: var(--surface); box-shadow: var(--shadow-pop); }
   .qk-shell[data-nav="closed"] .qk-sidebar { width: 0; }
   :root:not([data-landing]) #composer-bar, .qk-shell[data-nav="closed"] ~ #composer-bar { padding-left: 0; }
+
+  /* ── narrow landing: dock the composer, centre the hero above it ──────────
+     Erik's reference is the Gemini and Claude phone apps, and both do the same three things: the
+     composer is pinned to the bottom edge, the hero centres in the room left above it, and the
+     chrome is a pair of floating circular buttons.
+
+     This DEPARTS from DESIGN.md § Layout, which says the composer "sits INSIDE the hero ... not
+     docked at the bottom". That rule is right on a desktop, where the hero is a composition you
+     look at; on a phone the composer is a thing you reach for with a thumb, and the bottom edge is
+     where the thumb already is. The doc now records the split rather than being quietly contradicted
+     by the narrow branch — see § Layout.
+
+     `position: fixed` inside `.qk-panel`'s `overflow: hidden` was the risk here and was checked
+     live, not assumed: the panel creates no containing block, so the bar pins to the viewport and
+     is not clipped. It also inherits the existing `visualViewport` handler in main.ts for free,
+     which is what makes the box ride above the keyboard the way image 3 shows. */
+  :root[data-landing] #composer-bar {
+    position: fixed; left: 0; right: 0; width: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    margin: 0; padding: 0 12px; z-index: var(--z-sticky);
+  }
+  /* 132px is a desktop hero's height; docked on a phone it eats a third of the screen. */
+  :root[data-landing] #composer-bar form { min-height: 104px; }
+  /* 94dvh, measured not guessed: `body` runs at `zoom: .9`, so a `calc(100dvh - dock)` reads 582px
+     on the glass rather than the 647 it looks like. Probing the real value put the hero's centre at
+     360 against an ideal of 359 — dead centre of the room between the top bar and the docked box —
+     and the panel still does not scroll. */
+  :root[data-landing] .qk-panel-body #hello {
+    padding-top: 0; padding-bottom: 0;
+    min-height: 94dvh; justify-content: center;
+  }
+  /* Both references float their chrome as FILLED circles, not bare glyphs — on a phone the icons sit
+     directly on the celestial ground with nothing to separate them from it, and a quiet disc is what
+     gives them an edge to read against. The A/A/A size control is a segmented group and is
+     deliberately excluded: rounding it would break the segments into three floating pills. */
+  .qk-panel-top .qk-iconbtn,
+  .qk-panel-top .icon-btn {
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--surface-2), transparent 22%);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════

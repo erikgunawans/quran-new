@@ -71,6 +71,14 @@ body-level sibling of `.app`), so `landing.ts` moves the node and the router own
 directions. Get it wrong and the chat input strands inside a hidden `#chat` on the reading route. It
 did, once — hence `landing.test.ts`.
 
+**…but below 820px it docks (added 2026-08-08, Erik's call).** On a phone the composer is not a
+composition you look at, it is a control you reach for, and the bottom edge is where the thumb
+already is — the pattern both the Gemini and Claude phone apps settle on. So the narrow branch pins
+`#composer-bar` to the bottom inset and centres the hero in the room above it (`min-height: 94dvh`,
+measured against the `zoom: .9` body rather than derived). The DOM move above is unchanged; only the
+positioning differs, so `landing.test.ts` still describes the truth. The desktop rule stands as
+written — this is a split, not a reversal.
+
 **The band is asymmetric: 1.55fr / 1fr.** Scripture owns the width; prayer is a utility beside it. A
 50/50 split would claim they carry equal weight. It stacks below 900px.
 
