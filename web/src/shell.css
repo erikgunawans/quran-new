@@ -11,9 +11,9 @@
 .qk-shell {
   position: fixed; inset: 0;
   display: flex; gap: 0;
-  /* Tighter gap on top/right/bottom so the inner panel grows; the left keeps a hair more so the
-     sidebar doesn't kiss the panel edge. */
-  padding: 6px 6px 6px 8px;
+  /* Tight edges so the inner panel fills the window; left trimmed too (Erik: widen the panel toward
+     the sidebar / the red line). */
+  padding: 6px 6px 6px 4px;
   background: var(--surface-2);
 }
 /* Outer layer, bolder: a near-black green so it reads distinctly darker than the inner panel. */
@@ -21,7 +21,7 @@
 
 /* ── Sidebar (outer layer) ───────────────────────────────────────────── */
 .qk-sidebar {
-  width: 300px; flex: none;
+  width: 290px; flex: none; /* trimmed 10px to widen the panel toward the red line (Erik) */
   display: flex; flex-direction: column; gap: 4px;
   padding: 14px 16px 16px;
   overflow: hidden;
@@ -29,9 +29,9 @@
 }
 .qk-shell[data-nav="closed"] .qk-sidebar { width: 0; padding-left: 0; padding-right: 0; opacity: 0; pointer-events: none; }
 
-.qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 20px; position: relative; z-index: 3; }
-/* The brand sits above the newchat/nav cards (fix #4 — the logo was being crowded/covered). */
-.qk-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; position: relative; z-index: 3; }
+.qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 20px; position: relative; z-index: 20; }
+/* The brand sits on the TOP layer above anything in the corner (Erik: so the logo is never cut/covered). */
+.qk-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; position: relative; z-index: 20; overflow: visible; }
 .qk-brand img { width: 40px; height: 40px; object-fit: contain; display: block; flex: none; }
 /* The wordmark — green→gold Fraunces gradient, per the design. `.qk-hero-gradient` had no base
    rule anywhere, so the brand was rendering as plain Plus-Jakarta in the inherited link colour. */
@@ -115,7 +115,7 @@
 /* ── Inner panel (the celestial reading surface) ─────────────────────── */
 .qk-panel {
   flex: 1; min-width: 0; position: relative;
-  border-radius: 20px; overflow: hidden;
+  border-radius: 12px; overflow: hidden; /* Erik: slightly less round */
   /* A thin hairline edge — the inner/outer distinction is carried by the color step between the
      bolder panel ground and the deeper shell, so the line itself stays quiet. */
   border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(40,70,60,.07);
@@ -191,9 +191,17 @@
    under the floated display controls that now sit at the panel's top-right. The chat's "Hapus
    percakapan" bar sits at the same top-right, so it gets the same gutter. */
 .qk-panel-body .baca-head, .qk-panel-body .tematik-head, .qk-panel-body .thread-tools { padding-right: 260px; }
+/* On the Al Qur'an route the panel-top bar gains the extra "Kembali" button, so the controls run wider
+   than the 260px gutter — and as the panel's fluid side padding shrinks on narrower screens the header
+   content (the Riwayat Bacaan pill) slides right into Kembali. Reserve more room here so they never
+   collide at any width. */
+:root[data-baca] .qk-panel-body .baca-head { padding-right: 340px; }
 
 /* ── Neutralize the old centered shell so content flows in the panel ──── */
 .qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
+/* On the Tanya landing the .app is capped at 1120px; centre it in the panel so the hero + composer sit
+   dead-centre at ANY panel width (Erik) — was left-aligned by the margin:0 above. */
+:root[data-landing] .qk-panel-body .app { margin-inline: auto; }
 /* Off the landing the composer is docked (position:fixed; bottom:0), so it floats over the
    scroll surface. Reserve room beneath the content — otherwise the last filmstrip card / masonry
    row / chat message can't scroll clear of the ~100px glass bar and stays occluded at rest. */
@@ -279,12 +287,12 @@
 
 /* Conversation: the docked bar is a TRANSPARENT, panel-width positioning strip — the glass lives on
    the FORM, so no translucent band bleeds under the sidebar (fix #1). Panel-exact offsets keep the
-   input centered over the inner panel at ANY width (fix #2): the left inset = sidebar (300px) +
-   shell pad (8px); the right inset = shell pad (6px). justify-content:center + form margin:auto then
-   centre the input in exactly the panel region. */
+   input centered over the inner panel at ANY width (fix #2): the left inset = sidebar (290px) +
+   shell pad (4px) = 294px; the right inset = shell pad (6px). justify-content:center + form
+   margin:auto then centre the input in exactly the panel region. */
 :root:not([data-landing]) #composer-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky);
-  padding: 0 6px 14px 308px; display: flex; justify-content: center;
+  padding: 0 6px 14px 294px; display: flex; justify-content: center;
   background: transparent; border: 0; border-radius: 0; box-shadow: none;
   -webkit-backdrop-filter: none; backdrop-filter: none;
   transition: padding-left var(--t);

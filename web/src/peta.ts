@@ -271,15 +271,46 @@ function bindMapToggle(mount: HTMLElement): void {
       // 46 KB, fetched here and nowhere else. A reader who never opens the map pays nothing —
       // which is the only reason a 3D star field belongs in an app built for patchy 4G.
       const cosmos = await loadCosmos();
+      const m = cosmos.meta;
+      const src = cosmos.source;
+      const n = (v: number) => v.toLocaleString("id-ID");
+      // Two columns: the transparent star-cloud on the LEFT, one info rail on the RIGHT holding
+      // every fact about the graph — head/meta, the detail hint, the legend, its two toggles, and
+      // the attribution. Mirrors the reference (Peta Tematik — Transparent/Light) adapted onto the
+      // app's own tokens so it reads on both the light and dark transparent page.
       slot.innerHTML = `
-        <div class="pc-frame">
-          <canvas class="pc-canvas" aria-label="Peta tematik 3D: ${cosmos.meta.verses} ayat mengelilingi ${cosmos.meta.cats} kategori. Seret untuk memutar, gulir untuk memperbesar, klik bintang untuk membuka ayat."></canvas>
-          <div class="pc-hud">
-            <label class="pc-check"><input type="checkbox" class="pc-auto" checked> Putar otomatis</label>
-            <label class="pc-check"><input type="checkbox" class="pc-bridges"> Hanya ayat penghubung</label>
+        <div class="pc-shell">
+          <div class="pc-frame">
+            <canvas class="pc-canvas" aria-label="Peta tematik 3D: ${m.verses} ayat mengelilingi ${m.cats} kategori. Seret untuk memutar, gulir untuk memperbesar, klik bintang untuk membuka ayat."></canvas>
+            <p class="pc-help">seret untuk memutar · gulir untuk zoom · klik bintang untuk membuka ayat</p>
           </div>
-          <p class="pc-help">seret untuk memutar · gulir untuk zoom · klik bintang untuk membuka ayat</p>
-          ${legendHtml(cosmos)}
+          <aside class="pc-rail" aria-label="Informasi peta tematik">
+            <section class="pc-card pc-head">
+              <h2 class="pc-title">Peta Tematik Al-Qur'an</h2>
+              <p class="pc-source">${esc(src.title)} · ${esc(src.author)}</p>
+              <div class="pc-stats">
+                <span><b>${n(m.cats)}</b> kategori</span>
+                <span><b>${n(m.entries)}</b> topik</span>
+                <span><b>${n(m.verses)}</b> ayat</span>
+                <span><b>${n(m.bridges)}</b> ayat penghubung</span>
+              </div>
+            </section>
+
+            <section class="pc-card pc-detail">
+              <p class="pc-detail-hint">Klik bintang di peta untuk membuka ayatnya di layar baca.</p>
+            </section>
+
+            <section class="pc-card pc-legend-card">
+              <div class="pc-legend-h"><span>Kategori</span></div>
+              ${legendHtml(cosmos)}
+              <div class="pc-foot">
+                <label class="pc-check"><input type="checkbox" class="pc-auto" checked> Putar otomatis</label>
+                <label class="pc-check"><input type="checkbox" class="pc-bridges"> Hanya ayat penghubung</label>
+              </div>
+            </section>
+
+            <p class="pc-card pc-cred">${esc(src.title)} oleh <strong>${esc(src.author)}</strong> — <a href="${esc(src.url)}" target="_blank" rel="noopener noreferrer">quran.tarjamahtafsiriyah.com</a>. Posisi 3D, pengelompokan, dan geometri penghubung adalah tambahan kami.</p>
+          </aside>
         </div>`;
 
       const canvas = slot.querySelector<HTMLCanvasElement>(".pc-canvas");
