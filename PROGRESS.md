@@ -8,7 +8,28 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Chat bar + Al Qur'an redesign LIVE; AI "Cari Surah" shipped (blocked on model key)
+## 2026-08-08 (latest) — AI "Cari Surah" now LIVE end-to-end; model layer unblocked
+
+Erik set `OPENROUTER_API_KEY` on the principled worker `new-quranku-proxy`. No redeploy needed —
+`wrangler secret list` now shows the key, and every model endpoint that was silently keyword-only came
+alive at once. **No code changed this session; this is a verification checkpoint** (docs only).
+
+**Verified against LIVE prod (new-quranku.axiara.ai, Worker `fa42487e`):**
+- `/api/find-surah` — curl probe with the real 114-surah client payload, 4/4 semantic hits:
+  "kisah nabi yusuf"→12, "sapi betina"→2, "the opening"→1, "perlindungan dari waswas"→114. None are
+  substring matches — keyword search could not resolve any of them.
+- **In-browser (Interceptor, real Chrome)**: typed "kisah nabi yusuf" into the docked Cari Surah box →
+  `/api/find-surah` returned `{"n":12}` → carousel centred on **Yusuf (012, يوسف)**, app caption
+  "Yusuf di tengah, surah ke-12", chat never opened, stayed on `#/baca`. Closes ISC-14 → ISA now 14/14.
+- `/api/classify` (the Tanya theme understander, silently keyword-only in prod until now): question
+  "agar hati tenang saat cemas" → `["sabar"]`. The same key also revives `/api/compose` (same
+  `resolveProvider` path). Memory `principled-worker-no-key` is now resolved.
+
+ISA `MEMORY/WORK/quranku-cari-surah-ai/ISA.md` → 14/14 (ISC-14 verified).
+
+---
+
+## 2026-08-08 — Chat bar + Al Qur'an redesign LIVE; AI "Cari Surah" shipped (blocked on model key)
 
 Anchor: quran-new/main `43e7c19`. Three UI asks from Erik, shipped to prod (new-quranku.axiara.ai).
 
