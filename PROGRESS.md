@@ -8,7 +8,54 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-08 (latest) — Header collision, panel widen/de-round, logo z-index, Tanya centre, Peta two-column
+## 2026-08-08 (latest) — Split-screen surah page: Dorar preface left, scripture right
+
+Anchor: quran-new/main `41835e9`. Prod Worker version `7766613d`, JS `index-BvR9L5N9.js`, CSS `index-BSMcHXl5.css`.
+
+- **The layout.** A surah opens 50/50 — Dorar Al-Saniyyah's مقدمة السورة LEFT, the surah text RIGHT.
+  Selecting either side gives it the full width and collapses the other to a 44px vertical rail that keeps
+  its label and stays clickable; selecting the same side again returns to 50/50. The divider has no width
+  of its own — what moves is the two columns' `flex-basis` (620ms `var(--ease)`, the shelf's motion), and
+  the divider is simply the boundary they meet at. Below 820px the split stacks instead of squeezing.
+  Verified live on prod in all three states: 457/457 → 874/40 → 40/874.
+
+- **RIGHTS — Erik's call, recorded not hidden.** The source record marks these prefaces `usage: private`
+  (Dorar, all rights reserved, no published licence; clearance = written permission, and dorar.net
+  publishes no contact terms). I flagged it; Erik chose to ship publicly with attribution and accept the
+  clearance risk as product owner. This **contradicts `build-hadith.ts`**, which drops sunnah.com's English
+  under the identical marking — the difference is deliberate and is explained in `build-surah-intro.ts`'s
+  header so it never reads as an oversight. Mitigation is reversibility: every shard carries
+  `source.title/url/supervisor`, the renderer refuses to draw a preface without them, and
+  `web/public/surah-intro/` is a gitignored artifact — pulling it is one deleted directory + a redeploy.
+
+- **Arabic only — this part was NOT instructed, it was a hazard stopped.** The `id` export is one surah and
+  is `translation: ai`, `official: false`, `review_status: unreviewed`, `reviewer_needed: "Ustadz Ahmad
+  Isrofiel"` — our own machine output under Dorar's name, bypassing the scholar-review gate on religious
+  content. `parseIntro` hard-rejects any non-`ar` source so it cannot slip in later.
+
+- **Corpus.** `data/surah-intro-src/<nnn>.md` → `bun run app:surah-intro` → `web/public/surah-intro/<n>.json`.
+  114 surahs, 499 sections, 703 footnotes, ~836 KB, sharded so a reader downloads only the preface they open.
+  Arabic is sliced from source bytes, never retyped; the six canonical sections vary only by tashkeel, so
+  headings are classified by a diacritic-folded prefix whose keys were derived mechanically from the corpus.
+  The build refuses to write a surah missing names/revelation/aims. Byte-exactness asserted for all 114.
+
+- **Silent regression this layout introduced, and fixed.** Giving the text its own scroll container killed
+  reading-position tracking: `startTracking`'s IntersectionObserver was rooted at the VIEWPORT with
+  `rootMargin: "0px 0px -75% 0px"` — a band over the top quarter of the window — while the text column starts
+  BELOW it (measured: column top 385, band ends 180). No verse could ever intersect, so the bookmark stopped
+  advancing and Riwayat Bacaan stopped updating with nothing thrown, nothing logged, and every test passing.
+  The observer is now rooted at the column. `web/src/split.test.ts` pins the invariant it depends on —
+  `#surah-body` IS the scrolling element, not a child of it. **A percentage `rootMargin` is meaningless
+  without naming the box it is a percentage of.**
+
+961 tests pass (was 923). No new type errors (the 6 in `quran.ts` are pre-existing). NOTE: at panel scroll-top
+the split's bottom runs ~130px under the docked composer; it clears fully (126px) once the cartouche scrolls
+away. Erik has cared about exactly this overlap before on the shelf — the height
+(`clamp(380px, 100dvh - 240px, 1000px)`, read.css) is his to nudge.
+
+---
+
+## 2026-08-08 — Header collision, panel widen/de-round, logo z-index, Tanya centre, Peta two-column
 
 Anchor: quran-new/main `c44c11e`. Prod Worker `2f7d06f0`, CSS `index-CAQjRnVG.css`. Six asks (Images #12/#13 + Peta):
 
