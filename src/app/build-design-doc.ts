@@ -65,7 +65,7 @@ function readRoot(css: string): Token[] {
 
 const GROUPS: [string, RegExp, string][] = [
   ["Surface & ink", /^--(bg|surface|surface-2|line|line-strong|ink|ink-2|ink-3)$/, "The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet."],
-  ["Brand", /^--(primary|primary-ink|primary-wash|primary-line|action|action-2|action-grad|action-ink|forest|forest-grad|clay|wash-1|wash-2)$/, "**Theme-invariant.** One emerald means \"you can do this\" in both registers, so the white-on-action contrast math is proved once, not per theme."],
+  ["Brand", /^--(primary|primary-ink|primary-wash|primary-line|composer-line|composer-line-on|action|action-2|action-grad|action-ink|forest|forest-grad|clay|wash-1|wash-2)$/, "**Theme-invariant.** One emerald means \"you can do this\" in both registers, so the white-on-action contrast math is proved once, not per theme."],
   ["Semantic", /^--(caution|caution-wash|glow|shadow-pop|sh|sh-sm)$/, ""],
   ["Type", /^--(f-ar|f-ui|f-display|step--1|step-0|step-1|step-2|step-3|step-4|ar-size)$/, "Arabic is scaled by the reader independently of the UI (`--ar-size`)."],
   ["Space & shape", /^--(s-[1-9]|r|r-lg|r-input)$/, "4pt scale. Rhythm comes from a defined set, never arbitrary numbers."],
@@ -101,6 +101,19 @@ function render(tokens: Token[]): string {
 const css = await Bun.file(CSS).text();
 const tokens = readRoot(css);
 if (tokens.length < 20) throw new Error(`${CSS}: parsed only ${tokens.length} tokens — the parser is broken, refusing to write a truncated doc`);
+
+// A token matching no GROUPS regex used to be dropped in silence: the generator printed a cheerful
+// "✓ 57 tokens" and the doc simply never mentioned it. The only thing that noticed was
+// design-doc.test.ts, whose failure says "DESIGN.md is stale. Run `bun run app:design`" — advice
+// that cannot work, because re-running drops the token again. That cost a full build/test cycle to
+// diagnose. The generator now refuses rather than lies; adding a token means placing it.
+const ungrouped = tokens.filter((t) => !GROUPS.some(([, re]) => re.test(t.name))).map((t) => t.name);
+if (ungrouped.length) {
+  throw new Error(
+    `${CSS}: ${ungrouped.length} token(s) match no group in GROUPS, so they would be silently ` +
+      `omitted from ${DOC}: ${ungrouped.join(", ")}. Add each to a group regex in build-design-doc.ts.`,
+  );
+}
 
 const doc = await Bun.file(DOC).text();
 const s = doc.indexOf(START);

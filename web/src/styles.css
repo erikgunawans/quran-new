@@ -25,6 +25,16 @@
   --primary-wash:  oklch(0.955 0.017 165);
   --primary-line:  oklch(0.627 0.129 165 / 0.45);
 
+  /* The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at
+     rest, so the box had no edge at all until you clicked into it — the line only existed under the
+     cursor (Erik). Now it is always drawn, and focus *steps it up* rather than switching it on: the
+     same object getting brighter, not a different border arriving. Two stops rather than a fade to
+     nothing, because an edge that appears from zero is an event, and an edge that strengthens is an
+     invitation. Hairline only — DESIGN.md § Components allows the hairline and forbids pairing it
+     with a wide 40–70px shadow; the focus ring stays 3px, which is a ring, not a halo. */
+  --composer-line:    oklch(0.627 0.129 165 / 0.26);
+  --composer-line-on: oklch(0.627 0.129 165 / 0.72);
+
   /* action = the ONE bright surface, reserved for what the reader can DO (send, CTA,
      their own words, the mark). It carries white text, so its lightness is pinned by
      WCAG AA (4.94:1) — not by taste. Going brighter fails the contrast test, by design. */
@@ -109,6 +119,8 @@
     --primary-ink:  oklch(0.180 0.020 165);
     --primary-wash: oklch(0.760 0.128 165 / 0.14);
     --primary-line: oklch(0.760 0.128 165 / 0.42);
+    --composer-line:    oklch(0.760 0.128 165 / 0.24);
+    --composer-line-on: oklch(0.760 0.128 165 / 0.68);
 
     --caution:      oklch(0.780 0.140 55);
     --caution-wash: oklch(0.780 0.140 55 / 0.12);
@@ -134,6 +146,7 @@
   --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
+  --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.68);
   --caution: oklch(0.780 0.140 55); --caution-wash: oklch(0.780 0.140 55 / 0.12);
   --wash-1: oklch(0.627 0.129 165 / 0.10); --wash-2: oklch(0.542 0.092 188 / 0.07);
   --glow: none; --shadow-pop: 0 8px 28px oklch(0.10 0.01 165 / 0.55);
@@ -834,8 +847,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 :root[data-landing] .composer form {
   width: 100%; max-width: 100%; /* fill the #composer-bar shell (760px) — the inner is the box now (Erik/KIMI) */
   background: var(--surface);
-  border: 1px solid transparent;
+  /* Was `transparent`: the composer had no perimeter until focus, so the box's edge was a thing
+     that only existed while you were already in it. A call to action should be legible as a shape
+     before you touch it. */
+  border: 1px solid var(--composer-line);
   border-radius: var(--r-input);
+  transition: border-color 260ms var(--ease), box-shadow 260ms var(--ease);
   /* The app's own shadow token, not a hand-rolled one. This read `0 2px 6px, 0 14px 34px` — a
      34px-blur shadow on a bordered element, sitting INSIDE the bar's own three glows: five shadow
      layers on one control. DESIGN.md § Components allows "hairline borders and DEFINED shadows
@@ -849,8 +866,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    the border-plus-wide-40-70px-shadow combination DESIGN.md calls the ghost-card tell, verbatim. A
    ring is also the thing that actually reads as focus; a bigger halo just reads as more glow. */
 :root[data-landing] .composer form:focus-within {
-  border-color: var(--primary-line);
+  border-color: var(--composer-line-on);
   box-shadow: var(--sh), 0 0 0 3px var(--primary-wash);
+}
+/* Hover is the half-step between the two: the line acknowledges the pointer before the click, so
+   the box answers on approach rather than only on commitment. Pointer-only — on touch there is no
+   hover, and `:focus-within` below is the whole story. */
+@media (hover: hover) {
+  :root[data-landing] .composer form:hover:not(:focus-within) {
+    border-color: color-mix(in oklab, var(--composer-line-on) 55%, var(--composer-line));
+  }
 }
 :root[data-landing] .composer textarea { font-size: 17.5px; padding: 14px 0; }
 :root[data-landing] .send { width: 52px; height: 52px; border-radius: 13px; }
@@ -893,6 +918,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @keyframes composer-breathe {
   0%, 100% { opacity: calc(var(--beam-op) * 0.34); filter: blur(16px); }
   50%      { opacity: calc(var(--beam-op) * 0.78); filter: blur(20px); }
+}
+/* Focus: the light comes up, and the breathing STOPS (Erik: "when a cursor is active the light is
+   even brighter"). Brighter is the ask; holding still is the craft — a glow that keeps pulsing
+   behind a field you are typing into is motion in your peripheral vision during the one task on
+   this page that needs your attention. So the box goes from breathing-and-dim to awake-and-steady:
+   the tide was the invitation, and once you accept it the invitation stops asking.
+
+   `animation: none` is what makes it steady, and it must also survive the reduced-motion branch
+   above — this selector carries one more class-level component (`:focus-within`), so it wins on
+   specificity regardless of the media query. Reduced-motion users, who never saw the tide, get the
+   same brightening: for them this is simply a dim glow becoming a bright one. */
+:root[data-landing] .composer form:focus-within::before {
+  animation: none;
+  opacity: calc(var(--beam-op) * 0.95);
+  filter: blur(22px);
+  transition: opacity 320ms var(--ease), filter 320ms var(--ease);
 }
 /* the docked bar reserves 8rem of scroll runway it does not need on the landing */
 :root[data-landing] .app { padding-bottom: var(--s-8); }

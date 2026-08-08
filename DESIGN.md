@@ -205,6 +205,8 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--primary-ink` | `oklch(1.000 0.000 0)` | — |
 | `--primary-wash` | `oklch(0.955 0.017 165)` | — |
 | `--primary-line` | `oklch(0.627 0.129 165 / 0.45)` | — |
+| `--composer-line` | `oklch(0.627 0.129 165 / 0.26)` | The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at |
+| `--composer-line-on` | `oklch(0.627 0.129 165 / 0.72)` | — |
 | `--action` | `oklch(0.532 0.112 163)` | action = the ONE bright surface, reserved for what the reader can DO (send, CTA, |
 | `--action-2` | `oklch(0.542 0.092 188)` | — |
 | `--action-grad` | `linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%)` | — |
