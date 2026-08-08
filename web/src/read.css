@@ -922,14 +922,17 @@
   color: var(--ink-2);
 }
 #read .si-warn b { color: var(--ink); }
-#read .si-sec { margin: 0 0 20px; }
+#read .si-sec { margin: 0 0 var(--s-5); }
 #read .si-h {
-  margin: 0 0 8px;
+  margin: 0 0 var(--s-2);
   font-size: 1.02em;
   font-weight: 700;
   color: var(--ink);
+  text-wrap: balance;
 }
-#read .si-body p { margin: 0 0 10px; line-height: 2; }
+/* 68ch is the MEASURE (DESIGN.md § Typography) — it is how wide prose stays readable, and the
+   preface ignored it, so an expanded column ran Dorar's Arabic the full 874px. */
+#read .si-body p { margin: 0 0 var(--s-3); line-height: 2; max-width: 68ch; text-wrap: pretty; }
 #read .si-body p:last-child { margin-bottom: 0; }
 
 /* The footnote apparatus. Smaller and quieter than the prose it supports, but present — the
@@ -939,15 +942,20 @@
 #read .si-reflist li { margin: 0 0 8px; line-height: 1.9; }
 
 /* Attribution. This content is Dorar's; the credit ships with it and is not decoration. */
+/* Attribution is DESIGN, not fine print (DESIGN.md § Components; same rule the peta credit
+   carries verbatim a few hundred lines up). This shipped at 0.84em inside a <footer> — shrunk AND
+   footer-ised, the two things that rule names. Body size, in the reading flow. Do not shrink it
+   back: this content is Dorar's, and the credit is the term on which we show it. */
 #read .si-cred {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-top: 18px;
-  padding-top: 12px;
+  gap: var(--s-1);
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
-  font-size: 0.84em;
+  font-size: var(--step-0);
   color: var(--ink-2);
+  line-height: 1.5;
 }
 #read .si-cred a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
 #read .si-cred a:hover { color: var(--ink); }
