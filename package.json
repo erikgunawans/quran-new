@@ -30,6 +30,7 @@
     "app:juz": "bun run src/app/build-juz.ts",
     "app:hadith": "bun run src/app/build-hadith.ts",
     "app:surah-intro": "bun run src/app/build-surah-intro.ts",
+    "app:translate-surah-intro": "bun run src/app/translate-surah-intro.ts",
     "app:topic-subjects": "bun run src/app/build-topic-subjects.ts",
     "app:coverage-audit": "bun run src/review/build-coverage-audit.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
