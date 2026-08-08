@@ -10,7 +10,7 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ## 2026-08-08 (latest) — Tematik reworked: finder, one-screen card wall, exclusive views
 
-Anchor: quran-new/main `8bf7c8d`. Prod Worker `55d78027`, JS `index-LbFm_Y-P.js`, CSS `index-tQz5gTE3.css`.
+Anchor: quran-new/main `2781837`. Prod Worker `cc6a91ea`.
 988 tests pass (session start: 923).
 
 **Search.** The docked box on `#/peta` is a FINDER, matching the Al-Qur'an contract exactly
@@ -39,6 +39,15 @@ layout that never changed. Re-asserted; verified `display:none`, 0 cards rendere
 ⓘ on the credit line (hover + tap + focus, full sentence in the aria-label). The CATEGORY route keeps
 its visible paragraph — the first pass changed both and the F-2 guardrail caught it. That test now
 asserts the index form (tooltip + aria-label) and the category form (paragraph) separately.
+
+**Landing composition dropped (`2781837`).** Erik marked target boxes; the hero text now centres
+lower in the panel with the composer below it, instead of both riding high over dead space. Measured
+237 vs the marked 230 (text) and 447 vs 441 (composer). Two notes, because the first attempt changed
+nothing: `.qk-panel-body #hello` is an ID selector, so a `:root[data-landing] .hello` class rule loses
+to it and computed to `padding-top: 0` — target `#hello`. And the offset is NOT 1:1, because `#hello`
+is a `justify-content: center` column that absorbs part of any padding (100px authored moved the block
+66px on glass); the final value was calibrated from that measurement, `vh`-based so a short window
+shrinks the lead-in rather than pushing the composer off-screen.
 
 **Earlier in the session** (see the three checkpoints below): the split-screen surah page with Dorar's
 preface, the Bahasa Indonesia option, all 114 Indonesian drafts, and a design audit against DESIGN.md
