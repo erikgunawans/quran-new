@@ -782,7 +782,7 @@
      the line length stops being a line length. The subtraction clears the surah cartouche above
      and the docked Cari Surah bar below. */
   height: clamp(380px, 100dvh - 240px, 1000px);
-  margin-top: 4px;
+  margin-top: var(--s-1);
 }
 
 #read .sp-col {
@@ -814,7 +814,7 @@
   color: var(--ink);
   font: inherit;
   font-weight: 600;
-  padding: 9px 14px;
+  padding: var(--s-3) var(--s-4);
   cursor: pointer;
   text-align: start;
   white-space: nowrap;
@@ -822,6 +822,7 @@
   transition: background 220ms var(--ease), color 220ms var(--ease);
 }
 #read .sp-tab:hover { background: var(--surface-2); }
+#read .sp-tab:active { background: color-mix(in oklch, var(--primary-wash), var(--primary) 10%); }
 #read .sp-tab:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
 
 /* Collapsed: the tab becomes the whole rail — full height, label turned on its side, so the
@@ -830,7 +831,7 @@
 #read .surah-split[data-pane="text"]  .sp-intro .sp-tab {
   flex: 1 1 auto;
   border-radius: var(--r);
-  padding: 14px 0;
+  padding: var(--s-4) 0;
   text-align: center;
 }
 #read .surah-split[data-pane="intro"] .sp-text .sp-tab-label,
@@ -853,7 +854,7 @@
   border: 1px solid var(--line);
   border-top: 0;
   border-radius: 0 0 var(--r) var(--r);
-  padding: 14px 16px 24px;
+  padding: var(--s-4) var(--s-4) var(--s-5);
 }
 #read .sp-intro .sp-scroll { border-right: 0; }
 
@@ -862,7 +863,7 @@
   flex: 0 0 1px;
   align-self: stretch;
   background: var(--line-strong);
-  margin: 6px 0;
+  margin: var(--s-2) 0;
 }
 
 /* ── the preface ─────────────────────────────────────────────────────────── */
@@ -881,10 +882,10 @@
    else is derived. An unavailable language stays visible but disabled rather than vanishing. */
 #read .si-langbar {
   display: flex;
-  gap: 6px;
+  gap: var(--s-2);
   flex-wrap: wrap;
-  margin: 0 0 14px;
-  padding-bottom: 10px;
+  margin: 0 0 var(--s-4);
+  padding-bottom: var(--s-3);
   border-bottom: 1px solid var(--line);
 }
 #read .si-langbtn {
@@ -895,13 +896,14 @@
   color: var(--ink-2);
   font: inherit;
   font-size: 0.82em;
-  padding: 4px 11px;
+  padding: var(--s-1) var(--s-3);
   cursor: pointer;
   transition: background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease);
 }
 #read .si-langbtn:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
 #read .si-langbtn.on { background: var(--primary-wash); border-color: var(--primary-line); color: var(--ink); font-weight: 600; }
 #read .si-langbtn:disabled { opacity: 0.55; cursor: not-allowed; }
+#read .si-langbtn:active:not(:disabled) { background: color-mix(in oklch, var(--surface-2), var(--primary) 10%); }
 #read .si-langbtn:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
 #read .si-na { font-size: 0.86em; opacity: 0.8; }
 
@@ -910,9 +912,9 @@
 #read .si-warn {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin: 0 0 16px;
-  padding: 11px 13px;
+  gap: var(--s-1);
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3) var(--s-4);
   border: 1px solid var(--primary-line);
   border-left-width: 3px;
   border-radius: var(--r);
@@ -937,9 +939,9 @@
 
 /* The footnote apparatus. Smaller and quieter than the prose it supports, but present — the
    references are how Dorar's claims are checkable, and dropping them would misrepresent the work. */
-#read .si-refs { border-top: 1px solid var(--line); padding-top: 14px; }
+#read .si-refs { border-top: 1px solid var(--line); padding-top: var(--s-4); }
 #read .si-reflist { margin: 0; padding-inline-start: 1.4em; color: var(--ink-2); font-size: 0.9em; }
-#read .si-reflist li { margin: 0 0 8px; line-height: 1.9; }
+#read .si-reflist li { margin: 0 0 var(--s-2); line-height: 1.9; }
 
 /* Attribution. This content is Dorar's; the credit ships with it and is not decoration. */
 /* Attribution is DESIGN, not fine print (DESIGN.md § Components; same rule the peta credit
@@ -977,7 +979,7 @@
   /* Expanded/collapsed reduces to showing or hiding the body — the bar always stays. */
   #read .surah-split[data-pane="intro"] .sp-text .sp-tab,
   #read .surah-split[data-pane="text"]  .sp-intro .sp-tab {
-    flex: 0 0 auto; padding: 9px 14px; text-align: start; border-radius: var(--r);
+    flex: 0 0 auto; padding: var(--s-3) var(--s-4); text-align: start; border-radius: var(--r);
   }
   #read .surah-split[data-pane="intro"] .sp-text .sp-tab-label,
   #read .surah-split[data-pane="text"]  .sp-intro .sp-tab-label {
