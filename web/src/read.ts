@@ -289,13 +289,63 @@ export function renderIndex(mount: HTMLElement): void {
   const WINDOW = 2; // neighbours shown each side of the centre
   let centre = 0; // Al-Fatihah opens in the middle
 
+  // Fluid width morph (Erik): a turn must NOT rebuild the row. A fresh <li> has no previous width to
+  // animate from, so innerHTML-replacement snaps. Instead we KEEP each card's DOM node across turns,
+  // keyed by surah number, and only rewrite its `--off`/`is-open`. The centre that slides out (off
+  // 0 → -1) shrinks smoothly, the neighbour sliding in (off +1 → 0) stretches — and because their
+  // widths transition, the centred flex row re-lays every frame, so the whole shelf glides.
+  const nodes = new Map<number, HTMLLIElement>();
+  const setOff = (li: HTMLLIElement, off: number): void => {
+    li.dataset.off = String(off);
+    li.style.setProperty("--off", String(Math.abs(off)));
+    li.style.opacity = "";
+    li.querySelector(".srow")?.classList.toggle("is-open", off === 0);
+  };
+
   const renderWheel = (): void => {
-    const cards: string[] = [];
+    const want: { s: SurahMeta; off: number }[] = [];
     for (let off = -WINDOW; off <= WINDOW; off++) {
       const s = SURAH_INDEX[(centre + off + N) % N];
-      if (s) cards.push(indexRow(s, off === 0, off));
+      if (s) want.push({ s, off });
     }
-    list.innerHTML = cards.join("");
+    const wanted = new Set(want.map((w) => w.s.n));
+
+    // Cards that left the window taper to the spine and fade, then drop. Keep each on its exit side
+    // (its last off sign) so a left-leaving card fades off the left edge, not popping to the right.
+    const leftGhosts: HTMLLIElement[] = [];
+    const rightGhosts: HTMLLIElement[] = [];
+    for (const [n, li] of nodes) {
+      if (wanted.has(n)) continue;
+      nodes.delete(n);
+      (Number(li.dataset.off ?? 0) < 0 ? leftGhosts : rightGhosts).push(li);
+      li.style.setProperty("--off", String(WINDOW + 1));
+      li.style.opacity = "0";
+      setTimeout(() => li.remove(), 560);
+    }
+
+    // Final left-to-right order: left ghosts, the live window, right ghosts. Reuse a surviving node
+    // (so its width transitions) or build one fresh (it eases in via qkrot).
+    const ordered: HTMLLIElement[] = [...leftGhosts];
+    for (const { s, off } of want) {
+      let li = nodes.get(s.n);
+      if (li) {
+        setOff(li, off);
+      } else {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = indexRow(s, off === 0, off).trim();
+        li = tmp.firstElementChild as HTMLLIElement;
+        nodes.set(s.n, li);
+      }
+      ordered.push(li);
+    }
+    ordered.push(...rightGhosts);
+
+    let prev: HTMLLIElement | null = null;
+    for (const li of ordered) {
+      if (prev) prev.after(li);
+      else list.prepend(li);
+      prev = li;
+    }
   };
 
   let pending: ReturnType<typeof setTimeout> | undefined;

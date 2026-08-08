@@ -499,15 +499,16 @@
   display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
   list-style: none; margin: 0; padding: 4px 2px 14px; overflow: hidden;
 }
-/* Height is capped so the card foot (surah name) clears the docked composer instead of hiding
-   under it. The 380px offset covers the panel top bar, the Baca header + "Lanjutkan baca" bar,
-   the ~88px composer, and breathing room; the clamp keeps cards readable on tall and short viewports. */
+/* Height fills the panel's vertical space so the card breathes instead of floating in dead space
+   (Erik). The 300px offset reserves the panel top bar, the Baca header + Riwayat Bacaan bar, the
+   ~88px docked composer, and a foot gap; the clamp keeps the foot clear on short viewports and lets
+   the card grow tall on large ones. */
 /* Each card carries `--off` (absolute distance from the opened centre) from read.ts. The li — which
    is NOT animated (qkrot lives on .srow) — takes the coverflow depth: neighbours recede in scale and
    fade the further out they sit, so the row reads as a shelf that opens at the middle (Erik). The
    width taper is on .srow below; keeping the two on separate elements avoids fighting qkrot's fill. */
 .qk-panel-body #read .surah-list > li {
-  flex: none; height: clamp(300px, calc(100dvh - 380px), 540px); margin: 0;
+  flex: none; height: clamp(340px, calc(100dvh - 300px), 660px); margin: 0;
   --off: 0;
   transform-origin: center;
   transform: scale(calc(1 - var(--off) * 0.05));
@@ -526,7 +527,7 @@
      far neighbour reads as a standing book, not a card. The centre card (is-open) overrides below. */
   width: max(94px, calc(clamp(150px, 18vw, 220px) - var(--off, 0) * 50px));
   border-radius: var(--r-lg); overflow: hidden; text-decoration: none;
-  border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 18px 20px;
+  border: 1px solid var(--line); box-shadow: var(--sh-sm); padding: 22px 26px;
   background: linear-gradient(180deg, rgba(22,162,73,.10) 0%, rgba(24,48,42,.30) 100%);
   transition: width 560ms var(--ease), border-color var(--t), box-shadow var(--t);
 }
