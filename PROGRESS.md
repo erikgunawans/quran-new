@@ -8,7 +8,98 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-09 (latest) — The narrow layout's first real probe, then a landing rebuilt on it
+## 2026-08-09 (latest) — Two audits, a P0 that ate the composer, and the test that could not see gold
+
+Anchor: quran-new/main `451dacd`. Prod Worker `a85b28d4`, CSS `index-xpdk2-pk.css`, JS `index-D7CyoCrn.js`.
+**999 tests pass** (up from 988). ISA **226/228** — ISC-98 open, ISC-189 deferred-verify.
+
+**ISC-111 closed, and its two-session deferral was proved environmental rather than argued.** Deep-linking
+`#/surah/18#10` with `newquranku:baca` deleted first wrote `{"surah":18,"ayah":10}`; a control on `#/surah/2#255`
+wrote `2:255`, so the value tracks the link. The proof that mattered was an A-B on ONE page load: the same
+navigation read `landed: true, baca: null` while `visibilityState` was `hidden`, and the correct value seconds
+after `tab switch` made it visible. `interceptor navigate` silently backgrounds the tab — anything
+IntersectionObserver- or rAF-driven read immediately after is a false negative, which is what two sessions
+recorded as "unverifiable here".
+
+**Two `$impeccable critique` runs, both dual-agent.** The landing scored **23/40**, the answer surface **24/40**.
+Snapshots in `.impeccable/critique/`. The answer surface's contrast is genuinely clean — 17 text roles composited
+against the real painted stack (panel gradient + gold radial + every translucent ancestor), zero failures in either
+register, lowest 4.94:1. Its problems are size and hierarchy, not colour.
+
+**The P0 the landing audit found, reproduced before it was believed.** `restoreThread()` ran `$("#hello")?.remove()`
+directly while `dockLanding()` had already moved `#composer-bar` INSIDE `#hello` — so every reader returning to a
+saved thread inside thread.ts's 12-hour window could read their old answer and **never ask another question** on any
+route. Verified on prod with a seeded thread (`composerInDoc: false`), fixed to `destroyLanding()`, re-verified
+(`composerInDoc: true`, parent `BODY`, `landingAttr: false`). `landing.ts:39-41` documents this exact failure in
+prose; the one call site that removed the hero was the one that bypassed the module.
+
+**The answer area's type came down** — bubble 20→18px, prose 21→18.5px, Arabic 27.2→23.12px via a new `--ar-scale`
+multiplier, translation 17→15.2px. Two things the first attempt got wrong, both caught by measuring rather than
+reading the diff: the answer surface is governed by shell.css's `.qk-panel-body` reskin in **absolute px**, not by
+styles.css tokens (so `.said` and the translation never moved); and `#thread .msg { font-size }` is (1,1,0) and
+outranked every (0,3,0) reskin rule, collapsing the user bubble to 14.7px.
+
+**The ayah card became a well.** `rgba(3,11,8,.94)` dark / `rgba(222,233,227,.94)` light — darker than the panel at
+every gradient point, where it used to be lighter. Near-opaque on purpose: the panel gradient runs in opposite
+directions per theme, so a translucent fill inverts halfway down the scroll. Honest limit recorded: the panel's
+bottom stop has luminance **0.00396**, so fill-vs-fill contrast there is capped at **1.079 even with pure black** —
+real separation needs the outer layer lifted, and the border (1.74:1 against the card) is what carries the edge.
+
+**Then the batch of five audit findings, in one pass.**
+
+- **The composer covered the Qur'an and ate clicks.** A full-width 74px fixed strip at `pointer-events: auto` meant
+  every click in the bottom 74px hit `div.composer` — including the sidebar's "Masuk". Now `none` on the strip,
+  `auto` on the form (verified: a click at (200,680) resolves to `DIV.qk-user`), plus `scroll-padding-bottom: 96px`
+  and an opaque `--bg` ramp so text fades out instead of being read through 28px of backdrop-blur.
+- **The signature component was unstyled.** `button.chip { font: inherit }` reset size AND weight, so the attribution
+  chip rendered 16px/400 — larger than the 15.2px translation it labels. Now 10.24px/600 with its border back.
+- **The hero gradient failed AA in light at both stops** (gold 1.42:1, green 2.94:1). It escaped for the reason
+  DESIGN.md had already documented for `--action` and only half-fixed: `contrast.test.ts` audits TOKENS and these
+  were hardcoded hexes in four places. Now `--hero-a/-mid/-b`, light taking a darker cut.
+- **Reduced motion.** `qkshine` ran infinitely under forced reduce, on the salam; `qkin` on `.verse` and
+  `.qk-tool-body` used the banned `both`. All gated, all `forwards`.
+- **The focus indicator was decoration** — border 2.37:1, ring 1.01:1, against WCAG 2.2's 3:1. Raised.
+
+### The durable lesson from this session
+
+**A literal colour that reaches a paint property is invisible to the test that enforces the contrast rule.** That is
+one sentence and it cost months of a failing hero gradient. `contrast.test.ts` gained 9 tests — every gradient stop
+per register, and the focus indicator per register — so the rule is now enforced where it was previously only stated.
+
+The same shape appeared twice more: a code comment asserting `#thread .msg` tokens reached `.chip` (they could not —
+`.chip` read a hard rem), and DESIGN.md's 46rem MEASURE, which is stated as binding and enforced nowhere (`.thread`
+is `max-width: none`, rendering 954px cards). **Colour rules here are tests; layout and type rules are prose.**
+
+### Traps this session paid for
+
+- **`interceptor navigate` backgrounds the tab.** Assert `document.visibilityState` inside every probe; a null from a
+  hidden document is the harness, not the product.
+- **A tab opened during the propagation window caches an empty CSS response** and then renders unstyled forever. It
+  looked exactly like a broken production deploy; the deployed file was byte-identical and a fresh tab returned 857
+  rules. Assert the loaded stylesheet filename, and re-test in a NEW tab before believing an outage.
+- **Screenshots catch what CSS review cannot.** The composer fade shipped at `inset: 0`, which spans the full
+  viewport and washed over the sidebar's "Masuk". Only the screenshot showed it.
+- **Backticks in a `git commit -m` message hit zsh command substitution** and silently deleted two fragments from the
+  message. Amended and force-pushed with `--force-with-lease`.
+- **`bun test` never compiles CSS.** A broken CSS comment passed 990 tests and failed the build.
+
+### Open, and named
+
+- **ISC-98** — real-iPhone check of the `visualViewport` composer mitigation (`web/src/main.ts:975`). Erik accepted
+  the task this session; the result never came back. Blocked on his phone.
+- **ISC-189** — cosmos 60fps on a physical mid-range Android.
+- **Landing critique (23/40), still open**: seeds deleted (`index.html:160` says so in a comment) so DESIGN.md's
+  "empty states teach" binds an element that no longer exists; a 204 KB PNG rendered at 36×36; `/favicon.ico`
+  returns the SPA shell 6× per load; "Masuk" is a dead `<div>` (now clickable, still inert); `#display-panel` is
+  `hidden` while `display: flex`.
+- **Answer critique (24/40), still open**: attribution is fine print (12.32px human under a 16px label); the tool
+  trace echoes the reader's sentence back as `cari_ayat("…")` before any comfort; `.thread` `max-width: none` vs the
+  46rem law; scholars ranked twice (printed "tier 1/2" AND dimmer ink for untranslated); **zero headings on the
+  entire page**; every answer-surface control is 27–37px tall.
+
+---
+
+## 2026-08-09 — The narrow layout's first real probe, then a landing rebuilt on it
 
 Anchor: quran-new/main `89d39dc`. Prod Worker `a3fb7965`, JS `index-BZDwH2RK.js`, CSS `index-Dn-Z8P4I.css`.
 988 tests pass. ISA 225 done / 1 open / 2 deferred-verify.
