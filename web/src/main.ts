@@ -1084,7 +1084,13 @@ async function restoreThread(): Promise<void> {
   const turns = loadThread();
   if (!turns.length) return;
 
-  $("#hello")?.remove();
+  // NOT `$("#hello")?.remove()`. By the time this runs, `route()` (below, line ~1068) has already
+  // called dockLanding(), which moves #composer-bar INSIDE #hello. Removing the hero directly took
+  // the composer out of the document with it — so every reader returning to a saved thread within
+  // thread.ts's 12-hour window could read their old answer and never ask another question, on any
+  // route, until they hit "Hapus percakapan" and destroyed the thing they came back for.
+  // destroyLanding() undocks first, which is the entire reason landing.ts exists.
+  destroyLanding();
   // Reveal chat only if the reader is actually on the chat route. On a cold load onto a deep link
   // (#/surah/N, #/tema/X, #/baca) route() has already mounted the reading surface; forcing
   // showChat() here would stomp it — silently snapping every returning visitor (anyone with a

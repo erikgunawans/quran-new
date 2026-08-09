@@ -217,4 +217,31 @@ describe("syncLanding — driven by the route, in BOTH directions", () => {
       expect(composerExists()).toBe(true);
     }
   });
+
+  /**
+   * The restore path — and the bug that actually shipped.
+   *
+   * `restoreThread()` ran `$("#hello")?.remove()` directly. On a cold load `route()` has already
+   * docked the composer INSIDE `#hello`, so that line deleted the input along with the hero: every
+   * reader returning to a saved thread inside thread.ts's 12-hour window could read their old
+   * answer and never ask another question. Three tests above assert the invariant for NAVIGATION;
+   * none covered TEARDOWN-after-restore, which is the one call site that bypassed the module.
+   */
+  test("restore teardown keeps the composer — the hero never leaves holding it", () => {
+    syncLanding("#/"); // route(): the composer is now inside the hero
+    expect(composerIsInHero()).toBe(true);
+
+    destroyLanding(); // what restoreThread() must call
+
+    expect(composerExists()).toBe(true);
+    expect(document.querySelector("#composer-bar")?.parentElement).toBe(document.body);
+    expect(document.querySelector("#hello")).toBeNull();
+    expect(isLandingDocked()).toBe(false);
+  });
+
+  test("the shortcut that caused it: removing #hello directly loses the composer", () => {
+    syncLanding("#/");
+    document.querySelector("#hello")?.remove(); // main.ts, as it shipped
+    expect(composerExists()).toBe(false); // ← why destroyLanding() is not optional
+  });
 });
