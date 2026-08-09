@@ -283,6 +283,18 @@
    scroll surface. Reserve room beneath the content — otherwise the last filmstrip card / masonry
    row / chat message can't scroll clear of the ~100px glass bar and stays occluded at rest. */
 :root:not([data-landing]) .qk-panel-body .app { padding-bottom: clamp(120px, 13vh, 160px); }
+/* EXCEPT on the Al Qur'an shelf, which reserves the composer ITSELF and so was paying for it twice.
+   The shelf does not scroll — `.surah-list > li` is sized `calc(100dvh - 150px)` precisely so the row
+   sits ABOVE the docked composer (see the height rule's comment: the offset "reserves the panel top
+   bar, the Al Qur'an header, the ~88px composer, and a small foot gap"). Adding the generic 120px
+   clearance underneath a row that already cleared the bar pushed `.app` 31px past `.qk-panel-body`
+   — and because that container is `overflow-y:auto` and spans essentially the whole viewport, 31px
+   of overflow spawned a scrollbar running the FULL viewport height. Measured at 1280x720: content
+   819 / frame 788. Dropping to the shelf's own foot rhythm (`.baca-clip` pads `4px 0 14px`) returns
+   0px overflow with 25px still clear beneath the row, so nothing is occluded.
+   Scoped with `:has()` like the `.surah-split` rules above; the split view is NOT covered here
+   because it legitimately scrolls and needs the clearance. */
+:root:not([data-landing]) .qk-panel-body .app:has(.baca-clip) { padding-bottom: 14px; }
 .qk-panel-body .top { display: none; }           /* nav + brand now live in the sidebar */
 .qk-panel-body #chat, .qk-panel-body #read { width: min(1060px, 100%); margin: 0 auto; }
 
