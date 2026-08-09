@@ -282,7 +282,12 @@
 /* Off the landing the composer is docked (position:fixed; bottom:0), so it floats over the
    scroll surface. Reserve room beneath the content — otherwise the last filmstrip card / masonry
    row / chat message can't scroll clear of the ~100px glass bar and stays occluded at rest. */
-:root:not([data-landing]) .qk-panel-body .app { padding-bottom: clamp(120px, 13vh, 160px); }
+/* Tokenised 2026-08-10: `.surah-split` has to subtract this same reservation to size itself, and a
+   frozen copy of "120px" there would have been correct only below a ~923px viewport — above that
+   `13vh` overtakes the floor, the clearance grows, and the split would quietly overflow again at
+   exactly the heights nobody tests on. One definition, two readers. */
+:root { --composer-clear: clamp(120px, 13vh, 160px); }
+:root:not([data-landing]) .qk-panel-body .app { padding-bottom: var(--composer-clear); }
 /* EXCEPT on the Al Qur'an shelf, which reserves the composer ITSELF and so was paying for it twice.
    The shelf does not scroll — `.surah-list > li` is sized `calc(100dvh - 150px)` precisely so the row
    sits ABOVE the docked composer (see the height rule's comment: the offset "reserves the panel top

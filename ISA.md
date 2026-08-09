@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 290/292
+progress: 298/300
 mode: build
 started: 2026-07-13
 updated: 2026-08-10
@@ -187,6 +187,14 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-42: Anti: no corpus integrity gate is weakened, skipped, or removed — `bun run verify` still passes 24/24
 - [x] ISC-288: Anti: the Al Qur'an shelf route (`#/baca`) never overflows `.qk-panel-body` — the shelf is sized to fit, so `scrollHeight - clientHeight` must read 0 and no viewport-height scrollbar may appear
 - [x] ISC-289: Antecedent: the shelf's last card still clears the docked composer — measured gap between the card's bottom and the composer's top is > 0, so nothing is occluded by the fix that removes the clearance padding
+- [x] ISC-290: the surah reading route (`#/surah/N`) scrolls `.qk-panel-body` by exactly the height of the cartouche it is meant to scroll away, and by nothing else — `(scrollHeight - clientHeight) - (.surah-head height + margin-bottom + panel padding-top)` reads 0 (±1px)
+- [x] ISC-291: Antecedent: at maximum panel scroll the `.back-bottom` link still clears the docked composer — `composer.top - backBottom.bottom` is > 0, so the fix widens the columns without pushing anything behind the bar
+- [x] ISC-292: the `-94px` subtrahend stays honest — `.back-bottom` height + its margin-top re-measures to 94px (±2px). If this drifts, `.surah-split` is silently mis-sized again and ISC-290's delta is the alarm
+- [x] ISC-293: Anti: the narrow branch is untouched — the `@media (width<=820px)` rule setting `.surah-split { height: auto }` still appears AFTER the wide rule in the built stylesheet, so the phone layout that put scripture back above the fold is unaffected
+- [x] ISC-294: Anti: the zoom correction is NOT retrofitted onto the three sibling `dvh` users in `shell.css` (`:330`, `:800`, and the shelf at `:988`) — their constants were tuned against the raw value and already absorb it. `shell.css` IS in the diff, but only to tokenise the composer clearance; `git diff web/src/shell.css` touches no line containing `dvh`
+- [x] ISC-295: Anti: `web/dist` holds a principled build, never a synthesis one — the compiled edition constant reads `principled` in both branches of its try/catch
+- [x] ISC-296: the composer clearance has exactly one definition — `.app`'s `padding-bottom` and `.surah-split`'s height both read `--composer-clear`, so `clamp(120px, 13vh, 160px)` opening up past a ~923px viewport moves both together. Probe: force `--composer-clear: 160px` and the split must shrink by the same 40px, holding ISC-290's delta at 0
+- [x] ISC-297: Antecedent: every geometry probe runs against the build actually under test — the `link[rel=stylesheet]` filename read from the live DOM must equal the newest `web/dist/assets/index-*.css` on disk before any measurement is believed
 
 ### Adversarial review — 14 findings (2026-07-14)
 
@@ -1304,6 +1312,53 @@ All probes run against the live app in real Chrome (Interceptor), not inspection
   `Accept-Encoding: identity` and `cmp`-verified **byte-identical** (103,518 B) to the local build.
   A first check read 15,481 B and looked like a truncated asset — that was curl returning brotli it
   could not decode, not a bad deploy.
+
+**2026-08-10 — ISC-290..295, the split reading view sized against the wrong box.**
+- ISC-290: `interceptor eval --main` on live `#/surah/1`, then on the rebuilt bundle served at
+  `localhost:5199`. The 331px was not one error but two that failed to cancel. `.surah-split` asked
+  for `clamp(380px, 100dvh - 190px, 1100px)`; inside `body`'s `zoom: .9` subtree `100dvh` resolves
+  to the **raw 720px**, not the 800px the layout actually has (probed directly: a scratch element
+  at `100dvh` computed `720px`, the same element at `calc(100dvh / .9)` computed `800px`). And the
+  box is not sized against the viewport at all — it lives in `.qk-panel-body` (788px) with 375px of
+  cartouche above and 214px of back-button plus composer clearance below. The real surround is
+  589px; `190` was never a candidate. Budget closed to the pixel before the fix:
+  `14 + 361.1 + 530 + 94.4 + 120 = 1119.5` against a 788 frame = **331 over**, matching the probe's
+  `scrollHeight 1119 / clientHeight 788` exactly. After: split `573.993px`, overflow **375**,
+  cartouche + panel padding-top **375.0**, `delta 0.0`.
+- ISC-291: same probe at `scrollTop = max` (376). Cartouche bottom **-24** (fully scrolled off),
+  split top **5** (flush with the panel top), `.back-bottom` 558→607, composer top 646 —
+  `clearance 40px`, positive. Composited `macos screenshot` confirms it visually: both columns run
+  full height, "Kembali ke daftar surah" sits clear of the docked bar, nothing occluded. This is
+  why the handoff's instinct was right — stripping the clearance the way the shelf fix did would
+  have hidden that link. The clearance stayed at 120px; the columns grew into the dead band instead.
+- ISC-292: `.back-bottom` 54.41 + margin-top 40 = **94.41**.
+- ISC-293: built stylesheet offsets — wide rule at 55,983, `@media (width<=820px)` `height:auto`
+  at 61,574. Later wins, so the stacked phone layout is untouched.
+- ISC-294: `git diff --stat` lists `read.css`, `styles.css`, `shell.css`. The `shell.css` hunk is
+  the `--composer-clear` token and nothing else — no line containing `dvh` is touched. Deliberate:
+  the shelf's `calc(100dvh - 150px)` reads 570 against the same raw 720 and measures **0 overflow
+  today** (ISC-288), so its magic number already absorbs the discrepancy. Fixing the dvh at the
+  ingestion point would have regressed last night's verified fix, not extended it.
+- ISC-295: compiled edition reads `principled` in both the try and catch branches of the bundle's
+  edition resolver; `bun run build` exit code **0**, `bun test` exit code **0** (1017 pass, 0 fail).
+  Exit codes checked, never a grep of the output — a stylesheet that fails to parse still passes
+  1017 tests.
+- ISC-296: the advisor's multi-height challenge found a real second bug before it shipped. `.app`'s
+  clearance is `clamp(120px, 13vh, 160px)`, not a flat 120 — past a ~923px viewport `13vh` overtakes
+  the floor and the reservation grows. A frozen `-214px` would have been correct only at the height
+  it was measured at. Tokenised to `--composer-clear`, read by both rules, and proved with a
+  counterfactual on the built bundle: forcing `--composer-clear: 160px`, the shipped rule shrinks
+  the split 573.993 → 533.993 and holds `DELTA 0.0`; the frozen `-214px` variant keeps the split at
+  573.993 and `DELTA` jumps to **+40.0** — exactly 40px of content pushed under the docked bar.
+- ISC-297: the first "pass" on the tokenised build was **false** and was caught. `serve` had cached
+  `index.html`, so the browser was still on build 1 (`index-6JfiHfcC.css`) while disk held build 3
+  — and `800 - 12 - 214` and `800 - 12 - 94 - 120` are both **574**, so the old and new formulas are
+  indistinguishable at exactly the 720px viewport being measured. The tell was a counterfactual
+  that computed `height: auto` (4054.53px) because `var(--app-100vh)` did not exist in the loaded
+  sheet. Re-verified after restarting the server: DOM reports `index-7rbDTvdN.css`, matching disk.
+  Two lessons compounded — an injected stylesheet lands EARLIER in the cascade, so overrides need
+  `!important` or they lose silently; and a probe that agrees with your hypothesis for the wrong
+  reason is the most expensive kind of pass.
 
 **2026-08-09 — ISC-111's record half, and the deferral's cause proven rather than assumed.**
 - ISC-111 (record half): `interceptor eval` deleted `newquranku:baca` (read back `null`), then

@@ -784,8 +784,28 @@
   /* 190px, was 240px (Erik, 2026-08-09) — he bracketed the dead band under the columns. The
      subtraction has to clear the docked composer; it did NOT also need to clear the surah cartouche,
      because the cartouche scrolls away and the columns are the thing you are still reading when it
-     has. 50px of that reservation was being held for an element no longer on screen. */
-  height: clamp(380px, 100dvh - 190px, 1100px);
+     has. 50px of that reservation was being held for an element no longer on screen.
+
+     2026-08-10 (ISC-290..292): `100dvh - 190px` was wrong twice over, and the two errors did not
+     cancel. First, `100dvh` inside `body`'s `zoom: .9` subtree reads the RAW 720px, not the 800px
+     the layout actually has — see `--app-100vh` in styles.css. Second, and larger: this box is not
+     sized against the viewport at all. It lives inside `.qk-panel-body`, which is 788px, and it is
+     stacked with 375px of cartouche above it and 214px of back-button plus composer clearance
+     below. The real surround is 589px; `190` was never a candidate. The panel overflowed by 331px.
+
+     Sized against the panel instead. `.qk-panel-body` is exactly `--app-100vh - 12px` at every
+     viewport height — `.qk-shell` is `inset: 0` with a 6px vertical pad, so the offset is constant,
+     not sampled. The subtraction is everything BELOW the columns, and only that: `.back-bottom`
+     (54px) + its 40px margin-top = 94, plus `--composer-clear`, which is read from the same token
+     `.app` pads with rather than frozen at its 720p value of 120px — that clamp opens up past a
+     ~923px viewport, and a hardcoded 120 here would have overflowed again exactly there. What is
+     ABOVE deliberately stays out of the sum:
+     the cartouche is meant to scroll away, so the panel's scroll range should equal the cartouche
+     exactly and then stop. It now does, to 0.0px — 375 of scroll for 375 of cartouche, with the
+     columns landing flush at the panel top and `.back-bottom` clearing the composer by 39px.
+
+     If `.back-bottom` ever changes height, this 94 goes stale silently. ISC-292 re-measures it. */
+  height: clamp(380px, calc(var(--app-100vh) - 12px - 94px - var(--composer-clear)), 1100px);
   margin-top: var(--s-1);
 }
 

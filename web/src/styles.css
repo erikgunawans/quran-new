@@ -272,8 +272,26 @@ body {
      token reaches every label. `zoom` uniformly scales all text (and layout) down 10% — the only
      lever that touches px chrome and rem content alike. min-height is divided back by the zoom so
      the body still fills the viewport (100dvh ÷ 0.9 renders as exactly 100dvh visually). */
-  zoom: 0.9;
-  min-height: calc(100dvh / 0.9);
+  /* One literal, not three. `zoom`, the `min-height` that undoes it, and `--app-100vh` below all
+     have to move together; before this they were separate 0.9s waiting for someone to change one. */
+  --app-zoom: 0.9;
+  zoom: var(--app-zoom);
+  min-height: calc(100dvh / var(--app-zoom));
+  /* The same correction, named, because `min-height` above was not the only place that needed it.
+     Inside this zoomed subtree `100dvh` resolves to the RAW viewport (720px at 1280x720) while the
+     true layout box is 800px, so every `calc(100dvh - N)` written below `body` silently under-
+     measures by 1/0.9 and then renders at 0.9. Use `--app-100vh` wherever a descendant must be
+     sized against the actual viewport rather than a hand-tuned approximation of it.
+
+     It is a whole viewport, not a unit — the `100` is in the name so nobody writes
+     `calc(var(--app-100vh) * 50)` and gets fifty screens.
+
+     NOT a retrofit target. `shell.css`'s three other dvh users (`:330`, `:800`, and the surah
+     shelf at `:988`) were tuned empirically AGAINST the wrong value, so their constants already
+     absorb the discrepancy — the shelf measures 0 overflow today (ISC-288). Migrating them to
+     `--app-100vh` would re-break what their magic numbers currently get right. Convert one only when
+     its arithmetic is being re-derived from scratch, as `.surah-split` was (ISC-290). */
+  --app-100vh: calc(100dvh / var(--app-zoom));
 }
 
 /* ============================================================================
