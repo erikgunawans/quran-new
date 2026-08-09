@@ -1078,8 +1078,20 @@ function initToTop(): void {
     document.documentElement.scrollHeight - window.innerHeight > 4 ||
     scrollers().some((s) => s.scrollHeight - s.clientHeight > 4);
 
+  // ...AND there has to be something to go back to. Scrollability alone put the button on screen at
+  // the very top of a long surah, where pressing it does nothing — an control that visibly does
+  // nothing teaches the reader to distrust the next one. Both conditions must hold: the surface can
+  // scroll, and the reader has left the top.
+  //
+  // 160px rather than a bare `> 0`: a trackpad's inertia and the browser's own scroll restoration
+  // both produce a few px of travel the reader never asked for, and a control that blinks in and out
+  // at the top edge reads as a glitch. 160 is also comfortably inside the panel's ~331px range, so it
+  // stays reachable on the shallowest surface that scrolls at all.
+  const offset = (): number =>
+    Math.max(window.scrollY, ...scrollers().map((s) => s.scrollTop), 0);
+
   const sync = (): void => {
-    btn.classList.toggle("is-visible", canScroll());
+    btn.classList.toggle("is-visible", canScroll() && offset() > 160);
   };
 
   window.addEventListener("scroll", sync, { passive: true });
