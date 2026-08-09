@@ -475,9 +475,8 @@
      panel's own ground"; it never was. `--bg` is the app/outer background, so on every reading route
      the bottom ~74px of the INNER panel was filled with the OUTER layer's colour — which is exactly
      what it looked like, and it got louder the moment the panel ground was made bolder.
-     The gold foot-wash is re-stated on top so the warmth at the panel's base survives the ramp
-     rather than being covered by it. */
-  /* A POOL under the composer, not a band across the panel (Erik, 2026-08-09).
+
+     A POOL under the composer, not a band across the panel (Erik, 2026-08-09).
      This was a full-width `linear-gradient(to top, …)` with an opaque plateau to 42%, which is
      right for a single centred thread and wrong for the reading routes: there the panel holds two
      independent column scrollers that end above the panel's floor, so the ramp was not fading a
@@ -487,7 +486,8 @@
      is the form's own width. An ellipse anchored to the bottom centre covers it and falls off in
      both axes, so the panel's real ground — and its gold foot-wash — carries the edges instead of a
      seam. The separate gold radial that used to be layered here is gone with it: it was compensating
-     for a fill that should not have reached the edges in the first place. */
+     for a fill that should not have reached the edges in the first place.
+
      Sized against the widest thing that can sit under the form: the chat thread's 46rem MEASURE.
      The opaque core has to reach the thread's edges or a glyph there is half-legible through 28px
      of blur, which is the failure the floor exists to prevent — hence 42rem of radius with the
