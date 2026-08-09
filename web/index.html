@@ -8,6 +8,13 @@
 <meta name="description" content="New-Quranku — Al-Qur'an dengan terjemah makna yang bisa kamu pahami. Setiap sumber disebutkan namanya.">
 <title>New-Quranku</title>
 
+<!-- The tab had no icon at all, so every browser asked for /favicon.ico, the SPA fallback answered
+     with index.html, and the tab fell back to a blank page glyph. An explicit link stops the request
+     for a file that does not exist. Small dedicated cuts on purpose: a favicon that ships the full
+     brand mark makes a 16px tab icon cost a quarter of the landing's byte budget. -->
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Arabic is the hero: Amiri renders Uthmani diacritics correctly. Fraunces speaks only where
@@ -151,15 +158,35 @@
           <main class="thread" id="thread">
             <section class="hello" id="hello">
               <!-- The hero: Arabic greeting first (the salam a Muslim already knows), then the app
-                   addresses the reader. greet.ts writes the time-aware latin line into #greet-la. -->
+                   addresses the reader. greet.ts writes the time-aware latin line into #greet-la.
+
+                   #greet-la is the <h1> (2026-08-09). It used to be a 13.5px <p> under a 52px
+                   "Tanya Apapun", which had the hierarchy exactly backwards: at 2am this line reads
+                   "Belum bisa tidur?" — written for one specific person, awake, and the single
+                   sentence on this page no competitor would ship. "Tanya Apapun" is what every
+                   assistant on earth says. The distinctive thing now leads and the generic thing
+                   supports it. It is also the page's only heading, so the document finally has an
+                   outline; the tagline below is a <p> because it is a tagline, not a section. -->
               <div class="greet-ar qk-hero-salam" dir="rtl" lang="ar">ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ</div>
-              <p class="greet-la" id="greet-la"></p>
-              <h1 class="qk-hero-gradient">Tanya Apapun</h1>
+              <!-- Ships with text, never empty. greet.ts overwrites this on mount with the
+                   time-correct band; the static default exists so the document's only <h1> is not
+                   blank before JS runs, for a crawler, or if the script fails. An empty h1 is a
+                   worse outline than no h1. -->
+              <h1 class="greet-la" id="greet-la">Selamat datang</h1>
+              <p class="hero-tagline qk-hero-gradient">Tanya Apapun</p>
               <p>Tulis apa yang sedang kamu rasakan. QuranKu mencarikan ayat, terjemahan, dan tafsirnya — lengkap dengan sumbernya.</p>
 
-              <!-- The composer docks here on landing. With .seeds removed, dockLanding() falls to
-                   hero.append(bar), so the composer seats right under the invitation — a clean
-                   hero: greeting, headline, invitation, composer, nothing below. -->
+              <!-- The composer docks here, ABOVE .seeds — dockLanding() inserts before it.
+                   The seeds are back (2026-08-09). They were deleted in the hero distillation, which
+                   left DESIGN.md's "empty states teach" rule binding an element that did not exist;
+                   an empty box teaches nothing. Four, first-person, in the reader's own voice —
+                   because the hard part of this app is not typing, it is admitting what is wrong. -->
+              <div class="seeds">
+                <button type="button" class="seed">aku lagi capek banget</button>
+                <button type="button" class="seed">lagi banyak utang, stress</button>
+                <button type="button" class="seed">baru kehilangan orang tua</button>
+                <button type="button" class="seed">cemas terus tiap malam</button>
+              </div>
             </section>
           </main>
         </section>

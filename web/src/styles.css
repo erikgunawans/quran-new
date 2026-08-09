@@ -18,6 +18,16 @@
   --ink-2: oklch(0.416 0.021 169);
   --ink-3: oklch(0.509 0.021 166);
 
+  /* PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`.
+     The panel keys its register off the `data-theme` ATTRIBUTE; the tokens above key off
+     `prefers-color-scheme`. With no attribute set and a dark OS preference those two disagree, and
+     the panel paints its LIGHT gradient while `--ink` resolves near-white — measured on glass
+     2026-08-09: a 48px greeting at oklch(0.97) on a #e6f0ea..#fbfbf6 ground, effectively invisible.
+     A token, not a literal, on purpose: `contrast.test.ts` audits TOKENS, so a hardcoded hex that
+     reaches a paint property is invisible to the rule that is supposed to enforce it — the exact
+     failure that let the hero gradient ship below AA for months. */
+  --panel-ink: oklch(0.219 0.024 167);
+
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
   --primary:       oklch(0.416 0.083 165);
@@ -165,6 +175,10 @@
   --surface-2: oklch(0.275 0.022 165); --line: oklch(0.320 0.018 165);
   --line-strong: oklch(0.395 0.020 165);
   --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
+  /* Flipped HERE and only here — the panel ground flips on this same attribute
+     (`:root[data-theme="dark"] .qk-panel::before`), never on `prefers-color-scheme`. Redefining
+     `--panel-ink` in the media-query block instead would re-create the desync it exists to close. */
+  --panel-ink: oklch(0.970 0.006 160);
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
   --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.95);
@@ -459,7 +473,27 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--primary); direction: rtl;
   text-shadow: 0 0 22px var(--primary-line);
 }
-.greet-la { font-size: 14.5px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.01em; }
+/* The greeting is the h1 and the hero's lead line (2026-08-09) — see index.html for why.
+   THIS LAYER DOES NOT PAINT THE LANDING. `.qk-panel-body #hello .greet-la` (1,2,0) in shell.css
+   wins every property here (0,1,0); this is the fallback for any render outside the panel shell.
+   An earlier comment claimed the two were "kept in agreement" — they were not, and a comment
+   asserting a parity that does not exist is worse than no comment, because it is the line a future
+   editor trusts. The numbers below now match shell.css exactly, so the claim is true by
+   construction rather than by assertion; change one and change the other. */
+.greet-la {
+  font-family: var(--f-display); font-weight: 500; color: var(--panel-ink);
+  font-size: clamp(28px, 3.7vw, 48px); line-height: 1.08; letter-spacing: -0.03em;
+  text-wrap: balance; margin: 0 0 6px;
+}
+/* "Tanya Apapun" — demoted from 52px hero to a label. It is what every assistant says; the
+   greeting above it is what only this one says. */
+.hero-tagline {
+  font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  margin: 0 0 var(--s-3);
+  background: var(--hero-grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
 @media (prefers-reduced-motion: no-preference) {
   .greet-ar {
     animation: greet-in 1s var(--ease) both, greet-breathe 3s ease-in-out 0.9s infinite;
@@ -471,21 +505,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   }
 }
 
-.hello h1 {
-  font-family: var(--f-display);
-  font-size: clamp(40px, 5.6vw, 64px); font-weight: 500; color: var(--ink);
-  /* 1.04 was tight enough that the italic Fraunces descenders (the "hari ini?" swash) ink-overflowed
-     the line box by ~5px — measured, not guessed. 1.1 gives the display serif its own room without
-     visibly loosening the heading. Still tight for a hero; just no longer clipping its own tails. */
-  letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance;
-  max-width: 16ch; margin-bottom: var(--s-5);
-}
-.hello h1 em {
-  font-style: italic;
-  background: var(--hero-grad);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
+/* The hero h1 IS `.greet-la` now (2026-08-09) — sized above. A separate `.hello h1` block here would
+   be (0,1,1) and quietly out-specify `.greet-la` (0,1,0), which is exactly how a "swap the type
+   scale" change ships looking like it did nothing. One rule, one owner.
+   `1.04` line-height was once too tight for the italic Fraunces descenders to clear their line box
+   by ~5px — measured, not guessed; `.greet-la` carries 1.08 for the same reason.
+   `.hello h1 em` was deleted with it: the only h1 in the hero is written by `el.textContent`, which
+   cannot produce an `<em>`, so the rule could never match. read.css's comment referencing it as the
+   thing the browse intro "matches" now points at a selector that no longer exists. */
 .hello p {
   color: var(--ink-2); max-width: 44ch; text-wrap: pretty; line-height: 1.55;
   font-size: clamp(16px, 1.7vw, 18.5px);
@@ -723,17 +750,25 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem;
   margin-bottom: 0.55rem;
 }
+/* Attribution hierarchy, inverted 2026-08-09. PRODUCT.md principle 3 is a claim about WHO SAID IT,
+   and the surface was rendering the filing category ("TERJEMAHAN MAKNA") at 16px in caps while the
+   named scholar sat at 12.32px beneath it. A category is a label; a person is the point. The chip
+   keeps its pill and its size — it stops SHOUTING (no caps, no tracking) so it reads as a quiet
+   tag, and the name is raised past it in the same breath. Two declarations, one principle. */
 .chip {
   /* Was a hard `0.7rem`, which is why the 2026-08-09 surface type reduction could not reach it —
      it reads no token. On `--step--2` it now moves with whatever surface it is on. */
-  font-size: var(--step--2); font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; padding: 0.2em 0.5em;
+  font-size: var(--step--2); font-weight: 600; letter-spacing: normal;
+  text-transform: none; padding: 0.2em 0.5em;
   border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-3);
   white-space: nowrap;
 }
 .chip.lead { border-color: var(--primary-line); color: var(--primary); background: var(--bg); }
 .by { font-size: var(--step--1); color: var(--ink-3); }
-.by b { color: var(--ink-2); font-weight: 600; }
+/* Hard 14px, deliberately NOT a token: `#thread .msg` re-declares the whole `--step-*` scale on the
+   answer surface, so a tokenised name would shrink back under the chip on exactly the surface this
+   fix exists for. The name is the one thing here that does not scale with the chrome around it. */
+.by b { color: var(--ink-2); font-weight: 600; font-size: 14px; }
 
 .reading .txt { color: var(--ink); line-height: 1.7; text-wrap: pretty; max-width: 68ch; }
 .reading.companion .txt { color: var(--ink-2); }
@@ -1077,7 +1112,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
      fold. Tighten the vertical scale so composer + seeds stay on the first screen. */
   .hello { padding-top: var(--s-6); }
   :root[data-landing] .composer { margin-top: var(--s-5); }
-  .hello h1 { margin-bottom: var(--s-4); }
+  .greet-la { margin-bottom: var(--s-4); }
   .seeds { margin-top: var(--s-4); }
 }
 
@@ -1087,7 +1122,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (max-width: 23.4375rem) {
   .app { padding-inline: 0.85rem; }
   .composer { padding-inline: 0.85rem; }
-  .hello h1 { font-size: var(--step-3); }
+  .greet-la { font-size: var(--step-3); }
 }
 
 /* tablet and up — same single-column identity (no sidebar, no dashboard), just more breathing
@@ -1210,8 +1245,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── foreign-language tafsir ─────────────────────────────────────────────────
    Ibn Kathir is only available to us in ENGLISH, shown to Indonesian readers. That is the exact
    wound this product exists to heal. Dropping a scholar is worse than showing him — so he is
-   sorted last (build-corpus.ts) and LABELLED, so nobody concludes the fault is theirs. */
-.scholar.foreign .txt { color: var(--ink-3); }
+   sorted last (build-corpus.ts) and LABELLED, so nobody concludes the fault is theirs.
+
+   His TEXT is no longer dimmed (2026-08-09). It sat at `--ink-3` while every other scholar read at
+   `--ink-2`, which is the same mistake the "tier 1 / tier 2" label made one line up in tafsir.ts:
+   a rendering decision doing the work of a verdict. The language barrier is his reader's problem
+   and ours, not a demotion of the man — the `.lang-warn` badge carries that fact honestly, and a
+   badge saying "this is in English" is attribution. Greying his words is adjudication. */
+.scholar.foreign .txt { color: var(--ink-2); }
 
 .lang-warn {
   font: 500 var(--step--1)/1 var(--f-ui);

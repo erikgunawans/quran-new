@@ -116,7 +116,13 @@ export function tafsirStackHtml(tafsir: TafsirPassage[], voices: Map<string, Voi
         <div class="scholar${foreign ? " foreign" : ""}" data-order="${order}" data-era-rank="${rank}">
           <div class="who">
             <span class="by"><b>${esc(src?.author ?? t.source_id)}</b></span>
-            <span class="tier">${esc(src?.era ?? "")} · tier ${src?.authority_tier ?? "?"}</span>
+            <!-- The era, not a rank. This used to read "Klasik &middot; tier 1", publishing our own
+                 internal sort key as if it were a verdict on the scholar. Telling a reader that Ibn
+                 Kathir outranks a contemporary mufassir is a claim this app has no standing to make,
+                 and DESIGN.md is explicit: the system attributes, it never adjudicates. The
+                 authority_tier field still exists and still orders the stack; it is a shelving
+                 decision, and shelving decisions are not shown to readers. -->
+            <span class="tier">${esc(src?.era ?? "")}</span>
             ${foreign ? `<span class="lang-warn">teks bahasa Inggris — belum ada terjemahannya</span>` : ""}
           </div>
           <p class="txt"${foreign ? ' lang="en"' : ""}>${esc(t.text)}</p>

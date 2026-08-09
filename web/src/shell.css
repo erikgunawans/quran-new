@@ -239,6 +239,21 @@
 .qk-panel-body #chat, .qk-panel-body #read { width: min(1060px, 100%); margin: 0 auto; }
 .qk-panel-body .thread { padding-top: 1rem; }
 
+/* THE MEASURE (DESIGN.md § Layout). 46rem is how wide prose stays readable — stated as binding
+   since the design system was written, and enforced nowhere: `.thread` computed `max-width: none`
+   and shipped 954px cards with a 251px hollow gutter down the right. It escaped because
+   `.app`'s 46rem cap (styles.css) is neutralized at line 226 for the panel, and nothing put it back.
+
+   Authored HERE, not in styles.css, for the reason every reskin bug this month had in common:
+   `.qk-panel-body .thread` is (0,2,0) and out-specifies a bare `.thread` (0,1,0), so the law has to
+   be written at the specificity of the thing that broke it.
+
+   Scoped OFF the landing on purpose. `#hello` is a child of `.thread`, and DESIGN.md exempts the
+   landing explicitly — "the landing is not prose, so it widens to 1120px, and *only* the landing
+   does". Clamping both would enforce one line of the law by breaking the next one.
+   `layout.test.ts` now fails if this rule leaves the file. */
+:root:not([data-landing]) .qk-panel-body .thread { max-width: 46rem; margin-inline: auto; }
+
 /* ── Tanya hero (landing) ────────────────────────────────────────────── */
 .qk-panel-body #hello {
   min-height: calc(100dvh - 210px);
@@ -270,13 +285,33 @@
 @media (prefers-reduced-motion: no-preference) {
   .qk-hero-salam { animation: qkshine 3.6s var(--ease) infinite; }
 }
-.qk-panel-body #hello h1 {
+/* The hierarchy swap (2026-08-09). This block used to size `#hello h1` — which WAS "Tanya Apapun" —
+   at 52px in the brand gradient, while the time-aware greeting sat at 13.5px underneath it. The
+   markup now makes the greeting the h1, so these selectors are written against the CLASSES rather
+   than the tag: re-tagging alone would have handed the greeting the very rule being demoted.
+
+   The greeting takes the display size but NOT the gradient. Two gradient lines stacked (salam +
+   greeting) is the ornament DESIGN.md bans; the salam keeps the gradient because it is the constant,
+   and the greeting is set in --ink so the sentence reads as speech rather than signage. */
+.qk-panel-body #hello .greet-la {
   font-family: var(--f-display); font-weight: 500;
-  font-size: clamp(30px, 4vw, 52px); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 10px;
+  /* `--panel-ink`, NOT `--ink`. The panel ground flips on the `data-theme` attribute while `--ink`
+     flips on `prefers-color-scheme`; with no attribute set and a dark OS the two disagree and this
+     line painted near-white on the panel's light gradient — measured on glass, effectively
+     invisible at 48px. `--panel-ink` is defined against the panel, so it cannot desync. */
+  color: var(--panel-ink);
+  font-size: clamp(28px, 3.7vw, 48px); line-height: 1.08; letter-spacing: -.03em;
+  margin: 0 0 6px; text-wrap: balance;
+}
+/* "Tanya Apapun" steps down to a label above the invitation — it keeps the brand gradient, because
+   demoting it in size is the point and demoting it in colour too would erase it. */
+.qk-panel-body #hello .hero-tagline {
+  font-family: var(--f-ui); font-weight: 600;
+  font-size: clamp(13px, 1.2vw, 15px); letter-spacing: .08em; text-transform: uppercase;
+  margin: 0 0 10px;
   background: linear-gradient(90deg,var(--hero-a) 0%,var(--hero-b) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.qk-panel-body #hello h1 em { font-style: normal; }
 .qk-panel-body #hello > p { font-size: clamp(13px,1.25vw,15px); color: var(--ink-2); margin: 0 0 24px; max-width: 520px; text-wrap: pretty; }
 
 /* the seeds → chips */

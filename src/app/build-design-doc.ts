@@ -64,7 +64,7 @@ function readRoot(css: string): Token[] {
 }
 
 const GROUPS: [string, RegExp, string][] = [
-  ["Surface & ink", /^--(bg|surface|surface-2|line|line-strong|ink|ink-2|ink-3)$/, "The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet."],
+  ["Surface & ink", /^--(bg|surface|surface-2|line|line-strong|ink|ink-2|ink-3|panel-ink)$/, "The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet. `--panel-ink` is the exception that proves the rule: it is for type painted on shell.css's panel ground, which flips on the `data-theme` ATTRIBUTE rather than `prefers-color-scheme`, so it deliberately does NOT move with the media query."],
   ["Brand", /^--(primary|primary-ink|primary-wash|primary-line|composer-line|composer-line-on|hero-a|hero-mid|hero-b|hero-grad|action|action-2|action-grad|action-ink|forest|forest-grad|clay|wash-1|wash-2)$/, "**Theme-invariant** except the hero gradient stops: `--hero-a/-mid/-b` take a darker cut in the light register because the signature gold reads 1.42:1 on a light panel. Every stop is guarded by `contrast.test.ts`."],
   ["Semantic", /^--(caution|caution-wash|glow|shadow-pop|sh|sh-sm)$/, ""],
   ["Type", /^--(f-ar|f-ui|f-display|step--2|step--1|step-0|step-1|step-2|step-3|step-4|ar-size)$/, "Arabic is scaled by the reader independently of the UI (`--ar-size`), and by the surface via `--ar-scale` (1 everywhere except the conversation)."],

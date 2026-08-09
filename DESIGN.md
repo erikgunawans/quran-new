@@ -94,6 +94,16 @@ written — this is a split, not a reversal.
 reading surface never exceed it. The landing is not prose — it carries the band — so it widens to
 1120px, and *only* the landing does.
 
+*Amended 2026-08-09 — the measure is now enforced, not merely stated.* For most of this project's life
+this paragraph was the whole of the law, and `.thread` computed `max-width: none` and rendered 954px
+cards with a 251px hollow right gutter. It drifted because `.app`'s 46rem cap is deliberately
+neutralized inside the panel (`shell.css` → `.qk-panel-body .app { max-width: 100% }`) and nothing put
+it back at the panel's specificity. `layout.test.ts` now fails if the clamp leaves the stylesheet, if
+it loses its centring, or if it stops being scoped off the landing. The general rule this is one
+instance of: **a colour rule here is a test and a layout rule was only prose** — that asymmetry, not
+the missing declaration, is what allowed the drift, so new layout laws land with a test or they are
+decoration.
+
 **`display` out-argues `[hidden]`.** An author `display` rule always beats the UA stylesheet's
 `[hidden] { display: none }`. Any element with both must re-assert it — `.band` and
 `#read .surah-list li` both do. Skipping it paints the element from first load.
@@ -206,7 +216,7 @@ Hard requirements, each a test rather than an aspiration — see PRODUCT.md § A
 
 ### Surface & ink
 
-The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet.
+The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet. `--panel-ink` is the exception that proves the rule: it is for type painted on shell.css's panel ground, which flips on the `data-theme` ATTRIBUTE rather than `prefers-color-scheme`, so it deliberately does NOT move with the media query.
 
 | Token | Value | Why |
 |---|---|---|
@@ -218,6 +228,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--ink` | `oklch(0.219 0.024 167)` | — |
 | `--ink-2` | `oklch(0.416 0.021 169)` | — |
 | `--ink-3` | `oklch(0.509 0.021 166)` | — |
+| `--panel-ink` | `oklch(0.219 0.024 167)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
 
 ### Brand
 

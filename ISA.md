@@ -1,9 +1,9 @@
 ---
 project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
-effort: E3
-phase: complete
-progress: 226/228
+effort: E4
+phase: verify
+progress: 242/290
 mode: build
 started: 2026-07-13
 updated: 2026-08-09
@@ -444,6 +444,103 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 - [x] ISC-223: full suite green and typecheck clean. VERIFIED: `bun test` → 823 pass / 0 fail (+5 new); `tsc -p web/tsconfig.json` → 3 errors, all the pre-existing origin/main baseline in `main.ts`/`themes.ts`, none in changed files.
 - [x] ISC-224: co-display reaches ALL THREE answer lanes, not just the principled one. VERIFIED: principled hits and the AI/synthesis grounding cards both render `curatedCardHtml(v)` (demo.ts:347, :593) — the synthesis lane's own comment names this as "the lane that most needs the passage"; the reader/Beranda paths were pinned last cycle (ISC-207..213).
 - [x] ISC-225: the seven render live with their passages on the deployed demo. VERIFIED 2026-07-23 — deployed `new-quranku-demo-proxy` (version `7575a233`) to `demo-quranku.axiara.ai`; Interceptor on the live site, study-stress query surfaced **20:26 via the AI/synthesis lane** rendering the full **20:25–28** passage in mushaf order (25 context → 26 subject with "Terjemahan Makna" + translator → 27/28 context, no neighbour re-captioned). Console clean, `.qk-verse` present. (DOM/text probe; the OS screenshot was blocked by a minimized Chrome window — text evidence is the stronger structural proof here.)
+
+**Cycle 6 — corpus durability and remote truth (ISC-226..243, opened 2026-08-09)**
+
+- [x] ISC-226: `~/printing-press/library/tafseer-okf` is a git repository. VERIFIED: `git init -b main`, initial commit `18916 files changed, 1263636 insertions(+)`.
+- [x] ISC-227: a `.gitignore` at the corpus root excludes `cache/`, `node_modules/`, and `.DS_Store`. VERIFIED: file read back; the three `okf/**/.DS_Store` files are the exact delta between `find` and the staged tree.
+- [x] ISC-228: the corpus working tree is clean after the initial commit. VERIFIED: `git status --porcelain | wc -l` → `0`.
+- [x] ISC-229: the committed tree carries every `okf/` record. VERIFIED: `git ls-files okf` → **18,884**; the 3 missing against `find` are all `.DS_Store` (named individually via `diff`), and `rights-audit.ts` counts **18,882** records — the 2-file gap is non-record index files. Threshold corrected from the 18,887 raw `find` count, which had counted Finder metadata as records.
+- [x] ISC-230: Anti: the 801M `cache/` directory is NOT committed. VERIFIED: `git ls-files cache | wc -l` → `0`.
+- [x] ISC-231: Anti: `node_modules/` is NOT committed. VERIFIED: `git ls-files node_modules | wc -l` → `0`.
+- [x] ISC-232: the machine rights gate survives the commit. VERIFIED: `git show HEAD:okf/tafseer/en/083/018-028.md` returns the record with `rights: {usage: reference-only, holder: Dorar Al-Saniyyah, commercial: prohibited}` intact.
+- [x] ISC-233: `rights-audit.ts` exits 0 against the committed tree, still reporting zero distributable. VERIFIED: `EXIT=0`, `DISTRIBUTABLE AS-IS : 0 / 18882`, `✓ all invariants hold`, split 18,879 reference-only / 3 private.
+- [x] ISC-234: `.git` stays under 400M. VERIFIED: `du -sh .git` → **122M**. Plain markdown compresses well; no LFS needed.
+- [x] ISC-235: the "107 unpushed commits" claim is resolved into a true per-remote statement. VERIFIED: `git rev-list --count quran-new/main..HEAD` → **0** (main tracks `[quran-new/main]`, fully in sync); `git rev-list --count origin/main..HEAD` → **107**, where `origin` is `erikgunawans/nur`, the retired remote. Nothing is unpushed to the live remote. See Decisions 2026-08-09.
+- [ ] ISC-236: Erik has an explicit recorded decision on the `origin`/nur remote's fate.
+- [ ] ISC-237: Anti: nothing is pushed to `origin` (nur) absent Erik's explicit approval — `git rev-parse origin/main` still `c4ff3ae`.
+- [x] ISC-238: `worktree-cozy-launching-clarke` rebases onto `main` carrying exactly its one commit. VERIFIED: `git rebase main` → "Successfully rebased"; `git log --oneline main..HEAD` → one line, `dd918f5 feat(peta): stand-alone graph + corpus rights research`.
+- [x] ISC-239: the `package.json` conflict resolves keeping BOTH main's scripts and `app:peta-standalone`. VERIFIED: **no conflict actually occurred** — main's 107 commits never touched that region, so git auto-merged. `diff` of `.scripts` keys against main shows exactly one addition: `app:peta-standalone`. The handoff's predicted conflict was a prediction, not an observation.
+- [x] ISC-240: the post-rebase suite matches main's baseline. VERIFIED: `bun test` → **999 pass / 0 fail**, 22,800 expect() calls, 64 files — identical to main measured in the primary tree the same hour.
+- [x] ISC-241: the post-rebase build succeeds. VERIFIED: `bun run build` → `✓ built in 455ms`, `index-xpdk2-pk.css` 101.28 kB (the same CSS hash main deployed), `index-DpQxI_nn.js` 175.80 kB.
+- [x] ISC-242: all five peta files survive the rebase. VERIFIED: `git diff --stat main..HEAD` → 5 files, 2,309 insertions. `bun run app:peta-standalone` regenerates `peta-tematik-standalone.html` **byte-identical** to the committed copy (13 kategori, 1,632 ayat, 518 penghubung) — the builder is reproducible against main's newer corpus.
+- [x] ISC-243: Anti: the rebase drops none of main's commits. VERIFIED: `git rev-list --count HEAD..main` → `0`. Escape hatch retained as tag `pre-rebase-cc1e1a1`.
+
+### Cycle 7 — the landing says the sentence only it can say (ISC-244..287, 2026-08-09)
+
+> Two `$impeccable` critiques scored the landing 23/40 and the answer surface 24/40. Their shared
+> finding is a hierarchy inversion: the surface renders the *generic* thing large and the
+> *distinctive* thing small. "Belum bisa tidur?" — a greeting no competitor ships, written for the
+> one reader awake at 2am — sat at 13.5px under a 52px "Tanya Apapun". The named scholar sat at
+> 12.32px under a 16px filing category. This cycle inverts both, restores the seeds DESIGN.md's
+> "empty states teach" rule has been binding against a deleted element, and turns the 46rem MEASURE
+> from prose into a test — because **colour rules here are tests and layout rules are prose**, and
+> that asymmetry is what let `.thread` drift to `max-width: none` and 954px cards.
+
+**D1 — the greeting leads**
+
+- [x] ISC-244: the time-aware greeting renders at display size — computed `font-size` of `#greet-la` on the live landing ≥ 30px.
+- [x] ISC-245: "Tanya Apapun" is demoted below it — computed `font-size` of the tagline < the greeting's, measured in the same probe.
+- [x] ISC-246: the greeting is authored at reskin specificity — `grep` finds the rule under a `.qk-panel-body` scope in `shell.css`, not styles.css alone.
+- [x] ISC-247: the greeting carries the display family — computed `font-family` of `#greet-la` includes Fraunces.
+- [x] ISC-248: `mountGreeting()` still writes into it after the tag change — live `#greet-la` textContent is non-empty.
+- [x] ISC-249: Anti: the demotion does not orphan the brand gradient — exactly one hero element still paints `--hero-a`→`--hero-b`, confirmed in the computed `background-image`.
+- [x] ISC-250: `greet.ts` is unmodified — `git diff --stat web/src/greet.ts` is empty (the copy was already right; only its size was wrong).
+
+**D1b — the seeds return**
+
+- [x] ISC-251: `.seeds` exists in `index.html` with 4 `.seed` buttons — `grep -c 'class="seed"'` = 4.
+- [x] ISC-252: every seed is first-person Indonesian — read-back shows all four begin from the reader's own voice ("aku…", "lagi…", "baru…", "cemas…").
+- [x] ISC-253: the stale comment claiming seeds were removed is gone — `grep 'With .seeds removed'` returns nothing.
+- [x] ISC-254: `dockLanding()` now takes its `.seeds` branch — live DOM order inside `#hello` puts `#composer-bar` before `.seeds`.
+- [x] ISC-255: `landing.test.ts:46` ("composer above the seeds") passes against real markup rather than a fixture-only element.
+- [x] ISC-256: a seed click still asks — `main.ts:812` `.seed` handler resolves on the live page (click → composer populated / request fired).
+- [x] ISC-257: Anti: the seeds do not push the composer below the fold at 1280×800 — composer bottom edge < viewport height on glass.
+
+**D2 — attribution over filing category**
+
+- [x] ISC-258: `.by b` computes to 14px on the answer surface — live `getComputedStyle` reads `14px`.
+- [x] ISC-259: `.by b` weight is 600 and colour is `--ink-2` — computed values match the token's resolved rgb.
+- [x] ISC-260: `.chip` no longer shouts — computed `text-transform` is `none`.
+- [x] ISC-261: `.chip` letter-spacing is `normal` — computed value, not the authored 0.06em.
+- [x] ISC-262: the named scholar out-sizes the category — `.by b` computed px > `.chip` computed px in the same probe.
+
+**D3 — the MEASURE becomes a test**
+
+- [x] ISC-263: `.thread` computes `max-width: 736px` (46rem) on the live answer surface, not `none`.
+- [x] ISC-264: the rule is authored at reskin specificity — under `.qk-panel-body` in `shell.css`.
+- [x] ISC-265: the thread is centred — computed `margin-inline` resolves to `auto` on both sides.
+- [x] ISC-266: a card no longer runs 954px — measured `.msg`/card width on glass ≤ 736px.
+- [x] ISC-267: **a test enforces it** — a new case in the layout suite fails if `max-width` leaves `.thread`.
+- [x] ISC-268: the new test passes — `bun test` names it in the green output.
+- [x] ISC-269: Anti: the 46rem clamp does NOT reach the landing — DESIGN.md:93 exempts the landing at 1120px; `#hello` width is unchanged on glass.
+- [x] ISC-270: Anti: the clamp does not reach `#read` — the reading surface's computed width is unchanged.
+
+**D4 — un-rank the scholars**
+
+- [x] ISC-271: no reader-facing tier ranking ships — `grep 'tier '` in `tafsir.ts` returns nothing in the rendered template.
+- [x] ISC-272: the era survives — the `.tier` span still carries `src.era`, so the reader learns *when*, not *which rank*.
+- [x] ISC-273: `authority_tier` stays in the data — it orders the stack; only its display is dropped. Confirmed by `grep` in the sort path.
+- [x] ISC-274: Anti: no scholar is dropped — the rendered count equals the tafsir count for the probed ayah.
+
+**D5 — landing debt, evidence before fix**
+
+- [x] ISC-275: the brand mark is right-sized — `quranku-mark.png` under 40KB while still rendering crisp at 2× its 46px box.
+- [x] ISC-276: `/favicon.ico` no longer returns the SPA shell — `curl -sI` shows an image content-type, or an explicit icon link resolves.
+- [x] ISC-277: `#display-panel` is adjudicated with evidence — the `[hidden]{display:flex}` at `styles.css:409` is shown to be the documented desktop-inline behaviour, and NOT "fixed".
+- [x] ISC-278: the heading claim is adjudicated — live `document.querySelectorAll('h1,h2,h3,h4,h5,h6').length` is reported as measured, and the greeting's re-tagging is judged against it.
+- [x] ISC-279: Anti: no critique line is actioned as a fix before it is reproduced on glass — every D5 item carries a probe result, including the ones that turn out to be false positives.
+
+**Build, ship, and the standing rails**
+
+- [x] ISC-280: `bun test` stays green — pass count ≥ 999 plus the new MEASURE test, 0 fail.
+- [x] ISC-281: `bun run build` exits 0 — because `bun test` never compiles CSS and a broken comment has passed 999 tests before.
+- [ ] ISC-282: the deployed CSS/JS filenames on prod differ from `index-xpdk2-pk.css` / `index-D7CyoCrn.js`, proving the deploy landed.
+- [x] ISC-283: every glass probe asserts `document.visibilityState === "visible"` inline — a null from a hidden document is the harness, not the product.
+- [x] ISC-284: Anti: nothing is pushed to `origin` (nur) — `git rev-parse origin/main` unchanged.
+- [x] ISC-285: Anti: the answer engine, corpus, and `#read` are untouched — `git diff --stat` lists no file under `retrieve`/`corpus`/the reading surface's logic.
+- [ ] ISC-286: Anti: no backticks in the commit message — `git log -1 --format=%B` reads back complete, with no silently deleted fragment.
+- [x] ISC-287: DESIGN.md is amended, never contradicted — the MEASURE section gains the enforcement note rather than a new competing rule.
 
 ## Test Strategy
 
