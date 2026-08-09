@@ -29,6 +29,14 @@
   --panel-ink:   oklch(0.219 0.024 167);
   --panel-ink-2: oklch(0.416 0.021 169);
 
+  /* THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under
+     `[data-theme="dark"]` — because the inner panel's ground is attribute-keyed too. It used to read
+     `var(--surface-2)`, which flips on `prefers-color-scheme`, so in the default state the two layers
+     of a two-layer shell were taking their register from DIFFERENT signals: dark sidebar, light panel.
+     That is why the step between them needed a hairline to be legible at all.
+     Deeper than every stop of the panel ground above it, so the inner layer reads as the lit plane. */
+  --shell-bg: oklch(0.900 0.023 165);
+
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
   --primary:       oklch(0.416 0.083 165);
@@ -180,6 +188,7 @@
      (`:root[data-theme="dark"] .qk-panel::before`), never on `prefers-color-scheme`. Redefining
      `--panel-ink` in the media-query block instead would re-create the desync it exists to close. */
   --panel-ink: oklch(0.970 0.006 160); --panel-ink-2: oklch(0.800 0.012 165);
+  --shell-bg: #030b08;
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
   --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.95);

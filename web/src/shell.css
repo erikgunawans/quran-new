@@ -14,10 +14,13 @@
   /* Tight edges so the inner panel fills the window; left trimmed too (Erik: widen the panel toward
      the sidebar / the red line). */
   padding: 6px 6px 6px 4px;
-  background: var(--surface-2);
+  /* `--shell-bg`, not `--surface-2` (2026-08-09). The panel's ground is keyed off the `data-theme`
+     ATTRIBUTE; `--surface-2` is keyed off `prefers-color-scheme`, so with no attribute set the outer
+     layer took its register from the OS while the inner layer took the light default — a dark
+     sidebar wrapped around a light panel. Both layers now read the same signal, which is the
+     precondition for the colour step alone carrying the separation. */
+  background: var(--shell-bg);
 }
-/* Outer layer, bolder: a near-black green so it reads distinctly darker than the inner panel. */
-:root[data-theme="dark"] .qk-shell { background: #030b08; }
 
 /* ── Sidebar (outer layer) ───────────────────────────────────────────── */
 .qk-sidebar {
@@ -134,12 +137,18 @@
      off that scale. (Supersedes the earlier "slightly less round" 20->12: that was about killing
      the over-round, and 16 is still well under the 22-26 the doc names as the tell.) */
   border-radius: var(--r-lg); overflow: hidden;
-  /* A thin hairline edge — the inner/outer distinction is carried by the color step between the
-     bolder panel ground and the deeper shell, so the line itself stays quiet. */
-  border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(40,70,60,.07);
+  /* NO BORDER (Erik, 2026-08-09). The comment that used to sit here claimed the distinction was
+     "carried by the color step … so the line itself stays quiet" — but the step was doing only half
+     the work and the hairline was quietly holding up the other half. Two planes separate without a
+     line when the lit one is brighter than its ground at EVERY point; drawing an edge as well is
+     belt-and-braces, and it reads as a frame around the reading surface.
+     The shadow stays and is deepened: a shadow describes the gap between two planes, which is the
+     thing being expressed. A border describes an edge, which is not. */
+  border: 0;
+  box-shadow: 0 2px 12px rgba(40,70,60,.10);
   display: flex; flex-direction: column;
 }
-:root[data-theme="dark"] .qk-panel { border-color: rgba(150,220,185,.20); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+:root[data-theme="dark"] .qk-panel { box-shadow: 0 2px 14px rgba(0,0,0,.5); }
 /* the celestial ground, scoped to the panel (not the body) — recede by default */
 .qk-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -157,14 +166,18 @@
 :root[data-theme="dark"] .qk-panel::before {
   background:
     radial-gradient(90% 45% at 50% 100%, rgba(240,200,81,.16), transparent 62%),
-    linear-gradient(180deg,#0c221a 0%,#08160f 55%,#050f0a 100%);
+    /* Lifted 2026-08-09 with the border removal. The old ramp ended at #050f0a against a #030b08
+       shell — a 2-point step at the foot, so the two planes effectively merged at the bottom of the
+       screen and the hairline was the only thing separating them there. Every stop now clears the
+       shell, and the top is a richer emerald so "inner is the lit layer" is true by colour alone. */
+    linear-gradient(180deg,#143a2a 0%,#0f2a1e 55%,#0b1f16 100%);
 }
 /* Dark landing gets the crescent + the warm foot-glow — still no top light. */
 :root[data-theme="dark"][data-landing] .qk-panel::before {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 92% 92px / 62px 62px no-repeat,
     radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.22), transparent 58%),
-    linear-gradient(180deg,#0c221a 0%,#08160f 50%,#050f0a 100%);
+    linear-gradient(180deg,#143a2a 0%,#0f2a1e 50%,#0b1f16 100%);
 }
 /* faint stars on the panel */
 .qk-panel::after {
@@ -381,6 +394,12 @@
 :root[data-landing] #composer-bar {
   position: static; width: min(760px, 100%); margin: 20px auto 0;
   background: transparent; border: 0;
+  /* The glass lives on the FORM, not on this shell — the docked branch below already says so, but
+     the shell kept inheriting `.composer`'s `backdrop-filter: blur(28px) saturate(150%)` while its
+     fill and border were dropped. An invisible box still filters its backdrop, so it saturated a
+     hard-edged rectangle of the panel ground behind it. Invisible while the ground was near-black;
+     obvious the moment the inner layer got bolder. */
+  -webkit-backdrop-filter: none; backdrop-filter: none;
   /* ONE ambient, green only. This carried three coloured glows, and the right-hand one was
      `rgba(240,200,81,.26)` — `#f0c851`, the signature gold, cast as an edge on the composer card.
      DESIGN.md § What this is not names that exact case: gold is ground or type, never content, and

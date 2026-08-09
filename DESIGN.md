@@ -230,6 +230,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--ink-3` | `oklch(0.509 0.021 166)` | — |
 | `--panel-ink` | `oklch(0.219 0.024 167)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
 | `--panel-ink-2` | `oklch(0.416 0.021 169)` | — |
+| `--shell-bg` | `oklch(0.900 0.023 165)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
 
 ### Brand
 

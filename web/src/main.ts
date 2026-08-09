@@ -1051,8 +1051,20 @@ function initToTop(): void {
   bindKeyboardAwareComposer();
   initToTop();
 
+  // The attribute is ALWAYS set — from storage if the reader chose, otherwise from the system.
+  //
+  // It used to be set only when a theme was saved, which meant a first-time visitor had none, and
+  // the app then took its register from two different signals at once: styles.css tokens flip on
+  // `@media (prefers-color-scheme: dark)`, while shell.css's two-layer ground flips on
+  // `[data-theme="dark"]`. On a dark OS that produced a genuinely half-dark app — dark ink tokens
+  // painted onto the panel's light gradient, so a 48px greeting rendered near-white on near-white.
+  // Every element-level colour patch for that was treating a symptom; the bad state enters HERE.
+  //
+  // Deliberately NOT written back to localStorage: an unset preference must keep following the OS,
+  // so a reader who never opened the toggle still gets dark at night. Storage means "I chose".
   const savedTheme = localStorage.getItem("newquranku:theme");
-  if (savedTheme) document.documentElement.dataset["theme"] = savedTheme;
+  document.documentElement.dataset["theme"] =
+    savedTheme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
   const savedSize = localStorage.getItem("newquranku:ar") as keyof typeof SIZES | null;
   if (savedSize) {
