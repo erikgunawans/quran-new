@@ -14,16 +14,44 @@
 **Light is the register.** A page in daylight: green, open, unornamented. The reader arrives carrying
 something and the app does not perform gravity at them.
 
-*Amended 2026-08-10 — the light register is mushaf paper, not paper-white.* It shipped as a field of
-near-white with pale green tints: `--bg` at L 0.978 with pure-white cards on top, an average
+*Amended 2026-08-10 (first) — the light register is mushaf paper, not paper-white.* It shipped as a
+field of near-white with pale green tints: `--bg` at L 0.978 with pure-white cards on top, an average
 luminance near 0.96 and no tonal variation anywhere for the eye to rest on. Erik's report was that it
-was uncomfortable to look at, and the numbers agreed. The ground now drops about six points of
-lightness and moves off the green axis to a warm hue (~85) — cream stock, dark olive ink, the
+was uncomfortable to look at, and the numbers agreed. The ground dropped about six points of
+lightness and moved off the green axis to a warm hue (~85) — cream stock, dark olive ink, the
 reference being a printed mushaf. **"Green is the ground" is not repealed by this; it is relocated.**
 Green now carries the *structure* — the column tabs are solid plates rather than a 14%-alpha wash,
 and the cartouche and rules go with them — which is a stronger claim for the colour than tinting a
 background was. The brand family (`--primary`, `--action`, `--forest`, `--clay`) is untouched, so
 rule 3 below still holds.
+
+*Amended 2026-08-10 (second) — the QuranKu register: cool near-white ground, white cards, saturated
+green.* Erik on the parchment: **"too pale — even though it's warmer."** Both halves are the finding.
+The cream was warm and still pale because warmth was carried by HUE while CHROMA stayed near zero
+(0.036 is a tint, not a colour), and because every plane — shell, panel, composer, chips — sat inside
+five points of lightness in one hue, so the whole app read as a single field of manila.
+
+**This is the third swing on this ground, and it is not a revert to the near-white the first
+amendment rejected.** That version failed for a stated reason — "no tonal variation anywhere for the
+eye to rest on" — and darkening the paper was only one of two possible answers to it. This is the
+other one, and it is the one the reference actually uses. QuranKu
+(quran.tarjamahtafsiriyah.com) puts almost nothing on its paper: the ground is cool and bright,
+cards are genuinely white and float on it with a shadow, and the entire colour budget is spent on a
+vivid green. The eye rests on **plane separation and saturated brand**, not on a tinted page. So
+`--surface` is pure white again — deliberately reversing "the card is never pure white", which was a
+parchment-era rule and does not survive the reference — while `--shell-bg` sits a clear three points
+below the page so the rail, the panel and the card read as three planes rather than one.
+
+The mechanism that makes the saturation free: **WCAG contrast is driven by lightness and barely at
+all by chroma.** Every green here keeps the exact L it had and spends its budget on C — `--primary`
+0.083 → 0.132, `--action` 0.112 → 0.158, `--forest` 0.073 → 0.118 — so the register is markedly more
+vivid at identical measured contrast. `contrast.test.ts` passed unchanged across the whole move,
+which is the only reason to believe the previous sentence.
+
+Ink moves off olive to a cool slate: olive existed to sit "printed-in" on cream and reads as a stain
+on a cool white page. The warm foot-glow and the landing crescent are re-hued from gold to green —
+a gold disc at `#f4dd8f` on near-white is a motif nobody can see, and **gold as atmosphere remains a
+night-sky permission, not a daytime signature**.
 
 Those plates are **`--forest`, not `--primary`**, and that is a rule-3 consequence rather than a
 preference. `--primary` flips register: L 0.416 in light, L 0.760 in dark. A full-width fill of it
@@ -247,18 +275,18 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 | Token | Value | Why |
 |---|---|---|
-| `--bg` | `oklch(0.902 0.036 82)` | cream stock, not paper-white |
-| `--surface` | `oklch(0.930 0.032 83)` | the card — a shade above the page, never pure white |
-| `--surface-2` | `oklch(0.862 0.044 81)` | the wash |
-| `--line` | `oklch(0.818 0.046 79)` | — |
-| `--line-strong` | `oklch(0.726 0.046 78)` | — |
-| `--ink` | `oklch(0.245 0.022 110)` | Dark olive rather than near-black: on cream, a neutral black reads as printed-on rather than |
-| `--ink-2` | `oklch(0.418 0.020 105)` | — |
-| `--ink-3` | `oklch(0.508 0.019 100)` | — |
-| `--panel-ink` | `oklch(0.245 0.022 110)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
-| `--panel-ink-2` | `oklch(0.418 0.020 105)` | — |
-| `--shell-bg` | `oklch(0.738 0.048 84)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
-| `--panel-foot` | `#e9dec3` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
+| `--bg` | `oklch(0.972 0.006 172)` | cool near-white page — the reference's ground |
+| `--surface` | `oklch(1.000 0.000 0)` | the card IS white now, and floats. See note below. |
+| `--surface-2` | `oklch(0.958 0.009 170)` | the wash |
+| `--line` | `oklch(0.908 0.012 170)` | — |
+| `--line-strong` | `oklch(0.822 0.018 168)` | — |
+| `--ink` | `oklch(0.318 0.028 240)` | Cool dark slate, not olive. The olive existed to sit "printed-in" on cream; on a cool white |
+| `--ink-2` | `oklch(0.478 0.024 235)` | — |
+| `--ink-3` | `oklch(0.588 0.020 230)` | — |
+| `--panel-ink` | `oklch(0.318 0.028 240)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
+| `--panel-ink-2` | `oklch(0.478 0.024 235)` | — |
+| `--shell-bg` | `oklch(0.940 0.010 172)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
+| `--panel-foot` | `#f7fbf9` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
 
 ### Brand
 
@@ -266,24 +294,24 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 | Token | Value | Why |
 |---|---|---|
-| `--primary` | `oklch(0.416 0.083 165)` | primary = the READABLE emerald: links, labels, pressed states, icons. |
+| `--primary` | `oklch(0.416 0.132 163)` | primary = the READABLE emerald: links, labels, pressed states, icons. |
 | `--primary-ink` | `oklch(1.000 0.000 0)` | — |
-| `--primary-wash` | `oklch(0.416 0.083 165 / 0.10)` | TRANSLUCENT, like its dark counterpart — was an opaque `oklch(0.955 0.017 165)`, a pale mint |
-| `--primary-line` | `oklch(0.627 0.129 165 / 0.45)` | — |
-| `--composer-line` | `oklch(0.627 0.129 165 / 0.26)` | The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at |
-| `--composer-line-on` | `oklch(0.416 0.083 165 / 0.95)` | — |
+| `--primary-wash` | `oklch(0.416 0.132 163 / 0.10)` | TRANSLUCENT, like its dark counterpart — was an opaque `oklch(0.955 0.017 165)`, a pale mint |
+| `--primary-line` | `oklch(0.627 0.175 163 / 0.45)` | — |
+| `--composer-line` | `oklch(0.627 0.175 163 / 0.26)` | The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at |
+| `--composer-line-on` | `oklch(0.416 0.132 163 / 0.95)` | — |
 | `--hero-a` | `#0f7a37` | The green→gold signature, as TOKENS. These were hardcoded `#16a249`/`#4ba33f`/`#f0c851` literals |
 | `--hero-mid` | `#2c7726` | — |
 | `--hero-b` | `#7d5f10` | — |
-| `--action` | `oklch(0.532 0.112 163)` | action = the ONE bright surface, reserved for what the reader can DO (send, CTA, |
-| `--action-2` | `oklch(0.542 0.092 188)` | — |
+| `--action` | `oklch(0.532 0.158 161)` | action = the ONE bright surface, reserved for what the reader can DO (send, CTA, |
+| `--action-2` | `oklch(0.542 0.128 196)` | — |
 | `--action-grad` | `linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%)` | — |
 | `--action-ink` | `oklch(1.000 0.000 0)` | — |
-| `--forest` | `oklch(0.375 0.073 166)` | forest = weight without shouting. Prayer sidebar, resume bar, ayah badges. |
-| `--forest-grad` | `linear-gradient(145deg, oklch(0.375 0.073 166) 0%, oklch(0.370 0.058 195) 60%, oklch(0.365 0.060 235) 100%)` | — |
+| `--forest` | `oklch(0.375 0.118 163)` | forest = weight without shouting. Prayer sidebar, resume bar, ayah badges. |
+| `--forest-grad` | `linear-gradient(145deg, oklch(0.375 0.118 163) 0%, oklch(0.370 0.098 196) 60%, oklch(0.365 0.092 232) 100%)` | — |
 | `--clay` | `oklch(0.586 0.091 49)` | clay = the only spark. Decorative rules and accents; never body text. |
-| `--wash-1` | `oklch(0.627 0.129 165 / 0.08)` | the ambient light behind everything — dimmer in the dark room, never absent |
-| `--wash-2` | `oklch(0.542 0.092 188 / 0.05)` | — |
+| `--wash-1` | `oklch(0.627 0.175 163 / 0.08)` | the ambient light behind everything — dimmer in the dark room, never absent |
+| `--wash-2` | `oklch(0.542 0.128 196 / 0.05)` | — |
 
 ### Semantic
 

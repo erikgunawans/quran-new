@@ -19,21 +19,34 @@
    whole emerald family below are untouched, because green is the backbone and it now carries the
    structure — column headers, the cartouche, the rules — instead of tinting the ground. */
 :root {
-  /* Deepened a step 2026-08-10 (Erik: "warmer"). The first cut kept lightness high and leaned on
-     hue alone, so the page still read pale — the ground's light end dominates the visible area, and
-     0.014 of chroma at L 0.955 is barely a cream. Chroma roughly doubles and each step drops ~2
-     points, which is what makes it read as stock rather than as white with a warm cast. */
-  --bg:          oklch(0.902 0.036 82);    /* cream stock, not paper-white */
-  --surface:     oklch(0.930 0.032 83);    /* the card — a shade above the page, never pure white */
-  --surface-2:   oklch(0.862 0.044 81);    /* the wash */
-  --line:        oklch(0.818 0.046 79);
-  --line-strong: oklch(0.726 0.046 78);
+  /* QURANKU REGISTER (Erik, 2026-08-10): "too pale — even though it's warmer".
+     Both halves of that sentence are the diagnosis. The cream was warm and it was still pale,
+     because warmth was being carried by HUE while CHROMA stayed near zero: 0.036 of chroma is a
+     tint, not a colour. And every plane sat inside five points of lightness of every other one, in
+     one hue, so the sidebar, the panel, the composer and the chips all read as a single field of
+     manila. Warmth was never the missing thing; separation and saturation were.
 
-  /* Dark olive rather than near-black: on cream, a neutral black reads as printed-on rather than
-     printed-in. Held above 4.5:1 on `--surface` at every step — asserted in `contrast.test.ts`. */
-  --ink:   oklch(0.245 0.022 110);
-  --ink-2: oklch(0.418 0.020 105);
-  --ink-3: oklch(0.508 0.019 100);
+     Erik's reference is QuranKu (quran.tarjamahtafsiriyah.com), and its light register works by
+     CONTRAST OF PLANE, not by tinting everything: a cool near-white page, cards that are actually
+     white and float on it, and colour spent entirely on the green. So the ground goes cool and
+     bright, and the saturation moves off the paper and onto the brand.
+
+     The operative constraint, which is what makes this safe: WCAG contrast is driven almost
+     entirely by lightness, and barely at all by chroma. So every green below keeps its exact L and
+     spends its budget on C — markedly more vivid at identical contrast. `contrast.test.ts` is the
+     proof, not the intention. */
+  --bg:          oklch(0.972 0.006 172);   /* cool near-white page — the reference's ground */
+  --surface:     oklch(1.000 0.000 0);     /* the card IS white now, and floats. See note below. */
+  --surface-2:   oklch(0.958 0.009 170);   /* the wash */
+  --line:        oklch(0.908 0.012 170);
+  --line-strong: oklch(0.822 0.018 168);
+
+  /* Cool dark slate, not olive. The olive existed to sit "printed-in" on cream; on a cool white
+     page it reads as a stain. Held above 4.5:1 on `--surface` at every step — asserted in
+     `contrast.test.ts`, which is the only reason to believe it. */
+  --ink:   oklch(0.318 0.028 240);
+  --ink-2: oklch(0.478 0.024 235);
+  --ink-3: oklch(0.588 0.020 230);
 
   /* PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`.
      The panel keys its register off the `data-theme` ATTRIBUTE; the tokens above key off
@@ -43,8 +56,8 @@
      A token, not a literal, on purpose: `contrast.test.ts` audits TOKENS, so a hardcoded hex that
      reaches a paint property is invisible to the rule that is supposed to enforce it — the exact
      failure that let the hero gradient ship below AA for months. */
-  --panel-ink:   oklch(0.245 0.022 110);
-  --panel-ink-2: oklch(0.418 0.020 105);
+  --panel-ink:   oklch(0.318 0.028 240);
+  --panel-ink-2: oklch(0.478 0.024 235);
 
   /* THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under
      `[data-theme="dark"]` — because the inner panel's ground is attribute-keyed too. It used to read
@@ -52,17 +65,17 @@
      of a two-layer shell were taking their register from DIFFERENT signals: dark sidebar, light panel.
      That is why the step between them needed a hairline to be legible at all.
      Deeper than every stop of the panel ground above it, so the inner layer reads as the lit plane. */
-  --shell-bg: oklch(0.738 0.048 84);
+  --shell-bg: oklch(0.940 0.010 172);
 
   /* The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because
      the composer's fade ramp has to end in the panel's own colour: it used `--bg`, the app/outer
      background, so the bottom ~74px of every reading route was painted a different colour than the
      panel it sits in. Keep in sync with the final stop of the panel ground in shell.css. */
-  --panel-foot: #e9dec3;
+  --panel-foot: #f7fbf9;
 
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
-  --primary:       oklch(0.416 0.083 165);
+  --primary:       oklch(0.416 0.132 163);
   --primary-ink:   oklch(1.000 0.000 0);
   /* TRANSLUCENT, like its dark counterpart — was an opaque `oklch(0.955 0.017 165)`, a pale mint
      that predates the parchment ground. An opaque wash does not tint a surface, it REPLACES it, so
@@ -70,8 +83,8 @@
      from the top down no matter how warm the ground got. Measured, not guessed: a forced-red ground
      left the cartouche sitting there pale. As a translucent tint it now takes the colour of whatever
      it sits on, which is the only thing "a wash of the primary" can honestly mean. */
-  --primary-wash:  oklch(0.416 0.083 165 / 0.10);
-  --primary-line:  oklch(0.627 0.129 165 / 0.45);
+  --primary-wash:  oklch(0.416 0.132 163 / 0.10);
+  --primary-line:  oklch(0.627 0.175 163 / 0.45);
 
   /* The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at
      rest, so the box had no edge at all until you clicked into it — the line only existed under the
@@ -80,8 +93,8 @@
      nothing, because an edge that appears from zero is an event, and an edge that strengthens is an
      invitation. Hairline only — DESIGN.md § Components allows the hairline and forbids pairing it
      with a wide 40–70px shadow; the focus ring stays 3px, which is a ring, not a halo. */
-  --composer-line:    oklch(0.627 0.129 165 / 0.26);
-  --composer-line-on: oklch(0.416 0.083 165 / 0.95);
+  --composer-line:    oklch(0.627 0.175 163 / 0.26);
+  --composer-line-on: oklch(0.416 0.132 163 / 0.95);
 
   /* The green→gold signature, as TOKENS. These were hardcoded `#16a249`/`#4ba33f`/`#f0c851` literals
      in four places, and `contrast.test.ts` audits tokens — so the hero heading, the salam and the
@@ -101,21 +114,21 @@
   /* action = the ONE bright surface, reserved for what the reader can DO (send, CTA,
      their own words, the mark). It carries white text, so its lightness is pinned by
      WCAG AA (4.94:1) — not by taste. Going brighter fails the contrast test, by design. */
-  --action:      oklch(0.532 0.112 163);
-  --action-2:    oklch(0.542 0.092 188);
+  --action:      oklch(0.532 0.158 161);
+  --action-2:    oklch(0.542 0.128 196);
   --action-grad: linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%);
   --action-ink:  oklch(1.000 0.000 0);
 
   /* forest = weight without shouting. Prayer sidebar, resume bar, ayah badges. */
-  --forest:      oklch(0.375 0.073 166);
-  --forest-grad: linear-gradient(145deg, oklch(0.375 0.073 166) 0%, oklch(0.370 0.058 195) 60%, oklch(0.365 0.060 235) 100%);
+  --forest:      oklch(0.375 0.118 163);
+  --forest-grad: linear-gradient(145deg, oklch(0.375 0.118 163) 0%, oklch(0.370 0.098 196) 60%, oklch(0.365 0.092 232) 100%);
 
   /* clay = the only spark. Decorative rules and accents; never body text. */
   --clay: oklch(0.586 0.091 49);
 
   /* the ambient light behind everything — dimmer in the dark room, never absent */
-  --wash-1: oklch(0.627 0.129 165 / 0.08);
-  --wash-2: oklch(0.542 0.092 188 / 0.05);
+  --wash-1: oklch(0.627 0.175 163 / 0.08);
+  --wash-2: oklch(0.542 0.128 196 / 0.05);
 
   --caution:      oklch(0.520 0.135 55);
   --caution-wash: oklch(0.520 0.135 55 / 0.10);

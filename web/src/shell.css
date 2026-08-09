@@ -152,16 +152,29 @@
 /* the celestial ground, scoped to the panel (not the body) — recede by default */
 .qk-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  /* Mushaf paper (L1). Was #e6f0ea..#fbfbf6 — a pale green ramp ending in near-white, which is
-     where most of the glare lived. Cream stock now, and the gold at the foot warms rather than
-     fights it, because both sit on the same hue axis. */
-  background: radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.16), transparent 58%),
-              linear-gradient(180deg,#d8c69f 0%,#e0d1b0 42%,#e9dec3 100%);
+  /* QURANKU LIGHT (L1) — Erik, 2026-08-10: the cream read "too pale" even though it was warm.
+     These three literals were the reason. They are the largest painted area in the app, they are
+     hardcoded hexes, and `contrast.test.ts` audits TOKENS — so the field that set the entire mood
+     of the light register was invisible to the rule meant to govern it. That is the same failure
+     the hero gradient shipped with for months; it is recorded here rather than only in DESIGN.md
+     because the next person to warm this ground will reach for exactly these three values.
+
+     Cool near-white now, matching the reference's ground, with the foot glow re-hued from gold to
+     the brand green so the warm cast is gone rather than merely lightened. Keep the last stop in
+     sync with `--panel-foot` in styles.css: the composer's fade ramp ends in it, and a mismatch
+     paints the bottom 74px of every reading route a different colour than the panel it sits in. */
+  background: radial-gradient(100% 55% at 50% 100%, rgba(31,168,116,.10), transparent 58%),
+              linear-gradient(180deg,#e9f2ee 0%,#f1f8f4 45%,#f7fbf9 100%);
 }
+/* The light landing, on the same cool ground. The crescent stays but is re-cut in the brand green:
+   at `#f4dd8f` it was a pale gold disc on cream, which on a near-white ground would have been all
+   but invisible — a motif nobody can see is worse than no motif. Green also keeps the light
+   register honest to DESIGN.md's gold law, which permits gold as ATMOSPHERE in the night sky and
+   has never wanted it as the daytime signature. */
 :root[data-landing] .qk-panel::before {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
-              radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.22), transparent 58%),
-              linear-gradient(180deg,#d8c69f 0%,#dfd0ae 42%,#e9dec3 100%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23bfe3d1' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
+              radial-gradient(100% 55% at 50% 100%, rgba(31,168,116,.14), transparent 58%),
+              linear-gradient(180deg,#e9f2ee 0%,#f0f7f3 42%,#f7fbf9 100%);
 }
 /* Inner layer, bolder: a richer emerald ground with a warm gold wash at the foot — distinctly
    lighter/greener than the deep shell so the two layers read apart. NO top glow (Erik: remove the
