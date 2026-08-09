@@ -462,9 +462,24 @@
   content: ""; position: absolute; pointer-events: none; z-index: -1;
   /* Left edge tracks the bar's own padding-left (the sidebar gutter). With `inset: 0` the ramp ran
      the full viewport width and washed over the sidebar's foot — the "Masuk" row visibly greyed out
-     under it. The fade belongs to the reading column only. */
-  inset: 0 0 0 294px;
-  background: linear-gradient(to top, var(--bg) 0%, var(--bg) 42%, transparent 100%);
+     under it. The fade belongs to the reading column only.
+
+     The right and bottom insets are the shell's own padding (`.qk-shell { padding: 6px }`), added
+     2026-08-09. The bar is FIXED to the viewport, so at `bottom/right: 0` the ramp overhung the
+     inner panel by those 6px — measured: panel ended at 715/1356, ramp ran to 720/1361 — painting
+     panel-coloured fill across the outer layer's margin, and the square corners flattened the
+     panel's rounded bottom. Hence the radius below: the ramp ends where the panel ends. */
+  inset: 0 6px 6px 294px;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  /* `--panel-foot`, NOT `--bg`. The comment above has always said this ramp is "painted from the
+     panel's own ground"; it never was. `--bg` is the app/outer background, so on every reading route
+     the bottom ~74px of the INNER panel was filled with the OUTER layer's colour — which is exactly
+     what it looked like, and it got louder the moment the panel ground was made bolder.
+     The gold foot-wash is re-stated on top so the warmth at the panel's base survives the ramp
+     rather than being covered by it. */
+  background:
+    radial-gradient(120% 260% at 50% 100%, rgba(240,200,81,.16), transparent 62%),
+    linear-gradient(to top, var(--panel-foot) 0%, var(--panel-foot) 42%, transparent 100%);
 }
 .qk-shell[data-nav="closed"] ~ #composer-bar::before { left: 8px; }
 @media (max-width: 820px) { :root:not([data-landing]) #composer-bar::before { left: 0; } }

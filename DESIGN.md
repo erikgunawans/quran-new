@@ -231,6 +231,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--panel-ink` | `oklch(0.219 0.024 167)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
 | `--panel-ink-2` | `oklch(0.416 0.021 169)` | — |
 | `--shell-bg` | `oklch(0.900 0.023 165)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
+| `--panel-foot` | `#fbfbf6` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
 
 ### Brand
 

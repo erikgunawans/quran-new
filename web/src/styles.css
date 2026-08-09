@@ -37,6 +37,12 @@
      Deeper than every stop of the panel ground above it, so the inner layer reads as the lit plane. */
   --shell-bg: oklch(0.900 0.023 165);
 
+  /* The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because
+     the composer's fade ramp has to end in the panel's own colour: it used `--bg`, the app/outer
+     background, so the bottom ~74px of every reading route was painted a different colour than the
+     panel it sits in. Keep in sync with the final stop of the panel ground in shell.css. */
+  --panel-foot: #fbfbf6;
+
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
   --primary:       oklch(0.416 0.083 165);
@@ -188,7 +194,7 @@
      (`:root[data-theme="dark"] .qk-panel::before`), never on `prefers-color-scheme`. Redefining
      `--panel-ink` in the media-query block instead would re-create the desync it exists to close. */
   --panel-ink: oklch(0.970 0.006 160); --panel-ink-2: oklch(0.800 0.012 165);
-  --shell-bg: #030b08;
+  --shell-bg: #030b08; --panel-foot: #0b1f16;
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
   --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.95);
