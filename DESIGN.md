@@ -14,6 +14,17 @@
 **Light is the register.** A page in daylight: green, open, unornamented. The reader arrives carrying
 something and the app does not perform gravity at them.
 
+*Amended 2026-08-10 — the light register is mushaf paper, not paper-white.* It shipped as a field of
+near-white with pale green tints: `--bg` at L 0.978 with pure-white cards on top, an average
+luminance near 0.96 and no tonal variation anywhere for the eye to rest on. Erik's report was that it
+was uncomfortable to look at, and the numbers agreed. The ground now drops about six points of
+lightness and moves off the green axis to a warm hue (~85) — cream stock, dark olive ink, the
+reference being a printed mushaf. **"Green is the ground" is not repealed by this; it is relocated.**
+Green now carries the *structure* — the column tabs are solid `--primary` plates rather than a
+14%-alpha wash, and the cartouche and rules go with them — which is a stronger claim for the colour
+than tinting a background was. The brand family (`--primary`, `--action`, `--forest`, `--clay`) is
+untouched, so rule 3 below still holds.
+
 Dark is its **equal counterpart** — not an afterthought, not an inversion. The Qur'an is read at 2am
 and on the commute, and both are composed. Only the bg/surface/ink axis flips between them.
 
@@ -47,6 +58,14 @@ every piece of chrome. What died is only the instruction to make the room dark.
   AA (darker amber on light, signature gold on dark), never an oklch token. The peta cosmos data-viz hues
   stay gold-free (ISA ISC-185) — a separate rule, untouched. We are in the QuranKu family on purpose and
   earn our place by rigour, not by refusing the category's colour.
+  *Extended 2026-08-10 (Erik: "slightly more gold"), inside the existing rule, not against it.* The
+  celestial ground was reserved for the landing; the reading routes got the emerald field with none
+  of the sky. The crescent, a stronger foot bloom, and a real starfield — a scatter that reaches down
+  the panel instead of three specks in the top eighth, a few of them warm — now reach every dark
+  route. **Every one of those is atmosphere.** Nothing a reader reads gained a gold edge: the ayah
+  mark stays emerald line-work (`styles.css` says so in as many words), and there is still no gold
+  frame, rule, or hairline on a card. The ban's wording is unchanged because the change does not
+  touch it.
 - **No filigree — geometry is structure.** The girih behind the daily ayah is an 8-point-star field
   tiled at 54px, 8% opacity: a plane-filling grid, which is what Islamic visual tradition is actually
   rigorous about. Not a motif laid over a page.
@@ -220,18 +239,18 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 | Token | Value | Why |
 |---|---|---|
-| `--bg` | `oklch(0.978 0.007 160)` | pale green-white, not paper-white |
-| `--surface` | `oklch(1.000 0.000 0)` | the card |
-| `--surface-2` | `oklch(0.955 0.017 165)` | the wash |
-| `--line` | `oklch(0.927 0.010 165)` | — |
-| `--line-strong` | `oklch(0.889 0.017 163)` | — |
-| `--ink` | `oklch(0.219 0.024 167)` | — |
-| `--ink-2` | `oklch(0.416 0.021 169)` | — |
-| `--ink-3` | `oklch(0.509 0.021 166)` | — |
-| `--panel-ink` | `oklch(0.219 0.024 167)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
-| `--panel-ink-2` | `oklch(0.416 0.021 169)` | — |
-| `--shell-bg` | `oklch(0.900 0.023 165)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
-| `--panel-foot` | `#fbfbf6` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
+| `--bg` | `oklch(0.955 0.014 85)` | cream stock, not paper-white |
+| `--surface` | `oklch(0.975 0.010 85)` | the card — a shade above the page, never pure white |
+| `--surface-2` | `oklch(0.925 0.020 85)` | the wash |
+| `--line` | `oklch(0.878 0.022 84)` | — |
+| `--line-strong` | `oklch(0.812 0.030 82)` | — |
+| `--ink` | `oklch(0.245 0.022 110)` | Dark olive rather than near-black: on cream, a neutral black reads as printed-on rather than |
+| `--ink-2` | `oklch(0.418 0.020 105)` | — |
+| `--ink-3` | `oklch(0.508 0.019 100)` | — |
+| `--panel-ink` | `oklch(0.245 0.022 110)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
+| `--panel-ink-2` | `oklch(0.418 0.020 105)` | — |
+| `--shell-bg` | `oklch(0.842 0.030 90)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
+| `--panel-foot` | `#f8f3e7` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
 
 ### Brand
 

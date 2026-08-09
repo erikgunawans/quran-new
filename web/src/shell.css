@@ -152,20 +152,31 @@
 /* the celestial ground, scoped to the panel (not the body) — recede by default */
 .qk-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.10), transparent 58%),
-              linear-gradient(180deg,#e6f0ea 0%,#f4f7f3 42%,#fbfbf6 100%);
+  /* Mushaf paper (L1). Was #e6f0ea..#fbfbf6 — a pale green ramp ending in near-white, which is
+     where most of the glare lived. Cream stock now, and the gold at the foot warms rather than
+     fights it, because both sit on the same hue axis. */
+  background: radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.13), transparent 58%),
+              linear-gradient(180deg,#efe8d7 0%,#f3ede0 42%,#f8f3e7 100%);
 }
 :root[data-landing] .qk-panel::before {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
-              radial-gradient(100% 55% at 50% 100%, rgba(240,200,81,.17), transparent 58%),
-              linear-gradient(180deg,#e6f0ea 0%,#f1f6f1 42%,#fbfbf6 100%);
+              radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.18), transparent 58%),
+              linear-gradient(180deg,#efe8d7 0%,#f2ecdf 42%,#f8f3e7 100%);
 }
 /* Inner layer, bolder: a richer emerald ground with a warm gold wash at the foot — distinctly
    lighter/greener than the deep shell so the two layers read apart. NO top glow (Erik: remove the
    glimpse of light at the top on dark). */
+/* NIGHT SKY (Erik, 2026-08-10 — option D2, "slightly more gold").
+   The dark register's colour was right and its surface was empty: a flat emerald field with the
+   crescent and the warm foot reserved for the landing, so every reading route got the ground with
+   none of the sky. The celestial atmosphere now reaches the reading surface too — the crescent, a
+   stronger bloom at the foot, and the stars on `::after` below.
+   All of it is ATMOSPHERE, which is the use DESIGN.md already permits: gold as light in the air,
+   never an edge on a card. Nothing a reader reads has gained a gold hairline. */
 :root[data-theme="dark"] .qk-panel::before {
   background:
-    radial-gradient(90% 45% at 50% 100%, rgba(240,200,81,.16), transparent 62%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='58' height='58' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 93% 84px / 58px 58px no-repeat,
+    radial-gradient(95% 48% at 50% 100%, rgba(240,200,81,.22), transparent 64%),
     /* Lifted 2026-08-09 with the border removal. The old ramp ended at #050f0a against a #030b08
        shell — a 2-point step at the foot, so the two planes effectively merged at the bottom of the
        screen and the hairline was the only thing separating them there. Every stop now clears the
@@ -190,11 +201,22 @@
     radial-gradient(1.2px 1.2px at 79% 19%,rgba(70,110,90,.13),transparent),
     radial-gradient(78% 66% at 50% 45%, transparent 62%, rgba(70,90,80,.08) 100%);
 }
+/* A real starfield, not three specks (D2). Three stars clustered in the top eighth read as dust on
+   the screen; a scatter that reaches down the panel reads as sky. A few are warm rather than white —
+   that is the "slightly more gold": it lands in the AIR, at 1.3px, where it can never become an edge
+   on something the reader is reading. */
 :root[data-theme="dark"] .qk-panel::after {
   background:
-    radial-gradient(1.3px 1.3px at 22% 12%,rgba(210,235,220,.5),transparent),
-    radial-gradient(1.2px 1.2px at 68% 14%,rgba(210,235,220,.36),transparent),
-    radial-gradient(1.2px 1.2px at 45% 9%,rgba(210,235,220,.28),transparent);
+    radial-gradient(1.5px 1.5px at 22% 12%,rgba(210,235,220,.55),transparent),
+    radial-gradient(1.3px 1.3px at 68% 14%,rgba(210,235,220,.40),transparent),
+    radial-gradient(1.3px 1.3px at 45% 9%,rgba(210,235,220,.30),transparent),
+    radial-gradient(1.4px 1.4px at 84% 23%,rgba(244,221,143,.42),transparent),
+    radial-gradient(1.2px 1.2px at 11% 27%,rgba(210,235,220,.28),transparent),
+    radial-gradient(1.3px 1.3px at 57% 33%,rgba(244,221,143,.30),transparent),
+    radial-gradient(1.2px 1.2px at 33% 46%,rgba(210,235,220,.22),transparent),
+    radial-gradient(1.3px 1.3px at 90% 52%,rgba(210,235,220,.20),transparent),
+    radial-gradient(1.2px 1.2px at 16% 63%,rgba(244,221,143,.22),transparent),
+    radial-gradient(1.2px 1.2px at 72% 71%,rgba(210,235,220,.18),transparent);
 }
 
 /* The display controls FLOAT at the panel's top-right instead of occupying a 66px bar above the

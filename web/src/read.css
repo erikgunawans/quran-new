@@ -812,10 +812,19 @@
 #read .sp-tab {
   flex: 0 0 auto;
   appearance: none;
-  background: var(--primary-wash);
-  border: 1px solid var(--line);
+  /* Solid green, not a wash (Erik, 2026-08-10). On mushaf paper a 14%-alpha emerald tint is barely
+     a tint at all; he pointed at this exact element. The green stops describing the ground and
+     starts labelling the column, which is the whole point of moving the colour onto the chrome.
+
+     `--forest`, NOT `--primary`. Measured on glass first: `--primary` is L 0.416 in light — a deep,
+     handsome plate — but L 0.760 in dark, and a full-width fill of bright mint at that lightness
+     shouts straight over the scripture, which inverts PRODUCT.md's first principle. `--forest` is
+     theme-INVARIANT at L 0.375, so the plate is the same deep green in both registers, and
+     `contrast.test.ts` already proves white on it. One value, no per-theme special case. */
+  background: var(--forest);
+  border: 1px solid var(--forest);
   border-radius: var(--r) var(--r) 0 0;
-  color: var(--ink);
+  color: oklch(1 0 0);
   font: inherit;
   font-weight: 600;
   padding: var(--s-3) var(--s-4);
@@ -823,10 +832,13 @@
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
-  transition: background 220ms var(--ease), color 220ms var(--ease);
+  transition: filter 220ms var(--ease), color 220ms var(--ease);
 }
-#read .sp-tab:hover { background: var(--surface-2); }
-#read .sp-tab:active { background: color-mix(in oklch, var(--primary-wash), var(--primary) 10%); }
+/* The tab is now a SOLID green plate carrying `--primary-ink`, so its states can no longer swap the
+   background to a pale wash — that would leave white text on cream. They change the plate's
+   brightness instead, which works in both registers without either one naming a colour. */
+#read .sp-tab:hover { filter: brightness(1.09); }
+#read .sp-tab:active { filter: brightness(0.93); }
 #read .sp-tab:focus-visible { outline: 2px solid var(--primary-line); outline-offset: 2px; }
 
 /* Collapsed: the tab becomes the whole rail — full height, label turned on its side, so the
