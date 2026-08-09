@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 284/290
+progress: 286/290
 mode: build
 started: 2026-07-13
 updated: 2026-08-09
@@ -457,8 +457,8 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 - [x] ISC-233: `rights-audit.ts` exits 0 against the committed tree, still reporting zero distributable. VERIFIED: `EXIT=0`, `DISTRIBUTABLE AS-IS : 0 / 18882`, `✓ all invariants hold`, split 18,879 reference-only / 3 private.
 - [x] ISC-234: `.git` stays under 400M. VERIFIED: `du -sh .git` → **122M**. Plain markdown compresses well; no LFS needed.
 - [x] ISC-235: the "107 unpushed commits" claim is resolved into a true per-remote statement. VERIFIED: `git rev-list --count quran-new/main..HEAD` → **0** (main tracks `[quran-new/main]`, fully in sync); `git rev-list --count origin/main..HEAD` → **107**, where `origin` is `erikgunawans/nur`, the retired remote. Nothing is unpushed to the live remote. See Decisions 2026-08-09.
-- [ ] ISC-236: Erik has an explicit recorded decision on the `origin`/nur remote's fate.
-- [ ] ISC-237: Anti: nothing is pushed to `origin` (nur) absent Erik's explicit approval — `git rev-parse origin/main` still `c4ff3ae`.
+- [x] ISC-236: Erik has an explicit recorded decision on the `origin`/nur remote's fate. VERIFIED: 2026-08-09 — "Leave nur alone". No push; nur retained as a remote so the closed PR stays reachable. Recorded in Decisions.
+- [x] ISC-237: Anti: nothing is pushed to `origin` (nur) absent Erik's explicit approval. VERIFIED: `git rev-parse origin/main` → `c4ff3ae3140a70df684299bc37ea407e3f138ae0`, byte-identical to the session-start value after a fresh `git fetch origin`. ISC-284 holds.
 - [x] ISC-238: `worktree-cozy-launching-clarke` rebases onto `main` carrying exactly its one commit. VERIFIED: `git rebase main` → "Successfully rebased"; `git log --oneline main..HEAD` → one line, `dd918f5 feat(peta): stand-alone graph + corpus rights research`.
 - [x] ISC-239: the `package.json` conflict resolves keeping BOTH main's scripts and `app:peta-standalone`. VERIFIED: **no conflict actually occurred** — main's 107 commits never touched that region, so git auto-merged. `diff` of `.scripts` keys against main shows exactly one addition: `app:peta-standalone`. The handoff's predicted conflict was a prediction, not an observation.
 - [x] ISC-240: the post-rebase suite matches main's baseline. VERIFIED: `bun test` → **999 pass / 0 fail**, 22,800 expect() calls, 64 files — identical to main measured in the primary tree the same hour.
