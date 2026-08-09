@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 286/290
+progress: 288/290
 mode: build
 started: 2026-07-13
 updated: 2026-08-09
@@ -535,11 +535,11 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 
 - [x] ISC-280: `bun test` stays green — pass count ≥ 999 plus the new MEASURE test, 0 fail.
 - [x] ISC-281: `bun run build` exits 0 — because `bun test` never compiles CSS and a broken comment has passed 999 tests before.
-- [ ] ISC-282: the deployed CSS/JS filenames on prod differ from `index-xpdk2-pk.css` / `index-D7CyoCrn.js`, proving the deploy landed.
+- [x] ISC-282: the deployed CSS/JS filenames on prod differ from `index-xpdk2-pk.css` / `index-D7CyoCrn.js`, proving the deploy landed. VERIFIED 2026-08-10: `new-quranku.axiara.ai` serves `index-CLV41V3N.css` + `index-CbtcXzU2.js` (Worker version `b2f82372`), both different from the pre-deploy pair, and the CSS hash matches the local build byte-for-byte. Token read-back on the live page under CDP `emulate {colorScheme:light}` with `visibilityState: visible`: `--shell-bg oklch(99% .003 172)`, `--surface oklch(100% 0 0)`, `--primary oklch(41.6% .132 163)`.
 - [x] ISC-283: every glass probe asserts `document.visibilityState === "visible"` inline — a null from a hidden document is the harness, not the product.
 - [x] ISC-284: Anti: nothing is pushed to the **nur repository** — `git rev-parse nur/main` unchanged at `c4ff3ae`. **Reworded 2026-08-10** for the same reason as ISC-237: it previously said "pushed to `origin` (nur)", and `origin` now means the live repo.
 - [x] ISC-285: Anti: the answer engine, corpus, and `#read` are untouched — `git diff --stat` lists no file under `retrieve`/`corpus`/the reading surface's logic.
-- [ ] ISC-286: Anti: no backticks in the commit message — `git log -1 --format=%B` reads back complete, with no silently deleted fragment.
+- [x] ISC-286: Anti: no backticks in the commit message — `git log -1 --format=%B` reads back complete, with no silently deleted fragments. VERIFIED 2026-08-10: all four of this session's commits (`e998ba1`, `01d567d`, `4306c55`, `1079785`) read back with a backtick count of 0; messages were authored with `--` and plain quoting instead of code spans.
 - [x] ISC-287: DESIGN.md is amended, never contradicted — the MEASURE section gains the enforcement note rather than a new competing rule.
 
 ## Test Strategy

@@ -8,6 +8,66 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-10 (latest) — Two sessions, one repo, and the file that deployed itself
+
+Anchor: `origin/main` `1079785` (+ this checkpoint). Prod Worker `b2f82372`, CSS `index-CLV41V3N.css`,
+JS `index-CbtcXzU2.js`. **1017 tests pass.** ISA **288/290** — ISC-98 open, ISC-189 deferred-verify.
+
+**The OKF corpus is off this machine.** 18,884 records committed (`9b47ebae`) and pushed to
+`erikgunawans/tafseer-okf`, **private** — verified private before a single byte moved and again after,
+because the corpus audits at 0 of 18,882 distributable and a public repo would BE the redistribution.
+`cache/` (801M of upstream HTML) excluded; `.git` is 122M. Its rights audit still exits 0.
+
+**Nothing was ever unpushed.** The handoff opened with "107 UNPUSHED commits"; `main` had been in sync
+with the live remote the whole time. `origin` named `nur`, the retired repo. Renamed — `origin` is now
+quran-new, `nur` is the retired one, frozen at `c4ff3ae`. The rename would have silently inverted
+`ISC-284`/`ISC-237` ("Anti: nothing is pushed to `origin`") into "never push to the live repo", so both
+were re-anchored on the repository name in the same commit. **A criterion that names a mutable alias
+will one day mean the opposite of what it says.**
+
+**PR #2 landed.** It was open on the wrong repository; GitHub cannot re-target a PR's base repo, so it
+was rebased (`cc1e1a1` → `dd918f5`, no conflict — the predicted `package.json` clash never existed),
+re-opened as quran-new#2, merged as `78a40ce`, and nur#2 closed with a cross-link.
+
+**The equran CLI exists.** 16 real routes against equran.id (not the advertised 500+), 13 absorbed
+features, 6 novel, scorecard 88/100 Grade A, 127/127 live tests. Promoted to `~/printing-press/library/
+equran` with its own git repo. It ships **no scripture data layer** on purpose: equran.id serves the
+Kemenag 2019 Terjemahan, whose licence is pending with LPMQ, and a sync of 6,236 verses would be a
+redistribution pipeline wearing the costume of CLI hygiene. `sumber` prints the rights posture per
+family so a caller learns what it may not republish.
+
+**The light register changed twice in one night, and the second time was Erik's.** "Too pale — even
+though it's warmer": the cream was warm and still pale because warmth rode HUE while CHROMA sat near
+zero. Then "too dark, too muddy" on the rail: grey-plus-tint is the one mix that reads as dirty.
+Now cool near-white ground, pure-white cards, near-white rail, saturated green. **The move that made
+it free: WCAG contrast is driven by lightness and barely at all by chroma** — every green kept its
+exact L and spent its budget on C, so the register is markedly more vivid at identical measured
+contrast, and `contrast.test.ts` passed unchanged. Deployed and read back off the live page.
+
+### The thing this session actually got wrong
+
+**Two sessions worked this repo in parallel and both were fooled by the same artifact.** A root
+`wrangler.jsonc` appeared at 22:04 and broke every `wrangler deploy` from anywhere in the repo
+(`assets` with no `directory`, shadowing `worker/wrangler.toml`); four deploys that night used a `/tmp`
+workaround without knowing why. The other session found it, correctly diagnosed the shadowing, wrote
+it to memory — and concluded "another process is writing to this repo concurrently." I believed that,
+told Erik a third writer existed, and recommended he hunt it.
+
+**There was no third writer.** That session's own `npx wrangler deploy`, run from the repo ROOT at
+15:03:23 UTC, scaffolded the file 39 seconds later, mid-command. Its own output proves it: a
+`[build] ✓ built in 4.84s` Cloudflare Vite-plugin build that could only run because the plugin had
+just been installed, immediately followed by the error on the config it had just written. npx installs
+through npm, which is why an npm lockfile appeared in a bun-only repo.
+
+The lesson generalises past this file: **when a tool's SIDE EFFECT creates artifacts, no one's edit
+history shows it, and "I didn't do it" is honest and still wrong.** Rule: never run `wrangler` from
+the repo root — `cd worker` first.
+
+Also recorded: **`bun test` never compiles CSS.** 1017 tests passed on a stylesheet that could not
+parse. Check `bun run build`'s EXIT CODE, never a grep of its output.
+
+---
+
 ## 2026-08-10 — The remotes now tell the truth
 
 `origin` named the **retired** repo (`erikgunawans/nur`) and the live one was the oddly-named
