@@ -155,13 +155,13 @@
   /* Mushaf paper (L1). Was #e6f0ea..#fbfbf6 — a pale green ramp ending in near-white, which is
      where most of the glare lived. Cream stock now, and the gold at the foot warms rather than
      fights it, because both sit on the same hue axis. */
-  background: radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.13), transparent 58%),
-              linear-gradient(180deg,#efe8d7 0%,#f3ede0 42%,#f8f3e7 100%);
+  background: radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.16), transparent 58%),
+              linear-gradient(180deg,#d8c69f 0%,#e0d1b0 42%,#e9dec3 100%);
 }
 :root[data-landing] .qk-panel::before {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23f4dd8f' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
-              radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.18), transparent 58%),
-              linear-gradient(180deg,#efe8d7 0%,#f2ecdf 42%,#f8f3e7 100%);
+              radial-gradient(100% 55% at 50% 100%, rgba(176,138,54,.22), transparent 58%),
+              linear-gradient(180deg,#d8c69f 0%,#dfd0ae 42%,#e9dec3 100%);
 }
 /* Inner layer, bolder: a richer emerald ground with a warm gold wash at the foot — distinctly
    lighter/greener than the deep shell so the two layers read apart. NO top glow (Erik: remove the
@@ -626,16 +626,22 @@
    panel behind it, so the card floated on the ground rather than being cut into it, and the two layers
    sat within a few points of each other.
 
-   The awkward part is that the panel is a GRADIENT — dark `rgb(12,34,26)` → `rgb(5,15,10)`, light
-   `rgb(230,240,234)` → `rgb(251,251,246)` (measured off `.qk-panel::before`) — and it runs in opposite
+   The awkward part is that the panel is a GRADIENT — dark `rgb(20,58,42)` → `rgb(11,31,22)`, light
+   `rgb(216,198,159)` → `rgb(233,222,195)` (measured off `.qk-panel::before`) — and it runs in opposite
    directions per theme. A translucent fill therefore cannot hold a constant delta: pick a value that
    is darker than the panel's top and it turns LIGHTER than the panel's bottom, and the card inverts
-   halfway down the scroll. So the fill is now near-opaque and sits below the darkest stop of its own
+   halfway down the scroll. So the fill is near-opaque and sits below the darkest stop of its own
    gradient, which is the only way one colour stays consistently darker down the whole panel. The
-   trade is that the glass is less see-through; the blur stays, so the layer still reads as glass. */
+   trade is that the glass is less see-through; the blur stays, so the layer still reads as glass.
+
+   RE-WARMED 2026-08-10 with the mushaf-paper register. This fill is a LITERAL, so it did not move
+   when the tokens did — and because it is near-opaque, it did not just fail to warm, it actively
+   held the old pale-green register on the one surface a reader looks at most. Proof it was this and
+   not the ground: forcing `.qk-panel::before` to red left the ayah card sitting there pale mint.
+   That is the third time this month a hardcoded colour outlived the token meant to govern it. */
 .qk-panel-body .verse {
   border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
-  background: rgba(222, 233, 227, .94);
+  background: rgba(208, 190, 151, .94);
   -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%);
   box-shadow: 0 4px 14px rgba(40, 70, 60, .08);
 }

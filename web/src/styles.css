@@ -19,11 +19,15 @@
    whole emerald family below are untouched, because green is the backbone and it now carries the
    structure — column headers, the cartouche, the rules — instead of tinting the ground. */
 :root {
-  --bg:          oklch(0.955 0.014 85);    /* cream stock, not paper-white */
-  --surface:     oklch(0.975 0.010 85);    /* the card — a shade above the page, never pure white */
-  --surface-2:   oklch(0.925 0.020 85);    /* the wash */
-  --line:        oklch(0.878 0.022 84);
-  --line-strong: oklch(0.812 0.030 82);
+  /* Deepened a step 2026-08-10 (Erik: "warmer"). The first cut kept lightness high and leaned on
+     hue alone, so the page still read pale — the ground's light end dominates the visible area, and
+     0.014 of chroma at L 0.955 is barely a cream. Chroma roughly doubles and each step drops ~2
+     points, which is what makes it read as stock rather than as white with a warm cast. */
+  --bg:          oklch(0.902 0.036 82);    /* cream stock, not paper-white */
+  --surface:     oklch(0.930 0.032 83);    /* the card — a shade above the page, never pure white */
+  --surface-2:   oklch(0.862 0.044 81);    /* the wash */
+  --line:        oklch(0.818 0.046 79);
+  --line-strong: oklch(0.726 0.046 78);
 
   /* Dark olive rather than near-black: on cream, a neutral black reads as printed-on rather than
      printed-in. Held above 4.5:1 on `--surface` at every step — asserted in `contrast.test.ts`. */
@@ -48,19 +52,25 @@
      of a two-layer shell were taking their register from DIFFERENT signals: dark sidebar, light panel.
      That is why the step between them needed a hairline to be legible at all.
      Deeper than every stop of the panel ground above it, so the inner layer reads as the lit plane. */
-  --shell-bg: oklch(0.842 0.030 90);
+  --shell-bg: oklch(0.738 0.048 84);
 
   /* The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because
      the composer's fade ramp has to end in the panel's own colour: it used `--bg`, the app/outer
      background, so the bottom ~74px of every reading route was painted a different colour than the
      panel it sits in. Keep in sync with the final stop of the panel ground in shell.css. */
-  --panel-foot: #f8f3e7;
+  --panel-foot: #e9dec3;
 
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
   --primary:       oklch(0.416 0.083 165);
   --primary-ink:   oklch(1.000 0.000 0);
-  --primary-wash:  oklch(0.955 0.017 165);
+  /* TRANSLUCENT, like its dark counterpart — was an opaque `oklch(0.955 0.017 165)`, a pale mint
+     that predates the parchment ground. An opaque wash does not tint a surface, it REPLACES it, so
+     on mushaf paper the surah cartouche painted a mint box over the page and the panel looked cool
+     from the top down no matter how warm the ground got. Measured, not guessed: a forced-red ground
+     left the cartouche sitting there pale. As a translucent tint it now takes the colour of whatever
+     it sits on, which is the only thing "a wash of the primary" can honestly mean. */
+  --primary-wash:  oklch(0.416 0.083 165 / 0.10);
   --primary-line:  oklch(0.627 0.129 165 / 0.45);
 
   /* The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at

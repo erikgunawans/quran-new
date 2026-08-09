@@ -20,10 +20,18 @@ luminance near 0.96 and no tonal variation anywhere for the eye to rest on. Erik
 was uncomfortable to look at, and the numbers agreed. The ground now drops about six points of
 lightness and moves off the green axis to a warm hue (~85) — cream stock, dark olive ink, the
 reference being a printed mushaf. **"Green is the ground" is not repealed by this; it is relocated.**
-Green now carries the *structure* — the column tabs are solid `--primary` plates rather than a
-14%-alpha wash, and the cartouche and rules go with them — which is a stronger claim for the colour
-than tinting a background was. The brand family (`--primary`, `--action`, `--forest`, `--clay`) is
-untouched, so rule 3 below still holds.
+Green now carries the *structure* — the column tabs are solid plates rather than a 14%-alpha wash,
+and the cartouche and rules go with them — which is a stronger claim for the colour than tinting a
+background was. The brand family (`--primary`, `--action`, `--forest`, `--clay`) is untouched, so
+rule 3 below still holds.
+
+Those plates are **`--forest`, not `--primary`**, and that is a rule-3 consequence rather than a
+preference. `--primary` flips register: L 0.416 in light, L 0.760 in dark. A full-width fill of it
+is a deep handsome plate by day and a sheet of bright mint by night, and at that lightness it
+out-shouts the scripture — the exact inversion of the hierarchy this document calls durable.
+`--forest` is theme-invariant at L 0.375, so one value serves both registers and `contrast.test.ts`
+already proves white on it. **A large fill takes a theme-invariant colour; a small accent may take
+`--primary`.** Caught by screenshotting the dark register, not by reading the diff.
 
 Dark is its **equal counterpart** — not an afterthought, not an inversion. The Qur'an is read at 2am
 and on the commute, and both are composed. Only the bg/surface/ink axis flips between them.
@@ -239,18 +247,18 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 | Token | Value | Why |
 |---|---|---|
-| `--bg` | `oklch(0.955 0.014 85)` | cream stock, not paper-white |
-| `--surface` | `oklch(0.975 0.010 85)` | the card — a shade above the page, never pure white |
-| `--surface-2` | `oklch(0.925 0.020 85)` | the wash |
-| `--line` | `oklch(0.878 0.022 84)` | — |
-| `--line-strong` | `oklch(0.812 0.030 82)` | — |
+| `--bg` | `oklch(0.902 0.036 82)` | cream stock, not paper-white |
+| `--surface` | `oklch(0.930 0.032 83)` | the card — a shade above the page, never pure white |
+| `--surface-2` | `oklch(0.862 0.044 81)` | the wash |
+| `--line` | `oklch(0.818 0.046 79)` | — |
+| `--line-strong` | `oklch(0.726 0.046 78)` | — |
 | `--ink` | `oklch(0.245 0.022 110)` | Dark olive rather than near-black: on cream, a neutral black reads as printed-on rather than |
 | `--ink-2` | `oklch(0.418 0.020 105)` | — |
 | `--ink-3` | `oklch(0.508 0.019 100)` | — |
 | `--panel-ink` | `oklch(0.245 0.022 110)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
 | `--panel-ink-2` | `oklch(0.418 0.020 105)` | — |
-| `--shell-bg` | `oklch(0.842 0.030 90)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
-| `--panel-foot` | `#f8f3e7` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
+| `--shell-bg` | `oklch(0.738 0.048 84)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
+| `--panel-foot` | `#e9dec3` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
 
 ### Brand
 
@@ -260,7 +268,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 |---|---|---|
 | `--primary` | `oklch(0.416 0.083 165)` | primary = the READABLE emerald: links, labels, pressed states, icons. |
 | `--primary-ink` | `oklch(1.000 0.000 0)` | — |
-| `--primary-wash` | `oklch(0.955 0.017 165)` | — |
+| `--primary-wash` | `oklch(0.416 0.083 165 / 0.10)` | TRANSLUCENT, like its dark counterpart — was an opaque `oklch(0.955 0.017 165)`, a pale mint |
 | `--primary-line` | `oklch(0.627 0.129 165 / 0.45)` | — |
 | `--composer-line` | `oklch(0.627 0.129 165 / 0.26)` | The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at |
 | `--composer-line-on` | `oklch(0.416 0.083 165 / 0.95)` | — |
