@@ -781,7 +781,11 @@
      the two. Clamped rather than pure dvh: below ~380px a split is not readable, and past ~1000px
      the line length stops being a line length. The subtraction clears the surah cartouche above
      and the docked Cari Surah bar below. */
-  height: clamp(380px, 100dvh - 240px, 1000px);
+  /* 190px, was 240px (Erik, 2026-08-09) — he bracketed the dead band under the columns. The
+     subtraction has to clear the docked composer; it did NOT also need to clear the surah cartouche,
+     because the cartouche scrolls away and the columns are the thing you are still reading when it
+     has. 50px of that reservation was being held for an element no longer on screen. */
+  height: clamp(380px, 100dvh - 190px, 1100px);
   margin-top: var(--s-1);
 }
 

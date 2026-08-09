@@ -1070,19 +1070,50 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: grid; place-items: center;
   width: 48px; height: 48px;
   border-radius: 9999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--primary);
-  box-shadow: 0 4px 14px oklch(0.30 0.04 160 / 0.14);
+  /* Raised, not flat (Erik: a 3D up-arrow). Three stacked cues do the lifting, none of them a
+     drop-shadow alone: a top-lit gradient fill so the cap catches light, an inset hairline highlight
+     along the upper edge and an inset shade along the lower one so the disc has thickness, and a
+     two-stop cast shadow — a tight contact shadow plus a wide soft one — so it reads as hovering
+     above the panel rather than printed on it. Emerald because DESIGN.md reserves the action colour
+     for what the reader can DO, and this is a control, not ornament. */
+  background: linear-gradient(180deg, var(--action-2, var(--action)) 0%, var(--action) 62%, oklch(0.42 0.10 165) 100%);
+  border: 1px solid oklch(0.42 0.10 165 / 0.9);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.22),
+    0 2px 4px rgba(6, 20, 14, 0.34),
+    0 10px 22px -6px rgba(6, 20, 14, 0.46);
   opacity: 0; transform: translateY(8px) scale(0.9); pointer-events: none;
-  transition: opacity var(--t), transform var(--t), border-color var(--t), background var(--t);
+  transition: opacity var(--t), transform var(--t), box-shadow var(--t), filter var(--t);
 }
 .to-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
-.to-top:hover { border-color: var(--primary-line); background: var(--surface-2); transform: translateY(-2px); }
-.to-top:active { transform: translateY(0) scale(0.94); }
-.to-top:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.to-top svg { width: 20px; height: 20px; }
-@media (prefers-reduced-motion: reduce) { .to-top { transition: opacity var(--t); } }
+/* Rises and throws a longer shadow — the light source stays put, so only the height changes. */
+.to-top:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.22),
+    0 4px 6px rgba(6, 20, 14, 0.3),
+    0 16px 30px -8px rgba(6, 20, 14, 0.52);
+}
+/* Pressed: it sits down INTO the surface — the cast shadow collapses and the inner shading flips,
+   so the disc looks depressed rather than merely smaller. */
+.to-top:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.34),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.16),
+    0 1px 2px rgba(6, 20, 14, 0.3);
+}
+.to-top:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.to-top svg { width: 20px; height: 20px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
+/* Reduced motion keeps the depth (it is static) and drops only the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .to-top { transition: opacity var(--t); }
+  .to-top:hover, .to-top:active { transform: none; }
+}
 
 /* ── composing — the chat surface names its own rhythm, no typewriter gimmick ────────────── */
 .composing {

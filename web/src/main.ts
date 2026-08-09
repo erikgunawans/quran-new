@@ -984,6 +984,25 @@ function bindKeyboardAwareComposer() {
   vv.addEventListener("scroll", reposition);
 }
 
+/**
+ * The docked composer rests compact and translucent so the surah behind it stays readable, and
+ * opens on approach. Hover and focus are pure CSS; this covers the case CSS cannot see — the reader
+ * has typed something and then moved the pointer away. Without it their own half-written question
+ * would fade to 62% and shrink under them, which is the one moment the input must not retreat.
+ */
+function bindComposerPresence(): void {
+  const form = document.getElementById("composer");
+  const field = form?.querySelector<HTMLTextAreaElement | HTMLInputElement>("textarea, input[type='text']");
+  if (!form || !field) return;
+  const sync = (): void => {
+    form.classList.toggle("is-typing", field.value.trim().length > 0);
+  };
+  field.addEventListener("input", sync);
+  // A programmatic fill — a seed chip, "Kejutkan aku", the surah finder — does not fire `input`.
+  form.addEventListener("submit", () => queueMicrotask(sync));
+  sync();
+}
+
 // ── boot ─────────────────────────────────────────────────────────────────────
 //
 // The old boot did `await fetch("/corpus.json")` with no try/catch and no res.ok check. On a
@@ -1030,13 +1049,41 @@ function initToTop(): void {
   const btn = document.getElementById("to-top");
   if (!btn) return;
   btn.hidden = false; // JS is here — hand visibility to CSS (opacity), gated on scroll below
+
+  // THE WINDOW DOES NOT SCROLL IN THIS SHELL. `.qk-panel-body` is the scroll container — measured:
+  // scrollHeight 1069 against clientHeight 788 while `window.scrollY` sat at 0 and never moved. So
+  // this button has existed, been correctly styled, and been permanently invisible: its listener was
+  // bound to a scroller that never fires. It shipped that way because the reskin moved the scroll
+  // into the panel long after the button was written, and nothing tied the two together.
+  //
+  // Both are still observed: `window` for any surface that scrolls the document, the panel for the
+  // shell. Whichever is actually scrolling decides.
+  // On a surah there is a THIRD tier: the split's two columns are their own scrollers, and that is
+  // where most of the reading scroll actually happens — the panel itself tops out around 330px while
+  // a column runs for thousands. Watching only the panel would leave the button dark exactly when a
+  // reader is deepest into a tafsir. All live scrollers are observed, and the deepest one decides.
+  const scrollers = (): HTMLElement[] => [
+    ...(document.querySelector<HTMLElement>(".qk-panel-body") ? [document.querySelector<HTMLElement>(".qk-panel-body")!] : []),
+    ...document.querySelectorAll<HTMLElement>("#read .sp-scroll"),
+  ];
+  const offset = (): number =>
+    Math.max(window.scrollY, ...scrollers().map((s) => s.scrollTop), 0);
+
+  // 220, not 420. The old threshold assumed a document-length scroll; against the panel's ~330px
+  // range it could never be crossed, so even the fixed listener would have left the button invisible.
   const onScroll = (): void => {
-    btn.classList.toggle("is-visible", window.scrollY > 420);
+    btn.classList.toggle("is-visible", offset() > 220);
   };
   window.addEventListener("scroll", onScroll, { passive: true });
+  // Capture phase: scroll does not bubble, and the inner columns are re-created on every route
+  // change, so binding to each one individually would go stale the moment the reader opens a surah.
+  document.addEventListener("scroll", onScroll, { passive: true, capture: true });
   onScroll();
+
   btn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+    const behavior = scrollBehavior();
+    window.scrollTo({ top: 0, behavior });
+    for (const s of scrollers()) s.scrollTo({ top: 0, behavior });
     // Return focus to the top of the document so keyboard users land where they were sent.
     document.querySelector<HTMLElement>(".qk-brand")?.focus();
   });
@@ -1049,6 +1096,7 @@ function initToTop(): void {
 
   bindLazyTafsir();
   bindKeyboardAwareComposer();
+  bindComposerPresence();
   initToTop();
 
   // The attribute is ALWAYS set — from storage if the reader chose, otherwise from the system.

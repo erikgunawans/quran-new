@@ -250,6 +250,17 @@
 :root:not([data-landing]) .qk-panel-body .app { padding-bottom: clamp(120px, 13vh, 160px); }
 .qk-panel-body .top { display: none; }           /* nav + brand now live in the sidebar */
 .qk-panel-body #chat, .qk-panel-body #read { width: min(1060px, 100%); margin: 0 auto; }
+
+/* THE SPLIT GETS THE ROOM (Erik, 2026-08-09). On a surah the panel holds TWO prose columns side by
+   side, so the 1060px cap — which is a sensible measure for ONE column — was handing each of them
+   about 530px and leaving ~90px of panel unused on either side. Measured before changing: `#read`
+   954 device px, each column 477, and 445 after the scroller's own padding.
+   Widening here does not contradict DESIGN.md § Layout: 46rem is the measure of a PROSE COLUMN, and
+   each half of this split is its own column. At the new width they land near 580px each — closer to
+   the 736px measure than before, not further from it. The gutters are trimmed to match, since a
+   44px page margin is generous when the content inside it is the thing being squeezed. */
+.qk-panel-body #read:has(.surah-split) { width: min(1240px, 100%); }
+.qk-panel-body .app:has(.surah-split) { padding-inline: clamp(12px, 1.6vw, 22px); }
 .qk-panel-body .thread { padding-top: 1rem; }
 
 /* THE MEASURE (DESIGN.md § Layout). 46rem is how wide prose stays readable — stated as binding
@@ -498,11 +509,36 @@
 .qk-shell[data-nav="closed"] ~ #composer-bar::before { left: 8px; }
 @media (max-width: 820px) { :root:not([data-landing]) #composer-bar::before { left: 0; } }
 .qk-shell[data-nav="closed"] ~ #composer-bar { padding-left: 8px; }
+/* THE DOCKED COMPOSER RESTS SMALL AND OPENS ON APPROACH (Erik, 2026-08-09).
+   On a reading route the composer is not the subject — the surah is. At rest it now sits at 60% of
+   its open width and 62% opacity, so the ayah behind it stays visible and the input reads as an
+   offer rather than a demand. It returns to full width and full opacity on hover, on focus-within,
+   and whenever it holds text (`.is-typing`, set in main.ts) — the last of those matters because a
+   reader who has typed and moved the mouse away must not have their own words fade out.
+   Width and opacity only: no height animation, because the textarea auto-grows and animating both
+   fights that. `--t` keeps it on the app's own easing. */
 :root:not([data-landing]) #composer-bar form {
-  width: min(720px, 100%); margin: 0 auto; padding: 12px 16px;
+  width: min(432px, 100%); margin: 0 auto; padding: 12px 16px;
   border-radius: 23px; background: rgba(255,255,255,.55);
   border: 1px solid rgba(255,255,255,.78); box-shadow: 0 4px 10px rgba(40,70,60,.08);
   -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%);
+  opacity: .62;
+  transition: width var(--t), opacity var(--t), box-shadow var(--t);
+}
+:root:not([data-landing]) #composer-bar form:hover,
+:root:not([data-landing]) #composer-bar form:focus-within,
+:root:not([data-landing]) #composer-bar form.is-typing {
+  width: min(720px, 100%);
+  opacity: 1;
+  box-shadow: 0 8px 22px -6px rgba(6,20,14,.34);
+}
+/* A reader who cannot hover — touch, or a keyboard-only path that has not focused it yet — must not
+   be left with a permanently dimmed input, and reduced-motion users should not watch it resize. */
+@media (hover: none) {
+  :root:not([data-landing]) #composer-bar form { width: min(720px, 100%); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-landing]) #composer-bar form { transition: opacity var(--t); width: min(720px, 100%); }
 }
 :root[data-theme="dark"]:not([data-landing]) #composer-bar form {
   background: rgba(12,26,20,.72); border-color: rgba(150,220,185,.16);
