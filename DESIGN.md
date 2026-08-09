@@ -110,6 +110,22 @@ The reader's bandwidth is a moral constraint, and this is where it gets decided.
 - Prose capped at **68ch**; `text-wrap: balance` on headings, `pretty` on prose.
 - **Arabic never uses `letter-spacing`** — it breaks the script's joins.
 
+**The conversation runs one notch below the reading surface** *(amended 2026-08-09, Erik's call)*.
+The row above says the scripture is "large, breathing", and on the reading surface it still is —
+this amendment narrows that claim rather than contradicting it. A verse you navigated to in order
+to **read** is the destination; the same verse **cited inside an answer** is evidence supporting a
+sentence, and the two were rendering at identical size, which made every reply read as a stack of
+destinations. Inside `#thread .msg` the Latin scale drops to `--step-0: 0.92rem` / `--step--1:
+0.77rem` / `--step--2: 0.64rem` and the Arabic to `--ar-scale: 0.85`. Everywhere else `--ar-scale`
+defaults to **1** and nothing moves.
+
+Two invariants this must not break, and does not: the Arabic is a **multiplier on `--ar-size`**,
+never a redeclaration of it, because the reader's A−/A/A+ control writes `--ar-size` inline on
+`:root` and a local token would silently discard their choice; and the reduction is applied to the
+**scale tokens**, not to individual `font-size` declarations, so the ratios between ref, prose, and
+scripture hold. Editing the declarations one at a time is how a type scale becomes fifteen
+unrelated numbers.
+
 ## Components
 
 Every interactive element ships **default, hover, focus, active, disabled, loading, error**. No exceptions.
@@ -230,13 +246,14 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 ### Type
 
-Arabic is scaled by the reader independently of the UI (`--ar-size`).
+Arabic is scaled by the reader independently of the UI (`--ar-size`), and by the surface via `--ar-scale` (1 everywhere except the conversation).
 
 | Token | Value | Why |
 |---|---|---|
 | `--f-ar` | `"Amiri", "Scheherazade New", "Noto Naskh Arabic", serif` | — |
 | `--f-ui` | `"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` | — |
 | `--f-display` | `"Fraunces", Georgia, serif` | display: Fraunces — the one characterful voice, for the hero and section titles only. |
+| `--step--2` | `0.694rem` | One rung BELOW --step--1, on the same 1.2 ratio (0.833 / 1.2). It was referenced by |
 | `--step--1` | `0.833rem` | — |
 | `--step-0` | `1rem` | — |
 | `--step-1` | `1.2rem` | — |

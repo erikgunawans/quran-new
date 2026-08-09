@@ -67,7 +67,7 @@ const GROUPS: [string, RegExp, string][] = [
   ["Surface & ink", /^--(bg|surface|surface-2|line|line-strong|ink|ink-2|ink-3)$/, "The light register. Dark flips only this axis — see `@media (prefers-color-scheme: dark)` in the stylesheet."],
   ["Brand", /^--(primary|primary-ink|primary-wash|primary-line|composer-line|composer-line-on|action|action-2|action-grad|action-ink|forest|forest-grad|clay|wash-1|wash-2)$/, "**Theme-invariant.** One emerald means \"you can do this\" in both registers, so the white-on-action contrast math is proved once, not per theme."],
   ["Semantic", /^--(caution|caution-wash|glow|shadow-pop|sh|sh-sm)$/, ""],
-  ["Type", /^--(f-ar|f-ui|f-display|step--1|step-0|step-1|step-2|step-3|step-4|ar-size)$/, "Arabic is scaled by the reader independently of the UI (`--ar-size`)."],
+  ["Type", /^--(f-ar|f-ui|f-display|step--2|step--1|step-0|step-1|step-2|step-3|step-4|ar-size)$/, "Arabic is scaled by the reader independently of the UI (`--ar-size`), and by the surface via `--ar-scale` (1 everywhere except the conversation)."],
   ["Space & shape", /^--(s-[1-9]|r|r-lg|r-input)$/, "4pt scale. Rhythm comes from a defined set, never arbitrary numbers."],
   ["Motion & layers", /^--(ease|t|z-[\w-]+)$/, "z is semantic, never 9999."],
 ];

@@ -394,7 +394,9 @@
   align-self: flex-end; max-width: 640px;
   background: var(--action-grad); color: var(--action-ink);
   border: 0; border-radius: 22px 22px 6px 22px;
-  padding: 15px 24px; font-size: clamp(16px, 1.9vw, 20px); line-height: 1.5;
+  /* −10% (Erik: reduce the answer area's type). Ceiling and floor both move; the vw term moves with
+     them so the ramp between them keeps its shape instead of flattening. */
+  padding: 15px 24px; font-size: clamp(14.5px, 1.7vw, 18px); line-height: 1.5;
   box-shadow: 0 2px 8px rgba(40, 90, 70, .18);
 }
 
@@ -407,7 +409,7 @@
   -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
 }
 :root[data-theme="dark"] .qk-trace { background: rgba(24, 48, 42, .5); border-color: rgba(210, 235, 220, .13); }
-.qk-step { display: flex; align-items: center; gap: 10px; font-family: var(--f-ui); font-size: 15px; color: var(--ink-2); }
+.qk-step { display: flex; align-items: center; gap: 10px; font-family: var(--f-ui); font-size: 13.5px; color: var(--ink-2); }
 .qk-step-label { font-variant-numeric: tabular-nums; }
 .qk-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--action); flex: none; }
 .qk-step.pending .qk-dot { background: var(--ink-3); }
@@ -416,7 +418,10 @@
 }
 
 /* ── the answer prose (Nur's own voice, never a scholar's) ───────────── */
-.qk-panel-body .msg.nur .said { font-size: clamp(17px, 2vw, 21px); line-height: 1.65; color: var(--ink); max-width: 860px; }
+/* −10% (Erik). This is the single largest block of Latin on the surface, so it sets the felt size of
+   the whole answer; line-height goes UP as the size comes down, because shorter lines at a smaller
+   size need more leading, not less, to stay readable at 68ch. */
+.qk-panel-body .msg.nur .said { font-size: clamp(15px, 1.8vw, 18.5px); line-height: 1.7; color: var(--ink); max-width: 860px; }
 .qk-panel-body .msg.nur .said strong, .qk-panel-body .msg.nur .said b { color: var(--ink); }
 
 /* ── the ayah card → the design's glass qk-card ──────────────────────── */
@@ -435,7 +440,7 @@
 .qk-panel-body .verse .ref {
   background: var(--primary-wash); color: var(--primary);
   border: 1px solid var(--primary-line); border-radius: 999px;
-  padding: 4px 11px; font-size: 12px; letter-spacing: .01em;
+  padding: 4px 10px; font-size: 11px; letter-spacing: .01em;
 }
 .qk-panel-body .verse .surah-name { color: var(--ink-2); }
 
@@ -449,14 +454,14 @@
    left this one block visibly larger than everything around it — the global −10% zoom scaled the rest
    down but a px ceiling has no opinion about that, so the gap only widened (Erik). Brought to a 17px
    ceiling: still the most readable thing in the card, no longer the loudest. */
-.qk-panel-body .verse .reading .txt { font-size: clamp(15px, 1.35vw, 17px); line-height: 1.65; }
+.qk-panel-body .verse .reading .txt { font-size: clamp(13.5px, 1.2vw, 15.2px); line-height: 1.7; }
 
 /* ── the depth toggle → a pill (design 1c), tafsir stack unchanged ───── */
 .qk-panel-body .verse .depth { border-top: 0; padding: 0 24px 18px; }
 .qk-panel-body .verse .depth > summary {
   display: inline-flex; width: auto; gap: 6px;
   border: 1px solid var(--line-strong); border-radius: 999px;
-  padding: 9px 16px; font-size: 15px; font-weight: 500; color: var(--primary);
+  padding: 8px 15px; font-size: 13.5px; font-weight: 500; color: var(--primary);
 }
 .qk-panel-body .verse .depth > summary:hover { border-color: var(--primary-line); color: var(--primary); }
 .qk-panel-body .verse .depth > summary::after { margin-left: 6px; }

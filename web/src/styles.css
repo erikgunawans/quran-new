@@ -66,6 +66,11 @@
      The UI body stays Plus Jakarta Sans; this speaks where the app addresses the reader. */
   --f-display: "Fraunces", Georgia, serif;
 
+  /* One rung BELOW --step--1, on the same 1.2 ratio (0.833 / 1.2). It was referenced by
+     `.passage-ref` (the co-display ayah number) and never defined, so that declaration was invalid
+     at computed-value time and the ref silently inherited its parent's size instead of stepping
+     down. Defining it is the fix; nothing else changes. */
+  --step--2: 0.694rem;
   --step--1: 0.833rem;
   --step-0:  1rem;
   --step-1:  1.2rem;
@@ -513,6 +518,30 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .msg.nur { align-self: stretch; }
 
+/* ── the conversation's type, one notch down (Erik) ──────────────────────────
+   "Reduce the size of the fonts both latin and the arabic ones of the answer area."
+
+   Done by re-declaring the SCALE TOKENS on the message container rather than editing the ~15
+   `font-size` declarations underneath it. Custom properties inherit, so every descendant that
+   already reads `--step-*` moves together and the ratios between them hold; editing the
+   declarations one at a time is how a type scale turns into fifteen unrelated numbers.
+
+   Scoped to `#thread .msg`, so this is the ANSWER surface only. The reading surface (`#read`,
+   `#/surah/N`) and the panel keep the full scale — a verse you came to READ is not a verse cited
+   inside a reply, and the two should not be the same size.
+
+   Deliberately NO `font-size` here. This selector is (1,1,0) and would outrank every
+   `.qk-panel-body …` reskin rule in shell.css (0,3,0) that sizes this surface in px — measured: it
+   dropped the user bubble from 20px to 14.7px, past "smaller" into "different design". The tokens
+   below reach the chrome shell.css does not size (`.by`, `.surah-name`, `.reader-note`, `.chip`);
+   the prose, the translation and the bubble are sized in shell.css and are reduced THERE. */
+#thread .msg {
+  --step--2: 0.64rem;
+  --step--1: 0.77rem;
+  --step-0:  0.92rem;
+  --ar-scale: 0.85;
+}
+
 /* Nur speaking — never in a scholar's voice */
 .said { color: var(--ink-2); margin-bottom: 1.25rem; max-width: 68ch; text-wrap: pretty; }
 .said strong { color: var(--ink); font-weight: 600; }
@@ -557,10 +586,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .surah-name { color: var(--ink-3); font-size: var(--step--1); }
 .verse-head .why { margin-left: auto; color: var(--ink-3); font-size: var(--step--1); }
 
-/* Arabic — the hero. Scales independently of the UI. */
+/* Arabic — the hero. Scales independently of the UI.
+   `--ar-scale` is a per-surface multiplier, defaulting to 1 so the READING surface (#read) and the
+   panel are untouched. Only the conversation sets it (see `#thread .msg` below). It must be a
+   multiplier and not a re-declared `--ar-size`, because the reader's A−/A/A+ control writes
+   `--ar-size` as an inline style on :root — overriding the token here would silently discard their
+   choice, which is the one thing this control exists to prevent. */
 .ar {
   font-family: var(--f-ar);
-  font-size: var(--ar-size);
+  font-size: calc(var(--ar-size) * var(--ar-scale, 1));
   line-height: 2.1;
   direction: rtl;
   text-align: right;
@@ -591,9 +625,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--ink-3); opacity: 0.75;
 }
 
-/* Smaller than the subject's Arabic, still scaling with the reader's A- pill. */
+/* Smaller than the subject's Arabic, still scaling with the reader's A- pill — and now also with
+   the surface's `--ar-scale`, so the context ayah stays proportionally quieter inside an answer
+   instead of jumping above its own subject. */
 .passage-ayah .ar {
-  font-size: calc(var(--ar-size) * 0.82);
+  font-size: calc(var(--ar-size) * var(--ar-scale, 1) * 0.82);
   padding: 6px 26px 10px;
   color: var(--ink-2);
   text-shadow: none;
