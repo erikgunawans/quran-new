@@ -8,7 +8,73 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-10 (latest) — A dead surface nobody had noticed, and a scrollbar that lied about its size
+## 2026-08-10 (latest) — A box measured against the wrong room, and a pass that agreed for the wrong reason
+
+Anchor: `origin/main` `1241629`. **1017 tests pass**, build exit 0. ISA **298/300** — ISC-98 open,
+ISC-189 deferred-verify. Prod Worker unchanged at `fc17e128`; **this fix is committed but NOT
+deployed** — prod deploys stay Erik's call.
+
+**The 331px was two errors that failed to cancel.** `.surah-split` asked for
+`clamp(380px, 100dvh - 190px, 1100px)`. Inside `body`'s `zoom: .9` subtree `100dvh` resolves to the
+**raw 720px**, not the 800px the layout actually has — probed, not assumed: a scratch element at
+`100dvh` computed `720px`, the same element at `calc(100dvh / .9)` computed `800px`. `body` already
+carried that exact correction on its own `min-height`, with a comment explaining it. Nothing else
+had it.
+
+**The larger error was the room, not the arithmetic.** The box is not sized against the viewport at
+all. It lives inside `.qk-panel-body` (788px), with 375px of cartouche above it and 214px of
+back-button plus composer clearance below. The real surround is 589px; `190` was never a candidate.
+The budget closed to the pixel before anything changed — `14 + 361.1 + 530 + 94.4 + 120 = 1119.5`
+against a 788 frame, matching the probe's `scrollHeight 1119 / clientHeight 788` exactly. That is
+what turned this from speculation into arithmetic.
+
+**Sized against the panel now, and the scroll range became a design statement.** `.qk-panel-body` is
+exactly `--app-100vh - 12px` at every viewport — `.qk-shell` is `inset: 0` with a 6px vertical pad,
+so that offset is constant rather than sampled. The subtraction is only what sits *below* the
+columns. What sits above stays out on purpose: the cartouche is meant to scroll away, so the panel's
+scroll range should equal the cartouche and then stop. It now does to **0.0px** — 375 of scroll for
+375 of cartouche, columns landing flush at the panel top, `.back-bottom` clearing the docked bar by
+40px. The fix makes the page scroll *more*, not less, and that is the point.
+
+**The clearance was never touched.** The handoff's instinct was right — stripping it the way the
+shelf fix did would have hidden "Kembali ke daftar surah" behind the composer. The columns grew into
+the dead band instead.
+
+**The advisor call earned its cost.** Challenged on multi-height coverage, `.app`'s clearance turned
+out to be `clamp(120px, 13vh, 160px)`, not a flat 120 — past a ~923px viewport `13vh` overtakes the
+floor and the reservation grows. A frozen `-214px` would have been correct only at the one height it
+was measured at. Tokenised to `--composer-clear`, read by both rules, and proved with a
+counterfactual on the built bundle: forcing it to 160px, the shipped rule shrinks the split
+573.993 → 533.993 and holds `DELTA 0.0`; the frozen variant keeps 573.993 and `DELTA` jumps to
+**+40.0** — forty pixels of content under the bar, on viewports nobody was testing.
+
+### The pass that agreed for the wrong reason
+
+The first "verified" reading on the tokenised build was **false**, and nearly shipped as evidence.
+`serve` had cached `index.html`, so the browser was still on build 1 while disk held build 3 — and
+`800 - 12 - 214` and `800 - 12 - 94 - 120` are **both 574**, so the old and new formulas are
+indistinguishable at exactly the 720px viewport being measured. The probe said `DELTA 0.0` and it
+was reading the bug. What exposed it was a counterfactual that computed `height: auto` (4054.53px)
+because `var(--app-100vh)` did not exist in the loaded sheet. Two lessons compounded: an injected
+stylesheet lands **earlier** in the cascade, so overrides need `!important` or they lose silently
+and look like "no effect"; and **a probe that agrees with your hypothesis for the wrong reason is
+the most expensive kind of pass.** ISC-297 now makes asset-identity a precondition of any geometry
+claim: read the `link[rel=stylesheet]` filename from the live DOM and match it against disk before
+believing a single number.
+
+**Deliberately not widened.** `shell.css` is in the diff, but only for the `--composer-clear` token —
+`git diff` touches **0** lines containing `dvh`. The three sibling `dvh` users there had their
+constants tuned against the raw value and already absorb the discrepancy; the shelf measures 0
+overflow today. Fixing the dvh at the ingestion point would have **regressed** last night's verified
+fix, not extended it. That is the rare case where the upstream fix is the wrong move.
+
+**Still blocked on hardware, unchanged:** ISC-98 (real-iOS `visualViewport` composer check) and
+ISC-189 (60fps `#/peta` cosmos on a mid-range Android). Neither is a code gap; both need a physical
+device and stay exactly as they were.
+
+---
+
+## 2026-08-10 — A dead surface nobody had noticed, and a scrollbar that lied about its size
 
 Anchor: `origin/main` `04aaa38` (+ this checkpoint). Prod Worker `fc17e128`, CSS `index-DOa-lg3a.css`,
 JS `index-n7S2Z8zW.js`. **1017 tests pass.** ISA **290/292** — ISC-98 open, ISC-189 deferred-verify.
