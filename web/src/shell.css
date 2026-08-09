@@ -164,7 +164,7 @@
      sync with `--panel-foot` in styles.css: the composer's fade ramp ends in it, and a mismatch
      paints the bottom 74px of every reading route a different colour than the panel it sits in. */
   background: radial-gradient(100% 55% at 50% 100%, rgba(31,168,116,.10), transparent 58%),
-              linear-gradient(180deg,#e9f2ee 0%,#f1f8f4 45%,#f7fbf9 100%);
+              linear-gradient(180deg,#e6f0eb 0%,#ecf5f1 45%,#f1f7f4 100%);
 }
 /* The light landing, on the same cool ground. The crescent stays but is re-cut in the brand green:
    at `#f4dd8f` it was a pale gold disc on cream, which on a near-white ground would have been all
@@ -174,7 +174,7 @@
 :root[data-landing] .qk-panel::before {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66' viewBox='0 0 66 66'%3E%3Cpath fill='%23bfe3d1' d='M44 6 A29 29 0 1 0 44 60 A23 23 0 1 1 44 6 Z'/%3E%3C/svg%3E") 90% 96px / 66px 66px no-repeat,
               radial-gradient(100% 55% at 50% 100%, rgba(31,168,116,.14), transparent 58%),
-              linear-gradient(180deg,#e9f2ee 0%,#f0f7f3 42%,#f7fbf9 100%);
+              linear-gradient(180deg,#e6f0eb 0%,#ebf4f0 42%,#f1f7f4 100%);
 }
 /* Inner layer, bolder: a richer emerald ground with a warm gold wash at the foot — distinctly
    lighter/greener than the deep shell so the two layers read apart. NO top glow (Erik: remove the

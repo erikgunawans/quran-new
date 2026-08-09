@@ -39,8 +39,19 @@ other one, and it is the one the reference actually uses. QuranKu
 cards are genuinely white and float on it with a shadow, and the entire colour budget is spent on a
 vivid green. The eye rests on **plane separation and saturated brand**, not on a tinted page. So
 `--surface` is pure white again — deliberately reversing "the card is never pure white", which was a
-parchment-era rule and does not survive the reference — while `--shell-bg` sits a clear three points
-below the page so the rail, the panel and the card read as three planes rather than one.
+parchment-era rule and does not survive the reference.
+
+*Corrected the same day.* The first cut of this put `--shell-bg` three points **below** the page,
+keeping the old invariant that the inner panel is the lit plane. Erik on that rail: **"too dark, too
+muddy."** At `#e5edea` it was a grey carrying a faint green cast, and grey-plus-tint is the one mix
+that reads as dirty rather than as a colour — brightening it slightly would not have helped, because
+the grey was the problem, not the lightness. It is now near-white (L 0.990), which **inverts** the
+plane order: the rail is the lit frame and the panel is the tinted page inside it, exactly as the
+reference has it. The invariant that actually matters is unchanged and absolute — **the two planes
+must differ at every stop**, because the panel has had no border since 2026-08-09 and the colour step
+is the only thing separating them. The panel ground was pulled down to 0.945→0.965 to keep a real
+step at the foot, and `--panel-foot` moved with it so the composer's fade still ends in the panel's
+own colour.
 
 The mechanism that makes the saturation free: **WCAG contrast is driven by lightness and barely at
 all by chroma.** Every green here keeps the exact L it had and spends its budget on C — `--primary`
@@ -285,8 +296,8 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--ink-3` | `oklch(0.588 0.020 230)` | — |
 | `--panel-ink` | `oklch(0.318 0.028 240)` | PANEL INK — for type painted on shell.css's `.qk-panel::before` ground, which is NOT `--bg`. |
 | `--panel-ink-2` | `oklch(0.478 0.024 235)` | — |
-| `--shell-bg` | `oklch(0.940 0.010 172)` | THE OUTER LAYER. Keyed like `--panel-ink` — light by default, flipped only under |
-| `--panel-foot` | `#f7fbf9` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
+| `--shell-bg` | `oklch(0.990 0.003 172)` | Erik, 2026-08-10: the rail read "too dark, too muddy" at oklch(0.940 0.010 172) — #e5edea, a |
+| `--panel-foot` | `#f1f7f4` | The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because |
 
 ### Brand
 

@@ -65,13 +65,26 @@
      of a two-layer shell were taking their register from DIFFERENT signals: dark sidebar, light panel.
      That is why the step between them needed a hairline to be legible at all.
      Deeper than every stop of the panel ground above it, so the inner layer reads as the lit plane. */
-  --shell-bg: oklch(0.940 0.010 172);
+  /* Erik, 2026-08-10: the rail read "too dark, too muddy" at oklch(0.940 0.010 172) — #e5edea, a
+     grey with a faint green cast, and a grey-plus-tint is the one mix that reads as dirty rather
+     than as a colour. Near-white now, per the reference, where the chrome is white and the page is
+     the tinted plane.
+
+     THIS INVERTS THE INVARIANT DIRECTLY ABOVE, deliberately. The rule was "deeper than every stop of
+     the panel ground, so the inner layer reads as the lit plane". It is now the reverse: the RAIL is
+     the lit plane and the panel is the tinted one inside it. The rule that actually matters is
+     unchanged and still absolute — the two planes must differ at EVERY stop, because Erik removed
+     the panel's border in 2026-08-09 and the colour step is the only thing separating them. The
+     panel's ground runs 0.945→0.965; this sits at 0.990, so the step holds top to bottom with the
+     narrowest margin at the foot. Lower this, or raise the panel's last stop, and the two planes
+     merge at the bottom of the screen with no hairline to catch it. */
+  --shell-bg: oklch(0.990 0.003 172);
 
   /* The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because
      the composer's fade ramp has to end in the panel's own colour: it used `--bg`, the app/outer
      background, so the bottom ~74px of every reading route was painted a different colour than the
      panel it sits in. Keep in sync with the final stop of the panel ground in shell.css. */
-  --panel-foot: #f7fbf9;
+  --panel-foot: #f1f7f4;
 
   /* primary = the READABLE emerald: links, labels, pressed states, icons.
      Deep enough to carry body text on --surface (8.2:1). */
