@@ -8,7 +8,76 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-10 (latest) — Two sessions, one repo, and the file that deployed itself
+## 2026-08-10 (latest) — A dead surface nobody had noticed, and a scrollbar that lied about its size
+
+Anchor: `origin/main` `04aaa38` (+ this checkpoint). Prod Worker `fc17e128`, CSS `index-DOa-lg3a.css`,
+JS `index-n7S2Z8zW.js`. **1017 tests pass.** ISA **290/292** — ISC-98 open, ISC-189 deferred-verify.
+
+**Two of the three handed-over items did not need doing, because their premise was wrong.** The
+handoff said `demo-quranku.axiara.ai` "still serves the OLD parchment theme". A live probe on the
+running page read `data-theme:"light"`, body `rgb(247,249,250)` = `#f7f9fa` — a cool near-white
+already in the new register's family, held light even though the machine prefers dark. There is no
+parchment. And the prescribed fix could not have worked either way: `web/demo/demo.css` is a
+standalone 86KB sheet with **zero `@import`** of the app tokens, built through its own
+`vite.demo.config.ts` into `dist-demo`, so the light-register commits never touched it. Retheming
+the demo is a CSS job, not a deploy. Erik left it alone — the demo is a deliberate QuranKu clone,
+and its own source says so: `--qk-secondary: #efc851; /* QuranKu uses gold freely — this is THEIR
+design, not New-Quranku */`.
+
+**The warm accents were measured and kept.** `.srow-spine-ar` `#a8741f`, `.srow-rev.meccan`
+`#7a5e17`, read in genuine light mode. The method mattered more than the numbers: the stylesheets
+key dark on **both** `prefers-color-scheme` and `[data-theme]`, so flipping the attribute alone on a
+dark-preference machine yields a desynced fake, not the light register. Forced with CDP `emulate`
+(`prefersDark:false` + `attr:light`) before reading anything.
+
+**`new-quranku-ai.axiara.ai` was dead, and the handoff carried it forward as "unchanged".** It
+returned HTTP 522. Not a stale deploy: `wrangler deployments list --env synthesis` answered
+`This Worker does not exist on your account [code: 10007]`. **A 522 on an assets-serving Worker
+means the Worker is GONE, not that an origin is sick** — an assets Worker has no origin to be sick,
+so the route was falling through toward the dead Cloud Run host. Recreated as Version `95a8a7f8`,
+route re-bound, verified 200 and rendering in real Chrome. A recreated Worker starts with **no
+secrets** (`secret list` → `[]`), so `/api/answer` returns `{"answer":null}` and Tanya degrades to
+keyword retrieval until Erik re-runs the interactive `wrangler secret put OPENROUTER_API_KEY
+--env synthesis`. This also refuted a memory: prod's `new-quranku-proxy` **does** hold its key now,
+so `principled-worker-no-key` was deleted rather than left to mislead.
+
+**The hazard that recreation exposed.** `VITE_ANSWER_MODE=synthesis bun run build` and plain
+`bun run build` write to the **same** `web/dist` — the directory the principled prod Worker deploys
+from. Left in place, a synthesis build would put the AI-authoring bundle on the edition whose whole
+identity is that it authors nothing. The `EDITION` var is a real second line of defence, but relying
+on the gate is not the same as not shipping the wrong bundle. Discipline: synthesis build →
+synthesis deploy → immediately rebuild plain. Verified by content hash, since Vite hashes on
+content: `index-CbtcXzU2.js` returned and matched what `curl` showed prod serving.
+
+### The scrollbar whose length had nothing to do with its cause
+
+Erik reported vertical scrollbars running the full viewport on the Al Qur'an section. The overflow
+was **31px**. The shelf does not scroll — `.surah-list > li` is sized `calc(100dvh - 150px)`
+precisely so the row sits *above* the docked composer, and that rule's own comment says the offset
+"reserves the panel top bar, the Al Qur'an header, the ~88px composer, and a small foot gap". Then
+the generic `:root:not([data-landing]) .qk-panel-body .app { padding-bottom: clamp(120px, 13vh,
+160px) }` reserved the same composer a **second time** underneath it. That padding is correct
+everywhere else — chat, masonry and filmstrip all must scroll clear of the fixed bar — and wrong
+only on the one route that already cleared it itself.
+
+**Why 31px looked catastrophic:** `.qk-panel-body` is `overflow-y:auto` and spans 5→715 of a 720px
+viewport, so *any* overflow spawns a scrollbar the full height of the viewport. The scrollbar's
+length reports the container's height, never the size of the overflow. Fixed with
+`.app:has(.baca-clip) { padding-bottom: 14px }`, scoped like the `.surah-split` rules already in
+that file. Measured 819/788 → 0 overflow, 25px still clear beneath the row.
+
+**Deliberately not fixed:** the surah *reading* view (`#/surah/N`) overflows **331px, and still
+225px after this change**, with two nested `.sp-scroll` scrollers inside a `.surah-split` sized
+`100dvh - 190px`. Same symptom, different and larger cause. Unlike the shelf it legitimately
+scrolls, so blanket-removing its clearance would hide content behind the composer.
+
+**equran stays local.** I recommended a private remote (matching `tafseer-okf` and `komdigi-cli`,
+the only two siblings with one); Erik chose local for now. Recorded because it is the same
+single-disk exposure the OKF corpus move closed the night before.
+
+---
+
+## 2026-08-10 — Two sessions, one repo, and the file that deployed itself
 
 Anchor: `origin/main` `1079785` (+ this checkpoint). Prod Worker `b2f82372`, CSS `index-CLV41V3N.css`,
 JS `index-CbtcXzU2.js`. **1017 tests pass.** ISA **288/290** — ISC-98 open, ISC-189 deferred-verify.

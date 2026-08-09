@@ -3,10 +3,10 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 288/290
+progress: 290/292
 mode: build
 started: 2026-07-13
-updated: 2026-08-09
+updated: 2026-08-10
 ---
 
 # New-Quranku — Ideal State Artifact
@@ -185,6 +185,8 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-40: `bun run typecheck` is clean
 - [x] ISC-41: All 21 WCAG AA contrast tests still pass in both themes
 - [x] ISC-42: Anti: no corpus integrity gate is weakened, skipped, or removed — `bun run verify` still passes 24/24
+- [x] ISC-288: Anti: the Al Qur'an shelf route (`#/baca`) never overflows `.qk-panel-body` — the shelf is sized to fit, so `scrollHeight - clientHeight` must read 0 and no viewport-height scrollbar may appear
+- [x] ISC-289: Antecedent: the shelf's last card still clears the docked composer — measured gap between the card's bottom and the composer's top is > 0, so nothing is occluded by the fix that removes the clearance padding
 
 ### Adversarial review — 14 findings (2026-07-14)
 
@@ -1286,6 +1288,22 @@ articulation.
 ## Verification
 
 All probes run against the live app in real Chrome (Interceptor), not inspection.
+
+**2026-08-10 — ISC-288 / ISC-289, the full-viewport scrollbar on the Al Qur'an shelf.**
+- ISC-288: `interceptor eval --main` on live `#/baca` at 1280x720. Before: `.qk-panel-body`
+  `scrollHeight 819 / clientHeight 788` = **31px over**, `.app` `padding-bottom: 120px`. After the
+  deploy: `panelOverflow: 0`, `docOverflow: 0`, `scrollbarW: 0`, `appPadBottom: 14px`. Screenshot
+  confirms the panel's right edge is clean. The scrollbar's length was never proportional to the
+  defect — 31px of overflow in a container spanning 5→715 of a 720px viewport renders a scrollbar
+  the full height of the viewport, which is what the eye catches.
+- ISC-289: same probe, `clearanceToComposer: 25` (px, positive) — the shelf's card bottom still
+  sits above the docked composer after the clearance padding was dropped to 14px. Falsified the
+  cheap version of this fix (`padding-bottom: 0`) by measuring both: 0 and 14px both give zero
+  overflow, so 14px was chosen to keep `.baca-clip`'s own `4px 0 14px` foot rhythm.
+- Deploy: Worker `fc17e128`, CSS `index-DOa-lg3a.css` fetched from the live origin with
+  `Accept-Encoding: identity` and `cmp`-verified **byte-identical** (103,518 B) to the local build.
+  A first check read 15,481 B and looked like a truncated asset — that was curl returning brotli it
+  could not decode, not a bad deploy.
 
 **2026-08-09 — ISC-111's record half, and the deferral's cause proven rather than assumed.**
 - ISC-111 (record half): `interceptor eval` deleted `newquranku:baca` (read back `null`), then
