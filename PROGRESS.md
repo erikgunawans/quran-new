@@ -8,6 +8,28 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-10 — The remotes now tell the truth
+
+`origin` named the **retired** repo (`erikgunawans/nur`) and the live one was the oddly-named
+`quran-new`. Every tool that reports "unpushed" reads the remote called `origin`, so every session
+inherited a false alarm: the 2026-08-09 handoff opened with "107 UNPUSHED commits" when `main` had
+been in sync with the live remote the entire time. Commit `de123f3` corrected this same class of
+error once before, in prose. Prose does not enforce.
+
+Renamed: `origin` → `nur`, `quran-new` → `origin`. `main` now tracks `origin/main`; `nur/main` stays
+frozen at `c4ff3ae`, and the closed PR there is still reachable.
+
+**Earlier checkpoints below say `quran-new/main`.** That was the correct name when they were written
+and they are kept as-is per the append-only rule. Read them as "the live remote".
+
+The trap this closes is worth naming, because it is the session's second instance of one shape:
+ISA carried `ISC-284: Anti: nothing is pushed to origin (nur)`. Renaming the remotes would have
+silently inverted that criterion into "never push to the live repo". Both it and ISC-237 were
+re-anchored on the repository name in the same commit as the rename. **A criterion that names a
+mutable alias is a criterion that will one day mean the opposite of what it says.**
+
+---
+
 ## 2026-08-09 (latest) — Two audits, a P0 that ate the composer, and the test that could not see gold
 
 Anchor: quran-new/main `451dacd`. Prod Worker `a85b28d4`, CSS `index-xpdk2-pk.css`, JS `index-D7CyoCrn.js`.
