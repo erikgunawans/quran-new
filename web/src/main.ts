@@ -1066,19 +1066,43 @@ function initToTop(): void {
     ...(document.querySelector<HTMLElement>(".qk-panel-body") ? [document.querySelector<HTMLElement>(".qk-panel-body")!] : []),
     ...document.querySelectorAll<HTMLElement>("#read .sp-scroll"),
   ];
-  const offset = (): number =>
-    Math.max(window.scrollY, ...scrollers().map((s) => s.scrollTop), 0);
+  // VISIBILITY FOLLOWS THE SCROLLBAR, NOT THE SCROLL POSITION (Erik, 2026-08-09).
+  //
+  // It used to appear after 220px of travel, which meant it could be showing on a surface whose
+  // scrollbar had since gone away — a route change, a collapsed column, a closed tafsir — leaving a
+  // control offering to undo a scroll that no longer exists. The rule is now the one Erik stated:
+  // if something on screen can scroll vertically, the button is available; if nothing can, it is
+  // hidden. A few px of slack because sub-pixel layout leaves scrollHeight a hair over clientHeight
+  // on elements that are not really scrollable.
+  const canScroll = (): boolean =>
+    document.documentElement.scrollHeight - window.innerHeight > 4 ||
+    scrollers().some((s) => s.scrollHeight - s.clientHeight > 4);
 
-  // 220, not 420. The old threshold assumed a document-length scroll; against the panel's ~330px
-  // range it could never be crossed, so even the fixed listener would have left the button invisible.
-  const onScroll = (): void => {
-    btn.classList.toggle("is-visible", offset() > 220);
+  const sync = (): void => {
+    btn.classList.toggle("is-visible", canScroll());
   };
-  window.addEventListener("scroll", onScroll, { passive: true });
+
+  window.addEventListener("scroll", sync, { passive: true });
   // Capture phase: scroll does not bubble, and the inner columns are re-created on every route
   // change, so binding to each one individually would go stale the moment the reader opens a surah.
-  document.addEventListener("scroll", onScroll, { passive: true, capture: true });
-  onScroll();
+  document.addEventListener("scroll", sync, { passive: true, capture: true });
+  // Scrollability changes without anyone scrolling: opening a surah, expanding a tafsir, collapsing
+  // a column, resizing the window. Scroll events alone would leave the button stale in every one of
+  // those cases, so the geometry itself is watched.
+  window.addEventListener("resize", sync, { passive: true });
+  window.addEventListener("hashchange", sync);
+  if (typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(sync);
+    const observe = (): void => {
+      for (const s of scrollers()) {
+        ro.observe(s);
+        if (s.firstElementChild) ro.observe(s.firstElementChild); // content growth, not just the box
+      }
+    };
+    observe();
+    window.addEventListener("hashchange", () => queueMicrotask(observe));
+  }
+  sync();
 
   btn.addEventListener("click", () => {
     const behavior = scrollBehavior();
