@@ -37,7 +37,7 @@
    rule anywhere, so the brand was rendering as plain Plus-Jakarta in the inherited link colour. */
 .qk-hero-gradient {
   font-family: var(--f-display); font-weight: 500;
-  background: linear-gradient(92deg, #16a249 0%, #4ba33f 42%, #f0c851 100%);
+  background: linear-gradient(92deg, var(--hero-a) 0%, var(--hero-mid) 42%, var(--hero-b) 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
 }
@@ -101,7 +101,10 @@
 .qk-tool[open] > .qk-tool-sum .chev { transform: rotate(180deg); }
 
 /* the revealed card, sized to the narrow sidebar; scrolls internally so it never clips the footer */
-.qk-tool-body { padding: 6px 4px 10px; max-height: 44vh; overflow-y: auto; animation: qkin 240ms var(--ease) both; }
+/* `forwards`, never `both` — DESIGN.md § Motion bans `both` by name: it back-fills the FROM keyframe
+   (opacity 0) the instant the element exists, so a tab backgrounded before the animation runs a frame
+   leaves the content permanently invisible. Routine on the mid-range Android this product targets. */
+.qk-tool-body { padding: 6px 4px 10px; max-height: 44vh; overflow-y: auto; animation: qkin 240ms var(--ease) forwards; }
 .qk-tool-body .band { display: block; margin: 0; width: 100%; }
 .qk-tool-body .band[hidden] { display: none; }
 
@@ -251,15 +254,26 @@
   line-height: 1.7; margin: 0 0 4px; direction: rtl;
   background-image:
     linear-gradient(100deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 62%),
-    linear-gradient(90deg,#16a249 0%,#f0c851 100%);
+    linear-gradient(90deg,var(--hero-a) 0%,var(--hero-b) 100%);
   background-size: 220% 100%,100% 100%; background-repeat: no-repeat;
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: qkshine 3.6s var(--ease) infinite;
+  /* Parked OFF the text. Without this the un-animated state defaults to `0% 0%`, which centres the
+     shine's white band across the salam — so gating the animation below would have left
+     reduced-motion readers with a permanent pale stripe through the Arabic instead of no motion. */
+  background-position: 120% 0, 0 0;
+}
+/* `animation: qkshine … infinite` used to sit in the rule above, outside any media query — verified
+   still running under forced reduced-motion. An endless specular sweep across the salam is also
+   ornament applied to the thing it decorates, which is the devotional-app cliché PRODUCT.md bans by
+   name; gating it is the accessibility fix, and whether it belongs on scripture at all is a separate
+   call that is Erik's, not mine. */
+@media (prefers-reduced-motion: no-preference) {
+  .qk-hero-salam { animation: qkshine 3.6s var(--ease) infinite; }
 }
 .qk-panel-body #hello h1 {
   font-family: var(--f-display); font-weight: 500;
   font-size: clamp(30px, 4vw, 52px); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 10px;
-  background: linear-gradient(90deg,#16a249 0%,#f0c851 100%);
+  background: linear-gradient(90deg,var(--hero-a) 0%,var(--hero-b) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .qk-panel-body #hello h1 em { font-style: normal; }
@@ -360,7 +374,35 @@
   background: transparent; border: 0; border-radius: 0; box-shadow: none;
   -webkit-backdrop-filter: none; backdrop-filter: none;
   transition: padding-left var(--t);
+  /* The bar is a full-width, 74px-tall FIXED positioning strip, and it was `pointer-events: auto`
+     across all of it — so every click landing in the bottom 74px of the window hit `div.composer`
+     and did nothing. Measured: the sidebar's "Masuk" at (92, 684) resolved to `div.composer`, as did
+     points inside verse text. The strip is transparent, so nothing on screen explained the dead
+     zone. Only the form is interactive; the strip is scaffolding and must not intercept. */
+  pointer-events: none;
 }
+:root:not([data-landing]) #composer-bar form { pointer-events: auto; }
+
+/* The scripture must never be read through the composer's glass — PRODUCT.md's first principle is
+   that the interface never out-shouts the word, and a 28px backdrop-blur sitting on top of an ayah
+   is the literal inversion of it. `.app` already reserves ~120-160px, but that only clears the END
+   of the scroll; mid-scroll the thread still ran under the bar. `scroll-padding-bottom` makes every
+   programmatic scroll and every keyboard focus stop short of the dock, and the fade below gives the
+   band an opaque floor so no glyph is ever half-legible through frosted glass. */
+:root:not([data-landing]) .qk-panel-body { scroll-padding-bottom: 96px; }
+
+/* A solid-to-transparent ramp UNDER the form, painted from the panel's own ground rather than a
+   blur: content leaves the reading area by fading out, instead of sliding beneath a lens. */
+:root:not([data-landing]) #composer-bar::before {
+  content: ""; position: absolute; pointer-events: none; z-index: -1;
+  /* Left edge tracks the bar's own padding-left (the sidebar gutter). With `inset: 0` the ramp ran
+     the full viewport width and washed over the sidebar's foot — the "Masuk" row visibly greyed out
+     under it. The fade belongs to the reading column only. */
+  inset: 0 0 0 294px;
+  background: linear-gradient(to top, var(--bg) 0%, var(--bg) 42%, transparent 100%);
+}
+.qk-shell[data-nav="closed"] ~ #composer-bar::before { left: 8px; }
+@media (max-width: 820px) { :root:not([data-landing]) #composer-bar::before { left: 0; } }
 .qk-shell[data-nav="closed"] ~ #composer-bar { padding-left: 8px; }
 :root:not([data-landing]) #composer-bar form {
   width: min(720px, 100%); margin: 0 auto; padding: 12px 16px;
@@ -444,13 +486,20 @@
   background: rgba(222, 233, 227, .94);
   -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%);
   box-shadow: 0 4px 14px rgba(40, 70, 60, .08);
-  animation: qkin 320ms var(--ease) both;
+}
+/* The card's entrance was declared outside any media query with `both`, so it ran at full strength
+   under reduced motion AND could strand a card invisible if the tab backgrounded first. Gated, and
+   `forwards` so the un-animated state is the visible one. */
+@media (prefers-reduced-motion: no-preference) {
+  .qk-panel-body .verse { animation: qkin 320ms var(--ease) forwards; }
 }
 /* Below `rgb(5,15,10)`, the panel's darkest stop, so the well never inverts. The border also comes up
    .13 → .22: at this separation the edge is what stops the card dissolving into the ground where the
    gradient runs closest to it. */
 :root[data-theme="dark"] .qk-panel-body .verse { background: rgba(3, 11, 8, .94); border-color: rgba(210, 235, 220, .22); }
-.qk-panel-body .verse[data-new] { animation: qkin 320ms var(--ease) both; }
+@media (prefers-reduced-motion: no-preference) {
+  .qk-panel-body .verse[data-new] { animation: qkin 320ms var(--ease) forwards; }
+}
 
 /* header: transparent, the ref becomes an on-brand chip */
 .qk-panel-body .verse .verse-head { background: transparent; border-bottom: 0; padding: 16px 24px 2px; }

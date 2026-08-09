@@ -196,3 +196,72 @@ test("in the dark room, scripture out-luminates every piece of chrome", () => {
     expect(luminance(c)).toBeLessThan(inkL);
   }
 });
+
+/**
+ * ── the hero gradient, and why this block exists ─────────────────────────────
+ *
+ * DESIGN.md § "The rules that are not preferences" #2: *a gradient passes at every stop, or it does
+ * not pass.* The green→gold signature broke that rule in the light register for months and no test
+ * saw it, for a reason the doc had already diagnosed once about `--action`: **this file audits
+ * TOKENS, and the gradient's stops were hardcoded hexes** (`#16a249`, `#4ba33f`, `#f0c851`) sitting
+ * in shell.css. Measured on the deployed page, the gold stop was **1.42:1** and the green **2.94:1**
+ * against the light panel — against a 3:1 floor for large text and 4.5:1 for the 22px wordmark.
+ *
+ * So the stops are tokens now (`--hero-a` / `--hero-mid` / `--hero-b`) and this block is the guard.
+ * The lesson generalises past this one gradient: a literal colour that reaches a paint property is
+ * invisible to the only mechanism that enforces the contrast rule.
+ */
+const hex = (s: string): [number, number, number] => {
+  const n = parseInt(s.replace("#", ""), 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+};
+
+/** Every stop of the signature gradient, per register — mirrors :root and [data-theme="dark"]. */
+const HERO = {
+  light: { a: hex("#0f7a37"), mid: hex("#2c7726"), b: hex("#7d5f10") },
+  dark: { a: hex("#16a249"), mid: hex("#4ba33f"), b: hex("#f0c851") },
+};
+
+describe("the hero gradient passes at EVERY stop, in both registers", () => {
+  // The hero sits on the panel, not on --bg. Measured off `.qk-panel::before` on the deployed page:
+  // light runs rgb(230,240,234) → rgb(251,251,246); the top stop is the darkest and therefore the
+  // worst case for text over it. Dark runs rgb(12,34,26) → rgb(5,15,10); its LIGHTEST stop is the
+  // worst case there.
+  const LIGHT_PANEL: [number, number, number] = [230 / 255, 240 / 255, 234 / 255];
+  const DARK_PANEL: [number, number, number] = [12 / 255, 34 / 255, 26 / 255];
+
+  // 4.5, not 3: the strictest consumer is the 22px sidebar wordmark, which is not "large text".
+  // Pitching the tokens there means one pair covers the wordmark, the 52px h1 and the 34px salam.
+  for (const [stop, c] of Object.entries(HERO.light)) {
+    test(`light: stop "${stop}" clears 4.5:1 on the panel`, () => {
+      expect(contrast(c, LIGHT_PANEL)).toBeGreaterThanOrEqual(4.5);
+    });
+  }
+  for (const [stop, c] of Object.entries(HERO.dark)) {
+    test(`dark: stop "${stop}" clears 4.5:1 on the panel`, () => {
+      expect(contrast(c, DARK_PANEL)).toBeGreaterThanOrEqual(4.5);
+    });
+  }
+});
+
+/**
+ * The composer's focus indicator. WCAG 2.2 SC 1.4.11 / 2.4.13 want a non-text indicator at 3:1
+ * against what it sits on. The textarea deliberately drops its own outline because the FORM carries
+ * the state for the whole control — which is only legitimate while the form's indicator actually
+ * reads. It did not: the border measured 2.37:1 and the ring, on `--primary-wash`, measured 1.01:1.
+ */
+describe("the composer's focus state is an affordance, not decoration", () => {
+  test("light: the focused border clears 3:1 against the form's white fill", () => {
+    expect(contrast(ok(0.416, 0.083, 165), LIGHT.surface)).toBeGreaterThanOrEqual(3);
+  });
+  test("dark: the focused border clears 3:1 against the form's fill", () => {
+    // dark composer form: rgba(20,40,34,.55) over the panel — the composite, measured.
+    const formFill: [number, number, number] = [14 / 255, 30 / 255, 24 / 255];
+    expect(contrast(ok(0.76, 0.128, 165), formFill)).toBeGreaterThanOrEqual(3);
+  });
+  test("the ring token out-reads the wash it replaced", () => {
+    const ring = ok(0.627, 0.129, 165); // --primary-line
+    const wash = ok(0.955, 0.017, 165); // --primary-wash, the old ring
+    expect(contrast(ring, LIGHT.surface)).toBeGreaterThan(contrast(wash, LIGHT.surface));
+  });
+});

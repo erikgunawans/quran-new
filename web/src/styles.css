@@ -33,7 +33,22 @@
      invitation. Hairline only — DESIGN.md § Components allows the hairline and forbids pairing it
      with a wide 40–70px shadow; the focus ring stays 3px, which is a ring, not a halo. */
   --composer-line:    oklch(0.627 0.129 165 / 0.26);
-  --composer-line-on: oklch(0.627 0.129 165 / 0.72);
+  --composer-line-on: oklch(0.416 0.083 165 / 0.95);
+
+  /* The green→gold signature, as TOKENS. These were hardcoded `#16a249`/`#4ba33f`/`#f0c851` literals
+     in four places, and `contrast.test.ts` audits tokens — so the hero heading, the salam and the
+     sidebar wordmark all shipped failing AA in the light register (gold measured 1.42:1, green
+     2.94:1, against a 3:1 large-text floor) while every audited token passed. DESIGN.md had already
+     diagnosed this exact escape route for `--action`; the fix stopped at one colour instead of
+     becoming a rule.
+
+     Light gets a darker cut of the same two hues — the precedent is the Makkiyah region tag, which
+     DESIGN.md already describes as "a darker amber on light, tuned to pass AA". Values are pitched
+     at 4.5:1 rather than 3:1 because the strictest consumer is the 22px wordmark, so one pair covers
+     every site. Dark keeps the signature hexes untouched; they measure 5.97 and 12.4 there. */
+  --hero-a:   #0f7a37;
+  --hero-mid: #2c7726;
+  --hero-b:   #7d5f10;
 
   /* action = the ONE bright surface, reserved for what the reader can DO (send, CTA,
      their own words, the mark). It carries white text, so its lightness is pinned by
@@ -125,7 +140,8 @@
     --primary-wash: oklch(0.760 0.128 165 / 0.14);
     --primary-line: oklch(0.760 0.128 165 / 0.42);
     --composer-line:    oklch(0.760 0.128 165 / 0.24);
-    --composer-line-on: oklch(0.760 0.128 165 / 0.68);
+    --composer-line-on: oklch(0.760 0.128 165 / 0.95);
+    --hero-a: #16a249; --hero-mid: #4ba33f; --hero-b: #f0c851;
 
     --caution:      oklch(0.780 0.140 55);
     --caution-wash: oklch(0.780 0.140 55 / 0.12);
@@ -151,7 +167,8 @@
   --ink: oklch(0.970 0.006 160); --ink-2: oklch(0.800 0.012 165); --ink-3: oklch(0.680 0.014 165);
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
-  --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.68);
+  --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.95);
+  --hero-a: #16a249; --hero-mid: #4ba33f; --hero-b: #f0c851;
   --caution: oklch(0.780 0.140 55); --caution-wash: oklch(0.780 0.140 55 / 0.12);
   --wash-1: oklch(0.627 0.129 165 / 0.10); --wash-2: oklch(0.542 0.092 188 / 0.07);
   --glow: none; --shadow-pop: 0 8px 28px oklch(0.10 0.01 165 / 0.55);
@@ -294,8 +311,7 @@ html { background: var(--bg); }
 /* The QuranKu signature: the hero heading's emphasis carries the green→gold TYPE gradient
    (PRODUCT.md — gold as typography). Emerald end brightens in dark so the clip stays legible;
    the gold end (the signature) holds. */
-:root { --hero-grad: linear-gradient(115deg, #16a249 0%, #f0c851 100%); }
-:root[data-theme="light"] { --hero-grad: linear-gradient(115deg, #16a249 0%, #f0c851 100%); }
+:root { --hero-grad: linear-gradient(115deg, var(--hero-a) 0%, var(--hero-b) 100%); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { --hero-grad: linear-gradient(115deg, #34d399 0%, #f5d67a 100%); }
 }
@@ -533,8 +549,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    Deliberately NO `font-size` here. This selector is (1,1,0) and would outrank every
    `.qk-panel-body …` reskin rule in shell.css (0,3,0) that sizes this surface in px — measured: it
    dropped the user bubble from 20px to 14.7px, past "smaller" into "different design". The tokens
-   below reach the chrome shell.css does not size (`.by`, `.surah-name`, `.reader-note`, `.chip`);
-   the prose, the translation and the bubble are sized in shell.css and are reduced THERE. */
+   below reach the chrome shell.css does not size (`.by`, `.surah-name`, `.reader-note`); the prose,
+   the translation and the bubble are sized in shell.css and are reduced THERE.
+
+   This comment used to list `.chip` among the elements the tokens reach. That was false, and it was
+   asserted without being measured: `.chip` read a hard `0.7rem`, and `button.chip { font: inherit }`
+   was resetting even that to browser default, so the "signature component" sat at 16px/400 through
+   the entire reduction pass. Both are fixed at their own rules below; the lesson is that a comment
+   claiming a cascade reaches something is a measurement, not a guess. */
 #thread .msg {
   --step--2: 0.64rem;
   --step--1: 0.77rem;
@@ -702,7 +724,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin-bottom: 0.55rem;
 }
 .chip {
-  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+  /* Was a hard `0.7rem`, which is why the 2026-08-09 surface type reduction could not reach it —
+     it reads no token. On `--step--2` it now moves with whatever surface it is on. */
+  font-size: var(--step--2); font-weight: 600; letter-spacing: 0.06em;
   text-transform: uppercase; padding: 0.2em 0.5em;
   border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-3);
   white-space: nowrap;
@@ -854,6 +878,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--ink); font: inherit; padding: 0.5rem 0;
   max-height: 7rem; min-height: 1.6rem; line-height: 1.6;
 }
+/* The textarea suppresses its own ring because the FORM carries the focus state for the whole
+   control (border steps to `--composer-line-on`, plus the 3px `--primary-line` ring above) — one
+   indicator around the composer, not a rectangle inside a rectangle. That delegation is only
+   legitimate while the form's indicator actually meets 3:1, which is what the token change above
+   fixes and what `contrast.test.ts` now asserts. If the form's indicator is ever weakened, this
+   `outline: none` must go with it. */
 .composer textarea:focus { outline: none; }
 .composer textarea::placeholder { color: var(--ink-3); } /* AA, not a light gray */
 
@@ -903,7 +933,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    ring is also the thing that actually reads as focus; a bigger halo just reads as more glow. */
 :root[data-landing] .composer form:focus-within {
   border-color: var(--composer-line-on);
-  box-shadow: var(--sh), 0 0 0 3px var(--primary-wash);
+  /* The ring was `--primary-wash`, measured 1.01:1 against the panel and 1.13:1 against the form —
+     numerically invisible, i.e. decoration pretending to be an affordance. `--primary-line` is the
+     token that actually reads, and WCAG 2.2 SC 1.4.11/2.4.13 want the indicator at 3:1. */
+  box-shadow: var(--sh), 0 0 0 3px var(--primary-line);
 }
 /* Hover is the half-step between the two: the line acknowledges the pointer before the click, so
    the box answers on approach rather than only on commitment. Pointer-only — on touch there is no
@@ -1274,13 +1307,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ── the chip is now a button ────────────────────────────────────────────────
    The label a first-timer is confused BY is the label they press. */
+/* `font: inherit` was here, and the shorthand resets font-size AND font-weight — so the attribution
+   chip, which DESIGN.md calls "the signature component", rendered at browser default 16px/400
+   instead of its own `0.7rem`/600, and ended up LARGER than the 15.2px translation it labels. It had
+   been that way for as long as this rule existed. Inherit the family only; the size belongs to
+   `.chip`. `border: 1px solid transparent` is likewise why the companion chip lost its pill while
+   `.chip.lead` (0,2,0) kept one — the base border now survives, and only the transition is set here. */
 button.chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font: inherit;
+  font-family: inherit;
+  line-height: 1.2;
   cursor: pointer;
-  border: 1px solid transparent;
   transition: border-color var(--t), color var(--t);
 }
 button.chip:hover { border-color: var(--line-strong); }

@@ -30,8 +30,16 @@ every piece of chrome. What died is only the instruction to make the room dark.
 - **No gold ornament ON content — two gold grounds, revised 2026-07-18.** See PRODUCT.md § Anti-references.
   The devotional-app cliché is *ornament*, not green — arabesque wallpaper, dome silhouettes, filigree,
   calligraphy-as-decoration. Ornament is not reverence. Gold is permitted in **exactly two places, both
-  ground, never content**: (1) the hero heading's green→gold type gradient (`#16a249 → #f0c851`), gold as
-  *typography*; and (2) the celestial background ground — the night sky, its stars, its single crescent,
+  ground, never content**: (1) the hero heading's green→gold type gradient, gold as
+  *typography* — **now `--hero-a → --hero-b`, and per-register** *(amended 2026-08-09)*: dark keeps the
+  signature `#16a249 → #f0c851`, light takes a darker cut of the same two hues (`#0f7a37 → #7d5f10`).
+  Not a change of mind — the signature gold measured **1.42:1** on the light panel against a 3:1 floor,
+  so in daylight it was never legible enough to be a signature. The stops escaped enforcement because
+  they were hardcoded hexes and rule #1 below audits *tokens*; they are tokens now and every stop is
+  asserted by `contrast.test.ts` at 4.5:1, the wordmark's threshold, which covers the 52px h1 and the
+  34px salam too. This is the same escape route rule #1 already documented for `--action`, closed for
+  good this time: **a literal colour that reaches a paint property is invisible to the test that
+  enforces the rule.** And (2) the celestial background ground — the night sky, its stars, its single crescent,
   and the green→gold signature carried into that ambient field (rev 2026-07-18), gold as *atmosphere*. On
   the content itself the ban is exact and unchanged: no gold frame, rule, hairline, or edge on a card; no
   crescent as a badge, bullet, or divider. **One functional exception:** the surah index's region tag —
@@ -213,7 +221,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 
 ### Brand
 
-**Theme-invariant.** One emerald means "you can do this" in both registers, so the white-on-action contrast math is proved once, not per theme.
+**Theme-invariant** except the hero gradient stops: `--hero-a/-mid/-b` take a darker cut in the light register because the signature gold reads 1.42:1 on a light panel. Every stop is guarded by `contrast.test.ts`.
 
 | Token | Value | Why |
 |---|---|---|
@@ -222,7 +230,10 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | `--primary-wash` | `oklch(0.955 0.017 165)` | — |
 | `--primary-line` | `oklch(0.627 0.129 165 / 0.45)` | — |
 | `--composer-line` | `oklch(0.627 0.129 165 / 0.26)` | The landing composer's perimeter, in two stops of ONE emerald. It used to be `transparent` at |
-| `--composer-line-on` | `oklch(0.627 0.129 165 / 0.72)` | — |
+| `--composer-line-on` | `oklch(0.416 0.083 165 / 0.95)` | — |
+| `--hero-a` | `#0f7a37` | The green→gold signature, as TOKENS. These were hardcoded `#16a249`/`#4ba33f`/`#f0c851` literals |
+| `--hero-mid` | `#2c7726` | — |
+| `--hero-b` | `#7d5f10` | — |
 | `--action` | `oklch(0.532 0.112 163)` | action = the ONE bright surface, reserved for what the reader can DO (send, CTA, |
 | `--action-2` | `oklch(0.542 0.092 188)` | — |
 | `--action-grad` | `linear-gradient(120deg, var(--action) 0%, var(--action-2) 100%)` | — |
