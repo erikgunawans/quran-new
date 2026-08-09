@@ -425,14 +425,31 @@
 .qk-panel-body .msg.nur .said strong, .qk-panel-body .msg.nur .said b { color: var(--ink); }
 
 /* ── the ayah card → the design's glass qk-card ──────────────────────── */
+/* The ayah card reads as a WELL, not a raised tile (Erik: increase the contrast between the inner and
+   outer layer, and take the inner one darker).
+
+   It was `rgba(255,255,255,.72)` / `rgba(24,48,42,.55)` — in both registers a fill LIGHTER than the
+   panel behind it, so the card floated on the ground rather than being cut into it, and the two layers
+   sat within a few points of each other.
+
+   The awkward part is that the panel is a GRADIENT — dark `rgb(12,34,26)` → `rgb(5,15,10)`, light
+   `rgb(230,240,234)` → `rgb(251,251,246)` (measured off `.qk-panel::before`) — and it runs in opposite
+   directions per theme. A translucent fill therefore cannot hold a constant delta: pick a value that
+   is darker than the panel's top and it turns LIGHTER than the panel's bottom, and the card inverts
+   halfway down the scroll. So the fill is now near-opaque and sits below the darkest stop of its own
+   gradient, which is the only way one colour stays consistently darker down the whole panel. The
+   trade is that the glass is less see-through; the blur stays, so the layer still reads as glass. */
 .qk-panel-body .verse {
   border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
-  background: rgba(255, 255, 255, .72);
+  background: rgba(222, 233, 227, .94);
   -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%);
   box-shadow: 0 4px 14px rgba(40, 70, 60, .08);
   animation: qkin 320ms var(--ease) both;
 }
-:root[data-theme="dark"] .qk-panel-body .verse { background: rgba(24, 48, 42, .55); border-color: rgba(210, 235, 220, .13); }
+/* Below `rgb(5,15,10)`, the panel's darkest stop, so the well never inverts. The border also comes up
+   .13 → .22: at this separation the edge is what stops the card dissolving into the ground where the
+   gradient runs closest to it. */
+:root[data-theme="dark"] .qk-panel-body .verse { background: rgba(3, 11, 8, .94); border-color: rgba(210, 235, 220, .22); }
 .qk-panel-body .verse[data-new] { animation: qkin 320ms var(--ease) both; }
 
 /* header: transparent, the ref becomes an on-brand chip */
