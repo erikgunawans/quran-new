@@ -312,14 +312,19 @@
   background: linear-gradient(90deg,var(--hero-a) 0%,var(--hero-b) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.qk-panel-body #hello > p { font-size: clamp(13px,1.25vw,15px); color: var(--ink-2); margin: 0 0 24px; max-width: 520px; text-wrap: pretty; }
+/* `--panel-ink-2`, not `--ink-2` — same desync as the greeting above. On glass this invitation
+   rendered oklch(0.8) grey on the panel's near-white ground and read as disabled text. */
+.qk-panel-body #hello > p { font-size: clamp(13px,1.25vw,15px); color: var(--panel-ink-2); margin: 0 0 24px; max-width: 520px; text-wrap: pretty; }
 
 /* the seeds → chips */
 .qk-panel-body .seeds { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
 .qk-panel-body .seed {
   font-family: var(--f-ui); cursor: pointer;
   background: rgba(255,255,255,.62); border: 1px solid var(--line-strong); border-radius: 999px;
-  padding: 11px 20px; font-size: 15px; color: var(--ink-2); backdrop-filter: blur(14px);
+  /* The seeds are the empty state TEACHING. At `--ink-2` on the light panel they rendered as
+     ghost text — an example nobody can read teaches nothing, which would have made restoring
+     them cosmetic. */
+  padding: 11px 20px; font-size: 15px; color: var(--panel-ink-2); backdrop-filter: blur(14px);
   transition: border-color var(--t), color var(--t);
 }
 .qk-panel-body .seed:hover { border-color: var(--primary-line); color: var(--primary); }
@@ -396,7 +401,13 @@
   min-height: 60px; max-height: 200px; padding: 2px 0 0;
 }
 /* The send no longer aligns itself — it rides in `.composer-actions` with the mic (styles.css). */
-.qk-panel-body .seeds { margin-top: 22px; }
+/* 44px, not 22px. Measured on glass: the composer's box ends at y=450 and the first seed row began
+   at y=470, so the row sat inside the composer's soft ambient glow and read as clipped — the top
+   half of two chips washed out, their labels invisible, while the second row was perfectly legible.
+   Nothing OCCLUDES them (elementFromPoint at the chip centre returns the seed itself); the composer
+   simply needs more room than its box to look finished. This value was tuned for a hero with no
+   seeds below it, which is why restoring them exposed it. */
+.qk-panel-body .seeds { margin-top: 44px; }
 
 /* Conversation: the docked bar is a TRANSPARENT, panel-width positioning strip — the glass lives on
    the FORM, so no translucent band bleeds under the sidebar (fix #1). Panel-exact offsets keep the
