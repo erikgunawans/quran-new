@@ -8,15 +8,15 @@
  * exercises and the one the old code got wrong.
  */
 
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { registerDom, unregisterDom } from "./test-dom.ts";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
 
-GlobalRegistrator.register();
+registerDom();
 
 const { initDictation } = await import("./dictate.ts");
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister();
+  await unregisterDom();
 });
 
 /** A stand-in for Chrome's recogniser: records lifecycle, lets a test fire the callbacks. */

@@ -1,12 +1,12 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { registerDom, unregisterDom } from "./test-dom.ts";
 import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 
-GlobalRegistrator.register();
+registerDom();
 
 const { renderPetaIndex, renderPetaCategory, resetPetaCache } = await import("./peta.ts");
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister();
+  await unregisterDom();
 });
 
 /**

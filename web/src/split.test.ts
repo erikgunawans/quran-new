@@ -1,12 +1,12 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { registerDom, unregisterDom } from "./test-dom.ts";
 import { afterAll, describe, expect, test } from "bun:test";
 
-GlobalRegistrator.register();
+registerDom();
 
 const { splitEl } = await import("./read.ts");
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister();
+  await unregisterDom();
 });
 
 /**

@@ -1,14 +1,14 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { registerDom, unregisterDom } from "./test-dom.ts";
 import { afterAll, describe, expect, test } from "bun:test";
 
-GlobalRegistrator.register();
+registerDom();
 
 const { introEl, bindIntroLang } = await import("./surah-intro.ts");
 type SurahIntro = import("./surah-intro.ts").SurahIntro;
 type IntroEdition = import("./surah-intro.ts").IntroEdition;
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister();
+  await unregisterDom();
 });
 
 /**

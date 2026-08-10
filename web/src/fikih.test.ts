@@ -1,14 +1,14 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { registerDom, unregisterDom } from "./test-dom.ts";
 import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 
-GlobalRegistrator.register();
+registerDom();
 
 const { renderFikih } = await import("./sections.ts");
 const { resetHadithCache } = await import("./hadith.ts");
 const { FIQH_AREAS } = await import("./fikih.ts");
 
 afterAll(async () => {
-  await GlobalRegistrator.unregister();
+  await unregisterDom();
 });
 
 /**
