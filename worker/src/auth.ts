@@ -63,6 +63,11 @@ export async function verifyMagicToken(token: string, secret: string, now: numbe
   const parts = token.split(".");
   if (parts.length !== 3) return null;
   const [emailB64, expStr, mac] = parts;
+  // Unreachable given the length check, and deliberately not a cast. This is the token verifier:
+  // `as [string, string, string]` would assert the guarantee, whereas this one CHECKS it, so the
+  // three names are non-null by proof rather than by assertion. Refusing on a missing part is also
+  // the correct answer if the length check above is ever loosened.
+  if (emailB64 === undefined || expStr === undefined || mac === undefined) return null;
   const payload = `${emailB64}.${expStr}`;
   if (!timingSafeEqual(mac, await hmac(payload, secret))) return null;
   const exp = Number(expStr);

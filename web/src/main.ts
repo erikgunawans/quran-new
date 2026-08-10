@@ -187,6 +187,15 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
           <p>Untuk hal seperti ini, sebaiknya kamu tanya <b>ustadz atau tokoh agama yang paham hukum keluarga</b> — mereka bisa menjelaskan hak dan langkah yang bisa kamu tempuh dengan lengkap.</p>
         </div>`;
 
+    // Unreachable on THIS surface, and required anyway. `count-defer` lives in the shared `Turn`
+    // union because the demo persists it through the same `rememberTurn`/`loadThread` storage — but
+    // only `web/demo/demo.ts` imports `looksLikeCount()`, so the main app never produces one. It is
+    // handled because a non-total renderer is how a stored turn becomes a blank bubble, and it
+    // degrades to the honest silence rather than carrying copy this surface has not shipped. The
+    // warm count pointer is demo-only; see COUNT_DEFER in `web/demo/demo.ts`.
+    case "count-defer":
+      return renderTurn({ q: t.q, kind: "silence" }, animate);
+
     case "silence":
       return `
         <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
@@ -208,14 +217,19 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
 
       // The tafsir stack for each verse, computed once so the trace can tell the truth about whether
       // `baca_tafsir` actually ran (curated chat verses carry a stack; a bare hit may not).
-      const stacks = verses.map((v) => tafsirStackHtml(v.tafsir, voices));
+      //
+      // Carried WITH its verse rather than in a parallel array indexed by position. Two arrays kept
+      // in step by `i` is a correctness claim the compiler cannot check — and it could not: under
+      // `noUncheckedIndexedAccess` `stacks[i]` types as `string | undefined` even though
+      // `tafsirStackHtml()` never returns undefined, so the honest fix is to stop indexing.
+      const stacked = verses.map((v) => ({ v, stack: tafsirStackHtml(v.tafsir, voices) }));
       const refs = verses.map((v) => v.ref);
 
       return (
-        settledTrace(t.q, refs, stacks.some(Boolean)) +
+        settledTrace(t.q, refs, stacked.some((s) => Boolean(s.stack))) +
         `<p class="said">${lead}</p>` +
-        verses
-          .map((v, i) =>
+        stacked
+          .map(({ v, stack }) =>
             mount({
               ref: v.ref,
               surah: v.surah,
@@ -226,7 +240,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
               companion: v.companion,
               why: v.why,
               passage: v.passage,
-              tafsirStack: stacks[i],
+              tafsirStack: stack,
               continueTo: true,
               animate,
             }),

@@ -653,7 +653,11 @@ function parseSurahNumber(raw: string): number | null {
 
 // ── proxy ─────────────────────────────────────────────────────────────────────
 
-async function proxyToOrigin(request: Request, env: Env): Promise<Response> {
+// Exported, not called. `noUnusedLocals` flags a retained-on-purpose local, and the two ways to
+// silence it are to delete the function or to make it part of the module's surface. Deleting it
+// would delete the documented one-line revert to the Cloud Run backend (see the [assets] notes
+// above and the routing comment at ~199), so it is exported and stays.
+export async function proxyToOrigin(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   url.hostname = env.ORIGIN_HOST;
   url.protocol = "https:";

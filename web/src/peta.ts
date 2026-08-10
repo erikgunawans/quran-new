@@ -212,7 +212,8 @@ const TEMATIK_AR: Record<string, string> = {
  *
  * Measured from the live box rather than assumed, and re-run on resize, because the column count is
  * a media query and the height is a dvh clamp: hard-coding a factor would fit my window and no one
- * else's. MIN_H keeps the smallest theme tall enough for two lines of title plus its count.
+ * else's. The floor that keeps the smallest theme tall enough for two lines of title plus its count
+ * is now CSS's `min-height` on `.tema-card` (see shell.css) — it is not computed here any more.
  */
 /**
  * Lay the wall out as N flex columns whose bottoms all land on the same line.
@@ -229,8 +230,6 @@ const TEMATIK_AR: Record<string, string> = {
  * Balancing by count would not: three small themes alone in a column would each inflate to a third
  * of the height and out-tower the 626.
  */
-const MIN_H = 84;
-
 export function fitTematik(): void {
   const grid = document.getElementById("tematik-grid");
   if (!grid || grid.hidden) return;

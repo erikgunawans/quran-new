@@ -159,7 +159,11 @@ export interface VerseCard {
    * Includes the subject verse itself (the builder enforces that), so `passageEl` skips it while
    * laying out the neighbours — otherwise the ayah would appear twice on its own card.
    */
-  passage?: { ayah: number; arabic: string; primary: Reading | null; companion: Reading | null }[];
+  // `| undefined` is explicit, not redundant: `exactOptionalPropertyTypes` is on, so without it a
+  // caller may omit the key but may NOT pass `passage: v.passage` when the shard has no passage.
+  // Every reader here treats absent and undefined identically (`?? []`, `?.length`), so widening the
+  // declaration costs no invariant — it just lets the corpus be copied through in one literal.
+  passage?: { ayah: number; arabic: string; primary: Reading | null; companion: Reading | null }[] | undefined;
   /** Pre-loaded tafsir STACK html (chat's 55 curated verses only, from `corpus.json`). Rendered
    * inside the depth disclosure, below the literal companion. Takes priority over `lazyTafsir`. */
   tafsirStack?: string;

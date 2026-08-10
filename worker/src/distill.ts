@@ -99,8 +99,11 @@ export async function maybeDistill(env: Env, userId: string, now: number): Promi
   if (!env.DB || !env.PROFILE_KV) return;
 
   const events = await getEvents(env.DB, userId); // newest first
-  if (events.length === 0) return;
-  const newestTs = events[0].ts;
+  // Bind the head instead of testing `.length` and then indexing: `noUncheckedIndexedAccess` does
+  // not narrow `events[0]` from a length check, and the guard reads the same either way.
+  const newest = events[0];
+  if (!newest) return;
+  const newestTs = newest.ts;
 
   // Skip when no new events since the last distill (the cost guard).
   const existing = await env.PROFILE_KV.get(profileKey(userId));
