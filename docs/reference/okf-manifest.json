@@ -29,5 +29,12 @@
       ]
     }
   },
-  "index": null
+  "index": {
+    "name": "okf-hadith",
+    "model": "baai/bge-m3",
+    "dimensions": 1024,
+    "vectors": 14736,
+    "excluded_by_rights": 1,
+    "built_at": "2026-08-10"
+  }
 }
