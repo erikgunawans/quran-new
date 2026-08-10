@@ -22,6 +22,7 @@
     "app:aqidah-sheet": "bun run src/review/build-aqidah-sheet.ts",
     "app:feelings-sheet": "bun run src/review/build-feelings-sheet.ts",
     "app:review-html": "bun run src/review/build-review-html.ts",
+    "okf:manifest": "bun run src/okf/build-manifest.ts",
     "smoke:answer": "bun run worker/smoke-answer.ts",
     "eval:framing": "bun run src/eval/run.ts",
     "eval:answer": "bun run src/eval/answer-run.ts",

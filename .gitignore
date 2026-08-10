@@ -38,3 +38,9 @@ graphify-out/
 .planning/graphs/.last-build-snapshot.json
 .gstack/
 .worktrees/
+
+# OKF corpus manifest detail — regenerable, lives in R2 (see docs/reference/okf-manifest.json)
+data/okf/
+
+# Phase 0 probe reports — contain reference-only hadith excerpts; regenerable via .scratch/tanya-agent/probe.ts
+.scratch/tanya-agent/phase-0-*.md
