@@ -8,6 +8,82 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-10 (latest) — The text layer went dark, and two parallel sessions became one branch
+
+Anchor: `origin/main` `1c652a7` (+ this checkpoint). **1064 tests pass**, build exit 0,
+**`typecheck` exit 2**. ISA **357/363** (357 met, 5 open, ISC-189 deferred-verify). Prod Worker
+`39b922c1`, serving `index-CKqG9c2u.js` / `index-CsxJlLtp.css`.
+
+### A question that had already been answered without anyone deciding it
+
+The open item read "may the AI hadith text be displayed at all?" It was not open. The sidecar rides
+inside the asset bundle, so it had shipped on deploys approved for other reasons, and prod was
+rendering unreviewed AI Indonesian renderings of the Prophet's ﷺ transmitted speech — badged, but
+live. Found by loading `#/hadis/muslim/6` and reading the DOM rather than the code.
+
+Erik's ruling: **bab titles stay, hadith text goes dark.** A clumsy chapter heading is a bad
+heading; a clumsy rendering of transmitted speech is a fabricated saying. The repo had already
+refused unreviewed AI Indonesian for the Dorar surah preface on those grounds, and — discovered the
+same hour, in the other session's branch — `web/src/hadith-card.ts` states the identical rule for
+the Tanya surface, with `reviewed_id` as a deliberately per-record hook "because approval is granted
+one hadith at a time."
+
+Gated at the source module (`SHOW_MACHINE_HADITH_TEXT`), not the call site, so no new caller can
+render it by reaching around. With the gate shut `textNeedsNotice()` falls back to the bab-only
+notice, whose "teks hadis tetap Arab" is honest again. Verified on prod: AI text nodes **300 → 0**,
+bab titles still 56. A gate, not a deletion.
+
+**`gitignored` is not `undeployed`.** That is the lesson worth keeping.
+
+### The merge that the other session could not land
+
+`worktree-humming-riding-scone` (PR #3, Tanya agent) had been trying to rebase onto a `main` that
+moved four times during the day. The rebase was the wrong instrument: both branches forked from
+`413dceb` at 07:11 and touched **no source file in common**. Merging at a pinned tip resolved in
+three metadata files — `.gitignore` (union), `PROGRESS.md` (all four checkpoints, append-only held,
+exactly 3 marker lines removed), and two independently-written handoffs merged into one. PR #3
+closed itself as MERGED.
+
+Their handoff carried rights positions this side did not have and they are now shared:
+`MAX_DISPLAY = 2` enforced in three places, **RETRIEVABLE ≡ DISPLAYABLE**, and `CANDIDATE_K = 50` is
+not a tuning knob.
+
+**Gate status, stated rather than hidden** (Erik had already accepted main going non-green):
+`bun test` 1064/0 — the `GlobalRegistrator` collision their handoff predicted (890/10/10) did NOT
+reproduce here, and is neither fixed nor explained. `typecheck` exit 2: 4 errors in `main.ts` and
+`peta.ts`, 4 more behind them in `src/eval`. Neither branch touched those files; the root `tsc` pass
+is green now, so the web pass runs for the first time instead of short-circuiting — newly visible,
+not newly broken. Tracked as **ISC-353** and **ISC-354**.
+
+### The generator, and a decision made twice
+
+Hadith text generation ran from 10:54 and was reported dead twice by `ps aux | grep … && echo` while
+PID 33579 was alive and writing. The second false negative launched a **second generator against the
+same shards**; ~90 seconds of concurrent writes, no corruption (every write is a full read-merge-
+dump), real duplicated spend. **`pgrep -fl`, and read the PIDs.**
+
+It was killed at **1,746 / 14,736** (7.3s/record). Erik had said "keep it running" — but that was
+before the gate. Restarting was re-asked rather than assumed, and the answer changed: **leave it
+stopped until the ustadz rules.** The handoff had to be corrected twice for this; as written it told
+the next session to resume the generator if it was idle, which would have quietly undone the call.
+
+A handoff that contradicts a decision is worse than no handoff.
+
+### Also this session
+
+Bab titles reached **4,864 / 4,864 translatable** via a `--batch 20 → 8 → 4 → 1` ladder — the
+discard rule untouched, because at batch 1 a partial batch is impossible and what remains is real
+refusal. The 3 unfilled keys have 0-char Arabic source. The **mic** now stays on until switched off
+(`wantLive` split from the recogniser's state; Chrome ends itself on silence even with
+`continuous = true`). And a hand-rolled coverage script invented **108 phantom gaps** off two wrong
+field guesses — `b.ar` not `b.title`, and bab numbering starts at 0.
+
+**Next:** `web/dist` holds a MERGED build while prod is pre-merge — a routine deploy would ship the
+unapproved agent workstream. Then ISC-354 (typecheck), ISC-353, ISC-323/323.2.
+Handoff: `.planning/next-session-prompt.md`.
+
+---
+
 ## 2026-08-10 (latest) — Prod caught up, the mic learned to stay on, and two checks that lied
 
 Anchor: `origin/main` `c474c94`. **1030 tests pass** (was 1023), build exit 0. ISA 313/315 — ISC-98
