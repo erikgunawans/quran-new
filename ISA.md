@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 298/300
+progress: 313/315
 mode: build
 started: 2026-07-13
 updated: 2026-08-10
@@ -195,6 +195,21 @@ shipping more than ~35 KB on the median read, and without weakening a single cor
 - [x] ISC-295: Anti: `web/dist` holds a principled build, never a synthesis one — the compiled edition constant reads `principled` in both branches of its try/catch
 - [x] ISC-296: the composer clearance has exactly one definition — `.app`'s `padding-bottom` and `.surah-split`'s height both read `--composer-clear`, so `clamp(120px, 13vh, 160px)` opening up past a ~923px viewport moves both together. Probe: force `--composer-clear: 160px` and the split must shrink by the same 40px, holding ISC-290's delta at 0
 - [x] ISC-297: Antecedent: every geometry probe runs against the build actually under test — the `link[rel=stylesheet]` filename read from the live DOM must equal the newest `web/dist/assets/index-*.css` on disk before any measurement is believed
+- [x] ISC-298: the split column headers read as raised surfaces, not flat labels — `.sp-tab` carries a body gradient, a light top inset, a dark bottom inset and a downward-only drop shadow, so `getComputedStyle(.sp-tab).boxShadow` is not `none`
+- [x] ISC-299: the outer shell ground is a dark GREEN, not near-black — `getComputedStyle(.qk-shell).backgroundColor` reads `rgb(8, 23, 15)`, and stays darker than the panel's foot stop so the two-layer reading survives
+- [x] ISC-300: the pool under the composer paints the panel's GILDED foot, not the raw green — `#composer-bar::before` resolves `--panel-foot-lit`, so it no longer subtracts the gold wash `.qk-panel::before` lays down there
+- [x] ISC-301: emphasis in the Pengantar Surah prose is carried by hue, not weight alone — `getComputedStyle(.si-h).color` reads `rgb(240, 200, 81)` in dark
+- [x] ISC-302: the ayah action row sits centred in its own band — `.verse-acts` padding is symmetric (14px top and bottom), not `4px / 18px`
+- [x] ISC-303: Dengar offers a choice before it plays — the button renders `data-act="play-menu"` with `aria-haspopup`, and its menu holds exactly two options, `Ayat ini saja` and `Lanjut otomatis`
+- [x] ISC-304: choosing a mode persists it and starts playback — clicking `[data-mode="continue"]` closes the menu and writes `continue` to `qk:audio-mode`
+- [x] ISC-305: auto-advance repaints BOTH ends of the move — dispatching `qk:audio-advance` from 1:1 to 1:2 leaves 1:1 reading `Dengar`/`play-menu` and 1:2 reading `Jeda`/`play`/`aria-pressed=true`
+- [x] ISC-306: Anti: auto-advance never chains into audio that does not exist — `nextWithAudio` returns null at the end of a surah and for any surah outside the downloaded manifest
+- [x] ISC-307: Anti: the play mode obeys memory, not storage — `setPlayMode` still takes effect when `localStorage` throws, so a private-mode reader can still choose
+- [x] ISC-308: the reading route has no bottom back-link and the columns took the space — `.back-bottom` is absent from `#/surah/N`, and `.surah-split` grew by exactly the 94px it freed
+- [x] ISC-309: the surah cartouche is shorter — `.surah-head` measures 311px, down from 329px, with its bottom margin cut from 2rem to 1.25rem
+- [x] ISC-310: Riwayat Bacaan clears the floated display controls — the summary's top sits below `.qk-panel-top`'s bottom, measured gap 11px (44px was copied from `.tematik-head-r` and overlapped by 5px; 62px is measured)
+- [x] ISC-311: each Riwayat entry can be deleted on its own — the row carries a `data-act="history-del"` button whose `aria-label` names the surah and ayah, and using it swaps the row for the empty state without collapsing the dropdown
+- [x] ISC-312: every section title in a panel header is gold — the treatment binds to `.tematik-head-l > h1` and `.baca-head-l > h1` by POSITION, so a section cannot forget the class; `webkitTextFillColor` is transparent over the hero gradient
 
 ### Adversarial review — 14 findings (2026-07-14)
 

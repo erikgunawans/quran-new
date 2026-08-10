@@ -29,7 +29,7 @@ import {
   type SurahMeta,
 } from "./quran.ts";
 import { announce } from "./announce.ts";
-import { cancelBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
+import { cancelBookmark, clearBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
 import { bindIntroLang, IntroError, introEl, loadIntro } from "./surah-intro.ts";
@@ -276,10 +276,21 @@ export function renderIndex(mount: HTMLElement): void {
       </summary>
       <div class="baca-history-body">
         ${bm
-          ? `<a class="baca-history-item" href="#/surah/${bm.surah}#${bm.ayah}">
-               <span class="baca-history-w">${esc(displayName(bm.surah))} · ayat ${bm.ayah}</span>
-               <span class="baca-history-k">Lanjutkan baca <span aria-hidden="true">→</span></span>
-             </a>`
+          ? // The row is a link plus its own delete (Erik, 2026-08-10). The delete is a SIBLING of
+            // the link, never nested inside it: a <button> inside an <a> is invalid HTML, and
+            // browsers recover from it by hoisting the button out — which in practice means the
+            // "remove" control ends up outside the row it was meant to belong to.
+            `<div class="baca-history-row">
+               <a class="baca-history-item" href="#/surah/${bm.surah}#${bm.ayah}">
+                 <span class="baca-history-w">${esc(displayName(bm.surah))} · ayat ${bm.ayah}</span>
+                 <span class="baca-history-k">Lanjutkan baca <span aria-hidden="true">→</span></span>
+               </a>
+               <button class="baca-history-del" type="button" data-act="history-del"
+                       aria-label="Hapus riwayat ${esc(displayName(bm.surah))} ayat ${bm.ayah}"
+                       title="Hapus dari riwayat">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+               </button>
+             </div>`
           : `<p class="baca-history-empty">Belum ada riwayat bacaan. Buka satu surah untuk memulai.</p>`}
       </div>
     </details>`;
@@ -395,6 +406,27 @@ export function renderIndex(mount: HTMLElement): void {
     if (!li) return;
     const ti = [...list.children].indexOf(li as Element);
     if (ti >= 0 && ti !== pos) { e.preventDefault(); goTo(ti); }
+  });
+
+  // Delete one entry from Riwayat Bacaan (Erik, 2026-08-10). Scoped to the details element rather
+  // than the document so it dies with this render; the row is replaced in place with the same empty
+  // state the history shows on a cold start, so the dropdown never collapses to nothing under the
+  // reader's finger and there is no re-render of the whole index for a one-row change.
+  //
+  // The store holds ONE position today — `clearBookmark()` is therefore the whole of "delete each".
+  // If the history ever becomes a real list, this handler needs the ref to know WHICH to drop; the
+  // button already carries its own label, so that is where the id would go.
+  mount.querySelector<HTMLElement>(".baca-history")?.addEventListener("click", (e) => {
+    const del = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-act="history-del"]');
+    if (!del) return;
+    e.preventDefault();
+    e.stopPropagation(); // never let it fall through to the <summary> and toggle the dropdown shut
+    clearBookmark();
+    const body = del.closest(".baca-history-body");
+    if (body) {
+      body.innerHTML = `<p class="baca-history-empty">Belum ada riwayat bacaan. Buka satu surah untuk memulai.</p>`;
+    }
+    say("Riwayat bacaan dihapus.");
   });
 
   const prevBtn = mount.querySelector<HTMLButtonElement>(".baca-prev");
@@ -628,11 +660,16 @@ export async function renderSurah(mount: HTMLElement, n: number, scrollToAyah?: 
     return;
   }
 
+  // No bottom "Kembali ke daftar surah" (Erik, 2026-08-10). It cost 94px of vertical budget at the
+  // foot of a reading surface that is short to begin with, and it duplicated a way out that is
+  // already permanently on screen: `headEl` carries `.back-top`, and the sidebar's Al Qur'an entry
+  // returns to the same index. The reclaimed height goes straight into the columns — see the
+  // `.surah-split` height rule, which subtracts what sits BELOW the columns and now has less to
+  // subtract. The error branch above keeps its copy: there is no header there to go back from.
   mount.innerHTML = `
     <div class="surah-view">
       ${headEl(meta)}
       ${splitEl(isCached(n))}
-      <div class="back-bottom">${backEl("")}</div>
     </div>`;
 
   bindSplit(mount);

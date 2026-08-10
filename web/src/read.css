@@ -296,10 +296,15 @@
 }
 
 /* ── one surah ───────────────────────────────────────────────────── */
+/* Shorter cartouche (Erik, 2026-08-10 — "make the big card smaller in height so the content in the
+   middle can be higher again"). Every pixel taken off here is a pixel the reading columns get back,
+   because the split subtracts what sits below it and the cartouche is what it scrolls out from
+   under. 1.5/1.75/2rem → 1rem/1.1rem/1.25rem is a ~33% cut to the chrome around the title without
+   touching the title itself, so the surah still arrives as an event rather than a table row. */
 #read .surah-head {
-  padding: 1.5rem 0 1.75rem;
+  padding: 1rem 0 1.1rem;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 #read .back {
@@ -795,8 +800,10 @@
 
      Sized against the panel instead. `.qk-panel-body` is exactly `--app-100vh - 12px` at every
      viewport height — `.qk-shell` is `inset: 0` with a 6px vertical pad, so the offset is constant,
-     not sampled. The subtraction is everything BELOW the columns, and only that: `.back-bottom`
-     (54px) + its 40px margin-top = 94, plus `--composer-clear`, which is read from the same token
+     not sampled. The subtraction is everything BELOW the columns, and only that — which as of
+     2026-08-10 is nothing at all but the composer reservation, because `.back-bottom` was removed
+     from this route (Erik) and took its 54px plus 40px margin with it. That 94px went straight into
+     the columns. What remains is `--composer-clear`, which is read from the same token
      `.app` pads with rather than frozen at its 720p value of 120px — that clamp opens up past a
      ~923px viewport, and a hardcoded 120 here would have overflowed again exactly there. What is
      ABOVE deliberately stays out of the sum:
@@ -804,8 +811,9 @@
      exactly and then stop. It now does, to 0.0px — 375 of scroll for 375 of cartouche, with the
      columns landing flush at the panel top and `.back-bottom` clearing the composer by 39px.
 
-     If `.back-bottom` ever changes height, this 94 goes stale silently. ISC-292 re-measures it. */
-  height: clamp(380px, calc(var(--app-100vh) - 12px - 94px - var(--composer-clear)), 1100px);
+     If anything is ever put back below the columns, its height must be added to this subtraction --
+     ISC-290 fails loudly when it is not. */
+  height: clamp(380px, calc(var(--app-100vh) - 12px - var(--composer-clear)), 1100px);
   margin-top: var(--s-1);
 }
 
@@ -840,10 +848,34 @@
      handsome plate — but L 0.760 in dark, and a full-width fill of bright mint at that lightness
      shouts straight over the scripture, which inverts PRODUCT.md's first principle. `--forest` is
      theme-INVARIANT at L 0.375, so the plate is the same deep green in both registers, and
-     `contrast.test.ts` already proves white on it. One value, no per-theme special case. */
-  background: var(--forest);
-  border: 1px solid var(--forest);
+     `contrast.test.ts` already proves white on it. One value, no per-theme special case.
+
+     RAISED LEDGE (Erik, 2026-08-10 — "make it more aesthetic, 3D or whatever"). The plate was one
+     flat fill, which is why it read as a label pasted onto the column rather than a surface the
+     column passes under. Three things give it depth, and none of them is ornament:
+
+       1. a body gradient, lighter at the top — light arrives from above, as it does everywhere else
+          in this app, so the bar is lit rather than coloured;
+       2. a 1px inset highlight on the top edge and a matching dark inset on the bottom, which is
+          what actually sells a raised edge — a border cannot, because a border is the same value on
+          all four sides and so describes a rectangle, not a solid;
+       3. a drop shadow BELOW the bar only, so the scroller visibly runs beneath it.
+
+     `--forest` is still the anchor, so this stays theme-invariant at L 0.375 and the contrast suite's
+     proof of white-on-forest holds unchanged — the gradient only moves lightness a few points either
+     side of it, and `color-mix` keeps that relative to the token instead of naming a second colour. */
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklch, var(--forest), white 9%) 0%,
+      var(--forest) 55%,
+      color-mix(in oklch, var(--forest), black 8%) 100%);
+  border: 0;
   border-radius: var(--r) var(--r) 0 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 6px 14px -6px rgba(0, 0, 0, 0.45),
+    0 2px 4px -2px rgba(0, 0, 0, 0.30);
   color: oklch(1 0 0);
   font: inherit;
   font-weight: 600;
@@ -852,7 +884,17 @@
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
-  transition: filter 220ms var(--ease), color 220ms var(--ease);
+  /* Above the scroller so the shadow lands ON the column rather than under it. */
+  position: relative;
+  z-index: 2;
+  transition: filter 220ms var(--ease), color 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+/* Pressing it should feel like pressing it: the lift collapses, the highlight goes, the plate sits down. */
+#read .sp-tab:active {
+  box-shadow:
+    inset 0 1px 0 rgba(0, 0, 0, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.35);
 }
 /* The tab is now a SOLID green plate carrying `--primary-ink`, so its states can no longer swap the
    background to a pale wash — that would leave white text on cream. They change the plate's
@@ -1016,13 +1058,27 @@
   #read .si-tip { left: auto; right: 0; translate: none; max-width: min(320px, 84vw); }
 }
 #read .si-sec { margin: 0 0 var(--s-5); }
+/* GOLD, not `--ink` (Erik, 2026-08-10): "you bold something, but it's white to white, and it's not
+   really clear". He is describing a real failure, not a preference. `--ink` in dark is L 0.970 and
+   the body prose is `--ink-2` at L 0.800 — a 17-point lightness step doing the entire job of saying
+   "this is a heading", on a surface where the reader is scanning long Arabic paragraphs. Weight
+   alone cannot carry hierarchy at that distance; hue can.
+   `--hero-b` is the signature gold and is already theme-aware (#7d5f10 on light, #f0c851 on dark),
+   so this reads as emphasis in both registers without a per-theme override. It is TEXT, not an edge
+   or a rule, so it stays clear of the no-gold-frame rule on cards.
+   The rest is formatting he also asked for: a touch more size and letter-spacing so the heading has
+   presence of its own, and asymmetric margins — more space ABOVE than below — so each heading binds
+   to the paragraph it introduces instead of floating equidistant between two blocks. */
 #read .si-h {
   margin: 0 0 var(--s-2);
-  font-size: 1.02em;
+  font-size: 1.08em;
   font-weight: 700;
-  color: var(--ink);
+  letter-spacing: 0.005em;
+  color: var(--hero-b);
   text-wrap: balance;
 }
+/* Not the first: that one already has the section's own top margin above it. */
+#read .si-sec + .si-sec .si-h { margin-top: var(--s-1); }
 /* 68ch is the MEASURE (DESIGN.md § Typography) — it is how wide prose stays readable, and the
    preface ignored it, so an expanded column ran Dorar's Arabic the full 874px. */
 #read .si-body p { margin: 0 0 var(--s-3); line-height: 2; max-width: 68ch; text-wrap: pretty; }
@@ -1082,4 +1138,59 @@
   #read .surah-split[data-pane="text"]  .sp-intro .sp-tab-label {
     writing-mode: horizontal-tb; transform: none;
   }
+}
+
+/* ── the recitation choice ────────────────────────────────────────────────────
+   Erik, 2026-08-10: "whenever Dengar is clicked, there will be an option whether you want to only
+   hear this particular ayah, or the next ayah will be continued after finishing with this ayah."
+
+   A menu rather than a toggle, and offered on the way IN rather than parked in settings, because
+   the answer belongs to the listening session and not to the app: the same reader wants one ayah
+   while checking a reference and the whole run while reciting along. It is skipped entirely when
+   there is no next ayah with audio to continue into — see the `opensMenu` note in verse.ts. */
+#read .act-play, .qk-panel-body .act-play { position: relative; display: inline-flex; }
+
+.play-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  inset-inline-start: 0;
+  z-index: 30;
+  min-width: 15rem;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop);
+}
+.play-menu[hidden] { display: none; }
+
+.play-opt {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: var(--r);
+  padding: 9px 10px;
+  cursor: pointer;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: inherit;
+  color: var(--ink-2);
+  transition: background var(--t), color var(--t);
+}
+.play-opt:hover { background: var(--primary-wash); color: var(--ink); }
+.play-opt:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.play-opt-t { font-size: var(--step--1); font-weight: 600; }
+.play-opt-d { font-size: 0.82em; color: var(--ink-3); }
+/* The remembered answer, marked but not preselected — the reader still has to choose. */
+.play-opt.on { color: var(--primary); }
+.play-opt.on .play-opt-t::after { content: " ✓"; font-weight: 700; }
+
+/* Near the panel's start edge the menu would overhang; flip it to hang from the button's end. */
+@media (max-width: 820px) {
+  .play-menu { inset-inline-start: auto; inset-inline-end: 0; min-width: 13rem; }
 }

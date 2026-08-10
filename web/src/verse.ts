@@ -10,7 +10,7 @@
  * flagged as diverging (94:5), the disclosure renders OPEN so the comparison the caution asks for
  * is visible without a tap.
  */
-import { hasAudio, nowPlaying } from "./audio.ts";
+import { hasAudio, nowPlaying, playMode, nextWithAudio } from "./audio.ts";
 import type { ShardVerse } from "./quran.ts";
 import { RELATED_VERSES } from "./related-verses.ts";
 
@@ -274,9 +274,34 @@ export function verseEl(v: VerseCard): string {
           hasAudio(v.surah, v.ayah)
             ? (() => {
                 const playing = nowPlaying() === v.ref;
-                return `<button class="act play" data-act="play" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}" aria-pressed="${playing}" aria-label="${playing ? "Jeda" : "Dengarkan"} ayat ${v.ref}">
-                  <span aria-hidden="true">${playing ? ICON_PAUSE : ICON_PLAY}</span> ${playing ? "Jeda" : "Dengar"}
-                </button>`;
+                const mode = playMode();
+                const more = nextWithAudio(v.surah, v.ayah) !== null;
+                // While something is playing the button is a plain pause — asking "one or many?"
+                // to stop a track would be nonsense. The menu only guards the START of playback.
+                // It is also skipped when there is no next ayah with audio to continue INTO, since
+                // both answers would then do the same thing (see the MVP manifest note in audio.ts).
+                const opensMenu = !playing && more;
+                return `<div class="act-play${opensMenu ? " has-menu" : ""}">
+                  <button class="act play" data-act="${opensMenu ? "play-menu" : "play"}" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}" aria-pressed="${playing}"${
+                    opensMenu ? ' aria-haspopup="true" aria-expanded="false"' : ""
+                  } aria-label="${playing ? "Jeda" : "Dengarkan"} ayat ${v.ref}">
+                    <span aria-hidden="true">${playing ? ICON_PAUSE : ICON_PLAY}</span> ${playing ? "Jeda" : "Dengar"}
+                  </button>
+                  ${
+                    opensMenu
+                      ? `<div class="play-menu" role="menu" hidden aria-label="Cara memutar ayat ${v.ref}">
+                           <button class="play-opt${mode === "single" ? " on" : ""}" role="menuitemradio" aria-checked="${mode === "single"}" data-act="play-mode" data-mode="single" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}">
+                             <span class="play-opt-t">Ayat ini saja</span>
+                             <span class="play-opt-d">Berhenti setelah ayat ${v.ayah}</span>
+                           </button>
+                           <button class="play-opt${mode === "continue" ? " on" : ""}" role="menuitemradio" aria-checked="${mode === "continue"}" data-act="play-mode" data-mode="continue" data-ref="${v.ref}" data-surah="${v.surah}" data-ayah="${v.ayah}">
+                             <span class="play-opt-t">Lanjut otomatis</span>
+                             <span class="play-opt-d">Terus ke ayat berikutnya</span>
+                           </button>
+                         </div>`
+                      : ""
+                  }
+                </div>`;
               })()
             : ""
         }
@@ -317,11 +342,38 @@ export function setPlayButton(btn: HTMLButtonElement, playing: boolean): void {
   if (label) label.textContent = playing ? " Jeda" : " Dengar";
   btn.setAttribute("aria-pressed", String(playing));
   btn.setAttribute("aria-label", `${playing ? "Jeda" : "Dengarkan"} ayat ${btn.dataset["ref"] ?? ""}`);
+  // The action itself flips with the state. A button that opens the "one ayah or keep going?" menu
+  // must become a plain pause the moment something is playing — otherwise the only way to stop a
+  // recitation is to re-answer a question about how to start it. Restored on the way back out, but
+  // only for buttons that had a menu to begin with (`.has-menu` on the wrapper).
+  const hasMenu = btn.parentElement?.classList.contains("has-menu") ?? false;
+  if (!hasMenu) return;
+  btn.dataset["act"] = playing ? "play" : "play-menu";
+  if (playing) btn.removeAttribute("aria-expanded");
+  else btn.setAttribute("aria-expanded", "false");
+}
+
+/**
+ * The play button for one ayah, wherever it is on the page (chat or reading) and whichever state
+ * it is in.
+ *
+ * BOTH spellings, and this is the whole reason the helper exists. A button that carries the
+ * "one ayah or keep going?" menu sits at `data-act="play-menu"` while idle and only becomes
+ * `play` while it is the one playing. Matching just `play` finds a button exactly when it is
+ * already showing what you wanted to set — so every caller that looked one way missed silently:
+ * the reset left a stale "Jeda" behind, and auto-advance never lit up the ayah it moved to.
+ * Caught by driving a synthetic advance event, not by reading the code.
+ */
+export function findPlayButton(ref: string): HTMLButtonElement | null {
+  const sel = `[data-ref="${CSS.escape(ref)}"]`;
+  return document.querySelector<HTMLButtonElement>(
+    `[data-act="play"]${sel}, [data-act="play-menu"]${sel}`,
+  );
 }
 
 /** Only one ayah plays at a time — when a NEW one starts, whichever button was showing "Jeda"
  * needs to flip back to "Dengar", wherever on the page it happens to be (chat or reading). */
 export function resetPlayButton(ref: string): void {
-  const btn = document.querySelector<HTMLButtonElement>(`[data-act="play"][data-ref="${CSS.escape(ref)}"]`);
+  const btn = findPlayButton(ref);
   if (btn) setPlayButton(btn, false);
 }

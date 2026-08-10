@@ -43,6 +43,67 @@ export function hasAudio(surah: number, ayah: number): boolean {
 
 export const RECITER_NAME = "Syaikh Mishary Rashid Alafasy";
 
+/**
+ * How playback behaves when an ayah finishes (Erik, 2026-08-10).
+ *
+ * `single` — stop at the end of the ayah, which is what the button did before and what a reader
+ * checking one verse wants. `continue` — roll on into the next ayah, which is how recitation is
+ * actually listened to.
+ *
+ * The choice is offered on every tap of Dengar rather than buried in settings, because it is a
+ * decision about THIS listening session, not a preference about the app. The last answer is
+ * remembered only so the menu can show which one is current — it never plays without being asked.
+ */
+export type PlayMode = "single" | "continue";
+const MODE_KEY = "qk:audio-mode";
+
+function loadMode(): PlayMode {
+  try {
+    return localStorage.getItem(MODE_KEY) === "continue" ? "continue" : "single";
+  } catch {
+    return "single"; // private mode / storage disabled — the safer default is "don't keep going"
+  }
+}
+
+let mode: PlayMode = loadMode();
+
+export function playMode(): PlayMode {
+  return mode;
+}
+
+export function setPlayMode(next: PlayMode): void {
+  mode = next;
+  try {
+    localStorage.setItem(MODE_KEY, next);
+  } catch {
+    /* remembering is a courtesy, not a requirement — never let it break playback */
+  }
+}
+
+/**
+ * The next ayah that actually HAS audio, or null.
+ *
+ * Walks the manifest rather than assuming `ayah + 1` exists: only four surahs are downloaded today
+ * (see the MVP note above), so "the next ayah" is frequently not a file. Auto-advance that 404s
+ * would be worse than not advancing.
+ */
+export function nextWithAudio(surah: number, ayah: number): { surah: number; ayah: number; ref: string } | null {
+  const list = MANIFEST[surah];
+  if (!list) return null;
+  const i = list.indexOf(ayah);
+  if (i < 0 || i + 1 >= list.length) return null;
+  const n = list[i + 1]!;
+  return { surah, ayah: n, ref: `${surah}:${n}` };
+}
+
+/** Fired when auto-advance moves playback on its own, so the UI can repaint buttons it did not click. */
+export const ADVANCE_EVENT = "qk:audio-advance";
+export interface AdvanceDetail {
+  from: string;
+  to: string | null;
+  playing: boolean;
+}
+
 let el: HTMLAudioElement | null = null;
 let currentRef: string | null = null;
 
@@ -77,11 +138,7 @@ export async function toggleAudio(
   }
 
   const previous = currentRef;
-  a.src = `/audio/${surah}/${ayah}.mp3`;
-  a.onended = () => {
-    if (currentRef === ref) currentRef = null;
-  };
-  currentRef = ref;
+  arm(surah, ayah, ref);
 
   try {
     await a.play();
@@ -90,4 +147,57 @@ export async function toggleAudio(
     if (currentRef === ref) currentRef = null;
     return { playing: false, previous, failed: true };
   }
+}
+
+/**
+ * Point the element at one ayah and install that ayah's own end-handler.
+ *
+ * The handler has to be re-armed per track, not set once in `toggleAudio`: it closes over the ref
+ * it belongs to, so after an auto-advance the original closure would see `currentRef !== ref` and
+ * bail — the chain would play exactly one extra ayah and then stop silently. Re-arming is what
+ * makes `continue` actually continue.
+ */
+function arm(surah: number, ayah: number, ref: string): void {
+  const a = audioEl();
+  a.src = `/audio/${surah}/${ayah}.mp3`;
+  currentRef = ref;
+  a.onended = () => {
+    if (currentRef !== ref) return; // something else took over mid-track; leave it alone
+    currentRef = null;
+    if (mode !== "continue") {
+      emitAdvance({ from: ref, to: null, playing: false });
+      return;
+    }
+    const next = nextWithAudio(surah, ayah);
+    if (!next) {
+      // End of what we actually hold. Stop cleanly rather than pretending the surah ended.
+      emitAdvance({ from: ref, to: null, playing: false });
+      return;
+    }
+    void advanceTo(ref, next);
+  };
+}
+
+/**
+ * Chain into the next ayah without going through `toggleAudio`.
+ *
+ * Deliberately not a recursive `toggleAudio` call: by this point `currentRef` has been cleared, so
+ * the pause branch could not fire, and `previous` would be re-emitted to a caller that has no way
+ * to interpret it for a move it did not initiate. The event is the only channel for that.
+ */
+async function advanceTo(from: string, next: { surah: number; ayah: number; ref: string }): Promise<void> {
+  const a = audioEl();
+  arm(next.surah, next.ayah, next.ref);
+  try {
+    await a.play();
+    emitAdvance({ from, to: next.ref, playing: true });
+  } catch {
+    if (currentRef === next.ref) currentRef = null;
+    emitAdvance({ from, to: next.ref, playing: false });
+  }
+}
+
+function emitAdvance(detail: AdvanceDetail): void {
+  if (typeof document === "undefined") return; // test/SSR contexts have no document
+  document.dispatchEvent(new CustomEvent<AdvanceDetail>(ADVANCE_EVENT, { detail }));
 }

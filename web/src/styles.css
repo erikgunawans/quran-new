@@ -243,7 +243,17 @@
      (`:root[data-theme="dark"] .qk-panel::before`), never on `prefers-color-scheme`. Redefining
      `--panel-ink` in the media-query block instead would re-create the desync it exists to close. */
   --panel-ink: oklch(0.970 0.006 160); --panel-ink-2: oklch(0.800 0.012 165);
-  --shell-bg: #030b08; --panel-foot: #0b1f16;
+  /* #030b08 → #08170f (Erik, 2026-08-10): "very dark dark green… just slightly lighter". The old
+     value was 3 points off black and read as an absence rather than a colour, so the outer layer
+     had no hue of its own — it was a void the panel floated in. This is still unmistakably the
+     darker of the two planes (the panel's foot stop is #0b1f16 and its head is #143a2a), but it is
+     now green rather than near-black. Deliberately small: the whole point of the two-layer shell is
+     that the inner one is the LIT layer, and closing this gap much further would flatten that. */
+  --shell-bg: #08170f; --panel-foot: #0b1f16;
+  /* What the panel's foot ACTUALLY renders as, once its gold wash is composited over `--panel-foot`.
+     `.qk-panel::before` lays `rgba(240,200,81,.22)` over the foot stop, so anything that needs to
+     paint an opaque floor down there and disappear into it must use this, not `--panel-foot`. */
+  --panel-foot-lit: #3d4423;
   --primary: oklch(0.760 0.128 165); --primary-ink: oklch(0.180 0.020 165);
   --primary-wash: oklch(0.760 0.128 165 / 0.14); --primary-line: oklch(0.760 0.128 165 / 0.42);
   --composer-line: oklch(0.760 0.128 165 / 0.24); --composer-line-on: oklch(0.760 0.128 165 / 0.95);

@@ -3,7 +3,7 @@ import "./read.css";
 import "./shell.css";
 import "./shell.ts";
 import { announce } from "./announce.ts";
-import { toggleAudio } from "./audio.ts";
+import { toggleAudio, setPlayMode, ADVANCE_EVENT, type AdvanceDetail } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
@@ -31,7 +31,7 @@ import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { migrateStorage } from "./migrate-storage.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
-import { esc, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
+import { esc, findPlayButton, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
@@ -805,6 +805,54 @@ lucky?.addEventListener("click", () => {
   lucky.classList.add("is-rolling");
 });
 
+// ── recitation: the play menu ────────────────────────────────────────────────
+/** Shut every open play menu except `keep`, and re-sync the triggers' aria-expanded. */
+function closePlayMenus(keep: HTMLElement | null): void {
+  for (const m of document.querySelectorAll<HTMLElement>(".play-menu")) {
+    if (m === keep || m.hidden) continue;
+    m.hidden = true;
+    m.parentElement?.querySelector('[data-act="play-menu"]')?.setAttribute("aria-expanded", "false");
+  }
+}
+
+/**
+ * Start (or pause) playback and repaint the button.
+ *
+ * `source` carries the surah/ayah/ref data; `button` is the element that should show the state.
+ * They differ when the click came from a menu option — the option knows which ayah it belongs to,
+ * but it is the Dengar button that has to turn into Jeda.
+ */
+function startPlayback(source: HTMLElement, button: HTMLElement): void {
+  const surah = Number(source.dataset["surah"]);
+  const ayah = Number(source.dataset["ayah"]);
+  const ref = source.dataset["ref"] ?? "";
+  void (async () => {
+    const { playing, previous, failed } = await toggleAudio(surah, ayah, ref);
+    if (previous) resetPlayButton(previous);
+    setPlayButton(button as HTMLButtonElement, playing);
+    say(failed ? "Gagal memutar audio. Coba lagi." : playing ? `Memutar ayat ${ref}.` : "Jeda.");
+  })();
+}
+
+// Auto-advance moves playback without anyone clicking, so the buttons it leaves behind are stale.
+// Repaint both ends of the move — the ayah that finished and the one that picked up.
+document.addEventListener(ADVANCE_EVENT, (e) => {
+  const { from, to, playing } = (e as CustomEvent<AdvanceDetail>).detail;
+  resetPlayButton(from);
+  if (!to) return;
+  const next = findPlayButton(to);
+  if (next && playing) setPlayButton(next, true);
+  if (playing) say(`Lanjut ke ayat ${to}.`);
+});
+
+// A menu that stays open after you look away is a menu you have to dismiss twice.
+document.addEventListener("click", (e) => {
+  if (!(e.target as HTMLElement).closest(".act-play")) closePlayMenus(null);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePlayMenus(null);
+});
+
 // ── actions: seeds, copy, share, retry ───────────────────────────────────────
 document.addEventListener("click", (e) => {
   const el = e.target as HTMLElement;
@@ -855,16 +903,32 @@ document.addEventListener("click", (e) => {
   if (!act) return;
   const kind = act.dataset["act"];
 
+  // Dengar with a choice behind it (Erik, 2026-08-10): the first tap asks whether this is one ayah
+  // or the start of a run, and the second tap is the one that plays. Only ever on the way IN — see
+  // the `opensMenu` note in verse.ts.
+  if (kind === "play-menu") {
+    const menu = act.parentElement?.querySelector<HTMLElement>(".play-menu");
+    if (!menu) return;
+    const open = menu.hidden;
+    closePlayMenus(open ? menu : null);
+    menu.hidden = !open;
+    act.setAttribute("aria-expanded", String(open));
+    if (open) menu.querySelector<HTMLButtonElement>(".play-opt.on, .play-opt")?.focus();
+    return;
+  }
+
+  if (kind === "play-mode") {
+    setPlayMode(act.dataset["mode"] === "continue" ? "continue" : "single");
+    closePlayMenus(null);
+    const trigger = act
+      .closest<HTMLElement>(".act-play")
+      ?.querySelector<HTMLButtonElement>('[data-act="play-menu"]');
+    startPlayback(act, trigger ?? act);
+    return;
+  }
+
   if (kind === "play") {
-    const surah = Number(act.dataset["surah"]);
-    const ayah = Number(act.dataset["ayah"]);
-    const ref = act.dataset["ref"] ?? "";
-    void (async () => {
-      const { playing, previous, failed } = await toggleAudio(surah, ayah, ref);
-      if (previous) resetPlayButton(previous);
-      setPlayButton(act, playing);
-      say(failed ? "Gagal memutar audio. Coba lagi." : playing ? `Memutar ayat ${ref}.` : "Jeda.");
-    })();
+    startPlayback(act, act);
     return;
   }
 
