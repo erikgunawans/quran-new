@@ -69,9 +69,12 @@ function parseRecord(entry: ManifestEntry): IndexRecord | null {
   const raw = readFileSync(join(OKF_ROOT, entry.path), "utf8");
   const fm = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!fm) return null;
-  const block = fm[1];
+  // Both groups are guaranteed by the regex that just matched, but `noUncheckedIndexedAccess` cannot
+  // know that. Defaulting to "" rather than asserting keeps the failure mode boring: a record whose
+  // frontmatter somehow did not capture yields no arabic and is skipped below, not a crash mid-build.
+  const block = fm[1] ?? "";
   const field = (k: string) => block.match(new RegExp(`^${k}:\\s*(.+)$`, "m"))?.[1]?.trim().replace(/^["']|["']$/g, "") ?? "";
-  const body = fm[2];
+  const body = fm[2] ?? "";
   const arabic = body.match(/## العربية\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? "";
   const english = body.match(/## English\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? "";
   if (!arabic) return null;
@@ -154,8 +157,14 @@ const BATCH = 32;
 for (let i = 0; i < todo.length; i += BATCH) {
   const chunk = todo.slice(i, i + BATCH);
   const vecs = await embedBatch(chunk.map((r) => r.text));
-  chunk.forEach((r, n) => cached.set(r.key, vecs[n]));
-  appendFileSync(CACHE, chunk.map((r, n) => JSON.stringify({ k: r.key, v: vecs[n] })).join("\n") + "\n");
+  // Not type appeasement: a short response would have written `undefined` into the content-hash
+  // cache under a real key, and the cache is never re-validated — every later build would read that
+  // key as a hit and upsert a vector-less record. Fail the build instead.
+  if (vecs.length !== chunk.length) {
+    throw new Error(`embedding batch returned ${vecs.length} vectors for ${chunk.length} inputs`);
+  }
+  chunk.forEach((r, n) => cached.set(r.key, vecs[n]!));
+  appendFileSync(CACHE, chunk.map((r, n) => JSON.stringify({ k: r.key, v: vecs[n]! })).join("\n") + "\n");
   process.stdout.write(`\r  embedding: ${Math.min(i + BATCH, todo.length)}/${todo.length}   `);
 }
 if (todo.length) process.stdout.write("\n");

@@ -14,6 +14,7 @@ worker/.dev.vars
 .serena/
 data/
 node_modules/
+node_modules
 worker/node_modules/
 web/dist/
 web/dist-demo/

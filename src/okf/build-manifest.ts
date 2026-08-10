@@ -38,13 +38,17 @@ export interface ManifestEntry {
   /** sha256 of the raw file bytes. Byte-level, not text-level: Arabic normalisation differences are
    *  real and must register as different content. */
   sha256: string;
+  // These four are `?: T | undefined` rather than `?: T` because `exactOptionalPropertyTypes` draws a
+  // distinction this data does not have: a frontmatter key that is absent and one that parsed to
+  // nothing are the same fact here, and both must be writable. `?: T` alone forbids assigning an
+  // explicit `undefined`, which is exactly what the parser produces.
   /** Frontmatter `id`, when present — the human-facing record identifier (e.g. hadith-bukhari-6962). */
-  id?: string;
+  id?: string | undefined;
   /** `rights.usage` — the field the retrieval layer filters on. Absent means the file declares none,
    *  which is treated as MORE restrictive, never less. */
-  rights_usage?: string;
-  source_url?: string;
-  license?: string;
+  rights_usage?: string | undefined;
+  source_url?: string | undefined;
+  license?: string | undefined;
 }
 
 const sha256 = (buf: Buffer | string): string => createHash("sha256").update(buf).digest("hex");
@@ -64,10 +68,18 @@ function walk(dir: string): string[] {
  * handful of known keys and ignores the rest, so a malformed or unexpected frontmatter block can
  * never inject content into a file that is meant to carry no scripture.
  */
-function frontmatterFields(raw: string): Pick<ManifestEntry, "id" | "rights_usage" | "source_url" | "license"> {
+// `exactOptionalPropertyTypes` is on, so `Pick<ManifestEntry, …>` — whose fields are `id?: string` —
+// cannot receive an explicit `undefined`. These fields legitimately ARE sometimes absent (a record
+// that declares no `rights.usage` is treated as MORE restrictive, never less), so the honest type is
+// "optional AND assignable from undefined" rather than a cast that hides it.
+type FrontmatterFields = {
+  [K in "id" | "rights_usage" | "source_url" | "license"]?: string | undefined;
+};
+
+function frontmatterFields(raw: string): FrontmatterFields {
   const fm = raw.match(/^---\n([\s\S]*?)\n---/);
   if (!fm) return {};
-  const block = fm[1];
+  const block = fm[1] ?? "";
   const scalar = (key: string): string | undefined =>
     block.match(new RegExp(`^${key}:\\s*(.+)$`, "m"))?.[1]?.trim().replace(/^["']|["']$/g, "");
   // `usage` appears both at rights.usage (top level of the rights map) and again inside

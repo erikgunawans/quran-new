@@ -8,7 +8,76 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-10 (latest) — Tanya becomes an agent: 17 decisions, a corpus proven searchable in the wrong language, and a false friend that outranks the truth
+## 2026-08-10 (latest) — The reranker was the wrong fix for the right bug, and the guard's own voice was unshippable
+
+Anchor: `origin/main` `413dceb`. Branch `worktree-humming-riding-scone` at **`08d21c4`**, one commit
+past the previous checkpoint. **PR #3 open and now RED** — see the gates below. ISA **357/363**;
+this session opened Cycle 6 and wrote its 46 ISCs (ISC-313..355), so the workstream is finally
+visible to the roadmap. No deploys. `worker/wrangler.toml` untouched.
+
+**Erik chose Option A and the measurement refuted it.** Asked whether to rerank on the citation
+surface (cheap, no plumbing, no rights change) or on full text (needs R2), he chose A. Built the
+experiment first: A does not fix the case, and with `cohere/rerank-v3.5` it scores **5/8 against a
+7/8 no-reranker baseline** — actively worse. Reported before building; he moved to B.
+
+**The PRD's diagnosis was wrong, and that is the finding of the session.** Amendment B called for a
+rerank stage. The real defect was RECALL: Sahih Muslim 154, *"Clarifying the usage of the word Kafir
+for one who abandons Salat"*, sits at cosine **rank 28 of 14,736**. It was never in the old top-8, so
+no reranker over 8 candidates could have found it under any model. `MAX_RETRIEVE = 8` was the bug.
+`CANDIDATE_K = 50` is what makes the truth reachable; the reranker is what finds it in there. The
+full matrix (8 questions, full corpus, K=50) is in the commit message; only **English body + voyage**
+passes the case, at 7/8 overall.
+
+**The text layer, split along the rights argument.** Two derived artifacts in the private
+`okf-corpus` bucket, neither in git: a gzipped English-only rerank blob (1.78 MB, machine-only,
+fetched once per isolate) and per-book display shards with Arabic + English + attribution, fetched
+ONLY for records that already passed the cap. The reader-facing path is structurally incapable of
+pulling a collection. `MAX_DISPLAY` is still 2, now walled in three places.
+
+**A hole that nearly opened, and is worth remembering as a shape.** One record
+(`hadith-muslim-6292`) is Arabic-only upstream. Dropping it from DISPLAY alone would have been worse
+than leaving it in: still retrievable → model cites it by marker → marker resolves against the turn's
+grounding → guard passes → renderer drops the card → **a prophetic attribution with nothing behind
+it**, which is precisely what `bad_hadith` exists to prevent, arriving through a side door. The
+invariant is now **RETRIEVABLE ≡ DISPLAYABLE**, enforced in the builder and again in `searchDalil`.
+
+**`bad_hadith` shipped, and the tests caught two design errors.** Opaque `[H:coll:n]` markers
+resolved against this turn's grounding, plus a PROPHETIC construction list built like VERDICT,
+sentence-scoped. Both bugs were sentence-splitting artifacts: a marker written *after* the full stop
+landed in the following fragment and so could not act as its own receipt — which is how anyone would
+actually write a citation — and `HR.` split mid-abbreviation so the construction never matched.
+
+**The app's own voice was illegal.** PRD decision 2 specifies prose like *"Nabi ﷺ pernah mengingatkan
+bahwa…"*. ﷺ is U+FDFA, inside the Arabic presentation-forms block, so the `arabic` HARD rule rejected
+it — decision 2 was unshippable as written and nobody had noticed. Two codepoints (ﷺ, ﷻ) exempted and
+nothing else; real Arabic alongside an honorific still fails.
+
+### What is red, stated plainly
+
+- **ISC-323 not met.** Live rank 1 is Bukhari 540, *"The sin of one who misses the 'Asr prayer
+  (intentionally)"* — on topic and defensible, but not Muslim 154, which is absent from the live
+  top-8. The named false friend IS displaced (its analogue now ranks 8th, lowest rerank score). Not
+  marked passed on the strength of the outcome being better than before.
+- **ISC-323.2 open, and it invalidates a class of evidence.** The live candidate set does not match
+  the offline reproduction over the same vectors — offline cosine 0.51–0.59, live 0.43–0.50. Until
+  that is understood, **no offline retrieval number may be quoted as evidence about live behaviour**,
+  including the bake-off matrix above.
+- **ISC-353: `bun test` is 890 pass / 10 fail / 10 err** with corpus and `node_modules` present. The
+  handoff's premise was half right — the corpus explained 11 of the previous 21. The residue is eight
+  DOM suites colliding on Happy DOM `GlobalRegistrator` in one process; `landing.test.ts` alone passes
+  26/26. **This repo has no `.github/` and no CI**, so PR #3's gate is this local run.
+- **ISC-354: typecheck exits 2, 13 errors.** Seven are in `src/okf/` from this workstream's OWN
+  earlier commits, already merged into PR #3 unnoticed. None in files added this session. The trap
+  that hid them: `bun run typecheck | tail` reports `tail`'s exit code, which is 0.
+
+**Not pushed.** The branch is committed locally but held off `origin` because the suite is red and
+PR #3's only gate is that suite. Pushing is a one-liner when Erik wants it.
+
+**Next:** fix the Happy DOM collision and the seven `src/okf/` typecheck errors (both block PR #3),
+then chase ISC-323.2 — the offline/live divergence is the thing most likely to be hiding another
+wrong diagnosis.
+
+## 2026-08-10 — Tanya becomes an agent: 17 decisions, a corpus proven searchable in the wrong language, and a false friend that outranks the truth
 
 Anchor: `origin/main` `413dceb`, plus three session commits on
 `worktree-humming-riding-scone`. ISA unchanged at **313/314** — this session opened a NEW workstream
