@@ -66,8 +66,9 @@ unreviewed AI Indonesian rendering of the Dorar surah preface on those grounds, 
 `web/src/hadith-card.ts` states the same rule for the Tanya surface: no Indonesian until Ustadz Ahmad
 approves THAT record, one hadith at a time (`reviewed_id` is the per-record hook).
 
-It is a **gate, not a deletion** — generation continues, the sidecar stays, and shipping later costs
-one constant, or better a per-record approval check. Locked by `web/src/hadith-id.test.ts`.
+It is a **gate, not a deletion** — the 1,746 generated records stay exactly where they are, and
+shipping later costs one constant, or better a per-record approval check. Locked by
+`web/src/hadith-id.test.ts`. (Generation itself is now stopped too; see "Where things stand".)
 
 Evidence the risk is real, not theoretical: bab 2 of Bukhari's Kitab al-Iman
 (`دُعَاؤُكُمْ إِيمَانُكُمْ`, a flat equative — "your supplication IS your faith") came back as
