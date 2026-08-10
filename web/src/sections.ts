@@ -14,6 +14,7 @@
  * Presentation only — nothing here touches the answer engine.
  */
 import { esc } from "./esc.ts";
+import { kitabId } from "./hadith-titles.ts";
 import {
   findCollection,
   loadHadithBook,
@@ -41,11 +42,21 @@ function errorView(title: string, err: unknown): string {
 }
 
 function kitabCard(collectionId: string, b: HadithCollectionMeta["books"][number]): string {
-  // data-search lets the filter match either the kitab number or its Arabic name.
+  // The Indonesian title leads and the Arabic follows (Erik, 2026-08-10 — the grid was Arabic-only
+  // and unreadable to a reader who does not read Arabic). The Arabic is NOT demoted to a subtitle:
+  // it stays at full size as the canonical name, and the Indonesian sits above it as the way in.
+  // A kitab with no mapping simply shows no Indonesian line — never a placeholder, never a guess.
+  const id = kitabId(collectionId, b.no);
+  // data-search now matches the number, the Arabic, OR the Indonesian, so a reader can type "wudu".
+  const search = `${b.no} ${b.ar}${id ? ` ${id}` : ""}`;
   return `
-    <a class="hadith-kitab" href="#/hadis/${esc(collectionId)}/${b.no}" data-search="${esc(`${b.no} ${b.ar}`)}">
+    <a class="hadith-kitab" href="#/hadis/${esc(collectionId)}/${b.no}" data-search="${esc(search)}">
+      <span class="hadith-kitab-orn" aria-hidden="true"></span>
       <span class="hadith-kitab-no">${b.no}</span>
-      <span class="hadith-kitab-ar" dir="rtl" lang="ar">${esc(b.ar)}</span>
+      <span class="hadith-kitab-body">
+        ${id ? `<span class="hadith-kitab-id">${esc(id)}</span>` : ""}
+        <span class="hadith-kitab-ar" dir="rtl" lang="ar">${esc(b.ar)}</span>
+      </span>
       <span class="hadith-kitab-count">${b.hadith} hadis</span>
     </a>`;
 }
@@ -93,10 +104,10 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <p class="hadith-note" role="note">Bagian ini menampilkan <b>teks Arab</b> yang kanonik beserta sumber dan derajatnya. Terjemahan Indonesia menyusul setelah lisensinya jelas dan ditinjau ustadz — kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
+      <p class="hadith-note" role="note">Nama kitab diterjemahkan agar mudah dicari; <b>teks hadisnya tetap Arab</b> yang kanonik, beserta sumber dan derajatnya. Terjemahan teks hadis menyusul setelah lisensinya jelas dan ditinjau ustadz — kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
       <div class="hadith-controls">
         <div class="hadith-tabs" role="tablist" aria-label="Pilih koleksi">${tabs}</div>
-        <input class="hadith-filter" type="search" inputmode="numeric" placeholder="Cari kitab — nomor atau nama Arab…" aria-label="Cari kitab" />
+        <input class="hadith-filter" type="search" placeholder="Cari kitab — nomor, nama Indonesia, atau Arab…" aria-label="Cari kitab" />
       </div>
       ${panels}
     </div>`;
@@ -201,9 +212,16 @@ function fiqhCard(a: FiqhArea, lookup: Map<string, KitabInfo>): string {
     .map((r) => {
       const info = lookup.get(`${r.collection}/${r.book}`);
       if (!info) return "";
+      // Same treatment as the Hadis grid: these chips point at the very same kitab, so leaving
+      // them Arabic-only would have made Fikih the one place the reader still cannot navigate.
+      // The Indonesian leads, the canonical Arabic follows it on the same line.
+      const idn = kitabId(r.collection, r.book);
       return `
         <a class="fikih-kitab" href="#/hadis/${esc(r.collection)}/${r.book}">
-          <span class="fikih-kitab-ar" dir="rtl" lang="ar">${esc(info.ar)}</span>
+          <span class="fikih-kitab-n">
+            ${idn ? `<span class="fikih-kitab-id">${esc(idn)}</span>` : ""}
+            <span class="fikih-kitab-ar" dir="rtl" lang="ar">${esc(info.ar)}</span>
+          </span>
           <span class="fikih-kitab-meta">${collLabel(r.collection)} · ${info.hadith} hadis</span>
         </a>`;
     })

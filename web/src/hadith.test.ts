@@ -126,7 +126,24 @@ describe("hadith index render", () => {
     mockFetch({ "/hadith/index.json": INDEX });
     await renderHadis(mount);
     expect(mount.querySelector(".hadith-note")).not.toBeNull();
-    expect(mount.textContent).toContain("Terjemahan Indonesia menyusul");
+    // Tightened 2026-08-10, when the kitab TITLES became Indonesian. The old assertion read
+    // "Terjemahan Indonesia menyusul" — which stopped being true the moment a title was translated,
+    // and would have let the page keep claiming it. The note now has to distinguish the two, so the
+    // test does too: what is still withheld is the TEXT, and the reason is still review + licence.
+    expect(mount.textContent).toContain("teks hadisnya tetap Arab");
+    expect(mount.textContent).toContain("Terjemahan teks hadis menyusul");
+    expect(mount.textContent).toContain("ditinjau ustadz");
+    expect(mount.textContent).toContain("tidak mengarang isinya");
+  });
+
+  test("kitab cards carry an Indonesian title beside the canonical Arabic", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    const first = mount.querySelector<HTMLAnchorElement>(".hadith-kitab")!;
+    // The Arabic must survive: translating the label must never replace the canonical name.
+    expect(first.querySelector(".hadith-kitab-ar")?.textContent?.trim()).toContain("كتاب");
+    // And the reader must be able to find it by the Indonesian word, not only by Arabic or number.
+    expect((first.dataset["search"] ?? "").toLowerCase()).toContain("wahyu");
   });
 
   test("a failed index fetch shows a message, not a blank pane", async () => {
