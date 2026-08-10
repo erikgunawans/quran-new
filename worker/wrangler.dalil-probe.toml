@@ -1,0 +1,22 @@
+# DEV-ONLY probe config for the hadith retrieval path.
+#
+# Deliberately SEPARATE from wrangler.toml. The production config drives three live Workers
+# (principled / synthesis / demo), and per PRD decision 11 the principled edition's surface must stay
+# exactly as it is until the ustadz-gated flip. Adding a binding or a route there to run a local test
+# would change the shape of the trustworthy deploy for no reason.
+#
+# This config is never deployed. It exists so `wrangler dev --remote` can reach the real Vectorize
+# index and prove retrieval end to end:
+#
+#   cd worker && bunx wrangler dev --config wrangler.dalil-probe.toml --remote --port 8799
+#   curl 'http://127.0.0.1:8799/?q=berapa+rakaat+sholat+dhuha'
+#
+# The key comes from worker/.dev.vars (gitignored), never from this file.
+
+name = "okf-dalil-probe"
+main = "src/dalil-probe.ts"
+compatibility_date = "2026-07-01"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "okf-hadith"
