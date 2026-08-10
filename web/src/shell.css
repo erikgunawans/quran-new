@@ -1423,3 +1423,36 @@
   background: var(--caution-wash);
   border: 1px solid var(--caution);
 }
+
+/* A machine translation of the hadith itself. Quieter than the Arabic above it and set off by a
+   rule, so it reads as apparatus supporting the text rather than as the text. The AI badge sits on
+   the rule, not inline in the prose — a badge inside a paragraph of scripture-adjacent text reads
+   as part of the sentence. */
+.hadith-id {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-family: var(--f-ui);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-2);
+  text-wrap: pretty;
+  white-space: pre-line;
+}
+.hadith-id.is-ai::before {
+  content: "Terjemahan mesin · belum ditinjau";
+  /* block, not inline-block: as inline-block the badge sat on the first line of the translation and
+     read as the opening words of the sentence. It is a label ABOUT the paragraph, so it gets its
+     own line. */
+  display: block;
+  width: fit-content;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--caution);
+  background: var(--caution-wash);
+  border: 1px solid var(--caution);
+}

@@ -52,3 +52,45 @@ export function babId(file: BabIdFile, collection: string, book: number, bab: nu
 export function needsNotice(file: BabIdFile): boolean {
   return Boolean(file.meta?.translation === "ai" && file.meta.reviewed === false && Object.keys(file.babs ?? {}).length);
 }
+
+// ── hadith text ──────────────────────────────────────────────────────────────
+//
+// Per book, not one map: 14,736 translations is ~9 MB, and a reader opening one kitab must not pay
+// for the other 153. Mirrors the corpus shard the page already fetches.
+
+const textCache = new Map<string, BabIdFile & { hadith?: Record<string, string> }>();
+
+export interface HadithIdFile {
+  meta?: BabIdMeta;
+  hadith?: Record<string, string>;
+}
+
+/** Translations for one book. Missing file → empty, and the page renders Arabic-only. */
+export async function loadHadithIds(collection: string, book: number): Promise<HadithIdFile> {
+  const key = `${collection}/${book}`;
+  const hit = textCache.get(key);
+  if (hit) return hit;
+  let file: HadithIdFile;
+  try {
+    const res = await fetch(`/hadith-id/${collection}/${book}.json`);
+    if (!res.ok) throw new Error(String(res.status));
+    const json = (await res.json()) as HadithIdFile;
+    file = { meta: json.meta ?? {}, hadith: json.hadith ?? {} };
+  } catch {
+    file = { meta: {}, hadith: {} };
+  }
+  textCache.set(key, file);
+  return file;
+}
+
+/** The Indonesian rendering of one hadith, or null. */
+export function hadithIdText(file: HadithIdFile, n: number): string | null {
+  return file.hadith?.[String(n)] ?? null;
+}
+
+/** True when this book carries unreviewed machine text a reader is about to see. */
+export function textNeedsNotice(file: HadithIdFile): boolean {
+  return Boolean(
+    file.meta?.translation === "ai" && file.meta.reviewed === false && Object.keys(file.hadith ?? {}).length,
+  );
+}

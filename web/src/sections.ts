@@ -15,7 +15,15 @@
  */
 import { esc } from "./esc.ts";
 import { kitabId } from "./hadith-titles.ts";
-import { babId, loadBabIds, needsNotice } from "./hadith-id.ts";
+import {
+  babId,
+  loadBabIds,
+  needsNotice,
+  loadHadithIds,
+  hadithIdText,
+  textNeedsNotice,
+  type HadithIdFile,
+} from "./hadith-id.ts";
 import {
   findCollection,
   loadHadithBook,
@@ -154,7 +162,10 @@ function wireHadisIndex(mount: HTMLElement): void {
   filter.addEventListener("input", applyFilter);
 }
 
-function hadithCard(h: HadithRecord): string {
+function hadithCard(h: HadithRecord, idn: string | null): string {
+  // Arabic FIRST, translation beneath — the opposite order from the titles, deliberately. A title
+  // is a signpost, so the Indonesian leads and gets you there. This is the hadith itself: the Arabic
+  // is the text, and a machine rendering of it is support underneath, never the thing on top.
   return `
     <article class="hadith-card">
       <div class="hadith-meta">
@@ -162,11 +173,12 @@ function hadithCard(h: HadithRecord): string {
         <span class="hadith-grade">${esc(gradeLabel(h.grade))}</span>
       </div>
       <p class="ar hadith-ar" dir="rtl" lang="ar">${esc(h.ar)}</p>
+      ${idn ? `<p class="hadith-id is-ai">${esc(idn)}</p>` : ""}
       <a class="hadith-src" href="${esc(h.url)}" target="_blank" rel="noopener noreferrer">Sumber: sunnah.com ↗</a>
     </article>`;
 }
 
-function babBlock(bab: HadithBab, idn: string | null): string {
+function babBlock(bab: HadithBab, idn: string | null, texts: HadithIdFile): string {
   // Indonesian above, Arabic below and still full size. Same rule as the kitab card: a translation
   // is a way IN to the canonical name, never a replacement for it. `.is-ai` is what the provenance
   // banner refers to, so a reader can tell which lines are machine output at a glance.
@@ -174,7 +186,7 @@ function babBlock(bab: HadithBab, idn: string | null): string {
     ? `${idn ? `<h3 class="hadith-bab-id is-ai">${esc(idn)}</h3>` : ""}
        <p class="hadith-bab" dir="rtl" lang="ar">${esc(bab.ar)}</p>`
     : "";
-  return `<section class="hadith-bab-block">${head}${bab.hadith.map(hadithCard).join("")}</section>`;
+  return `<section class="hadith-bab-block">${head}${bab.hadith.map((h) => hadithCard(h, hadithIdText(texts, h.n))).join("")}</section>`;
 }
 
 export async function renderHadisBook(mount: HTMLElement, collectionId: string, book: number): Promise<void> {
@@ -193,7 +205,8 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
   const count = shard.babs.reduce((n, b) => n + b.hadith.length, 0);
   // Fails soft to an empty map — the page must render Arabic-only if this layer is absent.
   const ids = await loadBabIds();
-  const notice = needsNotice(ids);
+  const texts = await loadHadithIds(collectionId, shard.book.no);
+  const notice = needsNotice(ids) || textNeedsNotice(texts);
   const bookId = kitabId(collectionId, shard.book.no);
   mount.innerHTML = `
     <div class="read-index hadith-book">
@@ -215,14 +228,21 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
         <div class="tematik-head-r"><a class="tematik-back" href="#/hadis">Kembali</a></div>
       </header>
       ${
+        // Whichever layer is actually on this page states the claim, and the TEXT layer's claim
+        // wins when present — its notice is the stronger one ("bukan rujukan, bukan fatwa"), and
+        // the bab-only wording would otherwise keep saying "teks hadis tetap Arab" on a page where
+        // it plainly is not. The sentence is read from the generated file, never written here.
         notice
-          ? `<p class="hadith-note ai-note" role="note">${esc(String(ids.meta?.notice ?? ""))}${
-              ids.meta?.reviewerNeeded ? ` Menunggu tinjauan ${esc(String(ids.meta.reviewerNeeded))}.` : ""
-            }</p>`
+          ? (() => {
+              const m = textNeedsNotice(texts) ? texts.meta : ids.meta;
+              return `<p class="hadith-note ai-note" role="note">${esc(String(m?.notice ?? ""))}${
+                m?.reviewerNeeded ? ` Menunggu tinjauan ${esc(String(m.reviewerNeeded))}.` : ""
+              }</p>`;
+            })()
           : ""
       }
       <div class="hadith-list">${shard.babs
-        .map((b) => babBlock(b, babId(ids, collectionId, shard.book.no, b.no)))
+        .map((b) => babBlock(b, babId(ids, collectionId, shard.book.no, b.no), texts))
         .join("")}</div>
     </div>`;
 }

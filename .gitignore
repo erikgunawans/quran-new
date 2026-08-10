@@ -38,3 +38,7 @@ graphify-out/
 .planning/graphs/.last-build-snapshot.json
 .gstack/
 .worktrees/
+
+# Machine-translated Indonesian layer (src/app/translate-*.ts). Regenerable, ~9MB, and unreviewed —
+# it is built into web/dist for testing but must not be committed until an ustadz has signed it off.
+web/public/hadith-id/
