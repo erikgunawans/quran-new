@@ -16,10 +16,19 @@ They touched **no source file in common**. The merge conflict was three metadata
 
 ## Where things stand
 
+- **Anchor `origin/main` `d32f2b9`**, clean tree, 0 ahead/0 behind. Top `PROGRESS.md` checkpoint:
+  "The text layer went dark, and two parallel sessions became one branch".
 - **Prod** Worker `39b922c1`, serving `index-CKqG9c2u.js` / `index-CsxJlLtp.css`. Workstream A is
   deployed; **workstream B is not deployed and must not be** without Erik's word.
-- **ISA 357/363** (`ISA.md`, Cycle 6 = ISC-313..355). The older "313/315" in checkpoints predates
-  the merge — it is history, not current.
+- **ISA 357/363** — 357 met, **5 open**, 1 deferred. The older "313/315" in checkpoints predates the
+  merge. The 5 open, by name:
+  - **ISC-354** — `bun run typecheck` exits 0. NOT MET (exit 2; see red gates below).
+  - **ISC-353** — `bun test` green on a checkout that has the corpus.
+  - **ISC-323** — live rank 1 for `gimana hukumnya meninggalkan sholat` is not Muslim 154.
+  - **ISC-323.2** — explain why the live candidate set differs from offline cosine.
+  - **ISC-98** — real-iOS `visualViewport` composer check. Blocked on a physical device.
+  - (**ISC-189**, 60fps on mid-range Android, is `[DEFERRED-VERIFY]` — also device-blocked. It uses
+    a non-checkbox marker, which is why checkbox counts read 362 and the frontmatter says 363.)
 - **Bab titles COMPLETE**: 4,864 / 4,864 translatable, live. The 3 unfilled keys (`muslim/53/0`,
   `bukhari/96/0`, `bukhari/97/49`) have 0-char Arabic source. Nothing to translate; do not chase.
 - **Machine-translated hadith TEXT is GATED OFF** — `SHOW_MACHINE_HADITH_TEXT = false` in
@@ -41,7 +50,7 @@ They touched **no source file in common**. The merge conflict was three metadata
 3. **`web/dist` holds a MERGED build while prod is pre-merge.** A routine `wrangler deploy` from
    this tree would ship the whole Tanya agent workstream, which Erik has not approved. Rebuild and
    check the bundle hash against what prod serves before any deploy.
-4. ISC-98 (real-iOS visualViewport composer) and ISC-189 (60fps mid-range Android, `#/peta`) both
+4. **ISC-98 and ISC-189 are device-blocked.** Both
    need a physical device. Blocked; do not attempt to close them in a browser.
 
 ## The two red gates
