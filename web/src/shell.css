@@ -1397,3 +1397,29 @@
   line-height: 1.35;
   color: var(--ink-2);
 }
+
+/* A machine-translated bab title. Indonesian leads; the Arabic keeps its own line beneath at the
+   size it had when it WAS the heading. `.is-ai` is the hook the provenance banner names — a reader
+   who wants to know which lines are generated can see it without reading the notice twice. */
+.hadith-bab-id {
+  margin: 26px 0 2px;
+  font-family: var(--f-ui);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.hadith-bab-id.is-ai::after {
+  content: "AI";
+  margin-inline-start: 8px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  vertical-align: 2px;
+  color: var(--caution);
+  background: var(--caution-wash);
+  border: 1px solid var(--caution);
+}

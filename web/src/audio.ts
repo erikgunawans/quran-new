@@ -55,11 +55,19 @@ export const RECITER_NAME = "Syaikh Mishary Rashid Alafasy";
  * remembered only so the menu can show which one is current — it never plays without being asked.
  */
 export type PlayMode = "single" | "continue";
-const MODE_KEY = "qk:audio-mode";
+/**
+ * `newquranku:`, not `qk:`. Every other persisted key in this app lives under that one namespace,
+ * and `migrate-storage.ts` owns renaming it — a stray prefix is invisible to that migration, so the
+ * next rename would silently strand this preference. It shipped as `qk:audio-mode` for part of one
+ * day, so the old key is still read once and adopted rather than discarded.
+ */
+const MODE_KEY = "newquranku:audio-mode";
+const MODE_KEY_LEGACY = "qk:audio-mode";
 
 function loadMode(): PlayMode {
   try {
-    return localStorage.getItem(MODE_KEY) === "continue" ? "continue" : "single";
+    const raw = localStorage.getItem(MODE_KEY) ?? localStorage.getItem(MODE_KEY_LEGACY);
+    return raw === "continue" ? "continue" : "single";
   } catch {
     return "single"; // private mode / storage disabled — the safer default is "don't keep going"
   }
@@ -75,6 +83,7 @@ export function setPlayMode(next: PlayMode): void {
   mode = next;
   try {
     localStorage.setItem(MODE_KEY, next);
+    localStorage.removeItem(MODE_KEY_LEGACY); // adopted; do not leave two sources of truth
   } catch {
     /* remembering is a courtesy, not a requirement — never let it break playback */
   }

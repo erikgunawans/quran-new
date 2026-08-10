@@ -15,6 +15,7 @@
  */
 import { esc } from "./esc.ts";
 import { kitabId } from "./hadith-titles.ts";
+import { babId, loadBabIds, needsNotice } from "./hadith-id.ts";
 import {
   findCollection,
   loadHadithBook,
@@ -165,8 +166,14 @@ function hadithCard(h: HadithRecord): string {
     </article>`;
 }
 
-function babBlock(bab: HadithBab): string {
-  const head = bab.ar ? `<h3 class="hadith-bab" dir="rtl" lang="ar">${esc(bab.ar)}</h3>` : "";
+function babBlock(bab: HadithBab, idn: string | null): string {
+  // Indonesian above, Arabic below and still full size. Same rule as the kitab card: a translation
+  // is a way IN to the canonical name, never a replacement for it. `.is-ai` is what the provenance
+  // banner refers to, so a reader can tell which lines are machine output at a glance.
+  const head = bab.ar
+    ? `${idn ? `<h3 class="hadith-bab-id is-ai">${esc(idn)}</h3>` : ""}
+       <p class="hadith-bab" dir="rtl" lang="ar">${esc(bab.ar)}</p>`
+    : "";
   return `<section class="hadith-bab-block">${head}${bab.hadith.map(hadithCard).join("")}</section>`;
 }
 
@@ -184,6 +191,9 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
   }
 
   const count = shard.babs.reduce((n, b) => n + b.hadith.length, 0);
+  // Fails soft to an empty map — the page must render Arabic-only if this layer is absent.
+  const ids = await loadBabIds();
+  const notice = needsNotice(ids);
   const bookId = kitabId(collectionId, shard.book.no);
   mount.innerHTML = `
     <div class="read-index hadith-book">
@@ -204,7 +214,16 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/hadis">Kembali</a></div>
       </header>
-      <div class="hadith-list">${shard.babs.map(babBlock).join("")}</div>
+      ${
+        notice
+          ? `<p class="hadith-note ai-note" role="note">${esc(String(ids.meta?.notice ?? ""))}${
+              ids.meta?.reviewerNeeded ? ` Menunggu tinjauan ${esc(String(ids.meta.reviewerNeeded))}.` : ""
+            }</p>`
+          : ""
+      }
+      <div class="hadith-list">${shard.babs
+        .map((b) => babBlock(b, babId(ids, collectionId, shard.book.no, b.no)))
+        .join("")}</div>
     </div>`;
 }
 
