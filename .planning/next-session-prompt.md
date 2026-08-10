@@ -24,16 +24,24 @@ They touched **no source file in common**. The merge conflict was three metadata
   `bukhari/96/0`, `bukhari/97/49`) have 0-char Arabic source. Nothing to translate; do not chase.
 - **Machine-translated hadith TEXT is GATED OFF** — `SHOW_MACHINE_HADITH_TEXT = false` in
   `web/src/hadith-id.ts`. See "The hadith-text ruling" below. It briefly shipped and was pulled.
-- **Hadith text generation is RUNNING** as PID 33579 (started 10:54, outlives its session).
-  ~915+/14,736 at 7.3s/record. Resumable; it skips what exists.
-  **`pgrep -fl "translate-hadith\.ts"` BEFORE touching it.** Never start a second instance.
+- **Hadith text generation is STOPPED, DELIBERATELY**, at **1,746 / 14,736** (7.3s/record).
+  Erik's call, 2026-08-10, immediately after the display gate went in: the output cannot currently
+  be shown and may never be, so it is not worth ~26 more hours of API spend until Ustadz Ahmad
+  rules. **Do NOT restart it.** Progress is preserved and it resumes by skipping what exists
+  (`bun run src/app/translate-hadith.ts`) if and when the ruling comes.
+  If you ever do run it: `pgrep -fl "translate-hadith\.ts"` FIRST, and never start a second
+  instance — two ran concurrently against the same shards earlier that day.
 
 ## First actions
 
-1. `pgrep -fl "translate-hadith\.ts"` — confirm the generator is alive. Resume only if truly dead.
+1. **Do not restart the hadith generator.** It is stopped on purpose (see above). If you think it
+   should run, ask Erik — do not infer it from the fact that it is idle.
 2. **Check the two red gates below.** Erik was told explicitly that main stops being green and said
    to proceed — do not re-litigate that, but do not silently hide it either.
-3. ISC-98 (real-iOS visualViewport composer) and ISC-189 (60fps mid-range Android, `#/peta`) both
+3. **`web/dist` holds a MERGED build while prod is pre-merge.** A routine `wrangler deploy` from
+   this tree would ship the whole Tanya agent workstream, which Erik has not approved. Rebuild and
+   check the bundle hash against what prod serves before any deploy.
+4. ISC-98 (real-iOS visualViewport composer) and ISC-189 (60fps mid-range Android, `#/peta`) both
    need a physical device. Blocked; do not attempt to close them in a browser.
 
 ## The two red gates
