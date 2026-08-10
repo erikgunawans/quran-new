@@ -52,6 +52,19 @@
   background: linear-gradient(92deg, var(--hero-a) 0%, var(--hero-mid) 42%, var(--hero-b) 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
+  /* THE BOX IS THE GRADIENT, NOT THE WORD (Erik, 2026-08-10 — "make the other section titles the
+     same colour as Al Qur'an"). They already were: same family, same 36px, same weight, same
+     gradient. What differed was WIDTH. `background-clip: text` paints the gradient across the
+     element's BOX and then stencils the glyphs out of it, so a short word in a wide box only ever
+     samples the leftmost slice — and this ramp is still green at 42%. Measured: "Hadis" was 88px
+     of text in a 506px block, sampling 17% of the ramp, so it rendered solid green and could not
+     have reached the gold. "Al Qur'an" measured 142px in a 142px block — 100% — and looked correct
+     purely by accident, because `.baca-head-l` is sized by a SHORT subtitle while `.tematik-head-l`
+     is sized by a long one. The colour was never the variable; the subtitle length was.
+     `fit-content` collapses the box onto the text, so every title samples the whole ramp and the
+     treatment stops depending on what happens to be written underneath it. */
+  width: fit-content;
+  max-width: 100%;
 }
 .qk-brand .qk-hero-gradient { font-size: 22px; letter-spacing: -.01em; }
 
