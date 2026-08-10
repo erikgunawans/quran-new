@@ -53,7 +53,25 @@ They touched **no source file in common**. The merge conflict was three metadata
 4. **ISC-98 and ISC-189 are device-blocked** — real-iOS `visualViewport`, and 60fps on a mid-range
    Android at `#/peta`. Do not attempt to close either in a browser.
 
-## The two red gates
+## The two red gates — BOTH GREEN as of 2026-08-10 evening
+
+Superseded reading below, kept for the trail. Current state:
+
+- **`bun run typecheck` exits 0** (all three `tsc` passes). Eight errors, not four — the `&&` chain
+  only ever shows the first failing pass, so each fix unmasked the next tranche. The only structural
+  one: `count-defer` entered the SHARED `Turn` union for the demo, and `renderTurn` in the main app
+  silently stopped being total. Two fixes were deliberately NOT the obvious one — `tafsirStack` was
+  left narrow (the `undefined` was a parallel-array indexing artifact, not a real state), and
+  `worker/src/index.ts`'s `proxyToOrigin` was EXPORTED rather than deleted, because it is the
+  documented one-line revert to Cloud Run.
+- **`bun test` is 1064/0, exit 0.** The `GlobalRegistrator` collision is diagnosed, not just absent:
+  all seven DOM suites balance `register()`/`unregister()` and Bun runs files sequentially, so the
+  collision requires a suite to ABORT before `afterAll`. A probe that registered then threw
+  reproduced branch B's exact error in the next suite. Branch B's 10 errors were the cause; the 8
+  collisions were the cascade — most likely the missing `data/`/`node_modules` worktree symlinks.
+  **Do NOT apply the `bunfig.toml` preload fix** — idempotent registration would hide the aborts.
+
+### Superseded (pre-fix) reading
 
 - **`bun test`** — on branch B this was **890 pass / 10 fail / 10 err**: eight DOM suites colliding
   on `GlobalRegistrator.register()` ("Happy DOM has already been globally registered"). Each passes
@@ -179,7 +197,12 @@ Do not "fix" one to match the other. When batches are being discarded, the safe 
 
 ```
 Resume New-Quranku in ~/quran-new. Read .planning/next-session-prompt.md first — it merges two
-parallel workstreams and carries the hard constraints, the two red test gates, and the open
-decisions. Then confirm the hadith generator is alive with `pgrep -fl "translate-hadith\.ts"`
-before doing anything else.
+parallel workstreams and carries the hard constraints and the open decisions. Then confirm the
+hadith generator is STILL STOPPED with `pgrep -fl "translate-hadith\.ts"` (no match is the
+correct state) — it is stopped on purpose; do not restart it without asking Erik.
+
+Both red test gates are now GREEN: `bun run typecheck` exits 0 and `bun test` is 1064/0.
+`web/dist` holds a build NEWER than prod (prod is still pre-merge `index-CKqG9c2u.js`), so a
+routine deploy would ship the unapproved Tanya agent workstream — rebuild and diff the hash
+before any deploy, and ask Erik first.
 ```
