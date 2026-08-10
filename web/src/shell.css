@@ -1387,3 +1387,13 @@
 @media (prefers-reduced-motion: no-preference) {
   .hadith-kitab, .hadith-card, .fikih-card { animation: qkin 300ms var(--ease) forwards; }
 }
+
+/* The canonical Arabic name under a translated book heading. Same size it had when it WAS the
+   heading — translating the label must never shrink the thing it is a label for. */
+.hadith-book-ar {
+  margin: 4px 0 0;
+  font-family: var(--f-ar, "Amiri", serif);
+  font-size: clamp(21px, 2.4vw, 28px);
+  line-height: 1.35;
+  color: var(--ink-2);
+}

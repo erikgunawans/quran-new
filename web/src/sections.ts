@@ -184,13 +184,23 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
   }
 
   const count = shard.babs.reduce((n, b) => n + b.hadith.length, 0);
+  const bookId = kitabId(collectionId, shard.book.no);
   mount.innerHTML = `
     <div class="read-index hadith-book">
       <header class="tematik-head">
         <div class="tematik-head-l">
           <p class="hadith-crumb"><a href="#/hadis">Hadis</a> › ${esc(coll?.name ?? collectionId)}</p>
-          <h1 class="tematik-title" dir="rtl" lang="ar">${esc(shard.book.ar)}</h1>
-          <p class="tematik-sub">${count} hadis · ${esc(shard.collection_ar)}</p>
+          ${
+            // The book page's own title was still Arabic-only even after the grid was translated,
+            // so a reader could find "Bersuci" and then land on a page that would not say so. The
+            // Indonesian is the heading; the Arabic keeps its full size directly beneath it as the
+            // canonical name, exactly as on the card the reader tapped.
+            bookId
+              ? `<h1 class="tematik-title">${esc(bookId)}</h1>
+                 <p class="hadith-book-ar" dir="rtl" lang="ar">${esc(shard.book.ar)}</p>`
+              : `<h1 class="tematik-title" dir="rtl" lang="ar">${esc(shard.book.ar)}</h1>`
+          }
+          <p class="tematik-sub">${count} hadis · ${esc(coll?.name ?? shard.collection_ar)}</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/hadis">Kembali</a></div>
       </header>
