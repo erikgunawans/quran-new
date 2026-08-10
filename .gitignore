@@ -14,6 +14,7 @@ worker/.dev.vars
 .serena/
 data/
 node_modules/
+node_modules
 worker/node_modules/
 web/dist/
 web/dist-demo/
@@ -42,3 +43,13 @@ graphify-out/
 # Machine-translated Indonesian layer (src/app/translate-*.ts). Regenerable, ~9MB, and unreviewed —
 # it is built into web/dist for testing but must not be committed until an ustadz has signed it off.
 web/public/hadith-id/
+
+# OKF corpus manifest detail — regenerable, lives in R2 (see docs/reference/okf-manifest.json)
+data/okf/
+
+# Phase 0 probe reports — contain reference-only hadith excerpts; regenerable via .scratch/tanya-agent/probe.ts
+.scratch/tanya-agent/phase-0-*.md
+
+# wrangler local dev state
+.wrangler/
+worker/.wrangler/

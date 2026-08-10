@@ -21,13 +21,21 @@
  *                  backstop for the single failure this app most needs to refuse: an authored ruling
  *                  in fluent Indonesian. The two existing rules cannot see it — such a sentence carries
  *                  no Arabic, and cites a grounded ref or none at all, so it passes both. See VERDICT.
+ *   - `bad_hadith` (HARD) — no prophetic attribution without a resolvable marker. The model cites
+ *                  hadith by opaque marker (`[H:muslim:154]`) which must resolve against THIS turn's
+ *                  grounding; the renderer turns it into a card carrying the verbatim Arabic and
+ *                  English. Built like `fatwa` — a construction list, not a word list — because the
+ *                  failure is not a wrong NUMBER but an attribution with no number at all, which the
+ *                  other three rules are all blind to. A mistranslated or invented hadith is a
+ *                  fabricated saying of the Prophet ﷺ; this is the highest-stakes wall in the file.
+ *                  See PROPHETIC and `hadithShape`.
  *
  * On ANY violation the caller (answer.ts) discards the answer and the app falls back to the
  * principled behaviour — a pointer or an honest silence. The worst reachable outcome is that the
  * synthesis edition degrades to the trustworthy edition for that one turn, never a fabricated ruling.
  */
 
-export type AnswerViolationKind = "arabic" | "bad_ref" | "fatwa";
+export type AnswerViolationKind = "arabic" | "bad_ref" | "fatwa" | "bad_hadith";
 
 export interface AnswerViolation {
   readonly kind: AnswerViolationKind;
@@ -41,6 +49,20 @@ export interface AnswerGuardResult {
 
 /** Arabic-script ranges (main, supplement, presentation forms A/B) — same set as compose-guard. */
 const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+
+/**
+ * The two honorific ligatures — ﷺ (U+FDFA, sallallahu alayhi wa sallam) and ﷻ (U+FDFB, jalla
+ * jalaluhu) — are exempt from the `arabic` rule.
+ *
+ * They sit inside the Arabic presentation-forms block, so the rule rejected them, which made the
+ * app's OWN intended voice unshippable: PRD decision 2 specifies prose of the form "Nabi ﷺ pernah
+ * mengingatkan bahwa…". The rule exists to stop the model hand-writing SCRIPTURE — Qur'anic or
+ * prophetic text that must instead render from the pinned corpus as a card. An honorific is not
+ * scripture; it is punctuation of respect, it carries no claim, and it cannot be misquoted. Exempting
+ * exactly these two codepoints and nothing else keeps the wall's purpose intact while letting the
+ * model write the sentence it was designed to write.
+ */
+const HONORIFIC = /[ﷺﷻ]/g;
 
 /** Any "surah:ayah" reference in the prose (also matches "112.1" and spaced "2 : 255"). */
 const REF_IN_PROSE = /\b(\d{1,3})\s*[:.]\s*(\d{1,3})\b/g;
@@ -71,6 +93,80 @@ const VERDICT = [
 ];
 
 /**
+ * An opaque hadith marker: `[H:bukhari:6962]`, `[H:muslim:154]`.
+ *
+ * The model may never hand-write hadith text, exactly as it may never hand-write Arabic. It cites by
+ * marker; the renderer resolves the marker into a card carrying the verbatim Arabic and English with
+ * full attribution. Opaque on purpose — the model cannot compose a marker for a hadith it did not
+ * receive this turn, because it has no way to know the number.
+ */
+const MARKER_IN_PROSE = /\[H:([a-z][a-z-]*):(\d{1,6})\]/g;
+
+/** `bukhari` + `6962` → the corpus id the retrieval layer returns. */
+export const markerToId = (collection: string, n: string | number): string => `hadith-${collection}-${Number(n)}`;
+
+/**
+ * Prophetic-attribution grammar — the shape of "the Prophet said", not a vocabulary of holy words.
+ *
+ * Built like VERDICT and for the same reason. A word list is the wrong instrument twice over: it
+ * would reject "Nabi" and "hadits" in ordinary compliant prose ("aku bukan ahli hadits") while
+ * missing the actual failure, which is not a wrong NUMBER but an attribution carrying NO number at
+ * all — a fabricated saying of the Prophet ﷺ in fluent Indonesian, invisible to `arabic` (no Arabic
+ * script) and to `bad_ref` (no verse reference).
+ *
+ * This rule WILL reject true answers — a correct paraphrase of a real hadith the model happens not
+ * to mark. That is the intended trade, and the same one `bad_ref` already makes: the app would
+ * rather stay silent than attribute an unverifiable sentence to the Prophet ﷺ.
+ */
+const PROPHETIC = [
+  /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,40}\b(bersabda|menyabdakan|mengatakan|berkata|berpesan|mengingatkan|menganjurkan|melarang|memerintahkan)\b/,
+  /\bsabda\s+(nabi|rasul|rasulullah|beliau)\b/,
+  /\bdalam\s+(sebuah\s+)?(hadits|hadis|riwayat)\b/,
+  /\b(hadits|hadis)\s+(riwayat|shahih|sahih|dari)\b/,
+  /\bdiriwayatkan\s+(oleh|dari|bahwa)\b/,
+  /\b(h\.?r\.?|hr)\s+(bukhari|muslim|tirmidzi|abu\s+dawud|nasa'?i|ibnu\s+majah|ahmad)\b/,
+  /\bmenurut\s+(sebuah\s+)?(hadits|hadis)\b/,
+];
+
+/**
+ * Is any sentence attributing something to the Prophet ﷺ without a marker this turn's grounding can
+ * resolve? Returns the offending fragment, or null.
+ *
+ * Sentence-scoped, exactly like `fatwaShape`, and for the identical reason: one resolvable marker
+ * early in an answer must not license a paragraph of unmarked attributions after it. Every sentence
+ * that makes a prophetic claim carries its own receipt.
+ */
+/**
+ * Make prose safe to split on sentence punctuation without losing the two things this rule reads.
+ *
+ * Both fixes are for real prose the naive split got wrong:
+ *
+ *   - A marker is written AFTER the full stop ("…perkara berat. [H:muslim:154]"), which is the
+ *     natural place for a citation and which threw the receipt into the FOLLOWING sentence, so a
+ *     correctly-marked claim was rejected. Markers are pulled back inside the sentence they cite.
+ *   - "HR." carries a full stop of its own, so "(HR. Bukhari)" split into "(HR" and "Bukhari)" and
+ *     the attribution matched nothing. The abbreviation is flattened before splitting.
+ */
+const normaliseForSentences = (prose: string): string =>
+  prose
+    .replace(/\bH\.\s*R\.\s*/gi, "HR ")
+    .replace(/\bHR\.\s*/gi, "HR ")
+    .replace(/([.!?])(\s*(?:\[H:[a-z][a-z-]*:\d{1,6}\]\s*)+)/g, " $2$1");
+
+export function hadithShape(prose: string, isGrounded: (id: string) => boolean): string | null {
+  for (const raw of normaliseForSentences(prose).split(/[.!?\n]+/)) {
+    const s = raw.toLowerCase();
+    if (!s.trim()) continue;
+    if (!PROPHETIC.some((re) => re.test(s))) continue;
+    // A marker in THIS sentence, resolving against THIS turn's grounding, is the receipt.
+    const markers = [...raw.matchAll(MARKER_IN_PROSE)];
+    if (markers.some((m) => isGrounded(markerToId(m[1]!, m[2]!)))) continue;
+    return raw.trim();
+  }
+  return null;
+}
+
+/**
  * Markers of deferral. A sentence carrying one is the model handing the question to a human — the
  * exact behaviour rule 3 demands — so a verdict construction inside it is being DESCRIBED, not issued.
  */
@@ -99,14 +195,35 @@ export function fatwaShape(prose: string): string | null {
  * legitimate citation — for the live app that is "does this ayah exist in the mushaf"; a test may
  * pass a set membership instead. The Arabic and fatwa rules are unconditional.
  */
-export function guardAnswerProse(prose: string, isCitable: (ref: string) => boolean): AnswerGuardResult {
+export function guardAnswerProse(
+  prose: string,
+  isCitable: (ref: string) => boolean,
+  isGroundedHadith: (id: string) => boolean = () => false,
+): AnswerGuardResult {
   const violations: AnswerViolation[] = [];
 
-  const arabic = ARABIC.exec(prose);
+  // Honorifics are stripped before the script test — see HONORIFIC. Everything else in the Arabic
+  // ranges is still a hard violation.
+  const arabic = ARABIC.exec(prose.replace(HONORIFIC, ""));
   if (arabic) violations.push({ kind: "arabic", detail: arabic[0] });
 
   const fatwa = fatwaShape(prose);
   if (fatwa) violations.push({ kind: "fatwa", detail: fatwa.slice(0, 80) });
+
+  // Two ways to fail the hadith rule, and both must be caught.
+  // (a) An attribution to the Prophet ﷺ with no resolvable marker behind it.
+  const hadith = hadithShape(prose, isGroundedHadith);
+  if (hadith) violations.push({ kind: "bad_hadith", detail: hadith.slice(0, 80) });
+
+  // (b) A marker that does not resolve against this turn's grounding — the hadith analogue of
+  //     `bad_ref`. A model that invents "[H:bukhari:99999]" must not reach a renderer.
+  for (const m of prose.matchAll(MARKER_IN_PROSE)) {
+    const id = markerToId(m[1]!, m[2]!);
+    if (!isGroundedHadith(id)) {
+      violations.push({ kind: "bad_hadith", detail: m[0] });
+      break;
+    }
+  }
 
   for (const m of prose.matchAll(REF_IN_PROSE)) {
     const ref = normRef(m[1]!, m[2]!);
@@ -123,11 +240,43 @@ export function guardAnswerProse(prose: string, isCitable: (ref: string) => bool
  * Return the model's answer only when it clears the wall; otherwise null, so the caller falls back
  * to the principled edition's honest behaviour for this turn.
  */
-export function safeAnswer(prose: string, isCitable: (ref: string) => boolean): string | null {
+export function safeAnswer(
+  prose: string,
+  isCitable: (ref: string) => boolean,
+  isGroundedHadith: (id: string) => boolean = () => false,
+): string | null {
   const trimmed = prose.trim();
   if (!trimmed) return null;
-  return guardAnswerProse(trimmed, isCitable).ok ? trimmed : null;
+  return guardAnswerProse(trimmed, isCitable, isGroundedHadith).ok ? trimmed : null;
 }
+
+/**
+ * Every hadith marker in the prose, in order, de-duped — the renderer's work list.
+ *
+ * Only call this on prose that has already cleared the guard: an uncleared answer may carry markers
+ * that resolve to nothing, and this function does not re-check them.
+ */
+export const markersInProse = (prose: string): string[] => {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const m of prose.matchAll(MARKER_IN_PROSE)) {
+    const id = markerToId(m[1]!, m[2]!);
+    if (!seen.has(id)) { seen.add(id); out.push(id); }
+  }
+  return out;
+};
+
+/**
+ * A grounding predicate over the hadith actually retrieved this turn.
+ *
+ * The turn's grounding ACCUMULATES across every `cari_dalil` call the model makes (PRD decision 13),
+ * so build this once from the union at the end of the tool loop — never per call, or a marker from
+ * the model's first search would fail to resolve after its second.
+ */
+export const groundedHadithFrom = (ids: Iterable<string>): ((id: string) => boolean) => {
+  const set = new Set<string>(ids);
+  return (id: string) => set.has(id);
+};
 
 /** Extract every well-formed "surah:ayah" reference from prose, normalised and de-duped, in order. */
 export const refsInProse = (prose: string): string[] => {

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "corpus_digest": "8177e2e6e6c4737069038018d98d1553ff3975ac465a581aa9aa6b4e1a2f9055",
+  "okf_root": "/Users/erikgunawansupriatna/printing-press/library/tafseer-okf/okf",
+  "total_files": 18882,
+  "total_bytes": 157725612,
+  "by_corpus": {
+    "hadith": {
+      "files": 14737,
+      "bytes": 65200330,
+      "rights_usage": [
+        "private",
+        "reference-only"
+      ]
+    },
+    "aqeeda": {
+      "files": 1454,
+      "bytes": 17850100,
+      "rights_usage": [
+        "reference-only"
+      ]
+    },
+    "tafseer": {
+      "files": 2691,
+      "bytes": 74675182,
+      "rights_usage": [
+        "private",
+        "reference-only"
+      ]
+    }
+  },
+  "index": {
+    "name": "okf-hadith",
+    "model": "baai/bge-m3",
+    "dimensions": 1024,
+    "vectors": 14736,
+    "excluded_by_rights": 1,
+    "built_at": "2026-08-10"
+  }
+}

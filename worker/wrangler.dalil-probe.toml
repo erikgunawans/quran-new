@@ -1,0 +1,35 @@
+# DEV-ONLY probe config for the hadith retrieval path.
+#
+# Deliberately SEPARATE from wrangler.toml. The production config drives three live Workers
+# (principled / synthesis / demo), and per PRD decision 11 the principled edition's surface must stay
+# exactly as it is until the ustadz-gated flip. Adding a binding or a route there to run a local test
+# would change the shape of the trustworthy deploy for no reason.
+#
+# This config is never deployed. It exists so `wrangler dev --remote` can reach the real Vectorize
+# index and prove retrieval end to end:
+#
+#   cd worker && bunx wrangler dev --config wrangler.dalil-probe.toml --remote --port 8799
+#   curl 'http://127.0.0.1:8799/?q=berapa+rakaat+sholat+dhuha'
+#
+# The key comes from worker/.dev.vars (gitignored), never from this file.
+
+name = "okf-dalil-probe"
+main = "src/dalil-probe.ts"
+compatibility_date = "2026-07-01"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "okf-hadith"
+
+# The private corpus bucket, holding the text layer built by `bun run okf:text`. The reranker needs
+# the hadith BODY -- measured 2026-08-10, reranking on the citation line alone does not fix the
+# regression case -- and the display cards need Arabic + English verbatim. Neither can come from
+# Vectorize, which deliberately carries no scripture.
+[[r2_buckets]]
+binding = "CORPUS"
+bucket_name = "okf-corpus"
+
+[vars]
+# First 16 hex of the manifest's corpus_digest. Namespaces the text layer to one corpus revision, so
+# a text layer and an index built from different revisions cannot be silently paired.
+CORPUS_DIGEST = "8177e2e6e6c47370"

@@ -266,10 +266,55 @@ const inflight = new Map<number, Promise<Shard>>();
 const CACHE_NAME = `newquranku-quran-${CORPUS_VERSION}`;
 const shardUrl = (n: number) => `/surah/${n}.json?v=${CORPUS_VERSION}`;
 
-const cacheStore = async (): Promise<Cache | null> => {
+/**
+ * CacheStorage, typed structurally rather than via the DOM lib.
+ *
+ * This module is reached from BUILD SCRIPTS — `src/review/build-aqidah-sheet.ts` imports
+ * `web/src/aqidah.ts`, which imports this file — and the root tsconfig deliberately has no DOM lib,
+ * because a build script has no business depending on browser globals. That combination made the
+ * root pass fail on `Cache` and `caches` for six errors, which is how the whole typecheck gate came
+ * to exit 2 unnoticed.
+ *
+ * The fix is NOT to add "DOM" to the root lib — that would silence the gate by removing the very
+ * property it exists to enforce. Instead these two interfaces describe exactly the surface used, and
+ * the global is reached through `globalThis`, so the file compiles identically with or without the
+ * DOM lib and the runtime behaviour is unchanged. Nothing is redeclared globally, so the web pass
+ * (which does have DOM) sees no conflict.
+ */
+/**
+ * Derived from the ambient `fetch` rather than written as `Response`.
+ *
+ * The bare name resolves to a DIFFERENT type in each typecheck pass — Bun's in the root pass,
+ * undici's via node_modules, the DOM's in the web pass — and they are not mutually assignable
+ * (`BunHeadersOverride` vs `Headers`). Deriving it from the `fetch` that actually produces these
+ * values makes the interface agree with its call sites in every pass by construction.
+ */
+type FetchResponse = Awaited<ReturnType<typeof fetch>>;
+
+interface CacheLike {
+  match(request: string): Promise<FetchResponse | undefined>;
+  // `object`, not a Response type: the two `Response` declarations reachable here (Bun's and
+  // undici's) are structurally incompatible on `headers`, and `put` does not read the value — it
+  // hands it to CacheStorage to store. Constraining it further would only re-open the conflict
+  // without buying a check that matters.
+  put(request: string, response: object): Promise<void>;
+  delete(request: string): Promise<boolean>;
+}
+interface CacheStorageLike {
+  open(name: string): Promise<CacheLike>;
+  keys(): Promise<string[]>;
+  delete(name: string): Promise<boolean>;
+}
+
+/** The CacheStorage API when the context has one — insecure contexts and some in-app browsers do not. */
+const cacheApi = (): CacheStorageLike | null =>
+  "caches" in globalThis ? (globalThis as unknown as { caches: CacheStorageLike }).caches : null;
+
+const cacheStore = async (): Promise<CacheLike | null> => {
   try {
-    if (!("caches" in globalThis)) return null;
-    return await caches.open(CACHE_NAME);
+    const api = cacheApi();
+    if (!api) return null;
+    return await api.open(CACHE_NAME);
   } catch {
     return null;
   }
@@ -278,14 +323,15 @@ const cacheStore = async (): Promise<Cache | null> => {
 /** Drop shards from a previous corpus. Scripture changed; the old bytes must not linger. */
 export async function evictStaleCaches(): Promise<void> {
   try {
-    if (!("caches" in globalThis)) return;
-    const keys = await caches.keys();
+    const api = cacheApi();
+    if (!api) return;
+    const keys = await api.keys();
     await Promise.all(
       // Clean stale shard caches under the current prefix — and any left over from the old `nur-quran-`
       // name after the New-Quranku rename (regenerable, so they just re-download once).
       keys
         .filter((k) => (k.startsWith("newquranku-quran-") || k.startsWith("nur-quran-")) && k !== CACHE_NAME)
-        .map((k) => caches.delete(k)),
+        .map((k) => api.delete(k)),
     );
   } catch {
     /* a cache we cannot clean is not a reason to stop the reader */

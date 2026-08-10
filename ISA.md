@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 313/315
+progress: 357/363
 mode: build
 started: 2026-07-13
 updated: 2026-08-10
@@ -567,6 +567,75 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 - [x] ISC-286: Anti: no backticks in the commit message — `git log -1 --format=%B` reads back complete, with no silently deleted fragments. VERIFIED 2026-08-10: all four of this session's commits (`e998ba1`, `01d567d`, `4306c55`, `1079785`) read back with a backtick count of 0; messages were authored with `--` and plain quoting instead of code spans.
 - [x] ISC-287: DESIGN.md is amended, never contradicted — the MEASURE section gains the enforcement note rather than a new competing rule.
 
+### Cycle 6 — Tanya as a continuous agent, grounded in OKF (ISC-313..349)
+
+Opened 2026-08-10. Plan of record is `.scratch/tanya-agent/PRD.md` (17 decisions). This cycle covers
+Phase 1 only — the text layer, the rerank stage, the `bad_hadith` wall and the hadith card. Continuity,
+the tool loop, multi-turn eval and the main-app flip are later phases and have no ISCs yet.
+
+**The text layer, and the rights posture it has to preserve**
+
+- [x] ISC-313: `bun run okf:text` exits 0 and writes `data/okf/text/rerank-en.json.gz` plus `data/okf/text/display/`.
+- [x] ISC-314: the rerank blob and the display shards describe exactly the same record set — key count `=== 14735 ===` display record count. **Corrected 2026-08-10** from a flat `=== 14736`: the upstream corpus has one Arabic-only record, and the right invariant is that the two artifacts AGREE, not that they hit a number written down before the data was read.
+- [x] ISC-315: every display record carries BOTH a non-empty `arabic` and a non-empty `english` — the card shows the sourced artifact, and half of it is not the artifact.
+- [x] ISC-315.1: RETRIEVABLE ≡ DISPLAYABLE — a record with no English is excluded from the rerank layer as well as from display, and `searchDalil` drops any candidate absent from the text layer. Otherwise the model can cite an undisplayable record by marker, the guard resolves it, and the renderer drops the card: a prophetic attribution with nothing behind it.
+- [x] ISC-316: every display record carries a non-empty `translator`, read from the record's own english rights layer — the corpus has no `translator:` key, so a card crediting "sunnah.com" would be crediting the wrong party.
+- [x] ISC-317: Anti: no record carrying `rights_usage: private` appears in either artifact — the text layer must not become a way to reach what the index refuses to return.
+- [x] ISC-318: Anti: neither artifact is in git — `git check-ignore` names the rule for both. This repo is public and these records are `reference-only`.
+- [x] ISC-319: both artifacts are readable from the private `okf-corpus` bucket under the manifest's `corpus_digest` prefix — proven by the live probe rendering two cards with Arabic, English, `source_url` and translator credit fetched from R2, not merely by the upload reporting success.
+- [x] ISC-320: the committed `docs/reference/okf-manifest.json` digest and the digest the text layer was built under are the same string — a text layer paired with a different corpus revision than the index is undetectable otherwise.
+- [x] ISC-321: Anti: the R2 bucket stays private — no `r2.dev` public access, no custom domain.
+
+**The rerank stage — and the recall bug it actually fixes**
+
+- [x] ISC-322: `CANDIDATE_K` in `worker/src/dalil.ts` is `≥ 40`. Not a tuning knob: the canonical regression case's correct record sits at cosine rank 28, so a narrower window reintroduces a named, reproducible failure.
+- [ ] ISC-323: through the live Worker path, `gimana hukumnya meninggalkan sholat` returns `hadith-muslim-154` ("Clarifying the usage of the word Kafir for one who abandons Salat") at rank 1. **NOT MET as written, 2026-08-10.** Live rank 1 is Bukhari 540, *"The sin of one who misses the 'Asr prayer (intentionally)"* — on-topic and defensible, but not the named record, which does not appear in the live top-8 at all. See ISC-323.1; do not mark this `[x]` on the strength of the outcome being better.
+- [x] ISC-323.1: the named false friend is no longer rank 1 — *"leave or depart from the right and from the left after finishing the Salat"* has been displaced. Its live analogue, Muslim 1534 (*"permissible to leave to the right or left after finishing the prayer"*), now sits at rank 8 with the lowest rerank score in the set.
+- [ ] ISC-323.2: explain why the live candidate set differs from the offline reproduction over the same vectors — offline cosine ran 0.51–0.59 and surfaced Muslim 154 at rank 28; live scores run 0.43–0.50 and surface a different set. Until this is understood, no offline retrieval measurement may be quoted as evidence about live behaviour.
+- [x] ISC-324: through the live Worker path, `berapa rakaat sholat dhuha yang benar` still returns a Duha hadith at rank 1 — the fix must not buy the regression case with a regression elsewhere.
+- [x] ISC-325: the rerank document is the citation line PLUS the English body. Measured 2026-08-10: citation-line-only reranking does not fix the regression case, because inside a 50-candidate window most bab titles are prayer-related.
+- [x] ISC-326: `searchDalil` returns at most `MAX_RETRIEVE` hits after reranking.
+- [x] ISC-327: `MAX_DISPLAY` is still 2 and `capForDisplay` still slices to it — widening RETRIEVAL breadth must not widen DISPLAY breadth.
+- [x] ISC-328: Anti: no similarity score and no rerank score is compared against a threshold anywhere in `dalil.ts`. Both bands overlap between right and wrong hits; any `score > X → trustworthy` design is invalid on this corpus.
+- [x] ISC-329: every stage throws on failure rather than degrading to cosine order — silently serving the unreranked list restores exactly the defect the stage exists to remove.
+- [x] ISC-330: the rerank blob is held at module scope and fetched once per isolate, not once per candidate.
+- [x] ISC-331: Anti: `worker/wrangler.toml` is untouched — the principled edition's surface stays exactly as it is until the ustadz-gated flip (PRD decision 11).
+- [x] ISC-332: the `CORPUS` R2 binding and `CORPUS_DIGEST` exist only in `worker/wrangler.dalil-probe.toml`.
+- [x] ISC-333: Anti: no scripture text is added to Vectorize metadata — the index still carries identifiers, citation data and rights fields only.
+
+**`bad_hadith` — the fourth HARD rule (PRD decision 8)**
+
+- [x] ISC-334: `bad_hadith` is a member of `AnswerViolationKind`.
+- [x] ISC-335: a prophetic attribution with no marker at all is rejected.
+- [x] ISC-336: the same attribution passes when a marker resolves against this turn's grounding.
+- [x] ISC-337: a marker naming a hadith NOT retrieved this turn is rejected — the hadith analogue of `bad_ref`.
+- [x] ISC-338: one resolvable marker does not license a later unmarked attribution — sentence-scoped, exactly like `fatwa`.
+- [x] ISC-339: the rule defaults to rejecting attribution when no grounding predicate is supplied — a caller that forgets to pass grounding must fail closed.
+- [x] ISC-340: `HR. Bukhari` is caught despite the full stop inside the abbreviation splitting the sentence.
+- [x] ISC-341: a marker written after the sentence's full stop still acts as that sentence's receipt — the natural place to write a citation must not be the place that fails.
+- [x] ISC-342: Anti: the rule does not fire on compliant prose that merely mentions hadith ("aku bukan ahli hadits, tanyakan pada ustadz") — a word list would reject exactly the answers that obey.
+- [x] ISC-343: ﷺ (U+FDFA) and ﷻ (U+FDFB) alone do not trip the `arabic` rule. Before this exception the app's own intended voice from PRD decision 2 was unshippable.
+- [x] ISC-344: Anti: real Arabic script alongside an honorific still fails the `arabic` rule — the exemption is two codepoints, not a hole.
+
+**The hadith card (PRD decision 2)**
+
+- [x] ISC-345: the card renders Arabic verbatim, marked `dir="rtl"` and `lang="ar"`.
+- [x] ISC-346: the card renders the English verbatim.
+- [x] ISC-347: collection, number and grade all appear on the card.
+- [x] ISC-348: `source_url` renders as an outbound link carrying `rel="noopener noreferrer"`.
+- [x] ISC-349: the translator credit appears on every card, labelled as the translator's work and never as the app's.
+- [x] ISC-350: Anti: no Indonesian line renders unless that specific record carries an ustadz-approved `reviewed_id` — approval is granted one hadith at a time, so it cannot be a global flag.
+- [x] ISC-351: the display cap holds inside the renderer too, whatever the caller passes — a rights position that lives in one function is one refactor away from being lost.
+- [x] ISC-352: hostile text in any corpus field cannot inject markup.
+
+**Regression gates for this cycle**
+
+- [ ] ISC-353: `bun test` is green on a checkout that HAS `web/public/corpus.json` and `node_modules`. **NOT MET, 2026-08-10, and the handoff's premise was only half right.** With both artifacts present the suite goes 21 fail/18 err → **890 pass / 10 fail / 10 err**, so the corpus explained 11 of 21. The residue is NOT missing artifacts: eight DOM test files (`landing`, `split`, `peta`, `bookmark`, `hadith`, `migrate-storage`, `surah-intro`, `thread`) collide on `GlobalRegistrator.register()` when run in one process. `landing.test.ts` alone passes 26/26. This repo has **no `.github/` and no CI**, so PR #3's gate is this local run and it is currently red.
+- [x] ISC-353.1: Anti: none of the failures are this cycle's work — all eight errored files are pre-existing DOM suites, and the four new suites (`answer-guard`, `answer-guard-hadith`, `hadith-card`, plus the existing guard suite) are 46/46 green.
+- [ ] ISC-354: `bun run typecheck` exits 0. **NOT MET, 2026-08-10:** real exit `2`, 13 errors — 6 pre-existing in `web/src/quran.ts` (`caches`/`Cache` missing from the tsconfig lib), and **7 in `src/okf/build-index.ts` and `build-manifest.ts` introduced by this workstream's own earlier commits and already merged into PR #3 unnoticed.** Note the trap that hid it: `bun run typecheck | tail` reports `$?` of `tail`, which is 0.
+- [x] ISC-354.1: Anti: no typecheck error is in a file created this cycle — `build-text-layer.ts`, `hadith-card.ts`, `dalil.ts` and `answer-guard.ts` are all clean.
+- [x] ISC-355: Anti: nothing is deployed — prod Worker versions unchanged. Prod deploys are Erik's call.
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -602,6 +671,30 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 | ISC-179..187 | static | `Read`/`Grep` the render source for each invariant | present | `Grep` + `Read` |
 | ISC-188 | regression | peta suites + typecheck | 46 pass, 0 fail, tsc clean | `bun test` + `tsc` |
 | ISC-189 | perf-live | on-device frame rate at `#/peta` cosmos | `≥ 60fps` | physical Android (F-COSMOS-PERF) |
+| ISC-313 | build | run the builder, check exit code and both output paths | exit 0, both exist | `bun run okf:text` |
+| ISC-314 | data | compare rerank-blob key count to display-record count | equal (14735) | `bun -e` |
+| ISC-315.1 | anti | look up the Arabic-only record in both artifacts; read the `searchDalil` filter | 0 hits, filter present | `bun -e` + `Grep` |
+| ISC-315,316 | data | scan every display shard for an empty `arabic`/`english`/`translator` | 0 empties | `bun -e` |
+| ISC-317 | anti | look up the known-private record id in both artifacts | 0 hits | `bun -e` |
+| ISC-318 | anti | ask git whether each artifact is ignored | rule named for both | `git check-ignore -v` |
+| ISC-319 | live | fetch both keys back out of the private bucket | bytes returned | `wrangler r2 object get` |
+| ISC-320 | data | compare committed manifest digest to the text layer's | identical string | `bun -e` |
+| ISC-321 | anti | read the bucket's public-access settings | r2.dev disabled, no domain | `wrangler r2 bucket info` |
+| ISC-322 | static | read the `CANDIDATE_K` constant | `≥ 40` | `Grep` |
+| ISC-323,324 | live | curl the dev probe against the real index for both questions | expected id at rank 1 | `wrangler dev --remote` + `curl` |
+| ISC-325 | static | read the rerank document construction | body is concatenated | `Grep` |
+| ISC-326,327 | static | read `MAX_RETRIEVE`, `MAX_DISPLAY`, `capForDisplay` | 8 / 2 / slices | `Grep` |
+| ISC-328 | anti | grep `dalil.ts` for a comparison against either score | 0 hits | `rg` |
+| ISC-329 | static | every failure path is a `throw`, none returns cosine order | 0 silent fallbacks | `Grep` |
+| ISC-330 | static | the blob cache is module-scope, guarded by a null check | present | `Grep` |
+| ISC-331 | anti | ask git whether the prod config changed | not listed | `git diff --stat` |
+| ISC-332 | static | grep both wrangler configs for the binding | probe only | `rg` |
+| ISC-333 | anti | grep the index builder's metadata map for body fields | 0 hits | `rg` |
+| ISC-334..344 | unit | the `bad_hadith` and honorific suites | all pass | `bun test` |
+| ISC-345..352 | unit | the hadith-card suite | all pass | `bun test` |
+| ISC-353 | regression | full suite on a corpus-bearing checkout | 0 fail | `bun test` |
+| ISC-354 | regression | all three tsconfigs | exit 0 | `bun run typecheck` |
+| ISC-355 | anti | compare live Worker version ids to the checkpoint | unchanged | `wrangler deployments list` |
 
 ## Features
 
@@ -622,6 +715,10 @@ Two premises inherited from the co-display cycle were wrong and were falsified b
 | compose-guard | `web/src/compose-guard.ts` — egress wall: no Arabic, no verse ref (hard) + authoring heuristic; `safeCompose` degrades to the deterministic opener | ISC-190..197 | — | no (foundation) |
 | compose-contract | `web/src/compose-contract.ts` — the wrap: `composeFraming` + `FRAMING_SYSTEM_PROMPT`; model is blind to verse text/refs; falls back on no-hits/error/unsafe | ISC-198..204 | compose-guard | no |
 | theme-understand | `web/src/theme-understand.ts` — input understander: `understandThemes` + `THEME_SYSTEM_PROMPT`; classifies into the closed corpus theme set only, keyword fallback | ISC-202.1..202.2 | — | yes (mirror of compose-contract) |
+| okf-text-layer | `src/okf/build-text-layer.ts` + `upload-text-layer.sh` — two derived artifacts in private R2: a gzipped English-only rerank blob (machine-only) and per-book display shards carrying Arabic + English + attribution (reader-facing, fetched only for records that pass the cap) | ISC-313..321 | okf-index (prior session) | no (foundation) |
+| dalil-rerank | `worker/src/dalil.ts` — widen the candidate window to `CANDIDATE_K`, rerank on citation line + English body with `voyageai/rerank-2.5`, cut to `MAX_RETRIEVE`; `fetchDisplayRecords` resolves capped hits to reader text | ISC-322..333 | okf-text-layer | no |
+| bad-hadith-guard | `web/src/answer-guard.ts` — fourth HARD rule: opaque `[H:coll:n]` markers resolved against the turn's accumulated grounding, plus a PROPHETIC construction list built like VERDICT; honorific exemption for ﷺ/ﷻ | ISC-334..344 | — | yes (independent of retrieval) |
+| hadith-card | `web/src/hadith-card.ts` — the only surface allowed to show hadith text: Arabic + English verbatim, collection, number, grade, source_url, translator; cap re-applied; no Indonesian without a per-record ustadz approval | ISC-345..352 | bad-hadith-guard | yes |
 
 ## Decisions
 
