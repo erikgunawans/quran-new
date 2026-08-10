@@ -50,8 +50,8 @@ They touched **no source file in common**. The merge conflict was three metadata
 3. **`web/dist` holds a MERGED build while prod is pre-merge.** A routine `wrangler deploy` from
    this tree would ship the whole Tanya agent workstream, which Erik has not approved. Rebuild and
    check the bundle hash against what prod serves before any deploy.
-4. **ISC-98 and ISC-189 are device-blocked.** Both
-   need a physical device. Blocked; do not attempt to close them in a browser.
+4. **ISC-98 and ISC-189 are device-blocked** — real-iOS `visualViewport`, and 60fps on a mid-range
+   Android at `#/peta`. Do not attempt to close either in a browser.
 
 ## The two red gates
 
