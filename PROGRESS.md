@@ -8,6 +8,93 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-10 (latest) — Prod caught up, the mic learned to stay on, and two checks that lied
+
+Anchor: `origin/main` `c474c94`. **1030 tests pass** (was 1023), build exit 0. ISA 313/315 — ISC-98
+open, ISC-189 deferred-verify, both blocked on a physical device. Prod Worker `981f6439`, serving
+`index-D6d_Y6uR.js` / `index-CsxJlLtp.css`.
+
+**Nothing is undeployed.** That sentence has not been true all day. Prod sat at `413dceb` while five
+commits — the section-title fix and the whole Hadis/Fikih Indonesian layer — waited on Erik's call.
+He gave it, and three deploys later main and prod are the same thing.
+
+### Bab titles went from 4,367 to 4,864 by shrinking the batch, not by touching the rule
+
+`translate-babs.ts` discards partial batches because position carries identity there. Under
+`--batch 20` that rule was expensive: 23 discarded batches had thrown away ~460 titles, and each
+retry could throw away 20 more. The fix was not to the rule — it was `--batch 8`, then `4`, then
+`1`. At batch 1 a partial batch is *impossible*, which converts "did the model misalign?" into a
+question with no ambiguity left in it. What survived that ladder is real refusal, not misalignment.
+
+Three keys remain unfilled — `muslim/53/0`, `bukhari/96/0`, `bukhari/97/49` — and all three have
+**0-char Arabic source**. There is nothing to translate. A model returning nothing was correct.
+
+The layer renders Indonesian above the retained Arabic with an AI badge, and where a title is
+missing it falls back to Arabic *silently and on purpose* (`hadith-id.ts:39`): an untranslated
+heading is better than a confidently wrong one.
+
+### The mic was never a missing feature — it was a wrong assumption about `continuous`
+
+Erik: *"when I click, there is no other way to keep maintaining the microphone on."*
+
+`continuous = true` does not mean "runs until told to stop". Chrome's recogniser ends itself after a
+few seconds of silence, firing `no-speech` and then `onend`. Both were wired straight to the
+teardown, so the **service** switched the mic off and the button had no way to hold it. The only
+state tracked was whether a recogniser happened to be alive — which is the service's state, never
+the reader's intent.
+
+Splitting those two is the whole fix. `wantLive` is the intent and the only thing the button paints;
+an `onend` nobody asked for is an interruption to recover from, so the session respawns. Restart is
+refused where it cannot help (`not-allowed`, `service-not-allowed`, `audio-capture` — retrying would
+fail identically forever or re-prompt in a loop), and a window guard catches a recogniser that ends
+instantly over and over while a *silent* reader keeps the mic, which is the entire point.
+
+Verified past the test suite: a stub recogniser injected before app boot on the production origin,
+fired the exact `no-speech` → `onend` sequence Chrome sends, four cycles, five recognisers spawned,
+`aria-pressed` never dropped. What is still unproven is real speech through a real device — no
+script can grant that gesture.
+
+### Two checks lied today, and one of them cost something
+
+**`ps aux | grep … >/dev/null && echo ALIVE || echo STOPPED` reported a live generator as dead.**
+Twice. The second time a second hadith generator was launched against the same shard files and both
+wrote `muslim/36.json` for about ninety seconds. No corruption — these generators write by full
+read-merge-dump, so the worst case is a few records lost and re-translated on resume — but the API
+spend was real. `pgrep -fl` and read the PIDs. It is the same shape as the build-grep trap: a filter
+that only matches success cannot report failure.
+
+**Re-deriving corpus keys by hand invented 108 phantom gaps.** An ad-hoc coverage script reported
+111 missing bab titles when the true number was 3, because it guessed `b.title` where the field is
+`b.ar`, and used the array index where **bab numbering starts at 0**. Both wrong guesses failed into
+plausible-looking output. `collectBabs()` is the authority; read the generator's own
+`N already done · M to do` line instead of recomputing.
+
+A third, cheaper: grepping the bundle for `api/answer` does **not** distinguish the principled build
+from the synthesis one — that string is in both. The real check is that a plain rebuild reproduces
+the hash and that the lone `synthesis` occurrence is the dead comparison Vite collapses to
+`principled`. And a first asset fetch right after deploy can return `index.html` through the SPA
+fallback (≈15.5 kB, served as `text/css`); warm the origin and refetch before calling it a bad build.
+
+### Where the long job stands
+
+Hadith text generation runs as PID 33579, started 10:54 and **outliving the session that spawned
+it** — ~915/14,736 at 7.3s/record, roughly 28 hours left. The earlier 9.6s/record figure was
+inflated by the babs job competing for the same API. The `~ batch returned 0 of 3 … keeping what
+arrived` lines are the KEEP rule working: a `###N###` delimiter binds each line to its own hadith,
+so a short reply loses nothing.
+
+Still Erik's call, and everything downstream waits on it: **may the AI hadith text be displayed at
+all, even badged?** Evidence for the decision now exists rather than being hypothetical. The layer
+is broadly faithful — bab 0 of Kitab al-Iman renders Q 49:9 properly as *"Firman Allah: …"* — but
+bab 2 is `دُعَاؤُكُمْ إِيمَانُكُمْ`, a flat equative, *"your supplication **is** your faith"*, and
+came back as *"Doa kalian adalah **bagian dari** keimanan kalian"*. The model inserted a hedge the
+Arabic does not contain. Small, perfectly plausible Indonesian, and invisible to any parity test —
+which is exactly why chapter headings and the Prophet's transmitted words are not the same risk.
+
+Handoff for a cold start: `.planning/next-session-prompt.md`.
+
+---
+
 ## 2026-08-10 (latest) — Ten annotated changes, a deploy, and the day Hadis learned Indonesian
 
 Anchor: `origin/main` `2e87d19` (+ this checkpoint). **1023 tests pass**, build exit 0. ISA
