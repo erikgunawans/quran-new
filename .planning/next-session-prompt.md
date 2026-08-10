@@ -5,7 +5,9 @@
 
 ---
 
-Resume New-Quranku. Repo `~/quran-new`, anchor `origin/main` `c46c91c`, clean tree, 0 ahead/0 behind.
+Resume New-Quranku. Repo `~/quran-new`, anchor `origin/main` `142029d`, clean tree, 0 ahead/0 behind.
+The newest `PROGRESS.md` checkpoint ("Prod caught up, the mic learned to stay on") covers the same
+ground in narrative form if you want the reasoning behind any constraint below.
 `origin` is github.com/erikgunawans/quran-new — the LIVE repo. `nur` is retired; never push there.
 
 ## Where things stand
