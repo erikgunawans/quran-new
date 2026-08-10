@@ -83,13 +83,38 @@ export async function loadHadithIds(collection: string, book: number): Promise<H
   return file;
 }
 
-/** The Indonesian rendering of one hadith, or null. */
+/**
+ * Whether machine-translated hadith TEXT may be shown. It may not.
+ *
+ * Bab titles are editorial apparatus — chapter headings, where a clumsy rendering is a bad heading.
+ * Hadith text is the Prophet's ﷺ speech as transmitted, where a clumsy rendering is a fabricated
+ * saying. The same repo already refused an unreviewed AI Indonesian rendering of the Dorar surah
+ * preface on exactly these grounds, and `web/src/hadith-card.ts` states the rule for the other
+ * surface: no Indonesian until Ustadz Ahmad approves THAT record, one hadith at a time.
+ *
+ * Erik's ruling, 2026-08-10, after the text layer had briefly shipped: titles stay, text goes dark.
+ *
+ * This is a GATE, not a deletion. Generation continues, the sidecar under `web/public/hadith-id/`
+ * stays exactly where it is, and flipping this to `true` — or better, replacing it with a per-record
+ * approval check like `reviewed_id` — is all that "ship it" costs once a review exists.
+ */
+export const SHOW_MACHINE_HADITH_TEXT = false;
+
+/**
+ * The Indonesian rendering of one hadith, or null.
+ *
+ * Gated at the SOURCE rather than at the call site, so the whole app cannot render this text by
+ * adding a new caller. It also keeps `textNeedsNotice` honest: with the gate shut the book page
+ * falls back to the bab-only notice, whose "teks hadis tetap Arab" is true again.
+ */
 export function hadithIdText(file: HadithIdFile, n: number): string | null {
+  if (!SHOW_MACHINE_HADITH_TEXT) return null;
   return file.hadith?.[String(n)] ?? null;
 }
 
 /** True when this book carries unreviewed machine text a reader is about to see. */
 export function textNeedsNotice(file: HadithIdFile): boolean {
+  if (!SHOW_MACHINE_HADITH_TEXT) return false; // nothing is about to be seen
   return Boolean(
     file.meta?.translation === "ai" && file.meta.reviewed === false && Object.keys(file.hadith ?? {}).length,
   );
