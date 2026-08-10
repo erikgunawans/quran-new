@@ -44,3 +44,7 @@ data/okf/
 
 # Phase 0 probe reports — contain reference-only hadith excerpts; regenerable via .scratch/tanya-agent/probe.ts
 .scratch/tanya-agent/phase-0-*.md
+
+# wrangler local dev state
+.wrangler/
+worker/.wrangler/

@@ -8,7 +8,71 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-10 (latest) — A box measured against the wrong room, and a pass that agreed for the wrong reason
+## 2026-08-10 (latest) — Tanya becomes an agent: 17 decisions, a corpus proven searchable in the wrong language, and a false friend that outranks the truth
+
+Anchor: `origin/main` `413dceb`, plus three session commits on
+`worktree-humming-riding-scone`. ISA unchanged at **313/314** — this session opened a NEW workstream
+that has no ISCs yet; nothing in the existing roadmap moved. No deploys. Prod Workers untouched.
+
+**What this session was.** A `/grill-me` on turning the Tanya section into a continuous agent
+answering from the OKF knowledge base. Seventeen decisions, one at a time, each with a
+recommendation and the alternatives — recorded in `.scratch/tanya-agent/PRD.md`, which is now the
+plan of record for this workstream. Then Phase 0 (prove the assumption) and Phase 1 steps 1–3.
+
+**The decision that costs the most.** Erik chose to make the agent the **main app's** Tanya, not a
+separate synthesis edition. That deletes the `EDITION` gate's real property — the comment in
+`worker/src/index.ts` saying the trustworthy deploy *"can never author even via a direct POST"* stops
+being true. What replaces it: the principled build stays buildable and CI-tested as an inspectable
+artifact, "principled" is reframed from a deploy-level guarantee to a **per-turn floor** (never worse
+than the trustworthy edition on any given turn), and the default does not flip until Ustadz Ahmad
+reviews agent output on a real eval set. He has been given a heads-up and said to proceed with the
+build — **that is not the sign-off**, and the two must not be collapsed.
+
+**Phase 0 answered its question, then changed the plan twice.** Four multilingual embedders raced
+over 14,736 hadith with 15 real Indonesian questions from `src/eval` fixtures. `baai/bge-m3` was the
+only usable one (`qwen3-embedding-8b` and `gemini-embedding-2` returned near-random results; Gemini
+cannot be judged fairly through OpenRouter, which exposes no `task_type`). Indonesian questions do
+retrieve the right Arabic hadith — dhuha 0.633 onto the exact rakaat hadith, riba onto *The sin of
+Riba*, repentance, birr al-walidayn, charity, tawhid all correct.
+
+But the split was **knowledge 9/9, feelings 1/4**, and the feeling failures were the dangerous kind:
+*"cemas terus tiap malam gabisa tidur"* retrieved *"Asking too many questions and troubling with what
+does not concern one"* — a **rebuke to an anxious person**, the same class of harm as the founding
+`utang` / `pengen mati` failure. So hadith search runs for KNOWLEDGE questions only; feelings stay on
+the Qur'an path. `answer.ts`'s existing routing law now has evidence under it, not just caution.
+
+**The finding that reshaped Phase 1.** *"gimana hukumnya meninggalkan sholat?"* retrieves *"To leave
+or depart from the right and from the left after finishing the Salat"* — a semantic false friend that
+**outscored a perfectly correct hit** (0.596 vs 0.575 offline; rank 1 at 0.4866 through the live
+Worker path). Right and wrong hits share one band. **Cosine score cannot gate correctness, and no
+threshold may be used as a confidence signal.** A reranker is therefore required, not a refinement.
+`worker/src/dalil.ts` says so in its header so nobody rediscovers it the hard way.
+
+**Built and verified.** `okf-corpus` private R2 bucket (r2.dev disabled, no custom domain, round-trip
+verified); `okf-hadith` Vectorize index, 1024-dim cosine, **14,736 vectors live**; manifest with
+`corpus_digest` in git and the 6.3 MB per-file detail deliberately out of it. Retrieval proven end to
+end against the live index, not merely built. The vector cache was seeded from the Phase 0 run rather
+than paying twice — 14,605 carried over, 131 re-embedded, verified by re-embedding two records
+(cosine 0.999999 / 0.999994).
+
+**Rights work is load-bearing here.** This repo is PUBLIC and the hadith carry `usage:
+reference-only` forbidding mass reproduction. So: corpus in private R2 (never vendored, not even
+"derived" chunks), `MAX_DISPLAY = 2` enforced in code rather than prompt, `private` records filtered
+at BOTH build and query time so a rights failure needs two mistakes, no scripture text in Vectorize
+metadata, and the Phase 0 reports gitignored because they carry hadith excerpts. The manifest also
+surfaced that both Indonesian tafsir files declare `rights_usage: private` themselves — independent
+confirmation that unreviewed AI Indonesian must not ship.
+
+**An incident worth remembering.** A key was exposed in-session for the FOURTH time — the `.env`
+write landed without its `OPENROUTER_API_KEY=` prefix, so a "print only the variable name" check had
+no `=` to cut on and printed the whole value. Rotated immediately. The lesson is the check, not the
+carelessness: **verify secrets only with `grep -c` or a checksum**, never with anything that can echo
+file contents when the format differs from what you assumed.
+
+**Next: the reranker** (`worker/src/dalil.ts`), verified against the `meninggalkan sholat` case
+specifically. Then the `bad_hadith` guard rule + marker protocol, then the hadith card renderer.
+
+## 2026-08-10 — A box measured against the wrong room, and a pass that agreed for the wrong reason
 
 Anchor: `origin/main` `1241629`. **1017 tests pass**, build exit 0. ISA **298/300** — ISC-98 open,
 ISC-189 deferred-verify. Prod Worker unchanged at `fc17e128`; **this fix is committed but NOT
