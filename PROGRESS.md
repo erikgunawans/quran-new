@@ -8,7 +8,110 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
-## 2026-08-10 (latest) — A box measured against the wrong room, and a pass that agreed for the wrong reason
+## 2026-08-10 (latest) — Ten annotated changes, a deploy, and the day Hadis learned Indonesian
+
+Anchor: `origin/main` `2e87d19` (+ this checkpoint). **1023 tests pass**, build exit 0. ISA
+**313/315** — ISC-98 open, ISC-189 deferred-verify. Prod Worker `33103059`, serving
+`index-NPi2z1uH.css` / `index-wg0ZsSLh.js`.
+
+**Five commits are pushed but NOT deployed.** Prod is at `413dceb` (the ten UI changes). Everything
+after — the section-title fix and the whole Hadis/Fikih Indonesian layer — is on `main` and unseen
+by users. That is deliberate, not an oversight: prod deploys are Erik's call.
+
+### The ten annotated changes, and the two that were not what they looked like
+
+Erik marked up two screenshots. Eight were what they appeared to be. Two were not, and both are
+worth carrying forward as a pattern rather than a fix.
+
+**"The green under the chat box shouldn't be there."** The pool under the composer was not adding
+green — it was **subtracting gold**. `.qk-panel::before` lays `rgba(240,200,81,.22)` over the
+panel's foot, and `#composer-bar::before` was painting the raw `--panel-foot` on top of it, punching
+an un-gilded patch through the warm ground. Fixed by painting the *composited* value
+(`--panel-foot-lit: #3d4423`), so the floor disappears into the ground it sits on.
+
+**"Make the other section titles the same colour as Al Qur'an."** They already were: same Fraunces,
+same 36px, same weight 500, same green→gold ramp. **The variable was width.**
+`background-clip: text` paints the gradient across the *box* and stencils the glyphs out of it, so a
+short word in a wide block only samples the leftmost slice — and this ramp is still green at 42%.
+Measured: "Hadis" was 88px of text in a 506px block = **17% of the ramp**, rendering solid green,
+unable to reach the gold whatever the stops said. "Al Qur'an" measured 142px in a 142px block =
+100%, and had looked correct *by accident* — `.baca-head-l` is sized by a short subtitle,
+`.tematik-head-l` by a long one. `width: fit-content` collapses the box onto the word. The first
+pass at this failed precisely because computed styles matched; only a screenshot found it.
+
+Also shipped: raised-ledge column headers (Erik picked it over a carved niche), outer ground
+`#030b08` → `#08170f`, gold `.si-h` headings in the preface, the Dengar row centred in its own band
+(`4px/18px` → even `14px`), the bottom "Kembali" removed with its 94px going to the columns, a
+shorter cartouche, Riwayat Bacaan moved under the display controls with per-entry delete, and a
+Dengar menu offering *this ayah only* vs *continue automatically*.
+
+### Hadis learned Indonesian, in four layers with very different costs
+
+154 kitab titles were **authored, not generated** — settled nomenclature across every published
+Indonesian edition of the Ṣaḥīḥayn, where generating would only add variance to something with a
+correct answer. The remaining layers are machine output, and the generators differ in one rule that
+looks contradictory side by side:
+
+- `translate-babs.ts` **discards partial batches.** Position carries identity there, so a short
+  reply shifts every later title onto the wrong key — silently, and untestably, because each value
+  would still be a plausible Indonesian sentence.
+- `translate-hadith.ts` **keeps partial batches.** An explicit `###N###` delimiter carries identity,
+  so whatever returns is bound to its own hadith. Long hadith *do* overrun the output budget; under
+  the discard rule a 6-item batch returned "0 of 6" and threw away real work. Batch is now 3.
+
+Both write a **sidecar**, never an edit: `web/public/hadith-id/`, with the corpus shards untouched.
+Machine output must not be mixed into the thing it is a translation *of*, and the whole layer stays
+`rm`-able. Hadith text is sharded **per book** because 14,736 translations is ~9MB and a reader
+opening one kitab must not pay for the other 153.
+
+Provenance is **data, not markup** — the generated file carries its own `meta` (unreviewed, machine,
+awaiting Ustadz Ahmad Isrofiel) and the banner renders from it, so it cannot keep claiming
+"belum ditinjau" after a review. Where both layers exist the text layer's stronger claim wins;
+otherwise the bab-only wording would insist "teks hadis tetap Arab" on a page where it plainly is
+not. Order is deliberate and *opposite* between layers: Indonesian leads on titles (a signpost gets
+you there), Arabic leads on hadith (the Arabic is the text; the rendering is apparatus beneath it).
+
+The honesty note on `#/hadis` was rewritten and its **guard test tightened, not relaxed** — the old
+assertion (`"Terjemahan Indonesia menyusul"`) stopped being true the moment a title was translated,
+and would have let the page keep claiming it.
+
+### Generation state at wrap — both runs die with this session
+
+Output is **gitignored** (regenerable, ~9MB, unreviewed). Re-running skips completed work.
+
+| Layer | Done | Command to resume |
+|---|---|---|
+| Bab titles | **3,860 / 4,867** | `bun run src/app/translate-babs.ts` |
+| Hadith text | **343 / 14,736** (4 shards) | `bun run src/app/translate-hadith.ts` |
+
+Hadith text is a **~24-hour job** at the observed 7.0s/record. It will not survive a sleeping
+machine; it resumes cleanly.
+
+### Two bugs the tests were green over
+
+Both found by looking at the page, neither by the suite. `bun run build` exit code caught one; only
+a screenshot caught the other.
+
+- A comment written **inside a template literal** shipped as visible text across every Fikih card.
+  Build passed. 1023 tests passed.
+- Unclosed CSS comments failed the build twice while the suite stayed green — the trap this repo
+  already documents. A balance sweep over all three stylesheets is now the habit.
+
+Also fixed: `qk:audio-mode` shipped this morning under a prefix `migrate-storage` does not know,
+which the next rename would have stranded. Now `newquranku:audio-mode`, with a one-time read of the
+old key so this morning's setters keep their choice.
+
+### Verification moved off Erik's browser
+
+Erik asked to see the app in Cursor rather than have Interceptor drive his Chrome. Dev server on
+`localhost:5173` (Simple Browser), measurement in the **isolated** Chrome DevTools instance. This
+overrides CLAUDE.md's Interceptor-for-all-verification rule for this session only; the honest split
+is that the isolated browser is exact for geometry and computed styles, and the real-Chrome visual
+call moves to Erik's own eye.
+
+---
+
+## 2026-08-10 — A box measured against the wrong room, and a pass that agreed for the wrong reason
 
 Anchor: `origin/main` `1241629`. **1017 tests pass**, build exit 0. ISA **298/300** — ISC-98 open,
 ISC-189 deferred-verify. Prod Worker unchanged at `fc17e128`; **this fix is committed but NOT
