@@ -65,7 +65,18 @@ export function isChatRoute(hash: string): boolean {
   return !(
     /^#\/surah\/\d/.test(hash) ||
     /^#\/peta(?:\/|$)/.test(hash) ||
-    hash === "#/baca"
+    hash === "#/baca" ||
+    // `#/hadis`, `#/fikih` and `#/doa` were missing here, and the symptom was not subtle: a route
+    // absent from this list classifies as CHAT, so `showRead()` calls `syncLanding` first, which
+    // docks `#composer-bar` into `#hello` — which lives inside `#chat` — and `showRead` then hides
+    // `#chat`. The app's primary input silently disappeared on three browse surfaces.
+    //
+    // It survived because it was CONSISTENT: all three were broken the same way, so no single page
+    // looked wrong. Only measuring `#/doa` against `#/baca` side by side showed it
+    // (composerVisible false vs true).
+    /^#\/hadis(?:\/|$)/.test(hash) ||
+    hash === "#/fikih" ||
+    hash === "#/doa"
   );
 }
 

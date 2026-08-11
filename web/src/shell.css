@@ -1384,9 +1384,13 @@
 
 /* ── Kumpulan Doa — the same doorway vocabulary, one deliberate difference ─────────────────────── */
 /* Structurally Fikih's twin: both are index surfaces that own no scripture and exist to hand the
-   reader to a page that does. It reuses `.fikih-card`'s girih corner and hinge by copying them
-   rather than sharing a class, because the two sections are free to diverge later and a shared
-   selector would make that a refactor instead of an edit.
+   reader to a page that does. It copies `.fikih-card`'s hinge rather than sharing a class, because
+   the two sections are free to diverge later and a shared selector would make that a refactor
+   instead of an edit.
+   It deliberately does NOT copy the girih corner: `.fikih-card::after` hardcodes its stroke colour
+   twice inside an SVG data URI (`%2316a249` / `%235fd48f`), which is the literals-outlive-tokens
+   bug this repo keeps rediscovering. Copying it would have doubled that debt. The Doa card reads
+   slightly flatter as a result — a deliberate trade, not an oversight.
    The one difference is on purpose: a doa chip carries a REFERENCE where a fikih chip carries an
    Arabic kitab name, so the chip leads with `QS 2:186` in the UI face and lets the Indonesian run
    after it. Nothing here renders scripture — see the header note in `doa.ts`. */
@@ -1395,7 +1399,7 @@
 .doa-card {
   padding: 18px 20px 20px; border: 1px solid var(--line); border-radius: var(--r-lg);
   background: var(--surface); box-shadow: var(--sh-sm);
-  position: relative; isolation: isolate; overflow: hidden;
+  position: relative; overflow: hidden;
   transition: transform var(--t), box-shadow var(--t), border-color var(--t);
 }
 .doa-card::before {

@@ -55,11 +55,11 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     title: "Pembuka dan perlindungan",
     sub: "Doa yang dibaca setiap hari — pembuka Al-Qur'an dan tiga surah perlindungan.",
     refs: [
-      { surah: 1, ayah: 6, label: "Minta ditunjukkan jalan yang lurus" },
+      { surah: 1, ayah: 6, label: "Permintaan inti dalam Al-Fatihah" },
       { surah: 2, ayah: 255, label: "Ayat Kursi" },
-      { surah: 2, ayah: 286, label: "Penutup Al-Baqarah — beban yang sanggup dipikul" },
-      { surah: 113, ayah: 1, label: "Al-Falaq — berlindung pada Tuhan subuh" },
-      { surah: 114, ayah: 1, label: "An-Nas — berlindung pada Tuhan manusia" },
+      { surah: 2, ayah: 286, label: "Penutup Al-Baqarah — tentang batas kemampuan" },
+      { surah: 113, ayah: 1, label: "Al-Falaq — surah perlindungan" },
+      { surah: 114, ayah: 1, label: "An-Nas — surah perlindungan" },
     ],
   },
   {
@@ -80,10 +80,10 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     sub: "Doa orang yang sedang di titik terendah — sakit, terdesak, atau ketakutan.",
     refs: [
       { surah: 21, ayah: 83, label: "Ayyub — ketika penyakit menimpanya" },
-      { surah: 26, ayah: 80, label: "Ibrahim — Dialah yang menyembuhkan aku" },
-      { surah: 20, ayah: 25, label: "Musa — lapangkanlah dadaku" },
-      { surah: 28, ayah: 24, label: "Musa — aku butuh kebaikan apa pun yang Engkau turunkan" },
-      { surah: 3, ayah: 173, label: "Cukuplah Allah bagi kami" },
+      { surah: 26, ayah: 80, label: "Ibrahim — ketika sakit, kepada siapa ia berharap" },
+      { surah: 20, ayah: 25, label: "Musa — sebelum tugas yang berat" },
+      { surah: 28, ayah: 24, label: "Musa — setelah menolong, dalam keadaan tak punya apa-apa" },
+      { surah: 3, ayah: 173, label: "Kalimat yang diucapkan ketika diancam" },
     ],
   },
   {
@@ -91,11 +91,11 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     title: "Orang tua dan keturunan",
     sub: "Doa untuk orang yang membesarkan kita, dan untuk anak yang dinanti.",
     refs: [
-      { surah: 17, ayah: 24, label: "Kasihilah keduanya sebagaimana mereka mengasuhku" },
-      { surah: 14, ayah: 41, label: "Ibrahim — ampunan untuk aku dan kedua orang tuaku" },
+      { surah: 17, ayah: 24, label: "Doa seorang anak untuk ayah dan ibunya" },
+      { surah: 14, ayah: 41, label: "Ibrahim — memohonkan ampun bagi orang tuanya" },
       { surah: 3, ayah: 38, label: "Zakaria — menanti keturunan yang baik" },
-      { surah: 21, ayah: 89, label: "Zakaria — jangan biarkan aku sendiri" },
-      { surah: 25, ayah: 74, label: "Keluarga yang menyejukkan mata" },
+      { surah: 21, ayah: 89, label: "Zakaria — takut tidak ada penerus" },
+      { surah: 25, ayah: 74, label: "Permintaan tentang pasangan dan anak" },
     ],
   },
   {
@@ -103,11 +103,11 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     title: "Ilmu dan pekerjaan",
     sub: "Doa sebelum belajar, sebelum bicara, dan atas apa yang sudah diberikan.",
     refs: [
-      { surah: 20, ayah: 114, label: "Tambahkanlah ilmu kepadaku" },
-      { surah: 20, ayah: 26, label: "Musa — mudahkanlah urusanku" },
+      { surah: 20, ayah: 114, label: "Permintaan agar ilmu ditambah" },
+      { surah: 20, ayah: 26, label: "Musa — sebelum menghadap penguasa" },
       { surah: 27, ayah: 19, label: "Sulaiman — syukur atas nikmat" },
       { surah: 46, ayah: 15, label: "Syukur, dan kebaikan yang menurun ke anak" },
-      { surah: 14, ayah: 40, label: "Ibrahim — jadikan aku orang yang menegakkan salat" },
+      { surah: 14, ayah: 40, label: "Ibrahim — tentang salat, untuk diri dan keturunannya" },
     ],
   },
   {
@@ -115,10 +115,10 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     title: "Tentang doa itu sendiri",
     sub: "Ayat yang berbicara tentang berdoa — bukan lafalnya, tetapi janji dan adabnya.",
     refs: [
-      { surah: 2, ayah: 186, label: "Aku dekat — Aku kabulkan doa orang yang berdoa" },
-      { surah: 40, ayah: 60, label: "Berdoalah kepada-Ku, akan Aku kabulkan" },
-      { surah: 7, ayah: 55, label: "Berdoalah dengan rendah hati dan suara lembut" },
-      { surah: 19, ayah: 4, label: "Zakaria — dan aku belum pernah kecewa berdoa kepada-Mu" },
+      { surah: 2, ayah: 186, label: "Jawaban Allah ketika ditanya tentang kedekatan-Nya" },
+      { surah: 40, ayah: 60, label: "Janji bahwa permintaan itu didengar" },
+      { surah: 7, ayah: 55, label: "Adab meminta — pelan, tidak menuntut" },
+      { surah: 19, ayah: 4, label: "Zakaria — tubuhnya menua, harapannya tidak" },
     ],
   },
   {
@@ -126,11 +126,11 @@ export const DOA_THEMES: readonly DoaTheme[] = [
     title: "Dunia dan akhirat",
     sub: "Permintaan yang tidak berhenti di dunia.",
     refs: [
-      { surah: 2, ayah: 201, label: "Kebaikan di dunia dan di akhirat" },
-      { surah: 3, ayah: 8, label: "Jangan sesatkan hati kami setelah Engkau beri petunjuk" },
-      { surah: 3, ayah: 16, label: "Kami beriman — ampunilah dosa kami" },
+      { surah: 2, ayah: 201, label: "Permintaan yang mencakup dua negeri" },
+      { surah: 3, ayah: 8, label: "Takut kehilangan petunjuk yang sudah didapat" },
+      { surah: 3, ayah: 16, label: "Pengakuan iman, lalu permohonan ampun" },
       { surah: 40, ayah: 7, label: "Doa para malaikat untuk orang beriman" },
-      { surah: 66, ayah: 8, label: "Sempurnakanlah cahaya kami" },
+      { surah: 66, ayah: 8, label: "Permintaan pada hari cahaya jadi penentu" },
     ],
   },
 ];

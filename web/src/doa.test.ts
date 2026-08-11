@@ -83,11 +83,13 @@ describe("doa data — every door opens onto a real ayah", () => {
 
 describe("doa rights boundary — the module reproduces nothing", () => {
   /**
-   * The whole Arabic block plus the Arabic Presentation Forms, not a word list. A word list would
-   * be a vocabulary check; this is a SCRIPT check, and the failure it exists to catch is someone
-   * pasting a lafal in without thinking about where it came from.
+   * `\p{Script=Arabic}`, not a hand-written range list. The hand-written version this replaces
+   * covered U+0600–06FF, the Supplement and the Presentation Forms, but MISSED Arabic Extended-A
+   * (U+08A0–08FF) — which is where the Quranic annotation signs live, i.e. exactly the marks a
+   * pasted lafal is most likely to carry. A range list is a vocabulary check wearing a script
+   * check's clothes; the property escape is the real thing and cannot drift.
    */
-  const ARABIC = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/;
+  const ARABIC = /\p{Script=Arabic}/u;
 
   test("the data module carries no Arabic script", async () => {
     const src = await Bun.file("web/src/doa.ts").text();
@@ -95,10 +97,42 @@ describe("doa rights boundary — the module reproduces nothing", () => {
     expect(offending, `doa.ts must reference scripture, never reproduce it:\n${offending.join("\n")}`).toEqual([]);
   });
 
-  test("no label is long enough to be a translation of its ayah", () => {
-    // Labels name the speaker and the occasion ("Ayyub — ketika penyakit menimpanya"). A label that
-    // ran to translation length would be reproducing the verse's meaning under another name.
-    for (const r of allDoaRefs()) expect(r.label.length).toBeLessThanOrEqual(64);
+  /**
+   * No label may share a 4-word run with either shipped translation of its own ayah.
+   *
+   * This replaces a `label.length <= 64` bound, which was worthless: the longest label was 54, so
+   * the guard was calibrated above everything that already existed and could never fire. It passed
+   * while FOUR labels carried verbatim spans of the Kemenag and Thalib translations — "Dialah yang
+   * menyembuhkan aku", "dan aku belum pernah kecewa", "aku dan kedua orang tuaku", "Kebaikan di
+   * dunia dan" — on a card whose own note tells the reader `lafal dan artinya bukan` ours.
+   *
+   * The added legal exposure was nil: the app renders both translations in full one click away. The
+   * defect was HONESTY, and it is the kind a length bound can never see. A label names the occasion
+   * ("Musa — sebelum menghadap penguasa"); the moment it renders the meaning it is a translation,
+   * whatever we call it.
+   */
+  const words = (s: string): string[] =>
+    s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+  const runs = (w: string[], n = 4): Set<string> => {
+    const out = new Set<string>();
+    for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(" "));
+    return out;
+  };
+
+  test("no label shares a 4-word run with either translation of its own ayah", () => {
+    const offenders: string[] = [];
+    for (const r of allDoaRefs()) {
+      const v = shards.get(r.surah)!.verses.find((x) => x.a === r.ayah)!;
+      // Only the part AFTER the em dash is the claim about content; the part before it names the
+      // speaker ("Ibrahim"), which is a fact and may legitimately echo the verse.
+      const claim = runs(words(r.label.split("—").pop() ?? r.label));
+      for (const t of [v.p?.text, v.c?.text]) {
+        if (!t) continue;
+        const src = runs(words(t));
+        for (const g of claim) if (src.has(g)) offenders.push(`QS ${r.surah}:${r.ayah} — "${g}"`);
+      }
+    }
+    expect(offenders, `labels must name the occasion, never render the meaning:\n${offenders.join("\n")}`).toEqual([]);
   });
 
   test("the rendered section shows no Arabic either", () => {
@@ -130,28 +164,27 @@ describe("doa render — a doorway, and it says so", () => {
     expect(note).toMatch(/judulnya kami yang menulis/i);
   });
 
-  test("is synchronous — it fetches nothing", () => {
-    // Guards the property the module's header claims. If a future edit makes the renderer load a
-    // shard to show the ayah, this fails and the rights note above has to be revisited first.
-    const originalFetch = globalThis.fetch;
-    let called = 0;
-    // A Proxy, not a replacement function with a cast.
-    //
-    // Bun's `typeof fetch` carries a `preconnect` property, so every hand-written stub — throwing,
-    // resolving, with or without parameters — fails the overlap check and needs an
-    // `as unknown as typeof fetch` to compile. Proxying the real fetch keeps the type exactly as it
-    // was, which means this mock cannot drift out of shape when Bun's signature changes.
-    globalThis.fetch = new Proxy(originalFetch, {
-      apply(target, thisArg, args: Parameters<typeof fetch>) {
-        called++;
-        return Reflect.apply(target, thisArg, args);
-      },
-    });
-    try {
-      renderDoa(mount);
-      expect(called).toBe(0);
-    } finally {
-      globalThis.fetch = originalFetch;
+  /**
+   * Read at the SOURCE, not through a runtime spy.
+   *
+   * The spy version of this test proxied `globalThis.fetch` and asserted it was never called. It
+   * was a sieve, and three realistic edits walked straight through it: a module-scope
+   * `const f = fetch` binds the real function at import time, which is BEFORE the spy installs;
+   * a `queueMicrotask`/`setTimeout` fetch resolves after the synchronous assertion has already
+   * passed; and `XMLHttpRequest` never touches `fetch` at all.
+   *
+   * A source check has none of those holes. `doa.ts` owns no data and must never acquire any — the
+   * moment it can load a shard, the rights note in its header stops being true and has to be
+   * rewritten before the code lands, which is exactly the order this test enforces.
+   */
+  test("the data module reaches no network API at all", async () => {
+    // Comments are stripped first. The header explains WHY the module fetches nothing, and that
+    // explanation necessarily contains the word — a check that reads prose flags its own rationale.
+    const code = (await Bun.file("web/src/doa.ts").text())
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    for (const api of ["fetch", "XMLHttpRequest", "EventSource", "WebSocket", "import("]) {
+      expect(code.includes(api), `doa.ts must own no data — found "${api}" in code`).toBe(false);
     }
   });
 });

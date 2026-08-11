@@ -4,8 +4,11 @@
 > re-checked by someone who was not in the room. `data/` is gitignored, so review records live here
 > alongside the ustadz files.
 >
-> **Status: NOT DEPLOYED.** Code is green and committed; the section is gated on Ustadz Ahmad
-> Isrofiel Mardlatillah's review of the pairings — see "The claim that needs a scholar" below.
+> **Status: SHIPPED 2026-08-11 on Erik's instruction, under a VERBAL agreement from Ustadz Ahmad.**
+> Recorded here precisely because it is verbal: there is no written sign-off in this repository for
+> the 7 theme names and 34 pairings. Erik's call, made explicitly. If a written confirmation later
+> arrives, file it in this directory next to this note; if the ustadz revises any pairing, the fix
+> is an edit to `web/src/doa.ts` and a redeploy, since the section holds references only.
 
 ## What the section contains, exactly
 
@@ -86,10 +89,21 @@ occasion is not.
 The precedent cuts the same way: `theme-index.ts` already carries 83 themes and 192 verse entries of
 exactly this kind — and those were reviewed. These 34 pairings have not been.
 
-**Requested of the ustadz:** confirm or correct (a) the seven theme names, (b) each ayah's placement
-within its theme, and (c) each caption's characterisation of who is speaking and on what occasion.
-Per the standing rule, a heads-up to proceed is not a sign-off, and a conditional approval must not
-ship as a plain one.
+**Resolved 2026-08-11 by verbal agreement, per Erik.** Still worth obtaining in writing: (a) the
+seven theme names, (b) each ayah's placement within its theme, and (c) each caption's
+characterisation of who is speaking and on what occasion. The standing rule that a heads-up is not a
+sign-off is not being waived — it is being recorded that this shipped on a verbal agreement, so the
+distinction survives in the trail rather than being quietly collapsed.
+
+**A defect found and fixed before ship.** Twenty-three labels were rewritten because several
+reproduced the meaning of their ayah rather than naming its occasion — four shared a verbatim
+four-word span with the Kemenag or Thalib translation ("Dialah yang menyembuhkan aku", "dan aku
+belum pernah kecewa", "aku dan kedua orang tuaku", "Kebaikan di dunia dan"). The added legal
+exposure was nil, since the app renders both translations in full one click away. The defect was
+honesty: the card's own note says *"Judulnya kami yang menulis; lafal dan artinya bukan"*, and for
+those labels it was false. The guard that should have caught it (`label.length <= 64`) was
+calibrated above the longest existing label and could never fire. It is now a four-word overlap
+check against the ayah's own translations, force-red verified.
 
 ## Derivation method
 
