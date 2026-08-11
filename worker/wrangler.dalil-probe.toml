@@ -28,6 +28,14 @@ index_name = "okf-hadith"
 [[r2_buckets]]
 binding = "CORPUS"
 bucket_name = "okf-corpus"
+# Deliberately the SAME bucket as `bucket_name`, which is the opposite of wrangler's advice.
+#
+# Wrangler refuses to start dev at all without this key, so the documented probe command above was
+# broken from the moment the R2 binding landed. Its warning is aimed at dev sessions that WRITE; this
+# probe only ever reads, and pointing preview at a different bucket would defeat the entire purpose
+# of the file -- a probe that reads a stand-in corpus cannot testify about live behaviour, which is
+# exactly the confusion ISC-323.2 exists to resolve.
+preview_bucket_name = "okf-corpus"
 
 [vars]
 # First 16 hex of the manifest's corpus_digest. Namespaces the text layer to one corpus revision, so

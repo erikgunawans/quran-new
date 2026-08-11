@@ -33,6 +33,7 @@ import {
   type Hadith as HadithRecord,
 } from "./hadith.ts";
 import { FIQH_AREAS, type FiqhArea } from "./fikih.ts";
+import { DOA_THEMES, doaHref, type DoaTheme } from "./doa.ts";
 
 // ── Hadis ────────────────────────────────────────────────────────────────────
 
@@ -244,6 +245,49 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
       <div class="hadith-list">${shard.babs
         .map((b) => babBlock(b, babId(ids, collectionId, shard.book.no, b.no), texts))
         .join("")}</div>
+    </div>`;
+}
+
+// ── Kumpulan Doa (reference-only — a doorway into the mushaf, never a doa book) ─────
+
+/**
+ * Synchronous on purpose, and the only section that is.
+ *
+ * Fikih must `await loadHadithIndex()` because its chips display Arabic kitab names it does not
+ * hold. This section displays no scripture at all — every chip is a title we wrote plus an address
+ * — so there is nothing to fetch and no failure mode to render. The ayah itself is loaded by the
+ * reading surface once the reader walks through the door, by the code that already does that.
+ */
+function doaCard(t: DoaTheme): string {
+  const chips = t.refs
+    .map(
+      (r) => `
+        <a class="doa-ayat" href="${esc(doaHref(r))}">
+          <span class="doa-ayat-ref">QS ${r.surah}:${r.ayah}</span>
+          <span class="doa-ayat-label">${esc(r.label)}</span>
+        </a>`,
+    )
+    .join("");
+  return `
+    <section class="doa-card">
+      <h2 class="doa-title">${esc(t.title)}</h2>
+      <p class="doa-sub">${esc(t.sub)}</p>
+      <div class="doa-ayat-list">${chips}</div>
+    </section>`;
+}
+
+export function renderDoa(mount: HTMLElement): void {
+  mount.innerHTML = `
+    <div class="read-index doa-index">
+      <header class="tematik-head">
+        <div class="tematik-head-l">
+          <h1 class="qk-hero-gradient tematik-title">Kumpulan Doa</h1>
+          <p class="tematik-sub">Doa yang diajarkan Al-Qur'an sendiri — kalimat para nabi ketika mereka meminta, tertaut ke ayatnya.</p>
+        </div>
+        <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
+      </header>
+      <p class="hadith-note" role="note">Semua doa di sini <b>berasal dari Al-Qur'an</b> dan terbuka pada ayatnya sendiri — lengkap dengan terjemahan yang sudah ada di aplikasi ini. Judulnya kami yang menulis; lafal dan artinya bukan. Doa harian dari hadis belum ditampilkan karena sumbernya masih menunggu izin tertulis.</p>
+      <div class="doa-grid">${DOA_THEMES.map(doaCard).join("")}</div>
     </div>`;
 }
 

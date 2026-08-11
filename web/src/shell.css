@@ -1382,10 +1382,53 @@
 
 @media (max-width: 560px) { .fikih-grid { grid-template-columns: 1fr; } }
 
+/* ── Kumpulan Doa — the same doorway vocabulary, one deliberate difference ─────────────────────── */
+/* Structurally Fikih's twin: both are index surfaces that own no scripture and exist to hand the
+   reader to a page that does. It reuses `.fikih-card`'s girih corner and hinge by copying them
+   rather than sharing a class, because the two sections are free to diverge later and a shared
+   selector would make that a refactor instead of an edit.
+   The one difference is on purpose: a doa chip carries a REFERENCE where a fikih chip carries an
+   Arabic kitab name, so the chip leads with `QS 2:186` in the UI face and lets the Indonesian run
+   after it. Nothing here renders scripture — see the header note in `doa.ts`. */
+.doa-index { padding-top: 6px; }
+.doa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.doa-card {
+  padding: 18px 20px 20px; border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--sh-sm);
+  position: relative; isolation: isolate; overflow: hidden;
+  transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+}
+.doa-card::before {
+  content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 3px; z-index: 1;
+  background: linear-gradient(180deg, var(--hero-a), var(--hero-b));
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 260ms var(--ease);
+}
+.doa-card:hover { transform: translateY(-2px); border-color: var(--primary-line); box-shadow: var(--sh-md, var(--sh-sm)); }
+.doa-card:hover::before { transform: scaleX(1); }
+.doa-title { position: relative; z-index: 1; margin: 0; font-size: clamp(18px, 2vw, 22px); color: var(--ink); }
+.doa-title::after {
+  content: ""; display: block; width: 100%; max-width: 168px; height: 2px; margin-top: 8px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--hero-b), color-mix(in oklch, var(--hero-b), transparent 100%));
+}
+.doa-sub { position: relative; z-index: 1; margin: 8px 0 14px; font-size: 14px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
+.doa-ayat-list { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+.doa-ayat {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none;
+  color: inherit; background: var(--primary-wash); transition: border-color var(--t), transform var(--t);
+}
+.doa-ayat:hover { border-color: var(--primary-line); transform: translateX(2px); }
+.doa-ayat-ref { font-family: var(--f-ui); font-size: 12px; font-weight: 600; color: var(--ink-3); flex: none; font-variant-numeric: tabular-nums; }
+.doa-ayat-label { font-family: var(--f-ui); font-size: 13.5px; color: var(--ink); line-height: 1.45; min-width: 0; }
+
+@media (max-width: 560px) { .doa-grid { grid-template-columns: 1fr; } }
+
 /* Cards are visible by default; the entrance fade applies ONLY when motion is welcome and uses
    `forwards`, never `both` (DESIGN.md) — a backgrounded mid-render can never strand a card invisible. */
 @media (prefers-reduced-motion: no-preference) {
-  .hadith-kitab, .hadith-card, .fikih-card { animation: qkin 300ms var(--ease) forwards; }
+  .hadith-kitab, .hadith-card, .fikih-card, .doa-card { animation: qkin 300ms var(--ease) forwards; }
 }
 
 /* The canonical Arabic name under a translated book heading. Same size it had when it WAS the

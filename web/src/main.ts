@@ -14,7 +14,7 @@ import { CORPUS_VERSION, displayName, evictStaleCaches, findSurah, loadAyah, par
 import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTemaHref } from "./peta.ts";
 import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
-import { renderHadis, renderHadisBook, renderFikih } from "./sections.ts";
+import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
@@ -605,13 +605,14 @@ function showRead() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih") {
+function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa") {
   const links = {
     tanya: $<HTMLAnchorElement>("#nav-tanya"),
     baca: $<HTMLAnchorElement>("#nav-baca"),
     peta: $<HTMLAnchorElement>("#nav-peta"),
     hadis: $<HTMLAnchorElement>("#nav-hadis"),
     fikih: $<HTMLAnchorElement>("#nav-fikih"),
+    doa: $<HTMLAnchorElement>("#nav-doa"),
   };
   for (const [key, el] of Object.entries(links)) {
     if (key === mode) el.setAttribute("aria-current", "page");
@@ -630,7 +631,7 @@ async function route() {
   // Idempotent on every route pass.
   document.documentElement.toggleAttribute(
     "data-wide",
-    hash === "#/baca" || hash === "#/peta" || hash === "#/hadis" || hash === "#/fikih",
+    hash === "#/baca" || hash === "#/peta" || hash === "#/hadis" || hash === "#/fikih" || hash === "#/doa",
   );
   // The Al-Qur'an wheel page keeps its docked composer small + translucent until hovered/focused
   // (Erik) — a browse surface, not a chat one. This marker scopes that treatment in shell.css.
@@ -702,6 +703,14 @@ async function route() {
     markNav("fikih");
     showRead();
     await renderFikih(readView);
+    return;
+  }
+
+  // No `await`: the section holds references only, so there is nothing to fetch. See `doa.ts`.
+  if (hash === "#/doa") {
+    markNav("doa");
+    showRead();
+    renderDoa(readView);
     return;
   }
 
