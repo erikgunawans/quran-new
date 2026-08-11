@@ -3,10 +3,10 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 360/365
+progress: 375/382
 mode: build
 started: 2026-07-13
-updated: 2026-08-10
+updated: 2026-08-11
 ---
 
 # New-Quranku — Ideal State Artifact
@@ -637,6 +637,26 @@ the tool loop, multi-turn eval and the main-app flip are later phases and have n
 - [x] ISC-354: `bun run typecheck` exits 0. **MET, 2026-08-10 (evening).** All three `tsc` passes clear; verified by redirect + `echo $?`, never a pipe. Eight errors were fixed in three tranches, each unmasked by the previous — the `&&` chain reports only the first failing pass, so "4 errors" was never the total. Tranche 1 (`web`): `main.ts:155` TS2366 was the only structural one — `count-defer` entered the SHARED `Turn` union in `db87a66` for the demo, which persists it through the same `rememberTurn`/`loadThread`, but only `web/demo/demo.ts` imports `looksLikeCount()`, so `renderTurn` in the main app silently stopped being total; a non-total renderer is how a stored turn becomes a blank bubble. `passage` widened to `?: T[] | undefined` (real corpus state; all 7 readers use `?? []`/`?.length`). `peta.ts` `MIN_H` deleted — superseded by CSS `min-height` (108/128/132, not 84) — and the comment documenting it amended so the file stops describing a constant it no longer has. Tranche 2: `tafsirStack` — NOT widened, because `tafsirStackHtml()` never returns undefined; the `undefined` was an artifact of indexing a parallel array, so the fix carried the stack WITH its verse. Tranche 3 (`src/eval`, which pulls in `worker/`): `auth.ts` narrowed by check not cast (it is the token verifier); `distill.ts` binds the head instead of length-testing then indexing; `proxyToOrigin` EXPORTED rather than deleted — it is retained-on-purpose as the documented one-line revert to Cloud Run (`index.ts:58,61,199`), and deleting it to satisfy `noUnusedLocals` would have deleted a rollback affordance.
 - [x] ISC-354.1: Anti: no typecheck error is in a file created this cycle — `build-text-layer.ts`, `hadith-card.ts`, `dalil.ts` and `answer-guard.ts` are all clean.
 - [x] ISC-355: Anti: nothing is deployed — prod Worker versions unchanged. Prod deploys are Erik's call.
+
+### Cycle 6 — the merged build shipped, and a doa section that owns no text (ISC-356..369)
+
+- [x] ISC-356: the merged Tanya workstream's hadith card is proven ABSENT from the built bundle, by a falsifiable probe rather than a symbol grep. **MET.** Minifiers rename module-level symbols, so `grep MAX_DISPLAY_CARDS` could never have failed informatively. Re-run on string literals with a working positive control: `bersabda` (from `answer-guard`, which IS imported) = 1 in the deployed bundle, while `tidak ada hadits` and `Sahih Muslim 154` (both runtime strings in `hadith-card.ts`) = 0.
+- [x] ISC-357: the new `bad_hadith` guard is proven unreachable on the trustworthy edition. **MET.** `web/src/answer.ts` is the synthesis orchestrator, `new-quranku-ai` only; the live Worker reports `EDITION: "principled"`.
+- [x] ISC-358: prod serves the merged build, verified by served bytes not by deploy success. **MET.** `index-CH3JlSGK.js`, 189,271 bytes, SHA-256 identical to `web/dist`; not the ~15.5 kB SPA fallback.
+- [x] ISC-359: Anti: the deploy did not contaminate the trustworthy edition with synthesis. **MET.** `synthesis` occurs once in the bundle (the dead comparison Vite collapses); prod `POST /api/answer` returns `{"answer":null}`; CSS hash `index-CsxJlLtp.css` byte-identical to pre-deploy prod.
+- [x] ISC-360: Anti: no root `wrangler.jsonc` shadowed the deploy — absent at deploy time; deploy ran from `worker/`.
+- [x] ISC-361: a "Kumpulan Doa" nav item exists AND resolves to a working route. **MET.** `#nav-doa` in `web/index.html`, five wiring points in `main.ts`, screenshot at `#/doa` renders 7 cards with zero console errors.
+- [x] ISC-362: every doa reference resolves in the shipped corpus with Arabic present. **MET.** 34/34.
+- [x] ISC-363: every doa reference carries BOTH Indonesian translations the reading surface renders. **MET.** 34/34 have `p.text` and `c.text`.
+- [x] ISC-364: Anti: `web/src/doa.ts` reproduces no scripture — no Arabic script anywhere in the module, checked as a Unicode SCRIPT range, not a word list.
+- [x] ISC-365: Anti: the RENDERED section shows no Arabic either — guards the case where text enters via the renderer rather than the data.
+- [x] ISC-366: Anti: `renderDoa` fetches nothing — proven with a Proxy over the real `fetch` that counts calls. Locks the claim that the section owns no data.
+- [x] ISC-367: the doa guards are falsifiable, not vacuous. **MET by force-red:** injecting `QS 1:999` and one Arabic word failed exactly four tests (ref-resolution, both-translations, module-Arabic, rendered-Arabic); restoring returned 12/12.
+- [x] ISC-368: every doa chip targets the detail route `main.ts` already parses — asserted against `/^#\/surah\/\d{1,3}#\d{1,3}$/`, and walked end-to-end in a browser (QS 21:87 → Yunus' du'a with Arabic + translation).
+- [ ] ISC-369: **NOT MET — the ustadz gate.** Grouping 34 ayahs under 7 theme names and captioning each ("Ayyub — ketika penyakit menimpanya") is a classificatory religious claim made in this project's own voice, which is precisely what CONTENT.md routes through Ustadz Ahmad Isrofiel Mardlatillah before ship. The rights question is settled and the code is green; this one is not, and it outranks the rights question because a mis-paired doa is not recoverable the way a licence problem is. The section is committed and NOT deployed. Erik's prior lesson applies verbatim: a heads-up is not a sign-off.
+- [x] ISC-370: a provenance record for the 34 pairings exists in `docs/review/`. **MET.** `docs/review/doa-provenance.md` records what the section contains, why nothing was vendored, the rejected proxy path, equran.id's actual published terms (the handoff's "no terms" premise was wrong), the derivation method, and the fact that 14 of the 34 pairings have no ustadz review behind them.
+- [x] ISC-371: the ISC-323.2 probe config can start at all. **MET.** It could not: `wrangler dev` refuses without `preview_bucket_name`, so the command documented in the handoff had been broken since the R2 binding landed. Fixed to point at the same bucket deliberately — the probe only reads, and a stand-in corpus cannot testify about live behaviour.
+- [ ] ISC-372: **NOT MET — ISC-323.2 remains open, but its blocker is now two named causes rather than one unknown.** With the config fixed, bindings resolve (`VECTORIZE: okf-hadith`, `CORPUS: okf-corpus`) and startup fails at "Could not create remote preview session on your account" — a Cloudflare-side/account-scope failure, distinct from the config bug. `wrangler whoami` is healthy (OAuth, `erik@axiara.ai`). Stopped after two attempts rather than looping.
 
 ## Test Strategy
 
