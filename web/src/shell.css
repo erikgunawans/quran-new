@@ -35,7 +35,7 @@
 .qk-side-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 20px; position: relative; z-index: 20; }
 /* The brand sits on the TOP layer above anything in the corner (Erik: so the logo is never cut/covered). */
 .qk-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; position: relative; z-index: 20; overflow: visible; }
-.qk-brand img { width: 40px; height: 40px; object-fit: contain; display: block; flex: none; }
+.qk-brand img { width: 52px; height: 52px; object-fit: contain; display: block; flex: none; }
 /* The wordmark — green→gold Fraunces gradient, per the design. `.qk-hero-gradient` had no base
    rule anywhere, so the brand was rendering as plain Plus-Jakarta in the inherited link colour. */
 /* Every section title, not just the ones that remembered the class (Erik, 2026-08-10: "change the
@@ -1528,8 +1528,13 @@
    retheme, and a panel is the easiest place for one to hide (see panel-ink-desync: a panel that
    flips on data-theme while ink flips on prefers-color-scheme paints white-on-white and still
    passes every DOM assertion). Falsify with a red ground before believing this theming works. */
-.qk-foot { display: flex; align-items: center; gap: 8px; }
-.qk-foot .qk-user { flex: 1 1 auto; min-width: 0; }
+/* `margin-top: auto` is what pushes the account row to the BOTTOM of the sidebar column, and it
+   lived on `.qk-user`. Wrapping that element in `.qk-foot` moved it into a flex ROW, where the same
+   declaration means "centre me vertically" instead — so the row stopped being pinned to the bottom
+   and rode up under the history list. The push belongs to whichever element is the column's child,
+   which is now the wrapper. */
+.qk-foot { margin-top: auto; display: flex; align-items: center; gap: 8px; }
+.qk-foot .qk-user { margin-top: 0; flex: 1 1 auto; min-width: 0; }
 .qk-settings-btn { flex: none; color: var(--ink-2); }
 .qk-settings-btn:hover { color: var(--ink); }
 
