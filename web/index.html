@@ -108,8 +108,69 @@
     <span class="qk-riwayat">Riwayat</span>
     <div class="qk-history" id="history"></div>
 
-    <div class="qk-user"><span class="avatar" aria-hidden="true"></span><span>Masuk</span></div>
+    <!-- Settings sits BESIDE Masuk, not inside it. Signing in and configuring the app are unrelated
+         actions, and nesting settings under an account row implies you must be signed in to reach
+         them — which is not true, and Masuk is still a stub. -->
+    <div class="qk-foot">
+      <div class="qk-user"><span class="avatar" aria-hidden="true"></span><span>Masuk</span></div>
+      <button class="qk-iconbtn qk-settings-btn" id="settings-open" type="button" aria-label="Pengaturan" title="Pengaturan">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+    </div>
   </aside>
+
+  <!-- <dialog> rather than a hand-rolled overlay: focus trapping, Esc and inertness come free and
+       correct, which a div cannot claim without a lot of code that would need its own tests. -->
+  <dialog id="settings-panel" class="settings-dialog" aria-labelledby="settings-title">
+    <form method="dialog" class="settings-head">
+      <h2 id="settings-title">Pengaturan</h2>
+      <button class="icon-btn" value="close" aria-label="Tutup pengaturan" title="Tutup">✕</button>
+    </form>
+
+    <div class="settings-body">
+      <section class="set-row">
+        <div class="set-label"><h3>Terjemahan yang tampil lebih dulu</h3>
+          <p>Tafsiriyah menerjemahkan <em>maksud</em>; harfiyah menerjemahkan <em>kata</em>. Keduanya tetap ada.</p></div>
+        <div class="seg" id="set-trans" role="group" aria-label="Terjemahan utama">
+          <button type="button" data-trans="tafsiriyah" aria-pressed="true">Tafsiriyah</button>
+          <button type="button" data-trans="harfiyah" aria-pressed="false">Harfiyah</button>
+          <button type="button" data-trans="both" aria-pressed="false">Keduanya</button>
+        </div>
+      </section>
+
+      <section class="set-row">
+        <div class="set-label"><h3>Mode tampilan</h3><p>Ikut sistem mengikuti pengaturan perangkatmu.</p></div>
+        <div class="seg" id="set-theme" role="group" aria-label="Mode tampilan">
+          <button type="button" data-theme-choice="light" aria-pressed="false">Terang</button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false">Gelap</button>
+          <button type="button" data-theme-choice="system" aria-pressed="true">Ikut sistem</button>
+        </div>
+      </section>
+
+      <section class="set-row">
+        <div class="set-label"><h3>Ukuran teks Arab</h3><p>Sama dengan pengaturan di kanan atas.</p></div>
+        <div class="seg" id="set-size" role="group" aria-label="Ukuran teks Arab">
+          <button type="button" data-size="s" aria-pressed="false">Kecil</button>
+          <button type="button" data-size="m" aria-pressed="true">Sedang</button>
+          <button type="button" data-size="l" aria-pressed="false">Besar</button>
+        </div>
+      </section>
+
+      <section class="set-row">
+        <div class="set-label"><h3>Kurangi animasi</h3><p>Berguna kalau perangkatmu belum diatur untuk itu.</p></div>
+        <div class="seg" id="set-motion" role="group" aria-label="Kurangi animasi">
+          <button type="button" data-motion="0" aria-pressed="true">Normal</button>
+          <button type="button" data-motion="1" aria-pressed="false">Kurangi</button>
+        </div>
+      </section>
+
+      <section class="set-row set-danger">
+        <div class="set-label"><h3>Hapus data di perangkat ini</h3>
+          <p id="set-delete-desc">Menghapus riwayat percakapan dan penanda dari peramban ini. Tidak bisa dibatalkan. Pengaturan di atas tetap.</p></div>
+        <button type="button" class="set-delete" id="set-delete" aria-describedby="set-delete-desc">Hapus</button>
+      </section>
+    </div>
+  </dialog>
 
   <div class="qk-panel" id="panel">
     <div class="qk-panel-top">

@@ -1503,3 +1503,59 @@
   background: var(--caution-wash);
   border: 1px solid var(--caution);
 }
+
+/* ── Pengaturan ──────────────────────────────────────────────────────────────────────────────── */
+/* Tokens only — no colour literals. This repo's standing bug class is hardcoded values surviving a
+   retheme, and a panel is the easiest place for one to hide (see panel-ink-desync: a panel that
+   flips on data-theme while ink flips on prefers-color-scheme paints white-on-white and still
+   passes every DOM assertion). Falsify with a red ground before believing this theming works. */
+.qk-foot { display: flex; align-items: center; gap: 8px; }
+.qk-foot .qk-user { flex: 1 1 auto; min-width: 0; }
+.qk-settings-btn { flex: none; color: var(--ink-2); }
+.qk-settings-btn:hover { color: var(--ink); }
+
+.settings-dialog {
+  border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface);
+  color: var(--ink); padding: 0; width: min(560px, calc(100vw - 32px)); max-height: 82vh;
+  box-shadow: var(--sh-sm);
+}
+.settings-dialog::backdrop { background: rgb(0 0 0 / .45); }
+.settings-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 18px; border-bottom: 1px solid var(--line); margin: 0;
+}
+.settings-head h2 { margin: 0; font-size: 17px; color: var(--ink); }
+.settings-body { padding: 6px 18px 18px; overflow-y: auto; }
+
+.set-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding: 15px 0; border-bottom: 1px solid var(--line);
+}
+.set-row:last-child { border-bottom: 0; }
+.set-label { min-width: 0; flex: 1 1 220px; }
+.set-label h3 { margin: 0 0 3px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.set-label p { margin: 0; font-size: 12.5px; color: var(--ink-3); line-height: 1.5; text-wrap: pretty; }
+
+.seg { display: flex; flex: none; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button {
+  font-family: var(--f-ui); font-size: 12.5px; padding: 7px 13px; border: 0; cursor: pointer;
+  background: transparent; color: var(--ink-2); transition: background var(--t), color var(--t);
+}
+.seg button + button { border-inline-start: 1px solid var(--line); }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--primary-wash); color: var(--ink); font-weight: 600; }
+
+.set-delete {
+  font-family: var(--f-ui); font-size: 12.5px; padding: 8px 14px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-2);
+  transition: border-color var(--t), color var(--t);
+}
+.set-delete:hover { color: var(--ink); border-color: var(--primary-line); }
+.set-delete[data-armed="1"] { font-weight: 600; color: var(--ink); border-color: var(--primary-line); }
+
+@media (max-width: 560px) { .set-row { flex-direction: column; align-items: stretch; } }
+
+/* The explicit opt-in, honoured by the same rules prefers-reduced-motion already drives. */
+:root[data-reduce-motion] *, :root[data-reduce-motion] *::before, :root[data-reduce-motion] *::after {
+  animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important;
+}

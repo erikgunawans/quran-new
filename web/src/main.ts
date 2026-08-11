@@ -15,6 +15,7 @@ import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTem
 import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
+import { initSettings } from "./settings-ui.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
@@ -1014,6 +1015,8 @@ $("#size").addEventListener("click", (e) => {
 // #info, wired into the [data-explain] handler above) — one explainer, not a second popover.
 
 // ── theme — both modes are first-class ───────────────────────────────────────
+initSettings();
+
 $("#theme").addEventListener("click", () => {
   const cur =
     document.documentElement.dataset["theme"] ??
@@ -1233,9 +1236,15 @@ function initToTop(): void {
   //
   // Deliberately NOT written back to localStorage: an unset preference must keep following the OS,
   // so a reader who never opened the toggle still gets dark at night. Storage means "I chose".
+  // `"system"` is a THIRD stored value, not a theme name, and it must never reach the attribute.
+  // The settings panel can store it (the header toggle is binary and cannot express it), and the
+  // CSS only knows `light` and `dark` — so `data-theme="system"` would match no rule and leave the
+  // panel and the ink tokens keyed off different mechanisms, which is the white-on-white failure
+  // this repo has already hit once. Treat it exactly like "unset": follow the OS.
   const savedTheme = localStorage.getItem("newquranku:theme");
+  const explicit = savedTheme === "light" || savedTheme === "dark" ? savedTheme : null;
   document.documentElement.dataset["theme"] =
-    savedTheme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    explicit ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
   const savedSize = localStorage.getItem("newquranku:ar") as keyof typeof SIZES | null;
   if (savedSize) {
