@@ -248,3 +248,69 @@ Ustadz Ahmad Phase 4 sign-off; whether hadith text may EVER display; equran.id p
 making quran-new private; set OPENROUTER_API_KEY via interactive prompt; tap Dengar on #/surah/1;
 try the mic on a real device; sunnah.com API/dump request.
 ```
+
+---
+
+## 2026-08-11 (later) UPDATE — supersedes every block above
+
+```
+Resume New-Quranku in ~/quran-new. Read .scratch/tanya-hukum/PRD.md FIRST — it is the whole
+brief for the next build and it carries a reproduction you should not re-derive. Then skim the
+top PROGRESS.md checkpoints. Anchor origin/main 63f0c31, clean tree except untracked WARP.md.
+
+Gates GREEN: bun run typecheck exits 0, bun test 1076/0, bun run build exits 0. ISA 382/388.
+Prod = new-quranku-proxy version 4dc59b3a, serving index-CTJQixra.js / index-BPhJVwE6.css.
+Kumpulan Doa is LIVE at #/doa (shipped on Ustadz Ahmad's VERBAL agreement, recorded as verbal
+in docs/review/doa-provenance.md — do NOT upgrade that to a written sign-off in any doc).
+
+BUILD THIS, in order (all four steps are specified in the PRD):
+1. Write `subjectHit` and apply it in matchTopic (web/src/knowledge.ts:203) so a QUESTION_FRAME
+   word can never win TOPIC SELECTION on its own. READ web/src/topic-words.ts:67-83 FIRST — the
+   reasoning there is correct and must be honoured, not replaced. Frequency has already been
+   tried against this index twice and failed twice; the separator is word CLASS.
+   Reproduce before touching anything: matchTopic("warisan") -> keluarga (right), but
+   matchTopic("hukum warisan") -> perintah-dan-larangan (wrong). That is the whole bug.
+2. Add topic pins (matchPin exists, pins do not) for warisan, nikah, talak, riba, zakat, puasa,
+   sholat, aurat.
+3. Third tier: when tiers 1-2 come back thin, name the ayah(s), render them, and quote the
+   sourced tafsir VERBATIM + attributed from web/public/tafsir/{surah}/{ayah}.json
+   (source:as-saadi | source:ibn-kathir | source:mukhtasar, 6,237 files, already deployed).
+4. Regression tests, force-red EACH: "hukum warisan", "hukum riba", "hukum pacaran",
+   "cara sholat", plus "cemas terus" proving the feelings lane did not start answering hukum.
+
+THE THREE DECISIONS (grilled from Erik 2026-08-11 — do not re-litigate):
+- Show the dalil, never rule. fatwaShape stays unconditional; "kami tidak berfatwa" unchanged.
+  But it must NOT be dry — the reader must be told what the dalil is actually about.
+- Second lane, different safety model: the 191-verse feelings lane keeps per-verse ustadz
+  review untouched; the knowledge lane's guarantee is quote-verbatim-with-attribution, never
+  compose. Neither guarantee may be weakened to help the other.
+- Tanya may quote tafsir as a third tier.
+
+Constraints (unchanged): prod deploys are Erik's call EVERY time; NEVER run wrangler from the
+repo root (cd worker && bunx wrangler deploy); pgrep -fl never `ps aux | grep`; bun test never
+compiles CSS so check build's EXIT CODE; gitignored is NOT undeployed and a private repo is NOT
+a private deployment; NEVER import or wrap tool/translate-aqeeda-id.ts (self-executes 1,454
+records — single record is AQEEDA_ONLY=01/46.md); do NOT restart the hadith generator (stopped
+at 1,746/14,736 on purpose).
+
+Before trusting ANY guard you did not just force-red: ask what the current maximum is. A bound
+set above every existing value has never fired. That is how `label.length <= 64` passed while
+four doa labels carried verbatim spans of the translations we ship.
+
+STILL OPEN: ISC-323.2 (probe config now fixed, but `wrangler dev --remote` fails at
+"Could not create remote preview session on your account"; wrangler whoami is healthy) —
+no offline retrieval number may be quoted as evidence about live behaviour until explained.
+ISC-98 (real iOS device). Aqeedah Ar->Id lane running in ~/printing-press/library/tafseer-okf
+(read .planning-aqeeda-id-resume.md first; `bun run aqeeda:verify-id` must exit 0 before the
+lane may be committed; it is gitignored on purpose).
+
+WAITING ON ERIK: which tafsir source, in what order, for hukum questions (Ustadz Ahmad — the
+third tier was approved without gating on him, and three schools/eras are involved); whether
+the fallback copy should stop saying "korpus yang sudah diverifikasi"; the CC BY-ND 3.0 label
+on tanzil-id-kemenag in src/ingest/sources.ts is stronger than Tanzil's actual wording
+("non-commercial purposes only", no CC licence named) and should be corrected; LPMQ surat
+permohonan reply; sunnah.com API/dump request; equran.id written permission IF the
+non-Qur'anic daily doa are ever wanted (admin@equran.id, their ToS §10 promises 30 working
+days); whether hadith text may EVER display; set OPENROUTER_API_KEY via interactive prompt;
+tap Dengar on #/surah/1; try the mic on a real device.
+```

@@ -8,6 +8,39 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-11 (latest) — The app knew the answer and could not aim at it
+
+Erik asked why Tanya refuses `hukum warisan di islam` with *"belum menemukan ayat yang cocok di
+korpus yang sudah diverifikasi"*. The sentence is true about the 191-verse verified corpus and false
+about the application. **All three pieces already ship, and two are unreachable from Tanya:** the
+dalil (QS 4:11/12/176, full Indonesian), the orientation (**6,237 per-ayah tafsir files** from
+As-Sa'di, Ibn Kathir and Al-Mukhtasar — Al-Mukhtasar's Indonesian for 4:11 already explains the
+shares, from a Riyadh committee, not AI), and a knowledge lane (`knowledge.ts`, Thalib's Indeks
+Tematik) that already honours quote-verbatim-never-compose.
+
+Root cause, reproduced rather than theorised: `matchTopic("warisan")` → `keluarga`, but
+`matchTopic("hukum warisan")` → `perintah-dan-larangan`, a bucket holding nothing about inheritance.
+The question-frame word out-ranks the subject and drags TOPIC SELECTION astray; correct
+entry-ranking inside the wrong topic cannot rescue it.
+
+**It is a hole in an existing design, not a missing one.** `QUESTION_FRAME` already contains
+`hukum`, with a measured argument for why an IDF threshold makes things worse (`hukum` is 1.0% in
+Perintah dan Larangan — RARER than the legitimate `riba` at 2.9%, so frequency ranks noise above
+signal; the separator is word CLASS). But it is consumed only when ranking entries *inside* a topic.
+`subjectHit` — the function `topic-words.ts:81` tells you to go read for the selection-level guard —
+**was never written.** That comment has been pointing at nothing.
+
+Same bug class as the demo's "can't answer common knowledge" incident: not a missing source, but
+direction-blind ranking with no topic-pins.
+
+Three decisions grilled out and locked in `.scratch/tanya-hukum/PRD.md`: show the dalil but never
+rule *and never dryly*; a second lane whose safety is quote-verbatim-with-attribution rather than
+per-verse review; and a third tier that may quote the sourced tafsir so the answer says what the
+dalil is about. Nothing was built — the build order is step 1-4 in the PRD.
+
+**Next:** write `subjectHit`; add topic pins; third tier; force-red each regression. Ask Ustadz
+Ahmad which tafsir, in what order, for hukum questions.
+
 ## 2026-08-11 (later) — A section that owns nothing, and the guard that was set to pass
 
 Prod moved twice. First the merged Tanya workstream, deployed once its risk was actually measured
