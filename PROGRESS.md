@@ -8,6 +8,51 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-11 (later) — A section that owns nothing, and the guard that was set to pass
+
+Prod moved twice. First the merged Tanya workstream, deployed once its risk was actually measured
+rather than assumed: `hadith-card.ts` has no non-test importer and is absent from the bundle, the new
+`bad_hadith` guard lives in `answer.ts` which is the synthesis orchestrator for `new-quranku-ai`
+only, `quran.ts` was type-only, and the CSS hash was byte-identical to what prod already served. The
+handoff's "a routine deploy would ship the whole Tanya agent workstream" was written before anyone
+checked reachability. **Built is not wired.** The first proof of that was itself bad — `grep`ping the
+bundle for `MAX_DISPLAY_CARDS` can never fail, because minifiers rename symbols. An advisor call
+caught it; the real probe is string literals with a positive control (`bersabda` = 1, `tidak ada
+hadits` = 0).
+
+Then **Kumpulan Doa**, which was blocked on content and is now live. The handoff offered "runtime
+query-and-quote through `worker/`" as the way around equran.id's terms. It is not one:
+**not-vendored is not not-published** — the same error as `gitignored is not undeployed`, one layer
+up. The move was to stop assuming the section meant someone else's corpus. The app already serves
+the full Qur'an under settled rights, so the section is 34 references across 7 themes, each card a
+doorway into the existing `#/surah/N#A` route, authoring nothing but Indonesian titles. Two premises
+in the handoff were wrong and are now corrected in `docs/review/doa-provenance.md`: equran.id DOES
+publish terms (display permitted with attribution — though 128 of their 227 records embed a
+third-party URL, so their permission reaches only as far as what they own), and no openly-licensed
+Indonesian doa corpus appears to exist at all.
+
+**The lesson worth keeping is about the guard, not the rights.** A Forge review found that several
+labels reproduced the *meaning* of their ayah rather than naming its occasion — four shared a
+verbatim four-word span with the Kemenag or Thalib translation — on a card whose own note reads
+*"Judulnya kami yang menulis; lafal dan artinya bukan"*. The test that should have caught it was
+`label.length <= 64` when the longest label was 54: **a bound set above everything that already
+exists can never fire.** A guard calibrated to pass is not a guard. It is now a four-word overlap
+check against the ayah's own translations, force-red verified by re-injecting the span that shipped.
+
+The same review found the chat composer was **missing on `#/doa`, `#/hadis` and `#/fikih`** — a route
+absent from `isChatRoute` classifies as chat, so `showRead()` docks the composer into `#hello` inside
+`#chat` and then hides `#chat`. It survived because it was *consistent*: no single page looked wrong.
+One line fixed three surfaces.
+
+Ustadz Ahmad's agreement on the pairings is **verbal**, on Erik's instruction, and is recorded as
+verbal rather than collapsed into a written sign-off.
+
+Prod `index-CTJQixra.js`, SHA-256 verified. typecheck 0 · `bun test` 1076/0 · build 0. ISA 382/388.
+
+**Next:** ISC-323.2 (remote preview session fails at the Cloudflare account layer — the config bug
+before it is fixed); aqeedah Ar→Id at 203/1,454 and running; write to `admin@equran.id` if the
+non-Qur'anic daily doa are ever wanted.
+
 ## 2026-08-11 — Two gates closed, and the Indonesian gap changed kind
 
 Both red test gates went green. `bun run typecheck` exits 0 — eight errors across three `&&`-chained
