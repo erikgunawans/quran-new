@@ -8,6 +8,39 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-11 — Two gates closed, and the Indonesian gap changed kind
+
+Both red test gates went green. `bun run typecheck` exits 0 — eight errors across three `&&`-chained
+`tsc` passes, not the four that were visible, because the chain only ever shows the first failing
+pass. The one structural error: `count-defer` entered the SHARED `Turn` union in `db87a66` for the
+demo, and `renderTurn` in the main app silently stopped being total, which is how a stored turn
+becomes a blank bubble. Two fixes were deliberately NOT the obvious one — `tafsirStack` stayed
+narrow (its `undefined` was a parallel-array indexing artifact, not a real state) and
+`worker/src/index.ts`'s `proxyToOrigin` was EXPORTED rather than deleted, because `ORIGIN_HOST` is
+still bound in all three wrangler envs so the documented one-line Cloud Run revert is live.
+
+`bun test` is 1064/0, and the Happy DOM `GlobalRegistrator` collision is now diagnosed rather than
+merely absent: all seven DOM suites balance register/unregister and Bun runs files sequentially, so
+the collision requires a suite to ABORT before `afterAll`. Proven with a probe that registered then
+threw. Branch B's 10 errors were the cause; its 8 "collisions" were the cascade. My first conclusion
+— "reject the bunfig preload, the loud cascade is the signal" — was backwards, and an advisor call
+caught it: the cascade BURIES the signal. Closed by `web/src/test-dom.ts`, verified by force-red
+(0 pass/2 fail -> 111 pass/1 fail/1 error, zero registration errors).
+
+Knowledge base went from 18,884 to 25,232 records. The Indonesian tafsir gap did not shrink so much
+as change kind: it was an ACCURACY problem (only path was AI Ar->Id over Dorar, needing an ustadz and
+two live copyrights) and is now a PAPERWORK problem — `tafseer/id-kemenag` carries 6,236 ayah records
++ 114 intros of Kemenag's own Indonesian tafsir, sourced not translated, blocked only on the LPMQ
+surat permohonan already sent. An aqeedah Ar->Id RETRIEVAL-ONLY lane is mid-run (1,454 records,
+`display: forbidden`), where the finding worth keeping is that the Arabic normalization hazard
+applies to MODEL OUTPUT: the model reproduces the Qur'an letter-perfectly but re-emits it with
+combining marks in the opposite canonical order, so scripture is now SPLICED from source bytes rather
+than checked.
+
+**Next:** deploy decision for the merged Tanya workstream (prod still pre-merge `index-CKqG9c2u.js`);
+ISC-323/323.2 live-vs-offline retrieval; "Kumpulan Doa" left-panel section (nav is ~6 lines, content
+is rights-blocked); finish + verify + commit the aqeedah id lane.
+
 ## 2026-08-10 (latest) — The text layer went dark, and two parallel sessions became one branch
 
 Anchor: `origin/main` `1c652a7` (+ this checkpoint). **1064 tests pass**, build exit 0,

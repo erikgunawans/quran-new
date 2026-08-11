@@ -206,3 +206,45 @@ Both red test gates are now GREEN: `bun run typecheck` exits 0 and `bun test` is
 routine deploy would ship the unapproved Tanya agent workstream — rebuild and diff the hash
 before any deploy, and ask Erik first.
 ```
+
+---
+
+## 2026-08-11 UPDATE — supersedes the paste-block below
+
+```
+Resume New-Quranku in ~/quran-new. Read PROGRESS.md (top checkpoint 2026-08-11) then
+.planning/next-session-prompt.md. Anchor origin/main e725fd5, clean tree except untracked WARP.md.
+
+Both red gates are GREEN: `bun run typecheck` exits 0, `bun test` 1064/0, `bun run build` exits 0.
+ISA 360/365. Open: ISC-98 (iOS device), ISC-323 + ISC-323.2 (live-vs-offline retrieval),
+ISC-353.0 (superseded tombstone).
+
+Do next, in order:
+1. "Kumpulan Doa" left-panel section. Nav is ~6 lines in web/index.html:52-76, matching the
+   Tanya/Al Qur'an/Hadis/Fikih/Tematik pattern. CONTENT is the blocker, not the nav: equran.id's
+   doa family is `reference-only`, "no published terms; ask equran.id", 227 doa. Do NOT vendor it.
+   Erik intends to make this repo PRIVATE -- that does NOT authorise shipping the corpus, because
+   the APP IS DEPLOYED PUBLICLY at new-quranku.axiara.ai and serving it is publishing.
+   Viable path = runtime query-and-quote through worker/, or equran.id's written permission.
+   Do not ship a nav link without a working route -- prod is live.
+2. Prod deploy decision for the merged Tanya agent workstream. Prod still serves the PRE-MERGE
+   index-CKqG9c2u.js; `web/dist` is newer. Rebuild and diff the hash; ASK Erik before deploying.
+3. ISC-323 / ISC-323.2 -- no offline retrieval number may be quoted as evidence about live
+   behaviour until the live-vs-offline divergence is explained. Probe:
+   cd worker && bunx wrangler dev --config wrangler.dalil-probe.toml --remote --port 8799
+4. In ~/printing-press/library/tafseer-okf: the aqeedah Ar->Id run may still be going or may have
+   finished. Read .planning-aqeeda-id-resume.md FIRST. `bun run aqeeda:verify-id` must exit 0
+   before the lane may be committed; the lane is gitignored on purpose.
+
+Constraints: prod deploys are Erik's call every time; NEVER run wrangler from the repo root;
+pgrep -fl never `ps aux | grep`; bun test never compiles CSS (check build's EXIT CODE);
+gitignored is NOT undeployed, and PRIVATE REPO IS NOT PRIVATE DEPLOYMENT.
+NEVER import or wrap tool/translate-aqeeda-id.ts -- it self-executes a full 1,454-record run
+(cost ~55 records twice). Single record: AQEEDA_ONLY=01/46.md.
+Do NOT restart the hadith generator (stopped at 1,746/14,736 on purpose).
+
+Open items waiting on Erik: LPMQ surat permohonan reply (unblocks Kemenag tafsir display);
+Ustadz Ahmad Phase 4 sign-off; whether hadith text may EVER display; equran.id permission for doa;
+making quran-new private; set OPENROUTER_API_KEY via interactive prompt; tap Dengar on #/surah/1;
+try the mic on a real device; sunnah.com API/dump request.
+```
