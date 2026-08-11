@@ -266,7 +266,26 @@
 .qk-shell[data-nav="open"] #panel-toggle { display: none; }
 /* When the sidebar is closed the toggle must stay reachable at the top-LEFT to reopen it, clear of
    the floated controls on the right. */
-.qk-panel-top #panel-toggle { position: fixed; top: 11px; left: 12px; z-index: 6; }
+/* Vertically centred on the section title, not on the viewport top.
+   With the sidebar collapsed this button sits beside the page heading ("Fikih", "Kumpulan Doa"),
+   and at `top: 11px` its centre landed 17.8px ABOVE the title's centre — close enough to look
+   like a mistake rather than a layout, which is exactly what Erik saw. The value is measured
+   against `.tematik-title`'s box, not guessed: 11 + 17.8. Horizontal stays at the left margin;
+   the title's own left edge moves with the panel's centring, so pinning the gap would only be
+   correct at one window width. */
+.qk-panel-top #panel-toggle { position: fixed; top: 29px; left: 12px; z-index: 6; }
+
+/* The icon carries the same ramp as the heading beside it — the two read as one object.
+   `stroke` takes a gradient only through an SVG paint server, so the ramp is defined inside the
+   icon itself (see #pt-grad in index.html) rather than in CSS; `background-clip: text` would do
+   nothing to a stroked path. The stops are the hero tokens, so a retheme carries it. */
+.qk-panel-top #panel-toggle svg { overflow: visible; }
+/* Stops set as CSS PROPERTIES, not presentation attributes: `stop-color="var(--x)"` written as an
+   attribute is not reliably resolved, so the ramp would silently fall back to black. As properties
+   the tokens resolve normally and a retheme carries the icon with the heading. */
+#pt-grad stop:nth-child(1) { stop-color: var(--hero-a); }
+#pt-grad stop:nth-child(2) { stop-color: var(--hero-mid, var(--hero-a)); }
+#pt-grad stop:nth-child(3) { stop-color: var(--hero-b); }
 
 /* the scrolling content area of the panel — starts at the very top; padding lifts the first section
    title to sit level with the sidebar logo (~26px from the panel top). */
