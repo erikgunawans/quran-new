@@ -91,3 +91,37 @@ but direction-blind ranking plus absent topic-pins.
   retrieval lane exists and is gated; it is out of scope here and stays gated.
 - **The refusal copy.** Even after this lands, the fallback message should probably stop saying
   "korpus yang sudah diverifikasi" — it describes an internal structure the reader cannot see.
+
+
+## Attempted 2026-08-11, reverted — what step 1 is NOT
+
+Two candidate fixes were written, measured and backed out. The tree is unchanged; this section
+exists so the next session does not spend the same hour.
+
+**`subjectHit` alone is NOT sufficient.** Adding
+`!FRAME_ALIAS.has(a) && !QUESTION_FRAME.has(a)` to the `grounded` computation compiles, keeps all
+1076 tests green, and leaves `matchTopic("hukum warisan")` returning `perintah-dan-larangan`
+exactly as before. Stopping `hukum` from marking a category grounded lets execution PAST the
+`if (best?.grounded) return best.slug` short-circuit, but the subject-correction block below then
+declines to correct anyway. **The real lever is inside that correction block, not the grounded flag.**
+Read `knowledge.ts:228-260` and find why the correction declines for `warisan` — that is step 1.
+
+**Ranking grounded above score is WRONG and a test already pins why.** Making a grounded match beat
+an ungrounded one regardless of score does fix warisan — and breaks
+`web/src/topic-routing.test.ts:43`, which pins `matchTopic("apa hukum riba")` to
+`perintah-dan-larangan`. That test is RIGHT, and the distinction it protects is the whole subtlety
+of this bug:
+
+| Question | Correct topic | Why |
+|---|---|---|
+| `apa hukum riba` | `perintah-dan-larangan` | the rulings chapter genuinely CONTAINS riba rulings |
+| `hukum warisan` | `keluarga` | the rulings chapter contains NOTHING about inheritance |
+
+So the discriminator is **not** "is the matched alias a ruling word" — it is **"does the chosen
+category actually cover this subject"**. The existing correction block already asks that question
+(see its own comment about `homo itu hukumnya apa sih` and QS 7:80, and the "uncovered subject
+blocks correction entirely" suite at `topic-routing.test.ts:57`). It is asking it and getting the
+wrong answer for `warisan`. Fix the coverage test; do not add a second ranking rule beside it.
+
+Whatever lands must keep BOTH rows of that table green, plus `bagaimana cara sholat` → `ibadah` and
+`aku sedang sedih` → null.
