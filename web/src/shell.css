@@ -1518,6 +1518,10 @@
   border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface);
   color: var(--ink); padding: 0; width: min(560px, calc(100vw - 32px)); max-height: 82vh;
   box-shadow: var(--sh-sm);
+  /* `margin: auto` is what centres a modal <dialog>, and it is NOT inherited here: shell.css sets a
+     global reset that zeroes margins, so the UA's centring rule was already overridden and the panel
+     rendered pinned to the top-left corner. Restated explicitly rather than left to the UA. */
+  margin: auto;
 }
 .settings-dialog::backdrop { background: rgb(0 0 0 / .45); }
 .settings-head {
