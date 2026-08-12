@@ -240,6 +240,23 @@ Every interactive element ships **default, hover, focus, active, disabled, loadi
   avoid, and chosen deliberately: one specific sentence also *narrows* what a reader thinks they may
   bring, and naming both verbs (*ceritakan* / *tanyakan*) is what tells them the door is wide. The
   rule still binds everywhere else — the seeds, the reading surface, every other empty state.
+- **The front door invites curiosity as well as confession** — *amended 2026-08-12, Erik's call.*
+  The four first-person seeds (*"aku lagi capek banget"*, *"baru kehilangan orang tua"*) are
+  replaced by two cards: a question generator and *Populer*. This is an amendment and not a
+  correction, because the seeds were deleted once before in the hero distillation and deliberately
+  restored on 2026-08-09 with a reason worth quoting — *"the hard part of this app is not typing, it
+  is admitting what is wrong."* That is still true, and it is why the change is a **shift in
+  emphasis rather than a replacement of the premise**: the confessional invitation moved into the
+  composer's own placeholder (*"Ceritakan atau tanyakan apa saja…"*, which names both verbs), while
+  the cards carry what confession could not — showing a reader that the app answers *questions* too,
+  and that it has 114 surahs and an Indeks Tematik behind it. A reader in pain still finds the door;
+  a reader who is merely curious now finds one as well.
+  **Two constraints came with it, and they are the reason it took a session to earn.** The generator's
+  pool is *measured*, never written: every question was run end-to-end through the real retrieval
+  lanes, and the seven that came back silent are excluded by name in `ask-seeds.ts`. A card that can
+  offer a question the app cannot answer converts a failure the reader had to *type* into one the
+  app *volunteers*. And *Populer* is **editorial and says so** — this edition records nothing about
+  what anyone opens, so the modal states in as many words that the list is a choice, not a count.
 - **Nothing is invented to fill a gap.** No location → the prayer card says so and offers to ask again;
   it does not guess a city. A prayer the astronomy cannot honestly place renders `—`, not a plausible
   number.

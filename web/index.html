@@ -241,16 +241,38 @@
               <p class="hero-tagline qk-hero-gradient">Tanya Apapun</p>
               <p>Tulis apa yang sedang kamu rasakan. QuranKu mencarikan ayat, terjemahan, dan tafsirnya — lengkap dengan sumbernya.</p>
 
-              <!-- The composer docks here, ABOVE .seeds — dockLanding() inserts before it.
-                   The seeds are back (2026-08-09). They were deleted in the hero distillation, which
-                   left DESIGN.md's "empty states teach" rule binding an element that did not exist;
-                   an empty box teaches nothing. Four, first-person, in the reader's own voice —
-                   because the hard part of this app is not typing, it is admitting what is wrong. -->
+              <!-- The composer docks here, ABOVE .seeds — dockLanding() inserts before it. The
+                   ordering rule survives the change of contents; landing.test.ts pins it.
+
+                   2026-08-12 (Erik): the four first-person feeling-seeds are replaced by two cards.
+                   This is the SECOND time this block has changed identity and the reversal is
+                   deliberate, so it is written down rather than left to a diff: the seeds were
+                   deleted in the hero distillation, restored on 2026-08-09 with the reason "the hard
+                   part of this app is not typing, it is admitting what is wrong", and are now
+                   replaced by curiosity-openers. That swaps what the front door invites — confession
+                   for curiosity — and DESIGN.md carries the amendment. The confession path is not
+                   gone; it is what the composer's own placeholder still asks for. -->
               <div class="seeds">
-                <button type="button" class="seed">aku lagi capek banget</button>
-                <button type="button" class="seed">lagi banyak utang, stress</button>
-                <button type="button" class="seed">baru kehilangan orang tua</button>
-                <button type="button" class="seed">cemas terus tiap malam</button>
+                <!-- Card 1 — the question generator. Its pool is MEASURED, not written: every
+                     question was run end-to-end through the real lanes first, and the seven that
+                     came back silent are not in it. See ask-seeds.ts. -->
+                <div class="seed-card" id="seed-ask">
+                  <p class="seed-card-k">Coba tanya ini</p>
+                  <button type="button" class="seed seed-q" id="seed-q"></button>
+                  <button type="button" class="seed-shuffle" id="seed-shuffle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                    <span>Acak lagi</span>
+                  </button>
+                </div>
+
+                <!-- Card 2 — Populer. The list inside is EDITORIAL: this edition keeps no usage
+                     telemetry, so the modal says so in as many words rather than implying it was
+                     measured. -->
+                <div class="seed-card" id="seed-pop">
+                  <p class="seed-card-k">Yang sering dibuka</p>
+                  <button type="button" class="seed seed-q" id="pop-open">Surah, tema, dan doa pilihan</button>
+                  <p class="seed-card-note">Al-Kahf, Ar-Rahman, Yasin, Kumpulan Doa…</p>
+                </div>
               </div>
             </section>
           </main>

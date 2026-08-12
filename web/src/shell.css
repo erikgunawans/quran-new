@@ -453,6 +453,63 @@
 .qk-panel-body .seed:hover { border-color: var(--primary-line); color: var(--primary); }
 :root[data-theme="dark"] .qk-panel-body .seed { background: rgba(255,255,255,.06); }
 
+/* ── the two landing cards (Erik, 2026-08-12) ─────────────────────────────
+   The seeds row now holds two CARDS rather than four pills. Each is a small stack — a quiet label,
+   the pressable thing, and a secondary control — so the row reads as two offers rather than eight
+   loose buttons. `.seed` inside them keeps the pill styling above, which is why the cards style
+   only their own frame and never restate a button rule. */
+.qk-panel-body .seeds:has(.seed-card) { align-items: stretch; gap: 14px; }
+.seed-card {
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: rgba(255,255,255,.04); max-width: 320px;
+}
+:root:not([data-theme="dark"]) .qk-panel-body .seed-card { background: rgba(255,255,255,.45); }
+.seed-card-k {
+  margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--panel-ink-3, var(--ink-3));
+}
+/* The question wraps — several of the pooled questions are longer than a pill, and a mid-word
+   ellipsis on a question you are being invited to ask is worse than two lines. */
+.qk-panel-body .seed-q { text-align: center; white-space: normal; line-height: 1.45; }
+.seed-card-note { margin: 0; font-size: 13px; color: var(--panel-ink-3, var(--ink-3)); text-align: center; }
+.seed-shuffle {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px;
+  background: none; border: 0; cursor: pointer; font: 500 13px var(--f-ui);
+  color: var(--panel-ink-3, var(--ink-3)); transition: color var(--t);
+}
+.seed-shuffle:hover { color: var(--primary); }
+.seed-shuffle svg { width: 14px; height: 14px; }
+
+/* ── the Populer modal ────────────────────────────────────────────────────
+   `<dialog>` + showModal(): the backdrop and inertness are the reason to use the element. The
+   centring is explicit because shell.css's global reset already beat the UA's `margin: auto` once
+   and pinned a dialog to the top-left (2026-08-11). */
+.pop-dialog {
+  margin: auto; max-width: 560px; width: calc(100% - 32px); padding: 22px;
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); color: var(--ink);
+}
+.pop-dialog::backdrop { background: rgb(0 0 0 / .5); }
+.pop-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pop-head h2 { margin: 0; font-family: var(--f-display); font-size: var(--step-1); color: var(--ink); }
+.pop-close {
+  display: inline-flex; padding: 6px; background: none; border: 0; cursor: pointer; color: var(--ink-3);
+}
+.pop-close:hover { color: var(--ink); }
+.pop-close svg { width: 20px; height: 20px; }
+.pop-sub { margin: 18px 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.pop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+.pop-item {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: var(--r-md, 10px); text-decoration: none;
+  transition: border-color var(--t);
+}
+.pop-item:hover { border-color: var(--primary-line, var(--primary)); }
+.pop-item-n { font-weight: 600; color: var(--ink); }
+.pop-item-w { font-size: 13px; color: var(--ink-3); }
+.pop-note { margin: 16px 0 0; font-size: 12px; line-height: 1.55; color: var(--ink-3); text-wrap: pretty; }
+
 /* ── The glass composer, hero-sized on landing, docked on conversation ── */
 .composer {
   border-radius: 23px;

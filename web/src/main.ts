@@ -32,6 +32,7 @@ import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
 import { tafsirTierHtml } from "./tafsir-tier.ts";
+import { bindLandingCards } from "./landing-cards.ts";
 import { migrateStorage } from "./migrate-storage.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, findPlayButton, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
@@ -755,6 +756,7 @@ initDictation();
 // stack a second click listener and make the handle toggle twice per press — closed to open to
 // closed, which reads as "the button does nothing".
 bindFooter();
+bindLandingCards();
 
 function endLanding(): void {
   destroyLanding();

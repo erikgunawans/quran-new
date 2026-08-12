@@ -156,22 +156,37 @@ describe("attribution: who said it out-ranks how it is filed", () => {
   });
 });
 
+/**
+ * AMENDED 2026-08-12 (Erik), not deleted.
+ *
+ * These two tests pinned the 2026-08-09 decision: four seeds, every one first-person and
+ * confessional, because "the hard part of this app is not typing, it is admitting what is wrong."
+ * Erik replaced them with two curiosity cards — a question generator and Populer — which reverses
+ * exactly that. The rule underneath survives the reversal: DESIGN.md still says the empty state
+ * TEACHES, and it still needs an element to bind. So the assertions move to what now carries the
+ * teaching, rather than being dropped along with the markup they described.
+ *
+ * The confessional path is not gone; it moved to the composer's own placeholder, which is asserted
+ * below so it cannot quietly follow the seeds out.
+ */
 describe("the empty state teaches — DESIGN.md's rule needs an element to bind", () => {
-  test("the landing ships seeds", () => {
+  test("the landing ships the two cards", () => {
     const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
-    const seeds = html.match(/class="seed"/g) ?? [];
-    expect(seeds.length).toBeGreaterThanOrEqual(3);
-    expect(seeds.length).toBeLessThanOrEqual(4);
+    expect(html).toMatch(/class="seed-card"[^>]*id="seed-ask"/);
+    expect(html).toMatch(/class="seed-card"[^>]*id="seed-pop"/);
   });
 
-  test("every seed speaks in the reader's own voice, not the app's", () => {
+  test("the cards live inside .seeds, so the composer still docks above them", () => {
+    // landing.test.ts asserts the composer is inserted BEFORE `.seeds`. Changing the container's
+    // contents is fine; changing its identity would silently break that ordering rule.
     const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
-    const texts = [...html.matchAll(/class="seed">([^<]+)</g)].map((m) => m[1]!.trim());
-    expect(texts.length).toBeGreaterThan(0);
-    // First person / confessional. A seed that reads like a search query ("ayat tentang sabar")
-    // teaches the wrong thing: this app is answered by saying what is wrong, not by naming a topic.
-    for (const t of texts) {
-      expect(t, `seed "${t}" is not in the reader's voice`).toMatch(/^(aku|lagi|baru|cemas|gue|saya)\b/i);
-    }
+    const seeds = html.slice(html.indexOf('<div class="seeds">'));
+    expect(seeds.indexOf('id="seed-ask"')).toBeGreaterThan(0);
+    expect(seeds.indexOf('id="seed-pop"')).toBeGreaterThan(0);
+  });
+
+  test("the confessional invitation survives the swap — it moved to the composer, it did not vanish", () => {
+    const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
+    expect(html).toMatch(/placeholder="[^"]*[Cc]eritakan/);
   });
 });
