@@ -7,14 +7,57 @@ Read `PROGRESS.md` first (top two checkpoints, both 2026-08-12 night). Anchor: `
 
 ---
 
-## 1. DEPLOY FIRST — nothing from the last session is live
+## 0. START HERE — the app goes silent on any question whose answer is a hadith
 
-Three commits of server-side work are pushed and **undeployed**. The classifier gates prod deploys
-to Erik, so ask him to run it; do not attempt it yourself.
+**Erik hit this live and it is the failure his users will hit most.** Reproduced cold, 2/2:
 
 ```
-cd worker && bunx wrangler deploy
+curl -s -X POST https://new-quranku.axiara.ai/api/answer -H "Content-Type: application/json" \
+  -d '{"question":"apakah benar bahwa sakit itu akan menghapus dosa kita?"}'
+→ {"answer":null}
 ```
+
+**It is NOT a stale bundle** (an earlier diagnosis said so and was wrong — Erik's screenshot showed a
+full authored answer with verse cards one turn earlier, which only a synthesis bundle can render).
+**It is NOT the continuity gap** — it refuses with no history at all.
+
+**Cause:** the honest answer to that question is a hadith, not an ayah. The model writes
+*"Nabi ﷺ bersabda…"*, and `hadithShape` (`web/src/answer-guard.ts:156`) rejects any prophetic
+attribution with no resolvable marker. On this path **nothing can ever resolve one**:
+`web/src/answer.ts:110` calls `safeAnswer(prose, isRealAyah)` with only two arguments, so
+`isGroundedHadith` takes its default `() => false`. Every marker fails by construction, both retries
+reject, and the reader gets the cold silence Erik has now refused twice.
+
+**The fix, in order:**
+
+1. **Wire hadith grounding through.** `groundedHadithFrom` and `markersInProse` already exist in
+   `answer-guard.ts` and are unused on this path. Retrieve hadith for the turn, build the predicate
+   from the union of what was retrieved (PRD decision 13 — accumulate across calls, never per call),
+   and pass it as `safeAnswer`'s third argument. Until this lands, the hadith wall is not a wall, it
+   is a blanket refusal.
+2. **A guard rejection must never render as "nothing found".** Today `synthesizeAnswer` returns
+   `null` for *both* "no grounding" and "the guard rejected it", and `main.ts` renders the identical
+   silence. Distinguish them: when the model had something and the wall stopped it, say so and point
+   — *"ini jawabannya ada di hadis, bukan di ayat"* with a door into Hadis. **A pointer beats
+   silence** (already a recorded lesson on this repo — see the grounded-alias short-circuit).
+3. **Check the rights gate before displaying anything.** Hadith TEXT display is still ungated by the
+   ustadz (`SHOW_MACHINE_HADITH_TEXT=false`, and whether hadith text may EVER display is open). A
+   pointer to Hadis is safe today; rendering hadith text inside an answer is not. Do not conflate.
+
+**Also unresolved and related:** the same silence fires for any question the corpus cannot serve. The
+principled fallback copy (*"Aku belum menemukan ayat yang cocok…"*) is written for a retrieval miss
+and is actively misleading when the truth is "the wall stopped a good answer".
+
+## 1. Deploy — DONE 2026-08-12, but re-read this before the next one
+
+**Already deployed** at Erik's instruction: `new-quranku-proxy` version `ab5cddb6`, `EDITION:
+"synthesis"`, serving `index-n0j2Eeyk.js`. The fatwa-wall fix, both prompt rules and the Fikih card
+shape are all LIVE. Post-deploy measurement of the twelve questions: quoted-scripture 1 → **0**,
+`yang artinya` 2 → **1** (one residual leak in `apakah musik haram`), and the forced-grounding nikah
+case came back clean on all three shapes. ISC-419/420 verified live.
+
+For the NEXT deploy: `cd worker && bunx wrangler deploy`, always after
+`VITE_ANSWER_MODE=synthesis bun run build`.
 
 The synthesis bundle is already built and verified by the inlined literal
 ``function ss(){try{return `synthesis` ``. **Always rebuild with
