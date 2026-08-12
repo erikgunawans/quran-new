@@ -8,6 +8,45 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (late night, part 2) — the two holes I refused to wall are fixed upstream instead
+
+I left ISC-419 and ISC-420 unbuilt because building them as egress rules would have rejected
+`apakah musik haram` and `bolehkah perempuan jadi pemimpin` — the app's two best answers — and
+replaced them with the caption list Erik refused this morning. That reasoning was right about the
+wall and wrong about the location. **Both shapes enter at the prompt, and a prompt rule cannot cost
+a good answer.**
+
+- **Rule 2 was an invitation, not a rule.** It said *"you do not need to quote the translation
+  yourself"* — which is precisely why the model quoted anyway. Now: *never* write out an ayah's
+  translation, in any form, with the reason on the page (two renderings of one ayah on one screen,
+  ours and the model's, is the thing this app must never show).
+- **New rule 6 draws the line where it actually falls.** Scholars DIFFER — honest, stays, it tells
+  the reader the matter is contested. Scholars AGREE (`sepakat`, `ijma`, `tidak ada khilaf`) or a
+  named madzhab's position — no, because the app cannot show the reader the source.
+
+**The letter would have gone out with a false sentence in it.** `docs/review/hukum-pin-request-
+2026-08-12.md`, addressed to Ustadz Ahmad, still unsent, says **"Aplikasi tidak mengarang
+jawaban."** That has been untrue since the edition flipped this afternoon. Sending it would have
+misstated the app to the one person being asked to judge it. A blocking ⛔ header now stands above
+it carrying both that correction and the falsified premise, and says what the letter should ask
+instead: not *which verse for which question*, but *may the app compose fiqh from its model's own
+knowledge at all*.
+
+Gates: typecheck 0 · `bun test` **1183/0** · build 0 · synthesis bundle confirmed by the inlined
+literal. ISA 423/433. `766d0f8` on `origin/main`.
+
+**Worker NOT deployed — the classifier gates prod deploys to Erik.** Both the guard fix and the two
+prompt rules are server-side, so none of tonight's work is live until:
+
+```
+cd worker && bunx wrangler deploy
+```
+
+Then re-run the twelve-question harness and count the shapes again — the prompt fix is a claim
+about behaviour, and it is unverified until measured against live output.
+
+---
+
 ## 2026-08-12 (late night) — the urgent bug was bypassed, not fixed, and the bypass is the bigger exposure
 
 The session opened with one instruction: QS 4:25 is the most urgent thing in the repo, because
