@@ -8,6 +8,73 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (afternoon) — The Qur'an is recitation, and for a month it was 22 files
+
+The corpus half shipped yesterday: 6,236 ayahs into R2. None of it was reachable. `audio.ts` gated
+playback to four surahs and the Worker had no route, so the bucket was a private archive of
+something the app still refused to offer. Recitation is now live across all 114 surahs.
+
+**The ingest finished by rerunning, not by restarting.** It ended at 6,231/6,236 with five transient
+Cloudflare 520s. One rerun of the same command retried exactly those five and skipped the rest —
+818.3 MB total, under the ~991 MB projection. The journal records successes only, which is what
+makes `count === 6236` a real completeness gate: both known failures were verifiably ABSENT from it
+mid-run, so the count could not have been flattered by a failed upload.
+
+**The obvious fallback design would have fed the player a web page.** "Serve the 22 static files,
+fall back to R2 on a 404" cannot work here: `not_found_handling = "single-page-application"` makes
+`ASSETS.fetch("/audio/2/5.mp3")` return **index.html at status 200**. And this was not theoretical —
+it was live on prod and measured before the change: `/audio/2/255.mp3` → `200 text/html`, 20,444
+bytes. It went unnoticed for a month only because `hasAudio()` never rendered a button there. Had
+the manifest been widened without the route — the exact sequencing ISC-306 forbids — all 6,214 new
+buttons would have handed the `<audio>` element a web page. Order is R2-first, and the assets answer
+is accepted only on a `Content-Type` of audio, never on a status.
+
+**The widening cost zero bundle bytes.** `SURAH_INDEX` already inlines every surah's ayah count as
+the truth oracle, so the manifest literal was deleted rather than grown to 6,236 entries. Falsified,
+not assumed: a one-off bound fails exactly 3 tests.
+
+**Three deploy blockers were invisible to reading, and the audit found them.** `obj.range` is ALWAYS
+populated — R2 substitutes `{offset: 0, length: size}` when no Range was sent — so `obj.range ? 206
+: 200` could only ever choose 206. Cloudflare never stores a Worker-returned 206, so `immutable`
+would have been dead on arrival across all 6,236 objects: every play of every ayah reaching R2
+forever. Confirmed in the simulator's own source, not inferred. It would also have bought nothing —
+a zone-routed Worker never sees `Range`, the edge strips it and slices the full body itself. And
+with no `try`/`catch`, an R2 throw escaped to Cloudflare's 1101 page, **which is HTML** — the same
+failure the Content-Type fallback exists to prevent, reintroduced one layer down by the code that
+prevents it.
+
+**Then the fix for a fourth bug caused a fifth, and only the live probe caught it.** HEAD reported
+zero length (`writeHttpMetadata` does not write `Content-Length`). Routing HEAD through `head()`
+fixed that and broke something else: `head()` returns a bodyless object and the GET branch reads
+"no body" as "onlyIf refused", so every HEAD answered 304. The code reads correctly. Deploy exit 0
+said nothing. Only `curl -I` against the live edge said 304.
+
+**A failing probe with no control is not evidence of a failure.** The first in-browser playback test
+reported STALL at `readyState=0`. The control is the only reason it was not filed as a regression:
+`/audio/1/1.mp3` — the untouched sample that had served production for a month — stalled
+identically. Background tabs throttle media loading. Foregrounded, `2:255` loads with
+`duration = 52.0s`.
+
+**Live now** (version `aeb13a9d`): seven probes across 1:1, 2:255, 7:127, 9:70, 113:3, 36:1 and
+114:6 all return 200 `audio/mpeg` with sha256 matching the journal, including all three that had
+failed and been retried. `#/surah/2` renders 286 play buttons, exactly Al-Baqarah's ayah count,
+where there were zero. `/api/answer` still returns `{"answer":null}` and the CSS hash is unchanged
+from pre-deploy prod, so the trustworthy edition is uncontaminated.
+
+Also: `--remote` dropped from `src/okf/upload-text-layer.sh` — a wrangler v4 flag that is a hard
+error on the pinned v3.114, invisible because every put redirects to `/dev/null`.
+
+**ISC-331 said `worker/wrangler.toml` is untouched**, and this work touches it. Rather than
+reinterpret an anti-criterion to fit the work, ISC-379 restates the protected thing (no
+Vectorize/okf-corpus binding on the trustworthy edition, proven by `--dry-run`) and supersedes
+ISC-331 on its literal wording only. Flagged to Erik in-session, not decided quietly.
+
+**Open for Erik:** per-ayah reciter attribution, now that exposure went from 22 files to 6,236 on an
+UNVERIFIED licence (ISC-398). And `docs/review/hukum-pin-request-2026-08-12.md` is still BELUM
+DIKIRIM — Erik sends it himself; `hukum nikah siri` still answers with QS 4:25 in the meantime.
+
+---
+
 ## 2026-08-12 (evening) — The fix was in the wrong layer twice, and the audio was never ours to take
 
 Two pieces of work. The first killed the last surviving half of a PRD; the second answered a
