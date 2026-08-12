@@ -263,6 +263,22 @@ interface R2Bucket {
 
 const AUDIO_KEY = /^\/audio\/(\d{1,3})\/(\d{1,3})\.mp3$/;
 
+/** One place that decides what an audio response says about itself, so HEAD and GET cannot drift. */
+function audioHeaders(obj: R2Meta): Headers {
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set("Content-Type", "audio/mpeg");
+  headers.set("ETag", obj.httpEtag);
+  headers.set("Accept-Ranges", "bytes");
+  // Recitation is immutable per ayah — the key never changes content. Cache hard.
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  // writeHttpMetadata does NOT write this — R2HTTPMetadata carries contentType/Encoding/
+  // Disposition/Language/cacheControl/cacheExpiry and nothing about length. Left unset, a HEAD
+  // reports a zero-length file and a player treats the ayah as empty.
+  headers.set("Content-Length", String(obj.size));
+  return headers;
+}
+
 async function serveAudio(url: URL, request: Request, env: Env): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
@@ -291,39 +307,37 @@ async function serveAudio(url: URL, request: Request, env: Env): Promise<Respons
     // And it would have bought nothing: on a zone-routed Worker the edge STRIPS `Range` before
     // invoking us and asks for the full body, then does the slicing itself. Return a whole 200 and
     // let Workers caching serve the ranges — that is the documented shape, and it is also less code.
-    let obj: R2ObjectBody | R2Object | null;
+    // HEAD and GET are kept on SEPARATE branches, and that separation is load-bearing. The first
+    // version routed HEAD through `head()` and then reused the GET branch — but `head()` returns a
+    // bodyless object, and the GET branch reads "no body" as "onlyIf refused", so every HEAD came
+    // back 304. Found by probing the live deploy, not by reading the code: two different reasons
+    // for having no body had been collapsed into one branch.
     try {
-      // HEAD asks how big the file is, not for the file. `get()` would fetch every byte and then
-      // have the runtime throw the body away — a full egress charge for a response with no body.
-      obj =
-        request.method === "HEAD"
-          ? await env.AUDIO.head(key)
-          : await env.AUDIO.get(key, { onlyIf: request.headers });
+      if (request.method === "HEAD") {
+        // HEAD asks how big the file is, not for the file. `get()` would fetch every byte and have
+        // the runtime discard it — a full egress charge for a response that carries no body.
+        const meta = await env.AUDIO.head(key);
+        if (meta) return new Response(null, { status: 200, headers: audioHeaders(meta) });
+      } else {
+        const obj = await env.AUDIO.get(key, { onlyIf: request.headers });
+        if (obj) {
+          const headers = audioHeaders(obj);
+          if (obj.body !== undefined) return new Response(obj.body, { status: 200, headers });
+          // Bodyless HERE genuinely does mean `onlyIf` refused. R2 does not say WHICH precondition
+          // failed, but the request does: a failed If-None-Match/If-Modified-Since is 304, a failed
+          // If-Match/If-Unmodified-Since is 412. One status for both lies to half the clients.
+          const guarded =
+            request.headers.has("If-Match") || request.headers.has("If-Unmodified-Since");
+          // A 304 must not carry Content-Length — it describes a body that is not being sent.
+          headers.delete("Content-Length");
+          return new Response(null, { status: guarded ? 412 : 304, headers });
+        }
+      }
     } catch {
-      // R2 throws (unsatisfiable range, service error). WITHOUT this catch the throw escapes to
+      // R2 throws (service error, malformed conditional). WITHOUT this catch the throw escapes to
       // Cloudflare's 1101 page, which is HTML — handing the <audio> element a web page, the exact
       // failure the fallback below was designed to prevent. Silence is the honest answer here.
       return new Response("Not found", { status: 404 });
-    }
-    if (obj) {
-      const headers = new Headers();
-      obj.writeHttpMetadata(headers);
-      headers.set("Content-Type", "audio/mpeg");
-      headers.set("ETag", obj.httpEtag);
-      headers.set("Accept-Ranges", "bytes");
-      // Recitation is immutable per ayah — the key never changes content. Cache hard.
-      headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      // writeHttpMetadata does NOT write this — R2HTTPMetadata carries contentType/Encoding/
-      // Disposition/Language/cacheControl/cacheExpiry and nothing about length. Unset, a HEAD
-      // would report a zero-length file and a player would treat the ayah as empty.
-      headers.set("Content-Length", String(obj.size));
-      if ("body" in obj) return new Response(obj.body, { status: 200, headers });
-      // No body means `onlyIf` refused. R2 does not say WHICH precondition failed, but the request
-      // does: a failed If-None-Match/If-Modified-Since is 304, a failed If-Match/If-Unmodified-Since
-      // is 412. Collapsing both to one status lies to one half of the clients.
-      const guarded =
-        request.headers.has("If-Match") || request.headers.has("If-Unmodified-Since");
-      return new Response(null, { status: guarded ? 412 : 304, headers });
     }
   }
 
