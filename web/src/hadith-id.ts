@@ -84,21 +84,30 @@ export async function loadHadithIds(collection: string, book: number): Promise<H
 }
 
 /**
- * Whether machine-translated hadith TEXT may be shown. It may not.
+ * Whether machine-translated hadith TEXT may be shown. It may — since 2026-08-12.
  *
- * Bab titles are editorial apparatus — chapter headings, where a clumsy rendering is a bad heading.
- * Hadith text is the Prophet's ﷺ speech as transmitted, where a clumsy rendering is a fabricated
- * saying. The same repo already refused an unreviewed AI Indonesian rendering of the Dorar surah
- * preface on exactly these grounds, and `web/src/hadith-card.ts` states the rule for the other
- * surface: no Indonesian until Ustadz Ahmad approves THAT record, one hadith at a time.
+ * OPENED ON A SCHOLAR'S APPROVAL, recorded in `docs/review/hadith-id-approval-2026-08-12.md`.
+ * Ustadz Ahmad Isrofiel Mardlatillah approved displaying OUR machine translations as they are, relayed
+ * verbally by Erik. Read that file before touching this line: it records the exact scope, what was NOT
+ * approved, and the defect that was disclosed before the decision.
  *
- * Erik's ruling, 2026-08-10, after the text layer had briefly shipped: titles stay, text goes dark.
+ * The gate existed because bab titles and hadith text are not the same risk — a clumsy chapter heading
+ * is a bad heading, a clumsy hadith is a fabricated saying of the Prophet ﷺ — and that reasoning has
+ * not been refuted. What changed is who carries the judgement: it is now a scholar's call rather than
+ * this file's, which is the only kind of authority that could ever have opened it.
  *
- * This is a GATE, not a deletion. Generation continues, the sidecar under `web/public/hadith-id/`
- * stays exactly where it is, and flipping this to `true` — or better, replacing it with a per-record
- * approval check like `reviewed_id` — is all that "ship it" costs once a review exists.
+ * THE ACCEPTED RISK, so nobody rediscovers it as a surprise. This layer is measured to alter sense:
+ * `دُعَاؤُكُمْ إِيمَانُكُمْ` ("your supplication IS your faith") came back as "Doa kalian adalah
+ * BAGIAN DARI keimanan kalian" ("...is PART OF your faith") — a hedge the Arabic does not contain. It
+ * is fluent and plausible and no parity test can catch the next one. The risk is now accepted, not
+ * absent.
+ *
+ * WHAT DID NOT OPEN. `.is-ai` and the provenance notice stay on every machine-rendered line —
+ * permission to display is not permission to display unlabelled. `reviewed_id` in `hadith-card.ts`
+ * keeps its narrower meaning (a scholar checked THIS record's sentence) and must never be populated
+ * from this layer, or the data model loses its only way to tell "permitted" from "checked".
  */
-export const SHOW_MACHINE_HADITH_TEXT = false;
+export const SHOW_MACHINE_HADITH_TEXT = true;
 
 /**
  * The Indonesian rendering of one hadith, or null.

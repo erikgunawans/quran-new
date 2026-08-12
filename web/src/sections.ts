@@ -114,7 +114,13 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <p class="hadith-note" role="note">Nama kitab diterjemahkan agar mudah dicari; <b>teks hadisnya tetap Arab</b> yang kanonik, beserta sumber dan derajatnya. Terjemahan teks hadis menyusul setelah lisensinya jelas dan ditinjau ustadz — kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
+      <!-- REWRITTEN 2026-08-12 when the Indonesian text gate opened. The old wording promised
+           "teks hadisnya tetap Arab" and that translation would follow "setelah ditinjau ustadz" —
+           both false the moment machine Indonesian began rendering, and the second one doubly so
+           because it implies what a reader now sees HAS been reviewed record by record. It has not:
+           the ustadz approved the method, not each sentence. Saying "Arab tetap yang kanonik" keeps
+           the true claim (the Arabic is the authority) without the false one. -->
+      <p class="hadith-note" role="note">Nama kitab diterjemahkan agar mudah dicari; <b>teks Arabnya tetap yang kanonik</b>, beserta sumber dan derajatnya. Terjemahan Indonesianya <b>hasil mesin (AI)</b> — sudah diizinkan ustadz untuk ditampilkan, tapi belum ditinjau satu per satu, jadi rujuklah teks Arabnya untuk kepastian. Kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
       <div class="hadith-controls">
         <div class="hadith-tabs" role="tablist" aria-label="Pilih koleksi">${tabs}</div>
         <input class="hadith-filter" type="search" placeholder="Cari kitab — nomor, nama Indonesia, atau Arab…" aria-label="Cari kitab" />
@@ -236,8 +242,16 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
         notice
           ? (() => {
               const m = textNeedsNotice(texts) ? texts.meta : ids.meta;
+              // "Menunggu tinjauan X" was true until 2026-08-12 and is now misleading: it reads as
+              // "not yet permitted", when the ustadz HAS permitted this display. What is still
+              // outstanding is per-record review, which is a different and weaker claim. The two must
+              // not be collapsed in either direction — implying blanket review would be worse than
+              // implying no permission. The generated file's own sentence ("Terjemahan mesin (AI),
+              // BELUM ditinjau ulama") stays exactly as written; only this suffix changed.
               return `<p class="hadith-note ai-note" role="note">${esc(String(m?.notice ?? ""))}${
-                m?.reviewerNeeded ? ` Menunggu tinjauan ${esc(String(m.reviewerNeeded))}.` : ""
+                m?.reviewerNeeded
+                  ? ` Sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadis belum dilakukan.`
+                  : ""
               }</p>`;
             })()
           : ""

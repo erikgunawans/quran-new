@@ -122,18 +122,28 @@ describe("hadith index render", () => {
     expect(first.getAttribute("href")).toMatch(/^#\/hadis\/bukhari\/\d+$/);
   });
 
-  test("the honesty note about withheld translation is always present", async () => {
+  test("the honesty note tells the truth about what the Indonesian text IS", async () => {
     mockFetch({ "/hadith/index.json": INDEX });
     await renderHadis(mount);
     expect(mount.querySelector(".hadith-note")).not.toBeNull();
-    // Tightened 2026-08-10, when the kitab TITLES became Indonesian. The old assertion read
-    // "Terjemahan Indonesia menyusul" — which stopped being true the moment a title was translated,
-    // and would have let the page keep claiming it. The note now has to distinguish the two, so the
-    // test does too: what is still withheld is the TEXT, and the reason is still review + licence.
-    expect(mount.textContent).toContain("teks hadisnya tetap Arab");
-    expect(mount.textContent).toContain("Terjemahan teks hadis menyusul");
-    expect(mount.textContent).toContain("ditinjau ustadz");
+    // Tightened 2026-08-10 when the kitab TITLES became Indonesian, and REWRITTEN 2026-08-12 when the
+    // TEXT gate opened. Both edits have the same cause: the note made a claim that a shipped change
+    // quietly falsified, and only a test naming the claim catches that.
+    //
+    // Now true: the Arabic is the canonical text, the Indonesian is machine output, and it is
+    // permitted-but-not-reviewed-per-record.
+    expect(mount.textContent).toContain("teks Arabnya tetap yang kanonik");
+    expect(mount.textContent).toContain("hasil mesin (AI)");
+    expect(mount.textContent).toContain("belum ditinjau satu per satu");
     expect(mount.textContent).toContain("tidak mengarang isinya");
+    // ANTI, and the whole point of rewriting rather than deleting this test. Two false claims are now
+    // one careless revert away, and they fail in OPPOSITE directions: the first tells a reader the text
+    // is still Arabic-only when Indonesian is on screen, the second implies a scholar checked these
+    // sentences when he approved the method and not the sentences. Understating permission is a smaller
+    // sin than overstating review, but the page must do neither.
+    expect(mount.textContent).not.toContain("teks hadisnya tetap Arab");
+    expect(mount.textContent).not.toContain("Terjemahan teks hadis menyusul");
+    expect(mount.textContent).not.toContain("sudah ditinjau ulama");
   });
 
   test("kitab cards carry an Indonesian title beside the canonical Arabic", async () => {
