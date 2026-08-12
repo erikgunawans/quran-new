@@ -8,6 +8,65 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 — The bug was in the PRD, and a 200 that meant nothing
+
+Two pieces of work, and both turned on the same discipline: **measure the thing itself, not a proxy
+for it.**
+
+**The hukum-routing PRD was falsified before a line of it was built.** `.scratch/tanya-hukum/PRD.md`
+recorded `matchTopic("hukum warisan") → perintah-dan-larangan` as the bug and `→ keluarga` as the
+fix, with step 1 and a regression test to pin it. Run end-to-end instead of at the `matchTopic`
+boundary, it inverts: `retrieveKnowledge("warisan")` → keluarga returns **zero entries**, while
+`retrieveKnowledge("hukum warisan")` → perintah-dan-larangan returns **QS 4:11**, the faraidh verse.
+Keluarga's 40 entries are marriage, talak and parenting; not one mentions inheritance. Building
+step 1 would have deleted a correct answer and pinned the deletion with a test. Confirmed on live
+prod in real Chrome: Erik's exact sentence already answers with 4:11. Erik approved dropping it.
+
+**Why the original diagnosis looked airtight:** `matchTopic` was probed in isolation and its output
+judged against intuition about where inheritance *should* live. Nobody asked the corpus where the
+inheritance verses actually are. **A routing function's return value is not evidence about an
+answer; only the answer is.**
+
+What was actually broken was one word. `tanya` — the commonest Indonesian question opener, and this
+app's own name for the feature — was missing from the speech-act stop list that already held
+`ceritakan`, `jelaskan`, `sebutkan`, `jawab`, `beritahu`. So "saya mau **tanya** tentang hukum
+warisan" ranked QS 10:94 *"Tanyakan kebenaran Al-Qur'an kepada Ahli Kitab"* second in an answer about
+inheritance, and had shipped that way. Fixed in `topic-words.ts`; `topic-subjects.ts` regenerated
+because the builder shares `STOP` (it dropped exactly `bertanya` and `tanyakan`). New suite
+`web/src/tanya-hukum.test.ts`, 11 tests, force-red verified at 3 fail → 11 pass, pinning the working
+behaviour so the next "fix" cannot quietly remove it. Pins measured, not assumed: bare `warisan` and
+`nikah` return 0 entries (pin candidates); riba/zakat/puasa/sholat already return 2–8 (no pin — a pin
+there can only regress); `pacaran` appears nowhere in the 2,451-entry index, so honest silence stays
+correct — routing it to the zina entries would be the app deciding pacaran IS zina, which is a ruling.
+
+**Then `/printing-press` over `quran.tarjamahtafsiriyah.com`** (Erik confirmed the site is his;
+rights gate cleared). Static analysis of the 944 KB bundle resolved the whole surface with no browser
+and no HAR. **Two findings worth more than the CLI:**
+
+1. **The site's Supabase project is deleted** — `pgrtoxdefycahfouwqgl.supabase.co` has no DNS record,
+   while `supabase.co` and `api.quran.com` resolve from the same host. A *paused* project keeps DNS
+   and answers 503; this one is gone. It backed exactly two tables, `from("daily_readers")` and
+   `from("users")`, so **the daily-readers counter and Google sign-in are broken in production right
+   now.** Reading is unaffected — Quran.com serves it.
+2. **A 200 that proved nothing.** `GET /data/surah.json` returned 200 and was briefly recorded as a
+   first-party data surface. Eleven filenames — including invented ones — all returned 200 at
+   *identical 9621 bytes*, the size of the HTML shell. The SPA answers every unmatched path. Only the
+   invented-name control exposed it. Same family as the deploy trap already on file, new shape.
+
+Live surfaces are all third-party and unauthenticated: `api.quran.com/api/v4` (`/chapters`,
+`/chapters/{id}/info`, `/juzs` — metadata only), `api.aladhan.com/v1` (prayer times),
+`nominatim.openstreetmap.org/reverse`, and recitation audio on GitHub Pages. **Unresolved:** where
+the tarjamah tafsiriyah verse text comes from — not `/data/`, not in the four route chunks pulled
+(zero Arabic codepoints in either), not in Supabase. That answer decides whether the CLI has any
+first-party content. No spec authored, no code generated; discovery is complete and staged at
+`~/printing-press/.runstate/quran-new-manual/runs/20260812-112720-qttcli01/research/`.
+
+typecheck 0 · `bun test` 1098/0 (+11) · build 0. ISA 382/388. Prod unchanged — `4d3434e` is local
+only and the deploy stays Erik's call.
+
+**Next:** topic pins for `warisan` + `nikah`; the third tafsir tier; then either resolve the QTT
+verse-text source or fix the dead Supabase.
+
 ## 2026-08-11 (evening) — Pengaturan shipped, and three checks that could not fail
 
 Four deploys, all verified by served bytes. **Kumpulan Doa** went live, then **Pengaturan** — a
