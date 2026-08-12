@@ -146,6 +146,25 @@ const PROPHETIC = [
   /\bdalam\s+(sebuah\s+)?(hadits|hadis|riwayat)\b/,
   /\b(hadits|hadis)\s+(riwayat|shahih|sahih|dari)\b/,
   /\bdiriwayatkan\s+(oleh|dari|bahwa)\b/,
+  // PASSIVE VOICE, subject AFTER the verb — the construction that leaked on prod at 2026-08-12 22:xx,
+  // minutes after the active-voice widening above was deployed and called done.
+  //
+  // Shipped to a reader: *"sakit dan musibah yang menimpa seorang mukmin memang bisa menjadi penghapus
+  // dosa, sebagaimana yang DIAJARKAN OLEH Rasulullah ﷺ"*. Two independent misses. The active patterns
+  // are anchored subject-then-verb, and Indonesian passive puts the agent last via `oleh`, so the whole
+  // clause reads backwards to them. And `diajarkan` is the `di-` passive of `mengajarkan`, which the
+  // list did not carry either — the same one-word-off failure as `menganjurkan`/`mengajarkan`.
+  //
+  // `diriwayatkan` directly above proves this shape was already known: it is exactly a `di-` passive
+  // taking `oleh`, and it was enumerated as a single word instead of as the construction it is. This
+  // pattern is the generalisation that should have been written then.
+  //
+  // No `bahwa` gate here, unlike the active weak verbs. `oleh <the Prophet>` names an AGENT, which is
+  // an attribution whatever follows — there is no "draws a lesson" reading of "diajarkan oleh
+  // Rasulullah" the way there is for "Kisah Nabi Yusuf mengajarkan kita kesabaran".
+  /\bdi(sabdakan|ajarkan|jelaskan|sebutkan|sampaikan|kabarkan|tuturkan|perintahkan|anjurkan|tegaskan|larang)\w*\b[^.!?]{0,24}\boleh\s+(nabi|rasul|rasulullah|beliau|muhammad)\b/,
+  // `menurut Nabi ﷺ` — the list already had `menurut (sebuah) hadits` but not the person himself.
+  /\bmenurut\s+(nabi|rasul|rasulullah|beliau)\b/,
   /\b(h\.?r\.?|hr)\s+(bukhari|muslim|tirmidzi|abu\s+dawud|nasa'?i|ibnu\s+majah|ahmad)\b/,
   /\bmenurut\s+(sebuah\s+)?(hadits|hadis)\b/,
 ];

@@ -141,6 +141,47 @@ describe("weak attribution verbs — the live leak", () => {
   });
 });
 
+/**
+ * PASSIVE VOICE — the second live leak, found minutes after the first fix was deployed and called done.
+ *
+ * The active-voice widening was verified against ONE phrasing and the model simply reached for another.
+ * Prod shipped: *"…memang bisa menjadi penghapus dosa, sebagaimana yang DIAJARKAN OLEH Rasulullah ﷺ"*.
+ *
+ * Two misses at once. The active patterns anchor subject-then-verb, and Indonesian passive puts the
+ * agent LAST via `oleh`, so the clause reads backwards to them. And `diajarkan` is the `di-` passive of
+ * `mengajarkan`, absent from the list exactly as `mengajarkan` had been absent beside `menganjurkan`.
+ *
+ * `diriwayatkan\s+(oleh|dari|bahwa)` had been in the list all along — itself a `di-` passive taking
+ * `oleh` — enumerated as one word instead of as the construction it is. The lesson is recorded in
+ * ISC-440: a vocabulary cannot close this, only a grammar can.
+ */
+describe("passive attribution — the second live leak", () => {
+  test("the exact prose prod shipped is refused", () => {
+    const live = "Jawabannya, ya, sakit dan musibah yang menimpa seorang mukmin memang bisa menjadi penghapus dosa, sebagaimana yang diajarkan oleh Rasulullah ﷺ.";
+    expect(guardAnswerProse(live, allow(), grounded()).ok).toBe(false);
+  });
+
+  test.each([
+    "Hal ini disabdakan oleh Nabi ﷺ dalam sebuah kesempatan.",
+    "Seperti dijelaskan oleh Rasulullah, sabar itu cahaya.",
+    "Sebagaimana disebutkan oleh beliau, amal tergantung niat.",
+    "Ini disampaikan oleh Nabi kepada para sahabat.",
+    "Menurut Nabi ﷺ, senyum itu sedekah.",
+    "Menurut Rasulullah, sakit menghapus dosa.",
+  ])("refuses: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(false);
+  });
+
+  test.each([
+    // `oleh` naming a NON-prophetic agent is how the app is supposed to speak, and must survive.
+    "Seperti dijelaskan oleh Al-Qur'an dalam QS 2:155, ujian itu pasti datang.",
+    "Doa ini disebutkan oleh Al-Qur'an dalam QS 26:80.",
+    "Menurut Al-Qur'an, kesabaran itu indah.",
+  ])("still ships: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow("2:155", "26:80"), grounded()).ok).toBe(true);
+  });
+});
+
 describe("weak attribution verbs must NOT block Qur'anic narrative", () => {
   // The reason the new verbs are a separate `bahwa`-gated pattern instead of more alternatives in the
   // original list. Measured before choosing the design: a flat widening rejects every one of these,
