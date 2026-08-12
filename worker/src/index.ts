@@ -60,6 +60,11 @@ export interface Env {
   /** Static-assets binding (web/dist). Serves the SPA straight from Cloudflare's edge — the app is
    *  100% static, so this replaces the Cloud Run backend. Revert = drop [assets] + proxyToOrigin. */
   ASSETS: { fetch(request: Request): Promise<Response> };
+  /** R2 binding (wrangler.toml top-level [[r2_buckets]]) — the full 6,236-ayah recitation, keys
+   *  `{surah}/{ayah}.mp3`. Absent → /audio/* degrades to the 22-file static sample in web/dist,
+   *  which is exactly today's behaviour. env blocks do NOT inherit this, so synthesis and demo
+   *  keep the sample and nothing about them changes. */
+  AUDIO?: R2Bucket;
   OPENROUTER_MODEL?: string;
   SEALION_BASE_URL?: string;
   SEALION_MODEL?: string;
@@ -194,6 +199,10 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       return handleClassify(request, env);
     }
 
+    // Recitation. Must be handled BEFORE the assets fetch below — see serveAudio for why falling
+    // through to it would return an HTML page with an audio Content-Type expectation.
+    if (url.pathname.startsWith("/audio/")) return serveAudio(url, request, env);
+
     // The app is 100% static — serve web/dist straight from Cloudflare's edge (no Cloud Run).
     // not_found_handling = "single-page-application" makes unmatched paths return index.html.
     // (proxyToOrigin is kept below, unused, so reverting to the Cloud Run backend is a one-liner.)
@@ -211,6 +220,95 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       return fresh;
     }
     return response;
+}
+
+// ── /audio/* — recitation, R2 first, static sample second ─────────────────────
+//
+// WHY R2 FIRST AND NOT THE OTHER WAY ROUND. The obvious design is "serve the 22 static files, fall
+// back to R2 on a 404" — and it cannot work here. `not_found_handling = "single-page-application"`
+// means `env.ASSETS.fetch("/audio/2/5.mp3")` returns **index.html at status 200**, not a 404. A
+// status-code fallback test would therefore never fire, and the <audio> element would be handed an
+// HTML document as its MP3. This is the same trap already recorded against SPA origins elsewhere in
+// this project (eleven non-existent /data/*.json paths that all returned one identical body); the
+// only sound test against an SPA is the BODY or the Content-Type, never the status.
+//
+// So: R2 answers if it holds the key. Otherwise the assets binding is consulted but its answer is
+// accepted ONLY if it is actually audio. Anything else becomes an honest 404 — a reader hearing
+// nothing is correct; a reader whose player chokes on HTML is a bug we shipped.
+//
+// With no AUDIO binding at all (synthesis, demo — env blocks do not inherit top-level bindings)
+// this collapses to "serve the static sample, else 404", which is today's behaviour exactly.
+// Minimal structural shims, the same way store.ts declares D1Database and distill.ts declares
+// KVNamespace — this repo does not pull in @cloudflare/workers-types. Deliberately NOT imported
+// from dalil.ts, whose own R2Bucket shim belongs to the Vectorize/okf-corpus surface that ISC-331
+// keeps off the trustworthy edition; a type import there would be the first thread of that coupling.
+interface R2Range {
+  readonly offset?: number;
+  readonly length?: number;
+  readonly suffix?: number;
+}
+interface R2Object {
+  readonly size: number;
+  readonly httpEtag: string;
+  readonly range?: R2Range;
+  writeHttpMetadata(headers: Headers): void;
+}
+interface R2ObjectBody extends R2Object {
+  readonly body: ReadableStream;
+}
+interface R2Bucket {
+  get(
+    key: string,
+    options?: { range?: Headers; onlyIf?: Headers },
+  ): Promise<R2ObjectBody | R2Object | null>;
+}
+
+const AUDIO_KEY = /^\/audio\/(\d{1,3})\/(\d{1,3})\.mp3$/;
+
+async function serveAudio(url: URL, request: Request, env: Env): Promise<Response> {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+  const m = AUDIO_KEY.exec(url.pathname);
+  if (!m) return new Response("Not found", { status: 404 });
+
+  // Number() normalizes a zero-padded request (/audio/01/007.mp3) onto the unpadded key the
+  // ingest wrote. Out-of-range numbers simply miss in R2 — the surah index is the app's oracle
+  // for what exists, and duplicating that bound here would be a second place to keep in sync.
+  const key = `${Number(m[1])}/${Number(m[2])}.mp3`;
+
+  if (env.AUDIO) {
+    // Passing the request headers straight through gives Range and If-None-Match handling for
+    // free: R2 returns a partial body (or none) and reports it on `obj.range`/`obj.body`.
+    const obj = await env.AUDIO.get(key, {
+      range: request.headers,
+      onlyIf: request.headers,
+    });
+    if (obj) {
+      const headers = new Headers();
+      obj.writeHttpMetadata(headers);
+      headers.set("Content-Type", "audio/mpeg");
+      headers.set("ETag", obj.httpEtag);
+      headers.set("Accept-Ranges", "bytes");
+      // Recitation is immutable per ayah — the key never changes content. Cache hard.
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+      const body = "body" in obj ? obj.body : null;
+      // 304 when onlyIf refused, 206 when a Range was honoured, else 200.
+      const status = body === null ? 304 : obj.range ? 206 : 200;
+      if (status === 206 && "range" in obj && obj.range) {
+        const r = obj.range as { offset?: number; length?: number; suffix?: number };
+        const offset = r.offset ?? 0;
+        const length = r.length ?? obj.size - offset;
+        headers.set("Content-Range", `bytes ${offset}-${offset + length - 1}/${obj.size}`);
+      }
+      return new Response(request.method === "HEAD" ? null : body, { status, headers });
+    }
+  }
+
+  const asset = await env.ASSETS.fetch(request);
+  const type = asset.headers.get("Content-Type") ?? "";
+  if (asset.ok && type.includes("audio")) return asset;
+  return new Response("Not found", { status: 404 });
 }
 
 // ── /api/compose — the framing prose (point, never author) ────────────────────

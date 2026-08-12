@@ -12,33 +12,40 @@
  * downloads until the reader actually taps play on that specific verse, same as how the text
  * shard architecture already works.
  *
- * MVP SCOPE. Only a small, real, working sample ships today (see MANIFEST) — Al-Fatiha plus the
- * three short surahs read at the end of most sessions (Al-Ikhlas, Al-Falaq, An-Nas). Scaling to
- * all 6,236 ayahs is thousands of individual fetches against a third-party host — a real ingest
- * run of its own, not something to do casually inside an unrelated session. `hasAudio()` tells
- * the truth about exactly what is and isn't available, the same "truth oracle" discipline the
- * surah index already follows — no verse ever claims audio it doesn't have.
+ * FULL CORPUS since 2026-08-12. It shipped for a year as a 22-ayah sample — Al-Fatiha plus the
+ * three short surahs read at the end of most sessions — because scaling to all 6,236 ayahs is
+ * thousands of individual fetches against a third-party host, an ingest run of its own. That run
+ * is `src/app/ingest-audio-r2.ts`; it filled the R2 bucket `new-quranku-audio` with keys
+ * `{surah}/{ayah}.mp3`, which is the exact URL shape `arm()` below already requested, so the
+ * player itself needed no change at all. The Worker serves those keys at `/audio/*`.
+ *
+ * WHY THERE IS NO LONGER A MANIFEST LITERAL. The old hand-written table listed four surahs. Its
+ * replacement is not a 6,236-entry literal — `SURAH_INDEX` already inlines every surah's true ayah
+ * count as the app's truth oracle, so "does this ayah have audio" collapses into "is this a real
+ * ayah", answered from a table the bundle was already carrying. Zero added bytes, and one fewer
+ * place that can disagree with the corpus.
+ *
+ * That equivalence is only honest while the bucket is COMPLETE. It is a claim about ingest state,
+ * not a tautology: the ingest journal is the gate (6,236 successful objects, failures absent by
+ * construction), and `audio.test.ts` asserts the bound rather than trusting it.
  *
  * Source: everyayah.com, Alafasy_64kbps, one of the most widely mirrored open per-ayah Qur'an
  * audio datasets (used by numerous other open Qur'an projects). License is UNVERIFIED — same
  * disclosed-but-unblocked status already accepted for the Tafsiriyah translation source
  * (`src/ingest/sources.ts`, "Unspecified — verify before redistribution"; see ISA.md §
- * Decisions, "Attribution risk accepted"). Files are downloaded once via `bun run app:audio`,
- * sha256-pinned in `src/app/audio.lock.json`, and served from `web/public/audio/` — production
- * never touches the third-party host.
+ * Decisions, "Attribution risk accepted"). Scaling 22 → 6,236 enlarges that accepted risk without
+ * changing its nature; per-ayah attribution in the UI is the open question it raises.
  */
+import { SURAH_INDEX } from "./surah-index.ts";
 
-/** Which (surah, ayah) pairs actually have a downloaded file. Inlined — zero network cost to
- * decide whether a play button should even render, exactly like the surah index. */
-const MANIFEST: Readonly<Record<number, readonly number[]>> = {
-  1: [1, 2, 3, 4, 5, 6, 7],
-  112: [1, 2, 3, 4],
-  113: [1, 2, 3, 4, 5],
-  114: [1, 2, 3, 4, 5, 6],
-};
+/** Ayah counts by surah, from the truth oracle. Built once — `SURAH_INDEX` is a 114-entry array
+ * and `hasAudio` is called per rendered verse. */
+const AYAH_COUNT: ReadonlyMap<number, number> = new Map(SURAH_INDEX.map((s) => [s.n, s.ayahs]));
 
 export function hasAudio(surah: number, ayah: number): boolean {
-  return MANIFEST[surah]?.includes(ayah) ?? false;
+  const count = AYAH_COUNT.get(surah);
+  if (count === undefined) return false;
+  return Number.isInteger(ayah) && ayah >= 1 && ayah <= count;
 }
 
 export const RECITER_NAME = "Syaikh Mishary Rashid Alafasy";
@@ -92,16 +99,16 @@ export function setPlayMode(next: PlayMode): void {
 /**
  * The next ayah that actually HAS audio, or null.
  *
- * Walks the manifest rather than assuming `ayah + 1` exists: only four surahs are downloaded today
- * (see the MVP note above), so "the next ayah" is frequently not a file. Auto-advance that 404s
- * would be worse than not advancing.
+ * Still asks `hasAudio` rather than returning `ayah + 1`, and still stops at the surah boundary
+ * rather than rolling into the next surah. Both matter more now, not less: with the full corpus
+ * behind it the only remaining `null` is the END of a surah, which is exactly where recitation
+ * should stop and wait for the reader — auto-advancing from An-Naas into Al-Faatiha would be the
+ * app deciding on its own what someone is reciting.
  */
 export function nextWithAudio(surah: number, ayah: number): { surah: number; ayah: number; ref: string } | null {
-  const list = MANIFEST[surah];
-  if (!list) return null;
-  const i = list.indexOf(ayah);
-  if (i < 0 || i + 1 >= list.length) return null;
-  const n = list[i + 1]!;
+  if (!hasAudio(surah, ayah)) return null;
+  const n = ayah + 1;
+  if (!hasAudio(surah, n)) return null;
   return { surah, ayah: n, ref: `${surah}:${n}` };
 }
 

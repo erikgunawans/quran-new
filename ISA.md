@@ -3,10 +3,10 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 382/388
+progress: 392/398
 mode: build
 started: 2026-07-13
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # New-Quranku — Ideal State Artifact
@@ -663,6 +663,27 @@ the tool loop, multi-turn eval and the main-app flip are later phases and have n
 - [x] ISC-378: Kumpulan Doa is LIVE. Prod `index-CTJQixra.js`, 193,867 B, SHA-256 identical to `web/dist`; `id="nav-doa"` present in served HTML; the two retired translation spans return 0 in the deployed bundle.
 - [x] ISC-371: the ISC-323.2 probe config can start at all. **MET.** It could not: `wrangler dev` refuses without `preview_bucket_name`, so the command documented in the handoff had been broken since the R2 binding landed. Fixed to point at the same bucket deliberately — the probe only reads, and a stand-in corpus cannot testify about live behaviour.
 - [ ] ISC-372: **NOT MET — ISC-323.2 remains open, but its blocker is now two named causes rather than one unknown.** With the config fixed, bindings resolve (`VECTORIZE: okf-hadith`, `CORPUS: okf-corpus`) and startup fails at "Could not create remote preview session on your account" — a Cloudflare-side/account-scope failure, distinct from the config bug. `wrangler whoami` is healthy (OAuth, `erik@axiara.ai`). Stopped after two attempts rather than looping.
+
+### Cycle 7 — recitation becomes audible (ISC-379..390)
+
+The corpus half of this shipped as an ingest on 2026-08-12: 6,236 ayahs into R2 `new-quranku-audio`.
+None of it was reachable. `web/src/audio.ts` gated playback to four surahs and the Worker had no
+route, so the bucket was a private archive of something the app already refused to offer. This
+cycle is the route plus the gate, deliberately as ONE change — widening the manifest first would
+have made `nextWithAudio` promise files no route could serve, which is ISC-306 exactly.
+
+- [x] ISC-379: Anti: the audio binding does not smuggle in the dalil surface — `wrangler deploy --dry-run` lists `AUDIO: new-quranku-audio` as the only R2 binding, and no `VECTORIZE`/`CORPUS`/`CORPUS_DIGEST`. **This ISC exists because ISC-331 said `worker/wrangler.toml` is untouched, and this cycle touches it.** ISC-331 was written to keep the Vectorize index and `okf-corpus` off the trustworthy edition until the ustadz-gated flip; it was not written about recitation. Rather than reinterpret an anti-criterion to fit the work, the protected thing is restated here as its own probe, and ISC-331 is superseded on its literal wording only. Erik notified in-session.
+- [x] ISC-380: Anti: `synthesis` and `demo` do not inherit the bucket — `--dry-run --env synthesis` lists no R2 binding at all. wrangler prints a warning urging the binding be added to `env.demo`; **the warning is the intended state** and the toml says so, or a future reader "fixes" it by putting a 991 MB bucket behind two Workers with no reason to serve recitation.
+- [x] ISC-381: Anti: the fallback never serves an HTML page as an MP3. `not_found_handling = "single-page-application"` makes `ASSETS.fetch("/audio/2/5.mp3")` return `index.html` at **status 200**, so the natural "assets first, fall back on 404" design could never have fired its fallback and would have handed the `<audio>` element a web page. Order inverted to R2-first, and the assets answer is accepted only on a `Content-Type` containing `audio` — never on status.
+- [x] ISC-382: the 22-file static sample still resolves after the change — `web/dist/audio/**/*.mp3` counts 22 after a clean build, and with the `AUDIO` binding absent the route collapses to exactly today's behaviour.
+- [x] ISC-383: `hasAudio` claims exactly 6,236 positions — counted by iteration in `audio.test.ts`, not asserted from the surah index it is derived from.
+- [x] ISC-384: the widening costs zero bundle bytes — `SURAH_INDEX` already inlines every ayah count as the truth oracle, so the manifest literal was deleted rather than grown to 6,236 entries.
+- [x] ISC-385: the corpus bound is falsifiable. **Force-red verified:** changing `ayah <= count` to `ayah <= count + 1` fails exactly 3 tests (the 6,236 count, the never-claims bound, and the surah-boundary stop); restoring returns 12/12.
+- [x] ISC-386: Anti: auto-advance still stops at the surah boundary — `nextWithAudio(2, 286)`, `(9, 129)`, `(114, 6)` all return null. The full corpus makes this guard MORE load-bearing, not decorative: rolling An-Naas into Al-Faatiha would be the app deciding what someone is reciting.
+- [x] ISC-387: Anti: a non-position is never offered a file — `hasAudio(1, 1.5)`, `(1, 0)`, `(1, NaN)`, `(0, 1)`, `(-1, 1)` are all false. `/audio/1/1.5.mp3` is not a key the ingest ever wrote.
+- [x] ISC-388: gates green on the changed tree — `bun run typecheck` exit 0, `bun test` 1113 pass / 0 fail, `bun run build` exit 0, all checked by exit code and not by reading output.
+- [ ] ISC-389: the ingest journal reaches 6,236 successful objects, including the two transient-520 failures (7:127, 9:70) that a rerun retries. **NOT YET MET** — 5,403 at the time of writing, run still live as PID 27278. The journal records successes only, verified by both failures being absent from it, so `count === 6236` is a sound completeness gate rather than a hopeful one.
+- [ ] ISC-390: recitation is audible in production for an ayah outside the old sample — a live probe of `/audio/2/255.mp3` returns `audio/mpeg` with a body whose sha256 matches the journal. **BLOCKED on Erik's deploy decision;** nothing is deployed.
 
 ## Test Strategy
 

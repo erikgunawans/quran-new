@@ -21,6 +21,25 @@ directory = "../web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 
+# Recitation — the full 6,236-ayah Alafasy corpus (~991 MB), keys `{surah}/{ayah}.mp3`, filled by
+# `bun run src/app/ingest-audio-r2.ts`. Too large for git and far too large for the assets bundle,
+# which is why it is a bucket and not `web/public/audio/`. The 22-file static sample stays in
+# web/dist untouched and still answers if this binding is ever removed (see serveAudio in index.ts).
+#
+# DELIBERATELY TOP-LEVEL ONLY. wrangler env blocks do not inherit top-level bindings, so synthesis
+# and demo do not get it — their /audio/* keeps serving the 22-file sample, unchanged.
+# `wrangler deploy --env demo` therefore prints: «"r2_buckets" exists at the top level, but not on
+# "env.demo" … Please add "r2_buckets" to "env.demo"». THAT WARNING IS THE INTENDED STATE, not a
+# defect to fix. Adding the binding to those two envs would put a ~991 MB bucket behind two Workers
+# that have no reason to serve recitation. Verified by `--dry-run`: synthesis lists no R2 binding.
+#
+# This edit is the ONE exception to ISA ISC-331 ("worker/wrangler.toml is untouched"), which was
+# written to keep the DALIL surface — the Vectorize index and the okf-corpus bucket — off the
+# trustworthy edition until the ustadz-gated flip. No such binding is added here; see ISC-379.
+[[r2_buckets]]
+binding = "AUDIO"
+bucket_name = "new-quranku-audio"
+
 [vars]
 # Retained for the (now-unused) proxy path, so reverting to Cloud Run is a one-line change.
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
