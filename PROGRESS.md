@@ -8,6 +8,88 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (late night wrap) — the wall was open, and verifying the fix is what found it
+
+**Anchor:** `origin/main` `e1ba9cf`. Clean tree except untracked `WARP.md` (leave it).
+**Gates:** `bun test` 1216/0 exit 0 · typecheck exit 0 · build exit 0. ISA 436/451.
+**Prod:** worker `88e17cff`, `EDITION: "synthesis"`, bundle `index-C8Ur3EzZ.js` confirmed served.
+
+### What was asked
+
+Resume the handoff's item 0: the app returned `{"answer":null}` for any question whose honest answer
+is a hadith. The handoff named the fix — pass the hadith-grounding predicate as `safeAnswer`'s third
+argument at `web/src/answer.ts:110`.
+
+### The named fix was a no-op, and shipping it would have closed the item having changed nothing
+
+Reproduced cold with a control (hadith question → null; ayah question → full answer), so the bundle
+and endpoint were healthy. Then tested the prescribed fix instead of implementing it. The wall is
+unpassable at **three independent layers**, each sufficient alone:
+
+- `worker/src/index.ts:509` passed the guard two arguments — the layer the handoff named
+- `handleAnswer` never calls `searchDalil`, so nothing is retrieved and `groundedHadithFrom([])` is
+  byte-identical to the default — **not in the handoff**
+- `SYNTHESIS_SYSTEM_PROMPT` never teaches `[H:collection:number]` (zero mentions in
+  `answer-contract.ts`), so the model *cannot* emit a receipt regardless — **not in the handoff, and
+  the deepest layer**
+
+The live call site was also the Worker, not `answer.ts:110`. Pinned as a regression test (ISC-433).
+
+### Shipped (commit `beb71ed`) — a refusal is not an absence
+
+`/api/answer` returns `{answer, blocked}` naming the rule that refused. `AnswerBlockedError` carries it
+across the `AnswerModel` contract. `synthesizeAnswer` returns `SynthesisOutcome | null` with `null`
+keeping its old meaning. `hadith-defer` points at the Hadis tab; `answer-blocked` covers the other
+three refusals, but only where the fallbacks *also* came up empty.
+
+The advisor call changed the work twice: the first copy draft opened *"Aku menemukan jawabannya"*,
+which for a yes/no question **is** the answer — an unreceipted prophetic claim wearing a pointer
+costume — and the scope had fixed one of four exits while three still emitted copy already classified
+as misleading. Both corrected before commit.
+
+### Then the live probe found the real hole (commit `e1ba9cf`)
+
+Deployed, then asked the question in real Chrome. **Prod published an unreceipted hadith:**
+
+> "Benar, sakit adalah salah satu bentuk ujian yang bisa menjadi penghapus dosa … Rasulullah
+> shallallahu alaihi wasallam **mengajarkan** bahwa tidaklah seorang muslim tertimpa kelelahan,
+> penyakit, kesedihan, bahkan duri yang menusuknya, melainkan Allah akan menghapuskan sebagian dari
+> dosa-dosanya."
+
+`guardAnswerProse` on that exact prose: `ok = true`, **zero violations**. `PROPHETIC` carried
+`menganjurkan`, not `mengajarkan`. Leaking verbs measured: `mengajarkan`, `menjelaskan`,
+`menyebutkan`, `memberitahu`. Pre-existing — my commit does not touch `answer-guard.ts`.
+
+Erik's explicit call: widen and deploy. Fixed with a `bahwa`-gated second pattern plus a direct-speech
+variant, because a flat widening rejects *"Kisah Nabi Yusuf mengajarkan kita arti kesabaran"* —
+measured, not assumed. Existing verbs untouched, so the change only ever adds refusals.
+Verified live: the attribution is gone.
+
+### Open, and the reason this stopped here
+
+**The pointer does not fire in production.** The app now refuses correctly but renders the OLD
+`silence` copy, not `hadith-defer`, and no `/api/answer` request appears in the network log for that
+turn. Two candidate causes, neither established: the client's 12s `TIMEOUT_MS` aborting before the
+slower double generation returns (a timeout is by design an absence → silence), or something routing
+the question away from the synthesis branch before the fetch. The same question DID author on the
+previous bundle and the only client delta is the guard, which points at the timeout — not evidence.
+
+Prod is SAFE: it refuses rather than fabricates. The remaining failure is the misleading-copy one,
+which is what this question did all morning — no regression, and strictly better than the leak.
+
+### What this says about our evidence discipline
+
+Every claim about this wall to date was verified against prose **we wrote**, never against what the
+model emits. That is why an open wall read as a closed one for two sessions, and why the
+silence-vs-answer flip was misdiagnosed first as a stale bundle and then as a blanket refusal. A
+guard's test corpus has to come from production output. ISC-440 stays open: the verb list is still an
+enumeration, so the next unlisted synonym leaks identically.
+
+Also corrected: ISC-436 was filed `[DEFERRED-VERIFY]` when the probe was perfectly possible — that is
+how a failure gets recorded as a pending task.
+
+---
+
 ## 2026-08-12 (wrap) — shipped, measured, and then Erik found the hole none of it covered
 
 Deployed at Erik's word: `new-quranku-proxy` version **`ab5cddb6`**, `EDITION: "synthesis"`, serving

@@ -1,3 +1,147 @@
+# Next session — New-Quranku (checkpoint 2026-08-12 late-night wrap)
+
+> Written by /wrap 2026-08-12 late night. Anchor `origin/main` `e1ba9cf`. Supersedes the earlier
+> 2026-08-12 anchor `4c3cbcc`+. **Two deploys shipped this session** (`ab5cddb6` → `c7999a77` →
+> `88e17cff`). The previous handoff's item 0 is DONE but did not ship as written — read §0 before
+> assuming anything about the hadith wall.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-12 late night).
+
+**Gates GREEN:** `bun test` 1216/0 exit 0 · typecheck exit 0 · build exit 0. ISA 436/451.
+**Prod:** worker `88e17cff`, `EDITION: "synthesis"`, bundle `index-C8Ur3EzZ.js` confirmed served.
+Clean tree except untracked `WARP.md` — leave it. No open PRs.
+
+---
+
+## 0. START HERE — the hadith pointer does not fire in production
+
+The wall now correctly refuses an unreceipted hadith. But the reader gets the **OLD misleading copy**
+(*"Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi"*), not the
+`hadith-defer` pointer that was built and deployed for exactly this case.
+
+**Reproduce (real Chrome, Interceptor — the curl path is classifier-blocked):**
+
+```
+interceptor tab new "https://new-quranku.axiara.ai"
+interceptor eval --main "localStorage.clear()"          # a restored thread WILL fool you — see below
+interceptor navigate "https://new-quranku.axiara.ai/"
+interceptor eval --main "var q=document.querySelector('#q'); q.focus(); q.value='apakah benar bahwa sakit itu akan menghapus dosa kita?'; q.dispatchEvent(new Event('input',{bubbles:true})); q.form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))"
+interceptor wait 20000
+interceptor eval --main "var t=document.querySelectorAll('#thread > *'); 'turns='+t.length+'|'+t[t.length-1].innerText.slice(0,300)"
+```
+
+**COUNT THE TURNS, both before and after.** A restored thread cost a full diagnostic pass this
+session: the count stayed 5→5, the page showed a plausible answer, and it was a turn from an earlier
+session — not a fresh one. `turns` must INCREMENT or the submit did not fire and the reading is void.
+
+**What is known:** no `/api/answer` request appears in the network log for that turn, so synthesis is
+not reaching the endpoint on this path.
+
+**Two candidate causes. NEITHER is established — do not inherit a guess as a finding:**
+
+1. **The client's 12s timeout.** `TIMEOUT_MS = 12000` in `web/src/answer-live.ts`. The widened wall
+   means the first candidate is now rejected more often, so the Worker runs TWO generations, which can
+   exceed 12s. The client aborts, and an abort is BY DESIGN an absence (not a refusal), so it renders
+   `silence`. This is the hypothesis the evidence leans toward — the same question DID author on the
+   previous bundle `CaAavd7d` and the only client-side delta is the guard — but leaning is not proof.
+2. **Routing.** Something sends the question away from the synthesis branch before the fetch
+   (`web/src/main.ts` ~line 620, `isSynthesis() && ref.kind === "not-a-ref" && corpus && !referral`).
+
+**How to settle it in one step rather than guessing:** instrument the Worker's timing, or temporarily
+raise `TIMEOUT_MS` and re-probe. If (1), the fix is NOT simply a bigger timeout — a 25s wait on a
+religious question is its own product failure. Consider returning `blocked` from the FIRST rejection
+without retrying, since for a hadith the retry is spent rather than a chance (already proven
+deterministic in `answer-blocked.test.ts`).
+
+**Prod is SAFE meanwhile:** it refuses rather than fabricates. The remaining failure is the
+misleading-copy one, which is what this question did all morning — no regression.
+
+## 1. ISC-440 — the verb list is still an enumeration
+
+`PROPHETIC` now catches `mengajarkan`, `menjelaskan`, `menyebutkan`, `memberitahu`, `mengabarkan`,
+`menuturkan`, `menyampaikan`, `menegaskan`, `mengungkapkan` (the last group gated on `bahwa` or direct
+speech). **The next unlisted synonym leaks identically.** A construction-level test — attribution
+grammar rather than vocabulary — is the real fix and is NOT built.
+
+**Do NOT narrow any existing pattern.** Widening only ever adds refusals; narrowing is how a
+fabricated hadith ships. And any new verb needs the `bahwa` gate, because a flat addition rejects
+*"Kisah Nabi Yusuf mengajarkan kita arti kesabaran"* — measured, in `answer-guard-hadith.test.ts`.
+
+## 2. ISC-434 / ISC-435 — the real hadith-answer path, still blocked on the ustadz
+
+Hadith answers cannot work until BOTH land, and neither should land before Ustadz Ahmad rules on
+whether hadith text may display at all — a resolving marker is only useful if a card may render.
+
+- **ISC-434:** wire `searchDalil` (`worker/src/dalil.ts`, fully built — `capForDisplay`,
+  `MAX_DISPLAY=2`, `fetchDisplayRecords`, ids already in the `hadith-bukhari-6962` shape the guard
+  validates) into `handleAnswer`. Probe: `grep -c searchDalil worker/src/index.ts` > 0.
+- **ISC-435:** teach `SYNTHESIS_SYSTEM_PROMPT` (`web/src/answer-contract.ts`) the
+  `[H:collection:number]` syntax. Zero mentions today. Probe: `grep -c 'H:'` > 0.
+
+## 3. Continuous chat — the build Erik asked for, not started
+
+Full spec `.scratch/continuous-chat/PRD.md`. Read it before touching anything. `AnswerBody`
+(`worker/src/index.ts`) still has no history field. **Four open questions for Erik are in the PRD —
+ask them before building.** Settled and not to be re-opened: tabs stay, continuity is local-now /
+adopts-on-sign-in, the warm ustadz voice is already right.
+
+**ISC-418 should gate this.** Prod answers with NO grounding and ignores grounding it IS given.
+Continuity built on that makes it worse: a model citing its own earlier ungrounded claim reads as
+consistency, which reads as authority.
+
+## Standing constraints (carried forward — all still true, plus three new)
+
+- **NEW — a guard's test corpus must come from PRODUCTION OUTPUT, not prose you write.** An open wall
+  read as closed for two sessions because every test case was authored by us. Probe live, then pin.
+- **NEW — count turns in `#thread` before AND after; a restored thread looks like a fresh answer.**
+- **NEW — `curl` to prod `/api/answer` is classifier-blocked.** Use Interceptor. Foreground `sleep` is
+  blocked too; use `interceptor wait`.
+- **Verify the edition by the INLINED LITERAL, never a grep.** `grep -c synthesis` returns 1 in both
+  editions. The distinguisher is Vite's fold: ``function ss(){try{return`synthesis` ``. Backtick
+  quoting in zsh will make a correct probe look like a failure — quote carefully.
+- **Deploys run from `worker/`**, never the repo root, always after `VITE_ANSWER_MODE=synthesis bun run
+  build`. A plain build produces a PRINCIPLED bundle and silently un-authors prod. The root
+  `wrangler.jsonc` shadow is GONE (checked this session).
+- **Check the EXIT CODE, not the tail** — and note `$PIPESTATUS` is empty in zsh (it is `$pipestatus`).
+  Redirect to a file and read `$?`.
+- `bun run build` exits 1 on unparseable CSS but **0 when the parser silently DISCARDS rules**.
+- **Before believing any geometry measurement, check the loaded stylesheet/bundle hash against disk.**
+- **A grep needs a CONTROL.** Against a SPA origin compare body hashes or Content-Type, never status.
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Use `pgrep -fl`, never `ps aux | grep`. Interceptor screenshots are unavailable while Chrome is
+  minimized — state it once, never loop; `eval --main` probes work fine and are the evidence to use.
+- Do NOT restart the hadith generator (stopped at 1,746/14,736 on purpose). Do NOT rebuild the
+  tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut remaining `keluarga`
+  aliases.
+
+## Open items waiting on Erik
+
+- **Whether hadith text may EVER display** — blocks ISC-434/435 entirely. With Ustadz Ahmad.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision. A
+  heads-up is not a cleared gate.
+- **ISC-418** — is a model answering fiqh from its own parametric knowledge the product, or a defect?
+- **Copy review** — ~10 sentences of new Indonesian shipped this session (`hadith-defer`,
+  `answer-blocked`, in `main.ts` and `web/demo/demo.ts`). Worth Erik's eye; consider IndonesianPolish.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED and must not be sent as written** — it
+  says *"Aplikasi tidak mengarang jawaban"*, false since the edition flipped. A ⛔ header records it.
+  Needs rewriting around whether the app may compose fiqh at all, not the pin list.
+- `gimana bersikap ke teman yang beda agama` held out of the question pool pending his eye.
+- An equal-weight three-scholar disclosure was recommended and NOT built.
+- quran.tarjamahtafsiriyah.com's Supabase project is DELETED — sign-in and the daily-readers counter
+  are broken in prod. Bears on the "adopts on sign-in" half of the continuity build.
+- Written confirmation of Ustadz Ahmad's VERBAL doa approval (do not upgrade
+  `docs/review/doa-provenance.md` to written).
+- CC BY-ND 3.0 label on `tanzil-id-kemenag` is stronger than the evidence. LPMQ surat permohonan;
+  equran.id permission. everyayah licence is an ACCEPTED, DOCUMENTED risk — do not reopen.
+
+## Not started
+
+- Aqeedah Ar→Id in `~/printing-press/library/tafseer-okf`. Read `.planning-aqeeda-id-resume.md` FIRST;
+  `bun run aqeeda:verify-id` must exit 0. NEVER import or wrap `tool/translate-aqeeda-id.ts`
+  (self-invoking).
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-12 wrap)
 
 > Written by /wrap 2026-08-12. Anchor `origin/main` `4c3cbcc`+. Supersedes the 2026-08-12-night
