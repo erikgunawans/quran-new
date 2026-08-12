@@ -35,6 +35,35 @@
 .sf-panel,
 .sf-handle { pointer-events: auto; }
 
+/* ── the room the collapsed strip needs (Erik, 2026-08-12) ───────────
+   "the search bar at the bottom will have a little bit of space with Tentang & navigasi when it's
+   hidden."
+
+   Measured on #/baca before changing anything: the docked search bar ran 652→707 while the strip
+   occupied 696→715 — an ELEVEN-PIXEL OVERLAP, with the bar's bottom edge inside the strip. Worth
+   recording that this predates the strip's redesign: the old full-bleed bar sat at 696→721, so the
+   dock was already overlapping it. Making the strip a distinct surface is what made a collision
+   that had always been there finally visible.
+
+   Declared as a token and ADDED to the dock's own padding rather than edited into shell.css's
+   constants. Those numbers (`0 6px 14px 294px`, `scroll-padding-bottom: 96px`) were each tuned
+   against something specific and carry comments explaining what; retrofitting a correction into a
+   tuned constant destroys the reason it holds. The footer owns the strip, so the footer reserves
+   the room for it. */
+:root { --sf-reserve: 34px; }
+
+/* The dock: lift it clear of the strip. `padding-bottom` is shell.css's 14px plus the reservation,
+   restated here as one value because CSS cannot add to a shorthand it does not own. */
+:root:not([data-landing]) #composer-bar { padding-bottom: calc(14px + var(--sf-reserve)); }
+
+/* The ramp under the dock is a separate absolutely-positioned layer (shell.css:576) and must rise
+   with it, or it paints a band across the strip. */
+:root:not([data-landing]) #composer-bar::before { bottom: calc(6px + var(--sf-reserve)); }
+
+/* And the content itself: a scroll that stops flush with the dock now stops flush with the strip
+   too, so the last line of a surah could sit under it. */
+:root:not([data-landing]) .qk-panel-body { scroll-padding-bottom: calc(96px + var(--sf-reserve)); }
+
 /* Track the sidebar, same sibling combinator the composer dock uses (shell.css:614). */
 .qk-shell[data-nav="closed"] ~ .site-footer { left: 8px; }
 
