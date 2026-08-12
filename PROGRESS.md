@@ -8,6 +8,47 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (late) — a question generator needs evidence before it needs a button
+
+Erik asked for a landing refresh: an expandable footer, delete the four feeling-seeds, and replace
+them with a random-question generator and a Populer modal. **The UI is not built.** What got built
+is the thing that had to come first, and it was worth the whole session's remaining budget.
+
+**Why the pool needed evidence rather than taste.** The generator hands its output straight to
+Tanya. Anything in the pool that retrieves badly converts a failure a user had to TYPE into one the
+app OFFERS, unprompted — and `apa hukum nikah siri` still answers with QS 4:25 *"Nikahi budak
+perempuan dengan izin tuannya"*, live. So 30 Gen Z curiosity questions were probed before a line of
+UI was written. Family-law rulings were excluded from the candidate set by construction.
+
+**The probe was wrong twice, both times in this repo's signature way.** v1 called `retrieve()` only
+— but `main.ts:534` routes `looksFactual(q)` to `retrieveKnowledge` FIRST, so every factual
+candidate was being measured against a lane the app never reaches for it. That is the third time
+this exact error has appeared here, after both halves of the tanya-hukum PRD.
+
+v2 reached the knowledge lane and reported **KNOWLEDGE 0 across all 30** — which read as a
+devastating finding about the corpus and was a pure artifact: `retrieveKnowledge` →
+`peta-data.ts:80` → `fetch("/peta/index.json")`, and a bun script has no server, so every call
+rejected and returned null. **Silence from a lane you could not reach is not evidence the lane is
+empty.** Corrected by resolving root-relative URLs against `web/public`.
+
+The number moved from **SILENT 17 → SILENT 7**. Final: KNOWLEDGE 12 · FEELING 11 · SILENT 7 of 30.
+Had the pool been chosen on v1 or v2, it would have been chosen from a false number.
+
+**One result held back for review:** `gimana bersikap ke teman yang beda agama` → 
+`perintah-dan-larangan` (8 entri). "beda agama" is the exact phrasing that fails elsewhere in this
+app; a routing hit is not proof the entries answer the question.
+
+**Two constraints recorded for the build**, both of which would otherwise be discovered late:
+`landing.test.ts` asserts the composer docks ABOVE `.seeds`, so that test is updated rather than
+deleted; and DESIGN.md must be AMENDED, because `index.html:246` records that the seeds were
+deleted once in the hero distillation and deliberately restored on 2026-08-09 — *"the hard part of
+this app is not typing, it is admitting what is wrong."* Replacing confession-openers with
+curiosity-openers changes what the front door invites, and that belongs in writing.
+
+Full build spec for all four pieces is in `.planning/next-session-prompt.md`. Prod untouched.
+
+---
+
 ## 2026-08-12 (afternoon) — The Qur'an is recitation, and for a month it was 22 files
 
 The corpus half shipped yesterday: 6,236 ayahs into R2. None of it was reachable. `audio.ts` gated
