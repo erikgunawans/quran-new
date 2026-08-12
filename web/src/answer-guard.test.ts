@@ -103,6 +103,21 @@ describe("guardAnswerProse — no fiqh verdict may be issued", () => {
     expect(guardAnswerProse(prose, allow()).ok).toBe(false);
   });
 
+  // The amnesty used to be a flat word list, and the words that bought amnesty were the ones that
+  // appear in the strongest rulings a model can issue. Naming the scholars is not deferring to them.
+  test("an ijma' claim is a verdict, not a hedge", () => {
+    expect(guardAnswerProse("Para ulama sepakat perbuatan itu haram.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Menurut fatwa, perbuatan itu haram.", allow()).ok).toBe(false);
+    expect(guardAnswerProse("Kata ustadz perbuatan itu haram.", allow()).ok).toBe(false);
+  });
+
+  // The amnesty must fire on a CONSTRUCTION that defers, not on proximity to an authority's name.
+  test("only a real deferral buys the amnesty", () => {
+    expect(guardAnswerProse("Aku tidak bisa memutuskan itu haram atau tidak.", allow()).ok).toBe(true);
+    expect(guardAnswerProse("Untuk itu haram tidaknya, tanyakan kepada ustadz.", allow()).ok).toBe(true);
+    expect(guardAnswerProse("Wallahu a'lam, sebagian menyebut itu makruh.", allow()).ok).toBe(true);
+  });
+
   test("safeAnswer returns null on a fatwa so the caller falls back to principled", () => {
     expect(safeAnswer("Hukumnya wajib.", allow())).toBeNull();
   });

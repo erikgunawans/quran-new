@@ -8,6 +8,63 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (late night) — the urgent bug was bypassed, not fixed, and the bypass is the bigger exposure
+
+The session opened with one instruction: QS 4:25 is the most urgent thing in the repo, because
+synthesis DRESSES retrieval and `nikah beda agama` now answers fluently and wrongly. **That premise
+is false, and it took one curl to find out.**
+
+`POST /api/answer` with the grounding **forced to QS 4:25** came back citing **2:221, 5:5, 60:10 —
+and never mentioned 4:25.** Then the same question with **no `verses` and no `entries` at all**
+returned a complete fiqh answer anyway. `worker/src/index.ts:495` says it in a comment: *"the model
+now leads and can answer without any grounding."* Only `question` is required.
+
+So the model does not dress bad retrieval. It overrides retrieval — all of it. The QS 4:25 caption
+never reaches a reader through the authored path, and `docs/review/hukum-pin-request-2026-08-12.md`
+would have fixed something the reader cannot see. **A wrong retrieval the model ignores and a right
+retrieval the model ignores are the same event; we noticed only because the ignored one was wrong.**
+
+Which makes the checkpoint sentence directly above this one false: *"grounding is still
+retrieval-only, and it matters."* It has not been retrieval-only since the edition flipped. That is
+now ISC-418, open, and it is Erik's call, not a bug I should quietly patch.
+
+**The volume audit found the wall is half-built along one seam.** Twelve live questions pulled from
+prod, eleven answered (one refused). The prose is genuinely good — it hedges, it marks khilaf, it
+defers to an ustadz. But:
+
+- **`HEDGE` was an amnesty, not a hedge — FIXED.** A flat word list read sentence-wide, so `ulama`,
+  `fatwa`, `ustadz`, `tergantung` each switched the verdict wall off for their whole sentence — and
+  those are the words that appear in the *strongest* rulings. Control pair: `"Perbuatan itu haram"`
+  CAUGHT, `"Para ulama sepakat perbuatan itu haram"` **PASSED**. Replaced with `DEFER`, a
+  construction list that requires an actual deferral. Force-red: reverting to a word list fails
+  exactly the 2 new tests. **The old amnesty protected 0 of the 11 live answers** — measured by
+  disabling it and re-running them — so it could only ever let a ruling out, never keep a good
+  answer in.
+- **Nothing stops the model hand-writing a translation of scripture (ISC-419, open).** The `arabic`
+  rule stops the Arabic; the Indonesian walks. `bolehkah aku pacaran` shipped a full quoted
+  rendering of QS 17:32 the model composed itself, next to the app's own pinned translation.
+  `apakah musik haram` shipped one prefaced *"yang artinya kurang lebih"*.
+- **Nothing stops attributing a position to the ulama without a receipt (ISC-420, open).**
+  `hadithShape` demands a resolvable marker for every claim about the Prophet ﷺ. There is no
+  analogue for the scholars, so *"para ulama sepakat"* and *"sebagian besar ulama klasik memahami"*
+  ship sourceless. **A receipt rule for the Prophet and none for the scholars; a script rule for
+  Arabic and none for translated scripture.**
+
+ISC-419 and ISC-420 are deliberately NOT built. Both would reject the app's two best answers
+(`apakah musik haram`, `bolehkah perempuan jadi pemimpin`) and replace them with the cold caption
+list Erik refused this morning. That trade is his to make.
+
+Gates: typecheck 0 · `bun test` **1180/0** · build 0, synthesis bundle confirmed by the inlined
+literal ``function ss(){try{return `synthesis` ``. ISA 421/431. **Not deployed** — the guard fix is
+in `web/src/answer-guard.ts`, which the Worker imports, so the server-side wall needs a
+`cd worker && bunx wrangler deploy` and that is Erik's to run.
+
+**Next:** Erik's call on ISC-418 (is ungrounded parametric fiqh the product or a defect), then
+ISC-419/420. The pin-request letter is now lower value than it looked and should be re-scoped before
+sending.
+
+---
+
 ## 2026-08-12 (night) — production authors now, and the lock was one line
 
 Erik saw `kenapa kita harus salat lima waktu` answered with **eight index captions and no

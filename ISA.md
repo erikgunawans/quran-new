@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 419/427
+progress: 421/431
 mode: build
 started: 2026-07-13
 updated: 2026-08-12
@@ -698,7 +698,11 @@ have made `nextWithAudio` promise files no route could serve, which is ISC-306 e
 - [x] ISC-413: an authored answer renders its cited verses as real cards. **MET after a live failure.** First deploy showed prose + *"ayat-ayat di atas"* with **zero** cards, because `aiHtml` resolved refs against the 191 curated verses only. Now `#/` → *"kenapa kita harus salat lima waktu"* renders 3 prose paragraphs and **3 verse cards (4:103, 2:45, 2:3) with Arabic present**, measured in real Chrome on production.
 - [x] ISC-414: Anti: the AI note never points at verses that are not there. **MET.** `AI_NOTE_NO_VERSES` drops "di atas" when no card rendered; an unloadable shard is dropped rather than faked.
 - [x] ISC-415: Anti: unlocking warmth did not unlock rulings. **MET by unchanged code** — `fatwaShape` (`answer-guard.ts:182`), retrieval-only grounding, and the AI-composed label are all untouched by the flip; the deploy output confirms only `EDITION` changed.
-- [ ] ISC-416: an authored answer over a WRONG retrieval is not shipped as if it were right. **NOT MET, and now the most urgent open item.** `nikah beda agama` still grounds on QS 4:25 *"Nikahi budak perempuan…"*; synthesis makes that fluent instead of correcting it. Blocked on the routing fix, not on the ustadz.
+- [x] ISC-416: an authored answer over a WRONG retrieval is not shipped as if it were right. **MET — but by a mechanism this criterion assumed was impossible, so read the evidence before trusting the tick.** The premise was *"synthesis DRESSES retrieval"*. Falsified live 2026-08-12: `POST /api/answer` for `boleh ga sih nikah beda agama?` with the grounding **forced to QS 4:25** returned an answer citing **2:221, 5:5, 60:10 and never once mentioning 4:25**. The model does not dress bad retrieval; it overrides it. Across 12 live questions the prose cited `4:11` for warisan and `24:32 / 4:21` for nikah siri — the 4:25 caption reached the reader in none of them. See ISC-418: this tick is a symptom of a larger and worse fact, not a clean pass.
+- [ ] ISC-418: grounding is retrieval-only. **NOT MET — and the ISA asserted the opposite until it was measured.** `POST /api/answer` with **no `verses` and no `entries` at all** returns a complete fiqh answer (measured: the ahli-kitab/5:5 + 2:221 ruling). `worker/src/index.ts:495-497` says so in a comment — *"the model now leads and can answer without any grounding"* — and only `question` is required. So the sentence *"grounding is still retrieval-only, and it matters"* in the 2026-08-12 checkpoint is **false on production**: retrieval is a hint the model may discard, and on the one question we know retrieval gets wrong, it discards it. Erik's call to make: is a model answering from its own parametric knowledge of fiqh the product, or a defect?
+- [ ] ISC-419: an authored answer never hand-writes a translation of scripture. **NOT MET, unguarded, and new.** The `arabic` rule stops the model writing the Arabic; nothing stops it writing its own Indonesian rendering of an ayah in quotation marks. Live: `bolehkah aku pacaran` shipped *"Dan janganlah kamu mendekati zina; sesungguhnya zina itu adalah suatu perbuatan yang keji dan suatu jalan yang buruk." (QS Al-Isra 17:32)* — a translation the model composed, sitting beside the app's own pinned-corpus translation. `apakah musik haram` shipped one prefaced *"yang artinya kurang lebih"*. The app's entire rights and provenance posture is that translations come from the pinned corpus with attribution.
+- [ ] ISC-420: an authored answer never attributes a position to the scholars without a receipt. **NOT MET, unguarded, and structural.** `hadithShape` demands a resolvable marker for every sentence attributing something to the Prophet ﷺ. There is no analogue for attributing to the ulama, so *"para ulama sepakat…"*, *"sebagian besar ulama klasik memahami…"*, *"ulama kontemporer banyak yang berpendapat…"* all ship with no source. 2 of 11 live answers carry one. **The wall has a receipt rule for the Prophet and none for the scholars, and a script rule for Arabic and none for translated scripture — both walls are half-built along the same seam.** Building the second half is a product decision, not a bug fix: the two answers carrying these claims (`apakah musik haram`, `bolehkah perempuan jadi pemimpin`) are among the best the app produces, and a hard rule would replace them with the cold caption list Erik refused.
+- [x] ISC-421: naming the scholars does not buy amnesty from the fatwa wall. **MET 2026-08-12.** `HEDGE` was a flat word list read sentence-wide, so `ulama`, `fatwa`, `ustadz` and `tergantung` each switched the verdict check off for their whole sentence — and those are the words that appear in the strongest rulings. Control pair: `"Perbuatan itu haram"` CAUGHT / `"Para ulama sepakat perbuatan itu haram"` PASSED. Replaced with `DEFER`, a construction list requiring an actual deferral. Force-red confirms the new tests are load-bearing (reverting to a word list fails exactly 2). **0 regressions across the 11 live answers** — the old amnesty protected none of them, so it could only ever let a ruling out.
 - [ ] ISC-417: Ustadz Ahmad has signed off on AI-authored answers. **NOT MET.** He has a heads-up only. Recorded as a knowing decision by Erik, not as a cleared gate.
 - [x] ISC-402: a knowledge answer with 1–2 entries and a resolvable lead ref is followed by that ayah and one verbatim attributed tafsir. **MET.** `hukum warisan di islam` (2 entries) renders QS 4:11 as a full card plus Al-Mukhtasar's 920-char explanation of the shares, live in real Chrome.
 - [x] ISC-403: the tafsir quoted inline is Indonesian. **MET by construction and by corpus scan** — `lang !== "id"` returns `""`; Al-Mukhtasar is `id` in 6,236/6,236 shards.
@@ -1197,6 +1201,26 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
   supplied.
 
 ## Changelog
+
+**2026-08-12 — The urgent bug was fixed by a change nobody made, and the fix is what should worry us.**
+- **conjectured:** that synthesis DRESSES retrieval — that `nikah beda agama` would keep grounding on
+  QS 4:25 and the authoring layer would render that wrong verse fluently, making it harder to
+  discount. ISC-416 was written on this premise and carried as the most urgent item in the repo.
+- **refuted by:** posting to the live `/api/answer` with the grounding **forced to QS 4:25** and
+  reading what came back — 2:221, 5:5, 60:10, and no mention of 4:25 anywhere. Then posting the same
+  question with **no grounding at all** and getting a complete fiqh answer regardless. The model does
+  not dress retrieval; it overrides retrieval, because `worker/src/index.ts:495` requires only the
+  question. The QS 4:25 caption never reaches the reader through the authored path at all.
+- **learned:** the routing bug was never fixed — it was *bypassed*, and the bypass is a bigger
+  exposure than the bug. The checkpoint sentence *"grounding is still retrieval-only, and it
+  matters"* was false the moment the edition flipped. **A wrong retrieval that the model ignores and
+  a right retrieval that the model ignores are the same event**; we noticed only because the ignored
+  one happened to be wrong. Fixing the pin list would have changed nothing the reader sees.
+- **criterion now:** ISC-416 ticks on measured evidence but points at ISC-418, which states the real
+  condition — grounding is retrieval-only — and is NOT met. ISC-419 (no hand-written scripture
+  translation) and ISC-420 (no scholar attribution without a receipt) are the two unguarded shapes
+  the volume audit found, both of them the missing half of a wall that already exists for the
+  Prophet ﷺ and for Arabic script.
 
 **2026-07-23 — A merge was designed for a collision the retrieval engine already prevents.**
 - **conjectured:** that restoring the paired conditional verses (20:25+20:26, 23:60+23:61) needed a

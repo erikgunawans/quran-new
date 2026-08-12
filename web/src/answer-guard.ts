@@ -167,11 +167,39 @@ export function hadithShape(prose: string, isGrounded: (id: string) => boolean):
 }
 
 /**
- * Markers of deferral. A sentence carrying one is the model handing the question to a human — the
- * exact behaviour rule 3 demands — so a verdict construction inside it is being DESCRIBED, not issued.
+ * Deferral CONSTRUCTIONS — the grammar of handing the question to a human, not a vocabulary of
+ * words that appear near one.
+ *
+ * This started life as a flat word list (`bukan|ustadz|ulama|mufti|fatwa|tergantung|…`) and that
+ * list was a hole, not a hedge. Because the test is sentence-scoped, ANY listed word anywhere in the
+ * sentence switched the verdict wall off for that whole sentence — and the listed words include the
+ * ones that appear in the STRONGEST rulings a model can issue. Measured, not reasoned:
+ *
+ *     fatwaShape("Perbuatan itu haram")                    → CAUGHT
+ *     fatwaShape("Para ulama sepakat perbuatan itu haram") → PASSED   ← `ulama` bought the amnesty
+ *     fatwaShape("Menurut fatwa, perbuatan itu haram")     → PASSED   ← `fatwa` bought the amnesty
+ *
+ * An ijmāʿ claim is not a deferral. It is the most authoritative form a verdict takes, and the old
+ * list read it as a disclaimer purely because the word `ulama` was in the sentence.
+ *
+ * The word list was also load-bearing for nothing: replayed against twelve real answers pulled from
+ * the live synthesis edition, disabling the amnesty entirely changed the verdict on 0 of the 11 that
+ * shipped. It could only ever let a ruling out; it never once kept a good answer in.
+ *
+ * So the amnesty now requires the sentence to actually DEFER — first-person inability, an
+ * instruction to ask a human, a disavowal of authority, `wallahu a'lam`, or an explicit
+ * it-depends — rather than merely to MENTION the people who hold the authority.
  */
-const HEDGE =
-  /\b(bukan|belum|tidak bisa|tidak dapat|tak bisa|tanya|tanyakan|bertanya|ustadz|ulama|mufti|fatwa|wallahu|tergantung|sebaiknya|konsultasi|rujuk|memutuskan|menetapkan)\b/;
+const DEFER = [
+  /\b(aku|saya|kami)\b[^.!?]{0,48}\b(tidak|tak|bukan|belum)\b[^.!?]{0,32}\b(bisa|dapat|berhak|berwenang|akan)\b/,
+  /\b(tanya|tanyakan|bertanya|tanyalah|konsultasi|konsultasikan|rujuk|merujuk|diskusikan)\b[^.!?]{0,48}\b(ustadz|ulama|kiai|kyai|mufti|ahli|guru|orang tua)\b/,
+  /\bbukan\s+(seorang\s+)?(fatwa|mufti|ustadz|ulama|ahli)\b/,
+  /\bwallahu\s*a'?\s*lam\b/,
+  /\b(tergantung|bergantung)\s+(pada|kondisi|situasi|niat)\b/,
+];
+
+/** Is this sentence deferring the ruling to a human, rather than issuing one? */
+const defers = (s: string): boolean => DEFER.some((re) => re.test(s));
 
 /**
  * Is any sentence in the prose shaped like a ruling the app has issued?
@@ -183,7 +211,7 @@ export function fatwaShape(prose: string): string | null {
   for (const raw of prose.split(/[.!?\n]+/)) {
     const s = raw.toLowerCase();
     if (!s.trim()) continue;
-    if (HEDGE.test(s)) continue;
+    if (defers(s)) continue;
     const hit = VERDICT.find((re) => re.test(s));
     if (hit) return raw.trim();
   }
