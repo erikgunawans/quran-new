@@ -698,9 +698,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    the entire reduction pass. Both are fixed at their own rules below; the lesson is that a comment
    claiming a cascade reaches something is a measurement, not a guess. */
 #thread .msg {
-  --step--2: 0.64rem;
-  --step--1: 0.77rem;
-  --step-0:  0.92rem;
+  --step--2: 0.61rem;
+  --step--1: 0.73rem;
+  --step-0:  0.87rem;
   --ar-scale: 0.85;
 }
 
@@ -724,7 +724,36 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* Synthesis edition (new-quranku-ai): the AI-authored answer + its honesty label. The label is a
    touch more present than the reader-note — it must be readable, not fine print, since it is the
    one thing telling the reader this answer is machine-made and not a fatwa. */
-.ai-said { text-wrap: pretty; }
+.ai-said { text-wrap: pretty; line-height: 1.65; }
+
+/* A citation inside an authored answer is a DOOR, not decoration — it opens the reading surface at
+   that exact ayah. Styled as text that happens to be reachable rather than as a button: the answer
+   should read as a sentence, and a row of chips mid-paragraph would break it into a form. The dotted
+   underline says "there is more here" without the full-stop weight of a link underline, and the
+   tabular numerals stop `2:155` and `20:14` from shivering against the prose's proportional digits. */
+.ai-ref {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  border-radius: 3px;
+}
+.ai-ref:hover,
+.ai-ref:focus-visible { text-decoration-style: solid; background: var(--primary-wash); }
+
+/* Verses pulled up under the paragraph that cites them. The margins are asymmetric on purpose: the
+   card belongs to the sentence ABOVE it, so it sits close to that paragraph and leaves a clear gap
+   before the next one. Symmetric spacing reads as an unrelated block dropped between two thoughts. */
+.ai-verses {
+  margin: -0.35rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.ai-verses:last-of-type { margin-bottom: 1.25rem; }
 .ai-note {
   color: var(--ink-2);
   border-top-color: var(--primary);

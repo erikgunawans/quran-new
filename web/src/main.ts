@@ -28,6 +28,7 @@ import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
 import type { AnswerViolationKind } from "./answer-guard.ts";
 import { liveAnswerModel } from "./answer-live.ts";
+import { linkifyRefs, planAnswerLayout } from "./answer-layout.ts";
 import { understandThemes } from "./theme-understand.ts";
 import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
@@ -346,13 +347,6 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
  * only HTML-escaped and split into paragraphs; the app authors nothing new at render time.
  */
 async function aiHtml(prose: string, refs: readonly string[], animate: boolean): Promise<string> {
-  const paras = prose
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((p) => `<p class="said ai-said">${esc(p)}</p>`)
-    .join("");
-
   // THE CITED AYAH IS RESOLVED AGAINST THE WHOLE MUSHAF, NOT JUST THE CURATED 191.
   //
   // This used to be `corpus.verses.find(...)` alone, and the failure it produced was visible on the
@@ -367,10 +361,10 @@ async function aiHtml(prose: string, refs: readonly string[], animate: boolean):
   // approval was granted inside — dropping those would render a verse on a surface the reviewer
   // only approved it within.
   const built = await Promise.all(
-    refs.map(async (ref) => {
+    refs.map(async (ref): Promise<readonly [string, string]> => {
       const curated = corpus?.verses.find((v) => v.ref === ref);
       if (curated) {
-        return mount({
+        return [ref, mount({
           ref: curated.ref,
           surah: curated.surah,
           ayah: curated.ayah,
@@ -383,10 +377,10 @@ async function aiHtml(prose: string, refs: readonly string[], animate: boolean):
           tafsirStack: tafsirStackHtml(curated.tafsir, voices),
           continueTo: true,
           animate,
-        });
+        })];
       }
       const m = /^(\d{1,3}):(\d{1,3})$/.exec(ref);
-      if (!m) return "";
+      if (!m) return [ref, ""];
       const surah = Number(m[1]);
       const ayah = Number(m[2]);
       try {
@@ -394,19 +388,47 @@ async function aiHtml(prose: string, refs: readonly string[], animate: boolean):
         card.lazyTafsir = true; // the full unranked stack, one tap away, as everywhere else
         card.continueTo = true;
         card.animate = animate;
-        return mount(card);
+        return [ref, mount(card)];
       } catch {
         // A shard we cannot fetch is DROPPED, never faked. The note below then tells the truth
         // about how many verses actually made it onto the page.
-        return "";
+        return [ref, ""];
       }
     }),
   );
 
-  const cards = built.filter(Boolean).join("");
+  // Only verses that actually BUILT can be placed; a dropped shard must not leave a gap under the
+  // paragraph that cites it, nor make the note claim a verse that is not on the page.
+  const cardFor = new Map(built.filter(([, html]) => html));
+
+  // A citation is real if the mushaf has it — the same question `bad_ref` asks on egress, asked here
+  // so an unresolvable number never becomes a link promising something on the other side.
+  const isReal = (ref: string): boolean => {
+    const m = /^(\d{1,3}):(\d{1,3})$/.exec(ref);
+    if (!m) return false;
+    const meta = surahMeta(Number(m[1]));
+    return !!meta && Number(m[2]) >= 1 && Number(m[2]) <= meta.ayahs;
+  };
+
+  const { blocks, trailing } = planAnswerLayout(prose, [...cardFor.keys()], isReal);
+
+  // Prose is ESCAPED first and linkified second. The other order would hand a model-authored string
+  // an HTML injection surface.
+  const body = blocks
+    .map(({ para, refs: here }) => {
+      const p = `<p class="said ai-said">${linkifyRefs(esc(para), isReal)}</p>`;
+      const cards = here.map((r) => cardFor.get(r) ?? "").join("");
+      return cards ? `${p}<div class="ai-verses">${cards}</div>` : p;
+    })
+    .join("");
+
+  // Grounded but never cited — kept, at the bottom, exactly where the whole stack used to sit.
+  const rest = trailing.map((r) => cardFor.get(r) ?? "").join("");
+  const tail = rest ? `<div class="ai-verses">${rest}</div>` : "";
+
   // The note must not claim verses that are not there. This is the same sentence either way about
   // what the answer IS (AI-composed, not a fatwa); it only stops pointing "di atas" when nothing is.
-  return paras + cards + (cards ? AI_NOTE : AI_NOTE_NO_VERSES);
+  return body + tail + (cardFor.size ? AI_NOTE : AI_NOTE_NO_VERSES);
 }
 
 /**
