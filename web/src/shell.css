@@ -771,7 +771,12 @@
 /* −10% (Erik). This is the single largest block of Latin on the surface, so it sets the felt size of
    the whole answer; line-height goes UP as the size comes down, because shorter lines at a smaller
    size need more leading, not less, to stay readable at 68ch. */
-.qk-panel-body .msg.nur .said { font-size: clamp(15px, 1.8vw, 18.5px); line-height: 1.7; color: var(--ink); max-width: 860px; }
+/* Chat prose, one step quieter (Erik, 2026-08-13): ceiling 18.5px -> 17.5px, floor 15px -> 14px,
+   preferred 1.8vw -> 1.7vw so the reduction holds across the ramp and not only at the clamp ceiling.
+   This rule — not the `--step-*` tokens on `#thread .msg` — is what actually sizes the answer prose:
+   `.said` carries no font-size of its own, so redefining a token further up never re-runs the
+   declaration it would have fed. Measured before changing: 18.5px against a 16px body. */
+.qk-panel-body .msg.nur .said { font-size: clamp(14px, 1.7vw, 17.5px); line-height: 1.7; color: var(--ink); max-width: 860px; }
 .qk-panel-body .msg.nur .said strong, .qk-panel-body .msg.nur .said b { color: var(--ink); }
 
 /* ── the ayah card → the design's glass qk-card ──────────────────────── */

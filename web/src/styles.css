@@ -724,7 +724,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* Synthesis edition (new-quranku-ai): the AI-authored answer + its honesty label. The label is a
    touch more present than the reader-note — it must be readable, not fine print, since it is the
    one thing telling the reader this answer is machine-made and not a fatwa. */
-.ai-said { text-wrap: pretty; line-height: 1.65; }
+.ai-said { text-wrap: pretty; }
 
 /* A citation inside an authored answer is a DOOR, not decoration — it opens the reading surface at
    that exact ayah. Styled as text that happens to be reachable rather than as a button: the answer
