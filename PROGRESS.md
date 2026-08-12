@@ -8,6 +8,28 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (close) — the synthesis edition is back from the dead
+
+`new-quranku-ai.axiara.ai` had been answering `{"answer":null}` since 2026-08-10, when the Worker
+was recreated after a 522 and came back with an EMPTY secret store. Erik set
+`OPENROUTER_API_KEY --env synthesis`; `wrangler secret put` redeploys the Worker itself, so no
+separate deploy was needed and the endpoint authored immediately.
+
+Measured across all three Workers rather than assumed: principled and demo already HELD the key —
+only synthesis was missing it, which is exactly why only that host was dark.
+
+**The shared-dist hazard did not fire, and it easily could have.** The synthesis Worker serves
+`../web/dist`, and today's audio/attribution work rebuilt that as a PRINCIPLED bundle. Had anyone
+run `deploy --env synthesis` at any point today, the AI edition would have been overwritten with a
+front-end that never calls `/api/answer` — the endpoint would have been fixed and the site would
+still have looked broken. It survived only because that deploy was never run: synthesis still
+serves its own older `index-BSRhfL2y.js` against prod's `index-HUSxuvut.js`.
+
+Verified: synthesis bundle carries the `/api/answer` call path, the live POST returns authored
+prose, and prod's own POST still returns `{"answer":null}` — the trustworthy edition stays dark.
+
+---
+
 ## 2026-08-12 (late) — a question generator needs evidence before it needs a button
 
 Erik asked for a landing refresh: an expandable footer, delete the four feeling-seeds, and replace
