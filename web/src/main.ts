@@ -146,6 +146,9 @@ const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — ba
 // a fatwa or as a scholar's words — this quiet chrome under it says plainly what it is: machine-made,
 // grounded in the verses shown, and no substitute for a real scholar.
 const AI_NOTE = `<p class="reader-note ai-note">Jawaban ini disusun oleh AI berdasarkan ayat-ayat di atas — bukan fatwa, dan bukan kata-kata seorang ulama. Untuk kepastian, tanyakan kepada ustadz.</p>`;
+/** Same disclosure, minus the pointer — used when no verse card made it onto the page, so the note
+ *  never directs a reader to "the verses above" when there are none. */
+const AI_NOTE_NO_VERSES = `<p class="reader-note ai-note">Jawaban ini disusun oleh AI — bukan fatwa, dan bukan kata-kata seorang ulama. Untuk kepastian, tanyakan kepada ustadz.</p>`;
 
 // ── the one renderer ─────────────────────────────────────────────────────────
 //
@@ -292,35 +295,68 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
  * label. The prose already cleared answer-guard (no Arabic, only grounded citations) — here it is
  * only HTML-escaped and split into paragraphs; the app authors nothing new at render time.
  */
-function aiHtml(prose: string, refs: readonly string[], animate: boolean): string {
-  const verses = refs.map((r) => corpus!.verses.find((v) => v.ref === r)).filter((v) => v !== undefined);
+async function aiHtml(prose: string, refs: readonly string[], animate: boolean): Promise<string> {
   const paras = prose
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean)
     .map((p) => `<p class="said ai-said">${esc(p)}</p>`)
     .join("");
-  const cards = verses
-    .map((v) =>
-      mount({
-        ref: v.ref,
-        surah: v.surah,
-        ayah: v.ayah,
-        surah_name: v.surah_name,
-        arabic: v.arabic,
-        primary: v.primary,
-        companion: v.companion,
-        why: v.why,
-        // A conditional approval travels WITH the verse. Dropping it here would render the verse
-        // alone on a surface the reviewer only approved it inside.
-        passage: v.passage,
-        tafsirStack: tafsirStackHtml(v.tafsir, voices),
-        continueTo: true,
-        animate,
-      }),
-    )
-    .join("");
-  return paras + cards + AI_NOTE;
+
+  // THE CITED AYAH IS RESOLVED AGAINST THE WHOLE MUSHAF, NOT JUST THE CURATED 191.
+  //
+  // This used to be `corpus.verses.find(...)` alone, and the failure it produced was visible on the
+  // first authored answer prod ever served: asked "kenapa kita harus salat lima waktu", the model
+  // cited QS 4:103 and QS 20:14 — both real, both correct, neither among the 191 reviewed verses —
+  // so every card was filtered out and the page rendered prose followed by "berdasarkan ayat-ayat
+  // DI ATAS" with no ayah above it at all. The note was pointing at nothing.
+  //
+  // `refs` has already passed `isRealAyah`, so anything here names a real ayah; the shards hold all
+  // 6,236 and the reading surface has loaded them this way for months. Curated verses still win
+  // when we have one, because they carry the reviewer's `why` and the `passage` a conditional
+  // approval was granted inside — dropping those would render a verse on a surface the reviewer
+  // only approved it within.
+  const built = await Promise.all(
+    refs.map(async (ref) => {
+      const curated = corpus?.verses.find((v) => v.ref === ref);
+      if (curated) {
+        return mount({
+          ref: curated.ref,
+          surah: curated.surah,
+          ayah: curated.ayah,
+          surah_name: curated.surah_name,
+          arabic: curated.arabic,
+          primary: curated.primary,
+          companion: curated.companion,
+          why: curated.why,
+          passage: curated.passage,
+          tafsirStack: tafsirStackHtml(curated.tafsir, voices),
+          continueTo: true,
+          animate,
+        });
+      }
+      const m = /^(\d{1,3}):(\d{1,3})$/.exec(ref);
+      if (!m) return "";
+      const surah = Number(m[1]);
+      const ayah = Number(m[2]);
+      try {
+        const card = fromShard(await loadAyah(surah, ayah), surah, displayName(surah));
+        card.lazyTafsir = true; // the full unranked stack, one tap away, as everywhere else
+        card.continueTo = true;
+        card.animate = animate;
+        return mount(card);
+      } catch {
+        // A shard we cannot fetch is DROPPED, never faked. The note below then tells the truth
+        // about how many verses actually made it onto the page.
+        return "";
+      }
+    }),
+  );
+
+  const cards = built.filter(Boolean).join("");
+  // The note must not claim verses that are not there. This is the same sentence either way about
+  // what the answer IS (AI-composed, not a fatwa); it only stops pointing "di atas" when nothing is.
+  return paras + cards + (cards ? AI_NOTE : AI_NOTE_NO_VERSES);
 }
 
 /**

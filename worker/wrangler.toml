@@ -45,8 +45,27 @@ bucket_name = "new-quranku-audio"
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 # Runtime model defaults (overridable). Non-secret.
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
-# This is the trustworthy edition — /api/answer (the authoring endpoint) stays dark here.
-EDITION = "principled"
+# AUTHORING IS ON (Erik, 2026-08-12, asked for directly and twice: "put it directly on the prod").
+#
+# This line was `principled`, and that word was the edition's whole identity: the app quoted sourced
+# material verbatim and composed nothing. It is being deleted deliberately, not drifted past. The
+# reason is a real one — asked "kenapa kita harus salat lima waktu", the app returned eight index
+# captions and no explanation, and Erik's judgement was that he would not ship that to a user.
+#
+# WHAT THIS DOES NOT CHANGE. `handleAnswer` still runs every guard it always did: the answer is
+# grounded ONLY in what retrieval returned, `fatwaShape` (answer-guard.ts:182) still rejects prose
+# that issues a ruling, and the output is labelled AI-composed rather than attributed to a scholar.
+# Warmth is unlocked; verdicts are not.
+#
+# WHAT IT DOES NOT FIX. Synthesis composes over whatever retrieval hands it — it dresses retrieval,
+# it does not correct it. Where the wrong ayah comes back (the known `nikah beda agama` -> QS 4:25
+# case) the answer is now fluent AND wrong, which is harder for a reader to discount than a visibly
+# cold list. That is tracked as the next job, not as a reason to hold this.
+#
+# STILL OPEN: Ustadz Ahmad has had a heads-up on AI-authored answers, not a sign-off.
+# REVERT: set this back to "principled" and rebuild the front end WITHOUT VITE_ANSWER_MODE.
+# Both halves are required — the flag alone leaves a front end that still calls /api/answer.
+EDITION = "synthesis"
 # SEALION_BASE_URL = "https://api.sea-lion.ai/v1/chat/completions"
 # SEALION_MODEL = "aisingapore/Gemma-SEA-LION-v3-9B-IT"
 

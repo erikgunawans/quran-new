@@ -8,6 +8,50 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (night) — production authors now, and the lock was one line
+
+Erik saw `kenapa kita harus salat lima waktu` answered with **eight index captions and no
+explanation** and said he would not put that in front of a user. He asked what HE had to do to get
+the demo's warmth on production.
+
+**The honest answer was: nothing.** No key, no account, no spend. Measured rather than assumed —
+`OPENROUTER_API_KEY` was ALREADY on the prod Worker, and `worker/src/index.ts:476` refuses to author
+unless `EDITION === "synthesis"`, while `wrangler.toml:49` said `principled`. The gap between the
+answer he hated and the answer he wanted was **one config line plus a `VITE_ANSWER_MODE=synthesis`
+rebuild.** It was never a capability problem; it was a deliberate lock, and the lock is now off at
+his explicit instruction.
+
+**The flip alone shipped something broken, for about ten minutes.** The first authored answer on
+prod rendered prose followed by *"berdasarkan ayat-ayat **di atas**"* — **with no verses above it.**
+`aiHtml` resolved citations against `corpus.verses`, the 191 REVIEWED verses only; the model cited
+QS 4:103 and QS 20:14, both real and both correct, neither among the 191, so every card was silently
+filtered out and the disclaimer pointed at nothing. Citations now resolve against the whole mushaf
+through the same shard loader the reading surface has used for months. Curated verses still win when
+one exists — they carry the reviewer's `why` and the `passage` a conditional approval was granted
+inside. An unloadable shard is DROPPED, never faked, and the note stops saying "di atas" when
+nothing is.
+
+**The verification that mattered was a control, twice.** `grep -c synthesis` returns **1 in BOTH
+editions' bundles** — a count that cannot fail either way. What settles it is the constant-folded
+literal Vite inlines: ``function ss(){try{return `principled` `` versus ``return `synthesis` ``.
+Same discipline that cleared the earlier deploy, where the live known-good bundle was the control.
+
+Live on prod: 3 prose paragraphs, **3 verse cards (4:103, 2:45, 2:3), Arabic present, zero index
+lists** — measured in real Chrome, not on localhost.
+
+**What did NOT change, and it matters:** grounding is still retrieval-only, `fatwaShape` still
+rejects rulings, output is still labelled AI-composed and never attributed to a scholar. **What is
+NOT fixed:** synthesis DRESSES retrieval, it does not correct it. `nikah beda agama` still grounds
+on QS 4:25 — now fluent *and* wrong, which is harder for a reader to discount than a cold list.
+
+Two deploys: `edd9cb46` (the flip), `56766fc2` (the citation fix), serving `index-dJzQ8Etp.js`.
+typecheck 0 · `bun test` 1178/0 · build 0. ISA 419/427.
+
+**Next:** the QS 4:25 routing — it is now the most urgent thing in the repo, because authoring made
+a wrong answer more convincing rather than less.
+
+---
+
 ## 2026-08-12 (evening) — a class borrowed for its looks carried its behaviour to production
 
 Seven commits, two deploys, and the session's most useful finding is a bug I shipped and Erik caught.
