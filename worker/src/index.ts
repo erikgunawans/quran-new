@@ -533,6 +533,25 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       }
       // Last attempt wins the diagnosis: report the rule that actually stopped the final candidate.
       blocked = verdict.violations[0]?.kind ?? null;
+      // DO NOT SPEND A GENERATION THAT CANNOT SUCCEED.
+      //
+      // The retry above exists because most guard rejections are flukes — a fresh generation usually
+      // drops the stray Arabic or the verdict. A `bad_hadith` rejection is NOT a fluke: the model has
+      // no way to produce a receipt on this path, because nothing teaches it the marker syntax
+      // (ISC-435) and no hadith is retrieved to resolve one against (ISC-434). Both attempts fail
+      // identically, and `answer-blocked.test.ts` pins that determinism.
+      //
+      // Measured, and this was a live defect rather than a tidy-up: one generation runs ~4s (a passing
+      // control measured 3772ms) and a verbose hadith answer ~6s, so two of them exceeded the browser's
+      // 12s `TIMEOUT_MS` in `answer-live.ts` — observed aborting at 12126ms. The client then treated the
+      // abort as an ABSENCE, which it is, and rendered the corpus-gap copy. So the pointer built for
+      // exactly these questions was unreachable for exactly these questions: the ones that trip the
+      // hadith wall are the ones that pay for two generations.
+      //
+      // Returning after the first rejection lands the answer near ~6s, inside the budget, and makes
+      // these questions FASTER rather than slower. Raising `TIMEOUT_MS` instead would have treated the
+      // symptom and left a reader waiting 25s for a refusal — a worse product either way.
+      if (blocked === "bad_hadith") break;
     }
   } catch {
     return json({ answer: null }, 200, request); // model/key failure → browser falls back to principled

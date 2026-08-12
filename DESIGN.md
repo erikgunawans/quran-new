@@ -41,6 +41,22 @@ vivid green. The eye rests on **plane separation and saturated brand**, not on a
 `--surface` is pure white again — deliberately reversing "the card is never pure white", which was a
 parchment-era rule and does not survive the reference.
 
+*Amended 2026-08-12 — the outer frame carries real chroma on the brand hue.* Erik: the outer layer
+**"still looks too pale, I need it to look more fresh."** That is the third "too pale" on this register,
+so the answer is not lightness — and the two faults found were both non-lightness. `--shell-bg` was
+`oklch(0.990 0.003 172)`: chroma 0.003 is an order of magnitude below the 0.036 this document already
+calls "a tint, not a colour", and hue 172 sits nine points off the brand axis (163) toward cyan, so the
+frame's only colour pointed away from the green the rest of the app is built from. Now
+`oklch(0.990 0.018 163)`.
+
+**Lightness was deliberately untouched, and that is the point.** The invariant below is a *lightness*
+step — the panel ground runs 0.945→0.965 and the rail must clear it at every stop. Chroma and hue are
+not in that comparison, so L stays at exactly 0.990 and the step is bit-for-bit unchanged (margin 0.025
+at the foot). **If this needs to go further, raise the chroma; never reach for L** — that is the one
+number the plane separation depends on. This is also not a return to the "too dark, too muddy" failure
+below: that was a grey at L~0.94 with a faint cast, and the lesson was that grey-plus-tint reads dirty.
+This is the opposite move — full lightness, real chroma, brand hue.
+
 *Corrected the same day.* The first cut of this put `--shell-bg` three points **below** the page,
 keeping the old invariant that the inner panel is the lit plane. Erik on that rail: **"too dark, too
 muddy."** At `#e5edea` it was a grey carrying a faint green cast, and grey-plus-tint is the one mix
@@ -304,6 +320,7 @@ The light register. Dark flips only this axis — see `@media (prefers-color-sch
 | Token | Value | Why |
 |---|---|---|
 | `--bg` | `oklch(0.972 0.006 172)` | cool near-white page — the reference's ground |
+| `--shell-bg` | `oklch(0.990 0.018 163)` | the lit outer frame. L is load-bearing (clears the panel's 0.965 foot); tune chroma, never L |
 | `--surface` | `oklch(1.000 0.000 0)` | the card IS white now, and floats. See note below. |
 | `--surface-2` | `oklch(0.958 0.009 170)` | the wash |
 | `--line` | `oklch(0.908 0.012 170)` | — |

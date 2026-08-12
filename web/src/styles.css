@@ -78,7 +78,27 @@
      panel's ground runs 0.945→0.965; this sits at 0.990, so the step holds top to bottom with the
      narrowest margin at the foot. Lower this, or raise the panel's last stop, and the two planes
      merge at the bottom of the screen with no hairline to catch it. */
-  --shell-bg: oklch(0.990 0.003 172);
+  /* Amended 2026-08-12 — Erik: the outer layer "still looks too pale, I need it to look more fresh."
+     Third time he has said "too pale" about this register, so the diagnosis is not lightness.
+
+     It was `oklch(0.990 0.003 172)`: two faults, neither of them L. Chroma 0.003 is nothing — this
+     file's own second amendment records that "0.036 is a tint, not a colour", and 0.003 is an order of
+     magnitude below even that, so the frame was white that merely rounded green. And hue 172 sits NINE
+     points off the brand axis (`--primary`/`--forest`/`--primary-line` are all 163), toward cyan, so
+     what little colour there was pointed away from the green everything else in the app is made of.
+     Pale AND slightly wrong-hued reads as washed-out rather than fresh.
+
+     L IS DEPRECATED FROM THE FIX ON PURPOSE. The invariant in the comment above is a LIGHTNESS step —
+     the panel runs 0.945→0.965 and this must clear it at every stop, narrowest at the foot. Chroma and
+     hue do not enter that comparison, so holding L at exactly 0.990 leaves the step bit-for-bit what it
+     was (margin 0.025 at the foot) while the frame becomes an actual pale green. Nothing about the
+     plane separation is renegotiated here.
+
+     Not the "too dark, too muddy" direction either: that failure was a GREY at L~0.94 carrying a faint
+     cast, and the recorded lesson is that grey-plus-tint reads as dirty. This goes the other way —
+     maximum lightness, real chroma, on the brand hue. Raise the chroma if he wants more; do NOT
+     reach for L. */
+  --shell-bg: oklch(0.990 0.018 163);
 
   /* The INNER layer's foot — the last stop of `.qk-panel::before`'s ground gradient. Exists because
      the composer's fade ramp has to end in the panel's own colour: it used `--bg`, the app/outer
