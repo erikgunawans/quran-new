@@ -51,6 +51,21 @@ export function hasAudio(surah: number, ayah: number): boolean {
 export const RECITER_NAME = "Syaikh Mishary Rashid Alafasy";
 
 /**
+ * Where the recording came from. Named in the UI beside the reciter, because crediting the voice
+ * and hiding the source is half an attribution.
+ *
+ * ERIK'S RULING, 2026-08-12: the UNVERIFIED licence is an ACCEPTED, DOCUMENTED risk at full-corpus
+ * scale — asked and answered explicitly once the ingest went from 22 files to 6,236. Recorded here
+ * rather than only in the ISA so that whoever next edits this file sees that the status is a
+ * decision someone made, not an oversight nobody noticed.
+ *
+ * What attribution does NOT do: it does not confer permission. Naming everyayah.com credits a
+ * source whose redistribution terms we have not confirmed; it does not make the redistribution
+ * licensed. If that ever needs resolving, it is a separate piece of work from this line of text.
+ */
+export const AUDIO_SOURCE = "everyayah.com";
+
+/**
  * How playback behaves when an ayah finishes (Erik, 2026-08-10).
  *
  * `single` — stop at the end of the ayah, which is what the button did before and what a reader

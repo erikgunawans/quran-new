@@ -375,6 +375,21 @@
 }
 #read .surah-meta { margin-top: 0.15rem; font-size: var(--step--1); color: var(--ink-3); }
 
+/* Reciter credit. Sits OUTSIDE the cartouche on purpose — the cartouche is the surah's own
+   identity (its name, its length, where it was revealed), and a human being who recorded the
+   recitation is not part of that. Quiet by design: it should be findable, not competing with the
+   Arabic. Same `.by` shape the translator credit uses, so "who made this" reads identically
+   wherever it appears. */
+#read .surah-reciter {
+  margin-top: 0.9rem;
+  text-align: center;
+  font-size: var(--step--1);
+  color: var(--ink-3);
+}
+/* The source sits a shade quieter than the reciter: a person is being credited, a host is being
+   disclosed, and those do not deserve equal weight. */
+#read .surah-reciter .src { color: var(--ink-4, var(--ink-3)); }
+
 /* ── the basmalah ─────────────────────────────────────────────────────
    Unnumbered, centred, above ayah 1 — the opening of the surah, not a
    verse of it. It carries the same glow as the scripture because that is

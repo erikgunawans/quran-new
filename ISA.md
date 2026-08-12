@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 397/399
+progress: 400/401
 mode: build
 started: 2026-07-13
 updated: 2026-08-12
@@ -691,7 +691,9 @@ have made `nextWithAudio` promise files no route could serve, which is ISC-306 e
 - [x] ISC-395: an ayah outside the old sample actually PLAYS in real Chrome — `2:255` reaches `loadedmetadata` with `duration = 52.0s`. **The first probe of this said STALL, and a control is the only reason it was not filed as a regression:** `/audio/1/1.mp3`, the untouched sample that has served production for a month, stalled identically. Background tabs throttle media loading; foregrounding the tab resolved both. A failing probe with no control is not evidence of a failure.
 - [x] ISC-396: Anti: the deploy did not contaminate the trustworthy edition — prod `POST /api/answer` returns `{"answer":null}`, served bundle `index-C8A5wC4f.js` is SHA-256 identical to `web/dist`, the CSS hash is UNCHANGED from pre-deploy prod (JS-only delta), and the synthesis Worker still answers 200 on its own host.
 - [x] ISC-397: Anti: a non-existent ayah returns a hard 404, never the SPA shell. **This was live on production before the deploy and is the whole reason ISC-306 forbids widening the manifest first:** `/audio/2/255.mp3` returned `200 text/html`, 20,444 bytes — the SPA shell dressed as an MP3. It went unnoticed only because `hasAudio()` rendered no button there. Now `2:287`, `9:130`, `115:1` and `1/1.5` all return `404 text/plain`.
-- [ ] ISC-398: per-ayah reciter attribution in the UI. **NOT MET — open decision for Erik.** The everyayah licence is still UNVERIFIED, and this deploy scaled the exposure from 22 files to 6,236.
+- [x] ISC-398: the reciter is named on the reading surface. **MET — and the starting point was worse than "not enough attribution": there was NONE.** `RECITER_NAME` had been exported since the 22-ayah sample and imported by NOTHING, so it tree-shook out — `grep -c Alafasy` on the deployed bundle returned **0** while the app served 818 MB of his recitation. The app's own meta description promises *"Setiap sumber disebutkan namanya"*, which was therefore false about the recitation. Erik chose per-surah + source (2026-08-12). Live on `#/surah/18`: `Murotal oleh Syaikh Mishary Rashid Alafasy · sumber everyayah.com`. Bundle count 0 → 1 for both `Alafasy` and `everyayah`, so the credit survives tree-shaking.
+- [x] ISC-399: the licence status is a recorded DECISION, not an oversight. **MET.** Erik, 2026-08-12, asked explicitly once exposure went 22 → 6,236 files: the UNVERIFIED everyayah licence is an ACCEPTED, DOCUMENTED risk. Written into `web/src/audio.ts` beside `AUDIO_SOURCE` as well as here, so the next person to edit that file sees a decision someone made rather than a gap nobody noticed. **Attribution does NOT confer permission** — naming everyayah.com credits a source whose redistribution terms are unconfirmed; resolving that is separate work, deliberately not done.
+- [x] ISC-400: Anti: the attribution deploy regressed nothing — `2:255` and `1:1` still return 200 `audio/mpeg`, `#/surah/18` still renders its full set of play buttons (110 = Al-Kahf's ayah count), `POST /api/answer` still returns `{"answer":null}`, and the served bundle is SHA-256 identical to `web/dist`.
 
 ## Test Strategy
 

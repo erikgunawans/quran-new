@@ -29,6 +29,11 @@ import {
   type SurahMeta,
 } from "./quran.ts";
 import { announce } from "./announce.ts";
+// The reciter's name. It has existed as an exported constant since the 22-ayah sample and was
+// imported by NOTHING, so it tree-shook out — "Alafasy" appeared zero times in the deployed
+// bundle while the app served 818 MB of his recitation. The app's own meta description promises
+// "Setiap sumber disebutkan namanya"; until this import, that was false about the recitation.
+import { AUDIO_SOURCE, RECITER_NAME } from "./audio.ts";
 import { cancelBookmark, clearBookmark, loadBookmark, saveBookmark } from "./bookmark.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { esc, fromShard, verseEl, type VerseCard } from "./verse.ts";
@@ -484,6 +489,7 @@ const headEl = (m: SurahMeta): string => `
       <p class="surah-tl">${esc(displayName(m.n))}</p>
       <p class="surah-meta">${m.ayahs} ayat · ${revID(m.rev)}</p>
     </div>
+    <p class="surah-reciter">Murotal <span class="by">oleh <b>${esc(RECITER_NAME)}</b></span> <span class="src">· sumber ${esc(AUDIO_SOURCE)}</span></p>
   </header>`;
 
 /**
