@@ -8,6 +8,88 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (evening) — The fix was in the wrong layer twice, and the audio was never ours to take
+
+Two pieces of work. The first killed the last surviving half of a PRD; the second answered a
+question about someone else's site by discovering we already had the thing it was asking for.
+
+**The topic pins would have been dead code.** The plan of record was "topic pins for `warisan` and
+`nikah`, both measured at 0 entries". Measured at the boundary `main.ts` actually uses, both bare
+words have `looksFactual === false` and go down the FEELINGS path — so `retrieveKnowledge`, where
+`matchPin` lives, is never called for them at all. The `0 entries` that justified the pins came from
+probing a function the app does not reach on those inputs. **This is the same error that killed the
+first half of the PRD this morning, one layer further out**: this morning it was `matchTopic`
+probed in isolation, tonight it was `retrieveKnowledge`. The lesson did not generalise on its own,
+because both times the probed function *looked* like the answer's boundary.
+
+What was actually broken split into two unrelated root causes, neither a missing pin:
+
+1. **`warisan` → `keluarga`, zero entries.** `keluarga` listed `warisan` among its aliases. That is
+   a GROUNDED hit (a subject word, not ruling vocabulary), and a grounded hit returns immediately —
+   short-circuiting the subject-correction block written for exactly the case "this category does
+   not contain this subject and another one does". Keluarga's 40 entries are marriage, talak and
+   parenting; 4:11 sits one shard over. `hukum warisan` escaped only by accident, tying on `hukum`
+   and winning on alias iteration order. Removing one word: `apa itu warisan` 0 → 2 entries,
+   `hukum warisan dalam keluarga` 0 → 7.
+
+2. **`nikah` routes nowhere because `isFeelingWord("nikah")` is `true`.** `FEELING_WORDS` is built
+   by splitting every emotional-lexicon phrase into tokens, so `"belum nikah"` and `"pengen nikah"`
+   (the *Waiting for a spouse* theme) deposit the bare token, and `subjectWordsOf` then refuses it
+   as a subject. **134 corpus subjects collide this way and most MUST stay collided** — routing a
+   feeling into the knowledge index is the failure this app exists to prevent.
+
+**An audit that was not a defect list.** Checking every alias against the subject index produced
+"77 lying aliases". It is not a bug list: `ibadah`/"sholat" is on it and returns 8 entries, because
+a category can answer a topic whose word never appears in its entry text. Only the live column
+discriminates. And of the genuine candidates, only `warisan` was safe to cut — removing
+`perceraian` **regressed** it to silence (it is also a feeling word, so nothing catches it), and
+`poligami`/`jodoh`/`mertua`/`ipar` are held by no category at all, so the "lying" alias is the only
+thing giving them a pointer instead of nothing. Measured both ways before cutting.
+
+**Found while measuring, worse than what we set out to fix.** `hukum nikah beda agama` answers with
+QS 4:25 *"Nikahi budak perempuan dengan izin tuannya"*, and `apa hukum nikah siri` returns that as
+its **only** entry. The correct verse (2:221, *musyrik*) is in the same shard and does surface for
+`apakah boleh menikah dengan non muslim` — "beda agama" simply shares no word with "musyrik". That
+is live right now. `docs/review/hukum-pin-request-2026-08-12.md` puts the curated ref-lists to
+Ustadz Ahmad; **no pin shipped**, because which verses answer a hukum question is his call.
+
+`web/src/warisan-routing.test.ts`, 11 tests, force-red verified at 4 fail → 11 pass. One assertion
+was wrong and was corrected rather than asserted away: 4:33 reads "ahli waris", not "warisan", so it
+ranks below verses that merely contain "keluarga" — the gap is documented in the test as the
+argument for a pin, not hidden.
+
+**Two review artifacts regenerated.** `coverage-audit.md` and `ustadz-worklist.md` had gone stale in
+earlier commits. Proven not to be this branch's doing: running the generator against `knowledge.ts`
+at `2d97461` produces a byte-identical diff. Worth recording why the audit could not have caught
+tonight's bug — **`demo-questions.ts` holds 141 questions and not one asks about inheritance.**
+
+**Then the QTT audio question, which answered itself.** Erik asked whether the CLI was done and
+wanted QTT's audio files in our app. Three findings: the **CLI is not built** (discovery only, and
+the verse-text source is still unresolved, which is what decides whether it has first-party value);
+QTT does not host audio — it **hotlinks** `the-quran-project.github.io/Quran-Audio/Data/{reciter}/
+{surah}_{ayah}.mp3`, verified live, ~7.6 GB, **no licence declared at all**, and owning the site
+that links to it confers nothing; and **we already had the better source**. `build-audio.ts` has
+pulled everyayah `Alafasy_64kbps` sha256-pinned since July — it held 22 files only because `SAMPLE`
+was hardcoded to surahs 1, 112, 113, 114. That is why *Dengar* worked on Al-Fatihah and nowhere else.
+
+**Full corpus ingest into R2, Erik's choice over widening `web/public/`.** New bucket
+`new-quranku-audio`, keys `{surah}/{ayah}.mp3` — matching the URL `audio.ts` already requests, so
+the player needs no change. ISA's 2026-07-14 entry had already scoped this ("that scale of ingest is
+a separate future run"), so it is the planned run, not a quiet expansion. Measured rather than
+estimated: 3,669 objects → 583 MB projects to **~991 MB**; the earlier 1.3 GB guess was skewed by
+sampling long verses. Two things measurement caught: **`--remote` is a wrangler v4 flag** and a hard
+`Unknown argument` failure on the pinned v3.114, which killed every upload behind a generic log line
+(`src/okf/upload-text-layer.sh` still carries it and will fail the same way); and exit 0 from
+`r2 object put` is not evidence, so `114/6.mp3` was round-tripped back at 67,081 bytes with a
+matching sha256.
+
+typecheck 0 · `bun test` 1109/0 (+11) · build 0. ISA 382/387. Prod unchanged — `index-BjuemEbN.js`;
+four commits now local-and-pushed but undeployed, and the deploy stays Erik's call.
+
+**Next:** the Worker needs an `r2_buckets` binding and an `/audio/*` route before any of this is
+audible — that is a prod deploy. Then the ustadz's answer on the nikah/waris pins. Then the third
+tafsir tier.
+
 ## 2026-08-12 — The bug was in the PRD, and a 200 that meant nothing
 
 Two pieces of work, and both turned on the same discipline: **measure the thing itself, not a proxy
