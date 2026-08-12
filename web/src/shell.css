@@ -1530,9 +1530,19 @@
    short ref beside a long descriptive label that legitimately needs the second line. Uniform height
    is not worth ellipsing four fifths of the list. If these ever need to be equalised, it has to be a
    two-line clamp, not a one-line squeeze. */
+/* The corner is `--r-lg` — the SAME token `.doa-card` uses — and not the `999px` pill it was.
+   `999px` is not a fixed corner: it clamps to half the box's height, so on a list whose rows
+   legitimately vary (measured live: 36px, 62px, 80px) one declaration rendered three different
+   apparent roundnesses — a full stadium on the one-liners, a soft blob on the two-liners. The rows
+   read as a mismatched set even though every one of them said `999px`.
+   Binding to `--r-lg` makes the corner absolute, so differing heights stop being visible as differing
+   SHAPE, and each row nests inside its parent card on the same curve. Erik's call, and the reasoning
+   is his: thickness may differ as long as the round does not.
+   The TOKEN and not `16px` — a literal here would survive the next retheme of `:root` and quietly
+   hold the old geometry while everything around it moved. */
 .doa-ayat {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-  padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none;
+  padding: 9px 13px; border: 1px solid var(--line); border-radius: var(--r-lg); text-decoration: none;
   color: inherit; background: var(--primary-wash); transition: border-color var(--t), transform var(--t);
 }
 .doa-ayat:hover { border-color: var(--primary-line); transform: translateX(2px); }
