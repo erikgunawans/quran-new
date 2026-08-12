@@ -11,8 +11,8 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | Hasil | Jumlah | Porsi |
 | --- | ---: | ---: |
 | Jawaban akidah (ditinjau ustadz) | 0 | 0% |
-| Entri Indeks Tematik | 51 | 36% |
-| Ayat dari jalur perasaan | 31 | 22% |
+| Entri Indeks Tematik | 50 | 35% |
+| Ayat dari jalur perasaan | 32 | 23% |
 | Hanya penunjuk kategori | 27 | 19% |
 | Tidak ada jawaban | 32 | 23% |
 
@@ -118,9 +118,9 @@ an answer is theologically correct — that is the reviewer's call, not a script
 | aku burnout kerja | feeling | Ayat dari jalur perasaan | 2:280, 28:73 |
 | aku overthinking terus | feeling | Ayat dari jalur perasaan | 3:139 |
 | aku ngerasa dosaku terlalu banyak | feeling | Ayat dari jalur perasaan | 24:22, 4:17 |
-| aku malas ibadah | feeling | Entri Indeks Tematik | Ibadah — 2 entri |
+| aku malas ibadah | feeling | Ayat dari jalur perasaan | 92:7 |
 | aku patah hati | feeling | Ayat dari jalur perasaan | 2:216 |
-| aku stres skripsi | feeling | Ayat dari jalur perasaan | 2:286, 96:5 |
+| aku stres skripsi | feeling | Ayat dari jalur perasaan | 2:286, 20:26 |
 | gimana cara berbakti sama orang tua | life | Ayat dari jalur perasaan | 14:41, 17:23 |
 | aku belum dapet jodoh | life | Ayat dari jalur perasaan | 25:74 |
 | susah cari kerja | life | Ayat dari jalur perasaan | 2:286, 2:280 |

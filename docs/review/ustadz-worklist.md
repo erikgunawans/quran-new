@@ -27,6 +27,7 @@ Selama masih kosong, aplikasi memilih diam.
 | 5 | Apa itu Al-Qur'an? | QS 2:2, QS 17:9, QS 15:9 | — |
 | 6 | Apa itu iman? | QS 2:285, QS 49:15 | — |
 | 7 | Apa itu takwa? | QS 2:2, QS 49:13 | — |
+| 8 | Ada berapa jumlah nabi dan rasul? | QS 4:164, QS 40:78, QS 6:83, QS 4:163 | Pertanyaan 'jumlah pasti' yang sensitif. Yang tetap dari Al-Qur'an: 25 nabi disebut namanya, dan Allah menegaskan ada rasul yang TIDAK diceritakan kepada kita (QS 4:164, 40:78). Angka populer '124.000 nabi / 315 rasul' berasal dari hadits (Abu Dzar/Abu Umamah) yang DINILAI LEMAH (ضعيف) oleh Ibnu Baz, tidak dikuatkan Ibnu 'Utsaimin, dan disebut lemah sanadnya oleh Al-Albani — bukti berperingkat dari Ensiklopedia Dorar di docs/review/jumlah-nabi-rasul-evidence.md. Mohon Ustadz menetapkan sikap dan redaksinya; kami tidak mengarang angka. |
 
 > Usulan ayat di atas adalah usulan kami, bukan ketetapan. Mohon diganti bila kurang tepat.
 
