@@ -31,6 +31,7 @@ import { understandThemes } from "./theme-understand.ts";
 import { liveThemeModel } from "./theme-live.ts";
 import { copyVerse, shareVerse, shareVerseImage } from "./share.ts";
 import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./tafsir.ts";
+import { tafsirTierHtml } from "./tafsir-tier.ts";
 import { migrateStorage } from "./migrate-storage.ts";
 import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
 import { esc, findPlayButton, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
@@ -262,7 +263,10 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       // branch unreachable, so the pointer this lane exists to give never rendered.
       const k = await retrieveKnowledge(t.q);
       if (!k) return renderTurn({ q: t.q, kind: "silence" }, animate);
-      return knowledgeHtml(k);
+      // THIRD TIER. When the index came back thin, follow it with the ayah it points at and a named
+      // mufasir's verbatim words about that ayah. Returns "" whenever it does not fire or anything
+      // fails, so this line can only ever ADD to the answer above it — never replace or break it.
+      return knowledgeHtml(k) + (await tafsirTierHtml(k, t.q, mount));
     }
 
     case "aqidah": {

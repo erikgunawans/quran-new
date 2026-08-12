@@ -144,8 +144,9 @@ export function tafsirStackHtml(tafsir: TafsirPassage[], voices: Map<string, Voi
 const tafsirCache = new Map<string, TafsirPassage[]>();
 let sourcesPromise: Promise<Map<string, Voice>> | null = null;
 
-/** Fetched once, reused by every lazy load on the page. */
-function loadTafsirSources(): Promise<Map<string, Voice>> {
+/** Fetched once, reused by every lazy load on the page — and by the third tier (`tafsir-tier.ts`),
+ * which shares this cache rather than opening a second one. */
+export function loadTafsirSources(): Promise<Map<string, Voice>> {
   if (!sourcesPromise) {
     sourcesPromise = fetch("/tafsir/sources.json").then(async (res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -159,7 +160,7 @@ function loadTafsirSources(): Promise<Map<string, Voice>> {
 /** A 404 here is a REAL, honest possibility — a handful of ayahs are silent in one source or
  * another (e.g. As-Sa'di on 72:11) — so it resolves to `[]`, not a thrown error. A network
  * failure (not 404) still throws, so the caller can show a real retry, not a false silence. */
-async function loadTafsir(surah: number, ayah: number): Promise<TafsirPassage[]> {
+export async function loadTafsir(surah: number, ayah: number): Promise<TafsirPassage[]> {
   const key = `${surah}:${ayah}`;
   const cached = tafsirCache.get(key);
   if (cached) return cached;

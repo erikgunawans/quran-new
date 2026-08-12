@@ -947,6 +947,25 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .know-credit a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .know-derivative { margin: 0.35rem 0 0; font-size: var(--step--1); color: var(--ink-3); line-height: 1.5; }
 
+/* ── the third tier (tafsir-tier.ts) ────────────────────────────────────────────
+   Follows a THIN knowledge answer with the ayah it points at plus one mufasir's verbatim words.
+   Separated from the index above it by a rule, because the two have different guarantees: the list
+   is Ustadz Thalib's index, this is a different scholar's commentary, and blurring them would let
+   one borrow the other's authority. Tokens only — no colour literals (see memory
+   hardcoded-literals-outlive-tokens; retheming via :root silently fails past a literal). */
+.tier3 { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.tier3-lead { color: var(--ink-2); }
+.tier3-tafsir { margin: 1rem 0 0; padding: 0; }
+.tier3-who { font-size: var(--step--1); color: var(--ink-2); line-height: 1.5; }
+.tier3-who b { color: var(--ink); font-weight: 600; }
+.tier3-txt {
+  margin: 0.5rem 0 0; padding: 0 0 0 0.9rem; border-left: 2px solid var(--line);
+  color: var(--ink); line-height: 1.7; white-space: pre-wrap;
+}
+.tier3-why { margin: 0.55rem 0 0; font-size: var(--step--1); color: var(--ink-3); line-height: 1.5; }
+.tier3-why b { color: var(--ink-2); font-weight: 600; }
+.tier3-more { margin: 0.9rem 0 0; font-size: var(--step--1); color: var(--ink-3); line-height: 1.5; }
+
 /* ── reviewed-aqidah answer — the ustadz's verbatim prose + the verses he approved ──
    Same law as above: the app authors nothing. `.know-answer` is Ustadz Ahmad Isrofiel's own words;
    `.know-verses` groups the approved verse links below the prose (a row, not the entry list). */

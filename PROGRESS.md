@@ -8,6 +8,62 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (third tier) — the source was chosen by measuring it, and the feature nearly amplified our worst answer
+
+The knowledge lane answers `hukum warisan di islam` with two of Ustadz Thalib's index captions and
+a reference. True, sourced, and — at one or two lines — no answer at all. Erik's amendment when this
+was grilled: *"A bare pointer is not an answer."* Tier 3 now follows a thin answer with the ayah it
+points at and one mufasir's verbatim words about that ayah. The app still never rules and never
+composes. It quotes.
+
+**Which of the three scholars may be quoted was settled by scanning all 6,236 shards, not by taste.**
+Al-Mukhtasar is Indonesian in every one, present in every one, p50 292 chars, **max 2,976**.
+Ibn Kathir is **English in every single shard**. As-Sa'di runs to **39,525 characters on 4:11** — the
+flagship inheritance verse this tier exists for. So Al-Mukhtasar is the only source that can be
+quoted WHOLE, and that is what keeps "verbatim" literally true rather than aspirational. Tier 3
+makes no ordering claim; the unranked three-scholar stack is one tap away, untouched — which is
+precisely the question still open with Ustadz Ahmad.
+
+**The probe caught a hazard the spec did not contain.** `apa hukum nikah siri` returns ONE entry
+whose lead ref is QS 4:25 — *"Nikahi budak perempuan dengan izin tuannya"* — an answer this project
+already records as live and **worse than silence**. It is thin by every measure here, so tier 3
+would have promoted a one-line caption into a full verse card plus a scholar's tafsir on slavery,
+under a marriage question, while the review letter sits unsent. Marriage-shaped questions are HELD
+until that letter comes back. `pacaran` protects itself for a different reason — 6 entries, above
+the cut — and `talak`/`warisan` are deliberately NOT held, both measured correct.
+
+**Three things only measurement or an adversary could have found.**
+
+1. **A test that could never fail.** Force-red on four guards: three bit, one stayed green at 22/22.
+   The `entries.length === 0` check was dead — `find` on an empty array already returns `undefined`.
+   Deleted, with the reasoning kept in the comment. A line that reads as a guard while guarding
+   nothing is how the next reader comes to trust a check that isn't there.
+2. **Prominence is a ranking signal even when the reason is length.** An advisor call named it: the
+   reader sees one tafsir printed and three names in a drawer, and never sees the character counts.
+   The justification lived in a commit message while the claim lived on the glass. The criterion is
+   now rendered as visible text and verified live, not grepped.
+3. **`\bmenikah\b` does not match `menikahi`** — the exact word in the 4:25 caption. `bolehkah
+   menikahi budak` walked straight through the hold. It never reached the ayah in the live probe
+   only because `looksFactual` rejected that phrasing upstream: **a guard that passes because a
+   different guard caught it is not a guard that works.** Now a stem match.
+
+**Frequency, because "third tier" is a claim about traffic:** 0 of the 30 representative ask-seed
+candidates fire it; ~32% of hukum-shaped knowledge answers do. It is a third tier, not the main path.
+
+Verified live in real Chrome across four cases — fires on `hukum warisan di islam` and
+`hukum ghibah`, suppressed by the cut on `apa itu zakat` (8 entries) and by the hold on
+`apa hukum nikah siri`. Both themes measured for the ink-desync failure: light `L=0.318` on `L=0.99`,
+dark `L=0.97` on `rgb(8,23,15)`. Screenshots were unavailable all session — `macos windows` returns
+`[]`, the minimized-Chrome blocker — so the visual is asserted from computed styles and DOM text,
+not from an image. Stated rather than implied.
+
+typecheck 0 · `bun test` 1148/0 (+35) · build 0. ISA 410/411. **Prod untouched — the deploy is
+Erik's call.**
+
+**Next:** Erik sends the pin request; then Aqeedah Ar→Id in `~/printing-press/library/tafseer-okf`.
+
+---
+
 ## 2026-08-12 (close) — the synthesis edition is back from the dead
 
 `new-quranku-ai.axiara.ai` had been answering `{"answer":null}` since 2026-08-10, when the Worker
