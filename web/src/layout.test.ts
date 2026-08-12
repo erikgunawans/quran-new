@@ -172,8 +172,11 @@ describe("attribution: who said it out-ranks how it is filed", () => {
 describe("the empty state teaches — DESIGN.md's rule needs an element to bind", () => {
   test("the landing ships the two pills", () => {
     const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
-    expect(html).toMatch(/class="seed seed-pill"[^>]*id="seed-q"/);
-    expect(html).toMatch(/class="seed seed-pill"[^>]*id="pop-open"/);
+    // `seed-pill` ALONE, never `seed seed-pill` — see landing-cards.test.ts. Carrying `.seed` for
+    // its looks silently enrolled these in main.ts's seed handler, which asks Tanya the button's
+    // own label; it shipped to production that way.
+    expect(html).toMatch(/class="seed-pill"[^>]*id="seed-q"/);
+    expect(html).toMatch(/class="seed-pill"[^>]*id="pop-open"/);
   });
 
   test("the cards live inside .seeds, so the composer still docks above them", () => {

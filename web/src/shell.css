@@ -469,11 +469,23 @@
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   width: 100%; max-width: 660px; margin-left: auto; margin-right: auto;
 }
+/* STANDALONE styling — the pills deliberately do NOT carry `.seed`.
+   They looked identical when they did, and it shipped a real bug to production: main.ts binds a
+   delegated document handler on `.seed` that calls `ask(button.textContent)`, so a click on either
+   pill ALSO asked Tanya the button's own label — "Acak pertanyaan" and "Yang sering dibuka" were
+   being sent as questions. Reusing a class for its looks silently opts you into its behaviour. So
+   these restate the pill appearance rather than inherit it, and are not seeds. */
 .qk-panel-body .seed-pill {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; min-height: 44px; padding: 11px 18px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--f-ui); font-size: 15px; cursor: pointer;
+  background: rgba(255,255,255,.62); border: 1px solid var(--line-strong); border-radius: 999px;
+  color: var(--panel-ink-2); backdrop-filter: blur(14px);
+  transition: border-color var(--t), color var(--t);
 }
+.qk-panel-body .seed-pill:hover { border-color: var(--primary-line); color: var(--primary); }
+:root[data-theme="dark"] .qk-panel-body .seed-pill { background: rgba(255,255,255,.06); }
 .qk-panel-body .seed-pill svg { width: 16px; height: 16px; flex: none; }
 /* Below this the pair genuinely does not fit side by side, so stacking is chosen rather than
    inherited from a wrap nobody intended. */

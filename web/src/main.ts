@@ -894,7 +894,13 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("click", (e) => {
   const el = e.target as HTMLElement;
 
-  const seed = el.closest<HTMLButtonElement>(".seed");
+  // A seed is a button whose LABEL IS THE QUESTION — pressing it asks exactly what it says. That
+  // makes the class dangerous to reuse for looks: `.seed-pill` (the landing's two controls) briefly
+  // carried `.seed` for its pill styling and this handler dutifully asked Tanya "Acak pertanyaan"
+  // and "Yang sering dibuka", because those are the labels. Excluded explicitly rather than relying
+  // on the markup staying disciplined, since the failure is silent and the damage is a nonsense
+  // question sent on the reader's behalf.
+  const seed = el.closest<HTMLButtonElement>(".seed:not(.seed-pill)");
   if (seed) {
     void ask(seed.textContent!.trim());
     return;

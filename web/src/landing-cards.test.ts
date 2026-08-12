@@ -7,6 +7,8 @@
  * held for review are asserted absent BY NAME, so re-adding one has to be deliberate.
  */
 import { afterAll, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { registerDom, unregisterDom } from "./test-dom.ts";
 import { ASK_SEEDS, nextSeed } from "./ask-seeds.ts";
 
@@ -68,8 +70,8 @@ describe("wiring", () => {
   function mount(): void {
     document.body.innerHTML = `
       <div class="seeds">
-        <button class="seed seed-pill" id="seed-q"><span>Acak pertanyaan</span></button>
-        <button class="seed seed-pill" id="pop-open"><span>Yang sering dibuka</span></button>
+        <button class="seed-pill" id="seed-q"><span>Acak pertanyaan</span></button>
+        <button class="seed-pill" id="pop-open"><span>Yang sering dibuka</span></button>
       </div>
       <form id="composer"><textarea></textarea></form>`;
     bindLandingCards();
@@ -152,5 +154,39 @@ describe("wiring", () => {
   test("Anti: binding on a page without the cards does not throw", () => {
     document.body.innerHTML = `<main></main>`;
     expect(() => bindLandingCards()).not.toThrow();
+  });
+});
+
+/**
+ * THE BUG THIS FILE FAILED TO CATCH THE FIRST TIME, and why it needs source-level assertions.
+ *
+ * The pills shipped to production carrying `class="seed seed-pill"`, borrowed for the pill look.
+ * `main.ts` binds a delegated document handler on `.seed` that calls `ask(button.textContent)` —
+ * so pressing either pill ALSO asked Tanya its own label: "Acak pertanyaan", "Yang sering dibuka".
+ *
+ * The wiring tests above could not see it. They mount their own fixture and never load main.ts's
+ * handler, so the only thing under test was the binding I wrote — not the page it lands on. The
+ * live probe missed it too, because it read `box.value` and never checked whether a turn had been
+ * appended. Both greens were true and neither was about the failure.
+ *
+ * These assert the SOURCE, which is where the coupling lives and where a future edit would undo it.
+ */
+describe("the pills are not seeds — reusing a class for looks opts you into its behaviour", () => {
+  const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
+  const main = readFileSync(join(import.meta.dir, "main.ts"), "utf8");
+
+  test.each(["seed-q", "pop-open"])("#%s does not carry the .seed class", (id) => {
+    const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
+    // Split the class list into TOKENS rather than pattern-matching the attribute. The first
+    // version of this asserted `not.toMatch(/\bseed\b/)` and failed on the correct markup, because
+    // `-` is a word boundary — `\bseed\b` matches inside `seed-pill`. A class is a token, so the
+    // test has to compare tokens.
+    const classes = (tag.match(/class="([^"]*)"/)?.[1] ?? "").split(/\s+/).filter(Boolean);
+    expect(classes).toContain("seed-pill");
+    expect(classes).not.toContain("seed");
+  });
+
+  test("and the handler excludes them anyway — belt and braces, because the failure is silent", () => {
+    expect(main).toContain('.seed:not(.seed-pill)');
   });
 });
