@@ -20,7 +20,7 @@
 import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
-import { guardAnswerProse } from "../../web/src/answer-guard.ts";
+import { guardAnswerProse, type AnswerViolationKind } from "../../web/src/answer-guard.ts";
 import { isRealAyah } from "../../web/src/quran.ts";
 import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
@@ -499,6 +499,15 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   const user = buildAnswerUserMessage({ question, verses, entries });
 
   let answer: string | null = null;
+  // WHY the answer is null, when it is null. Until this existed the endpoint had ONE null channel for
+  // two entirely different events — "the model had nothing to say" and "the model said something good
+  // and the wall stopped it" — and the browser rendered the identical honest-silence copy for both.
+  // For a question whose truthful answer is a hadith that copy ("aku belum menemukan ayat yang cocok")
+  // is not honest at all: an answer WAS found, and the app is choosing not to attribute it without a
+  // receipt. A reader cannot tell a corpus gap from a deliberate refusal, so they read the refusal as
+  // ignorance. Naming the blocking rule lets the browser say which one happened. Absent on success and
+  // on model failure; the principled edition never sets it, so an older client sees today's behaviour.
+  let blocked: AnswerViolationKind | null = null;
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
     // One retry on a guard reject (a fresh generation usually clears it), exactly like compose. A
@@ -506,16 +515,30 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     // mushaf (isRealAyah), not the grounding — the model may reach for any ayah, just not a fake one.
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const candidate = (await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, ANSWER_PARAMS))?.trim();
-      if (candidate && guardAnswerProse(candidate, isRealAyah).ok) {
+      if (!candidate) continue;
+      // The third argument is the hadith-grounding predicate and it is EMPTY ON PURPOSE, not by
+      // omission — the previous code relied on the parameter's default, which read as an oversight and
+      // was diagnosed as one. It is empty because this path retrieves no hadith: `worker/src/dalil.ts`
+      // (searchDalil) is built but not wired in here, and SYNTHESIS_SYSTEM_PROMPT never teaches the
+      // model the `[H:collection:number]` marker syntax, so the model cannot emit a receipt even if
+      // the union were populated. Passing `groundedHadithFrom([])` here instead would be byte-identical
+      // and would falsely suggest hadith grounding works. Both blockers are tracked as ISCs; until BOTH
+      // are cleared — and the ustadz has ruled on whether hadith text may display at all — every
+      // prophetic attribution is correctly refused, and `blocked` is how the reader learns that.
+      const verdict = guardAnswerProse(candidate, isRealAyah, () => false);
+      if (verdict.ok) {
         answer = candidate;
+        blocked = null;
         break;
       }
+      // Last attempt wins the diagnosis: report the rule that actually stopped the final candidate.
+      blocked = verdict.violations[0]?.kind ?? null;
     }
   } catch {
     return json({ answer: null }, 200, request); // model/key failure → browser falls back to principled
   }
 
-  return json({ answer }, 200, request);
+  return json({ answer, blocked }, 200, request);
 }
 
 // ── /api/events — the memory write path (issue 02) ────────────────────────────

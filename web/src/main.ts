@@ -26,6 +26,7 @@ import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
+import type { AnswerViolationKind } from "./answer-guard.ts";
 import { liveAnswerModel } from "./answer-live.ts";
 import { understandThemes } from "./theme-understand.ts";
 import { liveThemeModel } from "./theme-live.ts";
@@ -202,6 +203,55 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
     // warm count pointer is demo-only; see COUNT_DEFER in `web/demo/demo.ts`.
     case "count-defer":
       return renderTurn({ q: t.q, kind: "silence" }, animate);
+
+    // The wall refused a good answer because it was a hadith. Say THAT, and open a door.
+    //
+    // What this deliberately does NOT do is render the hadith. No text, no Arabic, no attribution,
+    // not even a collection name — the refused prose never reaches this function. Whether hadith text
+    // may EVER display in this app is still with the ustadz, and `SHOW_MACHINE_HADITH_TEXT` is false;
+    // a pointer to a tab the reader can already open themselves does not touch that question. The
+    // register is `count-defer`'s, which shipped for the same admission.
+    // CONTENT-FREE ON PURPOSE, and the first draft of this copy was not.
+    //
+    // It opened "Aku menemukan jawabannya" — I found the answer. For a yes/no question ("apakah benar
+    // bahwa sakit menghapus dosa?") that sentence IS the answer: it implies yes. An unreceipted
+    // prophetic claim wearing a pointer costume walks straight through the wall this whole change was
+    // built to respect. So the copy now says only what KIND of source answers questions like this, and
+    // never whether such a hadith exists, what it says, or that the reader's premise was right.
+    //
+    // The pointer is also deliberately modest. The Hadis tab is live ARABIC-ONLY — the Indonesian
+    // layer is unreviewed machine translation and gated dark — so promising an answer there would send
+    // someone asking in Indonesian to a wall of untranslated text.
+    case "hadith-defer":
+      return `
+        <p class="said">Pertanyaan seperti ini biasanya dijawab dari <b>hadis</b>, bukan dari ayat.</p>
+        <div class="silence">
+          <p>Aku belum bisa mengutip sabda Nabi ﷺ di sini, karena aku belum bisa menunjukkan
+          sumbernya secara utuh supaya kamu bisa memeriksanya sendiri. Aku memilih diam daripada
+          menyebut sabda beliau tanpa rujukan — dan aku juga tidak mau menyimpulkan jawabannya
+          untukmu.</p>
+          <p>Tab <a href="#/hadis">Hadis</a> memuat kitab-kitab utamanya, tapi <b>teksnya masih
+          bahasa Arab</b>. Untuk kepastian sebuah hadis, sebaiknya tanyakan ke <b>ustadz</b>. Kalau
+          mau, coba tanyakan lagi dari sisi <b>ayatnya</b> — itu bisa aku bantu telusuri.</p>
+        </div>`;
+
+    // A refusal that is NOT about hadith, landing where the corpus-gap copy would otherwise have lied.
+    //
+    // Reached only when the wall stopped an answer AND every fallback also came up empty. Says nothing
+    // about what scripture does or does not contain, because it does not know: a `fatwa` block means
+    // the model issued a ruling, not that the Qur'an is silent, and telling a reader "aku belum
+    // menemukan ayat yang cocok" for their fiqh question is a false claim about the mushaf. Carries no
+    // rule name and no fragment — our internal quality failures are not the reader's business.
+    case "answer-blocked":
+      return `
+        <p class="said">Untuk yang ini aku belum bisa memberi jawaban yang bisa aku pertanggungjawabkan.</p>
+        <div class="silence">
+          <p>Bukan berarti Al-Qur'an diam soal ini — hanya saja jawaban yang tersusun tadi tidak lolos
+          pemeriksaanku sendiri, dan aku memilih tidak menyampaikannya daripada menyampaikan sesuatu
+          yang belum tentu benar.</p>
+          <p>Kalau ini soal <b>hukum</b>, itu ranah <b>ustadz</b> — aku tidak menetapkan halal-haram.
+          Coba juga tanyakan dengan kata-kata lain, atau telusuri lewat <a href="#/peta">Tematik</a>.</p>
+        </div>`;
 
     case "silence":
       return `
@@ -454,6 +504,15 @@ function announceTurn(t: Turn): void {
     case "refer":
       say("Ini soal hukum keluarga. New-Quranku menyarankan bertanya kepada ustadz.");
       break;
+    // Announced, not left to `default`, so the refusal is audible. A screen-reader user hearing
+    // nothing would have no way to tell this apart from the silence turn — the same conflation this
+    // whole change exists to undo, one modality over.
+    case "hadith-defer":
+      say("Pertanyaan seperti ini dijawab dari hadis, bukan dari ayat. New-Quranku tidak mengutip sabda Nabi tanpa rujukan.");
+      break;
+    case "answer-blocked":
+      say("Belum ada jawaban yang bisa dipertanggungjawabkan untuk ini. New-Quranku tidak menyampaikan jawaban yang belum lolos pemeriksaan.");
+      break;
     default:
       break;
   }
@@ -556,11 +615,27 @@ async function ask(question: string) {
     // rejected the output — synthesizeAnswer returns null and we fall straight through to the
     // principled resolution below, so this edition is never worse than the trustworthy one.
     let synthesized = false;
+    // Remembered, not acted on immediately — see the `blocked` branch below.
+    let blockedBy: AnswerViolationKind | null = null;
     if (isSynthesis() && ref.kind === "not-a-ref" && corpus && !referral) {
       const ai = await synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
-      if (ai) {
+      if (ai?.kind === "answer") {
         turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
         synthesized = true;
+      } else if (ai?.kind === "blocked" && ai.by === "bad_hadith") {
+        // ONLY the hadith rule earns the Hadis pointer, because only for it is the pointer TRUE: the
+        // kind of source that answers the question is a hadith collection, and we have one. Sending a
+        // fiqh question there would be a wrong turn, not a modest one.
+        turn = { q, kind: "hadith-defer" };
+        synthesized = true;
+      } else if (ai?.kind === "blocked") {
+        // Every OTHER refusal (`fatwa`, `arabic`, `bad_ref`) keeps its fall-through, because falling
+        // through is usually the better answer: if retrieval found real verses, showing them beats an
+        // apology. What must not survive is the fall-through landing on `silence` — "aku belum
+        // menemukan ayat yang cocok" is a claim about the corpus, and for a blocked fiqh question it is
+        // simply false. So the block is remembered and only swapped in at the end, if nothing else
+        // filled the turn. Narrower than replacing the copy outright, and it keeps the good outcomes.
+        blockedBy = ai.by;
       }
     }
 
@@ -600,6 +675,12 @@ async function ask(question: string) {
         if (knowledge) turn = { q, kind: "knowledge", slug: knowledge.slug };
       }
     }
+
+    // LAST WORD on a refusal: the wall stopped an answer and every fallback came up empty too, so the
+    // only thing left to render was the corpus-gap copy — which would state, falsely, that nothing in
+    // the corpus matched. Swap it for copy that makes no claim about the corpus at all. Ordered after
+    // every fallback on purpose: a block that still found verses or a reviewed entry keeps them.
+    if (blockedBy && turn.kind === "silence") turn = { q, kind: "answer-blocked" };
 
     answer.innerHTML = await renderTurn(turn);
     announceTurn(turn);

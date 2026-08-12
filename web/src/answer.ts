@@ -14,7 +14,8 @@
  * principled edition, never worse.
  */
 import type { AnswerContext, AnswerModel, GroundingEntry, GroundingVerse } from "./answer-contract.ts";
-import { refsInProse, safeAnswer } from "./answer-guard.ts";
+import { refsInProse, safeAnswer, type AnswerViolationKind } from "./answer-guard.ts";
+import { AnswerBlockedError } from "./answer-live.ts";
 import { retrieveKnowledge } from "./knowledge.ts";
 import { isRealAyah } from "./quran.ts";
 import { retrieve, type Corpus } from "./retrieve.ts";
@@ -35,6 +36,23 @@ export interface SynthesisAnswer {
   /** The ayat the model ACTUALLY CITED, to render as cards below the prose (in our translation). */
   readonly refs: readonly string[];
 }
+
+/**
+ * What the synthesis attempt produced — an answer, or a named refusal.
+ *
+ * `null` still means what it always meant: an ABSENCE. Nothing to ground on, the model was down, the
+ * request timed out. The caller falls back to the principled edition and the reader sees the honest
+ * "I found no matching verse" copy, which is true.
+ *
+ * `blocked` is the state that had no representation before, and its absence is the bug this type
+ * fixes. The model DID answer, the answer may well have been right, and the egress wall refused it
+ * for a named reason. Rendering an absence's copy over a refusal tells the reader the corpus is empty
+ * when the truth is that the app is holding something back — the reader concludes the app does not
+ * know, and stops asking. A refusal has to be able to say so.
+ */
+export type SynthesisOutcome =
+  | ({ readonly kind: "answer" } & SynthesisAnswer)
+  | { readonly kind: "blocked"; readonly by: AnswerViolationKind };
 
 /**
  * Collect the grounding for a question: retrieval verses (with their Indonesian text) + KB entries.
@@ -94,23 +112,32 @@ export async function synthesizeAnswer(
   question: string,
   modelThemes: string[],
   model: AnswerModel,
-): Promise<SynthesisAnswer | null> {
+): Promise<SynthesisOutcome | null> {
   const { verses, entries } = await gatherGrounding(corpus, question, modelThemes);
 
   const ctx: AnswerContext = { question, verses, entries };
   let prose: string;
   try {
     prose = await model(ctx);
-  } catch {
+  } catch (err) {
+    // A NAMED refusal from the Worker's wall is signal, not noise — pass it up so the caller can point
+    // instead of falling silent. Every other throw (model down, timeout, 404, malformed body) is still
+    // an absence and still returns null.
+    if (err instanceof AnswerBlockedError) return { kind: "blocked", by: err.by };
     return null; // model error/timeout → fall back to principled
   }
 
   // Citations are validated against the mushaf, not a whitelist: any real ayah is fair game, a
   // non-existent one sinks the whole answer. Arabic and fatwa-verdict rules are unconditional.
+  //
+  // The hadith predicate is deliberately left at its `() => false` default here, and that is the
+  // SECOND wall, not a copy of the first. The Worker already guarded this prose; if a future change
+  // ever let marked hadith prose out of the edge, this re-guard would still stop it in the browser.
+  // Threading a permissive predicate through to match the Worker would remove a wall, not fix one.
   const safe = safeAnswer(prose, isRealAyah);
   if (safe === null) return null;
 
   // Render exactly the ayat the model cited (validated, de-duped, capped) — not the grounding hints.
   const refs = refsInProse(safe).filter(isRealAyah).slice(0, MAX_CARDS);
-  return { prose: safe, refs };
+  return { kind: "answer", prose: safe, refs };
 }

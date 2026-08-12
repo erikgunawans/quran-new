@@ -374,6 +374,34 @@ const COUNT_DEFER = `<div class="qk-silence">
   ke ayat atau kisah tertentu — itu bisa aku bantu telusuri.</p>
 </div>`;
 
+/* The wall refused an answer because it was a hadith. Sibling of COUNT_DEFER, same admission from the
+   other direction — that one never had an answer, this one had one and withheld it.
+
+   CONTENT-FREE, matching main.ts: it names the KIND of source, never whether such a hadith exists or
+   what it says. The earlier draft opened "aku menemukan jawabannya", which for a yes/no question IS
+   the answer, and smuggled an unreceipted prophetic claim through as a pointer.
+
+   REACHABILITY, stated rather than implied: the demo drives `demoAnswerModel`, not `answer-live.ts`,
+   so it never receives a `blocked` field and this branch is currently unreachable here. It exists
+   because the demo shares `Turn` through `thread.ts` storage, and a non-total renderer is how a stored
+   turn becomes a blank bubble. */
+const HADITH_DEFER = `<div class="qk-silence">
+  <p>Pertanyaan seperti ini biasanya dijawab dari <b>hadis</b>, bukan dari ayat. Aku belum bisa
+  mengutip sabda Nabi ﷺ di sini, karena aku belum bisa menunjukkan sumbernya secara utuh supaya kamu
+  bisa memeriksanya sendiri.</p>
+  <p>Aku memilih diam daripada menyebut sabda beliau tanpa rujukan, dan aku juga tidak mau
+  menyimpulkan jawabannya untukmu. Untuk kepastian sebuah hadis, tanyakan ke <b>ustadz</b>.</p>
+</div>`;
+
+/* A refusal that is not about hadith, where the corpus-gap copy would otherwise have made a false
+   claim about the mushaf. Same reachability note as HADITH_DEFER. */
+const ANSWER_BLOCKED = `<div class="qk-silence">
+  <p>Untuk yang ini aku belum bisa memberi jawaban yang bisa aku pertanggungjawabkan. Bukan berarti
+  Al-Qur'an diam soal ini — jawaban yang tersusun tadi tidak lolos pemeriksaanku sendiri.</p>
+  <p>Kalau ini soal <b>hukum</b>, itu ranah <b>ustadz</b> — aku tidak menetapkan halal-haram. Coba
+  tanyakan dengan kata-kata lain.</p>
+</div>`;
+
 /* ── the chat thread ─────────────────────────────────────────────────
    Matches the live new-quranku-ai edition: an accumulating conversation, not a single answer.
    We persist what the engine DECIDED (a ref, hits, an AI prose turn) via thread.ts and re-derive
@@ -500,6 +528,10 @@ async function renderTurn(t: Turn): Promise<string> {
       return REFER;
     case "count-defer":
       return COUNT_DEFER;
+    case "hadith-defer":
+      return HADITH_DEFER;
+    case "answer-blocked":
+      return ANSWER_BLOCKED;
     case "silence":
       return SILENCE;
   }
@@ -537,7 +569,11 @@ async function resolveTurn(q: string): Promise<Turn> {
   // translation). Retrieval verses and the curated pins reach it as grounding hints inside
   // synthesizeAnswer. Null (model down / guard reject) falls back below — never worse than principled.
   const ai = await synthesizeAnswer(c, q, modelThemes, demoAnswerModel);
-  if (ai) return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
+  if (ai?.kind === "answer") return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
+  // A hadith refusal admits itself here too, for the same reason it does in the main app: the demo is
+  // a faithful clone, and showing a corpus-gap message over a deliberate withhold would misrepresent
+  // the product to exactly the audience the demo exists to convince.
+  if (ai?.kind === "blocked" && ai.by === "bad_hadith") return { q, kind: "hadith-defer" };
 
   // FALLBACKS, only when the model bowed out. A factual question still never drops to the feeling
   // lane: the reviewed index, an honest topic pointer, or silence. Otherwise: hits, else silence.

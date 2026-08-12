@@ -8,6 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import { gatherGrounding, isRealAyah, synthesizeAnswer } from "./answer.ts";
 import { refsInProse } from "./answer-guard.ts";
+import { AnswerBlockedError } from "./answer-live.ts";
 import type { AnswerContext } from "./answer-contract.ts";
 import type { Corpus } from "./retrieve.ts";
 
@@ -110,8 +111,9 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
       [],
       model("Berbakti kepada orang tua itu inti. Lihat QS Al-Isra 17:23."),
     );
-    expect(ai).not.toBeNull();
-    expect(ai!.refs).toEqual(["17:23"]); // rendered card = what the model actually cited
+    expect(ai?.kind).toBe("answer");
+    // rendered card = what the model actually cited
+    expect(ai?.kind === "answer" ? ai.refs : null).toEqual(["17:23"]);
   });
 
   test("a warm answer with NO citation still ships — no more brush-off bail", async () => {
@@ -122,8 +124,8 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
       [],
       model("Menjaga amanah itu berat, dan niatmu untuk memperbaiki diri sudah satu langkah baik."),
     );
-    expect(ai).not.toBeNull();
-    expect(ai!.refs).toEqual([]);
+    expect(ai?.kind).toBe("answer");
+    expect(ai?.kind === "answer" ? ai.refs : null).toEqual([]);
   });
 
   test("a non-existent ayah sinks the whole answer", async () => {
@@ -134,5 +136,38 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
   test("a fatwa verdict is rejected — the warm-teacher boundary holds", async () => {
     const ai = await synthesizeAnswer(corpus, "hukum riba", [], model("Riba itu haram hukumnya."));
     expect(ai).toBeNull();
+  });
+});
+
+describe("synthesizeAnswer — a refusal from the edge is reported, not swallowed", () => {
+  const throwing = (err: Error) => (_ctx: AnswerContext) => Promise.reject(err);
+
+  test("the Worker's hadith refusal comes back as a named block, not as null", async () => {
+    // The bug in one assertion. Before this, the edge said "I had an answer and my wall stopped it"
+    // and the orchestrator flattened that into the same null it uses for a corpus gap — so the reader
+    // was told no verse matched when the truth was that the answer was in a hadith.
+    const ai = await synthesizeAnswer(corpus, "apakah sakit menghapus dosa", [], throwing(new AnswerBlockedError("bad_hadith")));
+    expect(ai).toEqual({ kind: "blocked", by: "bad_hadith" });
+  });
+
+  test("every other refusal kind is reported with its own name", async () => {
+    // main.ts routes on the name and today points only for `bad_hadith`. The other three must still
+    // arrive intact rather than being coerced, or that routing decision cannot be revisited later.
+    const ai = await synthesizeAnswer(corpus, "hukum riba", [], throwing(new AnswerBlockedError("fatwa")));
+    expect(ai).toEqual({ kind: "blocked", by: "fatwa" });
+  });
+
+  test("a model that is merely DOWN is still an absence, not a refusal", async () => {
+    // The load-bearing negative. If an ordinary failure leaked through as a block, the reader would be
+    // told their answer lives in a hadith every time the endpoint 404'd or the key expired — a
+    // confident false claim, which is strictly worse than the silence this change replaces.
+    expect(await synthesizeAnswer(corpus, "apa itu sabar", [], throwing(new Error("no answer")))).toBeNull();
+    expect(await synthesizeAnswer(corpus, "apa itu sabar", [], throwing(new Error("/api/answer returned 404")))).toBeNull();
+  });
+
+  test("Anti: a timeout never becomes a hadith pointer", async () => {
+    const abort = new Error("The operation was aborted.");
+    abort.name = "AbortError";
+    expect(await synthesizeAnswer(corpus, "apa itu sabar", [], throwing(abort))).toBeNull();
   });
 });

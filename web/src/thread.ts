@@ -78,6 +78,20 @@ export type Turn =
   // question, the honest pointer copy is re-derived at render time. See looksLikeCount() in
   // question-form.ts. Curated ustadz-reviewed count answers (if added) outrank this via the aqidah lane.
   | { q: string; kind: "count-defer" }
+  // A question the SYNTHESIS edition answered well and its own egress wall refused, because the honest
+  // answer was a hadith and the app cannot yet produce a receipt for one. Sibling of `count-defer` —
+  // same admission ("this one is in the hadith, not in an ayah"), reached from the other direction: the
+  // count case never had an answer, this one had one and withheld it. Carries only the question; the
+  // pointer copy is re-derived at render time. Never carries the refused prose — an unreceipted
+  // prophetic attribution must not reach storage, let alone a screen. Never produced by the principled
+  // build, which authors nothing to refuse.
+  | { q: string; kind: "hadith-defer" }
+  // The wall refused an answer for a reason that is NOT hadith (a fiqh verdict, stray Arabic, an
+  // invented ayah reference) AND every fallback also came up empty. Distinct from `silence`, which
+  // claims the corpus holds nothing matching — a claim that is FALSE here and, for a fiqh question,
+  // a false statement about the mushaf itself. Carries only the question: never the rule that tripped,
+  // never the refused prose.
+  | { q: string; kind: "answer-blocked" }
   | { q: string; kind: "silence" };
 
 interface Stored {
