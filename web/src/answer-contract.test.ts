@@ -15,6 +15,11 @@ describe("SYNTHESIS_SYSTEM_PROMPT — the fences a careless edit must not remove
     ["no Arabic", /never write arabic/i],
     ["not a mufti (warm-teacher boundary)", /not a mufti|binding verdict/i],
     ["not a scholar / humble", /not.*scholar|humble/i],
+    // Both added 2026-08-12 after a volume audit of live answers. Each is a fix at the INGESTION
+    // point for a shape the egress wall deliberately does not police: a hard rule there would have
+    // rejected the app's best answers and fallen back to the caption list.
+    ["never write out a translation itself", /never write out the translation/i],
+    ["no unsourced claim of scholarly consensus", /never assert that the scholars agree|sepakat/i],
   ])("still teaches %s", (_label, re) => {
     expect(SYNTHESIS_SYSTEM_PROMPT).toMatch(re);
   });

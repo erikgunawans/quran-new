@@ -1,8 +1,33 @@
 # Permohonan review — pin ayat untuk pertanyaan hukum (warisan & nikah)
 
 > Ditulis 2026-08-12 untuk **Ustadz Ahmad Isrofiel Mardlatillah**.
-> **Status: BELUM DIKIRIM.** Belum ada satu pin pun yang masuk ke kode. Halaman ini adalah
-> permintaan review, bukan catatan sesuatu yang sudah tayang.
+> **Status: BELUM DIKIRIM — DAN JANGAN DIKIRIM DALAM BENTUK INI.** Lihat blok di bawah.
+> Belum ada satu pin pun yang masuk ke kode. Halaman ini adalah permintaan review, bukan catatan
+> sesuatu yang sudah tayang.
+
+> ## ⛔ JANGAN KIRIM — surat ini memuat satu kalimat yang sekarang TIDAK BENAR
+>
+> Ditemukan 2026-08-12 malam, diukur langsung pada produksi.
+>
+> Di bawah tertulis **"Aplikasi tidak mengarang jawaban."** Sejak `EDITION` diubah ke `synthesis`
+> sore itu, **aplikasi memang mengarang jawaban** — model AI yang menyusun prosanya. Mengirim
+> kalimat itu kepada Ustadz berarti menyampaikan keadaan aplikasi secara keliru kepada orang yang
+> justru dimintai pertimbangan. Itu harus diperbaiki sebelum surat ini berangkat.
+>
+> Kedua, **premis surat ini sudah gugur.** Diukur pada `POST /api/answer`:
+>
+> - Dengan grounding **dipaksa** ke QS 4:25, jawabannya mengutip 2:221, 5:5 dan 60:10 — **QS 4:25
+>   tidak disebut sama sekali.**
+> - Tanpa grounding apa pun, aplikasi tetap menjawab lengkap.
+>
+> Artinya model **mengabaikan** hasil pencarian, bukan memolesnya. Ayat perbudakan itu **tidak
+> sampai** ke pembaca lewat jalur jawaban AI. Memperbaiki daftar pin tidak mengubah apa pun yang
+> dilihat pembaca di jalur itu — hanya di jalur cadangan (saat model gagal / ditolak penjaga).
+>
+> **Yang sebenarnya perlu ditanyakan kepada Ustadz sekarang** bukan "ayat mana untuk pertanyaan
+> mana", melainkan: bolehkah aplikasi menyusun jawaban hukum dari pengetahuan modelnya sendiri —
+> lihat ISC-418, ISC-419, ISC-420 di `ISA.md`. Surat ini perlu ditulis ulang dengan pertanyaan itu
+> di depan. Keputusan ada pada Erik.
 >
 > Yang sudah tayang di `main` hanyalah **perbaikan routing** (satu kata dihapus dari daftar alias
 > `keluarga`) — itu tidak memilih ayat, hanya mengarahkan pertanyaan ke bab yang memang memuat
