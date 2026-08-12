@@ -105,6 +105,193 @@ const MARKER_IN_PROSE = /\[H:([a-z][a-z-]*):(\d{1,6})\]/g;
 /** `bukhari` + `6962` → the corpus id the retrieval layer returns. */
 export const markerToId = (collection: string, n: string | number): string => `hadith-${collection}-${Number(n)}`;
 
+/* ------------------------------------------------------------------------------------------------
+ * THE ATTRIBUTION GRAMMAR (ISC-440)
+ *
+ * Everything from here to `hadithShape` exists because the `PROPHETIC` list below leaked TWICE in
+ * production in one evening, and both times the fix was verified against one phrasing while the model
+ * reached for another within minutes:
+ *
+ *   1. `mengajarkan` — active voice, absent while `menganjurkan` was present (one letter apart).
+ *   2. `diajarkan oleh Rasulullah` — passive; the active patterns anchor subject-then-verb and
+ *      Indonesian puts the agent last via `oleh`.
+ *
+ * The root cause is not either missing word. It is that a flat `RegExp[]` has NO SLOT FOR MORPHOLOGY,
+ * so every new surface form must be typed by hand, forever — and the author's vocabulary is exactly
+ * what the test cases sample, so the list can only ever be measured against itself.
+ *
+ * An unreceipted hadith claim is irreducibly three things standing in one relation:
+ *
+ *   | part      | what it is                              | bounded?                                  |
+ *   | subject   | a referring expression for Muhammad ﷺ   | YES — a closed noun class, ~9 designations |
+ *   | predicate | a speech-act verb                       | NO  — Indonesian derives these freely      |
+ *   | relation  | the subject is the AGENT of the act      | YES — two voices, active and `oleh`-passive|
+ *
+ * The old list enumerated the UNBOUNDED part and hard-coded the bounded ones. That is inverted, and
+ * it is why it reopened twice. Below, the verb axis is GENERATED from stems by Indonesian affixation
+ * and the subject axis is enumerated — the way round the language actually is.
+ * ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Speech-act stems. Semantic, not morphological: each is a way of SAYING something, so any affixed
+ * form of it standing in an agent relation to the Prophet ﷺ is an attribution needing a receipt.
+ *
+ * Stems, never surface forms — that is the whole point. Adding `ajar` here yields `mengajarkan`,
+ * `diajarkan`, `mengajari`, `diajari`, `terajarkan` and `memperajarkan` at once. Both production leaks
+ * would have been closed by the presence of a stem that was already implied by words the list carried.
+ *
+ * What is deliberately NOT here: stems of ordinary predicates that appear near the Prophet ﷺ in
+ * legitimate prose — `tentu` (menentukan), `kenal` (dikenal), `cinta` (mencintai), `hadap`
+ * (menghadapi), `buat`, `banyak`, `rasa`, `curah`. Every one of those was checked against a corpus of
+ * compliant sentences before this list was fixed; a speech-act stem is one where the Prophet ﷺ doing
+ * it to a proposition IS a hadith claim.
+ */
+const SPEECH_ACT_STEMS = [
+  // saying, plainly
+  "sabda", "kata", "ucap", "tutur", "ujar", "bicara", "cerita", "kisah", "firman",
+  // teaching, explaining, informing
+  "ajar", "jelas", "terang", "papar", "sebut", "beritahu", "kabar", "sampai", "ungkap",
+  "tegas", "nyata", "singgung", "urai", "tunjuk", "petunjuk", "isyarat",
+  // directing, urging, forbidding
+  "anjur", "saran", "ajak", "seru", "himbau", "imbau", "suruh", "perintah", "larang",
+  "tegur", "wanti", "ingat", "peringat", "nasihat", "nasehat", "pesan", "wasiat",
+  // promising, warning, likening
+  "janji", "ancam", "jamin", "benar", "ibarat", "umpama", "gambar", "misal", "samakan", "sama",
+];
+
+/**
+ * Indonesian `meN-` prefixation with nasal assimilation. The stem's first letter decides the nasal,
+ * and four of them (`k p t s`) are ABSORBED by it:
+ *
+ *   ajar  → meng + ajar   → mengajar      sebut → meny + ebut  → menyebut   (s absorbed)
+ *   kabar → meng + abar   → mengabar      tegas → men  + egas  → menegas    (t absorbed)
+ *   jelas → men  + jelas  → menjelas      papar → mem  + apar  → memapar    (p absorbed)
+ *
+ * This is a rule of the language, not a lookup table, which is exactly why it can cover forms nobody
+ * typed. It reproduces every verb the old list carried by hand, plus both that leaked.
+ */
+const activeForm = (stem: string): string => {
+  const head = stem[0]!;
+  if ("kpts".includes(head)) {
+    const tail = stem.slice(1);
+    return { k: "meng", p: "mem", t: "men", s: "meny" }[head as "k" | "p" | "t" | "s"] + tail;
+  }
+  if ("aiueogh".includes(head)) return `meng${stem}`;
+  if ("bfv".includes(head)) return `mem${stem}`;
+  if ("djcz".includes(head)) return `men${stem}`;
+  return `me${stem}`; // l m n r w y ng ny
+};
+
+/**
+ * Every surface form of a stem that can carry an attribution — across all four voices at once.
+ *
+ * `ber-` is here because it is where half the old hand-typed list actually came from: `bersabda`,
+ * `berkata`, `berpesan`, `bercerita`, `berjanji` are one prefix over five stems. `memper-`/`diper-`
+ * catch `memperingatkan`, which no simpler rule reaches.
+ *
+ * `belajar` (ber + ajar, irreducibly irregular) is NOT generated, and must not be: "dari kisah Nabi
+ * Ayyub kita BELAJAR bahwa…" is compliant prose and generating it would refuse the app's own voice.
+ */
+const speechActForms = (stem: string): string[] => {
+  const bases = [activeForm(stem), `ber${stem}`, `di${stem}`, `ter${stem}`, `memper${stem}`, `diper${stem}`];
+  return bases.flatMap((b) => [b, `${b}kan`, `${b}i`]);
+};
+
+/** One alternation over every generated form. Longest-first so `mengajarkan` wins over `mengajar`. */
+const SPEECH_ACT = new RegExp(
+  `\\b(?:${[...new Set(SPEECH_ACT_STEMS.flatMap(speechActForms))].sort((a, b) => b.length - a.length).join("|")})\\b`,
+  "g",
+);
+
+/**
+ * Nominalised speech acts — `penjelasan`, `sabda`, `pesan`, `riwayat`. Found by adversarial probing,
+ * not by reasoning: *"Terdapat PENJELASAN DARI Rasulullah bahwa rasa sakit menggugurkan dosa"* carries
+ * the identical claim with no verb in it at all, so every verb rule of every shape is blind to it.
+ */
+const SPEECH_NOUN =
+  /\b(sabda|pesan|wasiat|nasihat|nasehat|penjelasan|keterangan|perkataan|ucapan|anjuran|larangan|perintah|ajaran|riwayat|kabar|petunjuk|arahan|peringatan|penuturan|pernyataan|seruan|kata|firman)\b/g;
+
+/**
+ * Referring expressions for Muhammad ﷺ — a genuinely CLOSED noun class, unlike the verbs. `kita`/
+ * `kami` directly after the noun is absorbed because it is POSSESSIVE, not a new subject: "Nabi kita
+ * melarang…" means *our* Prophet, and reading that `kita` as a subject would have opened the wall.
+ */
+const MUHAMMAD_SUBJECT =
+  /\b(rasulullah|rasul|nabiyullah|nabi|muhammad|beliau|baginda|junjungan|kanjeng)\b(\s+(kita|kami))?/g;
+
+/**
+ * The other prophets — the canon taught in every Indonesian madrasah. Closed and stable, which is why
+ * enumerating THIS is safe where enumerating verbs was not.
+ *
+ * `nabi` followed by one of these names is Qur'anic NARRATIVE, and the generated grammar deliberately
+ * does not reach it: *"Kisah Nabi Yusuf mengajarkan kita arti kesabaran"* and *"Nabi Musa menunjukkan
+ * kepada kita bahwa rasa takut itu manusiawi"* are the app's core competency, and refusing them would
+ * be a silent loss. Other prophets keep the legacy `PROPHETIC` vocabulary below, unchanged.
+ *
+ * An UNLISTED name therefore falls through to Muhammad ﷺ and gets the strict treatment. That is the
+ * correct failure polarity: an unknown name costs a pointer, never a fabricated hadith.
+ */
+const OTHER_PROPHET =
+  /^\s+(adam|idris|nuh|hud|shalih|saleh|ibrahim|luth|lut|ismail|ishaq|ishak|ya'?qub|yakub|yusuf|syu'?aib|ayyub|ayub|musa|harun|dzulkifli|zulkifli|dawud|daud|sulaiman|ilyas|ilyasa|yunus|zakaria|zakariya|yahya|isa|khidir|khidhir)\b/;
+
+/**
+ * A DISTINCT subject interposed between the Prophet ﷺ and the verb breaks the agent relation:
+ * "Nabi ﷺ adalah teladan bagi kita semua, dan KITA harus mengajarkan kebaikan kepada anak-anak" is
+ * compliant prose whose verb belongs to `kita`, not to the Prophet. Possessives are already absorbed
+ * into the subject above, so only a genuine second subject reaches here.
+ */
+const OTHER_AGENT = /\b(kita|kami|saya|aku|mereka|kamu|kalian|anda|engkau|sahabat|ulama|ustadz)\b/;
+
+/**
+ * How far apart the subject and the speech act may sit and still be one clause.
+ *
+ * 64 characters, and the number is measured rather than chosen: the Latin honorific "shallallahu
+ * alaihi wasallam" alone is 27, and production shipped *"Nabi ﷺ, sosok yang paling lembut kepada
+ * umatnya, memerintahkan agar…"* at a gap of 42. A narrower window silently reopens the wall for
+ * exactly the phrasings the model actually writes.
+ */
+const CLAUSE_WINDOW = 64;
+
+/** Every position in the sentence where Muhammad ﷺ is the referent (other prophets excluded). */
+const muhammadSubjects = (s: string): Array<{ start: number; end: number }> => {
+  const out: Array<{ start: number; end: number }> = [];
+  for (const m of s.matchAll(MUHAMMAD_SUBJECT)) {
+    const end = m.index! + m[0].length;
+    // "nabi Yusuf" is a different prophet; "nabi Muhammad" and bare "nabi" are not.
+    if (/^(nabi|nabiyullah)$/.test(m[1]!) && OTHER_PROPHET.test(s.slice(end))) continue;
+    out.push({ start: m.index!, end });
+  }
+  return out;
+};
+
+/**
+ * Does this sentence put Muhammad ﷺ in an agent relation to a speech act, in EITHER voice?
+ *
+ * Order-blind on purpose. Active puts the subject first ("Rasulullah menuturkan bahwa…"), the `oleh`
+ * passive puts it last ("…diajarkan oleh Rasulullah"), the agentless passive drops `oleh` entirely
+ * ("…sebagaimana yang ditegaskan Nabi"), and the agent can even be fronted ("Oleh Nabi ﷺ, kegelisahan
+ * hati diibaratkan…"). All four are the same claim. A rule that reads left-to-right sees three of them
+ * as different problems — which is precisely how the passive leak happened.
+ *
+ * Note there is no `bahwa` gate here, unlike the legacy weak-verb pattern. For Muhammad ﷺ specifically
+ * that gate was never sound: everything he taught is known ONLY through hadith, so "Rasulullah ﷺ
+ * mengajarkan kita untuk selalu bersyukur" is a hadith claim carrying no receipt. The gate looked
+ * correct only because every compliant test case happened to name Yusuf, Ibrahim or Musa.
+ */
+const muhammadSpeechAct = (s: string): boolean => {
+  const subjects = muhammadSubjects(s);
+  if (subjects.length === 0) return false;
+  const acts = [...s.matchAll(SPEECH_ACT), ...s.matchAll(SPEECH_NOUN)];
+  return subjects.some((subj) =>
+    acts.some((act) => {
+      const [lo, hi] =
+        act.index! >= subj.end ? [subj.end, act.index!] : [act.index! + act[0].length, subj.start];
+      if (hi - lo > CLAUSE_WINDOW) return false;
+      return !OTHER_AGENT.test(s.slice(lo, hi));
+    }),
+  );
+};
+
 /**
  * Prophetic-attribution grammar — the shape of "the Prophet said", not a vocabulary of holy words.
  *
@@ -198,7 +385,11 @@ export function hadithShape(prose: string, isGrounded: (id: string) => boolean):
   for (const raw of normaliseForSentences(prose).split(/[.!?\n]+/)) {
     const s = raw.toLowerCase();
     if (!s.trim()) continue;
-    if (!PROPHETIC.some((re) => re.test(s))) continue;
+    // UNION, never replacement (ISC-440). The generated grammar above is added BESIDE the legacy
+    // list, never instead of it: widening only adds refusals, whereas narrowing is how a fabrication
+    // ships. Keeping both makes a regression structurally impossible — every sentence the old list
+    // caught is still caught, whatever the new rule decides.
+    if (!muhammadSpeechAct(s) && !PROPHETIC.some((re) => re.test(s))) continue;
     // A marker in THIS sentence, resolving against THIS turn's grounding, is the receipt.
     const markers = [...raw.matchAll(MARKER_IN_PROSE)];
     if (markers.some((m) => isGrounded(markerToId(m[1]!, m[2]!)))) continue;
