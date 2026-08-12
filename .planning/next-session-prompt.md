@@ -256,11 +256,11 @@ try the mic on a real device; sunnah.com API/dump request.
 ```
 Resume New-Quranku in ~/quran-new. Read .scratch/tanya-hukum/PRD.md FIRST — it is the whole
 brief for the next build and it carries a reproduction you should not re-derive. Then skim the
-top PROGRESS.md checkpoints. Anchor origin/main 63f0c31, clean tree except untracked WARP.md.
+top PROGRESS.md checkpoints. Anchor origin/main 80c37f8 (see the 2026-08-11 evening checkpoint), clean tree except untracked WARP.md.
 
 Gates GREEN: bun run typecheck exits 0, bun test 1076/0, bun run build exits 0. ISA 382/388.
-Prod = new-quranku-proxy version 4dc59b3a, serving index-CTJQixra.js / index-BPhJVwE6.css.
-Kumpulan Doa is LIVE at #/doa (shipped on Ustadz Ahmad's VERBAL agreement, recorded as verbal
+Prod = new-quranku-proxy version 8caeda1d, serving index-BjuemEbN.js / index-CXUVBmR_.css.
+Kumpulan Doa is LIVE at #/doa, and Pengaturan (settings dialog beside Masuk) is LIVE (shipped on Ustadz Ahmad's VERBAL agreement, recorded as verbal
 in docs/review/doa-provenance.md — do NOT upgrade that to a written sign-off in any doc).
 
 BUILD THIS, in order (all four steps are specified in the PRD):

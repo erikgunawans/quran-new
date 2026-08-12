@@ -8,6 +8,45 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-11 (evening) — Pengaturan shipped, and three checks that could not fail
+
+Four deploys, all verified by served bytes. **Kumpulan Doa** went live, then **Pengaturan** — a
+settings dialog beside `Masuk`. Six settings chosen for this app rather than off a list; the two
+that carry an argument are *which of the two Indonesian translations leads* (Thalib's tafsiriyah
+renders meaning, Kemenag's harfiyah renders words — ISA.md's own opening premise, and a choice the
+reader never had despite the app already shipping an explainer for why there are two), and *hapus
+data*, which enumerates keys rather than calling `localStorage.clear()` because the origin may hold
+keys belonging to something else and a blanket wipe cannot be described honestly to the person
+pressing it. It deliberately does not reset the settings themselves.
+
+The rule pinned by anti-test: **settings change how content is PRESENTED, never which content is
+PERMITTED.** No toggle for hadith text, AI answers or rulings — those are governed by
+`SHOW_MACHINE_HADITH_TEXT`, `fatwaShape` and the ustadz, and a user-facing switch is how a scholarly
+decision gets routed around by clicking.
+
+**The keeper is a pattern that showed up three times in one session: evidence that could not fail.**
+A symbol grep "proving" `hadith-card.ts` was tree-shaken (minifiers rename symbols, so it returns 0
+either way — redone with string literals plus a positive control). A `label.length <= 64` guard with
+a longest label of 54, which passed while four doa labels carried verbatim spans of the translations
+we ship. And a comment pointing at `subjectHit`, a function nobody ever wrote. Each read as green.
+
+Two regressions of my own, both found only by looking: the settings `<dialog>` rendered pinned to
+the top-left because shell.css's global reset had already beaten the UA's centring `margin: auto`;
+and wrapping `.qk-user` in `.qk-foot` moved it into a flex ROW, where its existing `margin-top: auto`
+silently changed meaning from "push me to the bottom" to "centre me vertically". **Moving an element
+into a new formatting context can repurpose the CSS it already had, with no error and no diff to the
+declaration.**
+
+Also: the sidebar toggle now centres on the section title (measured — it sat 17.8px high) and
+carries the heading's green→gold ramp, which needed an SVG paint server and CSS *properties* for the
+stops, because `stop-color="var(--x)"` as a presentation attribute silently falls back to black.
+
+Prod Worker `8caeda1d`, `index-BjuemEbN.js` / `index-CXUVBmR_.css`. typecheck 0 · `bun test` 1087/0 ·
+build 0. ISA 382/388.
+
+**Next:** the hukum-routing fix — `.scratch/tanya-hukum/PRD.md` says where the real lever is, and
+which two obvious fixes are already eliminated.
+
 ## 2026-08-11 (latest) — The app knew the answer and could not aim at it
 
 Erik asked why Tanya refuses `hukum warisan di islam` with *"belum menemukan ayat yang cocok di
