@@ -1,0 +1,59 @@
+FEELING   | kenapa doaku belum juga dikabulkan
+          └─ ?, ?
+FEELING   | apakah Allah masih sayang sama aku
+          └─ ?
+KNOWLEDGE | gimana caranya biar khusyuk saat salat
+          └─ ibadah (8 entri)
+FEELING   | kenapa aku merasa jauh dari Allah
+          └─ ?, ?
+FEELING   | apa tandanya Allah sayang sama kita
+          └─ ?
+SILENT    | gimana cara taubat yang benar
+FEELING   | apakah dosa besar bisa diampuni
+          └─ ?, ?
+FEELING   | apa tujuan hidup menurut Al-Qur'an
+          └─ ?, ?
+SILENT    | kenapa manusia diciptakan
+          └─ knowledgeOnly and nothing held
+KNOWLEDGE | apa yang terjadi setelah kita mati
+          └─ perintah-dan-larangan (fallback pass)
+FEELING   | kenapa hidup terasa berat terus
+          └─ ?, ?
+FEELING   | apa kata Al-Qur'an tentang rezeki
+          └─ ?
+FEELING   | gimana Islam memandang kerja keras
+          └─ ?
+SILENT    | apakah kaya itu buruk dalam Islam
+          └─ knowledgeOnly and nothing held
+KNOWLEDGE | apa hukum riba dalam Al-Qur'an
+          └─ perintah-dan-larangan (8 entri)
+KNOWLEDGE | gimana cara memaafkan orang yang menyakiti
+          └─ perintah-dan-larangan (4 entri)
+FEELING   | apa kata Al-Qur'an tentang berbakti pada orang tua
+          └─ ?, ?
+SILENT    | gimana Islam mengajarkan berteman
+KNOWLEDGE | apa hukum bergunjing dan menggosip
+          └─ perintah-dan-larangan (POINTER ONLY, 0 entri)
+KNOWLEDGE | gimana cara menahan marah menurut Islam
+          └─ membangun-pribadi-shalih (3 entri)
+KNOWLEDGE | kenapa kita harus salat lima waktu
+          └─ ibadah (8 entri)
+KNOWLEDGE | apa makna puasa selain menahan lapar
+          └─ ibadah (8 entri)
+KNOWLEDGE | kenapa Al-Qur'an diturunkan dalam bahasa Arab
+          └─ al-qur-an-taurat-injil-dan-zabur (8 entri)
+KNOWLEDGE | apa keutamaan membaca Al-Qur'an
+          └─ al-qur-an-taurat-injil-dan-zabur (7 entri)
+SILENT    | apa itu takwa sebenarnya
+          └─ knowledgeOnly and nothing held
+KNOWLEDGE | gimana bersikap ke teman yang beda agama
+          └─ perintah-dan-larangan (8 entri)
+SILENT    | apa kata Al-Qur'an tentang keadilan
+KNOWLEDGE | gimana Islam memandang ilmu pengetahuan
+          └─ prinsip-prinsip-pendidikan-islam (fallback pass)
+SILENT    | apa kata Al-Qur'an tentang menjaga alam
+FEELING   | gimana cara bersyukur yang benar
+          └─ ?
+
+30 probed — KNOWLEDGE 12 · AQIDAH 0 · FEELING 11 · REFER 0 · SILENT 7
+SILENT must NOT ship. POINTER ONLY is a topic pointer with no entries — read by eye.
