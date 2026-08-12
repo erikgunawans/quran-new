@@ -151,12 +151,24 @@ const SPEECH_ACT_STEMS = [
   "sabda", "kata", "ucap", "tutur", "ujar", "bicara", "cerita", "kisah", "firman",
   // teaching, explaining, informing
   "ajar", "jelas", "terang", "papar", "sebut", "beritahu", "kabar", "sampai", "ungkap",
-  "tegas", "nyata", "singgung", "urai", "tunjuk", "petunjuk", "isyarat",
+  "tegas", "nyata", "singgung", "urai", "tunjuk", "isyarat", "tekan", "sindir",
+  // answering — the canonical hadith report shape is a question put to him and his reply, and not one
+  // verb of it was here: `menjawab`, `ditanya`. Found by adversarial audit, not by writing more cases.
+  "jawab", "tanya",
   // directing, urging, forbidding
   "anjur", "saran", "ajak", "seru", "himbau", "imbau", "suruh", "perintah", "larang",
-  "tegur", "wanti", "ingat", "peringat", "nasihat", "nasehat", "pesan", "wasiat",
+  "tegur", "wanti", "ingat", "nasihat", "nasehat", "pesan", "wasiat", "arah", "bimbing", "tuntun",
+  // teaching by DOING — `mencontohkan` is how a fi'li (action) hadith gets reported, and an action
+  // attributed to him needs a receipt exactly as a saying does.
+  "contoh", "didik",
   // promising, warning, likening
-  "janji", "ancam", "jamin", "benar", "ibarat", "umpama", "gambar", "misal", "samakan", "sama",
+  "janji", "ancam", "jamin", "benar", "ibarat", "umpama", "gambar", "misal", "sama",
+  // RULING verbs. `mewajibkan` was a double miss: not a speech-act stem here, and VERDICT's
+  // `\b(wajib|haram|makruh)\s+bagi\b` cannot see `wajib` inside `mewajibkan` — so an authored ruling
+  // attributed to the Prophet ﷺ cleared the hadith wall AND the fatwa wall at once.
+  "wajib", "haram", "sunnah", "izin",
+  // Javanese/regional registers this app's readers actually use.
+  "dawuh", "wejang", "titah", "petuah",
 ];
 
 /**
@@ -193,13 +205,48 @@ const activeForm = (stem: string): string => {
  * Ayyub kita BELAJAR bahwa…" is compliant prose and generating it would refuse the app's own voice.
  */
 const speechActForms = (stem: string): string[] => {
-  const bases = [activeForm(stem), `ber${stem}`, `di${stem}`, `ter${stem}`, `memper${stem}`, `diper${stem}`];
-  return bases.flatMap((b) => [b, `${b}kan`, `${b}i`]);
+  // meN- and di- are the two affixes that RELIABLY derive a speech act from a speech-act stem.
+  const bases = [activeForm(stem), `di${stem}`];
+  return [
+    ...bases.flatMap((b) => [b, `${b}kan`, `${b}i`]),
+    // The bare root with -kan/-i is the OBJECT-FOCUS passive (pasif tipe 2), where the agent stands
+    // bare in front of the root: "Itulah yang Rasulullah ﷺ AJARKAN kepada kita". Indonesian has two
+    // passives and the file's own comment names only one — the `oleh` passive that leaked. This is
+    // the other, and it was never covered by any pattern, legacy or generated.
+    `${stem}kan`,
+    `${stem}i`,
+  ];
 };
+
+/**
+ * `ber-` and `memper-` are OPT-IN, per stem, and that is the correction to this file's first attempt
+ * at a grammar.
+ *
+ * Applying them across the board looked like more grammar and was actually less. `ber` + `sama` is
+ * `bersama`, a preposition; `memper` + `ingat` + `i` is `memperingati`, which means to COMMEMORATE.
+ * Generated blindly, they refused *"semoga kita dikumpulkan bersama Nabi ﷺ di surga"* and *"kita
+ * memperingati Maulid Nabi ﷺ"* — stock du'a and core subject matter.
+ *
+ * `ter-` is gone entirely for the same reason and worse: it minted `ternyata`, `tersebut`,
+ * `tersinggung`, `teringat`, `terancam` and `terlarang` as speech acts. `ternyata` and `tersebut` are
+ * among the most frequent words in written Indonesian, so ANY sentence pairing one with the Prophet ﷺ
+ * inside the clause window was silently dropped.
+ *
+ * The lesson generalises past this file: generating from an open axis is only safe where the
+ * derivation is semantically reliable. `meN-`/`di-` on a speech-act stem always yields a speech act.
+ * `ber-`/`ter-`/`memper-` do not, so their real forms are named — a SMALL, CLOSED set, which is the
+ * one situation where enumeration is the honest instrument.
+ */
+const IRREGULAR_SPEECH_FORMS = [
+  "bersabda", "berkata", "berpesan", "bercerita", "berbicara", "berujar", "bertutur", "berucap",
+  "berjanji", "berfirman", "berdawuh", "berwasiat", "berseru", "berpetuah",
+  "memperingatkan", "diperingatkan", "memperjelas", "diperjelas", "mempertegas", "dipertegas",
+  "terucap", "tersirat",
+];
 
 /** One alternation over every generated form. Longest-first so `mengajarkan` wins over `mengajar`. */
 const SPEECH_ACT = new RegExp(
-  `\\b(?:${[...new Set(SPEECH_ACT_STEMS.flatMap(speechActForms))].sort((a, b) => b.length - a.length).join("|")})\\b`,
+  `\\b(?:${[...new Set([...SPEECH_ACT_STEMS.flatMap(speechActForms), ...IRREGULAR_SPEECH_FORMS])].join("|")})\\b`,
   "g",
 );
 
@@ -209,7 +256,25 @@ const SPEECH_ACT = new RegExp(
  * the identical claim with no verb in it at all, so every verb rule of every shape is blind to it.
  */
 const SPEECH_NOUN =
-  /\b(sabda|pesan|wasiat|nasihat|nasehat|penjelasan|keterangan|perkataan|ucapan|anjuran|larangan|perintah|ajaran|riwayat|kabar|petunjuk|arahan|peringatan|penuturan|pernyataan|seruan|kata|firman)\b/g;
+  /\b(sabda|wasiat|nasihat|nasehat|penjelasan|keterangan|perkataan|ucapan|penuturan|pernyataan|seruan|petuah|dawuh|wejangan|titah|firman)(nya)?\b/g;
+
+/**
+ * AMBIGUOUS speech nouns — real in an attribution, but each has a dominant NON-speech reading:
+ * `dengan kata lain`, `riwayat hidup`, `ajaran Islam`, `perintah Allah`, `kabar gembira`. Treating
+ * them like the strong nouns above refused all five, and every one is ordinary prose this app writes.
+ *
+ * So they only count when ADJACENT to the subject — "kata Nabi,", "sabdanya", "riwayat dari beliau" —
+ * where the noun and the referent form one phrase. Proximity inside a 64-character window is not
+ * enough for a word this ambiguous, and the difference between the two lists is exactly how ambiguous
+ * the word is on its own.
+ */
+const WEAK_SPEECH_NOUN =
+  // `kata lain` ("in other words") and `riwayat hidup` ("biography") are fixed collocations in which the
+  // noun is not a speech act at all. Both were refused as attributions until they were excluded here.
+  /\b(kata(?!\s+lain)|riwayat(?!\s+hidup)|perintah|ajaran|kabar|pesan|anjuran|larangan|petunjuk|arahan|peringatan|bimbingan)(nya)?\b/g;
+
+/** How close a WEAK noun must sit to the subject to count — one short function word, no more. */
+const ADJACENT = 12;
 
 /**
  * Referring expressions for Muhammad ﷺ — a genuinely CLOSED noun class, unlike the verbs. `kita`/
@@ -217,7 +282,7 @@ const SPEECH_NOUN =
  * melarang…" means *our* Prophet, and reading that `kita` as a subject would have opened the wall.
  */
 const MUHAMMAD_SUBJECT =
-  /\b(rasulullah|rasul|nabiyullah|nabi|muhammad|beliau|baginda|junjungan|kanjeng)\b(\s+(kita|kami))?/g;
+  /\b(r[ao]s?[ou]l+ull?[oa]h|rasul|nabiyullah|nabiku|nabi|muhammad|beliau|baginda|junjungan|kanjeng|habibullah|al-?mustafa|al-?musthafa|(utusan|kekasih)\s+allah)\b(\s+(kita|kami))?/g;
 
 /**
  * The other prophets — the canon taught in every Indonesian madrasah. Closed and stable, which is why
@@ -230,9 +295,15 @@ const MUHAMMAD_SUBJECT =
  *
  * An UNLISTED name therefore falls through to Muhammad ﷺ and gets the strict treatment. That is the
  * correct failure polarity: an unknown name costs a pointer, never a fabricated hadith.
+ *
+ * `shalih`/`saleh` are deliberately NOT here, though Nabi Shalih is one of the 25. They are also
+ * ordinary Indonesian adjectives, and the collision was exploitable: *"Nabi SALEH nan penyayang itu
+ * menuturkan kepada kita…"* discarded the only Muhammad-designation in the sentence and shipped an
+ * unreceipted attribution. A name that doubles as a common adjective cannot carry this weight, so
+ * that one prophet falls to the strict side — costing a pointer on a rarely-told story.
  */
 const OTHER_PROPHET =
-  /^\s+(adam|idris|nuh|hud|shalih|saleh|ibrahim|luth|lut|ismail|ishaq|ishak|ya'?qub|yakub|yusuf|syu'?aib|ayyub|ayub|musa|harun|dzulkifli|zulkifli|dawud|daud|sulaiman|ilyas|ilyasa|yunus|zakaria|zakariya|yahya|isa|khidir|khidhir)\b/;
+  /^\s+(adam|idris|nuh|hud|ibrahim|luth|lut|ismail|ishaq|ishak|ya'?qub|yakub|yusuf|syu'?aib|ayyub|ayub|musa|harun|dzulkifli|zulkifli|dawud|daud|sulaiman|ilyas|ilyasa|yunus|zakaria|zakariya|yahya|isa|khidir|khidhir)\b/;
 
 /**
  * A DISTINCT subject interposed between the Prophet ﷺ and the verb breaks the agent relation:
@@ -240,7 +311,21 @@ const OTHER_PROPHET =
  * compliant prose whose verb belongs to `kita`, not to the Prophet. Possessives are already absorbed
  * into the subject above, so only a genuine second subject reaches here.
  */
-const OTHER_AGENT = /\b(kita|kami|saya|aku|mereka|kamu|kalian|anda|engkau|sahabat|ulama|ustadz)\b/;
+const AGENT_PRONOUN = "kita|kami|saya|aku|mereka|kamu|kalian|anda|engkau|sahabat|ulama|ustadz";
+
+/**
+ * …but only when it is actually a SUBJECT. Preceded by a preposition it is a RECIPIENT, and reading
+ * the two the same way was an exploit: *"Hal itu dipesankan oleh Rasulullah"* is refused, while
+ * *"Hal itu dipesankan KEPADA KITA oleh Rasulullah"* shipped. Four characters reopened the wall.
+ */
+const OTHER_AGENT = new RegExp(`(?<!\\b(kepada|bagi|untuk|pada|terhadap|dari|oleh|sama)\\s)\\b(${AGENT_PRONOUN})\\b`);
+
+/**
+ * The mirror case: a pronoun sitting immediately BEFORE the verb owns it, wherever the Prophet ﷺ is.
+ * "Setiap hari KITA MENGINGAT Rasulullah ﷺ lewat sholawat" has the Prophet as the OBJECT, and the
+ * window-local test could not see it because `kita` falls outside the span it inspects.
+ */
+const AGENT_BEFORE_VERB = new RegExp(`\\b(${AGENT_PRONOUN})\\s+(\\w+\\s+){0,1}$`);
 
 /**
  * How far apart the subject and the speech act may sit and still be one clause.
@@ -281,13 +366,30 @@ const muhammadSubjects = (s: string): Array<{ start: number; end: number }> => {
 const muhammadSpeechAct = (s: string): boolean => {
   const subjects = muhammadSubjects(s);
   if (subjects.length === 0) return false;
-  const acts = [...s.matchAll(SPEECH_ACT), ...s.matchAll(SPEECH_NOUN)];
+  const acts = [
+    ...[...s.matchAll(SPEECH_ACT)].map((m) => ({ m, reach: CLAUSE_WINDOW })),
+    ...[...s.matchAll(SPEECH_NOUN)].map((m) => ({ m, reach: CLAUSE_WINDOW })),
+    // Ambiguous nouns only count as part of the subject's own phrase — see WEAK_SPEECH_NOUN.
+    ...[...s.matchAll(WEAK_SPEECH_NOUN)].map((m) => ({ m, reach: ADJACENT })),
+  ];
+  // Blank out the subject phrases before either agent test runs. Without this the possessive inside
+  // "Nabi KITA menjanjikan…" reads as the agent of `menjanjikan` and the sentence ships — the same
+  // possessive trap that MUHAMMAD_SUBJECT already absorbs, reappearing one rule later. Same length, so
+  // every index below still refers to the original string.
+  const masked = subjects.reduce(
+    (acc, sub) => acc.slice(0, sub.start) + "#".repeat(sub.end - sub.start) + acc.slice(sub.end),
+    s,
+  );
   return subjects.some((subj) =>
-    acts.some((act) => {
-      const [lo, hi] =
-        act.index! >= subj.end ? [subj.end, act.index!] : [act.index! + act[0].length, subj.start];
-      if (hi - lo > CLAUSE_WINDOW) return false;
-      return !OTHER_AGENT.test(s.slice(lo, hi));
+    acts.some(({ m, reach }) => {
+      const after = m.index! >= subj.end;
+      const [lo, hi] = after ? [subj.end, m.index!] : [m.index! + m[0].length, subj.start];
+      if (hi - lo > reach) return false;
+      // A distinct subject between the two breaks the agent relation…
+      if (OTHER_AGENT.test(masked.slice(lo, hi))) return false;
+      // …and one immediately before the verb owns it outright, wherever the Prophet ﷺ sits.
+      if (AGENT_BEFORE_VERB.test(masked.slice(0, m.index!))) return false;
+      return true;
     }),
   );
 };

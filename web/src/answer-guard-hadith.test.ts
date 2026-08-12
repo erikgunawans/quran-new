@@ -419,3 +419,77 @@ describe("the generated grammar", () => {
     expect(guardAnswerProse("Nabi Fulan mengatakan hal itu.", allow(), grounded()).ok).toBe(false);
   });
 });
+
+/**
+ * THE AUDIT CORPUS — the second adversarial pass, and the one that mattered more.
+ *
+ * The grammar above shipped green: 150/150 here, 64/64 on the generated corpus, full suite exit 0. An
+ * independent adversarial audit (GPT-5.4, read-only) then found 44 attribution leaks and 39 wrongly
+ * refused compliant sentences. Every claim reproduced on first probe.
+ *
+ * The through-line is worth more than the individual cases. The refactor inverted the right axis —
+ * generate the verbs, enumerate the subjects — but then enumerated the subjects by SPELLING rather
+ * than by referent (`Rosulullah` is not `rasulullah`) and generated the verbs by blind PREFIX
+ * CONCATENATION rather than by morphology (`ter` + `nyata` is `ternyata`, an adverb). So it
+ * simultaneously under-covered and over-covered, and the corpus that measured it could not see either,
+ * because that corpus came from one model on one topic in one register.
+ *
+ * Which is this file's own lesson, one level up: "self-authored tests measure the list against the
+ * author's own vocabulary" now applies to a GENERATED corpus too. One generator is one vocabulary. The
+ * fix is not a bigger corpus — it is a corpus from a source that did not build the thing.
+ */
+describe("audit corpus — leaks a second model found in the first grammar", () => {
+  test.each([
+    // Object-focus passive (pasif tipe 2): the agent stands bare before the root. Indonesian has TWO
+    // passives; the file's comment named only the `oleh` one that leaked.
+    "Itulah yang Rasulullah ﷺ ajarkan kepada kita tentang menahan amarah.",
+    "Apa yang beliau sabdakan itu benar adanya.",
+    "Hal yang Nabi ﷺ tegaskan adalah pentingnya niat dalam setiap amal.",
+    // Orthography. `-o-` spelling dominates Indonesian Islamic web text, so it is well represented in
+    // any model's prior — the single highest-probability real-world leak the audit found.
+    "Rosulullah bersabda bahwa senyum itu sedekah.",
+    "Rasululloh bersabda bahwa senyum itu sedekah.",
+    // Question-and-answer is the canonical hadith report shape, and not one verb of it was present.
+    "Ketika ditanya soal itu, Nabi ﷺ menjawab bahwa surga ada di bawah telapak kaki ibu.",
+    "Rasulullah ﷺ menekankan bahwa niat adalah pokok dari setiap amal.",
+    // fi'li (action) hadith.
+    "Nabi ﷺ mencontohkan doa ini setiap pagi dan petang.",
+    // Javanese register, and no verb at all — the shape SPEECH_NOUN exists for, with a noun it missed.
+    "Dawuh Kanjeng Nabi, orang yang paling baik adalah yang paling bermanfaat.",
+    // A recipient is not a competing agent. Four characters (`kepada kita`) reopened the wall.
+    "Hal itu dipesankan kepada kita oleh Rasulullah.",
+    // `saleh` is a prophet's name AND an ordinary adjective; the collision discarded the only
+    // Muhammad-designation in the sentence.
+    "Nabi saleh nan penyayang itu menuturkan kepada kita cara menghadapi rasa cemas.",
+    // A ruling attributed to him cleared BOTH the hadith wall and the fatwa wall: `wajib` is invisible
+    // inside `mewajibkan` to VERDICT's `\b(wajib|haram|makruh)\s+bagi\b`.
+    "Nabi ﷺ mewajibkan zakat fitrah bagi setiap muslim.",
+  ])("refuses: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(false);
+  });
+
+  test.each([
+    // `ter-` on every stem minted `ternyata` and `tersebut` — among the most frequent words in written
+    // Indonesian — as speech acts. This was a REGRESSION the first grammar introduced.
+    "Nabi ﷺ ternyata sangat penyayang kepada anak-anak kecil.",
+    "Nabi ﷺ tidak pernah tersinggung ketika dihina oleh kaumnya.",
+    // `ber` + `sama` = `bersama`, a preposition. This is a stock du'a.
+    "Semoga kita semua dikumpulkan bersama Nabi ﷺ di surga nanti.",
+    // `memper` + `ingat` + `i` = to COMMEMORATE, not to warn. Core subject matter.
+    "Kita memperingati Maulid Nabi ﷺ setiap bulan Rabiul Awal.",
+    // Fixed collocations where the "speech noun" is not a speech act at all.
+    "Dengan kata lain, Nabi ﷺ adalah teladan terbaik bagi kita.",
+    "Riwayat hidup Nabi ﷺ penuh dengan pelajaran tentang kesabaran.",
+    // The Prophet ﷺ as the OBJECT: `kita` owns the verb, and the window-local test could not see it.
+    "Setiap hari kita mengingat Rasulullah ﷺ lewat sholawat.",
+  ])("still ships: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(true);
+  });
+
+  test("the possessive trap reappears one rule later, and must stay closed", () => {
+    // Masking the subject span before the agent tests. Without it the `kita` in "Nabi kita menjanjikan"
+    // reads as the agent of the verb — the same trap MUHAMMAD_SUBJECT already absorbs, one rule on.
+    expect(guardAnswerProse("Nabi kita menjanjikan surga bagi yang sabar.", allow(), grounded()).ok).toBe(false);
+    expect(guardAnswerProse("Junjungan kita pernah menyampaikan hal itu.", allow(), grounded()).ok).toBe(false);
+  });
+});
