@@ -34,6 +34,12 @@ const KNOWLEDGE_EXTRA = [
   "sampai", "secara", "serta", "bahwa", "agar", "supaya", "jika", "bila", "ketika", "saat",
   "setelah", "sebelum", "selama", "tanpa", "yaitu", "yakni", "terhadap", "menurut", "melalui",
   "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
+  // The asking verbs belonged with the answering ones from the start and were simply missed — the
+  // one opener this app is literally named after. "saya mau TANYA tentang hukum warisan" ranked
+  // QS 10:94 "Tanyakan kebenaran Al-Qur'an kepada Ahli Kitab" second, above the real inheritance
+  // line, and shipped that way. Cost, accepted: a question whose SUBJECT is asking ("hukum bertanya
+  // kepada ahli kitab") loses that word — the same trade already made for "jawab" and "ceritakan".
+  "tanya", "tanyakan", "nanya", "bertanya", "menanyakan", "pertanyaan",
   "anda", "kami", "kalian", "tersebut", "semua", "setiap", "para", "orang",
   "sangat", "sekali", "hanya", "masih", "pernah", "selalu", "kadang", "mungkin", "harus", "perlu",
   "ingin", "mohon", "mana", "sama", "soal", "biar", "banget", "nih", "kok",

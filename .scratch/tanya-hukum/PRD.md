@@ -7,6 +7,46 @@
 > Trigger: `saya mau tanya tentang hukum warisan di islam` → *"Aku belum menemukan ayat yang cocok
 > dengan itu di korpus yang sudah diverifikasi."*
 
+## FALSIFIED 2026-08-12 — step 1 was chasing a bug that is not there
+
+**Everything below this section that concerns TOPIC SELECTION is wrong, and was measured wrong
+rather than argued wrong.** Erik approved dropping it on 2026-08-12. Kept, not deleted, because the
+reasoning trail is the point.
+
+The PRD recorded `matchTopic("hukum warisan") -> perintah-dan-larangan` as the bug and `-> keluarga`
+as the fix. Run end-to-end instead of at the `matchTopic` boundary, it is the other way round:
+
+```
+retrieveKnowledge("warisan")                            -> keluarga,              0 entries
+retrieveKnowledge("hukum warisan")                      -> perintah-dan-larangan, QS 4:11 + 4:19
+retrieveKnowledge("saya mau tanya tentang hukum waris…") -> perintah-dan-larangan, QS 4:11 + 10:94 + 4:19
+```
+
+`keluarga` holds 40 entries — marriage, talak, parenting — and **not one mentions inheritance**. The
+faraidh dalil is in Perintah dan Larangan (4:11 *"Berikan bagian warisan kepada anak perempuan
+setengah bagian anak lelaki"*, 4:33) and Karakteristik Negara Bersyari'ah (2:180). Building step 1
+would have routed the question away from QS 4:11 into a category with nothing in it, and the
+proposed regression test would have pinned that deletion as correct.
+
+**The refusal does not reproduce.** Asked verbatim on live production
+(`new-quranku.axiara.ai`, bundle `index-BjuemEbN.js`, 2026-08-12), *"saya mau tanya tentang hukum
+warisan di islam"* returns Ustadz Thalib's Perintah dan Larangan entries, QS 4:11 first. If the
+refusal was real it came from a different surface or an older bundle — see Open items.
+
+**Why the original diagnosis looked so solid:** `matchTopic` was probed in isolation and its output
+compared against intuition about where inheritance "should" live. Nobody asked the corpus where the
+inheritance verses actually are. A routing function's return value is not evidence about an answer;
+only the answer is. This is the same shape as the three checks that could not fail, logged in
+PROGRESS.md the day before.
+
+**What was actually broken, found while measuring, now fixed:** the question-frame discipline stops
+at the topic boundary and never reached entry ranking. `tanya` — the single most common Indonesian
+question opener, and this app's own name for the feature — was missing from the speech-act stop
+list that already held `ceritakan`, `jelaskan`, `sebutkan`, `jawab`, `beritahu`. So Erik's preamble
+ranked QS 10:94 *"Tanyakan kebenaran Al-Qur'an kepada Ahli Kitab"* into second place in an answer
+about inheritance. That noise line is visible in the live capture above. Fixed in `topic-words.ts`,
+force-red verified, pinned in `web/src/tanya-hukum.test.ts`.
+
 ## The finding that reframes everything
 
 **Nothing is missing. The app owns all three pieces and cannot reach two of them.**
@@ -66,17 +106,31 @@ but direction-blind ranking plus absent topic-pins.
    render them, quote the sourced tafsir verbatim and attributed ("menurut Tafsir Al-Mukhtasar…").
    This is what makes the answer not-dry without the app ever ruling.
 
-## Build order for the next session
+## Build order — REVISED 2026-08-12 after the falsification
 
-1. **Write `subjectHit`** and apply it in `matchTopic`, so a `QUESTION_FRAME` word can never win
-   topic selection on its own. Read `topic-words.ts:67-83` first — the reasoning there is correct
-   and must be honoured, not replaced. Frequency has already failed against this index twice.
-2. **Add topic pins** for high-traffic hukum subjects (warisan, nikah, talak, riba, zakat, puasa,
-   sholat, aurat), the documented fix for direction-blind ranking. `matchPin` exists; pins do not.
-3. **Third tier**: ayah + verbatim attributed tafsir when tiers 1–2 come back thin.
-4. **Regression tests**, force-red each: `hukum warisan`, `hukum riba`, `hukum pacaran`, `cara
-   sholat`, and at least one feelings question (`cemas terus`) proving the feelings lane did not
-   start answering hukum.
+1. ~~**Write `subjectHit`**~~ **DROPPED.** There is no topic-selection bug to fix. The comment at
+   `topic-words.ts:81` pointing at a function nobody wrote is stale documentation, not a missing
+   guard — the guard it describes would have made routing worse. Delete the comment; do not write
+   the function. **Done instead:** the speech-act stop-list gap above. Green.
+2. **Topic pins — only where retrieval is measurably thin** (Erik, 2026-08-12). Measured end-to-end
+   across all eight candidates rather than assumed:
+
+   | Subject | Entries | Verdict |
+   |---|---|---|
+   | `warisan` (bare) | **0** | PIN — cross-shard: 4:11 + 4:33 (p-d-l), 2:180 (karakteristik), 4:176 (allah) |
+   | `nikah` (bare) | **0** | PIN — keluarga is full of marriage entries the bare word cannot reach |
+   | `talak`, `aurat` | 1 | thin; pin candidates, lower priority |
+   | `riba` 2-3, `zakat`/`puasa`/`sholat` 8 | | **no pin** — already correct, a pin here can only regress |
+   | `pacaran` | **0** | **NO PIN POSSIBLE** — absent from all 2,451 entries |
+
+   The pin ref-lists are curation and go to Ustadz Ahmad before they ship.
+3. **Third tier**: ayah + verbatim attributed tafsir when tiers 1–2 come back thin. Note the limit
+   discovered while measuring: tier 3 orients an ayah we already have, so it cannot rescue
+   `pacaran`, where there is no ayah. Silence stays right there — routing pacaran to the zina
+   entries would be the app deciding pacaran IS zina, which is a ruling.
+4. **Regression tests** — DONE, `web/src/tanya-hukum.test.ts`, 11 tests, each force-red verified.
+   Pins the working behaviour (4:11 reachable, riba stays in p-d-l, sholat in ibadah, feelings route
+   nowhere, pacaran stays silent) so the next "fix" cannot quietly delete it.
 
 ## Open, and NOT settled by this grilling
 
