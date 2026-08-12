@@ -1,3 +1,167 @@
+# Next session — New-Quranku (checkpoint 2026-08-13 wrap)
+
+> Prepended by /wrap 2026-08-13. Anchor `origin/main` `f067bd2`+. Supersedes the 2026-08-12
+> late-night anchor `e1ba9cf`. **Four deploys shipped** (`c7999a77` → `88e17cff` → `f128d8a9` →
+> `ed556080`). The previous handoff's item 0 (the pointer) is DONE and verified live.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-13).
+
+**Gates GREEN:** `bun test` 1227/0 exit 0 · typecheck exit 0 · build exit 0. ISA **445/459**.
+**Prod:** worker `ed556080`, `EDITION: "synthesis"`. Clean tree except untracked `WARP.md` — leave it.
+No open PRs; this repo lands directly on `main`.
+
+---
+
+## 0. START HERE — ISC-440: the attribution wall is a vocabulary, and it must become a grammar
+
+**This leaked TWICE in production in one evening.** Both times the fix was verified against one
+phrasing and the model reached for another within minutes:
+
+1. `mengajarkan` — active voice, absent while `menganjurkan` was present (one letter apart to the eye).
+2. `diajarkan oleh Rasulullah` — passive voice; the active patterns anchor subject-then-verb and
+   Indonesian puts the agent last via `oleh`.
+
+Both are closed. **The next unlisted synonym or construction leaks identically**, and the stakes are
+the highest in the codebase: an unreceipted saying of the Prophet ﷺ reaching a reader.
+
+`PROPHETIC` in `web/src/answer-guard.ts` now holds: the original active list, a `bahwa`-gated weak-verb
+list, a generalised `di-…oleh` passive, and `menurut <the Prophet>`. **Do NOT narrow any of them** —
+widening only adds refusals; narrowing is how a fabrication ships.
+
+**What "a grammar" means here, concretely:** detect the CONSTRUCTION (a prophetic subject standing in
+an agent relation to a speech-act verb, in either voice) rather than enumerating verbs. Options worth
+weighing: a morphological rule over Indonesian affixes (`me-`/`di-`/`-kan` on a speech-act stem), or an
+allow-list inversion — refuse ANY sentence carrying a prophetic subject plus any verb, unless it
+matches a known-safe narrative shape. The second is stricter and the app can now afford strictness,
+because a caught hadith renders a pointer rather than cold silence.
+
+**The test file is the spec.** `web/src/answer-guard-hadith.test.ts` holds both directions, including
+the two verbatim leaked sentences and the must-pass Qur'anic-narrative cases (*"Kisah Nabi Yusuf
+mengajarkan kita arti kesabaran"*) that a flat widening would destroy. Any grammar must keep all of it.
+
+## 1. ISC-449 — may the ANSWER card show machine Indonesian? (waiting on Erik)
+
+The Hadis TAB now shows Indonesian (ISC-445). The answer card still shows Arabic + English only,
+because `hadith-card.ts` renders Indonesian solely from per-record `reviewed_id` and I deliberately did
+NOT feed that from the machine layer.
+
+**This is a decision, not a task.** Browsing a book and being told *"this hadith answers your
+question"* are different weights on the same words. If Erik relays that the approval covers the card
+too, the change is small — but `reviewed_id` must KEEP its meaning (ISC-448): it is the only thing
+distinguishing "a scholar checked this sentence" from "a scholar permitted this method". Add a separate
+field or reuse the machine layer with its own badge; never overload `reviewed_id`.
+
+## 2. ISC-434 / ISC-435 — make hadith actually answer questions
+
+This is what Erik originally asked for, and the Indonesian gate (ISC-445) removed the blocker that
+made it pointless. `worker/src/dalil.ts` is fully built and measured — `searchDalil` (bge-m3 → 50-wide
+Vectorize window → rerank on the English body), `capForDisplay`, `fetchDisplayRecords`, ids already in
+the `hadith-bukhari-6962` shape the guard validates. `hadith-card.ts` renders them, cap 2.
+
+- **ISC-434:** call `searchDalil` from `handleAnswer`; build the predicate from the UNION across calls
+  (PRD decision 13 — never per call). Probe: `grep -c searchDalil worker/src/index.ts` > 0.
+- **ISC-435:** teach `SYNTHESIS_SYSTEM_PROMPT` (`web/src/answer-contract.ts`) the
+  `[H:collection:number]` syntax. Zero mentions today. Probe: `grep -c 'H:'` > 0.
+- **Bindings:** the Vectorize index and `okf-corpus` bucket are deliberately NOT on the prod Worker,
+  held for exactly this gate (`worker/wrangler.toml:37`, ISC-331/ISC-379). Adding them is part of the
+  work, and `wrangler env` blocks do NOT inherit top-level bindings.
+
+**Two constraints with measurements behind them, not opinions:**
+- **Gate hadith grounding to knowledge-shaped questions.** Measured on this corpus: 9/9 on knowledge,
+  **1/4 on feelings — it rebukes an anxious person.** Someone writing "aku capek banget" must never be
+  handed a hadith.
+- **No score may gate trust.** `dalil.ts` rule 2, measured twice: a correct hit scored 0.3551 while a
+  wrong hit scored 0.3682. Correctness comes from the marker protocol and the guard, never a threshold.
+
+**Erik's own framing to build on:** retrieval may range over all 14,736 records (narrowing
+`CANDIDATE_K` reintroduces a measured recall bug), but the display cap of 2 means the set readers
+actually reach is small — so spot-review is bounded. Offer to measure that number before he next talks
+to the ustadz.
+
+## 3. Restart the hadith generator? (Erik's call)
+
+1,746 of 14,736 records carry Indonesian. Generation was stopped deliberately on 2026-08-10 pending
+exactly the ruling that has now arrived, so **the standing "do NOT restart the generator" instruction
+was predicated on the approval being absent and should be re-read, not obeyed reflexively.** ~24h of
+compute. Do not start it without asking.
+
+## 4. Continuous chat — the build Erik asked for, not started
+
+Full spec `.scratch/continuous-chat/PRD.md`; read it before touching anything. `AnswerBody`
+(`worker/src/index.ts`) still has no history field. **Four open questions for Erik are in the PRD — ask
+them before building.** Settled, do not re-open: tabs stay, continuity is local-now /
+adopts-on-sign-in, the warm ustadz voice is already right.
+
+**ISC-418 should gate this.** Prod answers with NO grounding and ignores grounding it IS given.
+Continuity on top makes it worse: a model citing its own earlier ungrounded claim reads as consistency,
+which reads as authority.
+
+## Standing constraints (carried forward — all still true, plus five new)
+
+- **NEW — never judge `/api/answer` on the first post-deploy request.** Cold isolate: 12914ms and an
+  abort; the identical request then took 7848ms. Warm it, then measure.
+- **NEW — the passive network log does NOT record aborted requests.** An aborted fetch looks like "no
+  request was made" and sent a whole session down a routing dead end. Instrument `window.fetch` when a
+  request seems absent.
+- **NEW — a stale `CacheStorage` entry serves the OLD css/js right after a deploy.** Clear caches and
+  hard-reload before judging any CSS deploy. (Cost a confident false negative this session.)
+- **NEW — a guard's test corpus must come from PRODUCTION OUTPUT, not prose you write.** Two leaks in
+  one evening, both because the cases were authored by us.
+- **NEW — `--shell-bg`: tune CHROMA, never L.** L 0.990 is load-bearing; it clears the panel's 0.965
+  foot and the panel has no border, so the colour step is the only separator.
+- **Count `#thread` turns before AND after; a restored thread fakes a fresh answer.** `localStorage`
+  replays past turns. Composer is `textarea#q`; the a11y tree does not expose it as a textbox.
+- **`curl` to prod `/api/answer` is classifier-blocked.** Use Interceptor. Foreground `sleep` is
+  blocked too — use `interceptor wait`.
+- **Verify the edition by the INLINED LITERAL, never a grep.** ``function ss(){try{return`synthesis` ``.
+  Backtick quoting in zsh will make a correct probe look like a failure.
+- **Deploys run from `worker/`**, always after `VITE_ANSWER_MODE=synthesis bun run build` — a plain
+  build produces a PRINCIPLED bundle and silently un-authors prod.
+- **Check the EXIT CODE, not the tail** — and `$PIPESTATUS` is empty in zsh (it is `$pipestatus`).
+  `bun run build` exits 1 on unparseable CSS but **0 when the parser silently DISCARDS rules**, so also
+  grep the shipped output for the rule.
+- **Never hand-set ISA `progress:`.** This wrap found `436/451` against a real 450, and a tombstone
+  written as `- [ ] ISC-…` that every parser would count as open. Compute it.
+- **A grep needs a CONTROL.** Against a SPA origin compare body hashes or Content-Type, never status.
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Use `pgrep -fl`, never `ps aux | grep`. Interceptor screenshots are unavailable while Chrome is
+  minimized (`macos windows` returns `[]`) — state it once, never loop; `eval --main` probes are the
+  evidence to use.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **ISC-449** — may the answer card show machine Indonesian? (§1 above.)
+- **Restart the generator?** (§3 above.) 1,746/14,736.
+- **Written confirmation of the hadith Indonesian approval.** Currently VERBAL AND RELAYED in
+  `docs/review/hadith-id-approval-2026-08-12.md`. Do not upgrade that file without an artefact from the
+  ustadz — same rule as `doa-provenance.md`.
+- **Copy review** — ~15 sentences of new Indonesian shipped over this session and the last
+  (`hadith-defer`, `answer-blocked`, the rewritten Hadis notices). Worth his eye; consider
+  IndonesianPolish.
+- **Was the outer-frame green right?** It was reasoned and numerically verified but NEVER SEEN —
+  Interceptor screenshots failed all session because Chrome's window is minimized, and only Erik can
+  restore it. If still too pale: chroma 0.018 → 0.026, do not touch L.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **ISC-418** — is a model answering fiqh from its own parametric knowledge the product, or a defect?
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED and must not be sent as written** — it
+  says *"Aplikasi tidak mengarang jawaban"*, false since the edition flipped. ⛔ header records it.
+- `gimana bersikap ke teman yang beda agama` held out of the question pool pending his eye.
+- An equal-weight three-scholar disclosure was recommended and NOT built.
+- quran.tarjamahtafsiriyah.com's Supabase project is DELETED — sign-in and the daily-readers counter
+  are broken in prod. Bears on the "adopts on sign-in" half of the continuity build.
+- CC BY-ND 3.0 label on `tanzil-id-kemenag` is stronger than the evidence. LPMQ surat permohonan;
+  equran.id permission. everyayah licence is an ACCEPTED, DOCUMENTED risk — do not reopen.
+
+## Not started
+
+- Aqeedah Ar→Id in `~/printing-press/library/tafseer-okf`. Read `.planning-aqeeda-id-resume.md` FIRST;
+  `bun run aqeeda:verify-id` must exit 0. NEVER import or wrap `tool/translate-aqeeda-id.ts`
+  (self-invoking).
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-12 late-night wrap)
 
 > Written by /wrap 2026-08-12 late night. Anchor `origin/main` `e1ba9cf`. Supersedes the earlier

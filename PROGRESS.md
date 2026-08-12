@@ -8,6 +8,95 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-13 (wrap) — the pointer fires, the wall leaked twice, and hadith learned to speak
+
+**Anchor:** `origin/main` `f067bd2`+ (this checkpoint). Clean tree except untracked `WARP.md`.
+**Gates:** `bun test` 1227/0 exit 0 · typecheck exit 0 · build exit 0. ISA **445/459**.
+**Prod:** worker `ed556080`, `EDITION: "synthesis"`. Four deploys this session
+(`c7999a77` → `88e17cff` → `f128d8a9` → `ed556080`).
+
+### 1. The hadith pointer now fires — cause found by instrumenting `fetch`
+
+The previous checkpoint left two candidate causes and leaned toward the client timeout. The timeout
+was right; the chain had a third link neither session had.
+
+```
+POST /api/answer -> status=undefined ms=12126 ERR=AbortError
+```
+
+The fetch IS made. **The passive network log never records an aborted request**, which is exactly why
+the last session concluded "no request was made" and put routing on the list. Refuted.
+
+Why it exceeded `TIMEOUT_MS = 12000`: the widened wall rejected candidate 1, so the Worker ran a
+SECOND generation. A `bad_hadith` rejection can never clear on retry (no marker vocabulary — ISC-435;
+no hadith retrieved — ISC-434), so that generation was spent for nothing. **The questions that trip
+the hadith wall are precisely the ones that paid for two generations, so the pointer was unreachable
+exactly where it was needed.** `handleAnswer` now returns after the first `bad_hadith` rejection.
+
+Measured: 3772ms passing control · 6405ms bare refusal · 7531ms with grounding · 12126ms the old
+double. Verified end to end on a warm isolate — `200 {"answer":null,"blocked":"bad_hadith"}` and the
+browser rendering *"Pertanyaan seperti ini biasanya dijawab dari hadis, bukan dari ayat."* (ISC-436,
+ISC-441.)
+
+**A third latency trap, recorded:** the first request after any deploy hits a cold isolate and died at
+12914ms; the identical request then completed in 7848ms. **Never judge this endpoint on the first
+post-deploy request.**
+
+### 2. The wall leaked a SECOND time, in production, an hour after I called it fixed
+
+Between deploys, prod shipped: *"…memang bisa menjadi penghapus dosa, sebagaimana yang **diajarkan
+oleh** Rasulullah ﷺ"* — an unreceipted prophetic attribution.
+
+Passive voice. The active patterns anchor subject-then-verb; Indonesian puts the agent last via
+`oleh`. And `diajarkan` is the `di-` passive of the `mengajarkan` added an hour earlier.
+`diriwayatkan\s+(oleh|dari|bahwa)` had been in the list the whole time — itself a `di-` passive taking
+`oleh`, enumerated as one word instead of as the construction it is.
+
+**The lesson, now measured twice in one evening:** "the leak is closed" was verified against a SINGLE
+phrasing and the model reached for another within minutes. **A vocabulary cannot close this hole; only
+a grammar can.** ISC-440 stays open and is no longer hypothetical. (ISC-442.)
+
+### 3. Two UI changes, both diagnosed rather than nudged
+
+- **Doa rows** (ISC-444). `border-radius: 999px` is not a fixed corner — it clamps to half the box
+  height, so 34 rows at three heights rendered **18px, 31px and 40px from one declaration**. Bound to
+  `--r-lg`; measured on the deployed stylesheet, 34/34 at 16px, parent 16px. Heights untouched.
+- **The outer frame** (ISC-443). `--shell-bg` was `oklch(0.990 0.003 172)`: chroma an order of
+  magnitude below the 0.036 DESIGN.md already calls "a tint, not a colour", and hue nine points off
+  the brand axis toward cyan. Now `oklch(0.990 0.018 163)`. **L held at exactly 0.990** so the
+  documented lightness step over the panel's 0.945→0.965 ground is bit-for-bit unchanged. DESIGN.md
+  amended: tune chroma, never L.
+
+Also found: a stale `CacheStorage` entry served the OLD css immediately after deploy. Clear caches
+and hard-reload before judging any CSS deploy here.
+
+### 4. Hadith Indonesian is LIVE — on a recorded scholarly approval
+
+Ustadz Ahmad approved displaying **our machine translations as they are** (relayed verbally by Erik).
+`SHOW_MACHINE_HADITH_TEXT` → `true`, recorded in `docs/review/hadith-id-approval-2026-08-12.md` as
+**VERBAL AND RELAYED, not written** — same rule as `doa-provenance.md`.
+
+Put to Erik as the wider of two readings alongside three narrower alternatives; he chose it knowing
+the disclosed defect: this layer turned `دُعَاؤُكُمْ إِيمَانُكُمْ` ("your supplication IS your faith")
+into *"…**bagian dari** keimanan kalian"* ("…is PART OF your faith"). **The risk is now accepted, not
+absent**, and no parity test can catch the next instance.
+
+What did NOT open (most of the diff): the answer card is untouched and still renders Indonesian only
+from per-record `reviewed_id`, which **must never be fed from the machine layer** — it is the only
+thing distinguishing "a scholar checked this sentence" from "a scholar permitted this method". The
+provenance label is now a tested invariant (ISC-446). And three user-facing sentences the flip
+falsified were rewritten, with anti-assertions in both directions, because **overstating review is
+worse than understating permission** (ISC-447).
+
+### Bookkeeping errors corrected in this wrap
+
+ISA frontmatter claimed `436/451`; the real total was 450 — a hand-set denominator that was wrong.
+Recomputed programmatically to **445/459**. ISC-436 had been left FAILED after it started passing. And
+a tombstone I wrote as `- [ ] ISC-436-original` would have been counted as an open criterion by every
+parser reading the file; removed. **Never hand-set these numbers.**
+
+---
+
 ## 2026-08-12 (late night wrap) — the wall was open, and verifying the fix is what found it
 
 **Anchor:** `origin/main` `e1ba9cf`. Clean tree except untracked `WARP.md` (leave it).
