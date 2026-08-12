@@ -8,6 +8,51 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (evening) — a class borrowed for its looks carried its behaviour to production
+
+Seven commits, two deploys, and the session's most useful finding is a bug I shipped and Erik caught.
+
+**The landing's two pills asked Tanya their own labels.** They carried `class="seed seed-pill"`,
+borrowed for the pill appearance. `main.ts:897` binds a delegated document handler on `.seed` that
+calls `ask(button.textContent)` — so pressing either control also sent *"Acak pertanyaan"* and
+*"Yang sering dibuka"* into Tanya as questions. **Reusing a class for its looks silently opts you
+into its behaviour.** Fixed by making the pills standalone AND excluding them in the handler; the
+belt-and-braces is deliberate, because the failure is silent and the damage is a nonsense question
+sent on the reader's behalf.
+
+**Neither existing check could have caught it, and that is the part worth keeping.** The unit tests
+mount their own fixture and never load `main.ts`'s handler — so what was under test was the binding
+I wrote, not the page it lands on. The live prod probe read `box.value` and never asked whether a
+TURN HAD BEEN APPENDED. Both were green; neither was about the failure. The prod check now counts
+turns (`turns: [0,0,0]`), and the new assertions are source-level, where the coupling lives.
+
+**Two smaller traps in the same family.** A regression test failed on *correct* markup because
+`\bseed\b` matches inside `seed-pill` — `-` is a word boundary, so a class check has to compare
+TOKENS. And an edit that left prose outside a CSS comment dropped every rule after it while
+`bun run build` still exited **0**; a control run confirms the build exits 1 on genuinely
+unparseable CSS, so this was the other kind — **recoverable garbage, silently discarded**. Exit code
+is a real gate for broken CSS and blind to discarded CSS.
+
+**The third tafsir tier shipped** (below). **The landing was rebuilt twice**: cards first, then Erik's
+reference showed two pills on one line filling the chat box rather than firing it. The first cards
+*silently wrapped* — two 288px cards plus a 14px gap need 590px in a 576px container, and a wrap is
+a legal layout, not an error. Replaced with an explicit `1fr 1fr` grid that cannot wrap.
+
+**Footer, docked bar and Riwayat Bacaan** all moved on measured marks: the strip is now a centred
+tab on the panel with click-away dismiss; the search bar clears it by 8px (it had been *overlapping*
+by 11px, which predates the redesign); Riwayat Bacaan moved to the panel's right edge, where the
+340px gutter guarding a horizontal collision was redundant against a pill already dropped 62px.
+
+Prod deployed twice — `9b9decee`, then `e32f6093` serving `index-CHrmTJF_.js`. Verified on
+production, not localhost.
+
+typecheck 0 · `bun test` 1178/0 (+65) · build 0. ISA 414/420.
+
+**Next:** A (warm framing on the knowledge lane), B (the app authors answers — Erik approved, ustadz
+gate still open), and the QS 4:25 routing, which should go first.
+
+---
+
 ## 2026-08-12 (third tier) — the source was chosen by measuring it, and the feature nearly amplified our worst answer
 
 The knowledge lane answers `hukum warisan di islam` with two of Ustadz Thalib's index captions and
