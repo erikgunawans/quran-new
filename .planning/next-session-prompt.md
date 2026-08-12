@@ -51,8 +51,9 @@ CONSTRAINTS TO HONOR:
   TOPIC_ALIASES in knowledge.ts does NOT.
 
 OPEN ITEMS WAITING ON ERIK:
-- Per-ayah reciter attribution (ISC-398). Exposure went from 22 files to 6,236 on an UNVERIFIED
-  everyayah licence. This is the one open item the audio work created.
+- (CLOSED 2026-08-12) Reciter attribution shipped; everyayah licence is an ACCEPTED, DOCUMENTED
+  risk per Erik. Do NOT reopen as if undecided. If it is ever revisited, note that attribution does
+  not confer permission — verifying the licence is separate work that was deliberately not done.
 - docs/review/hukum-pin-request-2026-08-12.md is written and BELUM DIKIRIM — Erik sends it himself
   (6 numbered questions on the nikah + waris pin ref-lists). Record any conditional approval AS
   conditional, never as a plain approval. Meanwhile `apa hukum nikah siri` still answers with

@@ -69,8 +69,17 @@ reinterpret an anti-criterion to fit the work, ISC-379 restates the protected th
 Vectorize/okf-corpus binding on the trustworthy edition, proven by `--dry-run`) and supersedes
 ISC-331 on its literal wording only. Flagged to Erik in-session, not decided quietly.
 
-**Open for Erik:** per-ayah reciter attribution, now that exposure went from 22 files to 6,236 on an
-UNVERIFIED licence (ISC-398). And `docs/review/hukum-pin-request-2026-08-12.md` is still BELUM
+**Attribution shipped the same day, and the starting point was worse than expected.** Not "not
+enough attribution" — NONE. `RECITER_NAME` had been exported since the 22-ayah sample and imported
+by nothing, so it tree-shook out: `grep -c Alafasy` on the deployed bundle returned **0** while the
+app served 818 MB of his recitation. The app's own meta description promises *"Setiap sumber
+disebutkan namanya"*. Now live on every surah: `Murotal oleh Syaikh Mishary Rashid Alafasy · sumber
+everyayah.com` (version `c79a7ddd`). Erik ruled the UNVERIFIED everyayah licence an ACCEPTED,
+DOCUMENTED risk at full-corpus scale — recorded beside `AUDIO_SOURCE` in code as well as in the ISA,
+so the next editor sees a decision rather than a gap. **Attribution does not confer permission**,
+and that distinction is written down rather than assumed away.
+
+**Open for Erik:** And `docs/review/hukum-pin-request-2026-08-12.md` is still BELUM
 DIKIRIM — Erik sends it himself; `hukum nikah siri` still answers with QS 4:25 in the meantime.
 
 ---
