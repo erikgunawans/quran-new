@@ -97,6 +97,72 @@ describe("honorifics are not scripture", () => {
   });
 });
 
+/**
+ * The verb-list leak, found by probing live production rather than by reading the list.
+ *
+ * Asked prod Erik's own question — "apakah benar bahwa sakit itu akan menghapus dosa kita?" — and it
+ * answered: "Rasulullah shallallahu alaihi wasallam MENGAJARKAN bahwa tidaklah seorang muslim
+ * tertimpa kelelahan, penyakit, kesedihan…". A real hadith, no marker, guard `ok = true`, zero
+ * violations. `PROPHETIC` carried `menganjurkan` and not `mengajarkan` — one letter apart to the eye,
+ * different words — so the file's self-described highest-stakes wall was open.
+ *
+ * It also explains why the same question sometimes returned silence and sometimes an answer, which
+ * had been read as a caching problem: the outcome depends on which verb the model reaches for.
+ */
+describe("weak attribution verbs — the live leak", () => {
+  const live = `Benar, sakit bisa menjadi penghapus dosa. Rasulullah shallallahu alaihi wasallam mengajarkan bahwa tidaklah seorang muslim tertimpa kelelahan, penyakit, kesedihan, melainkan Allah menghapuskan sebagian dosanya.`;
+
+  test("the exact prose live production shipped is now refused", () => {
+    expect(guardAnswerProse(live, allow(), grounded()).ok).toBe(false);
+  });
+
+  test.each([
+    ["mengajarkan", "Nabi ﷺ mengajarkan bahwa senyum itu sedekah."],
+    ["menjelaskan", "Nabi ﷺ menjelaskan bahwa senyum itu sedekah."],
+    ["menyebutkan", "Rasulullah menyebutkan bahwa amal tergantung niat."],
+    ["memberitahu", "Beliau memberitahu bahwa sabar itu cahaya."],
+    ["mengabarkan", "Nabi ﷺ mengabarkan bahwa surga itu dekat."],
+    ["menuturkan", "Rasulullah menuturkan bahwa doa adalah senjata mukmin."],
+    ["menyampaikan", "Nabi ﷺ menyampaikan bahwa kebersihan sebagian dari iman."],
+    ["menegaskan", "Nabi Muhammad shallallahu alaihi wasallam menegaskan bahwa niat itu penting."],
+  ])("%s + bahwa is an attribution and needs a receipt", (_verb, prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(false);
+  });
+
+  test("direct speech after a colon counts too", () => {
+    expect(guardAnswerProse(`Nabi ﷺ mengajarkan: "tidaklah seorang muslim ditimpa sakit"`, allow(), grounded()).ok).toBe(false);
+  });
+
+  test("the spelled-out Latin honorific does not push the verb out of range", () => {
+    // The live answer wrote "shallallahu alaihi wasallam" in Latin rather than the ﷺ ligature, which
+    // widens the gap between subject and verb. Pinned because a narrower window would silently reopen
+    // the leak for exactly the phrasing production actually produced.
+    expect(guardAnswerProse("Rasulullah shallallahu alaihi wasallam mengajarkan bahwa sakit menghapus dosa.", allow(), grounded()).ok).toBe(false);
+  });
+});
+
+describe("weak attribution verbs must NOT block Qur'anic narrative", () => {
+  // The reason the new verbs are a separate `bahwa`-gated pattern instead of more alternatives in the
+  // original list. Measured before choosing the design: a flat widening rejects every one of these,
+  // and they are the app's core competency — telling a prophet's story from the mushaf.
+  test.each([
+    "Kisah Nabi Yusuf mengajarkan kita arti kesabaran.",
+    "Nabi Ibrahim mengajarkan kita untuk bertawakal kepada Allah.",
+    "Kisah Nabi Musa menjelaskan betapa besar pertolongan Allah.",
+    "Nabi ﷺ adalah teladan yang baik bagi kita semua.",
+    "Aku bukan ahli hadits, lebih baik tanyakan pada ustadz.",
+  ])("still ships: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(true);
+  });
+
+  test("a verb attached to a NON-prophet subject is untouched", () => {
+    // "Al-Qur'an menjelaskan bahwa…" and "QS 2:155 menyebutkan bahwa…" are how the app is supposed to
+    // speak. The pattern requires a prophetic subject, so scripture citing itself never trips it.
+    expect(guardAnswerProse("Al-Qur'an menjelaskan bahwa Allah dekat dengan hamba-Nya.", allow(), grounded()).ok).toBe(true);
+    expect(guardAnswerProse("QS 2:155 menyebutkan bahwa ujian datang bagi orang yang sabar.", allow("2:155"), grounded()).ok).toBe(true);
+  });
+});
+
 describe("markersInProse — the renderer's work list", () => {
   test("extracts markers in order, de-duped", () => {
     expect(markersInProse("[H:muslim:154] lalu [H:bukhari:1] lalu [H:muslim:154]")).toEqual([

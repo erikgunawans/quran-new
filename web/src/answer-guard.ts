@@ -120,6 +120,28 @@ export const markerToId = (collection: string, n: string | number): string => `h
  */
 const PROPHETIC = [
   /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,40}\b(bersabda|menyabdakan|mengatakan|berkata|berpesan|mengingatkan|menganjurkan|melarang|memerintahkan)\b/,
+  // WEAK attribution verbs, admitted only when they introduce a PROPOSITION.
+  //
+  // Found by probing live production, not by reading this list: asked *"apakah benar bahwa sakit itu
+  // akan menghapus dosa kita?"*, prod answered *"Rasulullah shallallahu alaihi wasallam MENGAJARKAN
+  // bahwa tidaklah seorang muslim tertimpa kelelahan…"* — a real hadith, no marker, `ok = true`, zero
+  // violations. The list above carries `menganjurkan` and not `mengajarkan`; one letter apart to the
+  // eye, different words, and the wall the file calls its highest-stakes one was open the whole time.
+  // It also explains the intermittency that made this look like a caching problem: the same question
+  // is refused or answered depending on which verb the model reaches for.
+  //
+  // These verbs CANNOT be added unconditionally, which is why they are a second pattern rather than
+  // more alternatives above. Measured: a flat widening rejects *"Kisah Nabi Yusuf mengajarkan kita
+  // arti kesabaran"* and *"Kisah Nabi Musa menjelaskan betapa besar pertolongan Allah"* — Qur'anic
+  // narrative, the thing this app is FOR, and the loss would be silent.
+  //
+  // `bahwa` is the discriminator, and it is grammatical rather than lexical: it marks a complement
+  // clause, so `mengajarkan bahwa X` reports a saying while `mengajarkan kita kesabaran` draws a
+  // lesson. The first needs a receipt; the second is the app doing its job.
+  /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,60}\b(mengajarkan|menjelaskan|menyebutkan|memberitahu|mengabarkan|menuturkan|menyampaikan|menegaskan|mengungkapkan)\b[^.!?]{0,16}\b(bahwa|bahwasanya)\b/,
+  // The same weak verbs introducing DIRECT speech — a colon or an opening quote does the work `bahwa`
+  // does above. "Nabi ﷺ mengajarkan: tidaklah seorang muslim…" carries exactly the same claim.
+  /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,60}\b(mengajarkan|menjelaskan|menyebutkan|memberitahu|mengabarkan|menuturkan|menyampaikan|menegaskan|mengungkapkan)\s*[:,]\s*["'“„«]/,
   /\bsabda\s+(nabi|rasul|rasulullah|beliau)\b/,
   /\bdalam\s+(sebuah\s+)?(hadits|hadis|riwayat)\b/,
   /\b(hadits|hadis)\s+(riwayat|shahih|sahih|dari)\b/,
