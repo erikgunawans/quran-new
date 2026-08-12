@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 450/464
+progress: 456/470
 mode: build
 started: 2026-07-13
 updated: 2026-08-13
@@ -743,6 +743,12 @@ have made `nextWithAudio` promise files no route could serve, which is ISC-306 e
 - [x] ISC-439: Anti: the widening only ever ADDS refusals. **MET by construction.** The original verb list is untouched and stays unconditional; the new verbs are an additional pattern. No input that was refused before is admitted now.
 - [x] ISC-440: the intermittency is explained and closed. **MET 2026-08-13 (`814fc26`).** The silence-vs-answer flip was never caching: the outcome depended on which verb the model reached for. Closed at the level of the CONSTRUCTION, not the vocabulary — speech-act verbs are now generated from stems by Indonesian affixation (meN- nasal assimilation, `ber-`/`di-`/`ter-`/`memper-`, `-kan`/`-i`), the subject resolves Muhammad-vs-other-prophet against the canon of 25, and the agent relation is order-blind across all four voices. Union with the legacy list, so narrowing is structurally impossible. Probe: `bun test web/src/answer-guard-hadith.test.ts` → 150/150.
 - [x] ISC-440.1: the wall's true opening was MEASURED, not assumed. A 100-sentence corpus written by GPT-5.4 answering as this app's chatbot, none edited to fit, run against the pre-change guard as a control: **29/64 refused — the wall was 55% open** while every test in the file passed. After: 64/64. Probe: `.scratch/isc-440/probe-before.ts` vs `probe.ts`.
+- [x] ISC-440.7: the grammar was audited by an INDEPENDENT model and every finding reproduced. GPT-5.4, read-only, found 44 attribution leaks and 39 wrongly-refused compliant sentences in a grammar that scored 150/150 here and 64/64 on its own corpus. 18 representative cases probed, **18/18 confirmed on first run**, all now pinned as tests. Probe: the `audit corpus` describe block.
+- [x] ISC-440.8: Anti: the grammar does not over-generate. `ter-`/`ber-` prefixed to every stem minted `ternyata`, `tersebut`, `bersama`, `memperingati` as speech acts — a REGRESSION that refused *"semoga kita dikumpulkan bersama Nabi ﷺ"* and *"kita memperingati Maulid Nabi ﷺ"*. `meN-`/`di-` are semantically reliable on a speech-act stem; the other three are not, so their real forms are a small named set. Probe: the seven `still ships` audit cases.
+- [x] ISC-440.9: the subject axis is matched by REFERENT, not spelling. `Rosulullah` walked straight through, and `-o-` spelling dominates Indonesian Islamic web text. Probe: the two orthography cases.
+- [x] ISC-440.10: BOTH Indonesian passives are covered. The object-focus passive (`yang Rasulullah ajarkan`) was never covered by any pattern, legacy or generated — the file's own comment named only the `oleh` passive that leaked. Probe: the three bare-root cases.
+- [x] ISC-440.11: a recipient is not an agent. *"dipesankan **kepada kita** oleh Rasulullah"* shipped while *"dipesankan oleh Rasulullah"* was refused. Probe: the benefactive case.
+- [x] ISC-440.12: `mewajibkan` no longer clears both walls at once — `wajib` is invisible inside it to `VERDICT`'s `\b(wajib|haram|makruh)\s+bagi\b`, and it was not a speech-act stem either. Probe: the zakat case.
 - [x] ISC-440.2: Anti: nothing narrowed. The allow-direction scored 34/36 both before and after, identically — the generated grammar is added BESIDE `PROPHETIC`, never instead of it. Probe: the two control runs above.
 - [x] ISC-440.3: the `bahwa` gate is retired for Muhammad ﷺ. It was never sound — everything he taught is known only through hadith, so "Rasulullah mengajarkan kita untuk bersyukur" is an unreceipted hadith claim. It read as correct only because every compliant test case named Yusuf, Ibrahim or Musa. Probe: the `the bahwa gate is gone for Muhammad ﷺ specifically` test.
 - [x] ISC-440.4: an unlisted prophet name fails to the STRICT side — costing a pointer, never a fabrication. Probe: the `Nabi Fulan` test.
