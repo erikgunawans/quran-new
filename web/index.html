@@ -265,6 +265,57 @@
   </div>
 </div>
 
+<!-- The site footer. A body-level sibling for the same reason the composer is one: it must sit at
+     the bottom of the APP, not inside whichever surface happens to be mounted, or it would appear
+     on the landing and vanish on the reading route.
+
+     COLLAPSED BY DEFAULT, and that is the whole design. A full footer permanently open under a
+     chat-first product competes with the composer for the one part of the screen the thumb owns.
+     So it ships as a hairline strip carrying only its own handle; the content mounts above it when
+     asked for and folds away again. The strip is a <button>, not a <div> with a click handler —
+     it is keyboard-reachable, announces its own state through aria-expanded, and needs no roving
+     tabindex to be operable.
+
+     `hidden` on the panel rather than a height animation to zero: a collapsed panel that is merely
+     0px tall is still in the tab order and still read by screen readers, which is how a "hidden"
+     footer ends up being the first thing a keyboard user meets. -->
+<footer class="site-footer" id="site-footer">
+  <div class="sf-panel" id="sf-panel" hidden>
+    <div class="sf-cols">
+      <div class="sf-brand">
+        <p class="sf-mark">QuranKu</p>
+        <p class="sf-desc">Al-Qur'an online dengan Tarjamah Tafsiriyah Ma'had An-Nabawy oleh Al Ustadz
+          Muhammad Thalib. Memudahkan pemahaman makna Al-Qur'an dengan benar.</p>
+        <p class="sf-src">Murotal oleh Syaikh Mishary Rashid Alafasy · sumber everyayah.com</p>
+      </div>
+      <nav class="sf-col" aria-label="Navigasi">
+        <h2>Navigasi</h2>
+        <ul>
+          <li><a href="#/">Beranda</a></li>
+          <li><a href="#/baca">Al Qur'an</a></li>
+          <li><a href="#/hadis">Hadis</a></li>
+          <li><a href="#/doa">Kumpulan Doa</a></li>
+          <li><a href="#/tematik">Indeks Tematik</a></li>
+        </ul>
+      </nav>
+      <nav class="sf-col" aria-label="Informasi">
+        <h2>Informasi</h2>
+        <ul>
+          <li><a href="#/fikih">Fikih</a></li>
+          <li><a href="#/tentang">Tentang Aplikasi</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="sf-legal">© 2026 QuranKu — Al-Qur'an Tarjamah Tafsiriyah. Terjemahan dan indeks tematik
+      adalah karya Ustadz Muhammad Thalib, ditampilkan apa adanya dengan sumbernya.</p>
+  </div>
+
+  <button type="button" class="sf-handle" id="sf-handle" aria-expanded="false" aria-controls="sf-panel">
+    <span class="sf-handle-label">Tentang &amp; navigasi</span>
+    <span class="sf-chev" aria-hidden="true"></span>
+  </button>
+</footer>
+
 <!-- The composer is a body-level sibling so landing.ts can move it between the hero (landing) and
      the docked bottom bar (conversation). shell.css positions each state, offset by the sidebar. -->
 <div class="composer" id="composer-bar">

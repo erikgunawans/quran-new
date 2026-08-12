@@ -9,6 +9,7 @@ import { closeExplainer, openExplainer } from "./explain.ts";
 import { mountBand } from "./band.ts";
 import { destroyLanding, isChatRoute, syncLanding } from "./landing.ts";
 import { initDictation } from "./dictate.ts";
+import { bindFooter } from "./footer.ts";
 import { mountGreeting } from "./greet.ts";
 import { CORPUS_VERSION, displayName, evictStaleCaches, findSurah, loadAyah, parseRef, ShardError, surahMeta } from "./quran.ts";
 import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTemaHref } from "./peta.ts";
@@ -744,6 +745,12 @@ if ($("#hello")) {
 // The mic belongs to the COMPOSER, not the hero — the composer outlives the landing (landing.ts
 // moves the same element into the docked bar), so this is wired once here and never re-run.
 initDictation();
+
+// Same reasoning as the mic: the footer is a body-level sibling that outlives every route, so it is
+// wired once here rather than re-bound whenever a surface mounts. Re-binding on navigation would
+// stack a second click listener and make the handle toggle twice per press — closed to open to
+// closed, which reads as "the button does nothing".
+bindFooter();
 
 function endLanding(): void {
   destroyLanding();
