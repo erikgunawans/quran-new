@@ -310,7 +310,7 @@ function fiqhCard(a: FiqhArea, lookup: Map<string, KitabInfo>): string {
       // The Indonesian leads, the canonical Arabic follows it on the same line.
       const idn = kitabId(r.collection, r.book);
       return `
-        <a class="fikih-kitab" href="#/hadis/${esc(r.collection)}/${r.book}">
+        <a class="fikih-kitab" href="#/hadis/${esc(r.collection)}/${r.book}" title="${esc(idn ? `${idn} — ${info.ar}` : info.ar)}">
           <span class="fikih-kitab-n">
             ${idn ? `<span class="fikih-kitab-id">${esc(idn)}</span>` : ""}
             <span class="fikih-kitab-ar" dir="rtl" lang="ar">${esc(info.ar)}</span>

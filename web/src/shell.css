@@ -1463,16 +1463,27 @@
 .fikih-sub { position: relative; z-index: 1; margin: 8px 0 14px; font-size: 14px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
 .fikih-kitab-list { position: relative; z-index: 1; }
 .fikih-kitab-list { display: flex; flex-direction: column; gap: 8px; }
+/* One line, always — so every pill in the column is the same pill.
+   These were `flex-wrap: wrap`, which is invisible until a row does not fit: the meta dropped to a
+   second line and that chip grew to double height, while a 999px radius on a two-line box reads as a
+   different SHAPE, not just a taller one. Thaharah showed both at once — "Bersuci" a neat pill,
+   "Mandi Junub" a stadium — and the column looked ragged for a reason no content explains.
+   The name group is the only part allowed to give: `--f-ar` truncates with an ellipsis when a long
+   kitab name genuinely will not fit, and the full name rides in the anchor's `title`. The Indonesian
+   label and the "Bukhari · 113 hadis" meta never truncate — those are what the reader navigates by. */
 .fikih-kitab {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: nowrap;
   padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none;
   color: inherit; background: var(--primary-wash); transition: border-color var(--t), transform var(--t);
 }
 .fikih-kitab:hover { border-color: var(--primary-line); transform: translateX(2px); }
-.fikih-kitab-n { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; min-width: 0; }
-.fikih-kitab-id { font-family: var(--f-ui); font-size: 13.5px; font-weight: 600; color: var(--ink); }
-.fikih-kitab-ar { font-family: var(--f-ar, "Amiri", serif); font-size: 17px; line-height: 1.4; color: var(--ink-2); }
-.fikih-kitab-meta { font-family: var(--f-ui); font-size: 12px; color: var(--ink-3); flex: none; }
+.fikih-kitab-n { display: flex; align-items: baseline; gap: 9px; flex-wrap: nowrap; min-width: 0; }
+.fikih-kitab-id { font-family: var(--f-ui); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.fikih-kitab-ar {
+  font-family: var(--f-ar, "Amiri", serif); font-size: 17px; line-height: 1.4; color: var(--ink-2);
+  min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fikih-kitab-meta { font-family: var(--f-ui); font-size: 12px; color: var(--ink-3); flex: none; white-space: nowrap; }
 
 @media (max-width: 560px) { .fikih-grid { grid-template-columns: 1fr; } }
 
@@ -1512,6 +1523,13 @@
 }
 .doa-sub { position: relative; z-index: 1; margin: 8px 0 14px; font-size: 14px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
 .doa-ayat-list { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+/* LOOKS like `.fikih-kitab` and must NOT be fixed like it — left wrapping on purpose.
+   The same one-line rule was applied here and measured before it shipped: 34 cards went uniform at
+   36px, but **27 of the 34 labels truncated**. The construction is shared and the CONTENT is not —
+   a fikih chip is a short kitab name beside a fixed "Bukhari · 113 hadis", while a doa row is a
+   short ref beside a long descriptive label that legitimately needs the second line. Uniform height
+   is not worth ellipsing four fifths of the list. If these ever need to be equalised, it has to be a
+   two-line clamp, not a one-line squeeze. */
 .doa-ayat {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none;
