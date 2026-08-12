@@ -48,7 +48,20 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
   "hijrah-jihad-dan-perang": ["hijrah", "jihad", "perang", "berperang"],
   "rahasia-kejiwaan-manusia-dalam-al-qur-an": ["jiwa", "kejiwaan", "psikologi", "nafsu", "mental", "kepribadian"],
   "prinsip-prinsip-pendidikan-islam": ["pendidikan", "mendidik", "pengajaran", "ilmu", "guru", "murid", "belajar"],
-  keluarga: ["keluarga", "pernikahan", "menikah", "poligami", "warisan", "perceraian", "mertua", "menantu", "ipar", "jodoh", "rumah tangga", "nafkah"],
+  // `warisan` is deliberately ABSENT. Keluarga's 40 entries are marriage, talak and parenting;
+  // not one mentions inheritance, while the faraidh dalil (4:11, 4:33) sits in Perintah dan
+  // Larangan and the HAM framing (2:180) in Karakteristik Negara Bersyari'ah. Listing it here
+  // made keluarga score a GROUNDED alias hit, and a grounded hit short-circuits the subject
+  // correction below — so "apa itu warisan" and "hukum warisan dalam keluarga" returned zero
+  // entries with the answer one shard over. `hukum warisan` only escaped by accident: Perintah
+  // dan Larangan tied it on `hukum` and wins the tie on iteration order.
+  //
+  // The other unheld words here STAY. `poligami`, `jodoh`, `mertua`, `ipar` are covered by no
+  // category at all, so this alias is what turns them into a pointer at the Keluarga chapter;
+  // dropping them would trade a useful pointer for silence. `perceraian` stays for a second
+  // reason — it is also a FEELING word, so with the alias gone it routes nowhere and the pointer
+  // becomes silence. Measured both ways before cutting; only `warisan` was a strict upgrade.
+  keluarga: ["keluarga", "pernikahan", "menikah", "poligami", "perceraian", "mertua", "menantu", "ipar", "jodoh", "rumah tangga", "nafkah"],
   sosial: ["sosial", "masyarakat", "tetangga", "bermasyarakat", "gotong royong"],
   "ekonomi-islam": ["ekonomi", "riba", "jual beli", "perdagangan", "dagang", "harta", "bisnis", "muamalah",
     "pinjol", "pinjaman online", "bunga bank", "kredit", "investasi", "saham", "kripto", "crypto", "asuransi", "gadai"],
