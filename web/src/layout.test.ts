@@ -170,10 +170,10 @@ describe("attribution: who said it out-ranks how it is filed", () => {
  * below so it cannot quietly follow the seeds out.
  */
 describe("the empty state teaches — DESIGN.md's rule needs an element to bind", () => {
-  test("the landing ships the two cards", () => {
+  test("the landing ships the two pills", () => {
     const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
-    expect(html).toMatch(/class="seed-card"[^>]*id="seed-ask"/);
-    expect(html).toMatch(/class="seed-card"[^>]*id="seed-pop"/);
+    expect(html).toMatch(/class="seed seed-pill"[^>]*id="seed-q"/);
+    expect(html).toMatch(/class="seed seed-pill"[^>]*id="pop-open"/);
   });
 
   test("the cards live inside .seeds, so the composer still docks above them", () => {
@@ -181,8 +181,8 @@ describe("the empty state teaches — DESIGN.md's rule needs an element to bind"
     // contents is fine; changing its identity would silently break that ordering rule.
     const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
     const seeds = html.slice(html.indexOf('<div class="seeds">'));
-    expect(seeds.indexOf('id="seed-ask"')).toBeGreaterThan(0);
-    expect(seeds.indexOf('id="seed-pop"')).toBeGreaterThan(0);
+    expect(seeds.indexOf('id="seed-q"')).toBeGreaterThan(0);
+    expect(seeds.indexOf('id="pop-open"')).toBeGreaterThan(0);
   });
 
   test("the confessional invitation survives the swap — it moved to the composer, it did not vanish", () => {

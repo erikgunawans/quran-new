@@ -68,39 +68,71 @@ describe("wiring", () => {
   function mount(): void {
     document.body.innerHTML = `
       <div class="seeds">
-        <div class="seed-card"><button class="seed seed-q" id="seed-q"></button>
-          <button id="seed-shuffle">Acak</button></div>
-        <div class="seed-card"><button class="seed seed-q" id="pop-open">Populer</button></div>
+        <button class="seed seed-pill" id="seed-q"><span>Acak pertanyaan</span></button>
+        <button class="seed seed-pill" id="pop-open"><span>Yang sering dibuka</span></button>
       </div>
       <form id="composer"><textarea></textarea></form>`;
     bindLandingCards();
   }
 
-  test("the question card fills itself from the pool on bind", () => {
+  const box = () => document.querySelector("textarea")! as HTMLTextAreaElement;
+
+  test("pressing it puts a pooled question IN the chat box", () => {
     mount();
-    expect(ASK_SEEDS).toContain(document.getElementById("seed-q")!.textContent!);
+    expect(box().value).toBe(""); // nothing lands there until asked for
+    document.getElementById("seed-q")!.click();
+    expect(ASK_SEEDS).toContain(box().value);
   });
 
-  test("shuffling changes the question", () => {
+  /**
+   * The whole point of the control, and the thing that separates it from a slot machine: it offers
+   * a question you can still read, edit or replace. Submitting on click would take that away.
+   */
+  test("Anti: it does NOT send the question — the reader still decides", () => {
     mount();
-    const q = document.getElementById("seed-q")!;
-    const before = q.textContent;
-    document.getElementById("seed-shuffle")!.click();
-    expect(q.textContent).not.toBe(before);
-  });
-
-  test("pressing the question fills the COMPOSER — not a private path into retrieval", () => {
-    mount();
-    const q = document.getElementById("seed-q")!;
-    const text = q.textContent!;
     let submitted = false;
     document.getElementById("composer")!.addEventListener("submit", (e) => {
       e.preventDefault();
       submitted = true;
     });
+    document.getElementById("seed-q")!.click();
+    expect(submitted).toBe(false);
+  });
+
+  test("clicking again rotates to a different question, every time", () => {
+    mount();
+    const q = document.getElementById("seed-q")!;
     q.click();
-    expect(document.querySelector("textarea")!.value).toBe(text);
-    expect(submitted).toBe(true);
+    // Not a sample: a generator that can repeat itself reads as broken rather than unlucky, and
+    // one press in 22 would do it if the previous pick were not excluded.
+    for (let i = 0; i < 40; i++) {
+      const before = box().value;
+      q.click();
+      expect(box().value).not.toBe(before);
+    }
+  });
+
+  test("the rotation survives the reader editing the box by hand", () => {
+    mount();
+    const q = document.getElementById("seed-q")!;
+    q.click();
+    const generated = box().value;
+    box().value = "aku ketik sendiri"; // reader types over it
+    q.click();
+    // Tracked internally rather than read back off the composer, so the next press cannot hand
+    // back the question that was already shown.
+    expect(box().value).not.toBe(generated);
+    expect(ASK_SEEDS).toContain(box().value);
+  });
+
+  test("it fires `input`, or the send button stays disabled behind its own guard", () => {
+    mount();
+    let fired = false;
+    box().addEventListener("input", () => {
+      fired = true;
+    });
+    document.getElementById("seed-q")!.click();
+    expect(fired).toBe(true);
   });
 
   test("Populer opens a real <dialog>, so the backdrop and inertness come for free", () => {

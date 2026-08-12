@@ -61,32 +61,40 @@ function modalHtml(): string {
 }
 
 /**
- * Send a question the way the reader would: fill the composer and submit it. Deliberately NOT a
- * direct call into `ask()` — a card with its own path into retrieval is a second entry point that
- * can drift from the typed one, and the drift is invisible until someone reports a question that
- * behaves differently depending on how it arrived.
+ * Put a question INTO the composer — do not send it (Erik, 2026-08-12: "that random question will
+ * appear in the main chat box. When you click again, it will rotate and generate a new one").
+ *
+ * The distinction is the whole design. Submitting on click makes the button a slot machine that
+ * fires an answer at you; filling the box makes it a suggestion you can read, edit, or replace
+ * before you commit to it. It also means the question still reaches retrieval through the ordinary
+ * typed path, so there is no second entry point that could drift from what typing does.
+ *
+ * The button REPLACES whatever is in the box, including text the reader typed. That is the
+ * behaviour asked for, and it is defensible because the press is explicit and unambiguous — but it
+ * is worth naming, because it is the one way this control can destroy something.
  */
-function askThrough(doc: Document, question: string): void {
+function fillComposer(doc: Document, question: string): void {
   const form = doc.getElementById("composer") as HTMLFormElement | null;
   const input = form?.querySelector<HTMLTextAreaElement | HTMLInputElement>("textarea, input[type=text]");
-  if (!form || !input) return;
+  if (!input) return;
   input.value = question;
-  input.dispatchEvent(new Event("input", { bubbles: true })); // unlock the send button's own guard
-  form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  // The send button is disabled until the field reports content, and the hero's textarea grows on
+  // input — both listen for `input`, which a programmatic `.value =` does not fire on its own.
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.focus();
 }
 
-/** Safe on any document that lacks the cards — the demo bundle and tests mount partial pages. */
+/** Safe on any document that lacks the pills — the demo bundle and tests mount partial pages. */
 export function bindLandingCards(doc: Document = document): void {
   const q = doc.getElementById("seed-q");
-  const shuffle = doc.getElementById("seed-shuffle");
 
   if (q) {
-    q.textContent = nextSeed();
-    q.addEventListener("click", () => askThrough(doc, q.textContent ?? ""));
-    // `?? undefined` because nextSeed's exclude parameter is optional, and passing an empty string
-    // would filter nothing while looking like it filtered something.
-    shuffle?.addEventListener("click", () => {
-      q.textContent = nextSeed(q.textContent ?? undefined);
+    // The rotation is tracked here rather than read back off the composer, so that editing the
+    // suggested question by hand does not make the next press able to repeat it.
+    let showing: string | undefined;
+    q.addEventListener("click", () => {
+      showing = nextSeed(showing);
+      fillComposer(doc, showing);
     });
   }
 

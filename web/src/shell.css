@@ -453,33 +453,33 @@
 .qk-panel-body .seed:hover { border-color: var(--primary-line); color: var(--primary); }
 :root[data-theme="dark"] .qk-panel-body .seed { background: rgba(255,255,255,.06); }
 
-/* ── the two landing cards (Erik, 2026-08-12) ─────────────────────────────
-   The seeds row now holds two CARDS rather than four pills. Each is a small stack — a quiet label,
-   the pressable thing, and a secondary control — so the row reads as two offers rather than eight
-   loose buttons. `.seed` inside them keeps the pill styling above, which is why the cards style
-   only their own frame and never restate a button rule. */
-.qk-panel-body .seeds:has(.seed-card) { align-items: stretch; gap: 14px; }
-.seed-card {
-  display: flex; flex-direction: column; align-items: center; gap: 9px;
-  padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-lg);
-  background: rgba(255,255,255,.04); max-width: 320px;
+/* ── the two landing pills (Erik, 2026-08-12) ─────────────────────────────
+   Two equal buttons on ONE line under the chat box — same Y, different X (Erik's reference).
+
+   The first attempt built them as tall stacked cards, and they silently WRAPPED: two 288px cards
+   plus a 14px gap need 590px against a 576px container, so the second dropped to its own row. That
+   overflow was 14 pixels and nothing reported it — a wrap is a legal layout, not an error. Hence
+   the explicit two-column grid below: `1fr 1fr` cannot wrap, so if the row is ever too narrow the
+   pills shrink instead of silently restacking, and the breakpoint that DOES stack them is a
+   decision written down rather than an accident of arithmetic.
+
+   `max-width` tracks the composer above (660px at hero size) so the pair reads as belonging to the
+   box rather than floating under it. */
+.qk-panel-body .seeds:has(.seed-pill) {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  width: 100%; max-width: 660px; margin-left: auto; margin-right: auto;
 }
-:root:not([data-theme="dark"]) .qk-panel-body .seed-card { background: rgba(255,255,255,.45); }
-.seed-card-k {
-  margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--panel-ink-3, var(--ink-3));
+.qk-panel-body .seed-pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 44px; padding: 11px 18px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-/* The question wraps — several of the pooled questions are longer than a pill, and a mid-word
-   ellipsis on a question you are being invited to ask is worse than two lines. */
-.qk-panel-body .seed-q { text-align: center; white-space: normal; line-height: 1.45; }
-.seed-card-note { margin: 0; font-size: 13px; color: var(--panel-ink-3, var(--ink-3)); text-align: center; }
-.seed-shuffle {
-  display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px;
-  background: none; border: 0; cursor: pointer; font: 500 13px var(--f-ui);
-  color: var(--panel-ink-3, var(--ink-3)); transition: color var(--t);
+.qk-panel-body .seed-pill svg { width: 16px; height: 16px; flex: none; }
+/* Below this the pair genuinely does not fit side by side, so stacking is chosen rather than
+   inherited from a wrap nobody intended. */
+@media (max-width: 560px) {
+  .qk-panel-body .seeds:has(.seed-pill) { grid-template-columns: 1fr; }
 }
-.seed-shuffle:hover { color: var(--primary); }
-.seed-shuffle svg { width: 14px; height: 14px; }
 
 /* ── the Populer modal ────────────────────────────────────────────────────
    `<dialog>` + showModal(): the backdrop and inertness are the reason to use the element. The
