@@ -242,32 +242,30 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
 // KVNamespace — this repo does not pull in @cloudflare/workers-types. Deliberately NOT imported
 // from dalil.ts, whose own R2Bucket shim belongs to the Vectorize/okf-corpus surface that ISC-331
 // keeps off the trustworthy edition; a type import there would be the first thread of that coupling.
-interface R2Range {
-  readonly offset?: number;
-  readonly length?: number;
-  readonly suffix?: number;
-}
-interface R2Object {
+interface R2Meta {
   readonly size: number;
   readonly httpEtag: string;
-  readonly range?: R2Range;
   writeHttpMetadata(headers: Headers): void;
 }
-interface R2ObjectBody extends R2Object {
+/** Siblings, not parent-and-child. `body` is declared absent here on purpose, so `"body" in obj`
+ *  DISCRIMINATES the union — omit the key entirely and TypeScript widens the narrowed branch to
+ *  `R2Meta & Record<"body", unknown>`, quietly costing you the narrowing you thought you had. */
+interface R2Object extends R2Meta {
+  readonly body?: undefined;
+}
+interface R2ObjectBody extends R2Meta {
   readonly body: ReadableStream;
 }
 interface R2Bucket {
-  get(
-    key: string,
-    options?: { range?: Headers; onlyIf?: Headers },
-  ): Promise<R2ObjectBody | R2Object | null>;
+  get(key: string, options?: { onlyIf?: Headers }): Promise<R2ObjectBody | R2Object | null>;
+  head(key: string): Promise<R2Object | null>;
 }
 
 const AUDIO_KEY = /^\/audio\/(\d{1,3})\/(\d{1,3})\.mp3$/;
 
 async function serveAudio(url: URL, request: Request, env: Env): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
   }
   const m = AUDIO_KEY.exec(url.pathname);
   if (!m) return new Response("Not found", { status: 404 });
@@ -278,12 +276,35 @@ async function serveAudio(url: URL, request: Request, env: Env): Promise<Respons
   const key = `${Number(m[1])}/${Number(m[2])}.mp3`;
 
   if (env.AUDIO) {
-    // Passing the request headers straight through gives Range and If-None-Match handling for
-    // free: R2 returns a partial body (or none) and reports it on `obj.range`/`obj.body`.
-    const obj = await env.AUDIO.get(key, {
-      range: request.headers,
-      onlyIf: request.headers,
-    });
+    // NO IN-WORKER RANGE HANDLING, and that is the fix, not an omission. Two independent reasons,
+    // both found by audit after the first version shipped range plumbing that looked correct:
+    //
+    //  1. `obj.range` is ALWAYS populated, even when the client sent no Range header — R2 fills in
+    //     `{offset: 0, length: size}` as the default. So a `obj.range ? 206 : 200` status could
+    //     only ever pick 206. Confirmed in the R2 simulator's own source, not inferred:
+    //     `if (range === void 0) r2Range = defaultR2Range` (miniflare bucket.worker.js). Every
+    //     plain GET would have answered 206 Partial Content to a client that asked for no part.
+    //  2. Cloudflare never stores a 206 a Worker returns. So `immutable` below would have been
+    //     dead on arrival across all 6,236 objects — every play of every ayah reaching R2 forever,
+    //     which for a ~818 MB bucket is the difference between a cached asset and a standing bill.
+    //
+    // And it would have bought nothing: on a zone-routed Worker the edge STRIPS `Range` before
+    // invoking us and asks for the full body, then does the slicing itself. Return a whole 200 and
+    // let Workers caching serve the ranges — that is the documented shape, and it is also less code.
+    let obj: R2ObjectBody | R2Object | null;
+    try {
+      // HEAD asks how big the file is, not for the file. `get()` would fetch every byte and then
+      // have the runtime throw the body away — a full egress charge for a response with no body.
+      obj =
+        request.method === "HEAD"
+          ? await env.AUDIO.head(key)
+          : await env.AUDIO.get(key, { onlyIf: request.headers });
+    } catch {
+      // R2 throws (unsatisfiable range, service error). WITHOUT this catch the throw escapes to
+      // Cloudflare's 1101 page, which is HTML — handing the <audio> element a web page, the exact
+      // failure the fallback below was designed to prevent. Silence is the honest answer here.
+      return new Response("Not found", { status: 404 });
+    }
     if (obj) {
       const headers = new Headers();
       obj.writeHttpMetadata(headers);
@@ -292,16 +313,17 @@ async function serveAudio(url: URL, request: Request, env: Env): Promise<Respons
       headers.set("Accept-Ranges", "bytes");
       // Recitation is immutable per ayah — the key never changes content. Cache hard.
       headers.set("Cache-Control", "public, max-age=31536000, immutable");
-      const body = "body" in obj ? obj.body : null;
-      // 304 when onlyIf refused, 206 when a Range was honoured, else 200.
-      const status = body === null ? 304 : obj.range ? 206 : 200;
-      if (status === 206 && "range" in obj && obj.range) {
-        const r = obj.range as { offset?: number; length?: number; suffix?: number };
-        const offset = r.offset ?? 0;
-        const length = r.length ?? obj.size - offset;
-        headers.set("Content-Range", `bytes ${offset}-${offset + length - 1}/${obj.size}`);
-      }
-      return new Response(request.method === "HEAD" ? null : body, { status, headers });
+      // writeHttpMetadata does NOT write this — R2HTTPMetadata carries contentType/Encoding/
+      // Disposition/Language/cacheControl/cacheExpiry and nothing about length. Unset, a HEAD
+      // would report a zero-length file and a player would treat the ayah as empty.
+      headers.set("Content-Length", String(obj.size));
+      if ("body" in obj) return new Response(obj.body, { status: 200, headers });
+      // No body means `onlyIf` refused. R2 does not say WHICH precondition failed, but the request
+      // does: a failed If-None-Match/If-Modified-Since is 304, a failed If-Match/If-Unmodified-Since
+      // is 412. Collapsing both to one status lies to one half of the clients.
+      const guarded =
+        request.headers.has("If-Match") || request.headers.has("If-Unmodified-Since");
+      return new Response(null, { status: guarded ? 412 : 304, headers });
     }
   }
 
