@@ -71,7 +71,8 @@ OPEN ITEMS WAITING ON ERIK:
 Erik asked for four changes to the landing surface. The question-pool probe is DONE and committed;
 the UI is NOT started. Nothing on the landing page was touched — prod is unchanged and coherent.
 
-1. **Expandable footer.** Collapsed = the thin bar already at the bottom of the landing (see the
+1. ~~**Expandable footer.**~~ **DONE 2026-08-12** (`a5c0cc2`) — `web/src/footer.{ts,css}` + `footer.test.ts` (7 tests, force-red verified), markup in `index.html`, wired at `main.ts:753`. BUILT BUT NOT DEPLOYED. Original spec kept below for reference.
+   **Expandable footer.** Collapsed = the thin bar already at the bottom of the landing (see the
    teal strip in Erik's screenshot). Click → slides up revealing footer content; click again →
    collapses. Content mirrors the QuranKu footer: logo + one-paragraph description, **Navigasi**
    (Beranda, Mushaf Madinah, Audio Quran, Penanda, Indeks Tematik), **Informasi** (Tentang Aplikasi,
