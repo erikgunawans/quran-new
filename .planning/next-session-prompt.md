@@ -1,4 +1,10 @@
-# Next session — New-Quranku (`~/quran-new`)
+# Next session — New-Quranku (checkpoint 2026-08-12 wrap)
+
+> Written by /wrap 2026-08-12. Anchor `origin/main` `4c3cbcc`+. Supersedes the 2026-08-12-night
+> anchor `3a037ee`. Prod DEPLOYED this session at `ab5cddb6` — the previous handoff's "deploy first"
+> is done; item **0** below replaces it as the first action.
+
+# New-Quranku (`~/quran-new`)
 
 Read `PROGRESS.md` first (top two checkpoints, both 2026-08-12 night). Anchor: `origin/main` at
 `fb17a6c`. Clean tree except untracked `WARP.md` — leave it.

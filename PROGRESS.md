@@ -8,6 +8,48 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-12 (wrap) — shipped, measured, and then Erik found the hole none of it covered
+
+Deployed at Erik's word: `new-quranku-proxy` version **`ab5cddb6`**, `EDITION: "synthesis"`, serving
+`index-n0j2Eeyk.js`. Live now: the fatwa-wall fix, both prompt rules, the Fikih card shape.
+
+**Post-deploy measurement, same twelve questions** (`docs/review/answer-audit-questions-2026-08-12.txt`):
+quoted scripture **1 → 0**, `yang artinya` **2 → 1**, and the forced-grounding nikah case — the one
+that produced *"para ulama sepakat"* plus a hand-written QS 2:221 this morning — came back **clean on
+all three shapes**. One residual leak survives in `apakah musik haram`, reported rather than rounded:
+a prompt rule is a request, not a wall.
+
+**Then Erik asked the app a question and got nothing, and it was none of the things I had been
+working on.** `apakah benar bahwa sakit itu akan menghapus dosa kita?` → `{"answer":null}`,
+reproduced cold 2/2.
+
+I got the diagnosis wrong twice before getting it right, and both wrong answers are worth keeping:
+
+1. **"Stale bundle."** Falsified by Erik's own screenshot — the turn immediately above showed full
+   authored prose with two verse cards, which only a synthesis bundle can render.
+2. **"The continuity gap."** Falsified by reproducing it cold, with no history at all.
+
+**The actual cause:** the honest answer to that question is a hadith, not an ayah. The model writes
+*"Nabi ﷺ bersabda…"*, `hadithShape` rejects any prophetic attribution with no resolvable marker —
+and `web/src/answer.ts:110` calls `safeAnswer(prose, isRealAyah)` with **two arguments**, so
+`isGroundedHadith` takes its default `() => false`. **Every marker fails by construction.** The wall
+is not a wall on this path; it is a blanket refusal for a whole class of questions, and the reader
+gets the cold silence Erik has now refused twice.
+
+Worse, `synthesizeAnswer` returns `null` for BOTH "no grounding" and "the guard rejected it", and
+`main.ts` renders the identical silence — so the copy shown to the reader (*"Aku belum menemukan ayat
+yang cocok"*) actively misdescribes what happened.
+
+**One process failure worth recording:** I told Erik the fix was already written into the handoff
+when it was not. He asked me to make sure at wrap time, and he was right to. Written now.
+
+Gates: typecheck 0 · `bun test` 1183/0 · build 0. ISA 423/433.
+
+**Next:** the hadith wall is item ZERO in `.planning/next-session-prompt.md`, ahead of the continuity
+build, because it is the failure real readers will hit most.
+
+---
+
 ## 2026-08-12 (late night, part 2) — the two holes I refused to wall are fixed upstream instead
 
 I left ISC-419 and ISC-420 unbuilt because building them as egress rules would have rejected
