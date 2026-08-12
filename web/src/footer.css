@@ -49,16 +49,22 @@
    constants. Those numbers (`0 6px 14px 294px`, `scroll-padding-bottom: 96px`) were each tuned
    against something specific and carry comments explaining what; retrofitting a correction into a
    tuned constant destroys the reason it holds. The footer owns the strip, so the footer reserves
-   the room for it. */
-:root { --sf-reserve: 34px; }
+   the room for it.
+
+   First pass reserved 34px, which cleared the strip by 19px — too much air. Erik marked the target
+   with a line just above the strip, so the bar sits close to it rather than floating: tuned to land
+   the bar's bottom edge ~8px above the strip. */
+:root { --sf-reserve: 22px; }
 
 /* The dock: lift it clear of the strip. `padding-bottom` is shell.css's 14px plus the reservation,
    restated here as one value because CSS cannot add to a shorthand it does not own. */
 :root:not([data-landing]) #composer-bar { padding-bottom: calc(14px + var(--sf-reserve)); }
 
-/* The ramp under the dock is a separate absolutely-positioned layer (shell.css:576) and must rise
-   with it, or it paints a band across the strip. */
-:root:not([data-landing]) #composer-bar::before { bottom: calc(6px + var(--sf-reserve)); }
+/* The RAMP DOES NOT MOVE (Erik, 2026-08-12: "that yellowish abstract background… put it down to its
+   initial place before"). The first pass lifted it with the bar on the reasoning that a layer left
+   behind would paint across the strip — but that ramp is a POOL under the composer, tuned against
+   the panel's own foot in shell.css:576, and raising it detached the glow from the bottom edge it
+   belongs to. It stays at shell.css's `inset: 0 6px 6px 294px`; only the bar moves. */
 
 /* And the content itself: a scroll that stops flush with the dock now stops flush with the strip
    too, so the last line of a surah could sit under it. */

@@ -305,11 +305,17 @@
    left column stays clear of the icons on its own: the title is one word and the subtitle is
    capped at 58ch, so it ends ~235px short of them at every width. */
 .qk-panel-body .tematik-head { padding-right: 0; }
-/* On the Al Qur'an route the panel-top bar gains the extra "Kembali" button, so the controls run wider
-   than the 260px gutter — and as the panel's fluid side padding shrinks on narrower screens the header
-   content (the Riwayat Bacaan pill) slides right into Kembali. Reserve more room here so they never
-   collide at any width. */
-:root[data-baca] .qk-panel-body .baca-head { padding-right: 340px; }
+/* Al Qur'an joins Tematik as an exception, and for the same reason it gives (Erik, 2026-08-12:
+   move Riwayat Bacaan to the panel's right edge).
+
+   The 340px was reserved because the panel-top bar gains "Kembali" here, so the controls run wider
+   than the 260px gutter and the Riwayat Bacaan pill could slide into them. That argument is about a
+   HORIZONTAL collision between things on one row — and the pill has not been on that row since it
+   was dropped 62px (`.baca-head-r { margin-top: 62px }`, itself added so it would clear those same
+   controls vertically). Two guards were solving one problem, and the surviving one is the vertical
+   drop: measured, the controls end at y50 and the pill starts at y80. With the gutter gone,
+   `space-between` puts the pill where the display controls are, one row below them. */
+:root[data-baca] .qk-panel-body .baca-head { padding-right: 0; }
 
 /* ── Neutralize the old centered shell so content flows in the panel ──── */
 .qk-panel-body .app { max-width: 100%; margin: 0; padding: 0 clamp(20px, 4vw, 44px) 40px; }
