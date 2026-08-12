@@ -42,6 +42,25 @@ export function bindFooter(doc: Document = document): void {
 
   handle.addEventListener("click", () => apply(handle, panel, !isOpen(handle)));
 
+  // LIGHT DISMISS (Erik, 2026-08-12): "if we click other places again after that, it will close".
+  //
+  // Bound on the document in the BUBBLE phase, deliberately. The handle's own listener has already
+  // run by then, so opening does not immediately close itself — the click that opened it has the
+  // handle as its target, and the containment check below lets it through. A capture-phase listener
+  // would see the same click BEFORE the toggle and would have to special-case it.
+  //
+  // A click inside the open panel is not "other places" — except on a link, which is: following a
+  // nav link and leaving the footer hanging open over the page you just navigated to is not what
+  // anyone means by dismiss.
+  doc.addEventListener("click", (e) => {
+    if (!isOpen(handle)) return;
+    const t = e.target;
+    if (!(t instanceof Node)) return;
+    if (handle.contains(t)) return;
+    if (panel.contains(t) && !(t instanceof Element && t.closest("a[href]"))) return;
+    apply(handle, panel, false);
+  });
+
   // Escape closes it, matching every other dismissible surface in the app. Only when it is open —
   // otherwise this would swallow Escape from the composer and the dialogs that sit above it.
   doc.addEventListener("keydown", (e) => {

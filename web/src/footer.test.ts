@@ -96,6 +96,52 @@ describe("the footer opens, closes, and says so", () => {
     expect(document.activeElement).toBe(elsewhere);
   });
 
+  /**
+   * Light dismiss (Erik, 2026-08-12): "if we click other places again after that, it will close".
+   *
+   * The subtle one is the FIRST test below. The dismiss listener is on the document, so the very
+   * click that opens the footer also bubbles to it — bind it in the capture phase, or forget the
+   * containment check, and the footer opens and closes in the same gesture and looks simply broken.
+   */
+  test("clicking elsewhere closes an open footer", () => {
+    const { handle, panel } = mount();
+    const elsewhere = document.createElement("main");
+    document.body.appendChild(elsewhere);
+    handle.click();
+    expect(panel.hidden).toBe(false);
+
+    elsewhere.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(panel.hidden).toBe(true);
+    expect(handle.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  test("Anti: the click that OPENS it does not immediately dismiss it", () => {
+    const { handle, panel } = mount();
+    handle.click(); // bubbles to the document listener in the same gesture
+    expect(panel.hidden).toBe(false);
+  });
+
+  test("Anti: clicking inside the open panel does not dismiss it", () => {
+    const { handle, panel } = mount();
+    handle.click();
+    panel.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(panel.hidden).toBe(false);
+  });
+
+  test("but following a nav link DOES dismiss — a footer left open over the new page is not dismiss", () => {
+    const { handle, panel } = mount();
+    handle.click();
+    panel.querySelector("a")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(panel.hidden).toBe(true);
+  });
+
+  test("Anti: a stray click while already closed changes nothing", () => {
+    const { handle, panel } = mount();
+    document.body.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(panel.hidden).toBe(true);
+    expect(handle.getAttribute("aria-expanded")).toBe("false");
+  });
+
   test("Anti: binding on a document without the footer does not throw", () => {
     document.body.innerHTML = `<main id="app"></main>`;
     expect(() => bindFooter()).not.toThrow();
