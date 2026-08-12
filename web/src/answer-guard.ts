@@ -195,7 +195,10 @@ const DEFER = [
   /\b(tanya|tanyakan|bertanya|tanyalah|konsultasi|konsultasikan|rujuk|merujuk|diskusikan)\b[^.!?]{0,48}\b(ustadz|ulama|kiai|kyai|mufti|ahli|guru|orang tua)\b/,
   /\bbukan\s+(seorang\s+)?(fatwa|mufti|ustadz|ulama|ahli)\b/,
   /\bwallahu\s*a'?\s*lam\b/,
-  /\b(tergantung|bergantung)\s+(pada|kondisi|situasi|niat)\b/,
+  // No `tergantung` clause. An it-depends opener is the one deferral that routinely carries a
+  // verdict behind a `tapi` — "Tergantung niat, tapi perbuatan itu haram" — and dropping it closed
+  // that hole at a cost of zero: it regressed none of the eleven live answers and none of the
+  // compliant-disclaimer cases below.
 ];
 
 /** Is this sentence deferring the ruling to a human, rather than issuing one? */

@@ -118,6 +118,11 @@ describe("guardAnswerProse — no fiqh verdict may be issued", () => {
     expect(guardAnswerProse("Wallahu a'lam, sebagian menyebut itu makruh.", allow()).ok).toBe(true);
   });
 
+  // An it-depends opener is the deferral most likely to carry a verdict behind a `tapi`.
+  test("an it-depends opener does not license the verdict after it", () => {
+    expect(guardAnswerProse("Tergantung niat, tapi perbuatan itu haram.", allow()).ok).toBe(false);
+  });
+
   test("safeAnswer returns null on a fatwa so the caller falls back to principled", () => {
     expect(safeAnswer("Hukumnya wajib.", allow())).toBeNull();
   });
