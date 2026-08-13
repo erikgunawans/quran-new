@@ -8,6 +8,71 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-13 (late wrap) — the wall was 55% open while green, and the answer learned to interleave
+
+**Anchor:** `origin/main` `ef80cfc`+. Four deploys this session are one: worker `01381b82` → `2f747a1b`.
+**Gates:** `bun test` 1373/0 exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **457/470**.
+
+### ISC-440 — the attribution wall became a grammar, then had to be corrected
+
+Rebuilt `PROPHETIC` from an enumerated verb list into a generated morphology: speech-act STEMS ×
+Indonesian affixation, a subject that resolves Muhammad ﷺ vs the other 25 prophets, an order-blind
+agent relation. Union with the legacy list, so narrowing is structurally impossible.
+
+**The number that matters is the control, not the result.** A 100-sentence corpus written by GPT-5.4
+answering as this app's chatbot, run against the guard as it stood: **29/64 refused.** The wall this
+file calls its highest-stakes one was **55% open while every test passed.** After: 64/64.
+
+**Then the grammar itself was audited by an independent pass and found wrong in BOTH directions** —
+44 leaks and 39 wrongly-refused compliant sentences. 18 spot-checks, 18 reproduced on first probe:
+
+- **Over-generation (a regression introduced here).** `ter`/`ber` prefixed to every stem minted
+  `ternyata`, `tersebut`, `bersama`, `memperingati` as speech acts. *"Semoga kita dikumpulkan bersama
+  Nabi ﷺ"* and *"kita memperingati Maulid Nabi ﷺ"* were refused — stock du'a and core subject matter.
+- **Under-coverage.** The subject axis was enumerated by SPELLING not referent, so `Rosulullah` walked
+  through. Missing entirely: the object-focus passive (*"yang Rasulullah AJARKAN"* — Indonesian has two
+  passives and only the `oleh` one was ever covered), the question-answer shape that IS the canonical
+  hadith report, fi'li action hadith, ruling verbs (`mewajibkan` cleared the hadith wall AND the fatwa
+  wall), Javanese register.
+- **Agent vs recipient.** *"dipesankan KEPADA KITA oleh Rasulullah"* shipped while *"dipesankan oleh
+  Rasulullah"* was refused. Four characters reopened the wall.
+
+Nothing had deployed when this was found. All 18 pinned as tests.
+
+### Tanya answers: verses moved to where they are cited
+
+`aiHtml` rendered all prose then all cards at the bottom, making the reader do the joining. Now a
+citation becomes a link into the reading surface at that exact ayah (`#/surah/2#153`) AND pulls its
+card up under the paragraph that mentions it. Two verses in two paragraphs land in two places.
+Placement logic lives in `web/src/answer-layout.ts` so the rules are testable (20 tests).
+
+**Verified live on prod**, structure `P | P | DIV.ai-verses | P | P | note`.
+
+### The chat font change that did nothing, twice measured
+
+Reduced the `--step-*` tokens on `#thread .msg` and reported it done. **It changed nothing** — `.said`
+carries no `font-size`, so it inherits from `body { font-size: var(--step-0) }` and redefining the
+token further down never re-runs that declaration. Measured on prod: 18.5px against a 16px body.
+The real rule is a hardcoded clamp in `shell.css:774`. Now `clamp(14px, 1.7vw, 17.5px)`; live 17.5px.
+A `line-height: 1.65` added the same commit was dead code at 0,1,0 against shell.css's 0,3,0.
+
+### Continuous chat — two gating decisions taken, build deliberately NOT started
+
+Erik hit the exact failure the PRD predicted: *"apa itu sabar"* answered fully, then *"apakah sabar
+ada batasnya?"* fell to silence, because `AnswerBody` carries no history and the follow-up reached the
+Worker as a stranger. Decisions recorded in `.scratch/continuous-chat/PRD.md`:
+
+- **Memory window: the last 6 turns, verbatim.** Not 20 (a storage bound, not a context one), not a
+  rolling summary (model-authored text re-entering the prompt is a new unguarded surface).
+- **ISC-418 is fixed BEFORE history is wired.** Continuity is now explicitly blocked on grounding.
+
+### Next
+
+ISC-418 first — make `/api/answer` demonstrably use the grounding it is handed, measured. Then the
+6-turn history field. ISC-449, the generator restart, and the ustadz artefact remain with Erik.
+
+---
+
 ## 2026-08-13 (wrap) — the pointer fires, the wall leaked twice, and hadith learned to speak
 
 **Anchor:** `origin/main` `f067bd2`+ (this checkpoint). Clean tree except untracked `WARP.md`.

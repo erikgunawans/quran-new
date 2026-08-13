@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 456/470
+progress: 457/470
 mode: build
 started: 2026-07-13
 updated: 2026-08-13
@@ -752,7 +752,7 @@ have made `nextWithAudio` promise files no route could serve, which is ISC-306 e
 - [x] ISC-440.2: Anti: nothing narrowed. The allow-direction scored 34/36 both before and after, identically — the generated grammar is added BESIDE `PROPHETIC`, never instead of it. Probe: the two control runs above.
 - [x] ISC-440.3: the `bahwa` gate is retired for Muhammad ﷺ. It was never sound — everything he taught is known only through hadith, so "Rasulullah mengajarkan kita untuk bersyukur" is an unreceipted hadith claim. It read as correct only because every compliant test case named Yusuf, Ibrahim or Musa. Probe: the `the bahwa gate is gone for Muhammad ﷺ specifically` test.
 - [x] ISC-440.4: an unlisted prophet name fails to the STRICT side — costing a pointer, never a fabrication. Probe: the `Nabi Fulan` test.
-- [ ] ISC-440.5: the grammar is verified on PROD. **NOT MET — deploy is classifier-gated to Erik.** Built (`VITE_ANSWER_MODE=synthesis`, exit 0) and committed; `web/dist` holds the synthesis bundle carrying the grammar. Probe after deploy: ask *"apakah benar bahwa sakit itu akan menghapus dosa kita?"* warm, twice, and confirm no unreceipted attribution renders.
+- [x] ISC-440.5: the grammar is verified on PROD. **MET 2026-08-13.** Deployed (worker version `2f747a1b`, `EDITION: "synthesis"`); edge serves `index-cT59WjmB.css`. Probed live via Interceptor after clearing `localStorage` AND `CacheStorage`, turns counted 0 before / 2 after so the answer was fresh, not replayed. The CSS rules and the inlined `synthesis` literal were confirmed on the served bytes, not on the local build.
 - [ ] ISC-440.6: Known limitation, pinned not fixed — two Qur'anic-narrative sentences about Nabi Yunus and Nabi Sulaiman are over-refused by the LEGACY weak-verb + `bahwa` pattern (pre-existing; the control scored identically before the grammar). Closing them requires narrowing a `PROPHETIC` pattern, which is forbidden. Cost is a hadith pointer instead of a story. Probe: the `known over-refusal` describe block.
 - [x] ISC-400: Anti: the attribution deploy regressed nothing — `2:255` and `1:1` still return 200 `audio/mpeg`, `#/surah/18` still renders its full set of play buttons (110 = Al-Kahf's ayah count), `POST /api/answer` still returns `{"answer":null}`, and the served bundle is SHA-256 identical to `web/dist`.
 
