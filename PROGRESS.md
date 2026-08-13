@@ -8,6 +8,97 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-13 (evening) — the blocker was measured with one arm, and the control reversed it
+
+**Anchor:** `origin/main` `f916340`. Deploy: worker `2f747a1b` → **`23f0ad17`**.
+**Gates:** `bun test` 1380/0 exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **458/470**.
+
+### ISC-418 — "the model is not reading our grounding" did not survive its own control
+
+The handoff made this item 0 and BLOCKED the continuous-chat build on it, on two live probes:
+grounding forced to QS 4:25 answered with 2:221/5:5/60:10, and no grounding at all still produced a
+complete fiqh answer. Both varied the grounding's CORRECTNESS. Neither held the question fixed and
+varied its PRESENCE, so neither could tell "it ignored our input" from "our input was wrong."
+
+`src/eval/grounding-probe.ts` is that control — same question, three arms (the fitting ayah /
+nothing / an unrelated real ayah), prod's model, prompt and params. 16 cases × 3 samples, 141 usable:
+
+| arm | cites the fitting ayah |
+|---|---|
+| grounded | **96%** (46/48) |
+| blank — the control | **35%** (16/46) |
+| **lift** | **+61 pts** |
+
+Split by group to kill the obvious confound, since ISC-418 was born on a fiqh question where the
+model's priors are strongest while the curated corpus is feelings: **feeling +66, hukum +53.** The
+lift survives exactly where it was predicted to collapse. The decoy arm reproduces the founding
+probes precisely — an unrelated real ayah is taken 26% of the time, **11%** on hukum.
+
+**So retrieval fixes, curated pins and topic corrections are worth 61 points of citation control on
+the authored path, not invisible.** What DID survive is the other leg: the model never bowed out.
+
+### The bow-out — 46 of 46, and an off-topic question drew scripture
+
+Handed nothing at all, the model answered in full **every single time**, reaching the fitting ayah
+from parametric memory 35% of the time. `cara ganti oli motor beat` and `resep rendang padang yang
+enak` both retrieve zero verses and zero entries, and both drew fluent Islamic answers with no
+corpus, no index and no attribution behind a word.
+
+Erik ruled: bow out to the principled edition. `hasGrounding` (`answer-contract.ts`) is called by the
+Worker after `verifyGrounding` — so forged grounding, already dropped there, arrives empty and can no
+longer buy an answer either — and by the browser before the network call, so a bow-out costs 0ms
+instead of a ~6s generation. **No `blocked` field on this path**: `blocked` means "prose was generated
+and the wall refused it", and rendering that here would tell the reader an answer was found and
+withheld when none was found.
+
+**Verified live on `23f0ad17` in real Chrome, with both controls**, because a bow-out that also
+silenced real feelings or the hukum lane would look identical to a working one on a single probe:
+
+- `cara ganti oli motor beat` → *"Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku
+  memilih tidak"* — and **no `/api/answer` request at all**
+- `aku sedih banget rasanya` → full warm answer, grounded on 2:156
+- `apa hukum riba dalam islam` → entries-only knowledge lane, intact
+
+### Two ways this session nearly recorded something false
+
+- **A test that passed with the fix removed.** The first version used a model that threw "must not be
+  called" — but `synthesizeAnswer` catches any model throw and returns null, so the exception was
+  swallowed by the error path and `toBeNull()` was satisfied anyway. Force-red caught it. The
+  assertion is now a call counter: 2 fail without the fix, 6 pass with it.
+- **A prod reading taken against the wrong tab.** Two tabs were open at `new-quranku.axiara.ai`, so
+  `eval` and the driven tab diverged; an intermediate probe showed the generic error copy and a
+  regression diagnosis was already underway. Deduping the tabs dissolved it. `#q` returning null
+  while `find` sees the textbox is the signature.
+
+### Reversed a pinned decision, on evidence
+
+`answer.test.ts` pinned *"a warm answer with NO citation still ships — no more brush-off bail"*. Its
+warmth concern is now met by a fallback chain that did not exist when it was written (aqidah lane →
+topic pointer → silence). The half that survives — grounding present, model cites nothing — is pinned
+as its own test so the bow-out can never key on citations instead of grounding.
+
+### Found, not fixed
+
+- **`bad_hadith` blocks 24% (34/141) of raw candidates**, `fatwa` 1%. `worker/src/index.ts:554`
+  BREAKS rather than retrying on `bad_hadith`, so that is roughly a quarter of ordinary warm
+  questions receiving `{answer:null}`. About a fifth of those are the ISC-440.6 over-refusal class,
+  now corroborated on live generations rather than written cases (*"Nabi Ya'qub dalam QS Yusuf 12:86
+  mengajarkan…"* — the Qur'an, cited with a resolvable ref, refused as an unsourced attribution).
+- **The cold-start error copy fires more than "occasionally."** 2 of 3 first-requests after a page
+  load rendered *"Ada yang salah saat mengambil ayatnya"*; the warm retry answered every time.
+  Pre-existing, unrelated to this change, and reader-facing on every first question.
+
+### ISC-449 decided
+
+Erik ruled the ustadz's approval of the machine Indonesian DOES extend from the Hadis tab to the
+answer card. Two constraints ride with it: `reviewed_id` keeps its meaning (ISC-448 is a tested
+invariant) so the machine text needs its OWN field or badge, and the approval remains **verbal and
+relayed** — a decision by Erik to display, not an artefact from Ustadz Ahmad. This unblocks
+ISC-434/435. Both dependencies confirmed present in the account: Vectorize index `okf-hadith`
+(1024-dim, cosine) and R2 bucket `okf-corpus`.
+
+---
+
 ## 2026-08-13 (late wrap) — the wall was 55% open while green, and the answer learned to interleave
 
 **Anchor:** `origin/main` `ef80cfc`+. Four deploys this session are one: worker `01381b82` → `2f747a1b`.

@@ -1,2 +1,12 @@
 # Generated eval reports — local artifacts, not source. Keep the folder, ignore the runs.
+#
+# The pattern used to list `framing-*.md` only, while ANSWER-README.md claimed every run was
+# git-ignored. It was not: two answer-*.md reports were committed in July. Those two are left tracked
+# deliberately — removing committed files is Erik's call, not a wrap's — but nothing new lands here.
+#
+# It matters more than tidiness for the newer harnesses: a report holds the model's FULL prose across
+# every arm, including prophetic attributions the egress wall refused. That is exactly the text this
+# repo is careful about publishing, and a report is regenerable in minutes.
 framing-*.md
+answer-*.md
+grounding-*.md

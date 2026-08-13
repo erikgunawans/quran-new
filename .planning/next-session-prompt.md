@@ -1,3 +1,154 @@
+# Next session — New-Quranku (checkpoint 2026-08-13 evening)
+
+> Prepended by /wrap 2026-08-13 evening. Anchor `origin/main` `f916340`. Supersedes the
+> 2026-08-13-late anchor `ef80cfc`. **One deploy shipped** (`2f747a1b` → `23f0ad17`). That handoff's
+> item 0 (ISC-418) is DONE — but its DIAGNOSIS was falsified, so read §0 before trusting anything it
+> said about grounding. Its item 1 (continuous chat) is UNBLOCKED. Its item 2 is now item 0.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-13 evening).
+
+**Gates GREEN:** `bun test` 1380/0 exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **458/470**.
+**Prod:** worker `23f0ad17`, `EDITION: "synthesis"`, css `index-cT59WjmB.css`, js `index-BURygbT8.js`.
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+
+---
+
+## 0. START HERE — ISC-434/435: the hadith wall refuses a QUARTER of ordinary questions
+
+**Now unblocked.** ISC-449 was the gate and Erik ruled on it 2026-08-13: the ustadz's approval of the
+machine Indonesian DOES extend from the Hadis tab to the answer card.
+
+Measured this session, 141 live generations: **`bad_hadith` blocked 24% (34/141)**, `fatwa` 1%. And
+`worker/src/index.ts:554` BREAKS rather than retrying on `bad_hadith` — deliberately, for latency —
+so every one of those is a reader receiving `{answer:null}`. This is not an edge case; it is roughly
+one in four ordinary warm questions.
+
+**Six parts, and the config one is the dangerous one:**
+
+1. `worker/wrangler.toml` — add the `VECTORIZE` binding, the `CORPUS` R2 binding and `CORPUS_DIGEST`.
+   **`[env]` blocks do NOT inherit top-level bindings.** This is the ONE file ISC-331 kept the DALIL
+   surface off deliberately; a binding change committed but not deployed is a split-brain state.
+2. ISC-434 — call `searchDalil` in `handleAnswer`. Probe: `grep -c searchDalil worker/src/index.ts` > 0.
+3. ISC-435 — teach `[H:collection:number]` in `SYNTHESIS_SYSTEM_PROMPT`. Probe:
+   `grep -c 'H:' web/src/answer-contract.ts` > 0. This is the deeper blocker: the model cannot emit a
+   receipt even with a populated union, which is why the wall is unpassable independently of ISC-434.
+4. Pass the real predicate as `guardAnswerProse`'s third argument. It is `() => false` today and the
+   comment at `index.ts:519-527` explains at length why that is deliberate, not an oversight —
+   **that comment becomes wrong the moment 2 and 3 land, and must be rewritten, not deleted.**
+5. ISC-449 — the answer-card Indonesian. **Its own field or badge. Never overload `reviewed_id`**
+   (ISC-448 is a tested invariant). The approval is **verbal and relayed** — Erik's decision to
+   display, not an artefact from the ustadz. Do not write it up as the latter.
+6. Test, `VITE_ANSWER_MODE=synthesis bun run build`, deploy from `worker/`, verify in Interceptor.
+
+**Dependencies confirmed present in the account this session:** Vectorize index `okf-hadith`
+(1024-dim, cosine — matches bge-m3) and R2 bucket `okf-corpus`. `OPENROUTER_API_KEY` is already a
+Worker secret. So nothing here is blocked on provisioning.
+
+**Two constraints with measurements behind them, unchanged:** gate hadith grounding to
+knowledge-shaped questions (**9/9 on knowledge, 1/4 on feelings — it rebukes an anxious person**),
+and **no score may gate trust** (a correct hit scored 0.3551 while a wrong hit scored 0.3682).
+
+## 1. The cold-start error copy fires on most first requests
+
+Measured incidentally this session: **2 of 3** first-requests after a page load rendered the generic
+*"Ada yang salah saat mengambil ayatnya. Mungkin koneksimu sedang tidak stabil."* The warm retry
+answered every time. Pre-existing and unrelated to the bow-out, but the standing constraint calls
+this "occasional" and 2-in-3 is not occasional — it is what most readers meet on their first question.
+
+Suspect: the 12s `TIMEOUT_MS` in `answer-live.ts` against a ~6s warm generation that is far slower on
+a cold isolate. **An aborted fetch leaves NO row in the passive network log**, so absence of an
+`/api/answer` row is the abort signature — but it is now ALSO the bow-out signature, so the two can
+no longer be told apart by the log alone. Distinguish them by whether grounding existed.
+
+## 2. Continuous chat — unblocked, and the trap is narrower than the PRD says
+
+`.scratch/continuous-chat/PRD.md` blocked this on ISC-418. That block is lifted, but **update the PRD
+before building**: its trap section rests on "the model's answers are ungrounded", which is now
+measured false (96% grounded citation, +61 pt lift). The half that was real — the model answering
+from nothing — is what the bow-out closed. So continuity now builds on a path that either grounds or
+stays silent, which is the condition the sequencing decision was actually protecting.
+
+**Settled, do NOT re-open:** window is the **last 6 turns verbatim**. Tabs stay. Continuity is
+local-now / adopts-on-sign-in. The warm ustadz voice is already right.
+
+**Still open and worth asking:** does history change what the guard must do (every rule is
+sentence-scoped and blind to a ruling built across turns)? And what does "delete" delete — the
+transcript only, or the D1 `question` events too?
+
+## 3. ISC-440.6 — a known, pinned over-refusal, now corroborated live
+
+About a fifth of the 24% `bad_hadith` block is this class, and it is no longer only synthetic:
+*"Nabi Ya'qub dalam QS Yusuf 12:86 mengajarkan teladan indah…"* was refused on a real generation —
+the Qur'an, cited with a resolvable ref, read as an unsourced prophetic attribution. Closing it
+requires narrowing a `PROPHETIC` pattern. **Do not.** Pinned as a test.
+
+## Standing constraints (carried forward — all still true, plus three new)
+
+- **NEW — a probe with no control cannot distinguish "it ignored our input" from "our input was
+  wrong."** Two live probes founded ISC-418 and blocked a whole build on it; both varied the
+  grounding's CORRECTNESS and neither varied its PRESENCE. The three-arm harness
+  (`bun run eval:grounding`) is the shape: hold the question fixed, vary the one thing you are
+  testing, and always run the blank control. Report the LIFT, never the hit rate.
+- **NEW — a test whose failure mode is an exception can pass through the code's own catch.**
+  `synthesizeAnswer` returns null on ANY model throw, so a "must not be called" model was swallowed
+  and the assertion passed with the fix removed. Force-red every new test; assert on a counter, not
+  on an exception the system under test is designed to absorb.
+- **NEW — two tabs at the same URL make `eval` and the driven tab diverge**, and the reading looks
+  like a regression. Signature: `#q` returns null via `eval --main` while `find` still sees the
+  textbox. Close duplicates down to exactly one before believing any prod measurement.
+- **Never judge `/api/answer` on the first post-deploy request** — and now also not on the first
+  request after any page load; see §1.
+- **A stale `CacheStorage` entry serves the OLD css/js right after a deploy.** Clear caches,
+  `location.reload()`, then confirm the loaded asset hash against `ls -t web/dist/assets/*.css | head -1`
+  BEFORE any measurement.
+- **`curl` to prod `/api/answer` is classifier-blocked.** Use Interceptor. Foreground `sleep` is
+  blocked; use `interceptor wait`. Static assets curl fine.
+- **The composer accepts ONE programmatic submit per page load**, and a `requestSubmit()` fired
+  before the handler mounts submits NATIVELY and reloads the page — leaving `turns=0` and no error.
+  Reload between probes, wait ~8s for mount, and count `#thread .msg` before AND after.
+- **`wrangler deploy` needs Erik.** It ran clean this session from `worker/` after
+  `VITE_ANSWER_MODE=synthesis bun run build`. A plain build silently un-authors prod. There is no
+  root `wrangler.jsonc` any more — verified absent.
+- **Check the EXIT CODE, not the tail** — and `bun run build` exits 0 when the CSS parser silently
+  DISCARDS a rule, so also grep the shipped output for the rule itself.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **Restart the hadith generator?** 1,746 of 14,736. Stopped 2026-08-10 pending a ruling that has
+  since arrived, so the standing "do NOT restart" is stale, not law. ~24h of compute. **Becomes more
+  urgent with item 0** — the answer card will now display Indonesian, and only 12% of the corpus has
+  it. Do not start it without asking.
+- **Written confirmation of the hadith Indonesian approval** — still VERBAL AND RELAYED in
+  `docs/review/hadith-id-approval-2026-08-12.md`, and ISC-449 now leans on it harder than the Hadis
+  tab did. Do not upgrade its status without an artefact from the ustadz.
+- **The Tanya visual pass.** Erik has SEEN the interleaved layout and moved on, but the spacing above
+  and below the card, the dotted citation underline, and whether 17.5px is enough of a step down were
+  never discussed. Ask before tuning further.
+- **Copy review** — the bow-out now shows the honest-silence copy far more often than before, so that
+  sentence is doing more work. Plus ~15 sentences of new Indonesian across recent sessions. Consider
+  IndonesianPolish.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED** — it says *"Aplikasi tidak mengarang
+  jawaban"*, false since the edition flipped. **Partially truer now** (the app no longer authors from
+  nothing) but still false in general; the ⛔ header stands.
+- `gimana bersikap ke teman yang beda agama` held out of the question pool pending his eye.
+- quran.tarjamahtafsiriyah.com's Supabase is DELETED — sign-in is broken, which bears on the
+  "adopts on sign-in" half of the continuity build.
+- CC BY-ND 3.0 on `tanzil-id-kemenag` is stronger than the evidence; everayah licence is an ACCEPTED,
+  DOCUMENTED risk — do not reopen.
+
+## Not started
+
+- Aqeedah Ar→Id in `~/printing-press/library/tafseer-okf`. Read `.planning-aqeeda-id-resume.md` FIRST;
+  `bun run aqeeda:verify-id` must exit 0. NEVER import or wrap `tool/translate-aqeeda-id.ts`
+  (self-invoking).
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-13 late wrap)
 
 > Prepended by /wrap 2026-08-13 late. Anchor `origin/main` `ef80cfc`+. Supersedes the earlier
