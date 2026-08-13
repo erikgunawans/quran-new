@@ -116,13 +116,38 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
     expect(ai?.kind === "answer" ? ai.refs : null).toEqual(["17:23"]);
   });
 
-  test("a warm answer with NO citation still ships — no more brush-off bail", async () => {
-    // "syarat pribadi shalih khianat" grounds on nothing (see above); the old code bailed to null.
+  // REVERSED 2026-08-13 BY ERIK'S RULING, and the old expectation is kept in view because it was a
+  // deliberate decision, not an accident. This test used to read "a warm answer with NO citation
+  // still ships — no more brush-off bail": "syarat pribadi shalih khianat" grounds on nothing, and
+  // the bail-to-null was removed so the reader got warmth instead of a shrug.
+  //
+  // What changed is evidence, not taste. `bun run eval:grounding` measured the far edge of that
+  // decision: with NO grounding at all the model answered in full 46 times out of 46, so the rule was
+  // not buying warmth on near-misses — it was authoring Islamic answers for "cara ganti oli motor
+  // beat" out of parametric memory. Erik's call: bow out (ISC-418).
+  //
+  // The brush-off worry that motivated the original is now answered elsewhere rather than ignored:
+  // null falls through to the aqidah lane, the knowledge/topic pointer, and only then to silence
+  // (main.ts:664-699) — a chain that did not exist when this test was written.
+  test("no grounding → no authored answer, however warm the prose would have been", async () => {
     const ai = await synthesizeAnswer(
       corpus,
       "syarat pribadi shalih khianat",
       [],
       model("Menjaga amanah itu berat, dan niatmu untuk memperbaiki diri sudah satu langkah baik."),
+    );
+    expect(ai).toBeNull();
+  });
+
+  test("a warm answer with NO citation still ships WHEN there is grounding behind it", async () => {
+    // The half of the original that survives, and it must: the bow-out keys on GROUNDING, never on
+    // whether the model happened to cite. An answer that teaches without a reference is still ours
+    // when our material is what it was handed.
+    const ai = await synthesizeAnswer(
+      corpus,
+      "aku sedih banget rasanya",
+      [],
+      model("Kesedihanmu itu manusiawi, dan Allah tidak pernah menyia-nyiakan hati yang bersabar."),
     );
     expect(ai?.kind).toBe("answer");
     expect(ai?.kind === "answer" ? ai.refs : null).toEqual([]);

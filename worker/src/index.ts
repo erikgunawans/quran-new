@@ -26,6 +26,7 @@ import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
   ANSWER_PARAMS,
   buildAnswerUserMessage,
+  hasGrounding,
   SYNTHESIS_SYSTEM_PROMPT,
   type GroundingEntry,
   type GroundingVerse,
@@ -492,9 +493,23 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // Bound it, THEN prove it is ours. Forged grounding is dropped here, before the model ever sees it.
   const verses = await verifyGrounding(sanitizeGrounding(body.verses, true) as GroundingVerse[], env);
   const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
-  // The model now leads and can answer without any grounding, so only the question is required. Empty
-  // grounding just means fewer suggested verses, never a refusal.
   if (!question) return json({ answer: null }, 200, request);
+
+  // ISC-418 — THE MODEL MAY NOT AUTHOR FROM NOTHING. This comment used to read "the model now leads
+  // and can answer without any grounding … empty grounding just means fewer suggested verses, never a
+  // refusal", and that was measured true and wrong: `bun run eval:grounding` found 46 of 46
+  // no-grounding samples answering in full, so "cara ganti oli motor beat" drew a fluent Islamic
+  // answer built from parametric memory alone. Erik ruled 2026-08-13: bow out to the principled
+  // edition instead.
+  //
+  // NO `blocked` FIELD HERE, DELIBERATELY. `blocked` means "prose was generated and the wall refused
+  // it", and the browser renders it as an answer found-but-withheld (main.ts:705). In this state no
+  // answer was found at all, so that copy would be a lie in the reader's favour. The plain null is
+  // the honest channel and already falls through to the corpus-gap/topic-pointer resolution.
+  //
+  // Placed AFTER verifyGrounding on purpose: forged grounding is dropped up there, lands here as
+  // empty, and can no longer buy an authored answer — previously it bought one from memory.
+  if (!hasGrounding({ verses, entries })) return json({ answer: null }, 200, request);
 
   const user = buildAnswerUserMessage({ question, verses, entries });
 

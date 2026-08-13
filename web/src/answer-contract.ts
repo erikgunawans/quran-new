@@ -42,6 +42,31 @@ export interface AnswerContext {
 export type AnswerModel = (ctx: AnswerContext) => Promise<string>;
 
 /**
+ * May the model author this turn at all? Only when there is something OF OURS to author from.
+ *
+ * ISC-418, measured 2026-08-13 (`bun run eval:grounding`): handed no grounding whatsoever, the model
+ * answered in full in 46 of 46 samples. The same probe's control showed grounding is emphatically NOT
+ * inert — a fitting ayah lifts citation of that ayah from 35% to 96% — so the defect was never "the
+ * model ignores our material". It was that nothing required our material to exist. An off-topic
+ * question ("cara ganti oli motor beat") drew a fluent Islamic answer composed from parametric memory
+ * alone, with no corpus, no index, and no attribution behind a word of it.
+ *
+ * Erik's ruling, 2026-08-13: bow out to the principled edition rather than author from nothing. The
+ * reader gets the existing honest-silence / topic-pointer copy, which is TRUE in this state — there
+ * really is no material — and unlike the `blocked` channel it makes no claim that an answer was found
+ * and withheld.
+ *
+ * ENTRIES ALONE COUNT. `gatherGrounding` returns zero verses and N entries for a ruling question by
+ * design (the honesty floor keeps feeling-verses off fiqh). A predicate demanding verses would silence
+ * the whole hukum lane.
+ *
+ * Called by the Worker after `verifyGrounding` — which means forged grounding, already dropped there,
+ * can no longer buy an authored answer either: it now lands here as empty and bows out.
+ */
+export const hasGrounding = (ctx: Pick<AnswerContext, "verses" | "entries">): boolean =>
+  ctx.verses.length > 0 || ctx.entries.length > 0;
+
+/**
  * Lower temperature than framing (accuracy over flourish), room for a real explanation, not an essay.
  *
  * `reasoning: "none"` + a raised ceiling (2026-07-22). When the reasoning-token starvation was

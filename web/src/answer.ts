@@ -13,6 +13,7 @@
  * Returning null on every doubt is deliberate: the synthesis edition can only ever be as bad as the
  * principled edition, never worse.
  */
+import { hasGrounding } from "./answer-contract.ts";
 import type { AnswerContext, AnswerModel, GroundingEntry, GroundingVerse } from "./answer-contract.ts";
 import { refsInProse, safeAnswer, type AnswerViolationKind } from "./answer-guard.ts";
 import { AnswerBlockedError } from "./answer-live.ts";
@@ -114,6 +115,11 @@ export async function synthesizeAnswer(
   model: AnswerModel,
 ): Promise<SynthesisOutcome | null> {
   const { verses, entries } = await gatherGrounding(corpus, question, modelThemes);
+
+  // ISC-418. Nothing of ours to author from → bow out before the network call, not after a ~6s
+  // generation. The Worker enforces the same rule as the authority (a client can post anything); this
+  // is the latency half, and both call the one `hasGrounding` so they cannot drift apart.
+  if (!hasGrounding({ verses, entries })) return null;
 
   const ctx: AnswerContext = { question, verses, entries };
   let prose: string;
