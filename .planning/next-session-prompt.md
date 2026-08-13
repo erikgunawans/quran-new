@@ -25,9 +25,42 @@ Deferred from last session, deliberately: it was invoked at ~65% context and wou
 a naive `find` reads the codebase ~5× and ingests four divergent historical versions as if current.
 Naive test-file count is 345 against a real ~80.
 
-## 1. Deploy the hadith wall, then MEASURE it — ISC-454
+## 0.5. The hadith Indonesian — generator RUNNING, and the KB question is open
 
-Everything is code-verified only. `wrangler deploy` needs Erik.
+**Ustadz Ahmad reaffirmed approval 2026-08-13** (Erik relaying): the AI-generated translation itself,
+as it stands — the METHOD, not individual sentences. **Still VERBAL**; he will send written
+confirmation. He asked that it be **shown in the app for testing**, which is why display runs ahead
+of the note. Recorded in `docs/review/hadith-id-approval-2026-08-12.md` under "Reaffirmed
+2026-08-13". **Do not edit that file's status line** until an artefact exists — that section is the
+promise, not the artefact.
+
+**The generator is RUNNING.** Started 2026-08-13, PID 58439 at the time of writing, resumed at
+`muslim/36.json`, log in the session scratchpad. ~24h, resumable per book. `pgrep -fl translate-hadith`
+to check. If it died, restarting is now authorised — that standing "do not restart" is retired.
+
+**There is no UI work outstanding for "show the translation on the cards."** It already renders:
+`machine_id` + `.is-ai` on the answer card (shipped and deployed 2026-08-13) and on the Hadis tab
+since 2026-08-12. The only gap is COVERAGE — 11.8%, Muslim 1–21, zero Bukhari — which the generator
+closes. Check `ls web/public/hadith-id/*/` before believing any percentage.
+
+**Erik also asked to "utilize the whole hadith as a knowledge base." Two halves, and only one is
+real work:**
+
+- **Retrieval already uses all 14,736.** `searchDalil` queries the full `okf-hadith` index, pulls
+  `CANDIDATE_K=50`, reranks on the English body. Nothing is withheld at that stage.
+- **What is capped is DISPLAY** — `MAX_DISPLAY = 2`, enforced at three separate points. That is a
+  **rights** position from sunnah.com's terms (per-hadith didactic use, no mass reproduction), NOT a
+  scholarly one, so no approval from the ustadz reaches it. Raising it is a licensing conversation
+  with the source. Do not quietly raise it.
+- **The real lever is the knowledge-shaped gate** (`entries.length > 0` in `handleAnswer`). Hadith
+  retrieval measured 9/9 on knowledge questions and 1/4 on feelings — on a feeling it returned a
+  rebuke to an anxious person. Widening that gate is a genuine product decision and needs Erik.
+  **Ask before touching it**; the measurement behind it is the reason it exists.
+
+## 1. Deploy the hadith wall — DONE 2026-08-13. MEASURE it — ISC-454
+
+**DEPLOYED 2026-08-13** (version `4c32658f`), alongside the Tematik swaps. So the wall is LIVE and
+UNMEASURED — the measurement below is the outstanding half.
 
 ```
 VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy
