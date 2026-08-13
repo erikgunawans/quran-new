@@ -962,7 +962,18 @@
   display: flex;
   gap: 8px;             /* tighter than the old 14px (Erik) */
   align-items: stretch;
-  overflow: hidden;
+  /* `clip` + a margin, not `hidden`, SO THE HOVER LIFT IS NOT CUT OFF.
+     The bound itself is load-bearing and stays: this is a `flex: 1 1 auto` item and the wall's whole
+     premise is that it fits one screen without the page scrolling. But `hidden` clips at the padding
+     box, the top row sits at padding-top 0, and the cards lift 6px on hover — measured on prod
+     2026-08-13: the lifted card's top landed at 136 against a grid clipping at 141, so 5px of it was
+     simply invisible and the card read as sliding UNDER an edge rather than rising off the wall.
+     `overflow-clip-margin` widens the paint region without touching layout, which is exactly the
+     job. 20px covers the 6px lift plus the upward reach of the `0 12px 22px` shadow.
+     DEGRADES SAFELY: a browser without `overflow-clip-margin` still honours `overflow: clip` and
+     clips at the padding box — i.e. back to today's behaviour, never to an unbounded wall. */
+  overflow: clip;
+  overflow-clip-margin: 20px;
 }
 /* `display: flex` out-argues `[hidden]` (DESIGN.md § Layout) — re-assert it. */
 .tematik-grid[hidden] { display: none; }
