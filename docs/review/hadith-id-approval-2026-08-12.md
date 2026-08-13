@@ -63,3 +63,48 @@ of the records readers actually reach, since the display cap means that set is s
 pending exactly this ruling. Restarting it is a separate decision — roughly 24h of compute — and is
 Erik's call; the standing "do not restart the generator" instruction was predicated on the absence of
 this approval and should be re-read now that it exists.
+
+---
+
+## Reaffirmed 2026-08-13 — same scope, still verbal, written confirmation promised
+
+Erik relayed a further conversation with Ustadz Ahmad. Three things, kept separate because they are
+easy to collapse into one another:
+
+1. **What he approved is the AI-generated translation itself** — the machine layer, as it stands.
+   That is the METHOD, not a judgement on any particular sentence. It is the same scope as the
+   2026-08-12 entry above, reaffirmed rather than widened.
+2. **It is still VERBAL.** The status line at the top of this file does not change. Erik reports the
+   ustadz **will send written confirmation**; until that artefact exists, this remains a relayed yes.
+   Do not edit the status line on the strength of this section — this section is the promise, not the
+   artefact.
+3. **He asked that it be shown in the app first, for testing.** The display is the ustadz's own
+   suggestion, which is why it proceeds ahead of the written note rather than in spite of it.
+
+### What this does NOT change
+
+- **`reviewed_id` stays empty.** He approved the method; he did not read and sign off on individual
+  renderings. `reviewed_id` means "a scholar checked THIS record's sentence" and is the data model's
+  only way to tell *permitted* from *checked* — feeding the machine layer into it would erase that
+  distinction irreversibly (ISA ISC-448, a tested invariant). The machine text renders from
+  `machine_id`, its own field.
+- **The `.is-ai` badge and the provenance notice stay.** "Terjemahan mesin · belum ditinjau" is still
+  TRUE: the method is permitted, the sentences are unreviewed, and "for testing" is precisely the
+  frame the ustadz asked for. ISC-446/447 pin this in both directions, and of the two possible
+  errors — understating permission or overstating review — overstating review is the worse one.
+- **The 2-card display cap is untouched.** That is a RIGHTS position from sunnah.com's terms
+  (per-hadith didactic use, no mass reproduction), not a scholarly one, so no scholarly approval
+  reaches it. Raising it is a licensing conversation with the source.
+
+### The disclosed defect still stands
+
+The accepted risk from the 2026-08-12 entry is unchanged and was not re-litigated: this layer is
+measured to alter sense — `دُعَاؤُكُمْ إِيمَانُكُمْ` came back as *"…**bagian dari** keimanan
+kalian"*, a hedge the Arabic does not contain — and no parity test can catch the next one. Accepted,
+not absent.
+
+### Coverage at the time of writing
+
+**1,746 of 14,736 (11.8%), all Ṣaḥīḥ Muslim books 1–21, ZERO Bukhari.** So "show it on every card"
+is not yet a thing the corpus can do, however the UI behaves. `src/app/translate-hadith.ts` was
+restarted 2026-08-13 to close that gap (~24h, resumable per book).
