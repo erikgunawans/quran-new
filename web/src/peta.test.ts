@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 
 registerDom();
 
-const { renderPetaIndex, renderPetaCategory, resetPetaCache } = await import("./peta.ts");
+const { renderPetaIndex, renderPetaCategory, resetPetaCache, fitTematik } = await import("./peta.ts");
 
 afterAll(async () => {
   await unregisterDom();
@@ -266,5 +266,61 @@ describe("coexistence and containment", () => {
     // No Arabic, and no verse cards — entries are index rows that link out.
     expect(mount.textContent).not.toMatch(/[؀-ۿ]/);
     expect(mount.querySelector(".verse")).toBeNull();
+  });
+});
+
+describe("the wall's authored swaps — PINNED_SWAPS", () => {
+  /**
+   * Position on this wall is COMPUTED (greedy balanced partition over ayah counts), so reordering the
+   * data cannot move a card — the sort puts it straight back. These pin the two overrides Erik asked
+   * for on 2026-08-13, because nothing else in the file would notice if they silently stopped firing.
+   *
+   * Happy DOM reports no `--tema-cols`, so `fitTematik` falls to ONE column and every card lands in
+   * the same bucket. That is exactly the condition the swap needs (same-column only), so the single
+   * column is a valid probe of the rule rather than a degenerate case being waved through.
+   */
+  const wallOrder = (): string[] =>
+    [...mount.querySelectorAll<HTMLAnchorElement>(".tema-col .tema-card")].map((c) => c.dataset["slug"] ?? "");
+
+  const before = (order: string[], a: string, b: string): boolean => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    expect(ia).toBeGreaterThanOrEqual(0);
+    expect(ib).toBeGreaterThanOrEqual(0);
+    return ia < ib;
+  };
+
+  const render = async (): Promise<string[]> => {
+    mockFetch({ "/peta/index.json": INDEX });
+    await renderPetaIndex(mount);
+    fitTematik();
+    return wallOrder();
+  };
+
+  test("CONTROL — without a swap, the wall is strictly descending by ayah count", async () => {
+    // Force-red anchor. If this fails, the partition changed and every assertion below is measuring
+    // something other than the swap.
+    const order = await render();
+    expect(order.length).toBe(13);
+    expect(before(order, "perintah-dan-larangan", "allah-subhanahu-wa-ta-ala")).toBe(true);
+    expect(before(order, "allah-subhanahu-wa-ta-ala", "rahasia-kejiwaan-manusia-dalam-al-qur-an")).toBe(true);
+    expect(before(order, "ekonomi-islam", "keluarga")).toBe(true);
+  });
+
+  test("Muhammad (290) and Al-Qur'an/Taurat (111) trade places", async () => {
+    // The smaller theme now sits ABOVE the larger one — which is the whole point, and the one thing
+    // the count-ordered partition would never produce on its own.
+    const order = await render();
+    expect(before(order, "al-qur-an-taurat-injil-dan-zabur", "muhammad-shallallahu-alaihi-wasallam")).toBe(true);
+  });
+
+  test("Karakteristik (242) and Membangun (155) trade places", async () => {
+    const order = await render();
+    expect(before(order, "membangun-pribadi-shalih", "karakteristik-negara-bersyari-ah")).toBe(true);
+  });
+
+  test("Anti: a swap moves cards, it never drops or duplicates one", async () => {
+    const order = await render();
+    expect(new Set(order).size).toBe(13);
   });
 });

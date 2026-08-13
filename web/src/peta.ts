@@ -230,6 +230,31 @@ const TEMATIK_AR: Record<string, string> = {
  * Balancing by count would not: three small themes alone in a column would each inflate to a third
  * of the height and out-tower the 626.
  */
+/**
+ * Pairs Erik asked to trade places on the wall (2026-08-13), by slug.
+ *
+ * THIS EXISTS BECAUSE POSITION IS COMPUTED, NOT AUTHORED. The partition below sorts on ayah count
+ * with source index only as a tiebreak, so reordering `index.categories` — the obvious way to move a
+ * card — changes nothing at all: the greedy pass puts it straight back. An explicit override is the
+ * only honest place to say "this one goes there", and keeping it as a short named list means the
+ * exception is visible rather than smuggled into the sort as a fudged count.
+ *
+ * BOTH PAIRS ARE WITHIN ONE COLUMN at the desktop 5-column layout, and that is what makes them safe.
+ * Swapping two cards in the same column leaves that column's SUM untouched, so the balance across
+ * columns and the shared bottom line both survive — only the two cards' order and heights trade.
+ * Height follows the card (`--tema-g` is its own ayah count), so the taller theme really does move
+ * down; that is the swap Erik drew, not a side effect to correct.
+ *
+ * A pair whose members land in DIFFERENT columns is skipped rather than forced. Moving a card across
+ * columns would change two sums at once and unbalance the wall, which is the one thing the partition
+ * exists to prevent — and the column count changes with viewport width, so a cross-column swap would
+ * silently reshape the wall at some widths and not others.
+ */
+const PINNED_SWAPS: readonly (readonly [string, string])[] = [
+  ["muhammad-shallallahu-alaihi-wasallam", "al-qur-an-taurat-injil-dan-zabur"],
+  ["karakteristik-negara-bersyari-ah", "membangun-pribadi-shalih"],
+];
+
 export function fitTematik(): void {
   const grid = document.getElementById("tematik-grid");
   if (!grid || grid.hidden) return;
@@ -251,6 +276,18 @@ export function fitTematik(): void {
     const target = buckets.reduce((lo, b) => (b.sum < lo.sum ? b : lo), buckets[0]!);
     target.items.push(c);
     target.sum += n;
+  }
+
+  // Apply the authored swaps BEFORE the DOM is rebuilt, so the override is part of the layout rather
+  // than a correction applied on top of it. Same-column only — see PINNED_SWAPS.
+  for (const [a, b] of PINNED_SWAPS) {
+    for (const bucket of buckets) {
+      const ia = bucket.items.findIndex((c) => c.dataset["slug"] === a);
+      const ib = bucket.items.findIndex((c) => c.dataset["slug"] === b);
+      if (ia >= 0 && ib >= 0) {
+        [bucket.items[ia], bucket.items[ib]] = [bucket.items[ib]!, bucket.items[ia]!];
+      }
+    }
   }
 
   // Rebuild the column wrappers. Cards are MOVED, never re-created — re-creating them would restart
@@ -357,7 +394,7 @@ export async function renderPetaIndex(mount: HTMLElement): Promise<void> {
         ${index.categories
           .map(
             (c, i) => `
-          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-bg="${i % 8}" data-n="${c.entries}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
+          <a class="tema-card" href="#/peta/${esc(c.slug)}" data-bg="${i % 8}" data-n="${c.entries}" data-slug="${esc(c.slug)}" data-find="${esc((c.category + " " + (TEMATIK_AR[c.slug] ?? "") + " " + c.slug).toLowerCase())}">
             <span class="tema-girih" aria-hidden="true"></span>
             <span class="tema-ar" dir="rtl" lang="ar">${esc(TEMATIK_AR[c.slug] ?? "")}</span>
             <span class="tema-body">
