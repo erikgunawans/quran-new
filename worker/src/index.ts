@@ -20,7 +20,12 @@
 import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
-import { guardAnswerProse, type AnswerViolationKind } from "../../web/src/answer-guard.ts";
+import {
+  guardAnswerProse,
+  groundedHadithFrom,
+  markersInProse,
+  type AnswerViolationKind,
+} from "../../web/src/answer-guard.ts";
 import { isRealAyah } from "../../web/src/quran.ts";
 import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
@@ -29,8 +34,11 @@ import {
   hasGrounding,
   SYNTHESIS_SYSTEM_PROMPT,
   type GroundingEntry,
+  type GroundingHadith,
   type GroundingVerse,
 } from "../../web/src/answer-contract.ts";
+import { capForDisplay, fetchDisplayRecords, searchDalil, type DalilEnv, type DalilHit } from "./dalil.ts";
+import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -66,6 +74,19 @@ export interface Env {
    *  which is exactly today's behaviour. env blocks do NOT inherit this, so synthesis and demo
    *  keep the sample and nothing about them changes. */
   AUDIO?: R2Bucket;
+  /**
+   * The DALIL surface — hadith retrieval. All three are OPTIONAL and checked together at the call
+   * site: absent, `/api/answer` runs exactly as it did before this cycle (Qur'an grounding only,
+   * every prophetic attribution refused). That is the designed degradation, not a gap — `dalil.ts`
+   * throws loudly rather than guessing, and the caller falls back to the Qur'an path.
+   *
+   * They live at the TOP LEVEL of wrangler.toml, which is prod. `[env]` blocks do not inherit
+   * top-level bindings, so `--env synthesis` and `--env demo` keep running without them and keep
+   * today's behaviour — the same deliberate asymmetry as `AUDIO`.
+   */
+  VECTORIZE?: DalilEnv["VECTORIZE"];
+  CORPUS?: DalilEnv["CORPUS"];
+  CORPUS_DIGEST?: string;
   OPENROUTER_MODEL?: string;
   SEALION_BASE_URL?: string;
   SEALION_MODEL?: string;
@@ -511,7 +532,57 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // empty, and can no longer buy an authored answer — previously it bought one from memory.
   if (!hasGrounding({ verses, entries })) return json({ answer: null }, 200, request);
 
-  const user = buildAnswerUserMessage({ question, verses, entries });
+  // ISC-434 — hadith grounding, and the gate in front of it.
+  //
+  // WHY `entries.length > 0` IS THE KNOWLEDGE-SHAPED TEST and not a new classifier. Measured
+  // 2026-08-13: hadith retrieval answers 9/9 knowledge-shaped questions and 1/4 feelings — on a
+  // feeling it returns a rebuke to an anxious person, which is the worst thing this app could hand
+  // someone. So it must only run on the knowledge lane. That lane already has an exact marker:
+  // `gatherGrounding` (web/src/answer.ts) runs the scholar's index ONLY when the feeling path came
+  // up empty, so a populated `entries` means, by construction, "no feeling was found to answer".
+  // Inventing a second classifier here would be a second opinion that can drift from the first.
+  //
+  // The entries are the VERIFIED ones — `verifyGrounding` ran above — so a forged body cannot switch
+  // this lane on either.
+  let offered: DalilHit[] = [];
+  let records: HadithCard[] = [];
+  if (entries.length > 0 && env.VECTORIZE && env.CORPUS && env.CORPUS_DIGEST) {
+    try {
+      const hits = await searchDalil(env as unknown as DalilEnv, question);
+      // CAP BEFORE OFFERING, not after. `searchDalil` returns up to MAX_RETRIEVE=8 so the reranker
+      // has room to work, but the reader may only ever see MAX_DISPLAY=2. Offering the model all 8
+      // would let it cite the 5th, whose marker resolves against the turn's grounding and passes the
+      // guard — and then no card renders for it, because display is capped at the top 2. That is a
+      // prophetic attribution with nothing behind it, which is the exact state `bad_hadith` exists
+      // to prevent. Capping here makes CITABLE ≡ DISPLAYABLE by construction rather than by luck.
+      offered = capForDisplay(hits);
+      records = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) => ({
+        ...r,
+        // The client needs the book number to look up the machine Indonesian shard (ISC-449); it is
+        // in the corpus path and nowhere else in the record.
+        book: bookOf(offered.find((h) => h.id === r.id)?.path ?? ""),
+      }));
+    } catch {
+      // Loud failure upstream, quiet degradation here — embedding, the text layer or the reranker
+      // being down means this turn simply has no hadith, which is every turn's normal state. The
+      // answer still gets written from Qur'an grounding, exactly as before this cycle.
+      offered = [];
+      records = [];
+    }
+  }
+
+  // The model is handed ONLY records whose reader-facing text actually resolved. A hit whose display
+  // shard is missing never becomes citable, so it can never become an unbacked attribution.
+  const hadith: GroundingHadith[] = records.map((r) => ({
+    id: r.id,
+    collection: r.collection,
+    hadith_number: r.hadith_number,
+    grade: r.grade,
+    english: r.english,
+  }));
+  const isGroundedHadith = groundedHadithFrom(hadith.map((h) => h.id));
+
+  const user = buildAnswerUserMessage({ question, verses, entries, hadith });
 
   let answer: string | null = null;
   // WHY the answer is null, when it is null. Until this existed the endpoint had ONE null channel for
@@ -531,16 +602,20 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const candidate = (await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, ANSWER_PARAMS))?.trim();
       if (!candidate) continue;
-      // The third argument is the hadith-grounding predicate and it is EMPTY ON PURPOSE, not by
-      // omission — the previous code relied on the parameter's default, which read as an oversight and
-      // was diagnosed as one. It is empty because this path retrieves no hadith: `worker/src/dalil.ts`
-      // (searchDalil) is built but not wired in here, and SYNTHESIS_SYSTEM_PROMPT never teaches the
-      // model the `[H:collection:number]` marker syntax, so the model cannot emit a receipt even if
-      // the union were populated. Passing `groundedHadithFrom([])` here instead would be byte-identical
-      // and would falsely suggest hadith grounding works. Both blockers are tracked as ISCs; until BOTH
-      // are cleared — and the ustadz has ruled on whether hadith text may display at all — every
-      // prophetic attribution is correctly refused, and `blocked` is how the reader learns that.
-      const verdict = guardAnswerProse(candidate, isRealAyah, () => false);
+      // The third argument is the REAL hadith-grounding predicate as of this cycle (ISC-434/435).
+      //
+      // It used to be a literal `() => false`, with a long comment explaining that this was
+      // deliberate rather than an oversight: nothing retrieved hadith here, and
+      // SYNTHESIS_SYSTEM_PROMPT never taught the `[H:collection:number]` syntax, so the model could
+      // not emit a receipt even against a populated union. Both of those are now false — the search
+      // runs above and rule 7 of the prompt teaches the marker — so the comment is rewritten rather
+      // than deleted, because the thing it was protecting has not changed: a prophetic attribution
+      // reaches a reader ONLY with a marker that resolves against what this turn actually retrieved.
+      //
+      // On the overwhelming majority of turns (any feeling question, and any turn where the dalil
+      // bindings are absent) `hadith` is empty and this predicate is false for every id — which is
+      // byte-for-byte the old behaviour, and correctly so.
+      const verdict = guardAnswerProse(candidate, isRealAyah, isGroundedHadith);
       if (verdict.ok) {
         answer = candidate;
         blocked = null;
@@ -551,10 +626,13 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // DO NOT SPEND A GENERATION THAT CANNOT SUCCEED.
       //
       // The retry above exists because most guard rejections are flukes — a fresh generation usually
-      // drops the stray Arabic or the verdict. A `bad_hadith` rejection is NOT a fluke: the model has
-      // no way to produce a receipt on this path, because nothing teaches it the marker syntax
-      // (ISC-435) and no hadith is retrieved to resolve one against (ISC-434). Both attempts fail
-      // identically, and `answer-blocked.test.ts` pins that determinism.
+      // drops the stray Arabic or the verdict. The break stays after ISC-434/435, for a reason that
+      // has MOVED rather than disappeared. It used to be determinism: with no marker syntax and no
+      // retrieval, both attempts failed identically, so the second was pure waste. Now the fix is
+      // upstream — the model is handed the hadith and taught the receipt on the first attempt — so a
+      // `bad_hadith` verdict means that first attempt already had everything it needed and chose an
+      // unbacked attribution anyway. Spending a second ~6s generation on that is a bet with no
+      // evidence behind it, and the latency argument below has not changed at all.
       //
       // Measured, and this was a live defect rather than a tidy-up: one generation runs ~4s (a passing
       // control measured 3772ms) and a verbose hadith answer ~6s, so two of them exceeded the browser's
@@ -572,8 +650,24 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     return json({ answer: null }, 200, request); // model/key failure → browser falls back to principled
   }
 
-  return json({ answer, blocked }, 200, request);
+  // WHAT THE READER GETS A CARD FOR: the hadith the answer actually cited, in the order it cited
+  // them — not everything retrieval offered. An offered-but-uncited hadith is one the model judged
+  // irrelevant, and stacking it under the answer anyway would put a saying of the Prophet ﷺ on the
+  // page that nothing on the page is talking about.
+  //
+  // `markersInProse` is only safe on prose that CLEARED the guard, which is exactly the state here:
+  // `answer` is non-null only on `verdict.ok`. Every marker in it therefore already resolved.
+  const cited = answer
+    ? markersInProse(answer)
+        .map((id) => records.find((r) => r.id === id))
+        .filter((r): r is HadithCard => r !== undefined)
+    : [];
+
+  return json({ answer, blocked, hadith: cited }, 200, request);
 }
+
+/** `hadith/muslim/001/002/0034.md` → `1`. The `hadith-id` shard key; 0 when the path is unusable. */
+const bookOf = (path: string): number => Number(path.split("/")[2] ?? 0) || 0;
 
 // ── /api/events — the memory write path (issue 02) ────────────────────────────
 

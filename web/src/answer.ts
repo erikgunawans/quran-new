@@ -14,9 +14,22 @@
  * principled edition, never worse.
  */
 import { hasGrounding } from "./answer-contract.ts";
-import type { AnswerContext, AnswerModel, GroundingEntry, GroundingVerse } from "./answer-contract.ts";
-import { refsInProse, safeAnswer, type AnswerViolationKind } from "./answer-guard.ts";
+import type {
+  AnswerContext,
+  AnswerModel,
+  AnswerResult,
+  GroundingEntry,
+  GroundingVerse,
+} from "./answer-contract.ts";
+import {
+  groundedHadithFrom,
+  markersInProse,
+  refsInProse,
+  safeAnswer,
+  type AnswerViolationKind,
+} from "./answer-guard.ts";
 import { AnswerBlockedError } from "./answer-live.ts";
+import type { HadithCard } from "./hadith-card.ts";
 import { retrieveKnowledge } from "./knowledge.ts";
 import { isRealAyah } from "./quran.ts";
 import { retrieve, type Corpus } from "./retrieve.ts";
@@ -36,6 +49,11 @@ export interface SynthesisAnswer {
   readonly prose: string;
   /** The ayat the model ACTUALLY CITED, to render as cards below the prose (in our translation). */
   readonly refs: readonly string[];
+  /**
+   * The hadith the answer cited, as the Worker resolved them from the pinned corpus. Empty on every
+   * turn that retrieved none — which is most turns, by design.
+   */
+  readonly hadith: readonly HadithCard[];
 }
 
 /**
@@ -122,9 +140,9 @@ export async function synthesizeAnswer(
   if (!hasGrounding({ verses, entries })) return null;
 
   const ctx: AnswerContext = { question, verses, entries };
-  let prose: string;
+  let result: AnswerResult;
   try {
-    prose = await model(ctx);
+    result = await model(ctx);
   } catch (err) {
     // A NAMED refusal from the Worker's wall is signal, not noise — pass it up so the caller can point
     // instead of falling silent. Every other throw (model down, timeout, 404, malformed body) is still
@@ -136,14 +154,26 @@ export async function synthesizeAnswer(
   // Citations are validated against the mushaf, not a whitelist: any real ayah is fair game, a
   // non-existent one sinks the whole answer. Arabic and fatwa-verdict rules are unconditional.
   //
-  // The hadith predicate is deliberately left at its `() => false` default here, and that is the
-  // SECOND wall, not a copy of the first. The Worker already guarded this prose; if a future change
-  // ever let marked hadith prose out of the edge, this re-guard would still stop it in the browser.
-  // Threading a permissive predicate through to match the Worker would remove a wall, not fix one.
-  const safe = safeAnswer(prose, isRealAyah);
+  // THE SECOND WALL, still standing, now built from the records rather than from a constant.
+  //
+  // This predicate used to be the `() => false` default, and the note here said that threading a
+  // PERMISSIVE predicate through to match the Worker would remove a wall rather than fix one. That
+  // is still true and this is not that: the predicate is rebuilt from the ids of the hadith the
+  // response actually carried, so a marker only survives if a card for it arrived alongside. A
+  // Worker that approved a marker but sent no record — the failure this wall exists to catch — is
+  // refused here exactly as before, and the reader falls back to the principled behaviour.
+  //
+  // It is the same question the Worker asked, asked again over data the browser can see for itself,
+  // which is what makes it an independent wall rather than an echo of the first.
+  const hadith = result.hadith ?? [];
+  const safe = safeAnswer(result.prose, isRealAyah, groundedHadithFrom(hadith.map((h) => h.id)));
   if (safe === null) return null;
 
   // Render exactly the ayat the model cited (validated, de-duped, capped) — not the grounding hints.
   const refs = refsInProse(safe).filter(isRealAyah).slice(0, MAX_CARDS);
-  return { kind: "answer", prose: safe, refs };
+  // And exactly the hadith it cited: `markersInProse` is the renderer's work list, and running it
+  // over already-guarded prose is the contract that function documents. Anything the Worker sent
+  // that the prose does not name is dropped here too, so the two surfaces cannot disagree.
+  const marked = new Set(markersInProse(safe));
+  return { kind: "answer", prose: safe, refs, hadith: hadith.filter((h) => marked.has(h.id)) };
 }

@@ -643,6 +643,19 @@ export const groundedHadithFrom = (ids: Iterable<string>): ((id: string) => bool
   return (id: string) => set.has(id);
 };
 
+/**
+ * Remove every hadith marker from prose, for RENDERING only.
+ *
+ * The marker is machine plumbing — a receipt the guard checks and the renderer resolves into a card.
+ * A reader must never see `[H:muslim:154]` sitting in a sentence. Stripping happens at render time
+ * and never before storage, because the stored prose has to stay guardable: a replayed turn is
+ * re-checked against the records it was stored with, and a marker-free string cannot be.
+ *
+ * Swallows one leading space so "…niatnya [H:bukhari:1]." closes up to "…niatnya." rather than
+ * leaving a gap before the full stop.
+ */
+export const stripMarkers = (prose: string): string => prose.replace(/ ?\[H:[a-z][a-z-]*:\d{1,6}\]/g, "");
+
 /** Extract every well-formed "surah:ayah" reference from prose, normalised and de-duped, in order. */
 export const refsInProse = (prose: string): string[] => {
   const out: string[] = [];

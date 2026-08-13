@@ -17,7 +17,7 @@
 import { describe, expect, test } from "bun:test";
 import { hasGrounding } from "./answer-contract.ts";
 import { gatherGrounding, synthesizeAnswer } from "./answer.ts";
-import type { AnswerContext } from "./answer-contract.ts";
+import type { AnswerContext, AnswerResult } from "./answer-contract.ts";
 import type { Corpus } from "./retrieve.ts";
 
 // Serve the built Peta shards from disk so retrieveKnowledge runs with no server.
@@ -57,9 +57,9 @@ describe("synthesizeAnswer bows out before spending a generation", () => {
   // the error path instead of the bow-out. Force-red is what caught it. The call count is the only
   // signal that distinguishes "never asked the model" from "asked it and the answer died".
   let calls = 0;
-  const counted = async (_ctx: AnswerContext): Promise<string> => {
+  const counted = async (_ctx: AnswerContext): Promise<AnswerResult> => {
     calls += 1;
-    return "Sabar itu indah, seperti QS Al-Baqarah 2:153.";
+    return { prose: "Sabar itu indah, seperti QS Al-Baqarah 2:153.", hadith: [] };
   };
 
   for (const q of ["cara ganti oli motor beat", "resep rendang padang yang enak"]) {
@@ -82,10 +82,10 @@ describe("synthesizeAnswer bows out before spending a generation", () => {
     expect(g.verses.length + g.entries.length).toBeGreaterThan(0);
 
     let saw = false;
-    const model = async (ctx: AnswerContext): Promise<string> => {
+    const model = async (ctx: AnswerContext): Promise<AnswerResult> => {
       saw = true;
       expect(hasGrounding(ctx)).toBe(true); // the model never sees an empty context
-      return "Allah menyertai orang yang bersabar, seperti QS Al-Baqarah 2:153 mengingatkan kita.";
+      return { prose: "Allah menyertai orang yang bersabar, seperti QS Al-Baqarah 2:153 mengingatkan kita.", hadith: [] };
     };
     const out = await synthesizeAnswer(corpus, q, [], model);
     expect(saw).toBe(true);

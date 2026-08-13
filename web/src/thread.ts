@@ -28,6 +28,7 @@
  * the whole thread expires, and why there is a button to burn it.
  */
 import type { Hit } from "./retrieve.ts";
+import type { HadithCard } from "./hadith-card.ts";
 
 const KEY = "newquranku:thread";
 
@@ -68,7 +69,13 @@ export type Turn =
   // prose is STORED, not re-derived: it is a non-deterministic model output, so regenerating on
   // restore would show different words than the reader first saw. The refs re-render as cards from
   // the corpus. Never produced by the principled build.
-  | { q: string; kind: "ai"; prose: string; refs: string[] }
+  // `hadith` is STORED for the same reason `prose` is, and it is the stronger case of the two. The
+  // records come from a PRIVATE R2 corpus the browser cannot reach — there is no endpoint to
+  // re-derive them from on restore. Dropping them would replay the prose with its prophetic
+  // attribution and no card underneath, which is precisely the unbacked attribution the whole wall
+  // exists to prevent. `renderTurn` therefore treats a marker with no card as unrenderable and
+  // strips it, so tampered storage degrades to plain prose rather than to a fabricated receipt.
+  | { q: string; kind: "ai"; prose: string; refs: string[]; hadith?: HadithCard[] }
   // A question this feeling app must not answer with a verse OR the KB — a marital rights/obligation
   // matter (nafkah) that belongs to a human ustadz who does family law. Carries only the question;
   // the deferral copy is re-derived at render time. See needsFamilyLawScholar() in retrieve.ts.

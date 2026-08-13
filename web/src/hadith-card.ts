@@ -7,12 +7,19 @@
  * voice; it may never present that explanation as the hadith. The card is where the actual words
  * live, and they arrive from the pinned corpus, not from a model.
  *
- * WHY THERE IS NO INDONESIAN HERE. An unreviewed AI Indonesian rendering was already refused for the
- * Dorar surah preface. A mistranslated hadith is worse: it is a fabricated saying of the Prophet ﷺ.
- * So the card carries no `terjemahan` line at all until Ustadz Ahmad approves a rendering for that
- * specific record, at which point the approved Indonesian ships from `docs/review/` and this card
- * stops depending on a model for it. `reviewed_id` is the hook for that upgrade; it is deliberately
- * a per-record field rather than a global flag, because approval is granted one hadith at a time.
+ * THE INDONESIAN, AND WHY IT ARRIVES IN TWO DIFFERENT FIELDS. This block used to read "there is no
+ * Indonesian here", on the reasoning that an unreviewed AI rendering was already refused for the
+ * Dorar surah preface and a mistranslated hadith is worse — it is a fabricated saying of the Prophet
+ * ﷺ. That reasoning was never refuted; what changed is who carries the judgement. Ustadz Ahmad
+ * approved DISPLAYING the machine Indonesian (relayed verbally by Erik, 2026-08-12), and Erik ruled
+ * 2026-08-13 that the approval extends from the Hadis tab to this card (ISC-449).
+ *
+ * So the card can now show Indonesian — but permission to display is not permission to display
+ * UNLABELLED, and it is emphatically not a statement that any sentence was checked. `reviewed_id`
+ * means the narrow thing (a scholar checked THIS record's sentence) and stays empty until an
+ * approved rendering ships from `docs/review/`; `machine_id` carries the generated layer and is
+ * always marked `.is-ai`. Feeding `machine_id` into `reviewed_id` would collapse the only
+ * distinction the data model has, irreversibly — that is ISC-448, and it is a tested invariant.
  *
  * WHY THE CAP IS RE-APPLIED HERE. `dalil.ts` caps retrieval at MAX_DISPLAY and `fetchDisplayRecords`
  * caps again before fetching text. This is the third wall, and it is not redundancy for its own
@@ -37,6 +44,22 @@ export interface HadithCard {
   translator: string;
   /** Ustadz-approved Indonesian, when one exists for THIS record. Absent means no Indonesian shows. */
   reviewed_id?: string;
+  /**
+   * MACHINE Indonesian — a SEPARATE field from `reviewed_id`, and the separation is the point.
+   *
+   * ISC-449: Erik ruled 2026-08-13 that Ustadz Ahmad's approval of the machine Indonesian extends
+   * from the Hadis tab to this card. That approval is permission to DISPLAY, relayed verbally
+   * (`docs/review/hadith-id-approval-2026-08-12.md`) — it is not a statement that any particular
+   * sentence was checked. `reviewed_id` means exactly that narrower thing and is the data model's
+   * only way to tell "permitted" from "checked" (ISC-448, a tested invariant), so this text gets its
+   * own field and its own `.is-ai` label rather than borrowing one that would erase the distinction.
+   *
+   * Populated by the caller from `hadith-id.ts`, never by the Worker: the `SHOW_MACHINE_HADITH_TEXT`
+   * gate lives at that source so the whole app cannot start rendering this text by adding a caller.
+   */
+  machine_id?: string;
+  /** Book number within the collection, from the corpus path — the `hadith-id` shard key. */
+  book?: number;
 }
 
 /** The rights wall, restated. Same number as `MAX_DISPLAY` in worker/src/dalil.ts. */
@@ -78,7 +101,12 @@ export function hadithCardEl(h: HadithCard): string {
       ${
         h.reviewed_id
           ? `<p class="hadith-id" lang="id">${esc(h.reviewed_id)}</p>`
-          : ""
+          : h.machine_id
+            // `.is-ai` is the same class the Hadis tab marks its machine lines with, and it is what
+            // the provenance notice below refers to. A reviewed rendering, if one ever exists for
+            // this record, wins outright — never both, or the reader sees one hadith twice.
+            ? `<p class="hadith-id is-ai" lang="id">${esc(h.machine_id)}</p>`
+            : ""
       }
 
       <footer class="hadith-cite">

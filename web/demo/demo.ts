@@ -22,7 +22,7 @@ import { retrieve, compose, needsFamilyLawScholar, type Corpus, type Hit } from 
 import { parseRef, loadAyah, loadSurah, displayName, surahMeta, BASMALAH, type ShardVerse } from "../src/quran.ts";
 import { synthesizeAnswer } from "../src/answer.ts";
 import { composeFraming, type ComposeContext, type FramingModel } from "../src/compose-contract.ts";
-import type { AnswerContext, AnswerModel } from "../src/answer-contract.ts";
+import type { AnswerContext, AnswerModel, AnswerResult } from "../src/answer-contract.ts";
 import { understandThemes, type ThemeContext, type ThemeModel } from "../src/theme-understand.ts";
 // The AI chat is the SAME conversation model as the live new-quranku-ai edition: a persisted thread
 // of turns, crisis exchanges answered but never written to disk, knowledge/aqidah fallback lanes.
@@ -58,7 +58,10 @@ const apiUrl = (path: string): string => `${API_ORIGIN}${path}`;
 const AI_ANSWER_ENDPOINT = apiUrl("/api/answer");
 const AI_TIMEOUT_MS = 20000;
 
-const demoAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<string> => {
+// Returns prose with NO hadith. The demo Worker runs `--env demo`, which does not inherit the
+// top-level dalil bindings, so it retrieves none and sends none — and the demo's own card surface was
+// never built for them. An empty list here is the accurate report of that, not a stub.
+const demoAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<AnswerResult> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
   try {
@@ -71,7 +74,7 @@ const demoAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<string>
     if (!res.ok) throw new Error(`/api/answer returned ${res.status}`);
     const data = (await res.json()) as { answer?: string | null };
     if (typeof data.answer !== "string" || data.answer.length === 0) throw new Error("no answer");
-    return data.answer;
+    return { prose: data.answer, hadith: [] };
   } finally {
     clearTimeout(timer);
   }

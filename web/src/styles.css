@@ -754,6 +754,72 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: 0.75rem;
 }
 .ai-verses:last-of-type { margin-bottom: 1.25rem; }
+
+/* ── the hadith under an authored answer (ISC-434/435/449) ───────────────────────────────────────
+   Same placement law as .ai-verses — it belongs to the sentence above it — but deliberately a
+   QUIETER object than the ayah card. An ayah is the thing this app is for; a hadith here is the
+   receipt behind one sentence of the answer, and it must not out-shout the scripture beside it. So:
+   no gradient hinge, no shadow, a flat surface and a hairline.
+
+   `hadithCardsEl` has existed unrendered since the Tanya-agent cycle, which is why none of these
+   class names appear anywhere else in the stylesheet — the markup was built before it had a
+   surface. Names below match hadith-card.ts exactly and are scoped under .ai-hadith so they can
+   never collide with the Hadis tab's own .hadith-card vocabulary in shell.css. */
+.ai-hadith {
+  margin: -0.35rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.ai-hadith:last-of-type { margin-bottom: 1.25rem; }
+.ai-hadith .hadith {
+  padding: 1rem 1.1rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.ai-hadith .hadith-head {
+  display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+  font-family: var(--f-ui);
+}
+.ai-hadith .ref { font-size: 12.5px; font-weight: 600; color: var(--ink-3); text-transform: capitalize; }
+.ai-hadith .grade {
+  font-size: 11.5px; letter-spacing: .04em; color: var(--primary);
+  border: 1px solid var(--primary-line); border-radius: 999px;
+  /* Padding is vertical-light and the radius clamps to the height, not to 999px — a pill's corner is
+     half its own box, and rows of differing height rendered visibly different corners once already. */
+  padding: 2px 9px; background: var(--primary-wash);
+}
+/* The bab title is context, not a heading: it wraps to its own line rather than squeezing the ref. */
+.ai-hadith .bab { flex-basis: 100%; font-size: 12px; color: var(--ink-3); text-wrap: pretty; }
+/* Scales with the reader's A/A/A control, exactly like every other Arabic in the app. */
+.ai-hadith .ar {
+  margin: 0;
+  font-family: var(--f-ar, "Amiri", serif);
+  font-size: calc(var(--ar-size) * 0.78);
+  line-height: 2;
+  color: var(--ink);
+}
+.ai-hadith .hadith-en {
+  margin: 0.85rem 0 0;
+  font-family: var(--f-ui);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.ai-hadith .hadith-cite {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+  margin-top: 0.9rem; padding-top: 0.7rem; border-top: 1px solid var(--line);
+  font-family: var(--f-ui); font-size: 12px; color: var(--ink-3);
+}
+.ai-hadith .hadith-cite a { color: var(--ink-3); text-decoration: none; border-bottom: 1px solid var(--line); }
+.ai-hadith .hadith-cite a:hover,
+.ai-hadith .hadith-cite a:focus-visible { color: var(--primary); border-color: var(--primary-line); }
+/* .hadith-id and .hadith-id.is-ai are defined once, in shell.css, and reused verbatim here. The
+   machine-translation badge must read identically on the Hadis tab and on an answer card — a reader
+   who learns what it means in one place must not have to learn it again in the other. */
 .ai-note {
   color: var(--ink-2);
   border-top-color: var(--primary);

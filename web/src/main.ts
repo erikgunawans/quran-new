@@ -26,7 +26,9 @@ import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
-import type { AnswerViolationKind } from "./answer-guard.ts";
+import { markersInProse, stripMarkers, type AnswerViolationKind } from "./answer-guard.ts";
+import { hadithCardsEl, type HadithCard } from "./hadith-card.ts";
+import { hadithIdText, loadHadithIds } from "./hadith-id.ts";
 import { liveAnswerModel } from "./answer-live.ts";
 import { linkifyRefs, planAnswerLayout } from "./answer-layout.ts";
 import { understandThemes } from "./theme-understand.ts";
@@ -336,7 +338,7 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       // The synthesis edition's authored answer. Prose is REPLAYED verbatim from the stored turn (it
       // was model-generated once and guarded then); the verses re-render as cards from the corpus.
       if (!corpus) throw new Error("corpus");
-      return aiHtml(t.prose, t.refs, animate);
+      return aiHtml(t.prose, t.refs, t.hadith ?? [], animate);
     }
   }
 }
@@ -346,7 +348,12 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
  * label. The prose already cleared answer-guard (no Arabic, only grounded citations) — here it is
  * only HTML-escaped and split into paragraphs; the app authors nothing new at render time.
  */
-async function aiHtml(prose: string, refs: readonly string[], animate: boolean): Promise<string> {
+async function aiHtml(
+  prose: string,
+  refs: readonly string[],
+  hadith: readonly HadithCard[],
+  animate: boolean,
+): Promise<string> {
   // THE CITED AYAH IS RESOLVED AGAINST THE WHOLE MUSHAF, NOT JUST THE CURATED 191.
   //
   // This used to be `corpus.verses.find(...)` alone, and the failure it produced was visible on the
@@ -410,15 +417,49 @@ async function aiHtml(prose: string, refs: readonly string[], animate: boolean):
     return !!meta && Number(m[2]) >= 1 && Number(m[2]) <= meta.ayahs;
   };
 
+  // THE RENDER-TIME HADITH WALL. A marker is only allowed to become a card if a record for it is
+  // actually in hand; anything else is stripped to plain prose and shows nothing. That covers the
+  // one case the two guards upstream cannot: a turn REPLAYED from localStorage, where the prose and
+  // the records were stored together and only the prose is trustworthy on its own. Tampered or
+  // truncated storage therefore degrades to an answer with no receipt shown, never to a receipt with
+  // nothing behind it.
+  // Copied, not aliased: `machine_id` is filled in below, and the input may be the object held in
+  // the persisted thread. Render must never write back into stored state.
+  const hadithFor = new Map(hadith.filter((h) => h.arabic && h.source_url).map((h) => [h.id, { ...h }]));
+  // The machine Indonesian (ISC-449) is resolved through `hadith-id.ts`, so the
+  // `SHOW_MACHINE_HADITH_TEXT` gate stays the single place that decides whether this text may show
+  // at all. Only Ṣaḥīḥ Muslim books 1–21 carry it today; every other record simply renders without,
+  // exactly as the card did before.
+  await Promise.all(
+    [...hadithFor.values()].map(async (h) => {
+      if (h.reviewed_id || !h.book || !h.collection) return;
+      try {
+        const id = hadithIdText(await loadHadithIds(h.collection, h.book), h.hadith_number);
+        if (id) h.machine_id = id;
+      } catch {
+        // An unreachable shard means Arabic + English only — the state this card shipped in.
+      }
+    }),
+  );
+
   const { blocks, trailing } = planAnswerLayout(prose, [...cardFor.keys()], isReal);
 
   // Prose is ESCAPED first and linkified second. The other order would hand a model-authored string
-  // an HTML injection surface.
+  // an HTML injection surface. Markers are stripped BEFORE escaping so the reader never meets one.
   const body = blocks
     .map(({ para, refs: here }) => {
-      const p = `<p class="said ai-said">${linkifyRefs(esc(para), isReal)}</p>`;
+      const p = `<p class="said ai-said">${linkifyRefs(esc(stripMarkers(para)), isReal)}</p>`;
       const cards = here.map((r) => cardFor.get(r) ?? "").join("");
-      return cards ? `${p}<div class="ai-verses">${cards}</div>` : p;
+      // Each hadith sits under the paragraph that cited it, for the same reason a verse does: the
+      // sentence and its evidence belong on screen together.
+      const hadithHere = markersInProse(para)
+        .map((id) => hadithFor.get(id))
+        .filter((h): h is HadithCard => h !== undefined);
+      return (
+        p +
+        (cards ? `<div class="ai-verses">${cards}</div>` : "") +
+        (hadithHere.length ? `<div class="ai-hadith">${hadithCardsEl(hadithHere)}</div>` : "")
+      );
     })
     .join("");
 
@@ -642,7 +683,7 @@ async function ask(question: string) {
     if (isSynthesis() && ref.kind === "not-a-ref" && corpus && !referral) {
       const ai = await synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
       if (ai?.kind === "answer") {
-        turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs] };
+        turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs], hadith: [...ai.hadith] };
         synthesized = true;
       } else if (ai?.kind === "blocked" && ai.by === "bad_hadith") {
         // ONLY the hadith rule earns the Hadis pointer, because only for it is the pointer TRUE: the

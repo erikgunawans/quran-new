@@ -40,11 +40,49 @@ not_found_handling = "single-page-application"
 binding = "AUDIO"
 bucket_name = "new-quranku-audio"
 
+# ── THE DALIL SURFACE (ISC-434/435/449) — hadith retrieval for /api/answer ────────────────────────
+#
+# This is the binding change ISC-331 and ISC-379 were written to hold back, and it is landing because
+# THE GATE THEY GUARDED IS CLEARED, not because it was worked around. Both anti-criteria protected one
+# thing: the dalil surface must stay off the trustworthy edition until the ustadz-gated flip. There is
+# no trustworthy edition at this scope any more — EDITION was set to "synthesis" here on 2026-08-12 at
+# Erik's direct instruction — and Erik ruled on 2026-08-13 that Ustadz Ahmad's approval of the machine
+# Indonesian extends from the Hadis tab to the answer card. So the literal wording of ISC-379 ("no
+# VECTORIZE/CORPUS binding") is superseded; what it protected is not. See ISA ISC-450.
+#
+# WHY THIS OPENS THE WALL. `bad_hadith` refused 24% of ordinary questions (34 of 141, measured
+# 2026-08-13) — one reader in four asking something perfectly normal got {answer:null}. The refusal
+# was correct: with nothing retrieved and no marker syntax taught, the model could not produce a
+# receipt for a prophetic attribution, so every one of them had to be stopped. These three bindings
+# are what make a receipt POSSIBLE. The wall is unchanged; the door beside it now exists.
+#
+# TOP-LEVEL ONLY, exactly like AUDIO above and for the same mechanical reason: wrangler env blocks do
+# not inherit top-level bindings. `--env synthesis` and `--env demo` therefore keep running WITHOUT
+# the dalil surface and behave exactly as they do today — `handleAnswer` checks all three bindings
+# together and simply retrieves no hadith when they are absent. `wrangler deploy --env demo` will
+# print the same "exists at the top level, but not on env.demo" warning it already prints for
+# r2_buckets. THAT WARNING IS THE INTENDED STATE.
+#
+# CORPUS_DIGEST namespaces the private text layer to one corpus revision — first 16 hex of the
+# manifest's corpus_digest (docs/reference/okf-manifest.json). Change the corpus, change this, or the
+# reranker reads a text layer that no longer matches the index.
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "okf-hadith"
+
+[[r2_buckets]]
+binding = "CORPUS"
+bucket_name = "okf-corpus"
+
 [vars]
 # Retained for the (now-unused) proxy path, so reverting to Cloud Run is a one-line change.
 ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
 # Runtime model defaults (overridable). Non-secret.
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+# First 16 hex of the manifest's corpus_digest — the same value wrangler.dalil-probe.toml uses, and
+# it must stay the same value: the probe's whole purpose is to testify about live behaviour, which it
+# cannot do if it reads a different revision of the text layer than prod does.
+CORPUS_DIGEST = "8177e2e6e6c47370"
 # AUTHORING IS ON (Erik, 2026-08-12, asked for directly and twice: "put it directly on the prod").
 #
 # This line was `principled`, and that word was the edition's whole identity: the app quoted sourced

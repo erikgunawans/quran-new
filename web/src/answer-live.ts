@@ -6,8 +6,9 @@
  * down, the Worker's guard rejected the output (`{answer:null}`), or timeout — throws, and the
  * orchestrator (answer.ts) catches it and falls back to the principled behaviour.
  */
-import type { AnswerContext, AnswerModel } from "./answer-contract.ts";
+import type { AnswerContext, AnswerModel, AnswerResult } from "./answer-contract.ts";
 import type { AnswerViolationKind } from "./answer-guard.ts";
+import type { HadithCard } from "./hadith-card.ts";
 
 /**
  * The Worker had an answer and its own egress wall refused it — thrown so the reason survives the
@@ -31,7 +32,39 @@ const ANSWER_ENDPOINT = "/api/answer";
  *  model never holds the thread hostage. */
 const TIMEOUT_MS = 12000;
 
-export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<string> => {
+/**
+ * Keep only what a hadith card needs, with every field forced to its expected type.
+ *
+ * The Worker is our own code, but this is a network boundary and the prose it accompanies is
+ * model-authored — so the response is treated as untyped input, exactly like the grounding going the
+ * other way. A malformed record is DROPPED rather than coerced into a half-empty card: an article
+ * with a blank Arabic line and no source URL would be a hadith presented with its provenance
+ * missing, which is worse than no card at all.
+ */
+const asCards = (raw: unknown): HadithCard[] => {
+  if (!Array.isArray(raw)) return [];
+  const out: HadithCard[] = [];
+  for (const r of raw.slice(0, 2) as Record<string, unknown>[]) {
+    if (!r || typeof r.id !== "string" || typeof r.arabic !== "string" || !r.arabic) continue;
+    if (typeof r.source_url !== "string" || !r.source_url) continue;
+    out.push({
+      id: r.id,
+      arabic: r.arabic,
+      english: typeof r.english === "string" ? r.english : "",
+      collection: typeof r.collection === "string" ? r.collection : "",
+      hadith_number: Number(r.hadith_number) || 0,
+      grade: typeof r.grade === "string" ? r.grade : "",
+      book_en: typeof r.book_en === "string" ? r.book_en : "",
+      bab_en: typeof r.bab_en === "string" ? r.bab_en : "",
+      source_url: r.source_url,
+      translator: typeof r.translator === "string" ? r.translator : "",
+      book: Number(r.book) || 0,
+    });
+  }
+  return out;
+};
+
+export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<AnswerResult> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
@@ -42,7 +75,11 @@ export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<
       signal: controller.signal,
     });
     if (!res.ok) throw new Error(`/api/answer returned ${res.status}`);
-    const data = (await res.json()) as { answer?: string | null; blocked?: AnswerViolationKind | null };
+    const data = (await res.json()) as {
+      answer?: string | null;
+      blocked?: AnswerViolationKind | null;
+      hadith?: unknown;
+    };
     if (typeof data.answer !== "string" || data.answer.length === 0) {
       // A `blocked` field means the Worker generated prose and its wall refused it. Anything else —
       // no field at all (the principled edition, or a Worker deployed before this change), an
@@ -51,7 +88,10 @@ export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<
       if (data.blocked) throw new AnswerBlockedError(data.blocked);
       throw new Error("no answer");
     }
-    return data.answer;
+    // `reviewed_id` is unreachable from here BY CONSTRUCTION — `asCards` never writes it and the
+    // Worker never sends it. The ustadz-reviewed Indonesian ships from `docs/review/`, in the build,
+    // and must never be able to arrive over the wire alongside model-authored prose (ISC-448).
+    return { prose: data.answer, hadith: asCards(data.hadith) };
   } finally {
     clearTimeout(timer);
   }

@@ -102,7 +102,7 @@ describe("refsInProse — extracts what the model actually cited, in order, de-d
 });
 
 describe("synthesizeAnswer — the model leads, guarded to real ayat and no verdict", () => {
-  const model = (prose: string) => (_ctx: AnswerContext) => Promise.resolve(prose);
+  const model = (prose: string) => (_ctx: AnswerContext) => Promise.resolve({ prose, hadith: [] });
 
   test("cites a REAL ayah beyond the retrieved grounding — breadth is allowed now", async () => {
     const ai = await synthesizeAnswer(

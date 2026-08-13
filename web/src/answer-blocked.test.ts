@@ -65,21 +65,28 @@ describe("the diagnosis — which rule actually refuses a hadith-shaped answer",
   });
 });
 
-describe("the wall is unpassable on the /api/answer path, and wiring the argument does not change that", () => {
+// RETITLED 2026-08-13, and the old title is quoted because it was a true claim that STOPPED being
+// true rather than a mistake: "the wall is unpassable on the /api/answer path, and wiring the
+// argument does not change that". ISC-434/435 fed the union and taught the marker, so the wall is now
+// passable — with a receipt. Every test below still pins live behaviour, because an empty union is
+// still what most turns have (any feeling question, any deploy without the dalil bindings) and it
+// must still refuse exactly what it always refused.
+describe("an UNFED union refuses exactly what the () => false default refused", () => {
   test("an EMPTY grounding union is identical to the () => false default", () => {
     // This is the falsification of the original diagnosis ("safeAnswer gets 2 args, so the predicate
-    // is always false — wire the third argument"). It was true and insufficient. There is no
-    // searchDalil call on this path and the system prompt never teaches the marker syntax, so the
-    // union is necessarily empty, and an empty union refuses exactly what the default refuses.
+    // is always false — wire the third argument"). It was true and insufficient: wiring the argument
+    // without feeding it is byte-identical to the default, which is what this pins.
     const withDefault = guardAnswerProse(SICKNESS_ANSWER, allow("2:155"));
     const withEmptyUnion = guardAnswerProse(SICKNESS_ANSWER, allow("2:155"), groundedHadithFrom([]));
     expect(withEmptyUnion.ok).toBe(withDefault.ok);
     expect(withEmptyUnion.violations.map((v) => v.kind)).toEqual(withDefault.violations.map((v) => v.kind));
   });
 
-  test("both retries fail deterministically — a regenerated answer cannot clear it either", () => {
-    // The endpoint retries once on a guard reject, which usually clears a fluke. This failure is not a
-    // fluke: any answer that attributes to the Prophet ﷺ fails, so the retry is spent, not a chance.
+  test("with nothing retrieved, a regenerated answer cannot clear it either", () => {
+    // The endpoint retries once on a guard reject, which usually clears a fluke. With an unfed union
+    // this failure is not a fluke: any answer attributing to the Prophet ﷺ fails, both times. (The
+    // endpoint now breaks rather than retrying on `bad_hadith` for a latency reason, and after
+    // ISC-434/435 for a second reason — the first attempt already had the hadith and the syntax.)
     const secondAttempt = `Aku ikut mendoakan. Diriwayatkan oleh Bukhari bahwa sakit menghapus dosa
       seorang mukmin, dan QS 2:155 menyebut ujian bagi orang yang sabar.`;
     expect(safeAnswer(SICKNESS_ANSWER, allow("2:155"), groundedHadithFrom([]))).toBeNull();
