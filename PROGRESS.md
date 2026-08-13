@@ -8,6 +8,75 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-13 (late) — the hadith wall is opened, and the handoff named two blockers where there were three
+
+**Anchor:** `origin/main` `e80ff9f` (from `d03ec97`). **Not deployed** — prod still runs worker
+`23f0ad17` with the wall shut.
+**Gates:** `bun test` **1398/0** exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **465/475**.
+
+### ISC-434/435/449 — the 24% refusal now has a door beside the wall
+
+`bad_hadith` refused 34 of 141 live generations, and `handleAnswer` breaks rather than retrying on
+it, so each was a reader receiving `{answer:null}`. The refusal was correct — with nothing retrieved
+and no marker syntax taught, no prophetic attribution could be backed. Shipped:
+
+| part | what landed |
+|---|---|
+| `worker/wrangler.toml` | `VECTORIZE` + `CORPUS` + `CORPUS_DIGEST`, **top level only** |
+| ISC-434 | `searchDalil` in `handleAnswer`, gated to knowledge-shaped turns |
+| ISC-435 | rule 7 teaches `[H:collection:number]`; empty case stated out loud |
+| ISC-449 | machine Indonesian as `machine_id` — its own field, always `.is-ai` |
+| ISC-451 | markers stripped at render, never before storage |
+| ISC-452 | the browser's second wall rebuilt from returned ids |
+
+### The third wall, which the handoff did not know about
+
+`web/src/answer.ts:139` re-guards the Worker's prose in the browser with the `() => false` hadith
+default — **deliberately**, with a comment saying so and warning that threading a permissive
+predicate through "would remove a wall, not fix one." That comment is right. Shipping ISC-434/435
+alone would have had the Worker approve hadith answers and the browser silently discard every one,
+with no error anywhere; the symptom would have looked exactly like broken retrieval.
+
+Resolved by having the Worker return the records it resolved and the browser rebuild its predicate
+from *those ids* — the same question asked of data the browser can see for itself. Force-red: a
+permissive `() => true` fails exactly 2 tests.
+
+### Two design calls worth keeping
+
+**The knowledge-shaped gate needed no new classifier.** `entries.length > 0` already is it:
+`gatherGrounding` runs the scholar's index only when the feeling path came up empty, so populated
+entries mean, by construction, that no feeling was found to answer. That matters because hadith
+retrieval scores 9/9 on knowledge and 1/4 on feelings, where it rebukes an anxious person.
+
+**Capped BEFORE offering, not after.** `searchDalil` returns 8 so the reranker has room; the reader
+may see 2. Offering all 8 would let the model cite the 5th — marker resolves, guard passes, and then
+no card renders because display caps at the top 2. That is an unbacked prophetic attribution, the
+exact state `bad_hadith` exists to prevent. Capping the offered set makes citable ≡ displayable.
+
+### ISC-379 superseded on its wording; the gate it held is CLEARED, not bypassed
+
+Both ISC-331 and ISC-379 held the dalil surface off the trustworthy edition until the ustadz-gated
+flip. There is no trustworthy edition at this scope any more (`EDITION = "synthesis"` since
+2026-08-12, Erik's instruction) and Erik ruled on the hadith Indonesian on 2026-08-13. Restated as
+ISC-450 with its own probe, rather than reinterpreting an anti-criterion to fit the work.
+
+### Found, not fixed: the Indonesian is Muslim-only
+
+The 1,746 generated translations are **Ṣaḥīḥ Muslim books 1–21 and zero Bukhari** — a contiguous
+prefix, not a random 12%. Any Bukhari-grounded answer will never carry Indonesian.
+
+### Audio — investigation only, nothing written
+
+Erik asked for a `DENGAR` button on the `#/baca` shelf card that turns the card's inner layer into
+an audio UI, "like the Tarjamah Tafsiriyah website". Established: QTT's audio is its own route
+`/audio-quran` (a surah grid, Per Surah / Per Juz, same Alafasy reciter), it serves **per-surah**
+files while we serve **per-ayah** from R2, and its player has no `<audio>` element — it mounts on
+play. Could not capture the player: autoplay policy rejects programmatic clicks and
+`macos windows --app "Google Chrome"` returns `[]`, so no trusted click can be aimed. Erik clicking
+▶ once unblocks it. Also noted: the shelf card is a single `<a href>` wrapping its whole inner
+layer, so a nested `<button>` is invalid markup and would navigate instead of playing — the card
+needs restructuring, not just a button.
+
 ## 2026-08-13 (evening) — the blocker was measured with one arm, and the control reversed it
 
 **Anchor:** `origin/main` `f916340`. Deploy: worker `2f747a1b` → **`23f0ad17`**.

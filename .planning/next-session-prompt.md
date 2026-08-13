@@ -1,3 +1,154 @@
+# Next session — New-Quranku (checkpoint 2026-08-13 late)
+
+> Prepended by /wrap 2026-08-13 late. Anchor `origin/main` `e80ff9f`. Supersedes the
+> 2026-08-13-evening anchor `d03ec97`. **Nothing was deployed.** That handoff's item 0
+> (ISC-434/435/449) is BUILT but UNVERIFIED LIVE — it is now item 1, and it is a deploy, not a build.
+> Its item 1 (continuous chat) and item 2 are unchanged and slide down.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-13 late).
+
+**Gates GREEN:** `bun test` 1398/0 exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **465/475**.
+**Prod is BEHIND main:** worker `23f0ad17`, the hadith wall still shut. `web/dist` holds the NEW
+synthesis build (css `index-CtO3DA2R.css`, js `index-Dy0UDu2F.js`).
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+
+---
+
+## 0. FIRST ACTION — run `/claude-mem:learn-codebase` with a full window
+
+Deferred from last session, deliberately: it was invoked at ~65% context and would have read maybe
+20 of 148 files before compaction ate the first half. Primary tree is **148 non-test source files /
+39,741 lines**, unusually comment-dense.
+
+**Scope it to the primary tree.** `.claude/worktrees/` holds FOUR stale copies of `web/src`
+(`toasty-sleeping-flame`, `humming-riding-scone`, `cozy-launching-clarke`, `crispy-zooming-acorn`) —
+a naive `find` reads the codebase ~5× and ingests four divergent historical versions as if current.
+Naive test-file count is 345 against a real ~80.
+
+## 1. Deploy the hadith wall, then MEASURE it — ISC-454
+
+Everything is code-verified only. `wrangler deploy` needs Erik.
+
+```
+VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy
+```
+
+**The baseline to beat: 34 refusals in 141 live generations (24%), measured 2026-08-13.** Two things
+can only be seen live, and both are bets this build makes:
+
+- **Does the model emit a marker on the FIRST generation?** `handleAnswer` still breaks rather than
+  retrying on `bad_hadith`. The reason MOVED rather than disappeared (it used to be determinism; it
+  is now "the first attempt already had the hadith and the syntax"). If the block rate does not
+  fall, this is the first thing to re-open.
+- **What does the retrieval hop cost?** The knowledge lane now pays an embed + Vectorize query + R2
+  gzip fetch + rerank before generation. §2 below already measures 2-in-3 first-requests timing out
+  at 12s BEFORE any of that existed. **Suspect the timeout before suspecting the marker.**
+
+Verify in Interceptor, never curl (classifier-blocked). Clear CacheStorage and confirm the loaded
+asset hash against `ls -t web/dist/assets/*.css | head -1` BEFORE measuring.
+
+## 2. The cold-start error copy fires on most first requests (unchanged, and now more urgent)
+
+2 of 3 first-requests after a page load rendered *"Ada yang salah saat mengambil ayatnya…"*. Suspect
+the 12s `TIMEOUT_MS` in `answer-live.ts`. **An aborted fetch leaves NO row in the passive network
+log**, so absence of an `/api/answer` row is the abort signature — but it is ALSO the bow-out
+signature. Distinguish by whether grounding existed. Item 1 adds latency to exactly this path.
+
+## 3. Audio — the DENGAR button on the surah card (Erik, this session)
+
+**Decided:** the button goes on the **`#/baca` shelf card** (`read.ts:233`, `indexRow`), and tapping
+it turns that card's inner layer into an audio UI. **Not** the `#/surah/N` header cartouche.
+
+**Blocked on one 5-second action from Erik.** The QTT reference player could not be captured:
+Chrome's autoplay policy rejects programmatic clicks and `interceptor macos windows --app "Google
+Chrome"` returns `[]`, so no trusted OS click can be aimed. Ask Erik to open
+`quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ himself, then read the mounted player out
+of the DOM. **Do not loop on coordinate clicks.**
+
+**Established already:**
+- QTT's audio is its own route `/audio-quran` — a surah grid, Per Surah / Per Juz toggle, reciter
+  selector already on **Mishary Rashid Al Afasy**, the same reciter we ship. So "like QTT" means
+  the PLAYER, not the placement — Erik's chosen placement differs from the reference on purpose.
+- **QTT serves per-SURAH files; we serve per-AYAH.** `audio.ts` rejected per-surah after measuring
+  Al-Baqarah at 115 MB against the reader's-bandwidth principle. Their timeline is continuous; ours
+  has one seam per ayah. A whole-surah listen is chained per-ayah playback — which already exists as
+  the `continue` play-mode (`main.ts:1143`) and needs no new audio assets.
+- QTT's player has **no `<audio>` element** — constructed in JS on play.
+- **The shelf card is a single `<a href="#/surah/N">` wrapping its whole inner layer.** A nested
+  `<button>` is invalid HTML and would navigate instead of playing. The card must be restructured
+  first; this is not "drop a button in".
+- Today `Dengar` is PER-AYAH only (`verse.ts:291`), with a two-option menu — this ayah, or
+  auto-advance from here (`main.ts:1129`).
+
+## 4. Continuous chat — unblocked, PRD needs updating before building
+
+`.scratch/continuous-chat/PRD.md` blocked this on ISC-418, which is lifted. **Update the PRD first**:
+its trap section rests on "the model's answers are ungrounded", measured false (96% grounded
+citation, +61 pt lift). **Settled, do NOT re-open:** window is the last 6 turns verbatim. Tabs stay.
+Continuity is local-now / adopts-on-sign-in. **Still open:** does history change what the guard must
+do (every rule is sentence-scoped and blind to a ruling built across turns)? And what does "delete"
+delete — the transcript only, or the D1 `question` events too?
+
+## 5. ISC-440.6 — a known, pinned over-refusal
+
+About a fifth of the 24% block is this class. Closing it requires narrowing a `PROPHETIC` pattern.
+**Do not.** Pinned as a test.
+
+## Standing constraints (carried forward — all still true, plus two new)
+
+- **NEW — a guard predicate left at its default with a comment explaining why is a DESIGN DECISION.**
+  `guardAnswerProse`'s hadith predicate is applied at THREE layers (Worker, browser, renderer) and
+  the handoff named two. Before wiring any predicate end to end, grep EVERY call site of that guard,
+  not just the one the task names. Layer 2 (`answer.ts`) must never receive a permissive predicate —
+  rebuild it from the records the response carried. See memory `three-walls-not-two`.
+- **NEW — check the DISTRIBUTION of the hadith Indonesian, not the count.** The 1,746 translations
+  are Ṣaḥīḥ Muslim books 1–21 and ZERO Bukhari, so a Bukhari-grounded answer never carries
+  Indonesian. `ls web/public/hadith-id/*/`.
+- **A probe with no control cannot distinguish "it ignored our input" from "our input was wrong."**
+  `bun run eval:grounding` is the shape: hold the question fixed, vary one thing, always run the
+  blank control. Report the LIFT, never the hit rate.
+- **A test whose failure mode is an exception can pass through the code's own catch.** Force-red
+  every new test; assert on a counter, not on an exception the system absorbs.
+- **Two tabs at the same URL make `eval` and the driven tab diverge.** Close duplicates to exactly
+  one before believing any prod measurement.
+- **Never judge `/api/answer` on the first post-deploy request**, nor on the first request after any
+  page load.
+- **A stale `CacheStorage` entry serves the OLD css/js right after a deploy.**
+- **`curl` to prod `/api/answer` is classifier-blocked.** Use Interceptor. Foreground `sleep` is
+  blocked; use `interceptor wait`.
+- **The composer accepts ONE programmatic submit per page load.** Reload between probes, wait ~8s,
+  count `#thread .msg` before AND after.
+- **`wrangler deploy` needs Erik.** A plain build silently un-authors prod.
+- **Check the EXIT CODE, not the tail** — and `bun run build` exits 0 when the CSS parser silently
+  DISCARDS a rule, so also grep the shipped output for the rule itself.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **Deploy item 1.** Nothing in this cycle is live.
+- **Click ▶ on QTT** so the audio player can be captured (item 3).
+- **Restart the hadith generator?** 1,746 of 14,736, ~24h compute — and Muslim-only, so Bukhari
+  answers have no Indonesian at all. More urgent now that the answer card displays it. Do not start
+  it without asking.
+- **Written confirmation of the hadith Indonesian approval** — still VERBAL AND RELAYED in
+  `docs/review/hadith-id-approval-2026-08-12.md`, and ISC-449 leans on it harder than the Hadis tab
+  did. Do not upgrade its status without an artefact from the ustadz.
+- **The Tanya visual pass.** Erik has SEEN the interleaved layout and moved on; spacing, the dotted
+  citation underline and the 17.5px step-down were never discussed. Ask before tuning.
+- **Copy review** — the bow-out shows the honest-silence copy far more often now, plus ~15 sentences
+  of new Indonesian. Consider IndonesianPolish.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED** — it says *"Aplikasi tidak mengarang
+  jawaban"*, false since the edition flipped. The ⛔ header stands.
+- `gimana bersikap ke teman yang beda agama` held out of the question pool pending his eye.
+- quran.tarjamahtafsiriyah.com's Supabase is DELETED — sign-in broken, which bears on the
+  "adopts on sign-in" half of the continuity build.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-13 evening)
 
 > Prepended by /wrap 2026-08-13 evening. Anchor `origin/main` `f916340`. Supersedes the
