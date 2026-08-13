@@ -53,9 +53,25 @@ Erik is asking for the second.
 - **App shape:** unchanged. Erik's answer, this conversation.
 - **Voice:** warm ustadz. Already shipped and working.
 
+## Decisions taken 2026-08-13 (Erik, in-session)
+
+- **Memory window: the last 6 turns, sent verbatim.** Not 20 (the localStorage cap is a STORAGE
+  bound, not a context one — sending it every request is slow and expensive against a path that
+  already takes ~8s warm) and not a rolling summary (a model-authored summary re-entering the prompt
+  is a new unguarded surface, and this file's whole risk section is about unguarded surfaces).
+- **ISC-418 is fixed BEFORE history is wired.** Erik chose the sequencing the trap section
+  recommended. Continuity is therefore BLOCKED on grounding, and that is deliberate: an app that
+  builds follow-ups on answers drawn from the model's own knowledge produces confident chains, and a
+  model citing its own earlier claim reads to a reader as authority.
+
+**What this means for whoever picks this up: do not start with the history field.** Start with
+ISC-418 — make `/api/answer` demonstrably use the grounding it is handed, measured, before any turn
+can see the turn before it.
+
 ## Open questions for Erik — ask before building, not after
 
-1. **How far back does the model remember?** Twenty turns is the localStorage cap; feeding twenty
+1. ~~**How far back does the model remember?**~~ **ANSWERED: last 6 turns.** Original framing kept
+   for the reasoning: Twenty turns is the localStorage cap; feeding twenty
    turns to the model every request is slow and expensive. A window of the last N turns, or a
    running summary? This is a cost and latency decision, not just a design one.
 2. **Does a continuous thread change what the guard must do?** Today `guardAnswerProse` sees one
