@@ -8,6 +8,61 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-14 (late) — the wall opened, the wall shipped, and the project grew a seatbelt
+
+**Anchor:** `origin/main` `3982e21`. **Prod deployed** — worker `4c32658f`, css `index-DO8SZXQY.css`.
+**Gates:** `bun test` **1402/0** exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **465/475**.
+
+### Three deploys, and the one that mattered was a fix to the first
+
+`e80ff9f` (hadith wall) had sat undeployed since the previous session. It went out with the Tematik
+work, so `/api/answer` now retrieves hadith, teaches the `[H:…]` receipt and renders hadith cards.
+**ISC-454 — measuring the block rate against the 24% baseline — is still open.**
+
+Tematik: two same-column card swaps (`PINNED_SWAPS`, since position is COMPUTED by a greedy
+partition over ayah counts and reordering the data moves nothing) and the surah card's hover lift.
+Then the lift was found **clipped**: `.tematik-grid` is `overflow: hidden` with the top row at
+padding-top 0, so the lifted card's top landed at 136 against a grid clipping at 141 — 5px invisible,
+on all five top-row cards, and every at-rest screenshot looked perfect. Fixed with `overflow: clip` +
+`overflow-clip-margin: 20px`.
+
+### The scholar's approval, and what it did NOT unlock
+
+Ustadz Ahmad reaffirmed approval of the AI-generated hadith translation — the METHOD, still VERBAL,
+written confirmation promised, and he asked that it be shown in the app for testing. Recorded in
+`docs/review/hadith-id-approval-2026-08-12.md` **without** touching the status line: a promised note
+is not an artefact. `reviewed_id` stays empty, the `.is-ai` badge stays, and the 2-card cap is
+untouched because it is a sunnah.com rights position that no scholarly approval reaches.
+
+### "Where is the Bahasa Indonesia translation?" — three numbers, not one
+
+Generated content under `web/public/` is a gitignored sidecar **baked into the bundle at BUILD
+time**. It does not stream. Erik could not find the translations because 3,935 finished ones were on
+disk and no reader could reach any of them. Deploying what already existed took live coverage from
+1,746 → 5,681 with no code change at all.
+
+**I also had to correct myself twice here:** I reported the coverage as "Muslim books 1–21" when it
+was 21 *files* with scattered numbers (`0 1 6 7 10 16 17 20 21 26 …`). Anyone acting on that opens a
+book in the gap and concludes the feature is broken.
+
+Current: **disk 8,393 · dist 6,912 · live 5,681.** The generator reached Bukhari this session.
+
+### The project grew its first automation, and it caught itself twice
+
+No project-level Claude Code config existed, and there is still no CI. Added two hooks, two agents,
+two skills — all aimed at one failure class, the only one that has actually cost sessions here: **a
+gate reporting success while failing.**
+
+The deploy guard reads PROVENANCE (`.build-meta.json`, now emitted by `bun run build`) rather than
+probing the bundle — the edition literal is constant-folded away, and proving a symbol ABSENT from a
+tree-shaken bundle needs a control build.
+
+It blocked its own introduction **twice**: first the shell command feeding it synthetic payloads
+(`wrangler deploy` inside a quoted JSON string), then the commit whose message described the check.
+The second was an ordering bug — stripping quotes before heredocs eats the `'EOF'` delimiter and
+exposes the body. Both are now regression cases. A guard that fires on documentation and its own
+fixtures gets switched off within a day.
+
 ## 2026-08-13 (late) — the hadith wall is opened, and the handoff named two blockers where there were three
 
 **Anchor:** `origin/main` `e80ff9f` (from `d03ec97`). **Not deployed** — prod still runs worker

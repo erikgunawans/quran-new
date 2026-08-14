@@ -1,3 +1,134 @@
+# Next session — New-Quranku (checkpoint 2026-08-14 late)
+
+> Prepended by /wrap 2026-08-14 (checkpoint `3982e21`). Supersedes the 2026-08-13-late anchor
+> `fe04125`. **The hadith wall is DEPLOYED** — that handoff's items 0.5 and 1 are done except for the
+> measurement. Its item 3 (audio) is untouched and still blocked on one click from Erik.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-14 late).
+
+**Gates GREEN:** `bun test` 1402/0 exit 0 · typecheck exit 0 · synthesis build exit 0. ISA **465/475**.
+**Prod:** worker `4c32658f`, css `index-DO8SZXQY.css`, `EDITION: "synthesis"`.
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+
+**NEW: a PreToolUse guard is now active** (`.claude/hooks/bash-preflight.ts`). It will block a deploy
+whose build is for the wrong edition or predates `web/public/`, and a gate command piped into
+head/tail. If it blocks you, it is almost certainly right — read the message before working around
+it. `.build-meta.json` is gitignored and per-machine, so a first deploy from a new machine blocks
+until a build runs there.
+
+---
+
+## 1. Ship the translation batch, then keep shipping them
+
+**disk 8,393 · dist 6,912 · live 5,681.** Generated content is a gitignored sidecar **baked into the
+bundle at build time** — it does not stream, so finished translations are invisible until a rebuild
+AND a deploy. Check with `bun run .claude/skills/coverage/Tools/coverage.ts` (prints all three
+columns, keys on `content-type` because a missing asset returns `200 text/html`).
+
+```
+VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy
+```
+
+The generator reached **Bukhari** this session (was Muslim-only). Erik was asked whether to ship each
+batch as it completes and did not answer — **ask him**, then settle into a rhythm.
+
+## 2. ISC-454 — measure the opened hadith wall
+
+The wall is LIVE and UNMEASURED. Baseline to beat: **34 refusals in 141 live generations (24%)**.
+Two things only visible live, and both are bets this build makes:
+
+- Does the model emit a marker on the FIRST generation? `handleAnswer` still breaks rather than
+  retrying on `bad_hadith`.
+- What does the retrieval hop cost against the browser's 12s `TIMEOUT_MS` on a cold isolate? §4
+  below measured 2-in-3 first-requests timing out BEFORE this cycle added an embed + Vectorize query
+  + R2 fetch + rerank to the path. **Suspect the timeout before suspecting the marker.**
+
+Use Interceptor — `curl` to prod `/api/answer` is classifier-blocked.
+
+## 3. Audio — DENGAR on the `#/baca` shelf card (unchanged, still blocked on Erik)
+
+**Decided:** the button goes on the **`#/baca` shelf card** (`read.ts:233`, `indexRow`); tapping it
+turns that card's inner layer into an audio UI. Not the `#/surah/N` header.
+
+**Blocked on one click.** The QTT reference player could not be captured: autoplay policy rejects
+programmatic clicks and `interceptor macos windows --app "Google Chrome"` returns `[]`, so no trusted
+OS click can be aimed. Ask Erik to open `quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶,
+then read the mounted player out of the DOM. **Do not loop on coordinate clicks.**
+
+Established: QTT's audio is its own route with a surah grid and the same Alafasy reciter — so "like
+QTT" means the PLAYER, not the placement. **QTT serves per-SURAH files; we serve per-AYAH** (`audio.ts`
+rejected per-surah after measuring Al-Baqarah at 115 MB), so their timeline is continuous and ours has
+one seam per ayah. A whole-surah listen is the existing `continue` play-mode. **The shelf card is a
+single `<a href>` wrapping its inner layer** — a nested `<button>` is invalid and would navigate, so
+the card needs restructuring, not a button dropped in.
+
+## 4. The cold-start error copy fires on most first requests
+
+2 of 3 first-requests after a page load rendered *"Ada yang salah saat mengambil ayatnya…"*. Suspect
+the 12s `TIMEOUT_MS` in `answer-live.ts`. **An aborted fetch leaves NO row in the passive network
+log**, so absence of an `/api/answer` row is the abort signature — but it is ALSO the bow-out
+signature. Distinguish by whether grounding existed. Item 2 adds latency to exactly this path.
+
+## 5. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik
+
+- **Retrieval already uses all 14,736.** `searchDalil` queries the full index, `CANDIDATE_K=50`,
+  reranks on the English body. Nothing is withheld there.
+- **What is capped is DISPLAY** — `MAX_DISPLAY = 2`, enforced at three points. That is a **rights**
+  position from sunnah.com's terms, NOT a scholarly one, so no approval from the ustadz reaches it.
+  Raising it is a licensing conversation. **Do not quietly raise it.**
+- **The real lever is the knowledge-shaped gate** (`entries.length > 0` in `handleAnswer`). Hadith
+  retrieval measured 9/9 on knowledge and 1/4 on feelings — on a feeling it returned a rebuke to an
+  anxious person. Widening it is a product decision. **Ask before touching it.**
+
+## 6. Continuous chat — unblocked, PRD needs updating first
+
+`.scratch/continuous-chat/PRD.md` blocked on ISC-418, now lifted. Its trap section rests on "the
+model's answers are ungrounded", measured false (+61 pt lift). **Settled, do NOT re-open:** last 6
+turns verbatim; tabs stay; local-now / adopts-on-sign-in. **Still open:** does history change what the
+guard must do (every rule is sentence-scoped)? And what does "delete" delete — transcript only, or the
+D1 `question` events too?
+
+## Standing constraints (carried forward — all still true, plus two new)
+
+- **NEW — three numbers, not one: disk ≠ dist ≠ live.** Generated content is baked in at build time.
+  A missing asset returns `200 text/html`, so key on `content-type`. And print WHICH books, never
+  just how many — "21 files" was twice misreported as "books 1–21" when the set was scattered.
+- **NEW — a guard predicate left at its default with a comment explaining why is a DESIGN DECISION.**
+  The hadith predicate is applied at THREE layers (Worker, browser, renderer). Grep every call site.
+  `answer.ts` must never receive a permissive predicate — rebuild it from the returned records.
+- **A probe with no control cannot distinguish "it ignored our input" from "our input was wrong."**
+  Hold the question fixed, vary one thing, always run the blank control. Report the LIFT.
+- **A test whose failure mode is an exception can pass through the code's own catch.** Force-red every
+  new test; assert on a counter.
+- **Two tabs at the same URL make `eval` and the driven tab diverge.** Close duplicates to one.
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **A stale `CacheStorage` entry serves the OLD css/js right after a deploy.** Clear, reload, confirm
+  the loaded hash against `ls -t web/dist/assets/*.css | head -1` BEFORE measuring.
+- **Check the EXIT CODE, not the tail** — and `bun run build` exits 0 when the CSS parser silently
+  DISCARDS a rule, so also grep the shipped output for the rule itself.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **Ship each translation batch as it completes, or wait for the full run?** Asked, not answered.
+- **Click ▶ on QTT's `/audio-quran`** so the player can be captured (item 3).
+- **Written confirmation of the hadith approval** — reaffirmed 2026-08-13 but still VERBAL AND
+  RELAYED; he says the ustadz will send it. **Do not edit that record's status line** until an
+  artefact exists. `reviewed_id` stays empty; the `.is-ai` badge stays.
+- **Widening the knowledge-shaped gate** (item 5) — product decision, measurement behind it.
+- **The Tanya visual pass.** Spacing, the dotted citation underline, the 17.5px step-down — never
+  discussed. Ask before tuning.
+- **Copy review** — the bow-out shows honest-silence copy far more often now. Consider IndonesianPolish.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED** — says *"Aplikasi tidak mengarang
+  jawaban"*, false since the edition flipped. The ⛔ header stands.
+- quran.tarjamahtafsiriyah.com's Supabase is DELETED — bears on "adopts on sign-in" for item 6.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-13 late)
 
 > Prepended by /wrap 2026-08-13 late. Anchor `origin/main` `e80ff9f`. Supersedes the
