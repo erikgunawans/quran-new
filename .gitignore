@@ -53,3 +53,4 @@ data/okf/
 # wrangler local dev state
 .wrangler/
 worker/.wrangler/
+.build-meta.json
