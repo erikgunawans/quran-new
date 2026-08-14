@@ -229,6 +229,34 @@ export async function searchDalil(env: DalilEnv, question: string, candidateK = 
 /** The rights wall. Whatever the model asked for, this is what a reader may see. */
 export const capForDisplay = (hits: DalilHit[]): DalilHit[] => hits.slice(0, MAX_DISPLAY);
 
+/** Where retrieval died, at the coarsest granularity that still tells us what to go fix. */
+export type DalilFailure = "config" | "embed" | "text-layer" | "rerank" | "vectorize" | "unknown";
+
+/**
+ * Classify a retrieval failure into a STABLE, NON-REVEALING token.
+ *
+ * WHY NOT THE RAW MESSAGE. `/api/answer` is a public endpoint, and one of these throws is
+ * `text layer missing at text/<digest>/rerank-en.json.gz` — echoing it would publish the private
+ * bucket's key layout to anyone who asks a question. The tokens below carry everything a fix needs
+ * ("which stage") and nothing an attacker does ("which path, which key, which status").
+ *
+ * ORDER MATTERS: the text-layer message CONTAINS the substring "rerank-en", so it must be tested
+ * before any rerank rule. The rerank rule is anchored too, but relying on only one of those two
+ * defences is how this would quietly start misreporting after an unrelated message edit.
+ */
+export function classifyDalilFailure(e: unknown): DalilFailure {
+  const m = e instanceof Error ? e.message : String(e);
+  if (/not configured|not bound/i.test(m)) return "config";
+  if (/^embeddings \d|empty embedding/i.test(m)) return "embed";
+  if (/text layer missing/i.test(m)) return "text-layer";
+  if (/^rerank \d|empty rerank/i.test(m)) return "rerank";
+  // Last, and deliberately loose: Vectorize errors come from the platform and have no shape we
+  // control. Anything still unmatched stays "unknown" rather than being forced into a bucket — a
+  // wrong stage name is worse than no stage name, because it sends the next session to the wrong file.
+  if (/vectorize/i.test(m)) return "vectorize";
+  return "unknown";
+}
+
 /** A hadith as a reader sees it: source text verbatim, plus everything an attribution line needs. */
 export interface DisplayRecord {
   id: string;

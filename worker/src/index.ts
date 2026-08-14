@@ -37,7 +37,15 @@ import {
   type GroundingHadith,
   type GroundingVerse,
 } from "../../web/src/answer-contract.ts";
-import { capForDisplay, fetchDisplayRecords, searchDalil, type DalilEnv, type DalilHit } from "./dalil.ts";
+import {
+  capForDisplay,
+  classifyDalilFailure,
+  fetchDisplayRecords,
+  searchDalil,
+  type DalilEnv,
+  type DalilFailure,
+  type DalilHit,
+} from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
@@ -546,7 +554,35 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // this lane on either.
   let offered: DalilHit[] = [];
   let records: HadithCard[] = [];
-  if (entries.length > 0 && env.VECTORIZE && env.CORPUS && env.CORPUS_DIGEST) {
+  // THE ONE BIT THAT WAS INVISIBLE. Measured 2026-08-15: zero hadith cards rendered across a live
+  // run, and nothing anywhere could say whether retrieval had returned nothing or had thrown — the
+  // catch below was bare, and this Worker has no telemetry by design. Erik chose this over adding
+  // logging: three small counters and a stage token on the response body, which the browser can read
+  // on any real turn. No PII, no raw error text (see classifyDalilFailure).
+  const bound = Boolean(env.VECTORIZE && env.CORPUS && env.CORPUS_DIGEST);
+  let dalilFailure: DalilFailure | null = null;
+
+  /**
+   * The retrieval story for this turn: four small numbers and a stage token, read off state that is
+   * final by the time either return path runs.
+   *
+   * HOW TO READ IT. `eligible:false` → the question never qualified, because grounding had verses and
+   * so `entries` was empty; that gate lives in web/src/answer.ts:98, NOT here. `bound:false` → this
+   * deploy has no dalil bindings, which is the INTENDED state for `--env synthesis` and `--env demo`.
+   * `offered:0` with `failed:null` → retrieval ran and genuinely matched nothing. `offered>0` with
+   * `records:0` → the display shards did not resolve (`fetchDisplayRecords` drops those silently, by
+   * design). `failed:<stage>` → the chain threw there. `records>0` alongside an empty `hadith` array
+   * → retrieval worked and the MODEL declined to cite, which is a prompt problem, not a retrieval one.
+   */
+  const dalilReport = () => ({
+    eligible: entries.length > 0,
+    bound,
+    offered: offered.length,
+    records: records.length,
+    failed: dalilFailure,
+  });
+
+  if (entries.length > 0 && bound) {
     try {
       const hits = await searchDalil(env as unknown as DalilEnv, question);
       // CAP BEFORE OFFERING, not after. `searchDalil` returns up to MAX_RETRIEVE=8 so the reranker
@@ -562,10 +598,14 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
         // in the corpus path and nowhere else in the record.
         book: bookOf(offered.find((h) => h.id === r.id)?.path ?? ""),
       }));
-    } catch {
+    } catch (e) {
       // Loud failure upstream, quiet degradation here — embedding, the text layer or the reranker
       // being down means this turn simply has no hadith, which is every turn's normal state. The
       // answer still gets written from Qur'an grounding, exactly as before this cycle.
+      //
+      // The DEGRADATION is unchanged; only the silence is. `catch {}` discarded the one fact that
+      // separated "retrieval found nothing" from "retrieval died", and those need different fixes.
+      dalilFailure = classifyDalilFailure(e);
       offered = [];
       records = [];
     }
@@ -647,7 +687,9 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       if (blocked === "bad_hadith") break;
     }
   } catch {
-    return json({ answer: null }, 200, request); // model/key failure → browser falls back to principled
+    // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,
+    // and this is the path a timeout takes.
+    return json({ answer: null, dalil: dalilReport() }, 200, request); // model/key failure → principled
   }
 
   // WHAT THE READER GETS A CARD FOR: the hadith the answer actually cited, in the order it cited
@@ -663,7 +705,7 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
         .filter((r): r is HadithCard => r !== undefined)
     : [];
 
-  return json({ answer, blocked, hadith: cited }, 200, request);
+  return json({ answer, blocked, hadith: cited, dalil: dalilReport() }, 200, request);
 }
 
 /** `hadith/muslim/001/002/0034.md` → `1`. The `hadith-id` shard key; 0 when the path is unusable. */
