@@ -82,7 +82,13 @@ const META = {
  * its own line cannot collide with prose. The returned count is still checked — a short batch is
  * discarded whole rather than written against the wrong hadith numbers.
  */
-async function translateBatch(items: Hadith[]): Promise<Map<number, string>> {
+interface BatchResult {
+  readonly got: Map<number, string>;
+  /** The inference call itself failed — NOT the same event as a short/truncated reply. */
+  readonly failed: boolean;
+}
+
+async function translateBatch(items: Hadith[]): Promise<BatchResult> {
   const body = items.map((h) => `###${h.n}###\n${h.ar}`).join("\n\n");
   const prompt = `Terjemahkan setiap hadis berikut ke Bahasa Indonesia yang wajar dan mudah dipahami.
 Sertakan sanadnya (rantai perawi) secara ringkas, lalu matan (isi hadis) secara lengkap.
@@ -94,8 +100,24 @@ Setiap hadis dipisahkan penanda ###NOMOR###. Jawab dengan format yang PERSIS sam
 ${body}`;
 
   const proc = Bun.spawn(["bun", INFERENCE, "standard", prompt], { stdout: "pipe", stderr: "pipe" });
-  const text = await new Response(proc.stdout).text();
-  await proc.exited;
+  // READ BOTH PIPES, AND THE EXIT CODE. `stderr: "pipe"` with nothing reading it is why this script
+  // burned a whole restart for nothing on 2026-08-15: `Inference.ts` times out at 30s, exited
+  // non-zero, wrote the reason to a pipe no one drained, and handed back empty stdout — which parses
+  // to zero records and is INDISTINGUISHABLE from the truncation the warning below blames. Measured:
+  // `--batch 3` yielded 0 of 12 batches while reporting "likely truncated" every time.
+  // Draining stdout alone is also a deadlock waiting to happen once stderr outgrows its pipe buffer,
+  // so both are read concurrently rather than in sequence.
+  const [text, err, code] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+
+  if (code !== 0 || !text.trim()) {
+    const why = err.trim().split("\n").slice(-3).join(" · ") || "no stderr output";
+    console.error(`  ✗ inference FAILED (exit ${code}) on ${items.length} hadith — ${why}`);
+    return { got: new Map(), failed: true };
+  }
 
   const got = new Map<number, string>();
   const parts = text.split(/###(\d+)###/);
@@ -113,12 +135,16 @@ ${body}`;
   // wrong key and the only safe move was to discard the batch. Here the identity is carried by an
   // explicit `###N###` delimiter, so whatever came back is bound to its own hadith regardless of
   // how many arrived. Long hadith DO overrun the model's output budget — a 6-item batch was
-  // truncated and returned 0 usable records under the old rule, throwing away real work. The
-  // resumable loop picks the stragglers up on a later pass.
+  // truncated and returned 0 usable records under the old rule, throwing away real work.
+  //
+  // CORRECTED 2026-08-15: this used to end "the resumable loop picks the stragglers up on a later
+  // pass", and that was never true. Nothing differs between passes — same records, same batch size,
+  // same budget — so a straggler stays a straggler forever. Short batches are now retried
+  // individually by the caller, which is what actually recovers them.
   if (got.size !== items.length) {
-    console.warn(`  ~ batch returned ${got.size} of ${items.length} (likely truncated) — keeping what arrived`);
+    console.warn(`  ~ batch returned ${got.size} of ${items.length} — keeping what arrived`);
   }
-  return got;
+  return { got, failed: false };
 }
 
 async function main(): Promise<void> {
@@ -153,7 +179,22 @@ async function main(): Promise<void> {
       console.log(`${coll}/${f} — ${pending.length} of ${all.length} to do`);
       for (let i = 0; i < pending.length && budget > 0; i += BATCH) {
         const slice = pending.slice(i, i + BATCH);
-        const got = await translateBatch(slice);
+        const { got } = await translateBatch(slice);
+
+        // ZERO-YIELD FALLBACK. The remaining records are the LONG ones, and three of them at a time
+        // reliably blow `Inference.ts`'s 30s budget — measured `--batch 3` → 0 of 12 batches, then
+        // `--batch 1` → 8 of 8 and 48 of 53 on the identical records. A batch that returned nothing
+        // is therefore worth exactly one retry one-at-a-time; anything that comes back is real work
+        // that would otherwise be abandoned, since a later pass would repeat this batch unchanged.
+        // Only for slices bigger than one — retrying a failed single is just a slower failure.
+        if (got.size === 0 && slice.length > 1) {
+          console.warn(`  ↺ batch of ${slice.length} yielded nothing — retrying one at a time`);
+          for (const h of slice) {
+            const single = await translateBatch([h]);
+            for (const [n, v] of single.got) got.set(n, v);
+          }
+        }
+
         for (const [n, v] of got) out.hadith[String(n)] = v;
         await writeFile(outPath, JSON.stringify(out, null, 1)); // every batch — see the note above
         budget -= slice.length;
