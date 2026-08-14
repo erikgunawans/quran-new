@@ -8,6 +8,58 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-15 (late) — retrieval was never the problem
+
+**Anchor:** `origin/main` `d5750f6`. **Prod deployed** — worker version `6d2f9743`, js
+`index-8yQBCStV.js`, css `index-DO8SZXQY.css` (both unchanged — the change was worker-only),
+`EDITION: "synthesis"`. **Gates:** bun test **1407/0** exit 0 · typecheck exit 0 · `wrangler --dry-run` exit 0.
+**Coverage:** disk = dist = live = **10,502** across 115 shards, 107 populated (8 bukhari books still empty).
+
+### The zero-cards question is answered, and the answer was in the prompt
+
+Erik chose option (c) — a `dalil` object on the `/api/answer` response body instead of Worker
+telemetry or a fresh live baseline. It paid for itself on the first real turn:
+
+| question | `dalil` | outcome |
+|---|---|---|
+| utang piutang | `eligible:true bound:true offered:2 records:2 failed:null` | `bad_hadith`, 0 cards, 8,406 ms |
+| sedekah diungkit | identical | `bad_hadith`, 0 cards, 10,588 ms |
+| CONTROL — "aku sedih sekali hari ini" | `eligible:false offered:0 records:0` | answered, 4,387 ms |
+
+**Retrieval works.** It hands the model two fully-resolved hadith, and the model makes a prophetic
+attribution WITHOUT a resolvable `[H:…]` marker — so the wall refuses it, correctly. Every previous
+theory (missing bindings, digest drift, a dead text layer, a gate that never fires) was wrong. The
+static audit that preceded this had already cleared all four, but could not have produced this.
+
+The control arm is the part that makes it a claim: a field that reported the same thing on a feeling
+question would have been another instrument agreeing with itself.
+
+### Latency has the same cause, and raising TIMEOUT_MS is still the wrong fix
+
+The feeling control answered in **4.4 s** because it skips the dalil chain. Eligible turns pay
+embed + Vectorize + R2 + rerank on top and land at **8–11 s**, against a 12,000 ms client abort — and
+a fourth question ("aku lagi marah banget sama temanku") aborted outright mid-run. The eligible path
+needs to get CHEAPER; the constant is not the problem it looks like.
+
+Also worth keeping: an aborted fetch leaves no row in the passive net log, but a `fetch` wrapper
+installed before submitting catches it. That is how the abort above was seen at all.
+
+### The gate is narrower than the Worker suggests
+
+`gatherGrounding` (`answer.ts:98`) populates `entries` ONLY when `verses.length === 0`, and the
+Worker gates hadith on `entries.length > 0` — so hadith can only fire on a turn that retrieved zero
+ayah. Measured **7 of 19 eligible** by the new `probe-hadith-gate.ts`. Four plainly hadith-answerable
+questions are locked out for matching a verse. **Reported, not changed** — Erik's product decision.
+
+### The generator was burning inference silently
+
+`translate-hadith.ts` spawned `Inference.ts` with `stderr: "pipe"` and never drained it, so a 30 s
+timeout returned empty stdout and got blamed on truncation. Both pipes and the exit code are now
+read, and a zero-yield multi-item batch retries one-at-a-time. The old comment claiming a later pass
+picks up stragglers was false — nothing differs between passes — and is corrected in place.
+
+---
+
 ## 2026-08-15 — the translations shipped, and the instrument that was going to measure them is blind
 
 **Anchor:** `origin/main` `5b507d7`. **Prod deployed** — worker `dbd6be86`, js `index-8yQBCStV.js`,
