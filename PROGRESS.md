@@ -8,6 +8,82 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-15 — the translations shipped, and the instrument that was going to measure them is blind
+
+**Anchor:** `origin/main` `5b507d7`. **Prod deployed** — worker `dbd6be86`, js `index-8yQBCStV.js`,
+css `index-DO8SZXQY.css` (unchanged), `EDITION: "synthesis"`.
+**Gates:** not re-run this session — no source file changed. ISA **465/475** (unchanged).
+
+### The batch shipped, and all three numbers finally agree
+
+`disk 10,196 = dist 10,196 = live 10,196`, all 115 books. Live was **6,912** before, and bukhari was
+at **0 books live** — the whole collection was built-but-undeployed. Erik chose **ship-each-batch** as
+the standing cadence, so this is now a rhythm, not a one-off.
+
+The preflight guard blocked the deploy twice and was right both times: once for piping a gate into
+`tail`, once because the generator I had just restarted touched `web/public/` *after* the build. The
+second is a standing conflict worth naming — **a running generator makes every build stale within
+minutes**, so the deploy window needs the generator paused. Pause, rebuild, deploy, restart.
+
+### ISC-454 cannot be measured by the thing that produced its baseline
+
+The handoff said "re-measure the `bad_hadith` block rate against the 24% baseline." That baseline —
+**34 of 141** — is not production traffic. It cannot be: this Worker has **no telemetry at all**, no
+`console.*` anywhere in `worker/src/`, and no `observability` block in `wrangler.toml`. It came from
+`bun run eval:grounding` on 2026-08-13, offline.
+
+That probe is structurally blind to this cycle's change, in two independent ways:
+
+- `grounding-probe.ts:216` calls `guardAnswerProse(prose, isRealAyah, () => false)`. The hadith
+  predicate is **pinned false**. Re-running it reproduces ~24% whether or not the wall opened.
+- `grounding-probe.ts:151` sends `entries: []` on every sample, and the Worker gates hadith retrieval
+  on `entries.length > 0`. **None of those 141 samples could ever have reached hadith.**
+
+`src/eval/answer-run.ts:163` has the same shape — `guardAnswerProse(out, allowed)`, two args. Neither
+offline harness calls `searchDalil`. This is the same class as "three walls, not two" and "evidence
+that could never have failed": the instrument agrees with itself regardless of the world.
+
+### What the live probe found instead
+
+Seven questions driven through the real UI on prod (`curl` to `/api/answer` is classifier-blocked):
+
+| question | outcome | `/api/answer` |
+|---|---|---|
+| marah (warm-up) | AI answer | 10,954 ms |
+| utang | AI answer | 9,433 ms |
+| cerai | AI answer | 18,614 ms |
+| prasangka | topic pointer | *no row* |
+| nafkah-ortu | never settled in 45 s | *no row* |
+| anak-murtad | never settled in 45 s | *no row* |
+| sedekah-ungkit | **hadith-defer** | 12,254 ms |
+
+`TIMEOUT_MS` is **12,000**. Three of seven landed at or past it; two never resolved at all. The one
+time the hadith wall fired, it fired at **12,254 ms** — outside the budget the no-retry break was
+designed to stay inside. **Zero hadith cards rendered** (`.ai-hadith` = 0 on every turn): the wall is
+open and nothing is coming through it on these questions.
+
+Classify by DOM class, not by copy — an aborted `/api/answer` falls through to the principled
+resolution, which *also* renders prose. `.ai-said` is what separates an authored answer from a
+fall-through; without it every abort reads as a success.
+
+### The generator was burning inference for nothing
+
+Restarted it and it logged `+0` on **12 of 14 batches**. Cause: `Inference.ts` times out at 30 s, and
+`translate-hadith.ts` spawns it with `stderr: "pipe"` and never reads the pipe — so a failed call is
+indistinguishable from the truncation the code's comment blames. The remaining records are the long
+ones; three-at-a-time always blew the budget, and "the resumable loop picks the stragglers up on a
+later pass" was never true, because nothing differs between passes.
+
+Measured: `--batch 3` → **0 of 12**. `--batch 1` → **8 of 8**, then **48 of 53** across the full
+restart. Running at `--batch 1` now, ~15 s/hadith.
+
+### Nothing was committed but docs
+
+No source file changed this session. The deploy, the measurement, and the generator restart all
+happened against `5b507d7` unmodified.
+
+---
+
 ## 2026-08-14 (late) — the wall opened, the wall shipped, and the project grew a seatbelt
 
 **Anchor:** `origin/main` `3982e21`. **Prod deployed** — worker `4c32658f`, css `index-DO8SZXQY.css`.

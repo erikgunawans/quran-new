@@ -1,3 +1,158 @@
+# Next session — New-Quranku (checkpoint 2026-08-15)
+
+> Prepended by /wrap 2026-08-15 (anchor `5b507d7`, unchanged — docs-only commit on top). Supersedes
+> the 2026-08-14 anchor `3982e21`. **That handoff's item 1 is DONE** (batch shipped, all 115 books
+> live, cadence settled). **Its item 2 is REFRAMED, not done** — see item 1 below. Items 3, 5, 6 are
+> untouched and slide up.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-15).
+
+**Prod:** worker `dbd6be86`, js `index-8yQBCStV.js`, css `index-DO8SZXQY.css`, `EDITION: "synthesis"`.
+**Coverage:** disk = dist = live = **10,196** entries, all 115 books. Corpus total 14,736.
+**Gates:** NOT re-run — no source file changed this session. ISA **465/475**.
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+**Generator is RUNNING** at `--batch 1` (see item 3). Pause it before any deploy.
+
+---
+
+## 1. The latency, which is the finding that should not wait
+
+Measured live on prod this session, and it is worse than the previous handoff suspected. `TIMEOUT_MS`
+is **12,000** in `answer-live.ts:33`. Observed `/api/answer`: **9,433 · 10,954 · 18,614 · 12,254 ms**,
+plus **two of seven questions that never resolved at all in 45 s**. The single `hadith-defer` fired at
+**12,254 ms** — outside the budget the no-retry break exists to stay inside. So the door built for
+exactly these questions is, again, unreachable for exactly these questions.
+
+**Zero hadith cards rendered** across the whole run (`.ai-hadith` = 0 on every turn). The wall is open;
+nothing is coming through it. Whether that is the `entries.length > 0` gate never firing on these
+questions, or retrieval returning nothing, is UNDETERMINED — do not assume.
+
+**Classify by DOM class, never by copy.** An aborted `/api/answer` falls through to the principled
+resolution, which also renders prose. `.ai-said` is the only thing separating an authored answer from
+a fall-through; classify on copy and every abort reads as a success.
+
+Raising `TIMEOUT_MS` is the tempting fix and the previous cycle already rejected it in writing
+(`worker/src/index.ts` ~line 645): it leaves a reader waiting 25 s for a refusal. Read that comment
+before changing the constant.
+
+## 2. ISC-454 needs a NEW instrument — do not re-run `eval:grounding`
+
+The 24% baseline (34/141) is **not production traffic and cannot be re-run into a comparable number.**
+Prod has no telemetry at all — no `console.*` in `worker/src/`, no `observability` block in
+`wrangler.toml`. The baseline came from `bun run eval:grounding`, offline, 2026-08-13. That probe:
+
+- pins the hadith predicate to `() => false` (`src/eval/grounding-probe.ts:216`), so it reproduces
+  ~24% **by construction** whether or not the wall opened;
+- sends `entries: []` on every sample (`:151`), and the Worker gates hadith retrieval on
+  `entries.length > 0` — so **none of those 141 samples could ever have reached hadith.**
+
+`src/eval/answer-run.ts:163` has the same two-arg guard. Neither harness calls `searchDalil`.
+
+Two honest paths, and this is a real choice for Erik: **(a)** add Worker-side logging of the `blocked`
+kind + latency and let real traffic produce a rate — apples-to-apples, but slow and it means writing
+telemetry into a Worker that deliberately has none; or **(b)** drive the live UI over a fixed question
+set and report the rate on that set, stating plainly that it is a new baseline, not the old one.
+**Do not report any number as "measured against the 24% baseline."**
+
+The live-probe harness from this session is reusable: install a driver on `window` via
+`interceptor eval --main`, submit through `#composer` / `#q`, poll `#thread` children until the
+pending copy (`Menyusun jawaban` / `Mencari ayat`) clears, and read `performance.getEntriesByType('resource')`
+filtered to `/api/answer`. Do NOT trust a settle-detector that only watches child count — the loading
+turn is itself a turn, and it will fire early.
+
+## 3. The generator: keep it at `--batch 1`, and pause it to deploy
+
+**`--batch 3` yields nothing on what remains.** It logged `+0` on 12 of 14 batches. Cause: `Inference.ts`
+times out at 30 s and `translate-hadith.ts` spawns it with `stderr: "pipe"` and never reads the pipe, so
+a failed call is indistinguishable from truncation — and the code's comment blames truncation. The
+remaining records are the long ones; three at a time always blows the 30 s budget, and "the resumable
+loop picks the stragglers up on a later pass" is false because nothing differs between passes.
+
+Measured: `--batch 3` → **0 of 12**. `--batch 1` → **8 of 8**, then **48 of 53**. ~15 s/hadith.
+
+**Worth fixing properly:** read the spawn's stderr and report inference failure as failure, so this
+cannot recur silently. Consider auto-falling back to batch 1 on a zero-yield batch.
+
+**A running generator makes every build stale within minutes** — `web/public/` is baked in at build
+time and the preflight guard blocks the deploy for it, correctly. The deploy sequence is: pause
+generator → `VITE_ANSWER_MODE=synthesis bun run build` → `cd worker && bunx wrangler deploy` → restart
+generator. Cadence is **ship each batch** (Erik, 2026-08-15).
+
+## 4. Audio — DENGAR on the `#/baca` shelf card (unchanged, still blocked on Erik)
+
+Unchanged from the 2026-08-14 handoff. **Decided:** the button goes on the `#/baca` shelf card
+(`read.ts:233`, `indexRow`); tapping it turns that card's inner layer into an audio UI. Not the
+`#/surah/N` header. **Blocked on one click:** Erik must open `quran.tarjamahtafsiriyah.com/audio-quran`
+and click any ▶ so the mounted player can be read out of the DOM — autoplay policy rejects programmatic
+clicks and `interceptor macos windows --app "Google Chrome"` returns `[]`. **Do not loop on coordinate
+clicks.** QTT serves per-SURAH files; we serve per-AYAH, so their timeline is continuous and ours has a
+seam per ayah. The shelf card is a single `<a href>` wrapping its inner layer — a nested `<button>` is
+invalid and would navigate, so the card needs restructuring.
+
+## 5. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's terms,
+not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.** The real lever is
+the knowledge-shaped gate (`entries.length > 0`), which measured 9/9 on knowledge and 1/4 on feelings —
+on a feeling it returned a rebuke to an anxious person. **Ask before touching it.** Item 1's zero-cards
+finding is new evidence that bears on this: the gate may not be firing where anyone assumed.
+
+## 6. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every rule
+is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question` events too?
+
+## Standing constraints (carried forward — all still true, plus three new)
+
+- **NEW — an instrument can agree with itself regardless of the world.** Before re-running a probe to
+  measure a change, check that the probe can SEE the change. Two independent pins (`() => false`,
+  `entries: []`) made `eval:grounding` blind to the entire hadith cycle. Ask what the probe would
+  report if the feature were reverted; if the answer is "the same", it is not an instrument.
+- **NEW — a pipe with an unread stderr turns failure into a plausible wrong diagnosis.** The generator
+  blamed truncation for 12 of 14 dead batches; it was a 30 s inference timeout the whole time.
+- **NEW — an aborted `/api/answer` renders prose.** The principled fall-through is not silence, so
+  outcome classification must key on `.ai-said` / `.ai-hadith`, never on copy.
+- **Three numbers, not one: disk ≠ dist ≠ live.** Generated content is baked in at build time. A
+  missing asset returns `200 text/html`, so key on `content-type`. Print WHICH books, never just how many.
+- **A guard predicate left at its default with a comment explaining why is a DESIGN DECISION.** The
+  hadith predicate is applied at THREE layers. Grep every call site.
+- **A probe with no control cannot distinguish "it ignored our input" from "our input was wrong."**
+- **A test whose failure mode is an exception can pass through the code's own catch.** Force-red every
+  new test; assert on a counter.
+- **Two tabs at the same URL make `eval` and the driven tab diverge.** Close duplicates to one.
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **A stale `CacheStorage` entry serves the OLD css/js right after a deploy.** Confirm the loaded hash
+  against `ls -t web/dist/assets/*.css | head -1` BEFORE measuring. (Verified clean this session.)
+- **Check the EXIT CODE, not the tail** — and `bun run build` exits 0 when the CSS parser silently
+  DISCARDS a rule, so also grep the shipped output for the rule itself.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **ISC-454's new instrument** — Worker telemetry vs a fresh live-UI baseline (item 2). His call.
+- **Click ▶ on QTT's `/audio-quran`** so the player can be captured (item 4).
+- **Written confirmation of the hadith approval** — reaffirmed 2026-08-13 but still VERBAL AND
+  RELAYED. **Do not edit that record's status line** until an artefact exists. `reviewed_id` stays
+  empty; the `.is-ai` badge stays.
+- **Widening the knowledge-shaped gate** (item 5) — product decision, and item 1 adds evidence to it.
+- **The Tanya visual pass.** Spacing, the dotted citation underline, the 17.5px step-down. Ask first.
+- **Copy review** — the bow-out shows honest-silence copy often. Consider IndonesianPolish.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED** — says *"Aplikasi tidak mengarang
+  jawaban"*, false since the edition flipped. The ⛔ header stands.
+- **`/printing-press almanhaj`** — Erik asked for it 2026-08-15; deferred to a fresh session for
+  context. `almanhaj.or.id` is a WEBSITE, not an API, so it routes through browser-sniff discovery.
+  **Flag the rights question at the absorb gate**: a read-only CLI is fine, but redistributing their
+  corpus through New-Quranku is the same shape as the Hadis/Fikih sourcing call — a worker proxy
+  still publishes.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-14 late)
 
 > Prepended by /wrap 2026-08-14 (checkpoint `3982e21`). Supersedes the 2026-08-13-late anchor
