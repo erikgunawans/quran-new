@@ -105,6 +105,39 @@ const MARKER_IN_PROSE = /\[H:([a-z][a-z-]*):(\d{1,6})\]/g;
 /** `bukhari` + `6962` → the corpus id the retrieval layer returns. */
 export const markerToId = (collection: string, n: string | number): string => `hadith-${collection}-${Number(n)}`;
 
+/**
+ * The INVERSE of `markerToId`: the corpus id → the exact marker the model must write for it, or
+ * `null` when no writable marker exists for that id.
+ *
+ * WHY THIS EXISTS, AND WHY IT IS THE ONLY LEGAL WAY TO SHOW A MODEL A MARKER (2026-08-15).
+ *
+ * The prompt used to build the offered marker out of the record's `collection` field, which reads
+ * `"Sahih al-Bukhari"` / `"Sahih Muslim"` — the human-readable name, correct for the card and fatal
+ * here. Verified against the live text layer (`text/8177e2e6e6c47370/display/bukhari/024.json`):
+ *
+ *   id "hadith-bukhari-1349", collection "Sahih al-Bukhari"
+ *     → prompt printed  [H:Sahih al-Bukhari:1349]
+ *     → MARKER_IN_PROSE is /\[H:([a-z][a-z-]*):…/ — a capital and a space, so it MATCHES NOTHING
+ *     → and even if it matched, markerToId gives "hadith-Sahih al-Bukhari-1349" ≠ the id
+ *
+ * So the model was ordered to copy the collection "exactly as listed", did exactly that, and every
+ * possible output was refused: branch (a) saw an attribution with no marker in the sentence, because
+ * the marker was invisible to the regex. `blocked:"bad_hadith"` with `records:2` was read for a full
+ * session as "the model declined to cite" — it could not have cited. This is not a prompt-tuning
+ * problem and no amount of prompt tuning could have reached it.
+ *
+ * THE FIX IS DIRECTIONAL. The id is the thing the guard resolves against, so the marker is derived
+ * FROM the id and never from a parallel display field. `markerFor(id)` and `markerToId` are exact
+ * inverses over the grammar `MARKER_IN_PROSE` accepts, which makes offered ≡ writable ≡ resolvable
+ * true by construction rather than by two files agreeing. A record whose id is outside that grammar
+ * returns `null` and is simply not offered — the same RETRIEVABLE ≡ DISPLAYABLE discipline `dalil.ts`
+ * applies to records with no body, for the same reason: an uncitable hadith must never be citable.
+ */
+export const markerFor = (id: string): string | null => {
+  const m = /^hadith-([a-z][a-z-]*)-(\d{1,6})$/.exec(id);
+  return m ? `[H:${m[1]}:${Number(m[2])}]` : null;
+};
+
 /* ------------------------------------------------------------------------------------------------
  * THE ATTRIBUTION GRAMMAR (ISC-440)
  *

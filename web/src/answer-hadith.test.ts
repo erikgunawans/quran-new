@@ -24,7 +24,7 @@ import {
   type AnswerResult,
   type GroundingHadith,
 } from "./answer-contract.ts";
-import { groundedHadithFrom, markersInProse, safeAnswer, stripMarkers } from "./answer-guard.ts";
+import { groundedHadithFrom, markerFor, markerToId, markersInProse, safeAnswer, stripMarkers } from "./answer-guard.ts";
 import { hadithCardEl, type HadithCard } from "./hadith-card.ts";
 import { gatherGrounding, synthesizeAnswer } from "./answer.ts";
 import type { Corpus } from "./retrieve.ts";
@@ -165,6 +165,57 @@ describe("the contract teaches the receipt", () => {
     const msg = buildAnswerUserMessage({ question: "q", verses: [], entries: [], hadith: [grounding] });
     expect(msg).toContain("[H:bukhari:1]");
     expect(msg).toContain(grounding.english);
+  });
+
+  /**
+   * THE FIXTURE IS REAL CORPUS DATA, and that is the whole point of this block.
+   *
+   * Every other test in this file offers the model `collection: "bukhari"` — a value we wrote, which
+   * happens to be exactly the slug the guard wants, so the marker round-trips and the test passes no
+   * matter what the code does. The live corpus does not look like that. Pulled 2026-08-15 from
+   * `okf-corpus/text/8177e2e6e6c47370/display/{bukhari/024,muslim/001}.json`, `collection` is the
+   * READER-FACING NAME while `id` carries the slug, and the two disagree on every one of the 14,736
+   * records. Building the offered marker from `collection` printed `[H:Sahih al-Bukhari:1349]`, which
+   * `MARKER_IN_PROSE` cannot match and `markerToId` cannot resolve — so the model was ordered to copy
+   * a receipt that was refused whatever it wrote, and `blocked:"bad_hadith"` was misread for a session
+   * as the model declining to cite.
+   *
+   * Forced red before being kept: with the marker built from `collection`, all three fail.
+   */
+  const LIVE_RECORDS: readonly GroundingHadith[] = [
+    { id: "hadith-bukhari-1349", collection: "Sahih al-Bukhari", hadith_number: 1349, grade: "sahih", english: "…" },
+    { id: "hadith-muslim-1", collection: "Sahih Muslim", hadith_number: 1, grade: "sahih", english: "…" },
+  ];
+
+  test("REAL corpus records reach the model as markers the guard can resolve", () => {
+    const msg = buildAnswerUserMessage({ question: "q", verses: [], entries: [], hadith: [...LIVE_RECORDS] });
+    expect(msg).toContain("[H:bukhari:1349]");
+    expect(msg).toContain("[H:muslim:1]");
+    // The reader-facing name must never appear inside a marker — that is the exact defect.
+    expect(msg).not.toContain("[H:Sahih");
+  });
+
+  test("every marker the prompt offers round-trips back to the id it was built from", () => {
+    for (const h of LIVE_RECORDS) {
+      const marker = markerFor(h.id);
+      expect(marker).not.toBeNull();
+      const [, collection, n] = /^\[H:([a-z][a-z-]*):(\d+)\]$/.exec(marker!)!;
+      expect(markerToId(collection!, n!)).toBe(h.id);
+    }
+  });
+
+  test("Anti: an id outside the marker grammar is DROPPED, never offered uncitable", () => {
+    const msg = buildAnswerUserMessage({
+      question: "q",
+      verses: [],
+      entries: [],
+      hadith: [{ id: "hadith-Sahih al-Bukhari-1349", collection: "Sahih al-Bukhari", hadith_number: 1349, grade: "sahih", english: "x" }],
+    });
+    expect(markerFor("hadith-Sahih al-Bukhari-1349")).toBeNull();
+    expect(msg).toContain("(tidak ada)");
+    // Not `not.toContain("[H:")` — the empty-case copy legitimately carries the literal `[H:...]`
+    // when it forbids inventing one. What must be absent is an OFFERED marker, i.e. one with a number.
+    expect(msg).not.toMatch(/\[H:[^\]]*\d/);
   });
 
   test("an EMPTY hadith list says so out loud rather than going silent", () => {

@@ -22,6 +22,7 @@
  * tuned offline is byte-identical to what ships.
  */
 import type { HadithCard } from "./hadith-card.ts";
+import { markerFor } from "./answer-guard.ts";
 
 export interface GroundingVerse {
   /** "surah:ayah", e.g. "112:1" — a suggested citation the model may prefer. */
@@ -156,11 +157,18 @@ export function buildAnswerUserMessage(ctx: AnswerContext): string {
   // all. Left silent, that is an invitation to invent one, and an invented marker resolves against
   // nothing and sinks the whole answer under `bad_hadith` branch (b). So the empty case says so out
   // loud, in the same place the populated case would have been.
-  const hadith = ctx.hadith?.length
+  // THE MARKER IS DERIVED FROM THE ID, NEVER FROM `collection`. `collection` is the reader-facing
+  // name ("Sahih al-Bukhari") and building a marker out of it printed `[H:Sahih al-Bukhari:1349]`,
+  // which no regex in this codebase matches and which resolves to no id — so the model was told to
+  // copy a receipt that could never clear the wall. See `markerFor` for the full account. A record
+  // with no writable marker is dropped rather than offered uncitable.
+  const citable = (ctx.hadith ?? []).flatMap((h) => {
+    const marker = markerFor(h.id);
+    return marker ? [`- ${marker} (${h.grade}) — ${h.english}`] : [];
+  });
+  const hadith = citable.length
     ? `\n\nHadis yang terambil (boleh kamu rujuk dengan menulis markernya persis; JANGAN menyalin teksnya):\n` +
-      ctx.hadith
-        .map((h) => `- [H:${h.collection}:${h.hadith_number}] (${h.grade}) — ${h.english}`)
-        .join("\n")
+      citable.join("\n")
     : `\n\nHadis yang terambil: (tidak ada) — jangan menuliskan marker [H:...] apa pun, dan jangan menisbatkan apa pun kepada Rasulullah pada jawaban ini.`;
   return (
     `Pertanyaan orang itu:\n"""${ctx.question}"""\n\n` +
