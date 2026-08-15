@@ -1,3 +1,167 @@
+# Next session — New-Quranku (checkpoint 2026-08-15 late)
+
+> Prepended by /wrap 2026-08-15 late (anchor `3e67ee1`, docs+ISA commit on top). Supersedes the
+> 2026-08-15 anchor `5b507d7`. **That handoff's items 1 and 2 are BOTH DISCHARGED** — the zero-cards
+> cause is found and the instrument question is answered. Its items 3–6 slide up, unchanged.
+
+Read `PROGRESS.md` first (top checkpoint, 2026-08-15 late).
+
+**Prod:** worker `6d2f9743`, js `index-8yQBCStV.js`, css `index-DO8SZXQY.css`, `EDITION: "synthesis"`.
+**Coverage:** disk = dist = live = **10,502** across 115 shards, **107 populated** (8 bukhari books
+still empty — "115 books" means 115 FILES, not 115 populated).
+**Gates GREEN:** `bun test` **1407/0** exit 0 · typecheck exit 0 · `wrangler --dry-run` exit 0. ISA **465/475**.
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+**Generator is RUNNING** at `--batch 1` (PID from this session: 14906), now on the fixed code. Pause
+it before any deploy.
+
+---
+
+## 1. The model is not writing the receipt — this is the whole remaining hadith job
+
+**Settled 2026-08-15 late, live on prod, with a control arm.** The `dalil` diagnostic on
+`/api/answer` (shipped `d5750f6`) reported, on BOTH eligible questions:
+
+```
+{ eligible:true, bound:true, offered:2, records:2, failed:null }  →  blocked:"bad_hadith", 0 cards
+```
+
+| question | ms |
+|---|---|
+| `bagaimana hukum utang piutang dalam islam` | 8,406 |
+| `apakah sedekah boleh diungkit ungkit` | 10,588 |
+| CONTROL `aku sedih sekali hari ini` → `eligible:false, offered:0, records:0` | 4,387 |
+
+Retrieval hands the model **two fully-resolved hadith** and nothing throws. The model then attributes
+something prophetic **without a resolvable `[H:…]` marker**, so `guardAnswerProse` refuses it
+correctly (`answer-guard.ts:580` for the attribution, `:585` for a marker that does not resolve).
+
+**Do NOT re-audit the retrieval half.** It was statically cleared this session and then proven live:
+prod is the TOP-LEVEL worker and has all three dalil bindings; `CORPUS_DIGEST` matches
+`docs/reference/okf-manifest.json`; the R2 text layer object exists; OpenRouter's `/v1/embeddings`
+and `/v1/rerank` answer 401 (real endpoints), not 404.
+
+**The fix is in the prompt** — `SYNTHESIS_SYSTEM_PROMPT` / `buildAnswerUserMessage` in
+`worker/src/index.ts`. **Write the failing test FIRST, against REAL production prose.** The standing
+trap here is documented and has already cost two sessions: every guard test written from prose we
+composed ourselves passes. Capture actual prod output and test that.
+
+**How to read the diagnostic** (it ships live, no deploy needed to use it): `eligible:false` → the
+question never qualified. `bound:false` → no dalil bindings (INTENDED on synthesis/demo envs).
+`offered:0 failed:null` → retrieval matched nothing. `offered>0 records:0` → display shards did not
+resolve. `failed:<stage>` → the chain threw (`config`/`embed`/`text-layer`/`rerank`/`vectorize`/`unknown`).
+`records>0` + empty `hadith` → **the model declined to cite**, which is today's state.
+
+## 2. Latency — make the eligible path cheaper, do NOT raise `TIMEOUT_MS`
+
+The control answered in **4.4 s because it skips the dalil chain entirely**. Eligible turns pay
+embed + Vectorize + R2 + rerank on top and land at **8–11 s** against the 12,000 ms client abort
+(`answer-live.ts:33`). A fourth question (`aku lagi marah banget sama temanku`) **aborted outright**.
+
+The previous cycle already rejected raising the constant in writing (`worker/src/index.ts` ~line 645):
+it leaves a reader waiting 25 s for a refusal. Read that comment before touching it. Cheaper ideas
+worth measuring: the 6.5 MB decompressed rerank text layer is loaded and `JSON.parse`d **inside the
+request** on a cold isolate (`dalil.ts:128`), module-cached only for warm ones.
+
+## 3. The hadith gate is narrower than the Worker suggests — Erik's decision, unchanged
+
+`gatherGrounding` (`web/src/answer.ts:98`) populates `entries` ONLY when `verses.length === 0`, and
+the Worker gates hadith on `entries.length > 0` — so **hadith can only fire on a turn that retrieved
+zero ayah.** Measured **7 of 19 eligible** by `bun run src/app/probe-hadith-gate.ts` (new this
+session). Four plainly hadith-answerable questions are locked out for matching a verse: `berbakti
+kepada orang tua`, `keutamaan bersedekah`, `adab bertetangga`, `keutamaan menahan marah`.
+
+**Do NOT widen it without asking.** It is a product decision: the gate measured 9/9 on knowledge and
+1/4 on feelings, where it returned a rebuke to an anxious person.
+
+## 4. Audio — DENGAR on the `#/baca` shelf card (unchanged, still blocked on Erik)
+
+**Decided:** the button goes on the `#/baca` shelf card (`read.ts:233`, `indexRow`); tapping it turns
+that card's inner layer into an audio UI. Not the `#/surah/N` header. **Blocked on one click:** Erik
+must open `quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ so the mounted player can be
+read out of the DOM — autoplay policy rejects programmatic clicks. **Do not loop on coordinate
+clicks.** QTT serves per-SURAH files; we serve per-AYAH, so their timeline is continuous and ours has
+a seam per ayah. The shelf card is a single `<a href>` wrapping its inner layer — a nested `<button>`
+is invalid and would navigate, so the card needs restructuring.
+
+## 5. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's terms,
+not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.** Item 3's
+measurement is the live evidence that bears on this.
+
+## 6. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every rule
+is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question` events too?
+
+## Standing constraints (carried forward — all still true, plus five new)
+
+- **NEW — `interceptor eval` only prints STRING returns.** Anything else prints a bare `ok`, which
+  reads as success and tells you nothing. Wrap every probe in `String(...)` or `JSON.stringify(...)`.
+- **NEW — the active tab gets STOLEN mid-session.** Evals silently began running against an unrelated
+  `localhost:3000` tab, and the readings looked real. Pin `interceptor tab switch <id>` in the SAME
+  Bash command as every eval, not once at the start.
+- **NEW — hadith shard numbers are NON-CONTIGUOUS.** A shard file exists only where there is content.
+  Probing a `1..N` range invents URLs that were never shards and reads their (correct) SPA fallback
+  as a missing deploy — this produced a confident wrong "live = 8,731, 26 shards missing". Drive
+  coverage counts off the REAL filenames in `web/dist`.
+- **NEW — an aborted `/api/answer` leaves no row in the passive net log,** so it reads as "no request
+  made". A `fetch` wrapper installed on the page BEFORE submitting catches it; that is the only
+  reason the 12 s abort was seen at all.
+- **NEW — `wrangler r2 object get` transparently decodes `content-encoding: gzip`.** What lands is the
+  DECOMPRESSED bytes, so a size read there is not the stored object's size. Do not conclude a blob
+  "isn't gzipped" from it.
+- **An instrument can agree with itself regardless of the world.** Before re-running a probe to
+  measure a change, ask what it would report if the feature were reverted. `eval:grounding` is blind
+  to the whole hadith cycle (`() => false` at `grounding-probe.ts:216`, `entries: []` at `:151`).
+- **A probe with no control cannot distinguish "it ignored our input" from "our input was wrong."**
+  The control arm is what made item 1 a finding rather than a guess.
+- **A pipe with an unread stderr turns failure into a plausible wrong diagnosis.** FIXED this session
+  in `translate-hadith.ts`, but the shape recurs — `worker/src/index.ts:565` was the same bug.
+- **Three numbers, not one: disk ≠ dist ≠ live.** Generated content is baked in at build time. A
+  missing asset returns `200 text/html`, so key on `content-type`. Print WHICH books, never just how many.
+- **A guard predicate left at its default with a comment explaining why is a DESIGN DECISION.** The
+  hadith predicate is applied at THREE layers. Grep every call site.
+- **A test whose failure mode is an exception can pass through the code's own catch.** Force-red every
+  new test; assert on a counter.
+- **Guard tests need PRODUCTION prose.** Cases we write ourselves all pass; the wall was open for two
+  sessions because `mengajarkan` was unlisted and every test case was our own writing.
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **A stale `CacheStorage` entry serves the OLD css/js right after a deploy.** Clear it and confirm
+  the loaded hash against `ls -t web/dist/assets/*.css | head -1` BEFORE measuring. (Done this session.)
+- **Check the EXIT CODE, not the tail** — and the preflight hook will BLOCK a gate piped into
+  head/tail. Redirect to a file, echo `$?`, then read the file. `bun run build` exits 0 when the CSS
+  parser silently DISCARDS a rule, so also grep the shipped output for the rule itself.
+- **A restored thread replays a PAST turn as a fresh one.** Count `#thread` turns before AND after, or
+  instrument the network — do not read the DOM alone.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.
+- Do NOT rebuild the tanya-hukum PRD. Do NOT fix the feeling-word filter wholesale. Do NOT cut the
+  remaining `keluarga` aliases. Do NOT narrow any `PROPHETIC` pattern.
+
+## Open items waiting on Erik
+
+- **Widening the knowledge-shaped gate** (item 3) — product decision, now with a measurement behind it.
+- **Click ▶ on QTT's `/audio-quran`** so the player can be captured (item 4).
+- **Written confirmation of the hadith approval** — reaffirmed 2026-08-13 but still VERBAL AND
+  RELAYED. **Do not edit that record's status line** until an artefact exists. `reviewed_id` stays
+  empty; the `.is-ai` badge stays.
+- **ISC-454's block RATE** — the wall is now verified live, but the rate still has no comparable
+  number and the 24% baseline is not re-runnable. Erik's call whether it needs one at all.
+- **The Tanya visual pass.** Spacing, the dotted citation underline, the 17.5px step-down. Ask first.
+- **Copy review** — the bow-out shows honest-silence copy often. Consider IndonesianPolish.
+- **ISC-417** — ustadz sign-off on AI-authored answers. Prod authors without it, by Erik's decision.
+- **`docs/review/hukum-pin-request-2026-08-12.md` is BLOCKED** — says *"Aplikasi tidak mengarang
+  jawaban"*, false since the edition flipped. The ⛔ header stands.
+- **`/printing-press almanhaj`** — Erik asked for it 2026-08-15; still deferred. `almanhaj.or.id` is a
+  WEBSITE, not an API, so it routes through browser-sniff discovery. **Flag the rights question at the
+  absorb gate**: a read-only CLI is fine, but redistributing their corpus through New-Quranku is the
+  same shape as the Hadis/Fikih sourcing call — a worker proxy still publishes.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-15)
 
 > Prepended by /wrap 2026-08-15 (anchor `5b507d7`, unchanged — docs-only commit on top). Supersedes
