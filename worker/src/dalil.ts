@@ -179,18 +179,98 @@ const str = (m: Record<string, string | number> | undefined, k: string): string 
 const num = (m: Record<string, string | number> | undefined, k: string): number => Number(m?.[k] ?? 0);
 
 /**
+ * Per-stage wall-clock for one retrieval, in milliseconds. Optional sink — retrieval behaves
+ * identically whether or not a caller passes one.
+ *
+ * THREE THINGS THAT MAKE THESE NUMBERS EASY TO MISREAD, all deliberate:
+ *
+ * 1. **They do not sum to the total.** The text layer is STARTED before `embed` and awaited after
+ *    `vectorize`, so the stages overlap and adding them up over-counts. The total is measured by the
+ *    caller, around the whole call — that is the only number the 12,000 ms client abort cares about.
+ * 2. **`text_layer` is a RESIDUAL, not a cost.** It is what the blob still makes us wait AFTER embed
+ *    and Vectorize have already run, which is the latency question. It is NOT how long the blob
+ *    takes. A `text_layer: 0` means the overlap fully absorbed it, not that the fetch was free —
+ *    reading it the second way is how a future session would "prove" the blob is cheap and then
+ *    delete the overlap that made it look that way.
+ * 3. **A span containing no I/O reads 0.** Workers freeze the clock between I/O operations as a
+ *    Spectre mitigation, so `text_layer` covers its R2 fetch but UNDER-REPORTS the gunzip and
+ *    `JSON.parse` behind it — measured 99-140 ms of pure CPU on a dev laptop for the 6.5 MB parse,
+ *    and that time is real on the isolate even though this number will not show it. The SAME caveat
+ *    binds `display` and `total`, which the caller measures with the same clock: `total` can
+ *    under-report client-visible latency, so it is a floor on what the reader waited, not the figure.
+ * 4. **A stage that did not RUN is absent; it never reads 0.** `timed` writes only in its `finally`,
+ *    so an absent key means "did not reach this stage". One asymmetry that follows from the overlap
+ *    and is worth knowing: an embed failure leaves `text_layer` ABSENT even though the R2 GET was
+ *    already dispatched and may have spent real time and CPU before the turn died. The report
+ *    under-describes that turn on purpose — attributing time to a stage nothing awaited would be
+ *    worse than saying nothing.
+ */
+export interface DalilTimings {
+  embed?: number;
+  vectorize?: number;
+  text_layer?: number;
+  rerank?: number;
+}
+
+/**
+ * Wall-clock one stage into `sink[key]`, without changing what it resolves to or throws.
+ *
+ * Takes a THUNK, not a promise. Passing `timed(sink, k, work())` would evaluate the call first, so
+ * the stage would run up to its first `await` before `t0` was ever read — and, worse, a stage that
+ * threw SYNCHRONOUSLY would never reach this function at all and would be silently absent from the
+ * report rather than recorded. The thunk puts both inside the measured span.
+ */
+async function timed<T>(sink: DalilTimings | undefined, key: keyof DalilTimings, work: () => Promise<T>): Promise<T> {
+  if (!sink) return work();
+  const t0 = Date.now();
+  try {
+    return await work();
+  } finally {
+    sink[key] = Date.now() - t0;
+  }
+}
+
+/**
  * Search the hadith corpus for one question.
  *
  * Returns up to MAX_RETRIEVE reranked hits for the model to reason over. Callers that intend to SHOW
  * hadith must go through `capForDisplay` and `fetchDisplayRecords` — retrieval breadth and display
  * breadth are different numbers on purpose.
  */
-export async function searchDalil(env: DalilEnv, question: string, candidateK = CANDIDATE_K): Promise<DalilHit[]> {
+export async function searchDalil(
+  env: DalilEnv,
+  question: string,
+  candidateK = CANDIDATE_K,
+  timings?: DalilTimings,
+): Promise<DalilHit[]> {
   const apiKey = env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
 
-  const vector = await embedQuestion(question, apiKey);
-  const { matches } = await env.VECTORIZE.query(vector, { topK: candidateK, returnMetadata: "all" });
+  // THE TEXT LAYER DOES NOT DEPEND ON THE EMBEDDING, and used to wait for it anyway. Started here it
+  // overlaps a 1.8 MB R2 GET plus a 6.5 MB gunzip+parse against two network round-trips, which is
+  // free on a warm isolate (module-cached) and is the whole cold-start cost on a cold one. Ordering
+  // was the only thing making it serial — nothing below reads `texts` before both have landed.
+  //
+  // The bare `.catch` marks the rejection HANDLED so a text-layer failure cannot surface as an
+  // unhandled rejection while we are still awaiting embed. It does not swallow it: `textsPromise`
+  // itself still rejects, and still re-throws at the `await` below, so `classifyDalilFailure` sees
+  // the same "text layer missing" it always did. It must be attached in the SAME synchronous turn as
+  // the call, because the config paths of `loadRerankTexts` return an ALREADY-rejected promise and
+  // V8 fires `unhandledrejection` at the end of the microtask checkpoint.
+  //
+  // WHICH FAILURE GETS REPORTED, stated precisely because it changed. An embed failure still wins
+  // over a text-layer failure — but the reason is now that embed is awaited FIRST, not that it
+  // happened first. Post-overlap the text layer can fail hundreds of ms EARLIER in wall-clock and
+  // still lose the report. Under the old serial code those two orderings were the same thing, so
+  // "the earliest failure" used to be a true description and is no longer one. The stage token
+  // reports the first stage we AWAIT.
+  const textsPromise = loadRerankTexts(env);
+  void textsPromise.catch(() => {});
+
+  const vector = await timed(timings, "embed", () => embedQuestion(question, apiKey));
+  const { matches } = await timed(timings, "vectorize", () =>
+    env.VECTORIZE.query(vector, { topK: candidateK, returnMetadata: "all" }),
+  );
 
   const candidates = matches
     // Defence in depth: `private` records are already excluded at build time, so this filter should
@@ -210,9 +290,17 @@ export async function searchDalil(env: DalilEnv, question: string, candidateK = 
       rights_usage: str(m.metadata, "rights_usage"),
     }));
 
+  // The prefetched R2 GET is left UNAWAITED on this path — it is cancelled when the request context
+  // ends, and the bare `.catch` above absorbs the rejection. That is a deliberate trade, not an
+  // oversight: moving the prefetch below this return would restore the serial ordering the overlap
+  // exists to remove, to save one Class B op on a path that barely occurs. Barely, because a topK=50
+  // query over 14,736 populated vectors always matches; the reachable trigger is an EMPTY or
+  // mid-rebuild index, where bindings resolve but no vector does. Nothing regressed either way — the
+  // old code never called `loadRerankTexts` here, so this turn reported `failed:null` then and
+  // reports `failed:null` now.
   if (candidates.length === 0) return [];
 
-  const texts = await loadRerankTexts(env);
+  const texts = await timed(timings, "text_layer", () => textsPromise);
 
   // RETRIEVABLE ≡ DISPLAYABLE. A candidate with no body in the text layer is one the display path
   // cannot render — the upstream corpus has one such record, Arabic with no English. Left in, the
@@ -223,7 +311,9 @@ export async function searchDalil(env: DalilEnv, question: string, candidateK = 
   const groundable = candidates.filter((h) => typeof texts[h.id] === "string" && texts[h.id]!.length > 0);
   if (groundable.length === 0) return [];
 
-  return rerank(apiKey, question, groundable, texts);
+  // Thunked like the rest — `rerank` concatenates up to 50 document bodies before its first `await`,
+  // and that work belongs inside the measured span rather than ahead of it.
+  return timed(timings, "rerank", () => rerank(apiKey, question, groundable, texts));
 }
 
 /** The rights wall. Whatever the model asked for, this is what a reader may see. */

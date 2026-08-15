@@ -45,6 +45,7 @@ import {
   type DalilEnv,
   type DalilFailure,
   type DalilHit,
+  type DalilTimings,
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
@@ -561,6 +562,20 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // on any real turn. No PII, no raw error text (see classifyDalilFailure).
   const bound = Boolean(env.VECTORIZE && env.CORPUS && env.CORPUS_DIGEST);
   let dalilFailure: DalilFailure | null = null;
+  // Per-stage wall-clock, for the same reason the counters above exist: the 2026-08-15 live run
+  // measured eligible turns at 8-11 s against a 12,000 ms client abort and could say only that the
+  // whole dalil chain was to blame, so any fix would have been a guess at which of embed / Vectorize
+  // / R2 / rerank was actually spending it. `ms.total` is the number the abort cares about; the
+  // stages say where to cut. See `DalilTimings` for why they do not add up.
+  const timings: DalilTimings = {};
+  // NULL, not 0 — and this initializer is the whole point. `display` is the one stage measured out
+  // here rather than by `timed()`, so it does not get the absent-means-did-not-run discipline for
+  // free. Any failure upstream of `fetchDisplayRecords` — an embed 401, a rerank 5xx, a missing text
+  // layer — leaves this at its initializer, and a `0` would tell an operator "display was instant"
+  // about a turn where display never ran at all. Those are exactly the failing turns this diagnostic
+  // was built to read.
+  let dalilDisplayMs: number | null = null;
+  let dalilTotalMs: number | null = null;
 
   /**
    * The retrieval story for this turn: four small numbers and a stage token, read off state that is
@@ -573,6 +588,20 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
    * `records:0` → the display shards did not resolve (`fetchDisplayRecords` drops those silently, by
    * design). `failed:<stage>` → the chain threw there. `records>0` alongside an empty `hadith` array
    * → retrieval worked and the MODEL declined to cite, which is a prompt problem, not a retrieval one.
+   *
+   * `ms:null` → the chain never ran (ineligible, or unbound), which is NOT the same as instant. A
+   * MISSING stage key means the turn died before reaching it; no stage ever reports 0 for "skipped".
+   * `ms.total` is the whole dalil chain and the only stage number the 12,000 ms client abort can
+   * see; the rest say where to cut. They overlap and do not sum, and — because a Workers clock only
+   * advances on I/O — `total` is a FLOOR on what the reader waited, not the figure: it cannot see
+   * the ~100 ms of gunzip+parse CPU behind the text layer. See `DalilTimings` for all four traps.
+   *
+   * READ THE `records>0` + EMPTY `hadith` CASE CAREFULLY. It says the model did not leave a
+   * resolvable receipt; it does NOT say the model chose not to. Until 2026-08-15 the receipt we
+   * ordered it to copy was built from the reader-facing `collection`, so it could not match the
+   * guard's grammar under any output — a verdict that named no actor was read for a session as one
+   * that named the model. If this state returns, construct the passing string by hand BEFORE
+   * concluding anything about the model.
    */
   const dalilReport = () => ({
     eligible: entries.length > 0,
@@ -580,11 +609,22 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     offered: offered.length,
     records: records.length,
     failed: dalilFailure,
+    // Absent (not zero) on a turn that never ran the chain — an ineligible turn spent no time here,
+    // and reporting 0 would make "skipped" and "instant" the same reading. `display` follows the
+    // same rule one level down: omitted entirely when the chain died before it.
+    ms:
+      dalilTotalMs === null
+        ? null
+        : { ...timings, ...(dalilDisplayMs === null ? {} : { display: dalilDisplayMs }), total: dalilTotalMs },
   });
 
   if (entries.length > 0 && bound) {
+    // Started before the `try` and closed in a `finally` so a turn that THREW still reports how long
+    // it spent before dying. A failure that is also slow and a failure that is instant need different
+    // fixes, and `failed:<stage>` alone cannot tell them apart.
+    const dalilStart = Date.now();
     try {
-      const hits = await searchDalil(env as unknown as DalilEnv, question);
+      const hits = await searchDalil(env as unknown as DalilEnv, question, undefined, timings);
       // CAP BEFORE OFFERING, not after. `searchDalil` returns up to MAX_RETRIEVE=8 so the reranker
       // has room to work, but the reader may only ever see MAX_DISPLAY=2. Offering the model all 8
       // would let it cite the 5th, whose marker resolves against the turn's grounding and passes the
@@ -592,12 +632,14 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // prophetic attribution with nothing behind it, which is the exact state `bad_hadith` exists
       // to prevent. Capping here makes CITABLE ≡ DISPLAYABLE by construction rather than by luck.
       offered = capForDisplay(hits);
+      const displayStart = Date.now();
       records = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) => ({
         ...r,
         // The client needs the book number to look up the machine Indonesian shard (ISC-449); it is
         // in the corpus path and nowhere else in the record.
         book: bookOf(offered.find((h) => h.id === r.id)?.path ?? ""),
       }));
+      dalilDisplayMs = Date.now() - displayStart;
     } catch (e) {
       // Loud failure upstream, quiet degradation here — embedding, the text layer or the reranker
       // being down means this turn simply has no hadith, which is every turn's normal state. The
@@ -608,6 +650,8 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       dalilFailure = classifyDalilFailure(e);
       offered = [];
       records = [];
+    } finally {
+      dalilTotalMs = Date.now() - dalilStart;
     }
   }
 
