@@ -17,6 +17,7 @@ import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
 import { initSettings } from "./settings-ui.ts";
+import { applyTheme, getTheme } from "./settings.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
 import { pickLucky } from "./lucky.ts";
 import { retrieveKnowledge, type KnowledgeAnswer } from "./knowledge.ts";
@@ -1424,7 +1425,7 @@ function initToTop(): void {
   bindComposerPresence();
   initToTop();
 
-  // The attribute is ALWAYS set — from storage if the reader chose, otherwise from the system.
+  // The attribute is ALWAYS set — from storage if the reader chose, otherwise resolved from the OS.
   //
   // It used to be set only when a theme was saved, which meant a first-time visitor had none, and
   // the app then took its register from two different signals at once: styles.css tokens flip on
@@ -1433,17 +1434,17 @@ function initToTop(): void {
   // painted onto the panel's light gradient, so a 48px greeting rendered near-white on near-white.
   // Every element-level colour patch for that was treating a symptom; the bad state enters HERE.
   //
-  // Deliberately NOT written back to localStorage: an unset preference must keep following the OS,
-  // so a reader who never opened the toggle still gets dark at night. Storage means "I chose".
-  // `"system"` is a THIRD stored value, not a theme name, and it must never reach the attribute.
-  // The settings panel can store it (the header toggle is binary and cannot express it), and the
-  // CSS only knows `light` and `dark` — so `data-theme="system"` would match no rule and leave the
-  // panel and the ink tokens keyed off different mechanisms, which is the white-on-white failure
-  // this repo has already hit once. Treat it exactly like "unset": follow the OS.
-  const savedTheme = localStorage.getItem("newquranku:theme");
-  const explicit = savedTheme === "light" || savedTheme === "dark" ? savedTheme : null;
-  document.documentElement.dataset["theme"] =
-    explicit ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  // DELEGATED to `applyTheme` 2026-08-15, and that is the whole fix. This block resolved correctly
+  // while `settings.ts` removed the attribute for the same "system" choice — two files holding
+  // OPPOSITE policies, each citing this same white-on-white failure as its justification. So the
+  // app booted correct and broke the instant the reader touched the control, then healed on reload.
+  // A conflict like that cannot be fixed on one side; there is now exactly one owner of what
+  // "system" means in the DOM, and `applyTheme` also watches the OS so resolving does not freeze it.
+  //
+  // Storage is still deliberately NOT written back here: an unset preference must keep following the
+  // OS, so a reader who never opened the toggle still gets dark at night. Storage means "I chose",
+  // and `"system"` is a THIRD stored value, not a theme name — the CSS knows only `light`/`dark`.
+  applyTheme(getTheme());
 
   const savedSize = localStorage.getItem("newquranku:ar") as keyof typeof SIZES | null;
   if (savedSize) {

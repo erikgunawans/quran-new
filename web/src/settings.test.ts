@@ -35,31 +35,68 @@ describe("settings persist and reapply", () => {
   });
 });
 
-describe("ikut sistem must be an ABSENT attribute", () => {
+describe("ikut sistem RESOLVES the attribute — it is never absent", () => {
   /**
-   * The failure this pins is not hypothetical. The panel flips on `data-theme` while the ink tokens
-   * flip on `prefers-color-scheme`; writing a computed value at the moment the reader chose
-   * "system" both freezes the choice (the page stops following the OS at sunset) and can pin the
-   * two mechanisms to opposite values — which paints panel text white-on-white while every DOM
-   * assertion still passes. Absence IS the state.
+   * THIS BLOCK USED TO ASSERT THE OPPOSITE, and the inversion is the point.
+   *
+   * It was titled "ikut sistem must be an ABSENT attribute" and pinned
+   * `hasAttribute("data-theme") === false`. Its reasoning named two real dangers — a frozen choice,
+   * and the panel and ink tokens keyed off opposite mechanisms — and then chose the remedy that
+   * causes the second one. Measured live on prod 2026-08-15: with the attribute absent, the panel
+   * paints `rgb(242,255,248)` while the ink tokens stay dark-register, giving **15 contrast
+   * failures** and answer prose at **1.06:1** — invisible. "Ikut sistem" is the DEFAULT choice, so
+   * that was the shipped state, and a reload re-stamped a resolved value and hid it.
+   *
+   * A green test asserted the defect for as long as it existed. That is the reason this comment is
+   * long: the next person to read `hasAttribute(...) === false` and think it looks more correct
+   * needs the measurement, not the intent.
+   *
+   * The frozen-choice danger is still real and is now handled by the `matchMedia` watcher in
+   * `applyTheme`, which is where it belonged — absence was never what kept the page following the
+   * OS; re-resolving is.
    */
-  test("choosing system removes the attribute rather than computing one", () => {
+  test("choosing system resolves to a concrete register rather than removing the attribute", () => {
     S.setTheme("dark");
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
     S.setTheme("system");
-    expect(document.documentElement.hasAttribute("data-theme")).toBe(false);
+    // The ONE invariant that the white-on-white failure violates: the panel and the ink tokens must
+    // never be able to read different signals, which requires the attribute to always be present.
+    expect(document.documentElement.hasAttribute("data-theme")).toBe(true);
+    expect(["light", "dark"]).toContain(String(document.documentElement.getAttribute("data-theme")));
   });
 
   test("system is stored, so the choice is remembered as a choice", () => {
+    // Resolving the ATTRIBUTE must not resolve the STORED value — otherwise "follow the system"
+    // decays into "I picked dark once", and the watcher would have nothing to re-read.
     S.setTheme("system");
     expect(localStorage.getItem(S.KEYS.theme)).toBe("system");
     expect(S.getTheme()).toBe("system");
   });
 
   test("applyAllSettings never writes the literal string 'system' into the attribute", () => {
+    // Unchanged and still load-bearing: the CSS knows `light` and `dark`. `data-theme="system"`
+    // would match no rule and reopen the same desync from the other direction.
     S.setTheme("system");
     S.applyAllSettings();
     expect(document.documentElement.getAttribute("data-theme")).not.toBe("system");
+    expect(["light", "dark"]).toContain(String(document.documentElement.getAttribute("data-theme")));
+  });
+
+  test("the boot path and the settings path agree on what 'system' means", () => {
+    // The bug was a POLICY CONFLICT, not a typo: main.ts's boot always stamped a resolved value
+    // (its comment: "the bad state enters HERE"), while settings.ts removed the attribute — so the
+    // app was correct on load and broke the moment the reader touched the control. Same input, same
+    // attribute, whichever path ran.
+    S.setTheme("system");
+    const fromSet = document.documentElement.getAttribute("data-theme");
+    document.documentElement.removeAttribute("data-theme");
+    S.applyAllSettings();
+    const fromBoot = document.documentElement.getAttribute("data-theme");
+    expect(fromBoot).toBe(fromSet);
+    // AGREEING ON `null` IS NOT AGREEMENT. Under the old policy both paths removed the attribute, so
+    // the equality above held while the app was broken — the assertion passed on `null === null`.
+    // Pin the agreed value to a concrete register, or this test re-admits the exact bug it guards.
+    expect(["light", "dark"]).toContain(String(fromBoot));
   });
 });
 

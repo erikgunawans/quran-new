@@ -55,21 +55,59 @@ const write = (k: string, v: string): void => {
 
 // ── Theme ────────────────────────────────────────────────────────────────────
 
+const systemPrefersDark = (): boolean =>
+  globalThis.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? true;
+
 /**
- * "Ikut sistem" must REMOVE the attribute, never compute a value into it.
+ * Re-stamp on OS flips, so a RESOLVED attribute still follows the system.
  *
- * This app has been bitten here before: the panel flips on the `data-theme` attribute while the ink
- * tokens flip on `prefers-color-scheme`. Writing `data-theme="light"` because the OS currently
- * reports light does two wrong things — it freezes the choice at the moment the reader picked
- * "system", so the page stops following the OS at sunset; and it can pin the two mechanisms to
- * opposite values, which paints panel text white-on-white while every DOM assertion still passes.
- * Absence of the attribute IS the "follow the system" state, so absence is what we store.
+ * This is the half that makes resolving safe. Attached once and never removed; it re-reads the
+ * STORED choice on every fire, so it is inert the moment the reader picks an explicit theme and
+ * live again if they go back to "Ikut sistem". Without it, resolving would freeze the choice at
+ * the moment it was made and the page would stop following the OS at sunset — which is the real
+ * defect the previous implementation was protecting against.
+ */
+let watchingSystem = false;
+function watchSystemTheme(): void {
+  if (watchingSystem) return;
+  const mq = globalThis.matchMedia?.("(prefers-color-scheme: dark)");
+  if (!mq?.addEventListener) return; // no matchMedia (SSR, Happy DOM) — resolving still works, it just won't re-fire
+  watchingSystem = true;
+  mq.addEventListener("change", () => {
+    if (getTheme() !== "system") return;
+    globalThis.document?.documentElement?.setAttribute("data-theme", mq.matches ? "dark" : "light");
+  });
+}
+
+/**
+ * "Ikut sistem" RESOLVES to a concrete attribute, and a watcher keeps it current.
+ *
+ * REVERSED 2026-08-15, and the comment it replaces was not wrong about the danger — only about the
+ * remedy. It read: *"Absence of the attribute IS the 'follow the system' state, so absence is what
+ * we store."* Measured live on prod that same day: choosing "Ikut sistem" — which is the DEFAULT,
+ * `aria-pressed="true"` — removed the attribute and produced **15 contrast failures**, against 5 in
+ * `light` and 0 in `dark`. The answer prose `p.said` at 17.5px computed to **1.06:1**: the panel had
+ * flipped to `rgb(242,255,248)` on the attribute's absence while the ink tokens stayed at their
+ * dark-register values. Near-white on near-white — the exact failure the old comment named, caused
+ * by the fix written to prevent it. A reload re-stamped a resolved value and hid it again, which is
+ * how it survived to production.
+ *
+ * BOTH of the old comment's concerns are still honoured, because both were real:
+ *  - *"can pin the two mechanisms to opposite values"* — fixed by never leaving the attribute
+ *    absent, so the panel and the ink tokens are keyed off the same signal at all times.
+ *  - *"freezes the choice, so the page stops following the OS at sunset"* — fixed by
+ *    `watchSystemTheme`, not by absence. Resolving is only unsafe if nothing re-resolves.
+ *
+ * Storage is untouched: the literal `"system"` is still what we WRITE, so "I chose to follow the
+ * system" is remembered as a choice and `getTheme()` still returns `"system"`. Only the DOM
+ * attribute is resolved — `"system"` must never reach it, because the CSS knows `light` and `dark`
+ * and would match no rule.
  */
 export function applyTheme(choice: ThemeChoice): void {
   const root = globalThis.document?.documentElement;
   if (!root) return;
-  if (choice === "system") root.removeAttribute("data-theme");
-  else root.setAttribute("data-theme", choice);
+  root.setAttribute("data-theme", choice === "system" ? (systemPrefersDark() ? "dark" : "light") : choice);
+  if (choice === "system") watchSystemTheme();
 }
 
 export function getTheme(): ThemeChoice {
