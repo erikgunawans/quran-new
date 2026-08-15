@@ -3,10 +3,10 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: complete
-progress: 465/475
+progress: 468/479
 mode: build
 started: 2026-07-13
-updated: 2026-08-13
+updated: 2026-08-15
 ---
 
 # New-Quranku — Ideal State Artifact
@@ -759,6 +759,10 @@ have made `nextWithAudio` promise files no route could serve, which is ISC-306 e
 - [x] ISC-440.4: an unlisted prophet name fails to the STRICT side — costing a pointer, never a fabrication. Probe: the `Nabi Fulan` test.
 - [x] ISC-440.5: the grammar is verified on PROD. **MET 2026-08-13.** Deployed (worker version `2f747a1b`, `EDITION: "synthesis"`); edge serves `index-cT59WjmB.css`. Probed live via Interceptor after clearing `localStorage` AND `CacheStorage`, turns counted 0 before / 2 after so the answer was fresh, not replayed. The CSS rules and the inlined `synthesis` literal were confirmed on the served bytes, not on the local build.
 - [ ] ISC-440.6: Known limitation, pinned not fixed — two Qur'anic-narrative sentences about Nabi Yunus and Nabi Sulaiman are over-refused by the LEGACY weak-verb + `bahwa` pattern (pre-existing; the control scored identically before the grammar). Closing them requires narrowing a `PROPHETIC` pattern, which is forbidden. Cost is a hadith pointer instead of a story. Probe: the `known over-refusal` describe block.
+- [x] ISC-455: the marker the prompt OFFERS is one the guard can resolve. **MET 2026-08-15.** `buildAnswerUserMessage` built the offered `[H:...]` out of `DisplayRecord.collection`, which is the READER-FACING name. Pulled live from `okf-corpus/text/8177e2e6e6c47370/display/{bukhari/024,muslim/001}.json`: `id "hadith-bukhari-1349"` alongside `collection "Sahih al-Bukhari"`, and `id "hadith-muslim-1"` alongside `"Sahih Muslim"` — the two disagree on all 14,736 records. So the prompt printed `[H:Sahih al-Bukhari:1349]` against `MARKER_IN_PROSE = /\[H:([a-z][a-z-]*):\d{1,6}\]/`: a capital and a space, matching NOTHING, so the marker was invisible to the guard and branch (a) refused the attribution sentence for having no marker in it. Even matched, `markerToId` yields `hadith-Sahih al-Bukhari-1349`, not the id. **Every possible model output was refused**, which is the entirety of the 2026-08-15 `blocked:"bad_hadith"` with `records:2`. Fixed directionally: `markerFor(id)` is the exact inverse of `markerToId` over the grammar the guard accepts, so offered ≡ writable ≡ resolvable holds by construction rather than by two files agreeing. Probe: `bun test web/src/answer-hadith.test.ts` — "REAL corpus records reach the model as markers the guard can resolve".
+- [x] ISC-456: the fix is proven with a CONTROL ARM against real model output. **MET 2026-08-15.** Same question (`bagaimana hukum utang piutang dalam islam`), same two records (`hadith-bukhari-2201/2202`, Loans/Payment of Loans), same `SYNTHESIS_SYSTEM_PROMPT` and `ANSWER_PARAMS`, the marker construction the only variable. OLD arm offered `[H:Sahih al-Bukhari:2201]`, the model copied it verbatim, verdict `bad_hadith` — prod's exact observed state, reproduced offline. NEW arm offered `[H:bukhari:2201]`, the model copied it verbatim, verdict `ok`. The single-arm version of this probe could not have distinguished "the fix worked" from "this question was always fine". A first run using arbitrary records (bukhari 1349/1350, Zakat) had the model correctly decline to attribute in BOTH arms, which is why the records had to be topically real too.
+- [x] ISC-457: Anti: an id outside the marker grammar is never offered uncitable. **MET 2026-08-15.** `markerFor` returns `null` and the record is dropped from the offer list rather than printed with a marker that cannot clear the wall — the same RETRIEVABLE ≡ DISPLAYABLE discipline `dalil.ts` applies to records with no body, and for the same reason: a citable-but-unresolvable hadith is a prophetic attribution with nothing behind it. Probe: the "Anti: an id outside the marker grammar is DROPPED" test. Note the assertion is `not.toMatch(/\[H:[^\]]*\d/)` and not `not.toContain("[H:")` — the empty-case copy legitimately carries the literal `[H:...]` when it forbids inventing one.
+- [ ] ISC-458: the opened marker path is verified LIVE on prod. **NOT MET — needs Erik's deploy (prod deploys are his).** Everything above is offline: gates green (`bun test` 1410/0 exit 0, typecheck exit 0, `wrangler deploy --dry-run` exit 0) and the control-armed probe used the real provider, real prompt and real records, but not the real `searchDalil` results for the question. What only prod can settle: whether reranked records for a live question produce a citing answer inside the 12,000 ms client abort, and whether a hadith card actually paints. Read it off the shipped `dalil` diagnostic — `records>0` with a NON-empty `hadith` array is the state that was never once observed before this fix.
 - [x] ISC-400: Anti: the attribution deploy regressed nothing — `2:255` and `1:1` still return 200 `audio/mpeg`, `#/surah/18` still renders its full set of play buttons (110 = Al-Kahf's ayah count), `POST /api/answer` still returns `{"answer":null}`, and the served bundle is SHA-256 identical to `web/dist`.
 
 ## Test Strategy
@@ -1278,6 +1282,28 @@ Erik's call. Full rebrand, done in the right order to protect users and scriptur
   supplied.
 
 ## Changelog
+
+**2026-08-15 (late+1) — "the model declined to cite" was a claim about the model made from evidence that only ever described the prompt.**
+- **conjectured:** that retrieval works and *"the model then attributes something prophetic without a
+  resolvable `[H:…]` marker"* — so the remaining hadith job is prompt tuning, and the fix belongs in
+  `SYNTHESIS_SYSTEM_PROMPT` / `buildAnswerUserMessage` with a failing test written from captured prod prose.
+- **refuted by:** reading the live text layer instead of the prompt. `okf-corpus/text/8177e2e6e6c47370/display/bukhari/024.json`
+  carries `id "hadith-bukhari-1349"` beside `collection "Sahih al-Bukhari"`, and the offer line was built
+  from `collection`. The marker printed was `[H:Sahih al-Bukhari:1349]`, which `MARKER_IN_PROSE`
+  (`/\[H:([a-z][a-z-]*):\d{1,6}\]/`) cannot match and `markerToId` cannot resolve. A control-armed probe
+  then reproduced prod offline: same question, same records, same prompt — the old marker construction
+  yields `bad_hadith`, the new one yields `ok`, and in BOTH arms the model copied the offered marker
+  faithfully. The model was obeying rule 7 exactly as written.
+- **learned:** `blocked:"bad_hadith"` names the rule that fired, never who is at fault for it. Reading a
+  guard verdict as a statement about the model is the same error as reading a 200 as a statement about
+  content: the diagnostic was honest, and the sentence built on top of it ("the model declined") added
+  an actor the evidence never contained. The check that would have caught it is cheap and was available
+  all along — before concluding a model *chose* not to satisfy a rule, construct by hand the output that
+  WOULD satisfy it. Here that output does not exist.
+- **criterion now:** ISC-455 (offered ≡ resolvable, by inverse-function construction rather than by two
+  files agreeing), ISC-456 (control arm mandatory, and its records must be topically real — a first run
+  with irrelevant hadith had the model correctly decline in both arms and would have read as "no effect"),
+  ISC-457 (an id outside the grammar is dropped, never offered uncitable).
 
 **2026-08-13 — "The model is not reading our grounding" was a one-armed measurement, and the control reverses it.**
 - **conjectured:** that grounding is inert on the authored path — that *"every retrieval fix, curated
