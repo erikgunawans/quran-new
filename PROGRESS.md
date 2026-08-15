@@ -8,6 +8,55 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-15 (late-3) — the reader's wait and the request's deadline are now different things
+
+**Anchor:** `origin/main` `4743f2d`. **DEPLOYED** — worker `608b3e3c`, bundle `index-BN1JKt-B.js`,
+css `index-Dv3PeDUX.css`, `EDITION: "synthesis"`.
+**Gates:** bun test **1420/0** exit 0 · typecheck exit 0 · build exit 0 · `wrangler deploy` exit 0.
+**ISA 476/489.** Three deploys this session (`238e6861` → `b3bcd04f` → `608b3e3c`).
+
+### The 12-second abort is gone, and no constant was tuned to do it
+
+Erik chose the progressive answer over raising `TIMEOUT_MS`. The measurement that forced it: 14 live
+samples at 5,479-27,293 ms, median ~8,450 ms, long sparse tail. At 12 s the client discarded **3 of
+14 answers the server had finished**; at 20 s it would still discard 2 while adding eight seconds to
+everyone's wait; only 30 s discards none, at the price of a 27-second stare. Every point on that axis
+is bad — which is what said the axis was wrong.
+
+So the wait and the deadline were split three ways:
+- `FAST_ANSWER_MS` 9,000 ms bounds what the READER waits — the principled answer renders, labelled
+  *"Ini yang langsung ketemu. Aku masih menyusun jawaban yang lebih lengkap…"*, and upgrades in place.
+- `MODEL_DEADLINE_MS` 25,000 ms (Worker) bounds the REQUEST. **There was no server-side deadline at
+  all** — the browser gave up, the Worker never learned, and we paid OpenRouter in full for tokens
+  nobody would receive, on better than a fifth of eligible turns.
+- Client `TIMEOUT_MS` 12,000 → 30,000, demoted to a backstop that must stay ABOVE the Worker's
+  deadline. The Worker giving up is an honest degradation; the client giving up is a silent
+  substitution we also pay for. If they cross, that inverts.
+
+**Verified live, four criteria.** Fast turn 6,974 ms, no notice, one turn. Slow turn: `.still-composing`
+at 9,134/9,220 ms, `.msg.nur` measured **1 before, 1 during, 1 after** — upgrade in place, no second
+bubble. **Zero `AbortError`**, decisive run **19,460 ms status 200** — 7.46 s past the old cutoff.
+Ordering under a concurrent submit: `["bagaimana hukum utang piutang dalam islam:ai","aku sedih sekali hari ini:ai"]`.
+
+### The verification found a bug the tests could not
+
+Storage ordering was right; SCREEN ordering was not. With a second question submitted 4.4 s into a
+slow one, the thread rendered `me, me, nur, nur` — both answers detached from their questions.
+`mountAnswer` appended, but the skeleton it removed sat directly after its own `me` bubble, so
+`loading.replaceWith(answer)` restores adjacency and appending never could. Only reachable because the
+progressive answer makes mid-compose asking a SUPPORTED flow. **It self-healed on reload** — the
+persisted model was already correct — which is exactly how it would have survived.
+
+### The timing instrument paid for itself on its first outing
+
+One eligible turn reported `ms:{"embed":621,"vectorize":277,"text_layer":0,"rerank":498,"display":8710,"total":10106}`.
+`fetchDisplayRecords` alone spent **8,710 ms of a 10,106 ms chain**, against 72-373 ms on every prior
+observation — two parallel R2 shard GETs, no model call. Before the stage timings that turn would have
+read as "generation was slow". Filed as ISC-468 and deliberately NOT diagnosed: one outlier is not a
+pattern, and this project has twice produced a confident wrong latency conclusion from too few samples.
+
+---
+
 ## 2026-08-15 (late-2) — deployed, verified, and the latency diagnosis was wrong
 
 **Anchor:** `origin/main` `2da0366`. **DEPLOYED to prod** by Erik's instruction — `new-quranku-proxy`

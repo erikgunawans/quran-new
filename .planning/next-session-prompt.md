@@ -1,3 +1,157 @@
+# Next session — New-Quranku (checkpoint 2026-08-15 late-3)
+
+> Prepended by /wrap 2026-08-15 late-3 (anchor `4743f2d`). Supersedes the 2026-08-15 `late` anchor
+> `3e67ee1` **entirely** — that handoff's items 1, 2 and 4 are DISCHARGED (the marker fix shipped,
+> the latency premise was falsified and the abort is fixed, the theme bug is fixed). Its items 3, 5
+> and 6 survive unchanged and are carried below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-15 late-3**, anchor
+`origin/main` `4743f2d`).
+
+**Current state.** Prod DEPLOYED and verified: worker `608b3e3c`, bundle `index-BN1JKt-B.js`, css
+`index-Dv3PeDUX.css`, `EDITION: "synthesis"`, all three dalil bindings live. Gates green — `bun test`
+**1420/0** exit 0 · typecheck exit 0 · build exit 0 · `wrangler deploy` exit 0. **ISA 476/489.**
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+The hadith generator is STOPPED and must stay stopped (1,746/14,736) pending a scholarly ruling.
+
+**Three things shipped and verified live this session:** the hadith marker fix (first non-empty
+`hadith` array and a rendering card ever seen on prod), per-stage `dalil.ms` timings, the
+"Ikut sistem" white-on-white theme fix, and the progressive answer that removed the 12 s abort.
+
+---
+
+## 1. ISC-468 — the `display` stage spent 8,710 ms of a 10,106 ms chain
+
+One live turn reported `ms:{"embed":621,"vectorize":277,"text_layer":0,"rerank":498,"display":8710,"total":10106}`
+against 72-373 ms for `display` on every prior observation. That is `fetchDisplayRecords` — two R2
+shard GETs, already issued in parallel, no model call in the path.
+
+**Do NOT theorise from the code, and do not fix anything yet.** One outlier is not a pattern, and
+this project has now TWICE produced a confident wrong latency diagnosis from too few samples —
+including the one this session falsified. Collect N eligible turns first (the diagnostic ships live,
+no deploy needed: POST `/api/answer` through the real UI and read `dalil.ms` off the body), then check
+whether the shards involved (`Sahih al-Bukhari/43`, `Sahih Muslim/22`) are cold, oversized or contended.
+
+**`text_layer: 0` is NOT a finding.** It is the documented expected reading — the residual after the
+prefetch overlap absorbed it, on a module-cached warm isolate, with a Workers clock that only advances
+on I/O. A verifying agent already misread it as "that stage may not be running at all". See the
+four traps on `DalilTimings` in `worker/src/dalil.ts`.
+
+## 2. ISC-465 — `bad_hadith` still fires on ~1/3 of generations
+
+Measured: 9 completions of `apakah sedekah boleh diungkit ungkit` → 5 returned `hadith:1`, **3 returned
+`blocked:"bad_hadith"` with `records:2` and `hadith:[]`**, 1 returned `blocked:null` with no `[H:…]`
+marker at all. Before the marker fix this verdict meant "no output could have passed"; now the offered
+marker IS writable and resolvable, so it means the model had everything it needed and still emitted an
+unresolvable receipt.
+
+**This also re-opens a decision.** The no-retry break on `bad_hadith` was justified by DETERMINISM —
+both attempts would fail identically. A 1-in-3 failure rate refutes that, so a second generation now
+has evidence behind it. It costs ~6 s, which was unaffordable against a 12 s client deadline and IS
+affordable against the new 25 s Worker budget. Read the "no-retry break … STAYS" note in ISA.md before
+changing it.
+
+## 3. The critique's two remaining P0s (from `.impeccable/critique/2026-08-15T13-09-29Z__new-quranku-axiara-ai.md`, 19/40)
+
+- **The composer overprints the scripture.** `#composer-bar` floats over a scroll container that
+  reserves no space, so `Ceritakan atau tanyakan apa saja…` renders ON TOP of the Arabic of 2:156 and
+  its meaning translation at BOTH 1440 and 390, and occludes the `Terjemahan harfiah & tafsir ulama`
+  toggle. Five of six routes. Fix: reserve the space (`padding-bottom` + matching
+  `scroll-padding-bottom`, measuring `--composer-h` off the element), opaque ground on scroll routes.
+- **The synthesis lane makes claims about God and the unseen with no receipt**, and buries the AI
+  disclaimer at ~11.7px some 4,000px below the theology. Extend the receipt rule already applied to
+  the Prophet's words; move the disclaimer to a chip at the HEAD of the composed paragraph.
+  **The pronoun half of this finding is WITHDRAWN — see Constraints.**
+
+## 4. The hadith gate is narrower than the Worker suggests — Erik's decision, unchanged
+
+`gatherGrounding` (`web/src/answer.ts`) populates `entries` ONLY when `verses.length === 0`, and the
+Worker gates hadith on `entries.length > 0` — so **hadith can only fire on a turn that retrieved zero
+ayah.** Measured 7 of 19 eligible. Four plainly hadith-answerable questions are locked out for matching
+a verse. **Do NOT widen it without asking.** The gate measured 9/9 on knowledge and 1/4 on feelings,
+where it returned a rebuke to an anxious person.
+
+## 5. Audio — DENGAR on the `#/baca` shelf card (unchanged, still blocked on Erik)
+
+Decided: the button goes on the `#/baca` shelf card (`read.ts`, `indexRow`); tapping it turns that
+card's inner layer into an audio UI. **Blocked on one click:** Erik must open
+`quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ so the mounted player can be read out of
+the DOM — autoplay policy rejects programmatic clicks. **Do not loop on coordinate clicks.** The shelf
+card is a single `<a href>` wrapping its inner layer, so a nested `<button>` is invalid and would
+navigate; the card needs restructuring.
+
+## 6. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's terms,
+not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.**
+
+## 7. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every rule
+is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question` events too?
+
+---
+
+## Constraints to honor (carried forward — plus six new)
+
+- **NEW — the formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).** Formality is
+  respect in Indonesian religious speech. The critique's pronoun-matching recommendation is WITHDRAWN
+  in both the ISA and the critique snapshot. A later `$impeccable polish` reads that snapshot — do not
+  "fix" the pronouns.
+- **NEW — `TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** The Worker
+  giving up is an honest degradation; the client giving up is a silent substitution we also pay for.
+  If they cross, that inverts.
+- **NEW — a plain `bun run build` leaves a PRINCIPLED dist in `web/dist` while prod runs SYNTHESIS.**
+  Always `VITE_ANSWER_MODE=synthesis bun run build` before deploying, and check `.build-meta.json`
+  says `synthesis` AND its `gitSha` matches HEAD.
+- **NEW — deploy uploads generated content that has been sitting on disk.** The first deploy this
+  session shipped 77 `hadith-id` shards that were never live. Within scope
+  (`SHOW_MACHINE_HADITH_TEXT = true` by Erik's relay of the ustadz's ruling, `.is-ai` intact), but
+  check what an asset upload contains before assuming it is only your change.
+- **NEW — a stale `CacheStorage` entry served the OLD bundle after a deploy, twice this session.**
+  Confirm the loaded JS hash BEFORE measuring, and re-confirm after every reload.
+- **NEW — the Interceptor tab gets STOLEN mid-session** by another Chrome-driving process (Storymaker
+  on localhost:3000/3100 this time). Pin `interceptor tab switch <id>` in the SAME Bash command as
+  every eval/screenshot, and re-verify `location.href` before trusting a reading.
+- **`interceptor eval` only prints STRING returns.** Anything else prints a bare `ok`. Wrap every
+  probe in `String(...)` or `JSON.stringify(...)`.
+- **A green test can assert the defect.** The theme bug was PINNED by a passing test that had asserted
+  it since it was written, and two files held OPPOSITE policies citing the same failure as
+  justification. Force-red every new test; a break must fail the RIGHT test and only it.
+- **A test can pass on `null === null`.** The replacement theme test "boot and settings agree" passed
+  under the old policy too, vacuously. Force-red found it; assert on a concrete value.
+- **A reload that heals a bug is a reason to test BEFORE reloading**, not evidence the bug is minor.
+  Both the theme desync and the thread-ordering bug self-healed on refresh, which is how each survived.
+- **An instrument can agree with itself regardless of the world.** Before re-running a probe to measure
+  a change, ask what it would report if the feature were reverted.
+- **A probe with no control cannot distinguish "it ignored our input" from "our input was wrong."**
+  Two one-armed probes have now each blocked a build on a false diagnosis.
+- **Check the EXIT CODE, not the tail** — and the preflight hook BLOCKS a gate piped into head/tail.
+  Redirect to a file, echo `$?`, then read the file. `bun run build` exits 0 when the CSS parser
+  silently DISCARDS a rule, so also grep the SHIPPED output for the rule itself.
+- **Three numbers, not one: disk ≠ dist ≠ live.** Generated content is baked in at BUILD time. A
+  missing asset returns `200 text/html`, so key on `content-type`, never on status.
+- **A restored thread replays a PAST turn as a fresh one.** Clear `localStorage` and count `#thread`
+  turns before AND after.
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- **Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.**
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736 pending a ruling.
+
+## Open items waiting on me (the user)
+
+- **The ISC-465 retry decision** — re-enable a second generation on `bad_hadith` now that determinism
+  no longer justifies the break? It is affordable against the new 25 s Worker budget.
+- **The audio DENGAR click** (item 5) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 6) — a rights call, not a scholarly one.
+- **Ustadz Ahmad has still never signed off on AI-authored answers.** Recorded as Erik's knowing call.
+  `EDITION="synthesis"` is live on prod and the app authors prose today.
+- **The composer-overprint fix** (item 3) touches five routes — confirm scope before a redesign.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-15 late)
 
 > Prepended by /wrap 2026-08-15 late (anchor `3e67ee1`, docs+ISA commit on top). Supersedes the
