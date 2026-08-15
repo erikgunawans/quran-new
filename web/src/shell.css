@@ -999,6 +999,30 @@
   .tematik-grid { column-count: 2; flex: 0 0 auto; overflow: visible; }
   .tematik-grid .tema-card { height: auto; min-height: 132px; }
 }
+
+/* …AND THE MOMENT IT SCROLLS, IT HAS TO CLEAR THE COMPOSER AGAIN.
+ *
+ * `:root[data-tematik] … .app { padding-bottom: 16px }` above is unconditional, and it is only
+ * CORRECT while `.tematik-index` holds its `height: calc(100dvh - 40px)` — a wall that sizes itself
+ * to stop above the docked composer is already paying the clearance, so the generic reservation
+ * would be charged twice (the same trade `.app:has(.baca-clip)` makes on the Al Qur'an shelf).
+ * The rule directly above releases that height at ≤700px, which silently invalidates the premise:
+ * the wall becomes ordinary scrolling content, and 16px cannot clear a docked composer.
+ *
+ * MEASURED 2026-08-16 at 390x844 on `#/peta`, hit-tested against `form#composer`: at the BOTTOM of
+ * the scroll — the position a reader cannot scroll past — two theme cards were covered (`Sosial`
+ * 15px, `38 ayat` 11px), and at rest the Arabic `الأسرة` / `محمد` and the card reading
+ * "Muhammad Shallallahu alaihi wasallam" sat under the bar. `#/peta` was the ONLY route of nine
+ * with anything covered at the bottom of its scroll, at either 1440x900 or 390x844.
+ *
+ * The acceptance criterion is AT-BOTTOM, not at-rest. Every healthy route overlaps the composer at
+ * rest (`#/hadis` 4 elements, `#/fikih` 1, `#/doa` 1, `#/surah/18` 1) because content passes under a
+ * docked bar as you scroll — that is the pattern working, and the reader scrolls it clear. What must
+ * never happen is content stranded under the bar at the end of the scroll. With this rule `#/peta`
+ * goes 2 → 0 at the bottom and matches every other route. */
+@media (max-width: 700px) {
+  :root[data-tematik]:not([data-landing]) .qk-panel-body .app { padding-bottom: var(--composer-clear); }
+}
 @media (max-width: 720px)  { .tematik-grid { column-count: 2; } }
 @media (max-width: 440px)  { .tematik-grid { column-count: 1; } }
 
