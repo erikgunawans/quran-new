@@ -87,6 +87,47 @@ composer, with no scroll position that clears it.**
 back worse (1 → 3 occluded) because the progressive answer upgraded the thread between the two reads —
 different content, invalid comparison. Re-run it against a frozen thread.
 
+> ### CORRECTION, same session, a few hours later — EVERYTHING ABOVE IN THIS SECTION IS WRONG
+>
+> The section above is left standing verbatim because the mistake is the lesson. **The composer
+> overprint does not reproduce. There is no defect here and no fix was written.** The re-run against a
+> frozen thread falsified my own finding, not the critique's scope.
+>
+> **What was wrong with the instrument.** It compared each element's raw `getBoundingClientRect()`
+> against the full-width `#composer-bar`. Two errors compounded:
+> 1. **No clipping by scrolling ancestors.** A child scrolled out of view inside `#intro-body.sp-scroll`
+>    still reports an unclipped rect, so content that was not on screen at all counted as "occluded".
+>    The Arabic `موضوعات السورة` I reported at y 628 lives in a scroller whose box ends at y 606.
+> 2. **Wrong occluder.** `#composer-bar` is `pointer-events: none` and `background: transparent`, 1280 px
+>    wide. The only thing that PAINTS is `form#composer` — 389 px wide, centred (x 575–964), 61 px tall.
+>    Measuring against the wrapper inflated the occluding area by more than 3×.
+>
+> **What the corrected instrument says.** Clip each rect by every scrolling ancestor, intersect with the
+> FORM's box, then hit-test that overlap with `elementFromPoint`. On identical frozen content (7,174
+> chars, verified byte-stable across both arms):
+>
+> | arm | `.app` padding-bottom | covered |
+> |---|---|---|
+> | baseline, as shipped | 120 px | **0** |
+> | counterfactual, reservation removed | 0 px | **1** (32 px overlap) |
+>
+> The counterfactual is the part that matters: it proves the probe CAN see an occlusion, so the zero in
+> the baseline is a measurement and not a blind spot. An earlier version of the corrected probe returned
+> 0 for BOTH arms — it hit-tested at each element's left edge, which for a wide chat bubble falls outside
+> the centred form. That was caught only by running the counterfactual.
+>
+> **`--composer-clear` already works, and `.qk-panel-body`'s `padding-bottom: 0` is a red herring.** The
+> reservation lives on `.app` (`shell.css:337`, `clamp(120px, 13vh, 160px)`), not on the panel, and
+> `.surah-split` subtracts the same token to size itself. Both hold.
+>
+> **Scope falsified:** 1280×720 on `#/surah/18` (split) and `#/tanya` (chat, content scrolled to the
+> bottom); 390×844 via CDP `emulate` on `#/tanya` in both the thread and the landing state. Zero covered
+> in every one. Not separately tested: 1440 width, and `#/peta` / `#/hadis` / `#/fikih` / `#/doa`.
+>
+> **The likely status of the critique's P0 (a): the same artifact.** It was an automated dual-agent
+> report, and naive rect-overlap against the transparent wrapper reproduces its exact wording. Do not
+> re-open this from the critique snapshot alone — re-run the counterfactual first.
+
 ---
 
 ## 2026-08-15 (late-3) — the reader's wait and the request's deadline are now different things
