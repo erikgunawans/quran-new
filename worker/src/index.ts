@@ -48,7 +48,8 @@ import {
   type DalilTimings,
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
-import { callChatModel, resolveProvider, type ProviderName } from "./providers.ts";
+import { MAX_ATTEMPTS, nextAttemptBudget } from "./answer-retry.ts";
+import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
   recordEvent,
@@ -680,11 +681,23 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   let blocked: AnswerViolationKind | null = null;
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
+    // ONE BUDGET FOR THE TURN, not one per call. `callChatModel` defaults to a fresh
+    // `AbortSignal.timeout(MODEL_DEADLINE_MS)` on every call and this loop used to pass no
+    // `deadlineMs`, so two attempts could spend 25 s each while the client's backstop sits at 30 s —
+    // the second answer generated in full, billed in full, and discarded by a browser that had
+    // already given up. That is the ISC-466 failure with the sides swapped. Single generations were
+    // measured at 26.7 / 27.4 / 28.0 / 31.1 s on 2026-08-16, so this is a reachable state, not a
+    // theoretical one. The deadline is read ONCE here and spent down by both attempts.
+    const turnDeadline = Date.now() + MODEL_DEADLINE_MS;
     // One retry on a guard reject (a fresh generation usually clears it), exactly like compose. A
     // model error/timeout is caught below and NOT retried. Citations are validated against the real
     // mushaf (isRealAyah), not the grounding — the model may reach for any ayah, just not a fake one.
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const candidate = (await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, ANSWER_PARAMS))?.trim();
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+      const deadlineMs = nextAttemptBudget({ attempt, blocked, remainingMs: turnDeadline - Date.now() });
+      if (deadlineMs === null) break;
+      const candidate = (
+        await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, { ...ANSWER_PARAMS, deadlineMs })
+      )?.trim();
       if (!candidate) continue;
       // The third argument is the REAL hadith-grounding predicate as of this cycle (ISC-434/435).
       //
@@ -707,28 +720,26 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       }
       // Last attempt wins the diagnosis: report the rule that actually stopped the final candidate.
       blocked = verdict.violations[0]?.kind ?? null;
-      // DO NOT SPEND A GENERATION THAT CANNOT SUCCEED.
+      // THE `bad_hadith` BREAK THAT USED TO LIVE HERE IS GONE (2026-08-16, Erik's call), and this
+      // note exists so it is not restored from the reasoning that justified it.
       //
-      // The retry above exists because most guard rejections are flukes — a fresh generation usually
-      // drops the stray Arabic or the verdict. The break stays after ISC-434/435, for a reason that
-      // has MOVED rather than disappeared. It used to be determinism: with no marker syntax and no
-      // retrieval, both attempts failed identically, so the second was pure waste. Now the fix is
-      // upstream — the model is handed the hadith and taught the receipt on the first attempt — so a
-      // `bad_hadith` verdict means that first attempt already had everything it needed and chose an
-      // unbacked attribution anyway. Spending a second ~6s generation on that is a bet with no
-      // evidence behind it, and the latency argument below has not changed at all.
+      // It read: "a `bad_hadith` verdict means the first attempt already had everything it needed —
+      // the hadith and the marker syntax — and chose an unbacked attribution anyway, so a second ~6s
+      // generation is a bet with no evidence behind it." That rests on the failure being DETERMINISTIC
+      // for the turn. Measured against prod across 25 live eligible turns over 10 distinct questions,
+      // every one `eligible:true, offered:2, records:2, failed:null`: `bad_hadith` fired on **12 of
+      // 25**, and the SAME question with identical grounding produced BOTH outcomes —
+      // `apakah sedekah boleh diungkit ungkit` ran bad, bad, ok, bad, ok. It is variance, so the
+      // second generation now has exactly the evidence the break said it lacked.
       //
-      // Measured, and this was a live defect rather than a tidy-up: one generation runs ~4s (a passing
-      // control measured 3772ms) and a verbose hadith answer ~6s, so two of them exceeded the browser's
-      // 12s `TIMEOUT_MS` in `answer-live.ts` — observed aborting at 12126ms. The client then treated the
-      // abort as an ABSENCE, which it is, and rendered the corpus-gap copy. So the pointer built for
-      // exactly these questions was unreachable for exactly these questions: the ones that trip the
-      // hadith wall are the ones that pay for two generations.
+      // The break's OTHER leg was latency: two ~6s generations against the browser's 12s `TIMEOUT_MS`,
+      // observed aborting at 12,126 ms and rendering the corpus-gap copy over a refusal. That leg
+      // expired with ISC-466 — `FAST_ANSWER_MS` (9 s) now bounds what the READER waits and the answer
+      // upgrades in place, so a retry costs no stare, and `TIMEOUT_MS` is a 30 s backstop.
       //
-      // Returning after the first rejection lands the answer near ~6s, inside the budget, and makes
-      // these questions FASTER rather than slower. Raising `TIMEOUT_MS` instead would have treated the
-      // symptom and left a reader waiting 25s for a refusal — a worse product either way.
-      if (blocked === "bad_hadith") break;
+      // What replaces the break is the SHARED BUDGET at the top of this loop, which is the honest
+      // form of the same concern: a retry is refused when it cannot finish inside what the turn has
+      // left (`MIN_RETRY_MS`), rather than refused by name.
     }
   } catch {
     // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,
