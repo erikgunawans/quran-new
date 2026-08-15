@@ -8,6 +8,58 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-16 (late) — the disclosure moved above the theology; the receipt rule cannot ship as written
+
+**Anchor:** `origin/main` `b83ce60`. **DEPLOYED** — worker `c357ea7e`, bundle `index-BROZrzBm.js`,
+css `index-CGkeJ2q-.css`. Three deploys this session (`20b04277` → `66254521` → `384a6f9d` → `c357ea7e`).
+**Gates:** bun test **1438/0** exit 0 · typecheck exit 0 · worker tsc exit 0 · build exit 0.
+
+### ISC-464(a) — one real overprint, found only by sweeping all nine routes
+
+`#/peta` at 390px was the ONLY route of nine (× 1440×900 and 390×844) with content stranded at the
+BOTTOM of its scroll. Cause: `padding-bottom: 16px` on the tematik route is unconditional but only
+correct while `.tematik-index` keeps `height: calc(100dvh - 40px)`, which the `max-width: 700px` block
+releases. Fixed; verified 0 covered on all nine routes at both widths, probe live on every one.
+
+**Acceptance is AT-BOTTOM, not at-rest, and that came from a control.** Every healthy route overlaps
+the composer at rest (`#/hadis` 4, `#/fikih` 1, `#/doa` 1, `#/surah/18` 1) with at-bottom 0. Content
+passing under a docked bar mid-scroll is the pattern working; content stranded there is the defect.
+
+### ISC-464(b) disclaimer — the CSS comment had been true on paper and false in the file
+
+Before: the only disclosure was the footer note at **11.68px** against 17.5px prose, **1,730px** below
+the answer's first sentence, on a SHORT answer. After: a chip `Disusun AI — bukan fatwa` **45px ABOVE**
+the first sentence, and both chip and note at 13.92px.
+
+`styles.css` had said all along that this label "must be readable, not fine print, since it is the one
+thing telling the reader this answer is machine-made and not a fatwa" — while `.ai-note` overrode only
+colour and border. The intent was recorded and never implemented.
+
+Order was untestable: `aiHtml` returned `body + tail + AI_NOTE` inside `main.ts`, which exports only
+`surahMeta` and `app` and which no test imports (importing boots the app). Extracted to
+`answer-disclosure.ts` so the rule has a seam. Verified live in all THREE theme states — including the
+no-attribute + `prefers-color-scheme: light` combination that produced the ISC-462 white-on-white.
+
+**The contrast maths was wrong and a screenshot caught it.** `canvas.fillStyle` does not parse
+`oklch()`, so the regex read the oklch components as RGB and returned "colours" like `[1,0,163]` with
+confident 1.01 contrast ratios. Every number from that probe was discarded. Screenshots settled it.
+
+### ISC-464(b) receipt — measured on real prod prose, and it cannot ship as prescribed
+
+The handoff says "extend the receipt rule already applied to the Prophet's words". Two full prod
+answers, 8 paragraphs, captured live rather than composed: **every one of the 8 paragraphs carries at
+least one unattributed claim about God or the unseen.** Including *"Allah tidak pernah bosan menerima
+hamba-Nya yang kembali"* — a hadith, stated as the app's own words — and *"semakin besar dosa, semakin
+besar pula peluang untuk merasakan indahnya ampunan-Nya"*, which is not sourceable to anything.
+
+A receipt guard shipped as-is refuses **~100%** of answers, not 48% like `bad_hadith`. NOT BUILT.
+The model demonstrably can cite (QS 4:27, 3:135, 29:2-3, 2:155-156 all quoted verbatim with refs); it
+treats pastoral assertion as a different act from quotation. Path: prompt first, re-measure the
+residue, guard what is left. Blocked on Erik — whether the app may assert things about God without
+citation is theological, and the ustadz has never signed off on AI-authored answers at all.
+
+---
+
 ## 2026-08-16 — the retry was right, and shipping it broke something the rate alone would have hidden
 
 **Anchor:** `origin/main` `a8218de`. **DEPLOYED** — worker `20b04277` then `66254521`, bundle
