@@ -127,6 +127,28 @@ different content, invalid comparison. Re-run it against a frozen thread.
 > **The likely status of the critique's P0 (a): the same artifact.** It was an automated dual-agent
 > report, and naive rect-overlap against the transparent wrapper reproduces its exact wording. Do not
 > re-open this from the critique snapshot alone — re-run the counterfactual first.
+>
+> ### SECOND CORRECTION, same session — the sweep found a REAL one
+>
+> "Does not reproduce" was true for the routes tested above and **wrong as a general claim**. Sweeping
+> all NINE routes at 1440x900 and 390x844 found **`#/peta` at 390 px** with content stranded at the
+> BOTTOM of its scroll: `Sosial` 15px, `38 ayat` 11px, and at rest the Arabic `الأسرة` / `محمد` and
+> the card reading "Muhammad Shallallahu alaihi wasallam". Two routes are not nine, and the one that
+> mattered was not among them.
+>
+> Cause: `:root[data-tematik] ... .app { padding-bottom: 16px }` (`shell.css:956`) is unconditional and
+> only correct while `.tematik-index` keeps `height: calc(100dvh - 40px)`. The `@media (max-width:700px)`
+> block releases that height — "let the page scroll it" — and silently invalidates the premise.
+> Fixed in `acf3e8c`, deployed as worker `384a6f9d`: below 700px the route takes `--composer-clear`.
+>
+> **Verified on the deployed build, and the stale-cache trap bit again** — first load after deploy
+> served `index-Dv3PeDUX.css` with `appPB: 16px`. Cleared `CacheStorage`, reloaded, confirmed
+> `index-C-v9GiGu.css`, then measured: all 9 routes x both widths `atBottom: 0`, probe live on every
+> one; `#/peta` 120px at 390, correctly still 16px at 1440 and 760.
+>
+> **Acceptance is AT-BOTTOM, not at-rest** — from a control: every healthy route overlaps at rest
+> (`#/hadis` 4, `#/fikih` 1, `#/doa` 1, `#/surah/18` 1) with `atBottom: 0`. The sidebar prayer widget
+> at 760px overlaps 35px at rest and scrolls clear — also not a defect.
 
 ---
 
