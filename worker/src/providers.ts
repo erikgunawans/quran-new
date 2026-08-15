@@ -60,14 +60,34 @@ interface ChatResponse {
  * falls back to the deterministic path, so a down model or a bad key degrades the experience, never
  * breaks it.
  */
+/**
+ * The Worker's OWN deadline on a generation, in ms.
+ *
+ * THERE WAS NONE UNTIL 2026-08-15, and that is what made the client's abort expensive. The browser
+ * gave up at `TIMEOUT_MS` and dropped the response on the floor; the Worker never learned, kept the
+ * upstream request open, and paid OpenRouter in full for tokens no reader would ever see. Measured
+ * that day: generation ran 5,479-27,293 ms for identical payloads, and 3 of 14 turns exceeded the
+ * client's 12,000 ms — so better than a fifth of eligible turns were bought and binned.
+ *
+ * SET BELOW THE CLIENT'S BACKSTOP ON PURPOSE (25s here, 30s there). Whoever gives up first decides
+ * what the reader sees, and it must be the side that can still answer usefully: when this fires the
+ * Worker returns its own honest null and the app renders the principled fallback, which is a
+ * DEGRADATION. When the client fires first the reader gets a silent substitution and we pay for the
+ * privilege, which is a defect. Keep this strictly the smaller number.
+ */
+export const MODEL_DEADLINE_MS = 25_000;
+
 export async function callChatModel(
   cfg: ProviderConfig,
   system: string,
   user: string,
-  opts: { temperature: number; maxTokens: number; reasoning?: "none" },
+  opts: { temperature: number; maxTokens: number; reasoning?: "none"; deadlineMs?: number },
 ): Promise<string> {
   const res = await fetch(cfg.url, {
     method: "POST",
+    // Cancels the UPSTREAM request, not just our wait for it — which is the whole point. An
+    // un-signalled fetch that we simply stop awaiting keeps running and keeps billing.
+    signal: AbortSignal.timeout(opts.deadlineMs ?? MODEL_DEADLINE_MS),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${cfg.apiKey}`,

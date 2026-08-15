@@ -150,6 +150,38 @@ export function rememberTurn(turn: Turn): void {
   write([...loadThread(), turn]);
 }
 
+/**
+ * Swap a remembered turn for the one it became, IN PLACE.
+ *
+ * For the progressive answer (main.ts): the fast principled turn is remembered as soon as it is
+ * shown, so the conversation keeps its order even if the reader asks something else while the
+ * composed answer is still coming. When it lands, this replaces the placeholder where it sits.
+ *
+ * WHY NOT AN INDEX. `write()` applies `slice(-MAX_TURNS)`, so a stored position is only stable until
+ * the cap evicts from the front — an index captured before eviction would later point at somebody
+ * else's turn and overwrite it. Matching on the serialized value has no such window.
+ *
+ * WHY THE LAST MATCH. Ask the same question twice and both placeholders serialize identically; the
+ * later one is the one still on screen waiting to be upgraded.
+ *
+ * A MISS IS A NO-OP, DELIBERATELY. The placeholder is gone when the reader cleared the thread, when
+ * it aged past the TTL, or when the cap evicted it — in all three the reader has already said or
+ * shown that this turn is not wanted, and re-adding it would resurrect a conversation somebody
+ * deleted. Silence is the only correct behaviour here.
+ */
+export function replaceTurn(previous: Turn, next: Turn): void {
+  const turns = loadThread();
+  const want = JSON.stringify(previous);
+  for (let i = turns.length - 1; i >= 0; i--) {
+    if (JSON.stringify(turns[i]) === want) {
+      const updated = turns.slice();
+      updated[i] = next;
+      write(updated);
+      return;
+    }
+  }
+}
+
 /** Burn it. Called by the user pressing "Hapus percakapan", and by expiry. */
 export function clearThread(): void {
   try {

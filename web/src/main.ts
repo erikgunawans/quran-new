@@ -39,7 +39,15 @@ import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./t
 import { tafsirTierHtml } from "./tafsir-tier.ts";
 import { bindLandingCards } from "./landing-cards.ts";
 import { migrateStorage } from "./migrate-storage.ts";
-import { clearThread, hasThread, loadThread, rememberTurn, turnFromHits, type Turn } from "./thread.ts";
+import {
+  clearThread,
+  hasThread,
+  loadThread,
+  rememberTurn,
+  replaceTurn,
+  turnFromHits,
+  type Turn,
+} from "./thread.ts";
 import { esc, findPlayButton, fromShard, resetPlayButton, setPlayButton, verseEl, type VerseCard } from "./verse.ts";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -130,6 +138,30 @@ function skeleton(): HTMLElement {
   ]);
   return el;
 }
+
+/**
+ * How long the reader waits for a COMPOSED answer before being given the principled one instead.
+ *
+ * Just past the measured median (≈8,450 ms on prod, 2026-08-15), so the fast path stays rare enough
+ * to feel like an exception rather than the norm, and the common case still gets the better answer
+ * with no interruption. This is a WAIT, not a deadline: the composed answer keeps coming underneath
+ * and upgrades the turn in place when it lands. Nothing is cancelled here — cancelling is the
+ * Worker's job (`MODEL_DEADLINE_MS`, 25 s) with the client backstop above it (`TIMEOUT_MS`, 30 s).
+ */
+const FAST_ANSWER_MS = 9000;
+
+/**
+ * The line under a fast answer that says a fuller one is still coming.
+ *
+ * IT MUST BE A CLAIM ABOUT US, NOT ABOUT THE CORPUS. The old behaviour swapped in this same
+ * principled turn silently, so a reader who waited 12 seconds was shown "aku belum menemukan ayat
+ * yang cocok" — a statement about what the Qur'an contains — when the truth was that we ran out of
+ * patience. That is the same false-claim failure `answer-blocked` exists to prevent, arriving by a
+ * different door. `aria-live="polite"` so a screen-reader user is told too, rather than discovering
+ * later that the answer changed under them.
+ */
+const stillComposingNotice = (): string =>
+  `<p class="still-composing" aria-live="polite">Ini yang langsung ketemu. Aku masih menyusun jawaban yang lebih lengkap…</p>`;
 
 // Someone who set "reduce motion" is telling the OS that animated scrolling makes them unwell — a
 // vestibular need, not a preference. The CSS already honours it everywhere; the JS smooth-scrolls did
@@ -620,6 +652,29 @@ async function ask(question: string) {
   const answer = document.createElement("div");
   answer.className = "msg nur";
 
+  /**
+   * Put the answer on screen, exactly once.
+   *
+   * IDEMPOTENT BECAUSE THERE ARE NOW THREE WAYS OUT of the block below — synthesis settled fast,
+   * synthesis went long and the fast answer shipped, or nothing synthesised at all — and the error
+   * path still falls through to the tail. A second call after the progressive path has already
+   * mounted would re-run the composing floor and re-append a node that is already in the thread.
+   */
+  let mounted = false;
+  const mountAnswer = async (): Promise<void> => {
+    if (mounted) return;
+    mounted = true;
+    const MIN_COMPOSING_MS = 260;
+    const elapsed = Date.now() - composingStarted;
+    if (elapsed < MIN_COMPOSING_MS) {
+      await new Promise((r) => setTimeout(r, MIN_COMPOSING_MS - elapsed));
+    }
+    loading.remove();
+    thread.append(answer);
+    showClearControl();
+    scrollDown();
+  };
+
   // ── before anything else ──────────────────────────────────────────────────
   //
   // Crisis check runs FIRST — before reference parsing, before retrieval, before Nur gets to be
@@ -678,74 +733,146 @@ async function ask(question: string) {
     // answer from what retrieval found. On ANY failure — nothing to ground, model down, or the guard
     // rejected the output — synthesizeAnswer returns null and we fall straight through to the
     // principled resolution below, so this edition is never worse than the trustworthy one.
-    let synthesized = false;
-    // Remembered, not acted on immediately — see the `blocked` branch below.
+    // Remembered, not acted on immediately — see `applyAi`.
     let blockedBy: AnswerViolationKind | null = null;
+
+    /**
+     * Fold a settled synthesis result into a turn, or null to fall through to the principled chain.
+     *
+     * Extracted so the PROGRESSIVE path can apply the identical rules when the answer arrives late.
+     * When a composed answer arrives must not change how it is judged.
+     */
+    const applyAi = (ai: Awaited<ReturnType<typeof synthesizeAnswer>>): Turn | null => {
+      if (ai?.kind === "answer") return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs], hadith: [...ai.hadith] };
+      // ONLY the hadith rule earns the Hadis pointer, because only for it is the pointer TRUE: the
+      // kind of source that answers the question is a hadith collection, and we have one. Sending a
+      // fiqh question there would be a wrong turn, not a modest one.
+      if (ai?.kind === "blocked" && ai.by === "bad_hadith") return { q, kind: "hadith-defer" };
+      // Every OTHER refusal (`fatwa`, `arabic`, `bad_ref`) keeps its fall-through, because falling
+      // through is usually the better answer: if retrieval found real verses, showing them beats an
+      // apology. What must not survive is the fall-through landing on `silence` — "aku belum
+      // menemukan ayat yang cocok" is a claim about the corpus, and for a blocked fiqh question it is
+      // simply false. So the block is remembered and only swapped in at the end, if nothing else
+      // filled the turn. Narrower than replacing the copy outright, and it keeps the good outcomes.
+      if (ai?.kind === "blocked") blockedBy = ai.by;
+      return null;
+    };
+
+    /**
+     * The turn the PRINCIPLED app would show — the chain synthesis falls through to.
+     *
+     * Extracted unchanged so it can run in EITHER order: after synthesis (as it always did), or
+     * ahead of it to produce the fast answer. Same lanes, same precedence, same copy.
+     */
+    const resolvePrincipled = async (base: Turn): Promise<Turn> => {
+      let t = base;
+      // Knowledge fallback. A topic/theology question ("siapakah Allah?") lands on the feeling path's
+      // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
+      // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
+      // FACTUAL-FORM FIRST. The block below runs on the feeling path's silence, which protects a real
+      // feeling from being hijacked by a topic match. That guard only ever ran one way, though, and
+      // the reverse hijack was wide open: 94 feeling keywords are also subjects the index covers, so
+      // "apa itu zakat" answered with 2:261 (the reward of charity) and never reached Ibadah's eight
+      // entries on zakat. A question in factual form therefore gets the knowledge lanes FIRST, and
+      // still falls through to whatever feelings found if they hold nothing.
+      if (!referral && ref.kind === "not-a-ref" && looksFactual(q)) {
+        const aq = matchAqidah(q);
+        if (aq) {
+          t = { q, kind: "aqidah", id: aq.id };
+        } else {
+          const knowledge = await retrieveKnowledge(q);
+          // Pointer and silence BEAT a feeling match, but only for shapes where a feeling answer
+          // would be wrong rather than merely second-best — see knowledgeOnly(). How-to questions
+          // keep their fall-through, because scripture often does answer "how do I do X".
+          if (knowledge && knowledge.entries.length > 0) t = { q, kind: "knowledge", slug: knowledge.slug };
+          else if (knowledgeOnly(q)) t = knowledge ? { q, kind: "knowledge", slug: knowledge.slug } : { q, kind: "silence" };
+        }
+      }
+
+      if (t.kind === "silence") {
+        // Reviewed-aqidah first: a broad definitional question ("siapakah Allah?") gets the ustadz's
+        // own reviewed answer when one exists. Until the review sheet is filled, this returns null and
+        // the knowledge path's honest topic pointer stands — so the lane is pure upside, never a
+        // regression.
+        const aq = matchAqidah(q);
+        if (aq) {
+          t = { q, kind: "aqidah", id: aq.id };
+        } else {
+          const knowledge = await retrieveKnowledge(q);
+          if (knowledge) t = { q, kind: "knowledge", slug: knowledge.slug };
+        }
+      }
+
+      // LAST WORD on a refusal: the wall stopped an answer and every fallback came up empty too, so the
+      // only thing left to render was the corpus-gap copy — which would state, falsely, that nothing in
+      // the corpus matched. Swap it for copy that makes no claim about the corpus at all. Ordered after
+      // every fallback on purpose: a block that still found verses or a reviewed entry keeps them.
+      if (blockedBy && t.kind === "silence") t = { q, kind: "answer-blocked" };
+      return t;
+    };
+
     if (isSynthesis() && ref.kind === "not-a-ref" && corpus && !referral) {
-      const ai = await synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
-      if (ai?.kind === "answer") {
-        turn = { q, kind: "ai", prose: ai.prose, refs: [...ai.refs], hadith: [...ai.hadith] };
-        synthesized = true;
-      } else if (ai?.kind === "blocked" && ai.by === "bad_hadith") {
-        // ONLY the hadith rule earns the Hadis pointer, because only for it is the pointer TRUE: the
-        // kind of source that answers the question is a hadith collection, and we have one. Sending a
-        // fiqh question there would be a wrong turn, not a modest one.
-        turn = { q, kind: "hadith-defer" };
-        synthesized = true;
-      } else if (ai?.kind === "blocked") {
-        // Every OTHER refusal (`fatwa`, `arabic`, `bad_ref`) keeps its fall-through, because falling
-        // through is usually the better answer: if retrieval found real verses, showing them beats an
-        // apology. What must not survive is the fall-through landing on `silence` — "aku belum
-        // menemukan ayat yang cocok" is a claim about the corpus, and for a blocked fiqh question it is
-        // simply false. So the block is remembered and only swapped in at the end, if nothing else
-        // filled the turn. Narrower than replacing the copy outright, and it keeps the good outcomes.
-        blockedBy = ai.by;
+      // THE READER'S WAIT AND THE REQUEST'S DEADLINE ARE DIFFERENT THINGS. Measured on prod
+      // 2026-08-15: generation ran 5,479-27,293 ms for identical payloads, median ~8,450 ms, and the
+      // old 12,000 ms client abort discarded 3 of 14 answers the server had already finished — each
+      // one silently replaced by the principled turn, so the reader was shown something that was not
+      // the answer to their question and was never told. No value of that constant fixed both halves:
+      // 20,000 ms still discarded 2 of 14 while adding eight seconds to everyone's wait, and only
+      // 30,000 ms discarded none, at the price of a 27-second stare.
+      //
+      // So the wait is bounded here and the deadline is bounded elsewhere. At FAST_ANSWER_MS the
+      // reader gets the principled answer — real, cited, and LABELLED as the fast one — while the
+      // composed answer keeps coming underneath. When it lands the turn is upgraded in place. Nobody
+      // waits past ~9 s, and nothing the server finished is thrown away.
+      const pending = synthesizeAnswer(corpus, q, modelThemes, liveAnswerModel);
+      const raced = await Promise.race([
+        pending.then((v) => ({ late: false as const, v })),
+        new Promise<{ late: true }>((r) => setTimeout(() => r({ late: true }), FAST_ANSWER_MS)),
+      ]);
+
+      if (!raced.late) {
+        const composed = applyAi(raced.v);
+        turn = composed ?? (await resolvePrincipled(turn));
+        answer.innerHTML = await renderTurn(turn);
+        announceTurn(turn);
+        rememberTurn(turn);
+        await mountAnswer();
+        return;
       }
+
+      // ── the fast answer ──────────────────────────────────────────────────
+      const fast = await resolvePrincipled(turn);
+      answer.innerHTML = (await renderTurn(fast)) + stillComposingNotice();
+      announceTurn(fast);
+      // Remembered NOW, in position, so a second question asked while this one is still composing
+      // cannot reorder the conversation. `replaceTurn` swaps it where it sits when the upgrade lands.
+      rememberTurn(fast);
+      await mountAnswer();
+
+      // The upgrade is deliberately NOT awaited — `ask()` returns, the composer is free, and the
+      // reader can carry on. Everything after this point must therefore assume the world moved.
+      void pending
+        .then(async (v) => {
+          // The reader cleared the thread, or navigated somewhere that tore this node out. An upgrade
+          // now would resurrect a conversation somebody deleted.
+          if (!answer.isConnected) return;
+          const composed = applyAi(v);
+          if (!composed) return; // nothing better arrived — the fast answer WAS the answer
+          answer.innerHTML = await renderTurn(composed);
+          announceTurn(composed);
+          replaceTurn(fast, composed);
+          scrollDown();
+        })
+        .catch(() => {
+          // The request died or hit the 30 s backstop. The fast answer is already on screen and is a
+          // real answer, so there is nothing to tell the reader — but the "still composing" line is
+          // now a lie and has to go.
+          if (answer.isConnected) answer.querySelector(".still-composing")?.remove();
+        });
+      return;
     }
 
-    // Knowledge fallback. A topic/theology question ("siapakah Allah?") lands on the feeling path's
-    // silence — but our KB may hold the scholar's own entries on it. Surface those (verbatim, cited)
-    // instead of nothing. Runs ONLY after feelings came up empty, so a real feeling is never hijacked.
-    // FACTUAL-FORM FIRST. The block below runs on the feeling path's silence, which protects a real
-    // feeling from being hijacked by a topic match. That guard only ever ran one way, though, and
-    // the reverse hijack was wide open: 94 feeling keywords are also subjects the index covers, so
-    // "apa itu zakat" answered with 2:261 (the reward of charity) and never reached Ibadah's eight
-    // entries on zakat. A question in factual form therefore gets the knowledge lanes FIRST, and
-    // still falls through to whatever feelings found if they hold nothing.
-    if (!synthesized && !referral && ref.kind === "not-a-ref" && looksFactual(q)) {
-      const aq = matchAqidah(q);
-      if (aq) {
-        turn = { q, kind: "aqidah", id: aq.id };
-      } else {
-        const knowledge = await retrieveKnowledge(q);
-        // Pointer and silence BEAT a feeling match, but only for shapes where a feeling answer
-        // would be wrong rather than merely second-best — see knowledgeOnly(). How-to questions
-        // keep their fall-through, because scripture often does answer "how do I do X".
-        if (knowledge && knowledge.entries.length > 0) turn = { q, kind: "knowledge", slug: knowledge.slug };
-        else if (knowledgeOnly(q)) turn = knowledge ? { q, kind: "knowledge", slug: knowledge.slug } : { q, kind: "silence" };
-      }
-    }
-
-    if (!synthesized && turn.kind === "silence") {
-      // Reviewed-aqidah first: a broad definitional question ("siapakah Allah?") gets the ustadz's
-      // own reviewed answer when one exists. Until the review sheet is filled, this returns null and
-      // the knowledge path's honest topic pointer stands — so the lane is pure upside, never a
-      // regression.
-      const aq = matchAqidah(q);
-      if (aq) {
-        turn = { q, kind: "aqidah", id: aq.id };
-      } else {
-        const knowledge = await retrieveKnowledge(q);
-        if (knowledge) turn = { q, kind: "knowledge", slug: knowledge.slug };
-      }
-    }
-
-    // LAST WORD on a refusal: the wall stopped an answer and every fallback came up empty too, so the
-    // only thing left to render was the corpus-gap copy — which would state, falsely, that nothing in
-    // the corpus matched. Swap it for copy that makes no claim about the corpus at all. Ordered after
-    // every fallback on purpose: a block that still found verses or a reviewed entry keeps them.
-    if (blockedBy && turn.kind === "silence") turn = { q, kind: "answer-blocked" };
-
+    turn = await resolvePrincipled(turn);
     answer.innerHTML = await renderTurn(turn);
     announceTurn(turn);
     rememberTurn(turn);
@@ -759,16 +886,7 @@ async function ask(question: string) {
     say(msg);
   }
 
-  const MIN_COMPOSING_MS = 260;
-  const elapsed = Date.now() - composingStarted;
-  if (elapsed < MIN_COMPOSING_MS) {
-    await new Promise((r) => setTimeout(r, MIN_COMPOSING_MS - elapsed));
-  }
-
-  loading.remove();
-  thread.append(answer);
-  showClearControl();
-  scrollDown();
+  await mountAnswer();
 }
 
 // ── routing ──────────────────────────────────────────────────────────────────

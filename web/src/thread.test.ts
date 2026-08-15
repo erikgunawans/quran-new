@@ -138,3 +138,68 @@ describe("turnFromHits", () => {
     expect(t).toEqual({ q: "capek", kind: "hits", refs: ["94:5", "2:286"] });
   });
 });
+
+/**
+ * The progressive answer's memory contract.
+ *
+ * `replaceTurn` exists because the fast principled answer is remembered the moment it is SHOWN, so
+ * the conversation keeps its order while the composed answer is still coming. Every test below is a
+ * way that in-place swap can go wrong and quietly corrupt somebody's thread.
+ */
+describe("replaceTurn — upgrading a fast answer without disturbing the conversation", () => {
+  const fast = (q: string): Turn => ({ q, kind: "silence" });
+  const composed = (q: string): Turn => ({ q, kind: "ai", prose: "…", refs: [], hadith: [] });
+
+  test("swaps the placeholder where it sits, without appending", async () => {
+    const { replaceTurn } = await import("./thread.ts");
+    rememberTurn(fast("kenapa aku sedih"));
+    replaceTurn(fast("kenapa aku sedih"), composed("kenapa aku sedih"));
+    const turns = loadThread();
+    expect(turns).toHaveLength(1); // NOT 2 — an append here duplicates the turn on screen
+    expect(turns[0]!.kind).toBe("ai");
+  });
+
+  test("keeps ORDER when the reader asks something else mid-compose", async () => {
+    const { replaceTurn } = await import("./thread.ts");
+    // This is the whole reason the placeholder is remembered early rather than on settle.
+    rememberTurn(fast("pertanyaan satu"));
+    rememberTurn(fast("pertanyaan dua"));
+    replaceTurn(fast("pertanyaan satu"), composed("pertanyaan satu"));
+    const turns = loadThread();
+    expect(turns.map((t) => t.q)).toEqual(["pertanyaan satu", "pertanyaan dua"]);
+    expect(turns[0]!.kind).toBe("ai");
+    expect(turns[1]!.kind).toBe("silence"); // the later turn is untouched
+  });
+
+  test("upgrades the LAST match when the same question was asked twice", async () => {
+    const { replaceTurn } = await import("./thread.ts");
+    // Both placeholders serialize identically; the one still on screen is the later one.
+    rememberTurn(fast("sama"));
+    rememberTurn(fast("sama"));
+    replaceTurn(fast("sama"), composed("sama"));
+    const turns = loadThread();
+    expect(turns[0]!.kind).toBe("silence");
+    expect(turns[1]!.kind).toBe("ai");
+  });
+
+  test("does NOTHING when the reader cleared the thread first", async () => {
+    const { replaceTurn } = await import("./thread.ts");
+    // The load-bearing one. Resurrecting a conversation somebody deleted — on a shared phone — is
+    // the failure this whole module is written around.
+    rememberTurn(fast("hapus aku"));
+    clearThread();
+    replaceTurn(fast("hapus aku"), composed("hapus aku"));
+    expect(loadThread()).toHaveLength(0);
+    expect(hasThread()).toBe(false);
+  });
+
+  test("does NOTHING when the placeholder is not there", async () => {
+    const { replaceTurn } = await import("./thread.ts");
+    rememberTurn(fast("yang ini"));
+    replaceTurn(fast("yang lain"), composed("yang lain"));
+    const turns = loadThread();
+    expect(turns).toHaveLength(1);
+    expect(turns[0]!.q).toBe("yang ini");
+    expect(turns[0]!.kind).toBe("silence");
+  });
+});

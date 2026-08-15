@@ -28,9 +28,28 @@ export class AnswerBlockedError extends Error {
 }
 
 const ANSWER_ENDPOINT = "/api/answer";
-/** A real answer is worth a longer wait than a one-line framing, but still bounded so a stalled
- *  model never holds the thread hostage. */
-const TIMEOUT_MS = 12000;
+/**
+ * A BACKSTOP, not the reader's wait. Raised 12,000 → 30,000 on 2026-08-15.
+ *
+ * WHY THE OLD NUMBER COULD NOT BE TUNED. Measured live on prod that day, same payload, 14 samples:
+ * 5,479 / 7,535 / 8,051 / 8,195 / 8,259 / 8,292 / 8,423 / 8,482 / 8,487 / 8,873 / 10,300 / 15,947 /
+ * 23,782 / 27,293 ms. A median of ~8.45 s with a long, sparse tail. At 12 s the client discarded
+ * **3 of 14 answers the server had finished**; at 20 s it would still discard 2, while adding eight
+ * seconds to everyone's wait; only 30 s discards none, and nobody should watch a spinner for 27 s.
+ * Every value on this axis is bad, which is what said the axis was wrong.
+ *
+ * SO THE WAIT AND THE DEADLINE WERE SPLIT. `main.ts` shows the reader a real, labelled answer at
+ * `FAST_ANSWER_MS` (~9 s, just past the median) and keeps this request alive underneath, upgrading
+ * the turn in place when the composed answer lands. This constant therefore no longer governs what
+ * anyone waits for — it only stops a genuinely hung request from leaking. Raising it does NOT
+ * reintroduce the defect the previous cycle rejected ("a 25 s wait for a refusal is its own
+ * defect"), because after ~9 s nobody is waiting on it any more.
+ *
+ * MUST STAY ABOVE `MODEL_DEADLINE_MS` (25 s, worker/src/providers.ts). The Worker should be the one
+ * to give up, because its giving-up is an honest degradation; the client's is a silent substitution
+ * we also pay for. If these two ever cross, that inverts.
+ */
+const TIMEOUT_MS = 30000;
 
 /**
  * Keep only what a hadith card needs, with every field forced to its expected type.

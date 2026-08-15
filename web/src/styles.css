@@ -721,6 +721,34 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   text-wrap: pretty;
 }
 
+/* The fast answer's "still composing" line.
+ *
+ * Sits UNDER a real, cited answer, so it must read as a note about us rather than as a caveat about
+ * what the reader just got — muted, one notch down, no border, no box. The dot pulses so it is
+ * visibly ongoing rather than a static apology, and it stops dead under reduced motion because a
+ * vestibular need outranks an affordance (see the `prefers-reduced-motion` block for the rest). */
+.still-composing {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+.still-composing::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .still-composing::before { animation: composing-pulse 1.4s ease-in-out infinite; }
+}
+
 /* Synthesis edition (new-quranku-ai): the AI-authored answer + its honesty label. The label is a
    touch more present than the reader-note — it must be readable, not fine print, since it is the
    one thing telling the reader this answer is machine-made and not a fatwa. */
