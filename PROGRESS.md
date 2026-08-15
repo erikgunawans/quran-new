@@ -8,6 +8,66 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-15 (late-2) — deployed, verified, and the latency diagnosis was wrong
+
+**Anchor:** `origin/main` `2da0366`. **DEPLOYED to prod** by Erik's instruction — `new-quranku-proxy`
+version `238e6861` (was `6d2f9743`), bundle `index-CdOZwi13.js`, css `index-DO8SZXQY.css` unchanged,
+`EDITION: "synthesis"`, all three dalil bindings present.
+**Gates:** bun test **1415/0** exit 0 · typecheck exit 0 · build exit 0 · `wrangler deploy` exit 0.
+**ISA 474/487.**
+
+### Three things shipped, three ISCs closed live
+
+ISC-458 (the hadith marker), ISC-461 (per-stage dalil timings), ISC-462 (the theme fix). All three
+verified in real Chrome AFTER clearing a stale `CacheStorage` entry that was still serving
+`index-8yQBCStV.js` — the documented post-deploy trap, hit again, caught by checking the loaded hash
+before measuring rather than after concluding.
+
+**The marker fix works.** `bagaimana hukum utang piutang dalam islam` returned `blocked:null` with a
+two-element `hadith` array carrying `[H:bukhari:2292]` and `[H:muslim:3873]` — the state never once
+observed before. A card renders: `#thread .ai-hadith` 0 -> 1 -> 2.
+
+**The theme fix works.** Clicking "Ikut sistem" now leaves `data-theme="dark"` rather than removing
+it, `localStorage` still holds the literal `"system"`, and panel prose measures **9.9:1** where it
+measured 1.06:1 this morning. Read synchronously in the same eval, no reload — a reload was always
+what hid this bug.
+
+### The premise this session was built on is FALSIFIED
+
+The handoff said eligible turns were slow because they pay embed + Vectorize + R2 + rerank. Measured
+live: **the whole dalil chain is 1.2-2.7 s** of turns running 5.5-27.3 s, and the INELIGIBLE control,
+which skips the chain entirely, took **8,195 ms** — as slow as the eligible turns. The earlier reading
+("the control is fast at 4,387 ms BECAUSE it skips the dalil chain") does not survive a second
+control. Generation dominates, and its variance is the story.
+
+So the overlap optimisation (ISC-459) is real but marginal, and further retrieval tuning is the wrong
+next move. Two new ISCs carry what actually matters: ISC-465 (`bad_hadith` still fires on ~1/3 of
+generations, which is now model variance and also refutes the determinism argument behind the
+no-retry break) and ISC-466 (a hard 12,000 ms client abort throws away answers the server finished —
+it aborted 3 of 3 UI attempts on the very question that proves the marker fix at the API level).
+
+`text_layer: 0` on every observation is the DOCUMENTED expected reading, not a dead stage. The
+verifying agent read it as "that stage may not be running at all", which is exactly the misreading
+`DalilTimings` trap 2 was written to pre-empt.
+
+### Also shipped, and worth knowing
+
+The deploy uploaded **77 `hadith-id` shards that were not previously live** — generated Indonesian
+that sat on disk through several builds. Within scope (`SHOW_MACHINE_HADITH_TEXT = true` by Erik's
+relay of Ustadz Ahmad's ruling, `.is-ai` and the provenance notice intact), but it widened how much
+machine-translated hadith is in front of readers, so it is recorded rather than left in a deploy log.
+
+### A dual-agent design critique also ran: 19/40, 3 P0s
+
+`.impeccable/critique/2026-08-15T13-09-29Z__new-quranku-axiara-ai.md`. The white-on-white P0 above
+came out of the two assessments DISAGREEING — the design review judged it latent, the browser pass
+falsified that with a reachable path and a screenshot. Erik ruled the formal `Anda`/`Saudaraku`
+register INTENTIONAL, so the pronoun half of the voice finding is withdrawn in both the ISA and the
+snapshot; the unattributed-claims half stands. Still open: the composer overprinting scripture (P0),
+that claims half (P0), and two P1s.
+
+---
+
 ## 2026-08-15 (late) — retrieval was never the problem
 
 **Anchor:** `origin/main` `d5750f6`. **Prod deployed** — worker version `6d2f9743`, js
