@@ -3,6 +3,7 @@ import "./read.css";
 import "./shell.css";
 import "./shell.ts";
 import { announce } from "./announce.ts";
+import { assembleAnswer } from "./answer-disclosure.ts";
 import { toggleAudio, setPlayMode, ADVANCE_EVENT, type AdvanceDetail } from "./audio.ts";
 import { crisisReply, detectCrisis } from "./crisis.ts";
 import { closeExplainer, openExplainer } from "./explain.ts";
@@ -179,13 +180,9 @@ const scrollDown = () =>
 // said out loud each turn.
 const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — baca sendiri, dan lihat siapa yang mengatakan apa.</p>`;
 
-// The SYNTHESIS edition's honesty label (new-quranku-ai only). An authored answer must never read as
-// a fatwa or as a scholar's words — this quiet chrome under it says plainly what it is: machine-made,
-// grounded in the verses shown, and no substitute for a real scholar.
-const AI_NOTE = `<p class="reader-note ai-note">Jawaban ini disusun oleh AI berdasarkan ayat-ayat di atas — bukan fatwa, dan bukan kata-kata seorang ulama. Untuk kepastian, tanyakan kepada ustadz.</p>`;
-/** Same disclosure, minus the pointer — used when no verse card made it onto the page, so the note
- *  never directs a reader to "the verses above" when there are none. */
-const AI_NOTE_NO_VERSES = `<p class="reader-note ai-note">Jawaban ini disusun oleh AI — bukan fatwa, dan bukan kata-kata seorang ulama. Untuk kepastian, tanyakan kepada ustadz.</p>`;
+// The SYNTHESIS edition's honesty label (new-quranku-ai only) now lives in `answer-disclosure.ts`,
+// together with the head chip and the assembly order — because ORDER is the thing that was wrong and
+// nothing here could test it. See that module for the prod measurement that moved it.
 
 // ── the one renderer ─────────────────────────────────────────────────────────
 //
@@ -500,9 +497,12 @@ async function aiHtml(
   const rest = trailing.map((r) => cardFor.get(r) ?? "").join("");
   const tail = rest ? `<div class="ai-verses">${rest}</div>` : "";
 
-  // The note must not claim verses that are not there. This is the same sentence either way about
-  // what the answer IS (AI-composed, not a fatwa); it only stops pointing "di atas" when nothing is.
-  return body + tail + (cardFor.size ? AI_NOTE : AI_NOTE_NO_VERSES);
+  // Disclosure FIRST, then the answer. `assembleAnswer` owns the order: the chip must precede the
+  // prose, because a reader who learns "a machine wrote this" only after reading several hundred
+  // words about God has not been told anything in time to matter. The closing note still must not
+  // claim verses that are not there — same sentence either way about what the answer IS, it only
+  // stops pointing "di atas" when nothing is.
+  return assembleAnswer(body, tail, cardFor.size > 0);
 }
 
 /**

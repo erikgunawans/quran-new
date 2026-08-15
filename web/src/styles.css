@@ -848,9 +848,46 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* .hadith-id and .hadith-id.is-ai are defined once, in shell.css, and reused verbatim here. The
    machine-translation badge must read identically on the Hadis tab and on an answer card — a reader
    who learns what it means in one place must not have to learn it again in the other. */
+/* THE DISCLOSURE THE READER MEETS FIRST.
+ *
+ * Measured on prod 2026-08-16 (`apakah Allah mengampuni dosa besar`): the only disclosure was the
+ * footer note below, at 11.68px against 17.5px prose and **1,730px** beneath the answer's first
+ * sentence — on a SHORT answer. Several hundred words about God arrived in the app's warm voice
+ * before anything said a machine wrote them.
+ *
+ * A chip, not a banner: it must be impossible to miss and cheap to pass over, because it is read
+ * once per answer and the answer is the thing the reader came for. Set on the primary wash with a
+ * hairline rather than as loud fine print — the register is "label", the same weight the machine-
+ * translation badge carries on a hadith card. `width: fit-content` keeps it from spanning the
+ * measure and reading as a first paragraph. */
+.ai-disclosure {
+  width: fit-content;
+  margin: 0 0 0.9rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--primary-line);
+  border-radius: 999px;
+  background: var(--primary-wash);
+  color: var(--primary);
+  font-family: var(--f-ui);
+  /* `--step-0` (13.92px inside `#thread .msg`), NOT `--step--1` (11.68px) — 11.68px is the exact size
+     the buried footer was measured at on prod, and shrinking the replacement to match would move the
+     fine print rather than fix it. Still well under the 17.5px prose: quieter than the answer, never
+     illegible. */
+  font-size: var(--step-0);
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* The closing note. The comment above `.ai-said` has said since it was written that this label "is a
+ * touch more present than the reader-note — it must be readable, not fine print", and until
+ * 2026-08-16 it was not: `.ai-note` overrode colour and border only, inheriting `--step--1` (11.68px
+ * at the app's zoom) from `.reader-note`. The intent was recorded and never implemented. `--step-0`
+ * carries it out; the note is still quieter than the 17.5px prose it follows. */
 .ai-note {
   color: var(--ink-2);
   border-top-color: var(--primary);
+  font-size: var(--step-0);
 }
 
 /* ── the verse: the light source ───────────────────────────────────── */
