@@ -8,6 +8,87 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-16 — the retry was right, and shipping it broke something the rate alone would have hidden
+
+**Anchor:** `origin/main` `a8218de`. **DEPLOYED** — worker `20b04277` then `66254521`, bundle
+`index-BN1JKt-B.js`, css `index-Dv3PeDUX.css`, `EDITION: "synthesis"`. Both deploys reported
+"No files to upload" — the change is worker-only, assets byte-identical.
+**Gates:** bun test **1431/0** exit 0 · typecheck exit 0 · **worker tsc exit 0** · build exit 0.
+**ISA 478/489.**
+
+### ISC-468 closed as a NEGATIVE result, which is the honest form of it
+
+25 live eligible turns, 10 questions. `display` measured **130–552 ms** against the single 8,710 ms
+observation — no recurrence. **Oversized: falsified** (`bukhari/043` 44,872 B, `muslim/022` 285,563 B,
+pulled straight from R2). **Cold: falsified** — a second arm drove five fresh questions onto shards
+untouched that session and measured 130–232 ms on FIRST contact. There is no defect to change, and
+inventing one from a single sample is what this criterion was written to prevent.
+
+The instrument matters more than the result: build `entries` by running the app's OWN
+`retrieveKnowledge` against the LIVE peta shards, then hash-check each against the shipped
+`grounding-digest.json` BEFORE spending a model call. Hand-written grounding lands as `entries:[]` →
+`eligible:false` and measures nothing at all.
+
+### The no-retry break rested on determinism, and determinism was false
+
+`bad_hadith` on **12 of 25** eligible turns (48%), not the 1-in-3 first reported. And the same
+question with identical grounding produced BOTH outcomes — `apakah sedekah boleh diungkit ungkit`
+ran bad, bad, ok, bad, ok. Variance, not a property of the turn. Erik's call: retry, shared budget.
+
+`MODEL_DEADLINE_MS` is now read ONCE per turn. It had been a fresh `AbortSignal.timeout` per call
+with no `deadlineMs` passed, so two attempts could spend 25 s each behind a 30 s client backstop —
+generating and billing an answer the browser had already abandoned, which is ISC-466 with the sides
+swapped and reachable rather than theoretical (single generations measured at 31.1 s the same day).
+
+### Shipping it tripled silence, and only the middle column shows why
+
+| outcome | baseline | retry shipped | + verdict fix |
+|---|---|---|---|
+| answered | 10 (40%) | 12 (48%) | **15 (60%)** |
+| `bad_hadith` | **12 (48%)** | 2 (8%) | 3 (12%) |
+| `fatwa` | 1 | 4 | 5 (20%) |
+| `{answer:null}` silence | 2 (8%) | **7 (28%)** | **2 (8%)** |
+
+The retry opened a new route into the generation `catch`: attempt 1 produces prose, the wall refuses
+it, attempt 2 exhausts the budget and throws — and the `catch` returned a bare `{answer:null}`,
+discarding the verdict attempt 1 had already earned. `blocked` renders as "an answer was found and is
+being held back"; a bare null renders as "no matching verse was found". The reader was told the corpus
+is empty while the app was refusing.
+
+**Verified by MECHANISM, not by rate.** The post-fix run contains four rows shaped
+`wall≈26,1xx blocked=<kind> hadith=-` — a timeout turn (no `hadith` key ⇒ the catch path) carrying a
+verdict, which the old code could not emit on that path under any input. Rate alone could not have
+settled it: generation latency drifted 5.3–31.1 s across the session, so no arm is a clean control
+for another.
+
+### Left untuned on purpose
+
+`MIN_RETRY_MS` stays 6,000 ms against a ~16 s median generation and a 25 s turn budget, so two
+attempts often do not fit. Raising the floor to match would make the retry almost never fire and
+forfeit the 48%→12% gain. The real lever is `MODEL_DEADLINE_MS`, which cannot move without the
+client's `TIMEOUT_MS` moving with it — they must never cross. Erik's call, deferred.
+
+### `bun run typecheck` does not check the Worker
+
+`tsc && tsc -p web && tsc -p src/eval` — `worker/src` is in none of them. Every worker change this
+repo has shipped went out unchecked by the named gate. Ran `worker/tsconfig.json` explicitly this
+session (exit 0); folding it into the script is a one-line change nobody has made.
+
+### The composer overprint (ISC-464a) is reproduced, and it is smaller than "five of six routes"
+
+`#composer-bar` is `position: fixed`, **93 px** tall, `z-index: 10`; only its inner `form#composer`
+paints (`rgba(12,26,20,0.72)` + `blur(28px)`) across the top **61 px**, leaving the bottom **32 px**
+fully transparent. `.qk-panel-body` carries `scroll-padding-bottom: 118px` but **`padding-bottom: 0`** —
+the reservation was declared for anchor scrolling and never for layout. With a real turn in the thread,
+scrolled fully to the bottom, a verse translation spans 556–699: **72 px of scripture under the
+composer, with no scroll position that clears it.**
+
+**NOT established, and not to be repeated as fact:** that one `padding-bottom` fixes it. The A/B came
+back worse (1 → 3 occluded) because the progressive answer upgraded the thread between the two reads —
+different content, invalid comparison. Re-run it against a frozen thread.
+
+---
+
 ## 2026-08-15 (late-3) — the reader's wait and the request's deadline are now different things
 
 **Anchor:** `origin/main` `4743f2d`. **DEPLOYED** — worker `608b3e3c`, bundle `index-BN1JKt-B.js`,
