@@ -669,8 +669,18 @@ async function ask(question: string) {
     if (elapsed < MIN_COMPOSING_MS) {
       await new Promise((r) => setTimeout(r, MIN_COMPOSING_MS - elapsed));
     }
-    loading.remove();
-    thread.append(answer);
+    // REPLACE THE SKELETON, don't append to the end. The skeleton was appended directly after this
+    // question's own `me` bubble, so swapping it puts the answer beside its question — whereas
+    // appending puts it after whatever else has arrived since.
+    //
+    // That distinction only started mattering with the progressive answer. `ask()` now returns while
+    // the composed answer is still coming and the composer is deliberately free, so a reader asking a
+    // second question mid-compose is a SUPPORTED flow rather than a race nobody hits. Measured live
+    // 2026-08-15 with the old append: the thread rendered as question, question, answer, answer —
+    // both answers detached from their questions. It self-healed on reload, because the persisted
+    // model was already correct and only the live append path mis-positioned, which is exactly the
+    // kind of defect that survives because refreshing makes it disappear.
+    loading.replaceWith(answer);
     showClearControl();
     scrollDown();
   };
@@ -684,9 +694,10 @@ async function ask(question: string) {
   // Nothing gets to answer ahead of this. And nothing about it is written to disk — see thread.ts.
   const crisis = detectCrisis(q);
   if (crisis) {
-    loading.remove();
     answer.innerHTML = crisisReply();
-    thread.append(answer);
+    // Same skeleton-swap as `mountAnswer`, for the same reason — the helpline must appear beside the
+    // message that asked for it, not after whatever else is still composing above.
+    loading.replaceWith(answer);
     scrollDown();
     say("New-Quranku menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
     return; // NOT remembered. Deliberately. A shared phone must not out him in the morning.
