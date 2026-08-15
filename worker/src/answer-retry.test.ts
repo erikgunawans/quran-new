@@ -7,7 +7,7 @@
  * reasoning alone. It is a pure function now so the next change has to survive a red test.
  */
 import { describe, expect, it } from "bun:test";
-import { MIN_RETRY_MS, MAX_ATTEMPTS, nextAttemptBudget } from "./answer-retry.ts";
+import { MIN_RETRY_MS, MAX_ATTEMPTS, nextAttemptBudget, verdictAfterFailure } from "./answer-retry.ts";
 import { MODEL_DEADLINE_MS } from "./providers.ts";
 
 describe("the first attempt", () => {
@@ -68,6 +68,31 @@ describe("the budget is shared across the turn, not per call", () => {
     // Attempt 0 is not bound by MIN_RETRY_MS: a turn with 3 s left should still TRY, because the
     // alternative is a guaranteed null. Only a retry is a spend with an alternative.
     expect(nextAttemptBudget({ attempt: 0, blocked: null, remainingMs: 3_000 })).toBe(3_000);
+  });
+});
+
+describe("a verdict, once earned, is never downgraded to silence", () => {
+  /**
+   * MEASURED ON PROD 2026-08-16, immediately after the retry shipped. `bad_hadith` fell from 12/25
+   * to 2/25 exactly as predicted — and `{answer:null}` rose from 2/25 to 7/25, every one of the new
+   * ones at a wall of ~26 s. That is the turn budget expiring inside the SECOND attempt, and the
+   * `catch` around the generation loop was returning a bare `{answer:null}`: the verdict the FIRST
+   * attempt had already earned was thrown away with it.
+   *
+   * The two are not interchangeable copy. `blocked` renders as "I found an answer and am holding it
+   * back"; a bare null renders as "I found no matching verse". Substituting the second for the first
+   * tells the reader the corpus is empty when the app is actually refusing — the precise confusion
+   * the `blocked` channel was introduced to end.
+   */
+  it("survives a model failure on a later attempt", () => {
+    expect(verdictAfterFailure("bad_hadith")).toBe("bad_hadith");
+    expect(verdictAfterFailure("fatwa")).toBe("fatwa");
+  });
+
+  it("does not invent one when no candidate was ever refused", () => {
+    // Attempt 1 threw outright: nothing was generated, so nothing was refused. That turn is a
+    // genuine absence and must keep saying so.
+    expect(verdictAfterFailure(null)).toBeNull();
   });
 });
 

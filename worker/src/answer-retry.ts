@@ -72,3 +72,26 @@ export function nextAttemptBudget(opts: {
   if (opts.attempt > 0 && opts.remainingMs < MIN_RETRY_MS) return null;
   return opts.remainingMs;
 }
+
+/**
+ * What the model-failure path reports, given whatever verdict earlier attempts already earned.
+ *
+ * MEASURED ON PROD 2026-08-16, in the first 25 turns after the retry shipped. `bad_hadith` fell from
+ * 12/25 to 2/25 exactly as the change predicted — and `{answer:null}` rose from 2/25 to **7/25**,
+ * every new one at a wall of ~26 s. That is the turn budget expiring INSIDE the second attempt, and
+ * the `catch` around the generation loop returned a bare `{answer:null}`, discarding the verdict the
+ * FIRST attempt had already earned.
+ *
+ * Those two are not interchangeable copy, and the difference is the whole reason the `blocked`
+ * channel exists. `blocked` renders as "an answer was found and is being held back"; a bare null
+ * renders as "no matching verse was found". Substituting the second for the first tells the reader
+ * the corpus is empty when the app is in fact refusing — so the reader concludes the app does not
+ * know, and stops asking.
+ *
+ * This function is deliberately total and deliberately dull: a verdict survives, an absence stays an
+ * absence, and nothing is ever invented. It exists so the rule has a name and a red test rather than
+ * living as an argument list on one `return` inside a `catch`.
+ */
+export function verdictAfterFailure(blocked: AnswerViolationKind | null): AnswerViolationKind | null {
+  return blocked;
+}

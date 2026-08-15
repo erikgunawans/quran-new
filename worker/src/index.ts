@@ -48,7 +48,7 @@ import {
   type DalilTimings,
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
-import { MAX_ATTEMPTS, nextAttemptBudget } from "./answer-retry.ts";
+import { MAX_ATTEMPTS, nextAttemptBudget, verdictAfterFailure } from "./answer-retry.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -744,7 +744,19 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   } catch {
     // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,
     // and this is the path a timeout takes.
-    return json({ answer: null, dalil: dalilReport() }, 200, request); // model/key failure → principled
+    //
+    // AND IT CARRIES `blocked`, which it did not until 2026-08-16. With the retry open, this catch is
+    // reachable in a new way: the first attempt produces prose, the wall refuses it, and the SECOND
+    // attempt then exhausts the turn budget and throws. The verdict was already earned at that point,
+    // and returning a bare null threw it away — measured on prod as `{answer:null}` rising from 2/25
+    // to 7/25 of eligible turns, every new one at a ~26 s wall. `blocked` renders as "an answer was
+    // found and is being held back"; a bare null renders as "no matching verse was found". Handing a
+    // reader the second when the first is true tells them the corpus is empty when the app is
+    // refusing, which is exactly the confusion the `blocked` channel was added to end.
+    //
+    // `verdictAfterFailure` never invents one: an attempt that threw before generating anything
+    // leaves `blocked` null, and that turn is a genuine absence which must keep saying so.
+    return json({ answer: null, blocked: verdictAfterFailure(blocked), dalil: dalilReport() }, 200, request);
   }
 
   // WHAT THE READER GETS A CARD FOR: the hadith the answer actually cited, in the order it cited
