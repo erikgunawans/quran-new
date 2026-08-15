@@ -1,3 +1,166 @@
+# Next session — New-Quranku (checkpoint 2026-08-16)
+
+> Prepended by /wrap 2026-08-16 (anchor `7f81b63`). Supersedes the 2026-08-15 `late-3` anchor
+> `4743f2d` **entirely**. That handoff's items 1, 2 and 3a are DISCHARGED (ISC-468 closed as a
+> negative result, ISC-465 measured and fixed, the composer overprint swept and fixed). Its items
+> 4, 5, 6 and 7 survive and are carried below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-16 (late)**, anchor
+`origin/main` `7f81b63`).
+
+**Current state.** Prod DEPLOYED and verified: worker `c357ea7e`, bundle `index-BROZrzBm.js`,
+css `index-CGkeJ2q-.css`, `EDITION: "synthesis"`. Gates green — `bun test` **1438/0** exit 0 ·
+typecheck exit 0 · **worker tsc exit 0** · build exit 0. **ISA 478/489.** Clean tree except
+untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`. The hadith generator
+is STOPPED and must stay stopped (1,746/14,736) pending a scholarly ruling.
+
+**Four deploys this session, all verified live:** `20b04277` (bad_hadith retry on a shared budget)
+→ `66254521` (a blocked verdict survives a retry timeout) → `384a6f9d` (`#/peta` composer
+clearance) → `c357ea7e` (AI disclosure chip above the answer).
+
+---
+
+## 1. ISC-419 / ISC-420 — the receipt half of the critique. BLOCKED ON ERIK, and the prescribed fix cannot ship as written
+
+The handoff wording was "extend the receipt rule already applied to the Prophet's words". **Measured
+against real prod prose first** (two full answers, 8 paragraphs, captured live rather than composed):
+**every one of the 8 paragraphs carries at least one unattributed claim about God or the unseen.**
+
+A receipt guard shipped as prescribed refuses **~100%** of answers — not 48% like `bad_hadith` — and
+would silently turn the app off. **It was deliberately NOT built.** Evidence in ISA ISC-464(b).
+
+Worst single example, and the reason this needs the ustadz rather than an engineer:
+*"Allah tidak pernah bosan menerima hamba-Nya yang kembali"* — **a hadith, rendered as the app's own
+sentence.** Also *"semakin besar dosa, semakin besar pula peluang untuk merasakan indahnya
+ampunan-Nya"*, which is not sourceable to anything.
+
+**The model demonstrably CAN cite** — both answers quote scripture verbatim with refs (QS 4:27,
+3:135, 29:2-3, 2:155-156). It treats pastoral assertion as a different act from quotation.
+
+**Recommended path — the shape that worked for the hadith marker:** fix `SYNTHESIS_SYSTEM_PROMPT`
+first, re-measure the residue on real prose, and only then guard what is left. Building the wall
+first is precisely what produced the 48% refusal.
+
+## 2. `bun run typecheck` DOES NOT CHECK `worker/src` — one line, nobody has made it
+
+`"typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json && tsc --noEmit -p src/eval/tsconfig.json"`
+and root `tsconfig.json` includes only `["src","test"]`. **Every worker change this repo has ever
+shipped went out unchecked by the gate everyone calls "typecheck".** `worker/tsconfig.json` exists
+and passes; add `&& tsc --noEmit -p worker/tsconfig.json` to the script. Until then, run it by hand
+after ANY worker edit. (It also excludes `src/**/*.test.ts`, so worker test files stay unchecked.)
+
+## 3. `apa yang terjadi setelah kita meninggal` returned NO prose at all
+
+Observed once, 2026-08-16, while collecting samples. Zero `p.said.ai-said` paragraphs — no answer,
+no visible refusal. May mean eschatology is already being refused somewhere, or may be an ordinary
+model-path null. **One observation is not a pattern** (this project's standing lesson); collect N
+before diagnosing. The `dalil` diagnostic on `/api/answer` reads the retrieval story for free.
+
+## 4. `MODEL_DEADLINE_MS` vs the measured generation time — Erik's call
+
+Generations measured a **~16 s median** this session against a **25 s turn budget**, so two attempts
+often do not fit and the retry lands in the timeout path. `MIN_RETRY_MS` was deliberately left at
+6,000 ms: raising it to match reality would make the retry almost never fire and forfeit the
+48%→12% `bad_hadith` gain. The real lever is `MODEL_DEADLINE_MS` above 25 s — which **cannot move
+without the client's 30 s `TIMEOUT_MS` moving with it.** They must never cross (ISC-466). Decide
+after watching the deployed rate; the verdict-preservation fix may have made the residual silence
+acceptable on its own.
+
+## 5. Audio — DENGAR on the `#/baca` shelf card (unchanged, still blocked on Erik)
+
+Decided: the button goes on the `#/baca` shelf card (`read.ts`, `indexRow`); tapping it turns that
+card's inner layer into an audio UI. **Blocked on one click:** Erik must open
+`quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ so the mounted player can be read out of
+the DOM — autoplay policy rejects programmatic clicks. **Do not loop on coordinate clicks.** The
+shelf card is a single `<a href>` wrapping its inner layer, so a nested `<button>` is invalid and
+would navigate; the card needs restructuring.
+
+## 6. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's
+terms, not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.**
+
+## 7. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every
+rule is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question`
+events too?
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — an occlusion claim needs hit-testing, or it is fiction.** Raw `getBoundingClientRect()`
+  against `#composer-bar` is wrong twice over: it ignores clipping by scrolling ancestors (content
+  scrolled out of `#intro-body.sp-scroll`, box ending y606, reads as "occluded" at y628), and
+  `#composer-bar` is `pointer-events: none` + transparent at full width while only `form#composer`
+  PAINTS. Clip by every scrolling ancestor → intersect with the FORM → `elementFromPoint` at the
+  centre of the overlap. **And always run the counterfactual** (remove the reservation, or grow the
+  composer): a probe that returns 0 for both arms is blind, and that happened.
+- **NEW — the acceptance criterion for occlusion is AT-BOTTOM, not at-rest.** Every healthy route
+  overlaps the composer at rest (`#/hadis` 4 elements, `#/fikih` 1, `#/doa` 1, `#/surah/18` 1) and
+  clears by scrolling. Only content stranded at the END of the scroll is a defect.
+- **NEW — `canvas.fillStyle` does not parse `oklch()`.** A regex over the returned string reads the
+  oklch components as RGB and produces confident nonsense (`[1,0,163]`, contrast 1.01). This app's
+  colours are all oklch. **Use a screenshot for any contrast or visibility question.**
+- **NEW — measure EVERY outcome bucket after a change, not the one you set out to move.** Shipping
+  the `bad_hadith` retry moved it 48%→8% exactly as predicted AND tripled `{answer:null}` silence
+  8%→28% in the same deploy. Reporting only the target metric would have shipped a 3× regression as
+  a win. Verify by a row only your change could emit, not by a shifted average.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy — hit TWICE more this
+  session.** Clear caches, hard-reload, and confirm the loaded css/js HASH before measuring anything.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output
+  for the rule itself, and check its ORDER against any rule it must beat (same specificity = source
+  order decides; the minifier rewrites `max-width:700px` to `width<=700px` and merges blocks).
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** If they cross,
+  an honest server-side degradation becomes a silent client-side substitution we also pay for.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Always
+  `VITE_ANSWER_MODE=synthesis bun run build`, and check `.build-meta.json` says `synthesis` AND its
+  `gitSha` matches HEAD.
+- **Deploy uploads generated content that has been sitting on disk.** Check what an asset upload
+  contains before assuming it is only your change — `wrangler` prints the file list.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).** The critique's
+  pronoun recommendation is WITHDRAWN. Do not "fix" pronouns from the critique snapshot. (Noted but
+  not acted on: the model once addressed a reader as *"Nak"*, which is a different axis.)
+- **Do NOT re-open the composer overprint from the critique snapshot.** Half (a) was swept across
+  nine routes × two widths and is fixed; the snapshot's wording is reproducible by naive
+  rect-overlap. Re-run the counterfactual before believing it again.
+- **`interceptor eval` only prints STRING returns.** Wrap every probe in `String(...)` or
+  `JSON.stringify(...)`. The Interceptor tab also gets STOLEN mid-session — pin
+  `interceptor tab switch <id>` in the SAME Bash command as every eval/screenshot.
+- **A green test can assert the defect**, and **a test can pass on `null === null`.** Force-red every
+  new test; a break must fail the RIGHT test and only it.
+- **A reload that heals a bug is a reason to test BEFORE reloading.** Both the theme desync and the
+  thread-ordering bug self-healed on refresh, which is how each survived.
+- **A restored thread replays a PAST turn as a fresh one**, and a reload does NOT preserve it
+  (104,569 → 6,529 chars). Clear `localStorage` and count `#thread` turns before AND after. Never
+  reload between the two arms of an A/B — inject, measure both, reload only to clean up.
+- **An instrument can agree with itself regardless of the world.** Before re-running a probe to
+  measure a change, ask what it would report if the feature were reverted.
+- **Check the EXIT CODE, not the tail** — and the preflight hook BLOCKS a gate piped into head/tail.
+  Redirect to a file, echo `$?`, then read the file.
+- **Three numbers, not one: disk ≠ dist ≠ live.** Generated content is baked in at BUILD time. A
+  missing asset returns `200 text/html`, so key on `content-type`, never on status.
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- **Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`.**
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736 pending a ruling.
+
+## Open items waiting on me (the user)
+
+- **ISC-419/420 — may the app assert things about God without citation?** (item 1). Theological, not
+  engineering. The recommended prompt-first path needs a go-ahead before any guard work starts.
+- **ISC-417 — Ustadz Ahmad has still never signed off on AI-authored answers at all.** Recorded as
+  Erik's knowing call; `EDITION="synthesis"` is live and the app authors prose today.
+- **`MODEL_DEADLINE_MS`** (item 4) — raise it above 25 s, and the client's 30 s with it, or accept
+  the current residual silence?
+- **The audio DENGAR click** (item 5) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 6) — a rights call, not a scholarly one.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-15 late-3)
 
 > Prepended by /wrap 2026-08-15 late-3 (anchor `4743f2d`). Supersedes the 2026-08-15 `late` anchor
