@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-17)
 
-> Prepended by /wrap 2026-08-17 (anchor `20c392b`). Supersedes the late-4 anchor `0446c2b`.
+> Prepended by /wrap 2026-08-17 (anchor `4daa219` (the checkpoint commit; this line was fixed by the follow-up commit above it)). Supersedes the late-4 anchor `0446c2b`.
 > That handoff's **item 1 is DISCHARGED** (measured, answered, and inverted — see below). Its items
 > 2, 3, 4, 5, 6, 7, 8, 9 survive and are carried forward.
 
