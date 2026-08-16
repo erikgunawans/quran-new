@@ -24,6 +24,8 @@ const entry = (over: Partial<KnowledgeEntry> = {}): KnowledgeEntry => ({
   ayah: 11,
   resolvable: true,
   subtopic: null,
+  category: "Keluarga",
+  categorySlug: "keluarga",
   ...over,
 });
 

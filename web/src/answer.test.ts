@@ -63,20 +63,33 @@ describe("gatherGrounding — only refs that exist in the mushaf may be citable"
     expect(checked).toBeGreaterThan(0); // the assertion above must actually have run
   });
 
-  test("the one question whose ONLY entry is unresolvable grounds on nothing", async () => {
-    // Not a hypothetical. "syarat" trips the honesty floor so no feeling verse qualifies, the KB lane
-    // opens, and the ONLY line it finds is QS 8:77 ("Khianat") — Al-Anfal ends at 75. Ungated, that
-    // single non-existent ayah was both the model's entire grounding AND its citation whitelist: a
-    // licence to write a verse that is not in the mushaf. The phrasing is stilted because it has to
-    // reach one specific cell of the index, but every word of it is input a person can type.
+  test("an unresolvable entry is dropped even when it is the lead line retrieval found", async () => {
+    /**
+     * "syarat" trips the honesty floor so no feeling verse qualifies, the KB lane opens, and the
+     * LEAD line it finds is QS 8:77 ("Khianat") — Al-Anfal ends at 75. Ungated, that non-existent
+     * ayah is both grounding and citation whitelist: a licence to write a verse that is not in the
+     * mushaf. The phrasing is stilted because it has to reach one specific cell of the index, but
+     * every word of it is input a person can type.
+     *
+     * THIS USED TO ASSERT THE FIXTURE, NOT THE GUARD. It pinned the exact list
+     * `[["QS. Al-Anfal, 8:77", false]]` — one entry, and nothing else — which held only while
+     * retrieval read a single shard. It now reads the chapters the subject words reach, so `khianat`
+     * also finds QS 11:55, resolvable and on-subject. The GUARD never moved; the input simply stopped
+     * being a one-entry case, and a test that fails when the reader gets a REAL verse alongside the
+     * fake one is testing the wrong thing. So: assert that the unresolvable ref is retrieved (the
+     * dangerous input is genuinely reproduced) and that nothing unresolvable survives into grounding.
+     */
     const q = "syarat pribadi shalih khianat";
     const { retrieveKnowledge } = await import("./knowledge.ts");
     const raw = await retrieveKnowledge(q);
-    expect(raw!.entries.map((e) => [e.ref, e.resolvable])).toEqual([["QS. Al-Anfal, 8:77", false]]);
+    // The hazard must actually be present, or everything below passes vacuously.
+    expect(raw!.entries.some((e) => e.ref === "QS. Al-Anfal, 8:77" && !e.resolvable)).toBe(true);
 
     const g = await gatherGrounding(corpus, q, []);
     expect(g.verses).toEqual([]); // so the KB lane really did run — emptiness is the filter's doing
-    expect(g.entries).toEqual([]);
+    expect(g.entries.map((e) => e.ref)).not.toContain("QS. Al-Anfal, 8:77");
+    // …and not merely because the filter emptied everything: the resolvable sibling survives.
+    expect(g.entries.length).toBeGreaterThan(0);
   });
 });
 
@@ -130,9 +143,26 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
   // null falls through to the aqidah lane, the knowledge/topic pointer, and only then to silence
   // (main.ts:664-699) — a chain that did not exist when this test was written.
   test("no grounding → no authored answer, however warm the prose would have been", async () => {
+    /**
+     * The input moved from "syarat pribadi shalih khianat" to the question this docblock already
+     * cites. The old one worked as a no-grounding case only while retrieval read one shard: it now
+     * finds QS 11:55 for `khianat`, so it has grounding and SHOULD answer. Testing the no-grounding
+     * rule through a question that turned out to have grounding tests nothing.
+     *
+     * "cara ganti oli motor beat" is the honest article — the measurement behind ISC-418 is exactly
+     * that, ungated, the model authored an Islamic answer for it 46 times out of 46 from parametric
+     * memory. Nothing in the index is about it, so the emptiness is real rather than arranged.
+     */
+    const q = "cara ganti oli motor beat";
+    const g = await gatherGrounding(corpus, q, []);
+    // Prove the premise instead of assuming it — otherwise a retrieval change silently makes this
+    // a grounded question again and the assertion below stops meaning what it says.
+    expect(g.verses).toEqual([]);
+    expect(g.entries).toEqual([]);
+
     const ai = await synthesizeAnswer(
       corpus,
-      "syarat pribadi shalih khianat",
+      q,
       [],
       model("Menjaga amanah itu berat, dan niatmu untuk memperbaiki diri sudah satu langkah baik."),
     );

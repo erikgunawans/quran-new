@@ -1126,9 +1126,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    it points to. Attribution rides at body size (design, not fine print — same rule as the Peta pages). */
 .know-list { list-style: none; margin: 0.75rem 0 0; padding: 0; }
 .know-entry {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 0.9rem;
+  /* wrap so the borrowed-chapter tag below can take a full line of its own: this row is
+     space-between with two children, and letting a third share the line spreads all three. */
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.9rem; flex-wrap: wrap;
   padding: 0.7rem 0; border-bottom: 1px solid var(--line);
 }
+/* Shown ONLY on a line the scholar filed under a different chapter than the one that was routed to
+   — see the `home` branch in main.ts. Quiet by design: it is provenance, not a call to action. */
+.know-cat {
+  flex-basis: 100%; order: 3; margin-top: 0.3rem;
+  font-size: var(--step--2); color: var(--ink-3); text-decoration: none;
+}
+.know-cat::before { content: "dari bab "; }
+.know-cat:hover { text-decoration: underline; }
 .know-entry:first-child { border-top: 1px solid var(--line); }
 .know-text { color: var(--ink); line-height: 1.55; }
 .know-ref {

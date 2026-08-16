@@ -130,6 +130,18 @@ export interface KnowledgeEntry {
   /** False for refs the index cites that are not in the mushaf — shown, cited, but not linked. */
   readonly resolvable: boolean;
   readonly subtopic: string | null;
+  /**
+   * The category this entry was actually collected under — NOT necessarily the answer's `category`.
+   *
+   * Retrieval reads more than one shard (see retrieveKnowledge), so an answer routed to Perintah dan
+   * Larangan can legitimately carry a line the scholar filed under Ibadah. The render says "Ini yang
+   * {author} kumpulkan soal {category}", and that sentence is false for a borrowed line unless the
+   * line can say where it came from. So the field is required, not optional: an entry that cannot
+   * name its own chapter has no business being displayed under someone else's.
+   */
+  readonly category: string;
+  /** Shard slug for `category` — what `#/peta/{slug}` needs to link the borrowed line home. */
+  readonly categorySlug: string;
 }
 
 export interface KnowledgeAnswer {
@@ -452,6 +464,10 @@ async function retrievePinned(pin: TopicPin): Promise<KnowledgeAnswer | null> {
   // one verse can carry different captions in different categories, and the pin names which it wants.
   const byRef = new Map<string, KnowledgeEntry>();
   shardNames.forEach((name, i) => {
+    // A pin has ALWAYS drawn from several chapters — it is the one path that already crossed shards.
+    // Now that entries carry their own category, a pinned line names the chapter it was filed under
+    // instead of inheriting the pin's title, which was never quite true for the borrowed ones.
+    const poolCategory = index.categories.find((c) => c.slug === name)?.category ?? name;
     for (const st of shards[i]!.subtopics) {
       for (const e of st.entries) {
         const first = e.refs[0];
@@ -461,6 +477,7 @@ async function retrievePinned(pin: TopicPin): Promise<KnowledgeAnswer | null> {
           byRef.set(key, {
             text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah,
             resolvable: first.resolvable, subtopic: st.subtopic,
+            category: poolCategory, categorySlug: name,
           });
         }
       }
@@ -492,10 +509,48 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
   const slug = matchTopic(question);
   if (!slug) return null;
 
+  /**
+   * THE CANDIDATE POOL, NOT THE RANKER.
+   *
+   * Routing picks ONE category and this function used to rank inside it and nowhere else. Measured
+   * on the reported neraka question: the index holds NINE entries whose text says `neraka`, spread
+   * over five chapters — 4 in Perintah dan Larangan, 2 in Ibadah, and one each in Allah, Membangun
+   * Pribadi Shalih and Muhammad. Four were reachable. Five were unreachable at ANY ranking quality,
+   * because they were never in the array being sorted. That is a pool defect wearing a ranking
+   * defect's clothes, and it is why tuning the ranker kept not fixing it.
+   *
+   * So we widen the pool by the SUBJECT words — the same ACTION_FRAME distinction the ranking fix
+   * established, reused rather than reinvented. `neraka` reaches five chapters and pulls all five;
+   * `masuk`, `lakukan` and `membuat` are action frames and pull nothing, which is the whole point:
+   * they are how the question is phrased, not what it is about. Measured over a 12-question probe,
+   * this loads a median of 1-2 shards and a MAXIMUM of 6 of 13 (`shard-spread.test.ts` pins that
+   * number, so a corpus change that blows it up fails a test instead of a page load). Widening on
+   * ALL subject words instead of subject-minus-frame measured 9 of 13 — most of the corpus, for
+   * words like `masuk` that mean nothing about the topic.
+   *
+   * Widening the pool does NOT lower the bar for what surfaces: the `score > 0 && onSubject` gate
+   * below is unchanged, so a shard with no matching line costs a fetch and contributes nothing.
+   */
+  const supplementary = [
+    ...new Set(subjectWordsOf(question).filter((w) => !isFrameWord(w)).flatMap((w) => categoriesContaining(w))),
+  ].filter((s) => s !== slug);
+
   let index: PetaIndex;
   let shard: Awaited<ReturnType<typeof loadCategory>>;
+  // Supplementary shards are best-effort: one that fails to load must not cost us the routed
+  // chapter, which is the answer we already had before any of this. Only the PRIMARY load is fatal.
+  let extras: { slug: string; shard: Awaited<ReturnType<typeof loadCategory>> }[] = [];
   try {
-    [index, shard] = await Promise.all([loadIndex(), loadCategory(slug)]);
+    const [idx, primary, ...rest] = await Promise.all([
+      loadIndex(),
+      loadCategory(slug),
+      ...supplementary.map((s) => loadCategory(s).then((v) => ({ ok: true as const, s, v })).catch(() => ({ ok: false as const, s, v: null }))),
+    ]);
+    index = idx as PetaIndex;
+    shard = primary as Awaited<ReturnType<typeof loadCategory>>;
+    extras = (rest as { ok: boolean; s: string; v: Awaited<ReturnType<typeof loadCategory>> | null }[])
+      .filter((r) => r.ok && r.v !== null)
+      .map((r) => ({ slug: r.s, shard: r.v! }));
   } catch {
     return null; // a failed fetch must never take the chat down — the honest silence stands
   }
@@ -528,8 +583,13 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
    */
   const subjectWords = new Set([...qWords].filter((w) => !isFrameWord(w)));
 
-  const matched: { text: string; ref: string; surah: number; ayah: number; resolvable: boolean; subtopic: string | null; score: number }[] = [];
-  for (const st of shard.subtopics) {
+  const matched: { text: string; ref: string; surah: number; ayah: number; resolvable: boolean; subtopic: string | null; category: string; categorySlug: string; score: number; primary: boolean }[] = [];
+  // The routed chapter first, then whatever the subject words reached. `primary` rides along because
+  // a tie must not quietly hand a borrowed chapter's line the slot the routed chapter's line held.
+  const pools = [{ slug, shard, primary: true }, ...extras.map((x) => ({ slug: x.slug, shard: x.shard, primary: false }))];
+  for (const pool of pools) {
+   const poolCategory = index.categories.find((c) => c.slug === pool.slug)?.category ?? pool.slug;
+   for (const st of pool.shard.subtopics) {
     for (const e of st.entries) {
       const first = e.refs[0];
       if (!first) continue;
@@ -552,12 +612,46 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
       }
       // ONLY genuinely-matching entries, and only ones that matched the SUBJECT. No overlap → we
       // surface nothing and let the render point to the topic instead of faking an answer.
-      if (score > 0 && onSubject) matched.push({ text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah, resolvable: first.resolvable, subtopic: st.subtopic, score });
+      if (score > 0 && onSubject) matched.push({ text: e.text, ref: e.ref, surah: first.surah, ayah: first.ayah, resolvable: first.resolvable, subtopic: st.subtopic, category: poolCategory, categorySlug: pool.slug, score, primary: pool.primary });
     }
+   }
   }
-  matched.sort((a, b) => b.score - a.score);
-  const entries = matched.slice(0, MAX_ENTRIES).map((f) => ({
+  // Score first; then the ROUTED chapter wins every tie. Without that second key the pool widening
+  // would silently rewrite answers that were already right: scores here are small integers and ties
+  // are the common case, so entries from a borrowed chapter would take slots purely on the order the
+  // fetches resolved in. The widening is meant to REACH lines that were unreachable, not to demote
+  // the chapter the question actually routed to.
+  /**
+   * WIDENING DEEPENS AN ANSWER WE ALREADY HAD. IT NEVER MANUFACTURES ONE.
+   *
+   * If the routed chapter matched nothing on-subject, that IS the answer — the render points at the
+   * topic instead of faking a reply, and that honest silence is the most important invariant on this
+   * surface. Reading twelve more shards must not overturn it, and the first cut of this change did:
+   * four guards went red at once. `hukum mendengarkan musik` started surfacing entries, because
+   * `mendengarkan` is not an ACTION_FRAME verb but is not a subject either — it names no topic, so
+   * it matched nothing in Perintah dan Larangan, and once the pool widened it found chapters where
+   * the bare verb appears and scored there. Same for `atas` on the istiwa' question.
+   *
+   * Filtering the FRAME list word by word is the fix this repo has already tried and failed at three
+   * times; the reach of a generic verb is not a property you can enumerate. So the rule is
+   * structural instead: the routed chapter decides WHETHER there is an answer, and the other
+   * chapters only decide how complete it is.
+   */
+  if (!matched.some((m) => m.primary)) matched.length = 0;
+
+  matched.sort((a, b) => b.score - a.score || Number(b.primary) - Number(a.primary));
+  // One verse can be filed in several chapters, and reading more than one shard therefore surfaces
+  // it more than once: `hukum riba dalam islam` returned QS 2:278 TWICE the first time this ran —
+  // once from Perintah dan Larangan, once from Ekonomi Islam. Two cards, same ayah, different
+  // caption reads as padding, and on a scholarship surface it reads as padding by the scholar.
+  // Dedupe AFTER the sort so the surviving copy is the best-scoring one, and the routed chapter's
+  // copy wins a tie — which also means the entry keeps the category the reader was routed to.
+  const seen = new Set<string>();
+  const entries = matched
+    .filter((f) => { const k = `${f.surah}:${f.ayah}`; return seen.has(k) ? false : (seen.add(k), true); })
+    .slice(0, MAX_ENTRIES).map((f) => ({
     text: f.text, ref: f.ref, surah: f.surah, ayah: f.ayah, resolvable: f.resolvable, subtopic: f.subtopic,
+    category: f.category, categorySlug: f.categorySlug,
   }));
 
   // `entries` may be empty — a BROAD topic question the index has no specific line for. That is a

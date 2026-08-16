@@ -592,11 +592,25 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
       const cite = e.resolvable
         ? `<a class="know-ref" href="#/surah/${e.surah}#${e.ayah}">${esc(e.ref)} →</a>`
         : `<span class="know-ref know-ref-unresolved" title="rujukan ini tidak kami temukan dalam mushaf">${esc(e.ref)}</span>`;
-      return `<li class="know-entry"><span class="know-text">${esc(e.text)}</span>${cite}</li>`;
+      // Retrieval reads more than one shard, so a line here can be one the scholar filed under a
+      // DIFFERENT chapter than the one the question routed to. Say which, on that line: the sentence
+      // below names one chapter, and an unlabelled borrowed line would quietly put the scholar's
+      // Ibadah entry under a Perintah dan Larangan heading he never wrote it for.
+      const home =
+        e.categorySlug === k.slug
+          ? ""
+          : `<a class="know-cat" href="#/peta/${esc(e.categorySlug)}">${esc(e.category)}</a>`;
+      return `<li class="know-entry"><span class="know-text">${esc(e.text)}</span>${cite}${home}</li>`;
     })
     .join("");
+  // When every line really did come from the routed chapter, the original sentence is exactly true
+  // and stays untouched. It stops being true the moment a line is borrowed, so that case gets its
+  // own sentence rather than a claim the entries below contradict.
+  const spansChapters = k.entries.some((e) => e.categorySlug !== k.slug);
   return (
-    `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>` +
+    (spansChapters
+      ? `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> dan bab lain yang membahas hal serupa — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`
+      : `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`) +
     `<ul class="know-list">${entries}</ul>` +
     `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Lihat semua ${k.totalEntries} entri tentang ${esc(k.category)} di Tematik →</a></p>` +
     credit
