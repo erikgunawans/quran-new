@@ -29,6 +29,7 @@ import { liveFramingModel } from "./compose-live.ts";
 import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
 import { markersInProse, stripMarkers, type AnswerViolationKind } from "./answer-guard.ts";
+import { mdEmphasis } from "./prose-format.ts";
 import { hadithCardsEl, type HadithCard } from "./hadith-card.ts";
 import { hadithIdText, loadHadithIds } from "./hadith-id.ts";
 import { liveAnswerModel } from "./answer-live.ts";
@@ -171,8 +172,29 @@ const stillComposingNotice = (): string =>
 const scrollBehavior = (): ScrollBehavior =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 
-const scrollDown = () =>
-  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: scrollBehavior() }));
+/**
+ * Keep the reader's own question at the top of the screen, the way every chat app does.
+ *
+ * This replaced a `scrollDown` that pinned the BOTTOM of the page. That read fine while the skeleton
+ * was the last thing in the thread, and then the answer landed, the page grew by several screens,
+ * and the same call threw the reader past their own question to the foot of an answer they had not
+ * started reading. Erik reported it from the app: on the second question onward he had to scroll UP
+ * to see what he asked.
+ *
+ * The AI upgrade path (the `pending.then` in ask()) was the worst of the four, because it fires a
+ * beat AFTER the reader has begun reading and yanks the viewport out from under them mid-sentence.
+ *
+ * `scrollIntoView` rather than arithmetic on purpose: body carries `zoom: .9`, which desynchronises
+ * `getBoundingClientRect()` from `window.scrollY`, and hand-rolled offset maths against that has
+ * already cost this project a session. The browser does the conversion correctly; the header
+ * clearance rides on `scroll-margin-top` in the stylesheet, where it belongs.
+ *
+ * When the whole exchange already fits on screen there is nothing to scroll and this is a no-op —
+ * which is the correct outcome, since the question is visible either way.
+ */
+const pinQuestion = (el: Element) =>
+  requestAnimationFrame(() => el.scrollIntoView({ block: "start", behavior: scrollBehavior() }));
+
 
 // The honesty note — the app points at scripture, it never interprets. It used to be bolted onto
 // every fallback opener as a spoken sentence, which read as a preached footer; now it lives here as
@@ -504,7 +526,7 @@ async function aiHtml(
   // an HTML injection surface. Markers are stripped BEFORE escaping so the reader never meets one.
   const body = blocks
     .map(({ para, refs: here }) => {
-      const p = `<p class="said ai-said">${linkifyRefs(esc(stripMarkers(para)), isReal)}</p>`;
+      const p = `<p class="said ai-said">${linkifyRefs(mdEmphasis(esc(stripMarkers(para))), isReal)}</p>`;
       const cards = here.map((r) => cardFor.get(r) ?? "").join("");
       // Each hadith sits under the paragraph that cited it, for the same reason a verse does: the
       // sentence and its evidence belong on screen together.
@@ -680,7 +702,7 @@ async function ask(question: string) {
 
   const loading = skeleton();
   thread.append(loading);
-  scrollDown();
+  pinQuestion(me);
   say("New-Quranku sedang menyusun jawaban.");
   // Retrieval here is a local, synchronous corpus lookup — no network round-trip. Without a
   // floor, the composing state mounts and gets swapped for the answer in the same tick, before
@@ -722,7 +744,7 @@ async function ask(question: string) {
     // kind of defect that survives because refreshing makes it disappear.
     loading.replaceWith(answer);
     showClearControl();
-    scrollDown();
+    pinQuestion(me);
   };
 
   // ── before anything else ──────────────────────────────────────────────────
@@ -738,7 +760,7 @@ async function ask(question: string) {
     // Same skeleton-swap as `mountAnswer`, for the same reason — the helpline must appear beside the
     // message that asked for it, not after whatever else is still composing above.
     loading.replaceWith(answer);
-    scrollDown();
+    pinQuestion(me);
     say("New-Quranku menampilkan bantuan darurat. Telepon 119 lalu tekan 8 untuk bicara dengan seseorang.");
     return; // NOT remembered. Deliberately. A shared phone must not out him in the morning.
   }
@@ -912,7 +934,7 @@ async function ask(question: string) {
           answer.innerHTML = await renderTurn(composed);
           announceTurn(composed);
           replaceTurn(fast, composed);
-          scrollDown();
+          pinQuestion(me);
         })
         .catch(() => {
           // The request died or hit the 30 s backstop. The fast answer is already on screen and is a

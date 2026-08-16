@@ -670,6 +670,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: var(--primary-wash); border: 1px solid var(--primary-line);
   color: var(--ink); padding: 0.7rem 1rem; border-radius: var(--r-lg);
   border-bottom-right-radius: 4px;
+  /* `pinQuestion` scrolls this to the top of the viewport on every turn. Without the margin the
+     bubble lands flush against the top chrome and reads as clipped; this is the clearance, kept in
+     CSS so the JS never has to know how tall the header is. */
+  scroll-margin-top: 4.5rem;
 }
 
 .msg.nur { align-self: stretch; }
