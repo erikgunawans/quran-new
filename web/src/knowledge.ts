@@ -19,7 +19,7 @@
 import { loadCategory, loadIndex, type PetaIndex } from "./peta-data.ts";
 import { isFeelingWord, norm, phraseHit, questionForms } from "./retrieve.ts";
 export { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
-import { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
+import { ACTION_FRAME, FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
 import { TOPIC_BROAD, TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
 import { vocabularyForms } from "./vocabulary.ts";
 
@@ -73,6 +73,16 @@ const TOPIC_ALIASES: Record<string, readonly string[]> = {
 
 
 const MAX_ENTRIES = 8;
+
+/**
+ * Does this word name the SHAPE of the question rather than its subject?
+ *
+ * Two classes, both defined in topic-words.ts: the question-frame NOUNS (`hukum`, `cara`) and the
+ * action-frame VERBS (`lakukan`, `membuat`, `masuk`). Used only to decide subject-hood inside a
+ * chapter — routing deliberately consults `QUESTION_FRAME` alone, so `subjectWordsOf` and every
+ * slug pinned in topic-broad-tier.test.ts are untouched by the verb half.
+ */
+const isFrameWord = (w: string): boolean => QUESTION_FRAME.has(w) || ACTION_FRAME.has(w);
 
 /**
  * Sense disambiguation for words that mean two different things in Islamic vocabulary.
@@ -516,7 +526,7 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
    * suppressing it would be worse than useless — so `subjectWords` is empty there and the frame word
    * scores normally. The rule only bites when a subject exists and the index simply does not cover it.
    */
-  const subjectWords = new Set([...qWords].filter((w) => !QUESTION_FRAME.has(w)));
+  const subjectWords = new Set([...qWords].filter((w) => !isFrameWord(w)));
 
   const matched: { text: string; ref: string; surah: number; ayah: number; resolvable: boolean; subtopic: string | null; score: number }[] = [];
   for (const st of shard.subtopics) {
@@ -538,7 +548,7 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
         if (written === undefined || !hasOwnSense(e.text, written)) continue;
         score += 1;
         // …and a hit on the question's FRAME is not a hit on its subject. See subjectWords.
-        if (!subjectWords.size || !QUESTION_FRAME.has(w)) onSubject = true;
+        if (!subjectWords.size || !isFrameWord(w)) onSubject = true;
       }
       // ONLY genuinely-matching entries, and only ones that matched the SUBJECT. No overlap → we
       // surface nothing and let the render point to the topic instead of faking an answer.

@@ -104,3 +104,44 @@ export const FRAME = new Set<string>(["islam", "islami", "muslim", "agama", "aja
  * See `subjectHit` for how this is used.
  */
 export const QUESTION_FRAME = new Set<string>(["hukum", "hukumnya", "syariat", "syariah", "dalil", "cara", "caranya"]);
+
+/**
+ * Action-frame VERBS: doing, causing, becoming, entering. They say what SHAPE of act is being asked
+ * about, never what the act is about.
+ *
+ * Measured case. "apa aja sih yang tidak kita sadari kita lakukan yang bisa membuat kita masuk
+ * neraka?" routes correctly to Perintah dan Larangan, whose 626 entries include four on neraka
+ * (3:131, 14:28-30). What came back was 2:180 wasiat, 2:208, 2:238, 3:131, 17:78, 24:27, 24:58,
+ * 25:9 — the chapter in ascending surah order. Instrumented: 16 entries matched and the score
+ * histogram was `{1: 16}` — a total tie, because `lakukan`, `membuat`, `masuk` and `neraka` each
+ * count for one hit and never co-occur, so a stable sort handed back document order and
+ * `MAX_ENTRIES = 8` cut the tie at position 8, dropping 14:28-30. Three of the eight that survived
+ * are there on `masuk` alone: "Masuk Islam secara total", "Berilah salam sebelum masuk rumah
+ * orang", "minta izin sebelum masuk kamar orang tua".
+ *
+ * Known and NOT addressed here: the index holds nine `neraka` entries across five chapters, and
+ * `retrieveKnowledge` loads exactly one. Four are reachable; five are not, at any ranking quality.
+ *
+ * Frequency was tried FIRST and failed for the third time, which is why it is written down here as
+ * well as above. Within the routed chapter the reaches are `lakukan` 1, `membuat` 3, `neraka` 4,
+ * `masuk` 9 — so IDF ranks the two generic verbs ABOVE the subject. Widening the sample to all
+ * 2,451 entries does not separate them either: `membuat` 8, `neraka` 9, `lakukan` 10. The captions
+ * are terse imperative headings, so a common verb is not a frequent word in them. Word class is the
+ * separator, exactly as `QUESTION_FRAME` and `STOP` already record.
+ *
+ * Deliberately NOT used by `subjectWordsOf`, so ROUTING is byte-identical: these words may still
+ * vote on which chapter a question belongs to. Only the selection of entries INSIDE the chapter
+ * treats them as frame. Routing is pinned by eight literal slugs in topic-broad-tier.test.ts and had
+ * no measured defect; this fix has no business moving it.
+ *
+ * Deliberately NOT in STOP either. A word here keeps its ranking signal and loses only its claim to
+ * be the subject — so "gimana cara masuk Islam?", where every other word is frame, still falls
+ * through `subjectWords`'s empty-set escape and surfaces "Masuk Islam secara total" as before.
+ */
+export const ACTION_FRAME = new Set<string>([
+  "lakukan", "melakukan", "dilakukan", "kulakukan",
+  "membuat", "buat", "bikin", "membikin", "dibuat",
+  "menyebabkan", "sebabkan", "penyebab", "menjadikan",
+  "masuk", "memasuki", "termasuk",
+  "terjadi", "menimpa",
+]);
