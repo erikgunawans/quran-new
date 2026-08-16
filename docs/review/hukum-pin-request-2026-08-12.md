@@ -1,7 +1,16 @@
 # Permohonan review — pin ayat untuk pertanyaan hukum (warisan & nikah)
 
 > Ditulis 2026-08-12 untuk **Ustadz Ahmad Isrofiel Mardlatillah**.
-> **Status: BELUM DIKIRIM — DAN JANGAN DIKIRIM DALAM BENTUK INI.** Lihat blok di bawah.
+> **Status: DIGANTIKAN 2026-08-17 — JANGAN DIKIRIM.**
+> Penggantinya: [`tanya-ai-request-2026-08-17.md`](./tanya-ai-request-2026-08-17.md), yang menaruh
+> pertanyaan sebenarnya di depan (bolehkah aplikasi menyusun sendiri jawaban agama) dan membawa
+> usulan daftar ayat di bawahnya. Berkas ini disimpan sebagai catatan, bukan sebagai surat.
+>
+> Satu koreksi atas isi berkas ini, yang tidak boleh ikut terkirim: blok di bawah menyimpulkan
+> "model **mengabaikan** hasil pencarian". Kesimpulan itu diambil dari dua pengukuran tanpa
+> pembanding. Setelah diberi pembanding, angkanya berbunyi lain — 96% jawaban memakai bahan yang
+> **cocok**, melawan 35% pada uji yang sengaja tidak diberi bahan. Yang benar: model mengabaikan
+> bahan yang **tidak cocok**, dan memakai bahan yang cocok.
 > Belum ada satu pin pun yang masuk ke kode. Halaman ini adalah permintaan review, bukan catatan
 > sesuatu yang sudah tayang.
 
