@@ -193,3 +193,37 @@ describe("the empty state teaches — DESIGN.md's rule needs an element to bind"
     expect(html).toMatch(/placeholder="[^"]*[Cc]eritakan/);
   });
 });
+
+/**
+ * THE COMPOSED ANSWER IS JUSTIFIED (Erik, 2026-08-16).
+ *
+ * Asserted here rather than left as prose for the same reason the measure is: a `text-align` on one
+ * class is exactly the kind of line a later refactor folds into `.said` or drops while "tidying".
+ *
+ * The `hyphens` half is not decoration. Justifying Indonesian without it stretches word gaps around
+ * long derived forms, which is the failure mode that makes justified text look worse than ragged —
+ * so the two are one rule, and the test treats them as one.
+ */
+describe("the AI-composed answer is set justified, and safely", () => {
+  test(".ai-said is justified", () => {
+    const block = stylesLive.slice(stylesLive.indexOf(".ai-said {"));
+    expect(block.slice(0, block.indexOf("}"))).toContain("text-align: justify");
+  });
+
+  test(".ai-said hyphenates — justification without it opens rivers in Indonesian", () => {
+    const block = stylesLive.slice(stylesLive.indexOf(".ai-said {"));
+    expect(block.slice(0, block.indexOf("}"))).toContain("hyphens: auto");
+  });
+
+  test("hyphens: auto has a language to work from — the document declares lang=\"id\"", () => {
+    const html = readFileSync(join(import.meta.dir, "../index.html"), "utf8");
+    expect(html).toContain('<html lang="id">');
+  });
+
+  test("justification is scoped to the composed answer, not to every spoken line", () => {
+    // `.said` covers short single sentences elsewhere in a turn; justifying a two-line remark only
+    // opens gaps in it. If this ever fails, the rule widened — decide that deliberately.
+    const said = stylesLive.slice(stylesLive.indexOf(".said {"));
+    expect(said.slice(0, said.indexOf("}"))).not.toContain("justify");
+  });
+});

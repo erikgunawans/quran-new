@@ -752,7 +752,25 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* Synthesis edition (new-quranku-ai): the AI-authored answer + its honesty label. The label is a
    touch more present than the reader-note — it must be readable, not fine print, since it is the
    one thing telling the reader this answer is machine-made and not a fatwa. */
-.ai-said { text-wrap: pretty; }
+/* JUSTIFIED (Erik, 2026-08-16). The composed answer is the one block of continuous prose the app
+ * writes itself, and a flush-both edge is how a printed muṣḥaf's commentary sets running text — it
+ * reads as a considered page rather than a chat bubble. Scoped to `.ai-said` on purpose: the other
+ * `.said` lines in a turn are short single sentences, and justifying a two-line remark only opens
+ * gaps in it.
+ *
+ * `hyphens: auto` is what makes justification safe here, and it needs a language to work — the
+ * document carries `lang="id"` (index.html), so Indonesian's long derived forms
+ * (`memerintahkan`, `menempatkan`) can break instead of being shoved to the next line and stretching
+ * the one above. Where a platform ships no Indonesian dictionary the property is simply inert, which
+ * degrades to today's behaviour rather than to a broken one.
+ *
+ * `text-wrap: pretty` stays: it governs the last line and orphans, which justification does not
+ * touch (the last line stays flush-start, `text-align-last: auto`). */
+.ai-said {
+  text-wrap: pretty;
+  text-align: justify;
+  hyphens: auto;
+}
 
 /* A citation inside an authored answer is a DOOR, not decoration — it opens the reading surface at
    that exact ayah. Styled as text that happens to be reachable rather than as a button: the answer
