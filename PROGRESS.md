@@ -8,6 +8,65 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-17 — the tags are shown for four seconds, and the KB gained its own primary text
+
+**Handoff item 1, answered and inverted.** The question was whether the knowledge card is *rarely*
+the settled view. It is **never** the settled view on a healthy turn, by construction. Eight
+questions driven through the real composer on prod (cleared thread, discarded warm-up, `#thread`
+turns asserted before and after each ask, read at T+44 s): **7 settled on the AI lane, 1 on the
+zero-entry pointer, 0 on the knowledge card**, with `know-cat` at 0 in every AI turn. `main.ts:907`
+(`turn = composed ?? await resolvePrincipled(turn)`) and `main.ts:932` (`if (!composed) return;`)
+make the card a fall-through, reachable only on four `applyAi`-null branches (`answer.ts` 140/151/170,
+`main.ts:830`).
+
+**But it is not unseen — it is shown and retracted, and that is worse.** Dense 2 s sampling of
+`apa hukum riba dalam islam dan kenapa dilarang`: composing notice to ~T+11 s, then the knowledge
+card with `knowcat=1 knowlist=1 knowref=5` at **T+12 s and T+14 s**, then the AI lane from **T+16 s**
+onward and permanently. `FAST_ANSWER_MS = 9000` hands the reader Ustadz Muhammad Thalib's five cited
+entries and app-authored prose replaces them mid-sentence. Filed **ISC-476, NOT MET** — the fix is a
+design decision for Erik, not a defect to quietly patch.
+
+A control arm (patching `window.fetch` to reject `/api/answer`) made the identical question render
+the card correctly, tag on the genuinely borrowed entry (QS 30:39, `Ekonomi Islam`). Without it,
+"knowcat=0 eight times" was equally consistent with "superseded", "wrong selector", and "reverted".
+Also found: the `dari bab` words are CSS-generated (`styles.css:1144`), so every `textContent` probe
+reports the shipped feature as missing (**ISC-477**).
+
+**Light theme gained a green hairline on the inner panel.** `border: 1px solid var(--primary-line)`
+on `.qk-panel`, AMENDING the 2026-08-09 no-border rule rather than reversing it — that rule was
+argued on the dark register, where the colour step already separates the planes; light has no such
+step. BOTH dark selectors clear it (the attribute form and the OS-default form guarded by
+`:not([data-theme="light"])`), because writing only the first paints a green line on a dark panel for
+every reader who never touched the theme toggle. Verified in real Chrome across all three states.
+Tests force-red on a hardcoded colour and on a missing OS guard.
+
+**Gates:** `bun test` **1505/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run
+build` exit 0. ISA **487/499**. **Nothing deployed this session** — the hairline is committed and
+unshipped.
+
+### Sister repo — `~/printing-press/library/tafseer-okf` (3 commits, unpushed)
+
+- **Tarjamah Tafsiriyah joined the OKF KB** — `okf/tafseer/id-tafsiriyah/`, 6,236 ayah + 114 surah
+  indexes = **6,350** records, verified against the authoritative per-surah ayah counts (0 of 114
+  disagree, 0 missing frontmatter, 0 empty bodies). It had been absent not by decision but because
+  every other lane was fetched from OUTSIDE while QTT already lived in quran-new. Filed
+  `content_type: tarjamah-tafsiriyah`, NOT tafsir. **No licence record for it exists in either
+  repo** — written `usage: reference-only` with an open `clearance_path`.
+- **A 3D knowledge graph** — `graph/okf-graph-3d.html`, 317 nodes / 1,442 edges, self-contained
+  (custom canvas projection, no CDN). Every edge read out of the corpus: 1,418 aqeedah→ayah
+  citations and 24 Bukhari↔Muslim shared subjects. **The hadith component is disconnected and the
+  page says so** rather than manufacturing a link with embeddings. A naive Arabic match resolved
+  6% and still rendered convincingly; normalising both sides gives 99.8%, and the builder throws
+  below 95%.
+- **Aqidah Indonesian reached 1,454/1,454** — but the stall was diagnosed first: the 249 leftovers
+  were the LONG tail, not the queue's end (missing median 8,975 chars vs 4,934 done), timing out on
+  a flat 180 s budget when a 27,577-char record needs 3 m 23 s. Fixed as `AQEEDA_TIMEOUT_MS`
+  (default 900 s), then partitioned round-robin by descending size across 5 `AQEEDA_ONLY` workers.
+  **The gate is still RED**: 245 of 1,454 records carry `scripture_issues` (315 nfc-only, 82
+  missing). The lane stays gitignored and uncommitted.
+
+---
+
 ## 2026-08-16 (late-4) — the pool was the defect, and the screenshot found what the probe missed
 
 **Anchor:** `0446c2b` on `main`. **DEPLOYED AND VERIFIED LIVE** — prod worker `bd46704a`.

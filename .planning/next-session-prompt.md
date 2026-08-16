@@ -1,3 +1,167 @@
+# Next session — New-Quranku (checkpoint 2026-08-17)
+
+> Prepended by /wrap 2026-08-17 (anchor `20c392b`). Supersedes the late-4 anchor `0446c2b`.
+> That handoff's **item 1 is DISCHARGED** (measured, answered, and inverted — see below). Its items
+> 2, 3, 4, 5, 6, 7, 8, 9 survive and are carried forward.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-17**).
+
+**Current state.** Gates green — `bun test` **1505/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=
+synthesis bun run build` exit 0. **ISA 487/499.** Clean tree except untracked `WARP.md` — leave it.
+**NOTHING WAS DEPLOYED THIS SESSION** — the light-theme hairline is committed and unshipped, so prod
+still serves bundle `index-DZQQeRQP.js`. The hadith generator remains STOPPED (1,746/14,736).
+
+**A SECOND REPO IS IN PLAY THIS SESSION:** `~/printing-press/library/tafseer-okf` (private,
+`erikgunawans/tafseer-okf`). Three commits there, **unpushed**, held deliberately — see item 2.
+
+---
+
+## 1. ISC-476 — the knowledge card is shown for four seconds, then taken away. ERIK'S CALL
+
+Measured on prod: `FAST_ANSWER_MS = 9000` renders the principled turn (often the knowledge card,
+with the ISC-472 `dari bab` tags) at ~T+12 s, and `main.ts:934` replaces the whole node when the AI
+lands at ~T+16 s. The reader begins reading Ustadz Muhammad Thalib's cited entries and has them
+swapped for app-authored prose mid-sentence.
+
+**Two options and they promise the reader different things** — this is a design decision, not a
+defect to patch: (a) keep the scholar's entries BELOW the composed answer instead of replacing them,
+or (b) stop rendering a card that is going to be retracted, and show only the composing state until
+the answer lands. Do not pick one without Erik.
+
+Probe to assert either fix: sample `a.know-cat` count at 2 s resolution from submit to T+20 s and
+require it never goes 1 → 0.
+
+## 2. Push the `tafseer-okf` commits? — NEEDS ERIK, because of the licence gap
+
+Three commits sit unpushed at `~/printing-press/library/tafseer-okf`:
+`14f402e9` (QTT lane), `fbb61968` (3D graph), `b6a4abbb` (graph a11y).
+
+**Why they were held:** `14f402e9` adds 6,350 records of Ustadz Muhammad Thalib's Tarjamah
+Tafsiriyah, and **no licence, permission letter, or clearance record for that text exists in either
+repo** — I searched both. quran-new displays it as `display_role: "primary"` on Erik's standing call,
+which is a decision about the app, not a grant covering a redistributable corpus. Owning
+`quran.tarjamahtafsiriyah.com` is not owning the copyright; that sits with Ustadz Muhammad Thalib /
+Majelis Mujahidin Indonesia. The repo is PRIVATE and the existing Dorar/sunnah.com lanes are also
+`reference-only`, so pushing is consistent with precedent — but it is Erik's call, not mine.
+**Ask him for the permission basis and record it in the lane's `clearance_path`.**
+
+## 3. Aqidah Indonesian is 1,454/1,454 but the GATE IS RED — resume point is precise
+
+`bun run aqeeda:verify-id` exits **1**: **245 of 1,454 records carry `scripture_issues`** (315
+nfc-only, 82 MISSING quotations). All files exist; `okf/aqeeda/id/` stays gitignored and
+uncommitted, which is exactly what that gitignore is for.
+
+**Do NOT blindly run the resume doc's prescribed fix** (`rg -l '^scripture_issues: [1-9]' … | xargs
+rm -f && bun run aqeeda:translate-id`). The defect rate has been ~18-22% across three separate runs,
+which is the signature of something SYSTEMATIC, not transient — deleting and re-translating 245
+records may reproduce it exactly and spend real money doing so. **First** read `spliceScripture()` /
+`checkPreserved()` in `tool/translate-aqeeda-id.ts` and establish why the splice mis-anchors on
+these citations; `nfc-only` means the splice found the quote but the stored bytes differ in
+combining-mark order, `MISSING` means it did not find it at all. Fix the splice, then re-run.
+
+## 4. Send `hukum-pin-request` to Ustadz Ahmad? — NEEDS ERIK (now FOUR sessions old)
+
+`docs/review/hukum-pin-request-2026-08-12.md`, status `BELUM DIKIRIM`. Unchanged.
+
+## 5. ISC-419 / ISC-420 — the receipt half of the critique. STILL BLOCKED ON ERIK
+
+Unchanged. Every one of 8 real prod paragraphs carries an unattributed claim about God or the
+unseen; a receipt guard as prescribed refuses ~100% of answers. **Recommended path unchanged:** fix
+`SYNTHESIS_SYSTEM_PROMPT` first, re-measure the residue, guard only what is left.
+
+## 6. `MODEL_DEADLINE_MS` — Erik's call, numbers unchanged
+
+Ten prod samples, median 7.5 s, tail to 25.4 s. Raising it cannot happen without the client's 30 s
+`TIMEOUT_MS` moving with it (ISC-466).
+
+## 7. QS 7:19 on ruling questions — PRE-EXISTING, and now seen twice
+
+Still surfaces on `apa hukum riba dalam islam dan kenapa dilarang` — visible in this session's
+control-arm screenshot. Within-chapter ranking, the axis where frequency has failed three times.
+**Do not open without a control set.**
+
+## 8. Two copy defects, both authored-surface, both their own diff (unchanged)
+
+- The zero-entry pointer misstates the cause (`"Pertanyaan soal {category} itu luas"`). **Newly
+  reproduced this session**: `apa yang al quran katakan tentang neraka` routed to the SCRIPTURE
+  chapter (`Al-Qur'an, Taurat, Injil, dan Zabur`, 111 entries) because the literal words `al quran`
+  captured routing and `neraka` was ignored. A narrow question told it was too broad.
+- `main.ts`'s scholar-voice sentence still presents an app-ranked, 8-capped subset.
+
+## 9. Audio DENGAR on the `#/baca` shelf card (unchanged, blocked on one click from Erik)
+
+## 10. `MAX_DISPLAY = 2` (unchanged — a rights call) · 11. Continuous chat PRD (unchanged)
+
+## 12. Optional: publish the 3D graph as an Artifact
+
+`graph/okf-graph-3d.html` is self-contained and holds only structural metadata (names, counts) — no
+corpus text — so it is safe to publish. Two publish attempts **502'd** from the artifact service
+during the wrap; retry when it recovers.
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — a fall-through lane is not invisible, it FLASHES.** Sample a progressively-upgraded UI
+  across the whole window from submit to settle at 2 s resolution, not just at the endpoint. A
+  settle-only reading said `knowcat=0` and would have shipped "the feature is unseen"; the truth was
+  "shown and retracted", a different defect with a different fix.
+- **NEW — the `dari bab` label is CSS-generated** (`styles.css:1144`,
+  `.know-cat::before{content:"dari bab "}`). `textContent` searches return 0 on a perfectly-rendering
+  page. Count `a.know-cat` ELEMENTS; confirm the words by screenshot only.
+- **NEW — a "lane X never renders" claim needs a control arm that makes it render.** Patching
+  `window.fetch` to reject `/api/answer` is the one that works here.
+- **NEW — when a generator stalls at N of M, compare the size distribution of DONE vs MISSING before
+  re-running.** The aqidah leftovers were the long tail, not the queue's end, and an unchanged
+  re-run would have spent 12 hours reproducing the same timeout.
+- **NEW — Arabic must be normalised on BOTH sides before matching.** The `tafseer/ar` lane stores
+  surah names fully vowelled, citations are bare; a naive match resolved 6% and still rendered a
+  convincing graph. Strip diacritics, fold alef/teh-marbuta/alef-maqsura and the article.
+- **`interceptor macos screenshot` grabs Chrome's VISUAL FRONT tab**, which is Erik's tab, not the
+  driven one. Prefer `interceptor screenshot` (DOM render) — and note a backgrounded tab is
+  rAF-throttled to ~1 fps, so an animated page will not settle while it is behind another tab.
+- **After `interceptor navigate`, element refs go STALE.** Re-read the tree. Count `#thread` turns
+  before AND after every submit — that is what caught a silent no-op this session.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`.
+  It also silently discards the REST of a compound command, which is how a `cat >> test.ts` append
+  vanished this session and a "force-red" then passed against a test that was never added.
+- **Force-red every new test**, and check the mutation actually applied — a `python3` assert that
+  fails leaves the file untouched and the green run looks like a passing force-red.
+- **A test can assert the FIXTURE rather than the guard.** Prefer asserting the invariant.
+- **frequency has now failed THREE times against this index. Do not try IDF again.** The separator
+  is word CLASS.
+- **`ACTION_FRAME` is deliberately NOT consulted by `subjectWordsOf`.** **`RULING_FRAME` is excluded
+  from shard SELECTION only and must NOT feed `isFrameWord`.** **`stemReach`'s one-directional rule
+  is the `musik` guard.** Do not tidy any of these away.
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.**
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Always
+  `VITE_ANSWER_MODE=synthesis bun run build`.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).** All new Indonesian
+  goes through the IndonesianPolish skill.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE** — a partial lane in git looks exactly like a
+  complete one. It may only be committed when `aqeeda:verify-id` exits 0.
+
+## Open items waiting on me (the user)
+
+- **ISC-476 — keep the scholar's entries below the AI answer, or stop showing a card that will be
+  retracted?** (item 1). Design decision, mine to make.
+- **Push the three `tafseer-okf` commits, and what licence backs Tarjamah Tafsiriyah?** (item 2).
+- **Send `hukum-pin-request` to Ustadz Ahmad?** (item 4) — FOUR sessions old.
+- **ISC-419/420 — may the app assert things about God without citation?** (item 5). Theological.
+- **ISC-417 — Ustadz Ahmad has still never signed off on AI-authored answers at all.**
+- **`MODEL_DEADLINE_MS`** (item 6) — raise it, or accept the ~10% tail silence?
+- **The audio DENGAR click** (item 9) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 10) — a rights call.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-16 late-4)
 
 > Prepended by /wrap 2026-08-16 late-4 (anchor `0446c2b`). Supersedes the late-3 anchor `32a1ecc`.
