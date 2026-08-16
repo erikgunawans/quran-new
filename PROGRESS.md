@@ -8,6 +8,91 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-16 (late-3) — the route was right and the entries were still wrong
+
+**Anchor:** `32a1ecc` on `main` (pushed this wrap). **NOT DEPLOYED** — prod still serves worker
+`5700421d` / bundle `index-CdvPLSbA.js` from `f10fccc`. **Gates:** bun test **1477/0** exit 0 ·
+typecheck exit 0 (five chained `tsc` passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0.
+**ISA 478/489** (unchanged — reactive defect work, no ISC closed).
+
+### The handoff's item 1 was diagnosed, and its stated hypothesis was FALSE
+
+The handoff said `matched` was empty and the broad-topic path took the leading entries. Measured:
+`matched` held **16 entries and the score histogram was `{1: 16}`** — every matched word weighs 1,
+the four query words (`sadari` `lakukan` `membuat` `neraka`) never co-occur, so nothing could
+outscore anything. The stable sort returned the chapter in ascending surah order and `MAX_ENTRIES
+= 8` cut the tie at 8, dropping 14:28-30. Three of the eight survivors were there on `masuk` alone,
+including *"Berilah salam sebelum masuk rumah orang"*.
+
+### Frequency was tried a THIRD time against this index, and reverted
+
+The first fix weighted each matched word by `log(1 + N/reach)` from the shard. It recovered
+14:28-30 and was still wrong: inside the chapter the reaches are `lakukan` 1, `membuat` 3,
+`neraka` 4, `masuk` 9 — IDF ranks the two generic verbs ABOVE the subject. Widening to all 2,451
+entries does not separate them either (`membuat` 8, `neraka` 9, `lakukan` 10). The captions are
+terse imperative headings, so a common verb is not a frequent word in them. `topic-words.ts`
+already recorded this refutation twice, in the `STOP` and `QUESTION_FRAME` docblocks; the IDF
+branch was written and reverted before either was read.
+
+### The fix is word CLASS — `ACTION_FRAME`
+
+Action verbs (doing, causing, becoming, entering) may still RANK but may not count as a question's
+SUBJECT. `isFrameWord = QUESTION_FRAME.has(w) || ACTION_FRAME.has(w)`, used only by
+`retrieveKnowledge`. **Routing deliberately still consults `QUESTION_FRAME` alone**, so every slug
+pinned in `topic-broad-tier.test.ts` is byte-identical.
+
+Measured across 37 questions, every bucket:
+
+| question | before | after |
+|---|---|---|
+| the reported one | 8, surah order, 3 on `masuk` alone | exactly 3:131, 14:28, 14:29, 14:30 |
+| `kenapa orang bisa masuk neraka?` | 2:208 *masuk Islam*, 24:27, 24:58 + 3 | the same four |
+| `apa yang membuat rezeki jadi berkah?` | 2:180 *wasiat*, 25:9, 31:6 + 5 | 5, all on rezeki |
+| `apa yang terjadi pada hari kiamat?` | 18:23/24 *insya Allah* | 39:71, 107:1 |
+
+**The cost, recorded rather than buried:** zero-entry outcomes went **6 → 7**. `apa yang harus
+dilakukan saat marah?` lost both its entries (3:135/3:136, surfaced on `dilakukan` while the
+question is about anger). `marah` is a feeling word and `looksFactual` is false for it, so the
+feeling lane owns that question before this path sees it.
+
+### The systemic finding: every routing test asserts a SLUG
+
+That is why half the reported failure shipped as fixed. `web/src/entry-ranking.test.ts` asserts
+literal REFS for the target plus four already-correct control questions. Force-red first: 2 fail /
+5 pass at HEAD, with a POPULATED array — so the two headline assertions cannot pass vacuously
+through the `catch` that returns null.
+
+### Scholarly gate: CLEAR, with one finding that must not be lost
+
+No user-facing string changed. But `docs/review/hukum-pin-request-2026-08-12.md` — status
+`BELUM DIKIRIM`, never sent — asks the ustadz **this exact question**: *"Bolehkah 4:25 kami
+keluarkan dari hasil pertanyaan nikah?"* So excluding an entry from a question's results is a
+**pending ask, not a granted permission**. Not a blocker (nothing leaves the index, the entry stays
+reachable at `#/peta/{slug}`, the rule is a word class not a per-entry verdict, and `MARRIAGE_HOLD`
+already ships the same class of unilateral suppression). The previous session's reasoning does NOT
+invert: "surfaces more of his entries, therefore inside the display permission" does not become
+"surfaces fewer, therefore outside it" — fewer entries can only understate coverage, never
+overstate review.
+
+### Not addressed, recorded
+
+- **The single-shard ceiling.** The index holds NINE `neraka` entries across FIVE chapters and
+  `retrieveKnowledge` loads exactly one. Four are reachable; five are not, at any ranking quality.
+- **The zero-entry pointer misstates the cause** — *"Pertanyaan soal {category} itu luas"* blames
+  the question's breadth when the real cause is that the index holds no on-subject line.
+- **`main.ts:597`** presents an app-ranked, 8-capped subset in the scholar's voice. This diff makes
+  that sentence MORE true; it does not fix the framing.
+
+### Codebase read end to end
+
+~20,000 lines read in full: all of `web/src` (62 of 64 modules — the two exceptions are generated
+data tables), all of `worker/src`, `src/domain`, all of `src/ingest`, the OKF builders, the key
+`src/app` gates, `problem-verses.ts` with all 133 ustadz rulings, and the eval harnesses. Not yet
+read: the 85 test files, the four CSS files (5,240 lines), 12 `src/app` builders, 14 `src/review`
+sheet generators, and the rest of `demo.ts`.
+
+---
+
 ## 2026-08-16 (late-2) — the router could not see the words the corpus is most about
 
 **Anchor:** `origin/main` `f10fccc`. **DEPLOYED** — worker `5700421d`, bundle `index-CdvPLSbA.js`,
