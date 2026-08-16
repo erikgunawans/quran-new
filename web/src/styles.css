@@ -1159,6 +1159,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .know-credit a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .know-derivative { margin: 0.35rem 0 0; font-size: var(--step--1); color: var(--ink-3); line-height: 1.5; }
 
+/* ── the scholar's card kept BELOW a composed answer (ISC-476) ──────────────────
+   The composed answer used to replace this node outright, so a reader who had begun on Ustadz
+   Muhammad Thalib's entries at ~T+12 s lost them at ~T+16 s. It now sits underneath, separated by
+   the same rule `.tier3` uses and for the same reason: what is above is ours and machine-composed,
+   what is below is the scholar's own, and an unmarked join would let the composed prose borrow his
+   authority. Tokens only — no colour literals (see memory hardcoded-literals-outlive-tokens). */
+.kept-scholar { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+
 /* ── the third tier (tafsir-tier.ts) ────────────────────────────────────────────
    Follows a THIN knowledge answer with the ayah it points at plus one mufasir's verbatim words.
    Separated from the index above it by a rule, because the two have different guarantees: the list

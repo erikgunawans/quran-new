@@ -75,7 +75,22 @@ export type Turn =
   // attribution and no card underneath, which is precisely the unbacked attribution the whole wall
   // exists to prevent. `renderTurn` therefore treats a marker with no card as unrenderable and
   // strips it, so tampered storage degrades to plain prose rather than to a fabricated receipt.
-  | { q: string; kind: "ai"; prose: string; refs: string[]; hadith?: HadithCard[] }
+  // `below` is the scholar's card this composed answer SUPERSEDED, kept underneath instead of
+  // replacing it (ISC-476, Erik's call 2026-08-17). Measured on prod: the principled turn painted at
+  // ~T+12 s and this turn wiped the whole node at ~T+16 s, so a reader who had started on Ustadz
+  // Muhammad Thalib's cited entries had them taken away mid-sentence. Only the KEY is stored, never
+  // the markup — the entries re-derive from the KB at render time exactly as a standalone
+  // `knowledge`/`aqidah` turn does, so a restored thread cannot show a card today's index no longer
+  // supports. Absent on every turn composed before the reader saw anything: nothing was shown, so
+  // nothing is being kept.
+  | {
+      q: string;
+      kind: "ai";
+      prose: string;
+      refs: string[];
+      hadith?: HadithCard[];
+      below?: { kind: "knowledge"; slug: string } | { kind: "aqidah"; id: string };
+    }
   // A question this feeling app must not answer with a verse OR the KB — a marital rights/obligation
   // matter (nafkah) that belongs to a human ustadz who does family law. Carries only the question;
   // the deferral copy is re-derived at render time. See needsFamilyLawScholar() in retrieve.ts.

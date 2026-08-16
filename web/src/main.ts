@@ -41,6 +41,7 @@ import { applyLens, bindLazyTafsir, tafsirStackHtml, type TafsirLens } from "./t
 import { tafsirTierHtml } from "./tafsir-tier.ts";
 import { bindLandingCards } from "./landing-cards.ts";
 import { migrateStorage } from "./migrate-storage.ts";
+import { keptBelow } from "./kept-below.ts";
 import {
   clearThread,
   hasThread,
@@ -416,7 +417,17 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       // The synthesis edition's authored answer. Prose is REPLAYED verbatim from the stored turn (it
       // was model-generated once and guarded then); the verses re-render as cards from the corpus.
       if (!corpus) throw new Error("corpus");
-      return aiHtml(t.prose, t.refs, t.hadith ?? [], animate);
+      // The scholar's card this answer superseded, kept BELOW rather than replacing it. Re-derived
+      // through renderTurn, so it is the same card by the same code path a standalone knowledge or
+      // aqidah turn renders — including its own credit and derivative-linking notices, which must
+      // travel with the entries wherever they appear. If re-derivation now degrades to silence the
+      // wrapper is dropped entirely rather than framing an apology as the scholar's contribution.
+      const kept = t.below ? await renderTurn({ q: t.q, ...t.below }, false) : "";
+      const below =
+        kept && !kept.includes("class=\"silence\"")
+          ? `<section class="kept-scholar">${kept}</section>`
+          : "";
+      return (await aiHtml(t.prose, t.refs, t.hadith ?? [], animate)) + below;
     }
   }
 }
@@ -815,8 +826,23 @@ async function ask(question: string) {
      * Extracted so the PROGRESSIVE path can apply the identical rules when the answer arrives late.
      * When a composed answer arrives must not change how it is judged.
      */
-    const applyAi = (ai: Awaited<ReturnType<typeof synthesizeAnswer>>): Turn | null => {
-      if (ai?.kind === "answer") return { q, kind: "ai", prose: ai.prose, refs: [...ai.refs], hadith: [...ai.hadith] };
+    const applyAi = (ai: Awaited<ReturnType<typeof synthesizeAnswer>>, superseded?: Turn): Turn | null => {
+      if (ai?.kind === "answer") {
+        // ISC-476. When this answer arrives LATE it lands on top of a principled turn the reader is
+        // already reading. If that turn was the scholar's own — the Indeks Tematik entries or a
+        // reviewed-aqidah answer — it is carried along and rendered underneath, so nothing the reader
+        // started on is taken away. `superseded` is undefined on the fast path, and correctly so:
+        // there the composed answer won the race and no card was ever painted.
+        const below = keptBelow(superseded);
+        return {
+          q,
+          kind: "ai",
+          prose: ai.prose,
+          refs: [...ai.refs],
+          hadith: [...ai.hadith],
+          ...(below ? { below } : {}),
+        };
+      }
       // ONLY the hadith rule earns the Hadis pointer, because only for it is the pointer TRUE: the
       // kind of source that answers the question is a hadith collection, and we have one. Sending a
       // fiqh question there would be a wrong turn, not a modest one.
@@ -929,7 +955,7 @@ async function ask(question: string) {
           // The reader cleared the thread, or navigated somewhere that tore this node out. An upgrade
           // now would resurrect a conversation somebody deleted.
           if (!answer.isConnected) return;
-          const composed = applyAi(v);
+          const composed = applyAi(v, fast);
           if (!composed) return; // nothing better arrived — the fast answer WAS the answer
           answer.innerHTML = await renderTurn(composed);
           announceTurn(composed);
