@@ -28,6 +28,7 @@ const refsOf = async (q: string): Promise<string[]> => {
   return (r?.entries ?? []).map((e) => `${e.surah}:${e.ayah}`);
 };
 
+const isFrame = (w: string) => QUESTION_FRAME.has(w) || ACTION_FRAME.has(w);
 const TARGET = "apa aja sih yang tidak kita sadari kita lakukan yang bisa membuat kita masuk neraka?";
 const THIN = "apa yang menyebabkan orang masuk neraka";
 
@@ -102,7 +103,6 @@ describe("the pool stays bounded", () => {
    * maximum of 6 over the probe below, median 1-2. If a corpus rebuild pushes that up, this fails
    * here rather than as a slow page.
    */
-  const isFrame = (w: string) => QUESTION_FRAME.has(w) || ACTION_FRAME.has(w);
   const shardsFor = (q: string): number => {
     const u = new Set(subjectWordsOf(q).filter((w) => !isFrame(w)).flatMap((w) => categoriesContaining(w)));
     const primary = matchTopic(q);
@@ -127,5 +127,51 @@ describe("the pool stays bounded", () => {
     expect(isFrame("masuk")).toBe(true);
     expect(categoriesContaining("masuk").length).toBeGreaterThan(6);
     expect(isFrame("neraka")).toBe(false);
+  });
+});
+
+describe("ruling vocabulary selects no chapters", () => {
+  /**
+   * Reported live with a screenshot. "apa hukum riba dalam islam dan kenapa dilarang" came back with
+   * QS 33:52 ("Dilarang menikah lagi dan mengganti istri"), 5:49 ("Dilarang mengikuti hawa nafsu
+   * manusia") and 33:48 sitting under a question about riba. Every one is a real `dilarang` hit and
+   * none is about riba: the word says the question wants a ruling, not what the ruling is about.
+   *
+   * The first probe of the widening MISSED this because it asked "hukum riba dalam islam" without
+   * the trailing "dan kenapa dilarang" -- the shortened question a developer types, not the one a
+   * person does. Hence the full phrasings below.
+   */
+  const FULL = "apa hukum riba dalam islam dan kenapa dilarang";
+
+  test("a ruling word pulls in no other chapter's entries", async () => {
+    const refs = await refsOf(FULL);
+    expect(refs.length).toBeGreaterThan(0); // not vacuous
+    for (const r of ["33:52", "5:49", "33:48"]) expect(refs).not.toContain(r);
+  });
+
+  test("the riba entries themselves are all still there", async () => {
+    // The narrowing must cost nothing real: 30:39 is the cross-chapter reach from Ekonomi Islam and
+    // has to survive, or this "fix" would have quietly undone the widening for ruling questions.
+    const refs = await refsOf(FULL);
+    for (const r of ["2:278", "2:275", "3:130", "30:39"]) expect(refs).toContain(r);
+  });
+
+  test("the same shape of question on another subject is also clean", async () => {
+    const refs = await refsOf("kenapa zina dilarang dalam islam");
+    expect(refs.length).toBeGreaterThan(0);
+    for (const r of ["33:52", "5:49", "33:48"]) expect(refs).not.toContain(r);
+  });
+
+  test("neraka is untouched — the widening this narrows must still deliver", async () => {
+    const refs = await refsOf(TARGET);
+    for (const r of ["74:43", "85:10", "8:13", "9:68"]) expect(refs).toContain(r);
+  });
+
+  test("a ruling word still SCORES inside the routed chapter", async () => {
+    // RULING_FRAME is excluded from shard selection ONLY. If it leaked into isFrameWord, ranking
+    // would stop seeing `dilarang` and a "Dilarang..." caption would lose to a silent one.
+    const { RULING_FRAME } = await import("./topic-words.ts");
+    expect(RULING_FRAME.has("dilarang")).toBe(true);
+    expect(isFrame("dilarang")).toBe(false); // NOT a QUESTION_FRAME/ACTION_FRAME word
   });
 });

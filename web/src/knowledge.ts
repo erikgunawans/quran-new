@@ -19,7 +19,7 @@
 import { loadCategory, loadIndex, type PetaIndex } from "./peta-data.ts";
 import { isFeelingWord, norm, phraseHit, questionForms } from "./retrieve.ts";
 export { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
-import { ACTION_FRAME, FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
+import { ACTION_FRAME, FRAME, QUESTION_FRAME, RULING_FRAME, STOP } from "./topic-words.ts";
 import { TOPIC_BROAD, TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
 import { vocabularyForms } from "./vocabulary.ts";
 
@@ -531,8 +531,15 @@ export async function retrieveKnowledge(question: string): Promise<KnowledgeAnsw
    * Widening the pool does NOT lower the bar for what surfaces: the `score > 0 && onSubject` gate
    * below is unchanged, so a shard with no matching line costs a fetch and contributes nothing.
    */
+  // RULING_FRAME is excluded HERE and nowhere else. A ruling word is a real ranking signal inside a
+  // chapter and a false one for picking chapters: "kenapa riba dilarang" is about riba, and
+  // `dilarang` reaches four categories full of unrelated "Dilarang..." captions. See its docblock.
   const supplementary = [
-    ...new Set(subjectWordsOf(question).filter((w) => !isFrameWord(w)).flatMap((w) => categoriesContaining(w))),
+    ...new Set(
+      subjectWordsOf(question)
+        .filter((w) => !isFrameWord(w) && !RULING_FRAME.has(w))
+        .flatMap((w) => categoriesContaining(w)),
+    ),
   ].filter((s) => s !== slug);
 
   let index: PetaIndex;

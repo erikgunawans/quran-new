@@ -145,3 +145,34 @@ export const ACTION_FRAME = new Set<string>([
   "masuk", "memasuki", "termasuk",
   "terjadi", "menimpa",
 ]);
+
+/**
+ * Ruling VOCABULARY: the words that say a question is asking for a hukum.
+ *
+ * A third frame class, and unlike the other two it is consulted ONLY when choosing which shards to
+ * read (see `supplementary` in knowledge.ts). It deliberately does NOT feed `isFrameWord`, because
+ * these words must keep scoring normally INSIDE a chapter: "kenapa zina dilarang" should still rank
+ * a "Dilarang..." caption in Perintah dan Larangan above one that is silent on the ruling.
+ *
+ * Measured case, reported from the live app with a screenshot. Asked "apa hukum riba dalam islam
+ * dan kenapa dilarang", the widened pool returned QS 7:19 ("Adam dan istrinya disuruh tinggal di
+ * surga tetapi DILARANG mendekati sebuah pohon"), 33:52 ("DILARANG menikah lagi dan mengganti
+ * istri"), 5:49 ("DILARANG mengikuti hawa nafsu manusia") and 33:48 alongside the four real riba
+ * entries. Every one of them is a genuine `dilarang` hit and not one is about riba.
+ *
+ * `dilarang` reaches 4 categories and `wajib` reaches 7, so left unlisted they widen the pool to
+ * most of the corpus for the single commonest shape of question this app is asked. `riba` reaches
+ * 2 and is what the question is actually about.
+ *
+ * NOTE the asymmetry with the other two sets, and do not "tidy" it: a ruling word is a legitimate
+ * ranking signal and an illegitimate shard-selection signal, because ranking asks "is this entry
+ * about what was asked" while selection asks "which chapters is this question about". Only the
+ * second is answered wrongly by `dilarang`.
+ */
+export const RULING_FRAME = new Set<string>([
+  "dilarang", "larangan", "melarang", "diharamkan", "mengharamkan",
+  "diperbolehkan", "diperbolehkah", "dibolehkan", "membolehkan",
+  "wajib", "diwajibkan", "kewajiban",
+  "haram", "halal", "makruh", "mubah", "sunnah",
+  "berdosa", "dosanya", "boleh", "bolehkah",
+]);
