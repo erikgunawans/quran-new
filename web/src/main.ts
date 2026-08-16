@@ -286,11 +286,37 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
           Coba juga tanyakan dengan kata-kata lain, atau telusuri lewat <a href="#/peta">Tematik</a>.</p>
         </div>`;
 
+    // THE OLD HEADLINE WAS A FALSE CLAIM ABOUT THE MUSHAF, and it is worth writing down why rather
+    // than quietly swapping the words.
+    //
+    // It told the reader, in as many words, that no fitting ayah had been found in the verified
+    // corpus — the retired line is NOT quoted here, because the anti-test guarding the
+    // `answer-blocked` copy slices this file from that case label to this one and would read a
+    // verbatim quote as the lie itself. (It did, on the first attempt. The test was right.)
+    //
+    // That headline says a search ran over the corpus and came back empty. Measured 2026-08-16 on
+    // prod, asking "apa aja sih yang tidak kita sadari kita lakukan yang bisa membuat kita masuk
+    // neraka?": ZERO `/api/` requests were made, `matchTopic` returned null, and the scholar's index
+    // holds NINE entries on neraka — 74:43, 85:10, 8:13, 14:28-30, 3:131 — several of them direct
+    // answers. The app had not looked. It could not look. And it told the reader the corpus was empty.
+    //
+    // `answer-blocked` above already carries this principle for the wall's path — its own comment
+    // spells out that the retired sentence is a false claim about the mushaf. This case reaches the
+    // same reader by a different road and must not say less.
+    //
+    // So the headline now names OUR limit and claims nothing about scripture. It is true on every
+    // road into this branch — a question that routed nowhere, a `hits` turn whose refs did not
+    // resolve, a knowledge turn with no entries.
+    //
+    // The second sentence lost its tail, "aku menemani lewat perasaan, bukan menjawab soal ajaran,
+    // hukum, atau arti sebuah ayat". That was true of the principled edition and is FALSE here:
+    // EDITION is "synthesis" and this app authors answers about ajaran every day. A self-description
+    // the running code contradicts is the same defect as the headline, one line further down.
     case "silence":
       return `
-        <p class="said">Aku belum menemukan ayat yang cocok dengan itu di korpus yang sudah diverifikasi.</p>
+        <p class="said">Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya.</p>
         <div class="silence">
-          <p>Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak — aku menemani lewat <b>perasaan</b>, bukan menjawab soal ajaran, hukum, atau arti sebuah ayat.</p>
+          <p>Bukan berarti Al-Qur'an diam soal ini — batasannya ada padaku. Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.</p>
           <p>Kalau kamu nyari <b>topik atau konsep</b> — misalnya tentang Allah, sabar, atau rezeki — coba buka <a href="#/peta">Tematik</a>. Kalau kamu lagi <b>ngerasain sesuatu</b>, ceritakan aja pakai kata-katamu sendiri. Atau sebutkan <b>surah dan ayatnya langsung</b>, misalnya <b>18:10</b>.</p>
         </div>`;
 

@@ -34,6 +34,23 @@ const KNOWLEDGE_EXTRA = [
   "sampai", "secara", "serta", "bahwa", "agar", "supaya", "jika", "bila", "ketika", "saat",
   "setelah", "sebelum", "selama", "tanpa", "yaitu", "yakni", "terhadap", "menurut", "melalui",
   "ceritakan", "jelaskan", "sebutkan", "jawab", "jawaban", "tolong", "kasih", "beritahu", "berikan",
+  // GRAMMAR WORDS THE SPREAD CAP HAD BEEN HIDING (2026-08-16).
+  //
+  // These are function words, and they belonged in this list from the start. They were never
+  // noticed because build-topic-subjects.ts discarded every word occurring in more than three
+  // categories, so a word like "sedang" was silently deleted for being BROAD rather than for being
+  // grammatical. That cap was doing two jobs at once, and the day the second tier stopped throwing
+  // broad words away, the missing stopwords came back with the real subjects: `matchTopic("aku
+  // sedang sedih")` routed to a chapter on the Prophet, on the strength of "sedang" alone — the one
+  // outcome four separate tests exist to forbid, because a person saying they are sad must reach the
+  // feeling lane and nothing else.
+  //
+  // Chosen by word CLASS, the separator this file already trusts: auxiliaries, quantifiers,
+  // determiners and copulas — never a topical noun. Every religious subject the second tier exposed
+  // (akhirat, dosa, iman, neraka, rezeki, surga, takwa, tauhid, zakat) is deliberately absent here.
+  "adanya", "banyak", "baru", "bukan", "demi", "jadi", "kali", "lain", "lalu", "lebih", "lewat",
+  "punya", "satu", "sebagai", "sebagian", "sedang", "sedikit", "seluruh", "sendiri", "seorang",
+  "seseorang", "sesuai", "sesuatu", "telah", "tetap", "tetapi", "tertentu", "terus",
   // The asking verbs belonged with the answering ones from the start and were simply missed — the
   // one opener this app is literally named after. "saya mau TANYA tentang hukum warisan" ranked
   // QS 10:94 "Tanyakan kebenaran Al-Qur'an kepada Ahli Kitab" second, above the real inheritance

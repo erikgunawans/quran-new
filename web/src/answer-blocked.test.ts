@@ -153,3 +153,50 @@ describe("a refusal and an absence must not be the same event", () => {
     expect(safeAnswer(SICKNESS_ANSWER, allow("2:155"), groundedHadithFrom([]))).toBeNull();
   });
 });
+
+/**
+ * THE SAME LIE, ON THE OTHER ROAD.
+ *
+ * The suite above stops the corpus-empty claim on the WALL's path. This describes the road the
+ * reader actually takes far more often: retrieval qualified nothing, `matchTopic` returned null,
+ * `hasGrounding` was false, and `synthesizeAnswer` bowed out before any network call — so the turn
+ * renders `kind: "silence"` having never consulted anything.
+ *
+ * Measured on prod 2026-08-16 with "apa aja sih yang tidak kita sadari kita lakukan yang bisa
+ * membuat kita masuk neraka?": ZERO `/api/` requests, and the scholar's index holds nine `neraka`
+ * entries the router could not reach. The old headline told that reader the verified corpus had
+ * nothing for them. It is the identical false statement about the mushaf, so it gets an identical
+ * test rather than a comment hoping someone remembers.
+ */
+describe("Anti: the corpus-gap copy never claims the corpus is empty either", () => {
+  const silenceCopy = () => {
+    const src = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // From the case label — NOT from the comment above it, which quotes the retired line verbatim
+    // to explain why it went. Slicing from the comment would make this test pass on the old copy.
+    const from = src.indexOf('    case "silence":\n      return `');
+    return src.slice(from, src.indexOf('case "hits":', from));
+  };
+
+  test("it makes no claim about what the corpus contains", () => {
+    expect(silenceCopy()).not.toContain("belum menemukan ayat yang cocok");
+    expect(silenceCopy()).not.toContain("korpus yang sudah diverifikasi");
+  });
+
+  test("it says the limit is ours, exactly as the blocked path does", () => {
+    expect(silenceCopy()).toContain("Bukan berarti Al-Qur'an diam");
+  });
+
+  test("it does not describe this edition as one that declines to answer ajaran", () => {
+    // EDITION is "synthesis" and this app authors answers about ajaran daily. The retired tail
+    // ("aku menemani lewat perasaan, bukan menjawab soal ajaran…") was true of the principled
+    // edition only, and a self-description the running code contradicts is the same defect as the
+    // headline it sat beneath.
+    expect(silenceCopy()).not.toContain("bukan menjawab soal ajaran");
+  });
+
+  test("it still offers the reader somewhere to go", () => {
+    const copy = silenceCopy();
+    expect(copy).toContain('href="#/peta"');
+    expect(copy).toContain("18:10");
+  });
+});

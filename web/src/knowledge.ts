@@ -20,7 +20,7 @@ import { loadCategory, loadIndex, type PetaIndex } from "./peta-data.ts";
 import { isFeelingWord, norm, phraseHit, questionForms } from "./retrieve.ts";
 export { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
 import { FRAME, QUESTION_FRAME, STOP } from "./topic-words.ts";
-import { TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
+import { TOPIC_BROAD, TOPIC_SLUGS, TOPIC_SUBJECTS } from "./topic-subjects.ts";
 import { vocabularyForms } from "./vocabulary.ts";
 
 /**
@@ -168,7 +168,7 @@ const INTERROGATIVE = new Set<string>([
   "boleh", "bolehkah", "harus", "haruskah", "itu", "yang",
 ]);
 
-function subjectWordsOf(q: string): string[] {
+export function subjectWordsOf(q: string): string[] {
   return norm(q)
     .split(/[\s-]+/)
     .filter(
@@ -200,14 +200,70 @@ const FRAME_ALIAS = new Set<string>([
   "berdosa", "dosa ga", "dosa gak", "dilarang", "diperbolehkah", "diperbolehkan",
 ]);
 
-/** Categories whose entries actually contain this word, strongest first. */
-function categoriesContaining(w: string): readonly string[] {
+/**
+ * Indonesian suffixes that mark a DERIVED form of a word the index may hold bare.
+ *
+ * Needed because `stemReach` reaches only LONGER written forms, and that asymmetry is deliberate
+ * and load-bearing (see its comment). The gap it leaves is real all the same: `sadar` is in the
+ * index — one category, maximally discriminating — and a reader typing the ordinary Indonesian
+ * `sadari` could not reach it, because the written form is the shorter one.
+ *
+ * Stripping a suffix is NOT the same permission as reaching any shorter word. `sadari` → `sadar` is
+ * one morphological step with a named suffix; the failure `stemReach` guards against
+ * (`mendengarkan` sliding down to some shorter stem to answer for a subject the index lacks) is not
+ * reachable this way, and the control set proves it: `hukum mendengarkan musik` routes exactly as
+ * before, because `musik` is absent from BOTH tiers and still vetoes.
+ *
+ * MIN_STEM on the remainder is what keeps `-kan` honest: `makan` → `ma` is two letters and refused,
+ * while `lakukan` → `laku` stands. Without it every word ending in "kan" would become a verb.
+ */
+const SUFFIXES = ["kan", "nya", "lah", "an", "i"] as const;
+
+const stemForms = (w: string): string[] => {
+  const out = [w];
+  for (const s of SUFFIXES) {
+    if (!w.endsWith(s)) continue;
+    const stem = w.slice(0, -s.length);
+    if (stem.length >= MIN_STEM) out.push(stem);
+  }
+  return out;
+};
+
+/**
+ * Categories whose entries actually contain this word, strongest first.
+ *
+ * TWO TIERS. `TOPIC_SUBJECTS` holds the discriminating words and is consulted FIRST and in full, so
+ * every question that routes correctly today keeps its answer. `TOPIC_BROAD` holds the 276 words the
+ * spread cap rejects — `neraka`, `dosa`, `akhirat`, `surga`, `iman` — which are not noise but the
+ * corpus's most central vocabulary, and which the router previously could not see at all. It is
+ * read only when the first tier has nothing, so it can add a route and never redirect one.
+ *
+ * A word found in NEITHER tier is genuinely absent from the corpus ("musik", "pacaran"), and that
+ * absence is what the caller's coverage veto is actually about.
+ */
+/**
+ * Both tiers with their key lists built ONCE.
+ *
+ * `Object.keys` was previously called inside the loop, which was affordable while there was one
+ * table and one form per word. With two tables and the stem forms above it became up to four
+ * rebuilds of a 2,191-entry array per word, and the 13-category attribution test went from passing
+ * to timing out at 5 s — a real cost the suite caught immediately, on a change that altered no
+ * behaviour at all.
+ */
+const TIERS = [
+  [TOPIC_SUBJECTS, Object.keys(TOPIC_SUBJECTS)],
+  [TOPIC_BROAD, Object.keys(TOPIC_BROAD)],
+] as const;
+
+export function categoriesContaining(w: string): readonly string[] {
   // Naming variants first: someone typing `ghibah` is asking about entries written `menggunjing`,
   // and the index only knows the latter. See vocabulary.ts for what may and may not go in there.
-  for (const form of vocabularyForms(w)) {
-    const slots =
-      TOPIC_SUBJECTS[form] ?? TOPIC_SUBJECTS[Object.keys(TOPIC_SUBJECTS).find((k) => stemReach(form, k)) ?? ""];
-    if (slots) return slots.map((i) => TOPIC_SLUGS[i]).filter((x): x is string => x !== undefined);
+  const forms = vocabularyForms(w).flatMap(stemForms);
+  for (const [table, keys] of TIERS) {
+    for (const form of forms) {
+      const slots = table[form] ?? table[keys.find((k) => stemReach(form, k)) ?? ""];
+      if (slots) return slots.map((i) => TOPIC_SLUGS[i]).filter((x): x is string => x !== undefined);
+    }
   }
   return [];
 }
@@ -275,8 +331,35 @@ export function matchTopic(question: string): string | null {
     for (const { holders } of coverage) {
       if (best && holders.includes(best.slug)) return best.slug; // alias category has it — keep
     }
-    const holder = coverage[0]?.holders[0];
-    if (holder) return holder;
+    /**
+     * THE SUBJECT WORDS VOTE. This used to be `coverage[0].holders[0]` — the first subject word's
+     * strongest category — which made the route depend on WORD ORDER. Asked "apa aja sih yang tidak
+     * kita sadari kita lakukan yang bisa membuat kita masuk neraka?", the leading word is `sadari`,
+     * which reaches `sadar`: one entry, in Keluarga. The question went to a chapter on family
+     * because of a word the asker used only to frame the question, while `neraka` — the actual
+     * subject, five categories deep — got no say at all.
+     *
+     * This is NOT the frequency ranking this index refuses (see build-topic-subjects.ts). It does
+     * not count how often a word occurs anywhere; it counts how many of THIS question's own subject
+     * words point at each category, which is agreement, not prevalence. Ties keep the earlier word's
+     * category, so a one-word question behaves exactly as it did.
+     */
+    const votes = new Map<string, number>();
+    for (const { holders } of coverage) {
+      for (const h of holders) votes.set(h, (votes.get(h) ?? 0) + 1);
+    }
+    let winner: string | undefined;
+    let top = 0;
+    for (const { holders } of coverage) {
+      for (const h of holders) {
+        const v = votes.get(h) ?? 0;
+        if (v > top) {
+          top = v;
+          winner = h;
+        }
+      }
+    }
+    if (winner) return winner;
   }
 
   return best?.slug ?? null;
