@@ -8,6 +8,88 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-16 (late-2) — the router could not see the words the corpus is most about
+
+**Anchor:** `origin/main` `f10fccc`. **DEPLOYED** — worker `5700421d`, bundle `index-CdvPLSbA.js`,
+css `index-DePTriQW.css`. Two deploys this session (`145c4c57` justification → `5700421d` routing).
+**Gates:** bun test **1470/0** exit 0 · typecheck exit 0 · build exit 0. **ISA 478/489** (unchanged —
+this was reactive defect work, no ISC closed).
+
+### `bun run typecheck` finally checks `worker/src` — carried item, one line, now two
+
+The script chained root + web + eval. `worker/src` was in none of them, so every worker change this
+repo ever shipped went out unchecked. Added `worker/tsconfig.json` (existed, never wired in) and a
+new `worker/tsconfig.test.json` — the worker config sets `types: []` on purpose so worker source
+cannot see Bun globals, which made `bun:test` unresolvable and left all 6 worker test files
+unchecked too. Force-red BOTH arms independently: a type error in `worker/src/*.ts` and one in
+`worker/src/*.test.ts` each take the gate to exit 2 and name the file.
+
+### The Tanya answer is justified (Erik)
+
+`.ai-said` gets `text-align: justify` + `hyphens: auto`. Hyphenation is not decoration — justified
+Indonesian without it stretches gaps around `memerintahkan`-length words. Scoped to `.ai-said`, and a
+test pins that scoping so widening it must be deliberate. Shipped CSS was grepped, not assumed.
+
+### The reported failure: "apa aja sih yang tidak kita sadari … masuk neraka?"
+
+Reproduced with a `fetch` hook on prod: **ZERO `/api/` requests.** The refusal was decided entirely
+in the browser — `matchTopic` null → `retrieveKnowledge` null → `hasGrounding` false →
+`synthesizeAnswer` returns null before the network call (`answer.ts:140`). Meanwhile the scholar's
+index holds **nine** `neraka` entries (74:43, 85:10, 8:13, 14:28-30, 3:131), several direct answers.
+
+**THREE defects, each measured:**
+
+1. **`MAX_SPREAD = 3` deleted the religion's vocabulary.** A word in more than three categories was
+   discarded as "framing, not subject". After stopwords were already removed that threw away **276**
+   words — `neraka`(5), `dosa`(9), `akhirat`(8), `surga`(7), `iman`(8), `rezeki`(8), `tauhid`(7),
+   `halal`(8), `nabi`(8), `rasul`(8). In a thematic index cut into 13 chapters, appearing everywhere
+   is what CENTRAL looks like. The cap now feeds a second tier (`TOPIC_BROAD`) instead of deleting.
+2. **The coverage veto conflated "broad" with "absent".** One ordinary verb closed the gate. Only a
+   word absent from BOTH tiers vetoes now — which is what keeps the `musik` guard working.
+3. **The correction took `coverage[0].holders[0]`** — the FIRST subject word — so the route depended
+   on word ORDER. `sadari` reaches `sadar`, one entry in Keluarga, and sent a question about neraka
+   to a chapter on family. The question's own subject words now vote.
+
+**A counterfactual killed the simple story before it shipped.** Restoring `neraka` alone fixed
+nothing — not even `masuk neraka`. Fixing gate 1 without gate 2 would have been a no-op sold as a fix.
+
+**`stemReach` was NOT touched.** Its one-directional rule is deliberate and test-pinned — it IS the
+musik guard, and making it bidirectional would have reinstated the exact regression. The
+`sadari` → `sadar` gap is closed by a named-suffix strip inside `categoriesContaining` only.
+
+### The corpus-gap copy was a false claim about the mushaf
+
+It told the reader no fitting ayah existed in the verified corpus when nothing had been searched.
+`answer-blocked.test.ts` already pinned that sentence as a lie on the WALL's path; this case reaches
+the same reader by another road. New copy names our limit and claims nothing about scripture. Its
+second sentence also lost the tail "bukan menjawab soal ajaran" — true of the principled edition,
+false here, since `EDITION` is `synthesis` and the app authors ajaran answers daily.
+
+### Two self-inflicted faults, both caught by the repo's own tests
+
+- **The spread cap had been doubling as an ad-hoc stopword list.** With it no longer deleting,
+  `matchTopic("aku sedang sedih")` routed to the Prophet's chapter on the strength of `sedang` alone
+  — the one outcome four separate tests forbid. 28 function words that always belonged in `STOP` are
+  now in it, chosen by word class; not one religious noun.
+- **A comment quoting the retired copy verbatim failed the anti-test guarding it**, because that test
+  slices main.ts between two case labels. The test was right; the comment was rewritten.
+- `categoriesContaining` rebuilt `Object.keys` up to 4× per word and took the 13-category
+  attribution test from passing to a 5 s timeout. Keys hoisted.
+
+### Verified live after deploy
+
+Fresh tab, CacheStorage purged, hard reload, bundle hash confirmed. The reported question now
+returns Ustadz Muhammad Thalib's Perintah dan Larangan entries verbatim with attribution —
+**including QS 3:131**, one of the nine. No silence, no false copy.
+
+**NOT verified live:** the new silence copy rendering. It is present in the shipped bundle (grepped)
+and pinned by four force-red tests, but the silence path is now hard to reach on prod precisely
+because routing improved — the probe question drew an authored answer instead.
+
+**Also observed:** the model addressed the reader as *"Nak"* again, in an answer about music.
+
+---
+
 ## 2026-08-16 (late) — the disclosure moved above the theology; the receipt rule cannot ship as written
 
 **Anchor:** `origin/main` `b83ce60`. **DEPLOYED** — worker `c357ea7e`, bundle `index-BROZrzBm.js`,

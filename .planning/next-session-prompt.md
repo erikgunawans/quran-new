@@ -1,3 +1,142 @@
+# Next session — New-Quranku (checkpoint 2026-08-16 late-2)
+
+> Prepended by /wrap 2026-08-16 late-2 (anchor `f10fccc`). Supersedes the 2026-08-16 anchor
+> `7f81b63`. That handoff's item 2 is DISCHARGED (typecheck now checks `worker/src`) and item 3 is
+> DIAGNOSED AND CLOSED (see below — it was the 25 s deadline, not eschatology). Its items 1, 4, 5,
+> 6 and 7 survive and are carried below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-16 (late-2)**, anchor
+`origin/main` `f10fccc`).
+
+**Current state.** Prod DEPLOYED and verified live: worker `5700421d`, bundle `index-CdvPLSbA.js`,
+css `index-DePTriQW.css`, `EDITION: "synthesis"`. Gates green — `bun test` **1470/0** exit 0 ·
+typecheck exit 0 (now including `worker/src` AND its tests) · build exit 0. **ISA 478/489**
+(unchanged — reactive defect work, no ISC closed; consider writing ISCs for the routing fix).
+Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands directly on `main`.
+The hadith generator is STOPPED and must stay stopped (1,746/14,736) pending a scholarly ruling.
+
+**Two deploys this session, both verified live:** `145c4c57` (justified Tanya answer) →
+`5700421d` (the routing fix + the honest corpus-gap copy).
+
+---
+
+## 1. Finish what the routing fix started — entry RANKING inside the chapter
+
+The reported question now routes to Perintah dan Larangan and renders the scholar's entries with
+attribution, **including QS 3:131** — but the entries shown look like the category's LEADING lines
+(2:180 wasiat, 2:208, 2:238…) rather than the neraka ones. `retrieveKnowledge` documents that path:
+`matched` empty → broad-topic question → take the leading entries. So the SELECTION is fixed and the
+RANKING is not: 14:28-30 and 74:43 exist in the index and did not surface.
+
+**Do not assume why.** Measure whether `matched` was genuinely empty (and if so, why `neraka` scored
+0 against entries whose text contains it — suspect `qWords`, `hasOwnSense`, or `onSubject`), before
+touching the ranker. The probes from this session are in the scratchpad pattern: import
+`matchTopic` / `subjectWordsOf` / `categoriesContaining` from `web/src/knowledge.ts` (all three are
+now exported) and run them under `bun`.
+
+## 2. ISC-419 / ISC-420 — the receipt half of the critique. STILL BLOCKED ON ERIK
+
+Unchanged. Measured against real prod prose: **every one of 8 paragraphs carries at least one
+unattributed claim about God or the unseen.** A receipt guard as prescribed refuses **~100%** of
+answers. **Deliberately NOT built.** Worst example: *"Allah tidak pernah bosan menerima hamba-Nya
+yang kembali"* — a hadith rendered as the app's own sentence.
+
+**Recommended path (unchanged):** fix `SYNTHESIS_SYSTEM_PROMPT` first, re-measure the residue on
+real prose, guard only what is left. Building the wall first is what produced the 48% refusal.
+
+## 3. `MODEL_DEADLINE_MS` — Erik's call, now with numbers behind it
+
+**Item 3 of the previous handoff is CLOSED as a diagnosis.** "apa yang terjadi setelah kita
+meninggal" returning no prose is NOT an eschatology refusal. Ten samples through the real UI:
+`5554 · 6073 · 6554 · 6924 · 7016 · 7984 · 8525 · 13074 · 19453 · 25445` ms. **Median 7.5 s**, and
+the ONE silent turn was `ms:25445, answer:null, blocked:null` — the `catch` at `index.ts:759`, i.e.
+the 25 s Worker deadline, on a turn whose first attempt threw before generating anything.
+
+So the lever is `MODEL_DEADLINE_MS` above 25 s, which **cannot move without the client's 30 s
+`TIMEOUT_MS` moving with it** (ISC-466). The median is fine; the tail is what kills.
+
+## 4. Audio — DENGAR on the `#/baca` shelf card (unchanged, blocked on Erik)
+
+Decided: the button goes on the `#/baca` shelf card (`read.ts`, `indexRow`). **Blocked on one
+click:** Erik must open `quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ so the mounted
+player can be read out of the DOM — autoplay policy rejects programmatic clicks. **Do not loop on
+coordinate clicks.** The shelf card is a single `<a href>` wrapping its inner layer, so a nested
+`<button>` is invalid and would navigate; the card needs restructuring.
+
+## 5. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's
+terms, not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.**
+
+## 6. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every
+rule is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question`
+events too?
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — `stemReach`'s one-directional rule is the `musik` guard. Do NOT make it bidirectional.**
+  Its comment says so and `knowledge.test.ts` pins it. A session almost shipped that change; the
+  `sadari` → `sadar` gap is closed by a NAMED-SUFFIX strip inside `categoriesContaining` instead,
+  which cannot reach an arbitrary shorter word.
+- **NEW — `MAX_SPREAD` had been doubling as an ad-hoc stopword list.** Anything that stops the cap
+  from deleting broad words resurrects grammar words with the real subjects — `matchTopic("aku
+  sedang sedih")` routed to the Prophet's chapter on `sedang` alone. If you widen the tiers again,
+  re-run the FEELING tests first; four of them exist for exactly this.
+- **NEW — a router change needs a CONTROL SET captured before the change, asserted as literal
+  slugs.** "It still routes somewhere" is the assertion that lets a regression through.
+  `web/src/topic-broad-tier.test.ts` holds 8 such routes; extend it, never relax it.
+- **NEW — a comment that QUOTES retired copy can fail the anti-test guarding it.** The
+  `answer-blocked` test slices `main.ts` between two case labels; a verbatim quote inside that range
+  reads as the lie itself. Paraphrase retired copy in comments.
+- **NEW — the corpus-gap copy must never claim the corpus is empty.** Two roads reach the same
+  reader (the wall's, and the never-searched one) and both are now pinned. `EDITION` is `synthesis`,
+  so the app must also never describe itself as one that declines to answer ajaran.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.** Clear caches, hard-reload,
+  confirm the loaded css/js HASH before measuring anything.
+- **`wrangler deploy` reporting "2 new assets" is not proof the JS did not ship.** The asset store is
+  content-addressed; a chunk already uploaded is not re-sent. Verify by what prod SERVES.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Always
+  `VITE_ANSWER_MODE=synthesis bun run build`, and check `.build-meta.json` says `synthesis` AND its
+  `gitSha` matches HEAD. (`.build-meta.json` is NOT served — a fetch returns the SPA fallback.)
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).** Noted again this
+  session: the model addressed a reader as *"Nak"*, which is a different axis and still unaddressed.
+- **`interceptor eval` only prints STRING returns.** Wrap every probe in `String(...)` or
+  `JSON.stringify(...)`. The tab also gets STOLEN mid-session — pin `interceptor tab switch <id>` in
+  the SAME Bash command as every eval/screenshot, and recover with `tab new <url>`, never a loop.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — and it also fires on an unrelated
+  `| head` later in the same command. Redirect to a file, echo `$?`, then read the file.
+- **A green test can assert the defect.** Force-red every new test; a break must fail the RIGHT
+  test and only it.
+- **Measure EVERY outcome bucket after a change, not the one you set out to move.**
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- **Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`** — it is
+  GENERATED, and it now emits TWO tables (`TOPIC_SUBJECTS` + `TOPIC_BROAD`).
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736 pending a ruling.
+
+## Open items waiting on me (the user)
+
+- **ISC-419/420 — may the app assert things about God without citation?** (item 2). Theological, not
+  engineering. The prompt-first path needs a go-ahead before any guard work starts.
+- **ISC-417 — Ustadz Ahmad has still never signed off on AI-authored answers at all.** Recorded as
+  Erik's knowing call; `EDITION="synthesis"` is live and the app authors prose today.
+- **`MODEL_DEADLINE_MS`** (item 3) — raise it above 25 s, and the client's 30 s with it, or accept
+  the current ~10% tail silence?
+- **The audio DENGAR click** (item 4) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 5) — a rights call, not a scholarly one.
+- **Does the routing change need the ustadz?** It surfaces MORE of his verbatim entries and authors
+  nothing new, so this session treated it as already-approved display. Worth confirming.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-16)
 
 > Prepended by /wrap 2026-08-16 (anchor `7f81b63`). Supersedes the 2026-08-15 `late-3` anchor
