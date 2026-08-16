@@ -1,3 +1,178 @@
+# Next session — New-Quranku (checkpoint 2026-08-16 late-4)
+
+> Prepended by /wrap 2026-08-16 late-4 (anchor `0446c2b`). Supersedes the late-3 anchor `32a1ecc`.
+> That handoff's **item 1 is DISCHARGED** (deployed + verified live) and **item 5 is DISCHARGED**
+> (retrieval widened, deployed, verified). Its items 2, 3, 4, 7, 8, 9 survive verbatim below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-16 (late-4)**, anchor
+`origin/main` `0446c2b`).
+
+**Current state.** Gates green — `bun test` **1503/0** exit 0 · typecheck exit 0 (five chained
+`tsc` passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 485/496** (+7 this
+session: ISC-469..475). Clean tree except untracked `WARP.md` — leave it. No PRs; this repo lands
+directly on `main`. The hadith generator is STOPPED and must stay stopped (1,746/14,736).
+
+**PROD IS CURRENT AND VERIFIED.** Worker `bd46704a`, built from `0446c2b`, `EDITION: "synthesis"`.
+Five deploys landed this session, each checked against SERVED bytes and then in real Chrome.
+Unlike the last two handoffs there is no undeployed commit and no stale dist.
+
+---
+
+## 1. Confirm the `dari bab` tags are a SETTLED view, not a pre-settle one — TOP ITEM
+
+The cross-chapter attribution (`dari bab Ekonomi Islam`) and the amended sentence (*"...dan bab
+lain yang membahas hal serupa"*) are shipped and were seen rendering correctly. But the **synthesis
+lane supersedes the knowledge card on many questions**, and one reading this session was taken
+mid-flight and later replaced — 8 refs and 7 tags at one moment, 0 a few seconds later, because
+`/api/answer` returned and swapped the turn.
+
+So: drive 5+ questions through the real UI, wait for FULL settle (30 s+), and record for each
+whether the reader's final view is the knowledge card or the AI lane. **Count `#thread` turns
+before and after, and re-read after 30 s** — a reading taken before the async upgrade lands is not
+the reader's view. If the knowledge card is rarely the settled view, the ISC-472 copy is shipped
+but largely unseen, and that is worth knowing before more work goes into it.
+
+## 2. Send `hukum-pin-request` to Ustadz Ahmad? — NEEDS ERIK (unchanged, now THREE sessions old)
+
+`docs/review/hukum-pin-request-2026-08-12.md`, status `BELUM DIKIRIM`, asks *"Bolehkah 4:25 kami
+keluarkan dari hasil pertanyaan nikah?"* THREE changes have now landed in its territory. It has
+never been sent.
+
+## 3. ISC-419 / ISC-420 — the receipt half of the critique. STILL BLOCKED ON ERIK
+
+Unchanged. Measured against real prod prose: **every one of 8 paragraphs carries at least one
+unattributed claim about God or the unseen.** A receipt guard as prescribed refuses **~100%** of
+answers. **Deliberately NOT built.** Worst example: *"Allah tidak pernah bosan menerima hamba-Nya
+yang kembali"* — a hadith rendered as the app's own sentence. **Recommended path (unchanged):** fix
+`SYNTHESIS_SYSTEM_PROMPT` first, re-measure the residue on real prose, guard only what is left.
+
+## 4. `MODEL_DEADLINE_MS` — Erik's call, with numbers behind it (unchanged)
+
+Ten samples through the real UI: `5554 · 6073 · 6554 · 6924 · 7016 · 7984 · 8525 · 13074 · 19453 ·
+25445` ms. **Median 7.5 s**, and the one silent turn was `ms:25445, answer:null, blocked:null` —
+the 25 s Worker deadline. Raising it **cannot happen without the client's 30 s `TIMEOUT_MS` moving
+with it** (ISC-466). The median is fine; the tail is what kills.
+
+## 5. QS 7:19 on ruling questions — PRE-EXISTING, newly visible
+
+`apa hukum riba dalam islam dan kenapa dilarang` still surfaces *"Adam dan istrinya disuruh tinggal
+di surga tetapi dilarang mendekati sebuah pohon"*. It is in the ROUTED chapter, so it was reachable
+long before the widening and is NOT from ISC-469 — the widening merely made it easy to notice. It
+is a within-chapter ranking question (`dilarang` scoring on an off-subject caption), which is the
+axis where frequency has already failed three times. Do not open it without a control set.
+
+## 6. Two copy defects, both authored-surface, both their own diff (unchanged)
+
+- **The zero-entry pointer misstates the cause.** It says *"Pertanyaan soal {category} itu luas"*,
+  blaming the question's breadth, when for a narrow question the real cause is that the index holds
+  no on-subject line. `knowledge.ts` states both halves; the copy carries one.
+- **`main.ts`'s scholar-voice sentence** presents an app-ranked, 8-capped subset. ISC-472 made it
+  MORE true (borrowed lines now name their chapter); it did not fix the 8-cap framing.
+
+## 7. Audio — DENGAR on the `#/baca` shelf card (unchanged, blocked on Erik)
+
+Decided: the button goes on the `#/baca` shelf card (`read.ts`, `indexRow`). **Blocked on one
+click:** Erik must open `quran.tarjamahtafsiriyah.com/audio-quran` and click any ▶ so the mounted
+player can be read out of the DOM — autoplay policy rejects programmatic clicks. **Do not loop on
+coordinate clicks.** The shelf card is a single `<a href>` wrapping its inner layer, so a nested
+`<button>` is invalid and would navigate; the card needs restructuring.
+
+## 8. "Utilize the whole hadith as a knowledge base" — scoped, needs Erik (unchanged)
+
+Retrieval already uses all 14,736; `MAX_DISPLAY = 2` is a **rights** position from sunnah.com's
+terms, not a scholarly one, so no ustadz approval reaches it. **Do not quietly raise it.**
+
+## 9. Continuous chat — unblocked, PRD needs updating first (unchanged)
+
+`.scratch/continuous-chat/PRD.md`. Its trap section rests on "the model's answers are ungrounded",
+measured false (+61 pt lift). **Settled, do NOT re-open:** last 6 turns verbatim; tabs stay;
+local-now / adopts-on-sign-in. **Still open:** does history change what the guard must do (every
+rule is sentence-scoped)? And what does "delete" delete — transcript only, or the D1 `question`
+events too?
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — probe with the question a PERSON types, not the one you type.** The ruling-word defect
+  (ISC-473) shipped because the probe asked `hukum riba dalam islam` and dropped the trailing `dan
+  kenapa dilarang`. Erik's screenshot of the live app found it. TWICE this session looking at the
+  screen beat measuring; budget for both.
+- **NEW — `RULING_FRAME` is excluded from shard SELECTION only and must NOT feed `isFrameWord`.**
+  A ruling word is a real ranking signal inside a chapter and a false one for picking chapters.
+  Selection asks which chapters the question is about; ranking asks whether an entry is about what
+  was asked. Do not tidy the asymmetry away.
+- **NEW — widening may never MANUFACTURE an answer.** If the routed chapter matched nothing
+  on-subject, the honest silence stands. Removing this took four safety guards red at once.
+- **NEW — a reading taken before the async upgrade settles is not the reader's view.** A probe
+  showed 8 refs and 7 chapter tags; seconds later the same thread held 0, because `/api/answer`
+  returned and replaced the turn. Wait 30 s, then re-read.
+- **A test can assert the FIXTURE rather than the guard.** Two `answer.test.ts` cases pinned a
+  hand-built question returning exactly one unresolvable entry — true only while retrieval read one
+  shard. Prefer asserting the invariant; force-red every guard by neutering the code it guards.
+- **frequency has now failed THREE times against this index. Do not try IDF again.** The separator
+  is word CLASS — `STOP`, `QUESTION_FRAME`, `ACTION_FRAME`, and now `RULING_FRAME`.
+- **`ACTION_FRAME` is deliberately NOT consulted by `subjectWordsOf`.** Adding it there would move
+  every slug pinned in `topic-broad-tier.test.ts`.
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.** Assert
+  literal REFS (`web/src/entry-ranking.test.ts`, `web/src/shard-spread.test.ts`), and force-red with
+  a POPULATED array — `refsOf` collapses a `null` return to `[]`, so `not.toContain` passes
+  vacuously if retrieval merely dies.
+- **`stemReach`'s one-directional rule is the `musik` guard. Do NOT make it bidirectional.**
+- **`MAX_SPREAD` had been doubling as an ad-hoc stopword list.** Re-run the FEELING tests if you
+  widen the tiers again; four exist for exactly this.
+- **A router change needs a CONTROL SET captured before the change, asserted as literal slugs.**
+- **A comment that QUOTES retired copy can fail the anti-test guarding it.** Paraphrase instead.
+- **The corpus-gap copy must never claim the corpus is empty.** `EDITION` is `synthesis`, so the
+  app must also never describe itself as one that declines to answer ajaran.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.** Clear caches, hard-reload,
+  confirm the loaded css/js HASH before measuring anything.
+- **A symbol grep cannot prove presence OR absence after minification** — probe string LITERALS,
+  and make sure the negative control is formed the same way as the test. A control that shares the
+  test's bug is not a control.
+- **`wrangler deploy` reporting "2 new assets" is not proof the JS did not ship.** Verify by what
+  prod SERVES.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Always
+  `VITE_ANSWER_MODE=synthesis bun run build`, and check `.build-meta.json` says `synthesis` AND its
+  `gitSha` matches HEAD. (`.build-meta.json` is NOT served — a fetch returns the SPA fallback.)
+- **An identical bundle hash after a rebuild is not proof the build did nothing** — the previous
+  dist may have been built from the same working tree before the commit. Check `.build-meta`'s
+  `gitSha` and a literal probe, not the filename.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).**
+- **All new Indonesian goes through the IndonesianPolish skill.** `menyinggung` was caught that way
+  — it reads first as *offend*, which is expensive on a religious surface.
+- **`interceptor eval` only prints STRING returns.** Wrap every probe in `String(...)`. Pin
+  `interceptor tab switch <id>` in the SAME Bash command as every eval/screenshot. After
+  `interceptor navigate`, element refs go STALE — re-read the tree, or the submit silently does
+  nothing and you measure an empty thread. Recover a lost tab with `tab new <url>`, never a loop.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail.** Redirect to a file, echo `$?`,
+  then read the file. `cd` does NOT persist between Bash calls — use absolute paths.
+- **Measure EVERY outcome bucket after a change, not the one you set out to move.**
+- **Never judge `/api/answer` on the first post-deploy request**, nor the first after a page load.
+- **Never hand-set ISA `progress:`.** Compute it (`rg -c '^- \[x\] ISC-' ISA.md`).
+- **Editing `web/src/topic-subjects.ts` REQUIRES re-running `bun run app:topic-subjects`** — it is
+  GENERATED, and it emits TWO tables (`TOPIC_SUBJECTS` + `TOPIC_BROAD`).
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736 pending a ruling.
+
+## Open items waiting on me (the user)
+
+- **Send `hukum-pin-request` to Ustadz Ahmad?** (item 2) — THREE changes have now landed in its
+  territory and it has still never been sent.
+- **ISC-419/420 — may the app assert things about God without citation?** (item 3). Theological,
+  not engineering. The prompt-first path needs a go-ahead before any guard work starts.
+- **ISC-417 — Ustadz Ahmad has still never signed off on AI-authored answers at all.** Recorded as
+  Erik's knowing call; `EDITION="synthesis"` is live and the app authors prose today. The
+  cross-chapter attribution shipped this session widens what the reader sees of the scholar's
+  material, and he has not seen it.
+- **`MODEL_DEADLINE_MS`** (item 4) — raise it above 25 s, and the client's 30 s with it, or accept
+  the current ~10% tail silence?
+- **The audio DENGAR click** (item 7) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 8) — a rights call, not a scholarly one.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-16 late-3)
 
 > Prepended by /wrap 2026-08-16 late-3 (anchor `32a1ecc`). Supersedes the late-2 anchor `f10fccc`.

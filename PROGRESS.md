@@ -8,6 +8,78 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-16 (late-4) — the pool was the defect, and the screenshot found what the probe missed
+
+**Anchor:** `0446c2b` on `main`. **DEPLOYED AND VERIFIED LIVE** — prod worker `bd46704a`.
+**Gates:** bun test **1503/0** exit 0 · typecheck exit 0 (five chained `tsc` passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 485/496** (+7: ISC-469..475).
+
+Five deploys this session, each verified against SERVED bytes and then in a real browser:
+`83e17a55` (the late-3 ranking fix) -> `ea503204` (pool widening) -> `987a8255` (markdown +
+scroll) -> `bd46704a` (ruling words). Erik authorised the deploys and the guard-test rewrite.
+
+### The late-3 handoff's item 1 is DISCHARGED
+
+`32a1ecc` shipped. Fresh tab, cleared storage, confirmed bundle hash: the reported neraka question
+returned exactly `3:131 · 14:28 · 14:29 · 14:30` and none of 24:27 / 24:58 / 2:208.
+
+One near-miss worth recording: the rebuilt bundle hash was IDENTICAL to the stale one on disk
+(`index-CPKed7M9.js`), which reads as "the build did nothing". It was benign — the previous dist
+had been built from the fixed working tree four minutes BEFORE the commit, so only `.build-meta`'s
+`gitSha` was stale. Proving it took a literal probe (`kulakukan`, `membikin`) with a discriminating
+negative control, because **a symbol grep cannot prove presence after minification**, and my first
+probe was malformed: I searched the ACTION_FRAME words WITH surrounding quotes and the control word
+without, so every word read "absent" and the control could not tell me. A control that shares the
+bug with the test is not a control.
+
+### Item 5 was never a ranking problem
+
+The index holds NINE entries whose text says `neraka`, across FIVE chapters. `retrieveKnowledge`
+loaded exactly one shard, so five were unreachable at ANY ranking quality — never in the array
+being sorted. The ranker was correct and was being handed one thirteenth of the corpus. That is
+why tuning it kept not working. See ISC-469..473 for the full record.
+
+Three rules the first cut earned the hard way, each from a red gate:
+
+1. **Widening deepens an answer we already had; it never manufactures one.** Four safety guards
+   went red because `mendengarkan` is not an ACTION_FRAME verb but names no topic either.
+2. **The routed chapter wins every score tie** — otherwise fetch-resolution order rewrites answers
+   that were already right.
+3. **One verse filed in two chapters is shown once** — `riba` returned QS 2:278 twice.
+
+### Erik's screenshot found what my measurement did not
+
+After the widening shipped, `apa hukum riba dalam islam dan kenapa dilarang` returned QS 33:52
+("Dilarang menikah lagi..."), 5:49 and 33:48 under a riba question. **My probe missed it because I
+asked `hukum riba dalam islam` and dropped `dan kenapa dilarang`** — the shortened question a
+developer types, not the one a person does. `RULING_FRAME` (ISC-473) fixes it; the tests now use
+full phrasings. This is the second time this session that looking at the screen beat measuring.
+
+### Two guard tests were asserting a FIXTURE, not the guard
+
+`answer.test.ts` pinned `"syarat pribadi shalih khianat"` returning exactly one unresolvable entry
+(QS 8:77) — true only while retrieval read one shard. Widening also finds QS 11:55, resolvable and
+on-subject, so the input stopped isolating the condition. The guards never moved. On Erik's call
+both now assert the invariant instead, and each was force-red confirmed by neutering the resolvable
+filter and the no-grounding null-return in turn. Notably **the older sibling test did NOT catch the
+neutered filter** — the rewritten one does.
+
+### Two reader-facing defects Erik reported from the live app
+
+- **Raw markdown.** `**sikap meremehkan dosa kecil**` shipped with the asterisks showing (ISC-474).
+  Chasing the count to zero found a second surface: the sunnah.com corpus carries markdown in the
+  hadith text itself.
+- **The question scrolled off the top** on every turn after the first (ISC-475).
+
+### Next
+
+1. **The `dari bab` tags and the amended attribution sentence are shipped and render correctly**,
+   but the synthesis lane supersedes the knowledge card on many questions — confirm they are a
+   reader's SETTLED view, not only a pre-settle one.
+2. Items 2, 3, 4, 7, 8, 9 from the late-3 handoff are untouched and carried forward.
+
+---
+
 ## 2026-08-16 (late-3) — the route was right and the entries were still wrong
 
 **Anchor:** `32a1ecc` on `main` (pushed this wrap). **NOT DEPLOYED** — prod still serves worker
