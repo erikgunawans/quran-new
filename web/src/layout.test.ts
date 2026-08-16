@@ -227,3 +227,25 @@ describe("the AI-composed answer is set justified, and safely", () => {
     expect(said.slice(0, said.indexOf("}"))).not.toContain("justify");
   });
 });
+
+describe("the inner panel's green hairline is LIGHT-ONLY", () => {
+  // Erik asked for it on light (2026-08-17); dark keeps the 2026-08-09 no-border rule. Two things
+  // can go wrong quietly and neither shows up in a light-theme screenshot: the line gets hardcoded
+  // (and then survives the next retheme still holding the old green), or only ONE dark selector is
+  // written (and then every reader who never touched the theme toggle gets a green line on a dark
+  // panel — the panel-vs-token desync this project has already shipped once, in the other direction).
+  const panelRule = shellLive.match(/\.qk-panel\s*\{[^}]*\}/)?.[0] ?? "";
+
+  test("the base rule draws the line, and draws it from the TOKEN not a literal", () => {
+    expect(panelRule).toMatch(/border:\s*1px\s+solid\s+var\(--primary-line\)/);
+    // A literal would satisfy "there is a green line" while defeating the reason for the token.
+    expect(panelRule).not.toMatch(/border:[^;]*(#[0-9a-fA-F]{3,8}|oklch\(|rgba?\()/);
+  });
+
+  test("BOTH dark selectors clear it — the attribute form and the OS-default form", () => {
+    expect(shellLive).toMatch(/:root\[data-theme="dark"\]\s+\.qk-panel\s*\{[^}]*border-color:\s*transparent/);
+    expect(shellLive).toMatch(
+      /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s+\.qk-panel\s*\{[^}]*border-color:\s*transparent/,
+    );
+  });
+});

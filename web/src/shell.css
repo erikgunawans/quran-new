@@ -159,18 +159,31 @@
      off that scale. (Supersedes the earlier "slightly less round" 20->12: that was about killing
      the over-round, and 16 is still well under the 22-26 the doc names as the tell.) */
   border-radius: var(--r-lg); overflow: hidden;
-  /* NO BORDER (Erik, 2026-08-09). The comment that used to sit here claimed the distinction was
-     "carried by the color step … so the line itself stays quiet" — but the step was doing only half
-     the work and the hairline was quietly holding up the other half. Two planes separate without a
-     line when the lit one is brighter than its ground at EVERY point; drawing an edge as well is
-     belt-and-braces, and it reads as a frame around the reading surface.
-     The shadow stays and is deepened: a shadow describes the gap between two planes, which is the
-     thing being expressed. A border describes an edge, which is not. */
-  border: 0;
+  /* A GREEN HAIRLINE, LIGHT ONLY (Erik, 2026-08-17). This AMENDS the 2026-08-09 "NO BORDER" rule
+     rather than reversing it — that rule was argued on the dark register, where the panel is the lit
+     plane against a darker shell and a line is genuinely belt-and-braces on top of a colour step
+     that already separates the two at every point. Light does not have that luxury: panel and shell
+     sit within a few percent of each other, the shadow is a tenth-opacity smudge, and the edge of
+     the reading surface goes soft. So the line is drawn where the step is weak and stays off where
+     the step is strong. It is brand green, not neutral grey, because at this weight the edge is
+     doing identity work as much as separation work.
+     `--primary-line` rather than a literal ON PURPOSE — a hardcoded green here would survive the
+     next retheme and quietly hold the old register (this project has been bitten by exactly that).
+     The shadow stays in both registers: a shadow describes the GAP between two planes, a border
+     describes an EDGE, and light needs both stated. */
+  border: 1px solid var(--primary-line);
   box-shadow: 0 2px 12px rgba(40,70,60,.10);
   display: flex; flex-direction: column;
 }
-:root[data-theme="dark"] .qk-panel { box-shadow: 0 2px 14px rgba(0,0,0,.5); }
+/* Dark keeps the 2026-08-09 no-border rule. BOTH dark selectors are needed, and they are the same
+   pair the token blocks in styles.css use: the explicit attribute AND the OS default guarded by
+   `:not([data-theme="light"])`. Writing only the attribute form would leave the green line painted
+   on a dark panel for every reader who never touched the theme toggle — the panel-vs-ink desync this
+   project has already shipped once, in the other direction. */
+:root[data-theme="dark"] .qk-panel { box-shadow: 0 2px 14px rgba(0,0,0,.5); border-color: transparent; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .qk-panel { border-color: transparent; }
+}
 /* the celestial ground, scoped to the panel (not the body) — recede by default */
 .qk-panel::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
