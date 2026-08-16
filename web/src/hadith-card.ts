@@ -28,6 +28,7 @@
  * function is one refactor away from being lost.
  */
 import { esc } from "./esc.ts";
+import { mdEmphasis } from "./prose-format.ts";
 
 /** Matches `DisplayRecord` in worker/src/dalil.ts — the shape the private text layer returns. */
 export interface HadithCard {
@@ -94,7 +95,11 @@ export function hadithCardEl(h: HadithCard): string {
 
       ${
         h.english
-          ? `<p class="hadith-en" lang="en">${esc(h.english)}</p>`
+          // The sunnah.com export carries markdown in the text itself — every narration opens
+          // `**Narrated \`Aisha:**` — so the reader met raw asterisks in the middle of a hadith.
+          // Rendering them is presentation, NOT correction: it changes no word of the narration,
+          // it shows the emphasis its own source marked. Verbatim still means verbatim.
+          ? `<p class="hadith-en" lang="en">${mdEmphasis(esc(h.english))}</p>`
           : ""
       }
 

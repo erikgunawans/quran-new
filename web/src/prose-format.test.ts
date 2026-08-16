@@ -74,3 +74,16 @@ describe("what it deliberately leaves alone", () => {
     expect(mdEmphasis(s)).toBe(s);
   });
 });
+
+describe("the sourced hadith surface", () => {
+  test("the corpus's own markdown renders instead of showing as syntax", () => {
+    // Real text from the sunnah.com export, seen live in the app: every narration opens this way.
+    // Rendering it is presentation, NOT correction -- no word of the narration changes.
+    const src = "**Narrated `Aisha:**\n\nWhen the Verses of Surat-al-Baqara regarding usury (i.e. Riba) were revealed";
+    const out = mdEmphasis(src);
+    expect(out).toContain("<strong>Narrated `Aisha:</strong>");
+    expect(out).not.toContain("**");
+    // The narration itself is untouched, to the byte.
+    expect(out).toContain("When the Verses of Surat-al-Baqara regarding usury (i.e. Riba) were revealed");
+  });
+});
