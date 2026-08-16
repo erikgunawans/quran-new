@@ -1,0 +1,14 @@
+{
+  // The worker's own tsconfig.json sets `types: []` on purpose — worker source must not
+  // see Bun (or Node) globals, because the Workers runtime does not have them. Test files
+  // DO run under Bun, so they need `bun-types` and get their own pass here.
+  //
+  // Both passes run in `bun run typecheck`. This one is a superset over the same sources
+  // (tests import them), so it does not replace the strict `types: []` pass — it adds to it.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun-types"]
+  },
+  "include": ["src/**/*.test.ts"],
+  "exclude": []
+}

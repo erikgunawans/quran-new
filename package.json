@@ -9,7 +9,7 @@
     "ingest:lock": "bun run src/cli.ts ingest --update-lock",
     "verify": "bun run src/cli.ts verify",
     "test": "bun test",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json && tsc --noEmit -p src/eval/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json && tsc --noEmit -p src/eval/tsconfig.json && tsc --noEmit -p worker/tsconfig.json && tsc --noEmit -p worker/tsconfig.test.json",
     "review:build": "bun run src/review/build-comparison.ts",
     "app:corpus": "bun run src/app/build-corpus.ts",
     "app:audio": "bun run src/app/build-audio.ts",
