@@ -609,12 +609,19 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
     `<p class="know-credit">Indeks Tematik oleh <strong>${esc(k.source.author)}</strong> — <a href="${esc(k.source.url)}" rel="noopener noreferrer" target="_blank">quran.tarjamahtafsiriyah.com</a></p>` +
     `<p class="know-derivative">Penautan ayat adalah tambahan kami untuk memudahkan penelusuran — bukan bagian dari indeks aslinya.</p>`;
 
-  // Broad topic, no specific line in the index — point honestly, don't invent an answer from
-  // arbitrary entries. (This is what "who is Allah?" reaches: the index is a predicate list, not a
-  // definition.) Still more helpful than a bare silence: it deep-links the exact topic.
+  // No line in the ROUTED chapter matched the question on-subject — point honestly, don't invent an
+  // answer from arbitrary entries. (This is what "who is Allah?" reaches: the index is a predicate
+  // list, not a definition.) Still more helpful than a bare silence: it deep-links the exact topic.
+  //
+  // The copy names THAT cause and not the question's breadth. `knowledge.ts` empties `entries` when
+  // the routed chapter matched nothing on-subject, and routing can land on a chapter that has no
+  // business with the question at all: `apa yang al quran katakan tentang neraka` routes to the
+  // SCRIPTURE chapter because the literal words `al quran` capture it and `neraka` is ignored. The
+  // old sentence told that reader their narrow question was too broad, which is both false and
+  // unactionable — it pointed at the one thing they cannot fix.
   if (!k.entries.length) {
     return (
-      `<p class="said">Pertanyaan soal <b>${esc(k.category)}</b> itu luas — dan aku nggak mau ngarang. Tapi di knowledge base kami ada <b>${k.totalEntries} entri</b> soal ini, dikumpulkan <b>${esc(k.source.author)}</b>, masing-masing langsung menunjuk ke ayatnya. Coba persempit pertanyaanmu, atau telusuri langsung:</p>` +
+      `<p class="said">Di bab <b>${esc(k.category)}</b>, aku nggak menemukan satu baris pun yang benar-benar menjawab pertanyaanmu — dan aku nggak mau ngarang. Padahal bab ini berisi <b>${k.totalEntries} entri</b> yang dikumpulkan <b>${esc(k.source.author)}</b>, masing-masing langsung menunjuk ke ayatnya. Coba tanya pakai kata lain, atau telusuri sendiri:</p>` +
       `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Telusuri ${k.totalEntries} entri tentang ${esc(k.category)} di Tematik →</a></p>` +
       credit
     );
