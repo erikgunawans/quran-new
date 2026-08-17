@@ -17,6 +17,13 @@ import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTem
 import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
+import {
+  dalilEmptyEl,
+  fiqhDoorwayEl,
+  hydrateMachineIndonesian,
+  referenceListEl,
+  searchDalilLive,
+} from "./dalil-search.ts";
 import { initSettings } from "./settings-ui.ts";
 import { applyTheme, getTheme } from "./settings.ts";
 import { compose, keywordThemeHits, needsFamilyLawScholar, retrieve, type Corpus, type Voice } from "./retrieve.ts";
@@ -1058,8 +1065,20 @@ async function route() {
   // rather than a feeling. Everywhere else it is the companion prompt. (Erik: composer says "Cari Surah".)
   // NOTE: this is the live value. The `placeholder` attribute in index.html is only what shows
   // before the first route pass, so changing one without the other changes nothing you can see.
+  // Hadits and Fikih join the finder set (Erik, 2026-08-17): in those two the box searches the
+  // section rather than running the companion pipeline, and the placeholder is the only warning the
+  // reader gets before they type. A box that says "tanyakan apa saja" and then returns a hadith
+  // list is a box that lied.
   input.placeholder =
-    hash === "#/baca" ? "Cari Surah" : hash === "#/peta" ? "Cari Tema" : "Ceritakan atau tanyakan apa saja…";
+    hash === "#/baca"
+      ? "Cari Surah"
+      : hash === "#/peta"
+        ? "Cari Tema"
+        : hash === "#/hadis"
+          ? "Cari Hadits"
+          : hash === "#/fikih"
+            ? "Cari Bab Fikih"
+            : "Ceritakan atau tanyakan apa saja…";
   // The rich celestial sky (crescent, gold, twinkle) is reserved for the companion home and the
   // cosmos; every other surface — reading especially — recedes to a quiet sky. Set the cosmos marker.
   document.documentElement.toggleAttribute("data-cosmos", hash === "#/peta");
@@ -1201,8 +1220,45 @@ form.addEventListener("submit", (e) => {
     }
     return;
   }
+  // Hadits and Fikih: the box searches the section the reader is standing in (Erik, 2026-08-17).
+  // Same shape as `#/baca` above — a section-scoped FINDER that must never open the chat view,
+  // because the companion pipeline leads with ayat and would bury the thing they came here for.
+  // The `fiqh` flag is the only difference between the two: it adds the re-rank and the doorway.
+  if (location.hash === "#/hadis" || location.hash === "#/fikih") {
+    void searchSection(q, location.hash === "#/fikih");
+    return;
+  }
   void ask(q);
 });
+
+/**
+ * SECTION-SCOPED SEARCH. Retrieval only — no model, no prose, no authored sentence anywhere in this
+ * path, so there is nothing here for the answer guard to police and no way to emit a fatwa.
+ *
+ * Results REPLACE the browse grid rather than opening the chat view, and the section's own index is
+ * one tap away underneath. That keeps `showRead()` the only view state these two routes ever have.
+ */
+async function searchSection(q: string, fiqh: boolean): Promise<void> {
+  const back = fiqh ? "#/fikih" : "#/hadis";
+  readView.innerHTML =
+    `<p class="dalil-searching">Mencari “${esc(q)}”…</p>`;
+  const { cards, refs, area } = await searchDalilLive(q, fiqh);
+  // Machine Indonesian resolves through `hadith-id.ts` exactly as the answer path does, so
+  // SHOW_MACHINE_HADITH_TEXT stays the single gate deciding whether that text may render at all.
+  const shown = await hydrateMachineIndonesian(cards);
+  const found = shown.length > 0 || refs.length > 0;
+  readView.innerHTML =
+    `<header class="dalil-head">` +
+    `<h2 class="dalil-head-q">${esc(q)}</h2>` +
+    `<a class="dalil-head-back" href="${back}">Kembali ke ${fiqh ? "Fikih" : "Hadits"}</a>` +
+    `</header>` +
+    fiqhDoorwayEl(area) +
+    (found
+      ? (shown.length ? `<div class="dalil-cards">${hadithCardsEl(shown)}</div>` : "") +
+        referenceListEl(refs)
+      : dalilEmptyEl(q));
+  readView.scrollTop = 0;
+}
 
 // "Cari Surah": the model finds the surah (semantic — a theme, a story, a feeling, any language or
 // spelling) and we spin the wheel straight to it. The keyword findSurah() is ONLY the fallback for

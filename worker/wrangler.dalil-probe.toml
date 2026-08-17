@@ -6,10 +6,17 @@
 # would change the shape of the trustworthy deploy for no reason.
 #
 # This config is never deployed. It exists so `wrangler dev --remote` can reach the real Vectorize
-# index and prove retrieval end to end:
+# index and prove retrieval end to end. RUN IT FROM THE REPO ROOT, not from here:
 #
-#   cd worker && bunx wrangler dev --config wrangler.dalil-probe.toml --remote --port 8799
+#   bunx wrangler dev --config worker/wrangler.dalil-probe.toml --remote --port 8799
 #   curl 'http://127.0.0.1:8799/?q=berapa+rakaat+sholat+dhuha'
+#
+# The directory is load-bearing and this header used to get it wrong. `worker/` pins wrangler
+# 3.114.17, whose `dev --remote` opens a LEGACY edge preview session and dies with
+# "Could not create remote preview session on your account." That error names the account and means
+# the version -- it cost two sessions chasing a Cloudflare-side permissions problem that did not
+# exist (ISC-372). The repo root resolves 4.120.0, which starts cleanly against the same account,
+# same config, same bindings.
 #
 # The key comes from worker/.dev.vars (gitignored), never from this file.
 

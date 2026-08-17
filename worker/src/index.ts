@@ -219,12 +219,17 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       url.pathname === "/api/compose" ||
       url.pathname === "/api/classify" ||
       url.pathname === "/api/find-surah" ||
+      url.pathname === "/api/dalil" ||
       url.pathname === "/api/answer"
     ) {
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       if (url.pathname === "/api/compose") return handleCompose(request, env);
       if (url.pathname === "/api/answer") return handleAnswer(request, env, ctx, identity);
+      // /api/dalil is retrieval with NO model in the path — it returns corpus records verbatim and
+      // authors nothing, so it is safe on the principled edition for the same reason /api/find-surah
+      // is. The display cap and the rights wall are enforced inside the handler, not by the caller.
+      if (url.pathname === "/api/dalil") return handleDalilSearch(request, env);
       // /api/find-surah is navigation, not authoring — safe on the principled edition. Like
       // /api/classify it recognizes from a CLOSED set (the real 114 surahs the client passes), so
       // the model can never invent a surah that does not exist.
@@ -1094,6 +1099,127 @@ async function handleFindSurah(request: Request, env: Env): Promise<Response> {
 
   const n = parseSurahNumber(raw);
   return json({ n: n !== null && valid.has(n) ? n : null }, 200, request);
+}
+
+/**
+ * A hit the reader may NAVIGATE to but not READ here — collection, number, grade, kitab, link.
+ *
+ * THIS TYPE IS THE RIGHTS WALL FOR THE LIST. `MAX_DISPLAY` caps how many hadith may be SHOWN, and
+ * that cap does not move (Erik, 2026-08-17). But a search that returns two cards and silently drops
+ * the other six tells the reader those six do not exist. A reference line is the honest middle: it
+ * says "this record is here, in this kitab, graded this" and hands over a link, while displaying no
+ * hadith text at all. That is the same position the Fikih section already ships — a doorway.
+ */
+export interface DalilReference {
+  id: string;
+  collection: string;
+  hadith_number: number;
+  grade: string;
+  book_en: string;
+  bab_en: string;
+  source_url: string;
+}
+
+/**
+ * Project a hit down to a reference line — FIELD BY FIELD, never a spread.
+ *
+ * The explicit projection is the whole guarantee and it is why this is a function rather than a
+ * `const ref = { ...hit }` with two deletes. `DalilHit` does not carry `arabic`/`english` today;
+ * a spread would start leaking them the day someone adds them, silently, with every test still
+ * green. Listing the seven permitted keys means a new field on `DalilHit` reaches a reader only
+ * when a human edits THIS function. `dalil-search.test.ts` force-reds on exactly that.
+ */
+export function referenceLineOf(h: DalilHit): DalilReference {
+  return {
+    id: h.id,
+    collection: h.collection,
+    hadith_number: h.hadith_number,
+    grade: h.grade,
+    book_en: h.book_en,
+    bab_en: h.bab_en,
+    source_url: h.source_url,
+  };
+}
+
+/**
+ * SECTION-SCOPED SEARCH — what the composer does when the reader is standing in Hadits or Fikih.
+ *
+ * Erik, 2026-08-17: typing in a section should serve that section first. Everywhere else the box
+ * runs the companion pipeline, which leads with ayat and reaches hadith only when retrieval found
+ * NO verse (`entries` stays gated on `verses.length === 0` — untouched here). Inside Hadits that
+ * ordering is wrong: someone who navigated to Hadits and typed "hadits tentang perceraian" is
+ * asking the hadith corpus a question, not asking to be consoled.
+ *
+ * This endpoint does NOT author. It retrieves, orders, caps, and returns records verbatim from the
+ * corpus — there is no model in the path, so there is nothing for the answer guard to police and no
+ * way for it to produce a fatwa. It is the hadith twin of `/api/find-surah`: navigation.
+ *
+ * `fiqh: true` adds the FIKIH step and nothing else. `rankByFiqhArea` re-ranks what retrieval
+ * already returned and `fiqhAreaOf` names the doorway; neither can admit a record retrieval missed
+ * nor refuse one it found. The re-rank-only argument in `fikih-route.ts` survives intact — this
+ * caller makes no admission decision.
+ */
+async function handleDalilSearch(request: Request, env: Env): Promise<Response> {
+  let body: { query?: unknown; fiqh?: unknown };
+  try {
+    body = (await request.json()) as { query?: unknown; fiqh?: unknown };
+  } catch {
+    return json({ cards: [], refs: [], area: null }, 400, request);
+  }
+
+  const query = asBoundedString(body.query);
+  if (!query) return json({ cards: [], refs: [], area: null }, 200, request);
+  const fiqh = body.fiqh === true;
+
+  let hits: DalilHit[];
+  try {
+    hits = await searchDalil(env as unknown as DalilEnv, query);
+  } catch {
+    // Quiet degradation, like /api/find-surah: the section still renders its browse grid, and the
+    // reader gets no results rather than an error page. The loud version lives in searchDalil.
+    return json({ cards: [], refs: [], area: null }, 200, request);
+  }
+
+  const ordered = fiqh ? rankByFiqhArea(hits, query) : hits;
+  // Same order as the answer path: FIKIH re-rank first, THEN the cap, so the fiqh area can change
+  // which two the reader actually sees. After the cap it could only shuffle two and be decorative.
+  const offered = capForDisplay(ordered);
+
+  let cards: HadithCard[] = [];
+  try {
+    cards = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) => ({
+      ...r,
+      book: bookOf(offered.find((h) => h.id === r.id)?.path ?? ""),
+    }));
+  } catch {
+    cards = []; // text layer down → references still stand, since they need no text
+  }
+
+  // Everything retrieval found that the cap excluded, plus anything the text layer could not render
+  // (a record with no body is unshowable but still real, and its reference is still true).
+  const shown = new Set(cards.map((c) => c.id));
+  const refs = ordered.filter((h) => !shown.has(h.id)).map(referenceLineOf);
+
+  // `refs` travel with the area because the doorway's only honest destination is the kitab itself —
+  // there is no `#/fikih/<area>` reader, and an area IS its kitab. Sent from here rather than looked
+  // up client-side so the doorway and the re-rank agree on one definition of the area's books.
+  const area = fiqh ? fiqhAreaOf(query) : null;
+  return json(
+    {
+      cards,
+      refs,
+      area: area
+        ? {
+            id: area.id,
+            title: area.title,
+            sub: area.sub,
+            refs: area.refs.map((r) => ({ collection: r.collection, book: r.book })),
+          }
+        : null,
+    },
+    200,
+    request,
+  );
 }
 
 /** Pull a surah number out of the model's reply, tolerating {"n":2}, "2", or a stray line of prose. */
