@@ -96,6 +96,8 @@ interface Row {
   readonly themes: number;
   readonly verses: number;
   readonly entries: number;
+  /** Did the Qur'an lane qualify only on a feeling? Opens the hadith lane. */
+  readonly weak: boolean;
   /** The outcome bucket, as the READER experiences it. */
   readonly bucket: string;
   /**
@@ -130,6 +132,7 @@ async function turn(p: Probe): Promise<Row> {
     themes: themes.length,
     verses: g.verses.length,
     entries: g.entries.length,
+    weak: g.weakVerses,
     prose: "",
   };
   if (g.verses.length === 0 && g.entries.length === 0) {
@@ -140,7 +143,16 @@ async function turn(p: Probe): Promise<Row> {
     const res = await realFetch(`${BASE}/api/answer`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
-      body: JSON.stringify({ question: p.q, verses: g.verses, entries: g.entries }),
+      // `weakVerses` must be sent or this probe silently measures the OLD cascade: the Worker reads
+      // it as a strict `=== true`, so an omission is indistinguishable from "the Qur'an lane
+      // answered properly" and the hadith lane stays shut. The probe posts the body the browser
+      // posts, and this is now part of that body.
+      body: JSON.stringify({
+        question: p.q,
+        verses: g.verses,
+        entries: g.entries,
+        weakVerses: g.weakVerses,
+      }),
     });
     const ms = Math.round(performance.now() - t0);
     if (!res.ok) return { ...base, bucket: `http:${res.status}`, leak: "-", words: 0, ms };
@@ -175,7 +187,7 @@ for (let r = 0; r < REPEAT; r += 1) {
     const row = await turn(p);
     rows.push(row);
     console.log(
-      `${row.bucket.padEnd(22)} ${String(row.themes).padStart(2)}t/${String(row.verses).padStart(2)}v/${String(row.entries).padStart(2)}e  ${String(row.ms).padStart(6)}ms  ${row.leak.padEnd(8)} ${row.q}`,
+      `${row.bucket.padEnd(22)} ${String(row.themes).padStart(2)}t/${String(row.verses).padStart(2)}v/${String(row.entries).padStart(2)}e${row.weak ? " WEAK" : "     "}  ${String(row.ms).padStart(6)}ms  ${row.leak.padEnd(8)} ${row.q}`,
     );
   }
 }

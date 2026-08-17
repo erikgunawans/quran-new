@@ -68,6 +68,17 @@ export interface AnswerContext {
    * offline eval keeps compiling and keeps meaning exactly what it meant.
    */
   readonly hadith?: readonly GroundingHadith[];
+  /**
+   * The Qur'an lane returned verses, but qualified them on a FEELING rather than on an ayah the
+   * reader named. Set by `gatherGrounding`; read by the Worker to decide whether the hadith lane
+   * should also run (Erik's ayat → hadits → fikih sequence, 2026-08-17).
+   *
+   * OPTIONAL, AND THE DEFAULT IS THE OLD BEHAVIOUR. Absent means "not weak", so an older client, an
+   * offline eval, or a hand-made request behaves exactly as it did before this field existed. It can
+   * only ever OPEN a retrieval lane — never bypass a guard, never admit ungrounded material — which
+   * is why the Worker may read it from the request body at all. Every wall downstream is unchanged.
+   */
+  readonly weakVerses?: boolean;
 }
 
 /**

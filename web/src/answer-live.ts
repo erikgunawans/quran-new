@@ -90,7 +90,13 @@ export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<
     const res = await fetch(ANSWER_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: ctx.question, verses: ctx.verses, entries: ctx.entries }),
+      body: JSON.stringify({
+        question: ctx.question,
+        verses: ctx.verses,
+        entries: ctx.entries,
+        // Opens the hadith lane when the Qur'an lane matched only a feeling — see AnswerContext.
+        weakVerses: ctx.weakVerses === true,
+      }),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error(`/api/answer returned ${res.status}`);

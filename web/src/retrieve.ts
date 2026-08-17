@@ -245,6 +245,16 @@ const FEELING_WORDS: ReadonlySet<string> = new Set(Object.values(LEXICON).flat()
 export const isFeelingWord = (w: string): boolean => FEELING_WORDS.has(w);
 export const openerThemes = (): readonly string[] => Object.keys(OPENERS);
 
+/**
+ * The score an EXPLICIT REFERENCE contributes — the reader named the ayah.
+ *
+ * Exported because it is the line between "the Qur'an lane genuinely answered this" and "the Qur'an
+ * lane recognised a mood", and `gatherGrounding` needs that line to decide whether the hadith lane
+ * should also run. Named rather than repeated as a literal so the scorer and that decision cannot
+ * drift apart: change the weight here and the cascade follows it.
+ */
+export const REFERENCE_SCORE = 100;
+
 export interface Hit {
   verse: Verse;
   score: number;
@@ -496,7 +506,7 @@ export function retrieve(
     const matched: string[] = [];
 
     if (direct && verse.ref === `${Number(direct[1])}:${Number(direct[2])}`) {
-      score += 100;
+      score += REFERENCE_SCORE;
       qualified = true;
       matched.push(verse.ref);
     }

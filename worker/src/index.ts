@@ -48,6 +48,7 @@ import {
   type DalilTimings,
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
+import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
 import { MAX_ATTEMPTS, nextAttemptBudget, verdictAfterFailure } from "./answer-retry.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
@@ -438,6 +439,12 @@ interface AnswerBody {
   question?: unknown;
   verses?: unknown;
   entries?: unknown;
+  /**
+   * The Qur'an lane matched only a FEELING, so the hadith lane should also run. Read as a strict
+   * `=== true`, so anything absent or malformed keeps the pre-2026-08-17 behaviour. Safe to take
+   * from the body because it can only turn a retrieval lane ON — see the gate for the full argument.
+   */
+  weakVerses?: unknown;
   provider?: unknown;
 }
 
@@ -619,7 +626,21 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
         : { ...timings, ...(dalilDisplayMs === null ? {} : { display: dalilDisplayMs }), total: dalilTotalMs },
   });
 
-  if (entries.length > 0 && bound) {
+  // ERIK'S SEQUENCE, 2026-08-17: ayat, then hadits, then fikih.
+  //
+  // `entries.length > 0` alone meant step two could only run when step one returned NOTHING, because
+  // `entries` fills only on `verses.length === 0` (web/src/answer.ts). Measured over 48 live reader
+  // turns, the questions that never reached hadith were exactly the ones that retrieved one or two
+  // FEELING-verses — `bagaimana adab kepada orang tua`, `apa keutamaan sedekah`, `bolehkah aku
+  // pacaran`. Those are hadith topics, and the sequence was mostly theoretical because of them.
+  //
+  // `weakVerses` comes from the request body, which is fine HERE and would not be fine three lines
+  // down: it can only turn a retrieval lane ON. It admits nothing, bypasses no guard, and every wall
+  // below — `verifyGrounding` above, `capForDisplay`, `fetchDisplayRecords`, `isGroundedHadith`,
+  // `guardAnswerProse` — runs exactly as before. A forged `true` buys a reader some hadith they could
+  // have got by rephrasing; it cannot buy an unbacked attribution.
+  const weakVerses = body.weakVerses === true;
+  if ((entries.length > 0 || weakVerses) && bound) {
     // Started before the `try` and closed in a `finally` so a turn that THREW still reports how long
     // it spent before dying. A failure that is also slow and a failure that is instant need different
     // fixes, and `failed:<stage>` alone cannot tell them apart.
@@ -632,7 +653,16 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // guard — and then no card renders for it, because display is capped at the top 2. That is a
       // prophetic attribution with nothing behind it, which is the exact state `bad_hadith` exists
       // to prevent. Capping here makes CITABLE ≡ DISPLAYABLE by construction rather than by luck.
-      offered = capForDisplay(hits);
+      // THE FIKIH STEP. There is no fiqh corpus to answer from — `web/src/fikih.ts` is a topic→kitab
+      // map, "a doorway, not a treatise" — so the third step of the sequence contributes ORDER, not
+      // text: when the question is plainly about wudu, prefer what the compilers themselves filed
+      // under كتاب الوضوء. Applied BEFORE `capForDisplay` so it can change which two the reader sees;
+      // after it, it could only reorder two already-chosen hits and would be decorative.
+      //
+      // It cannot admit or refuse. A wrong area match costs ordering within what retrieval already
+      // returned, which is what makes a keyword router acceptable here — see `fikih-route.ts` for
+      // why that argument is void if anyone wires this into an admission decision.
+      offered = capForDisplay(rankByFiqhArea(hits, question));
       const displayStart = Date.now();
       records = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) => ({
         ...r,
@@ -777,6 +807,27 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
 
 /** `hadith/muslim/001/002/0034.md` → `1`. The `hadith-id` shard key; 0 when the path is unusable. */
 const bookOf = (path: string): number => Number(path.split("/")[2] ?? 0) || 0;
+
+/**
+ * The FIKIH step of the ayat → hadits → fikih sequence: a stable re-rank, never a filter.
+ *
+ * If the question routes to an amal area, hits sitting in the kitab the compilers themselves filed
+ * that material under come first; everything else keeps its retrieval order behind them. Nothing is
+ * dropped — a question about wudu that retrieved a relevant hadith from outside كتاب الوضوء still
+ * has it, just lower. That is the difference between ordering the evidence and choosing it, and only
+ * the first is something this app is allowed to do without a fiqh source.
+ *
+ * STABLE, and deliberately so. `Array.prototype.sort` is stable in every engine Workers runs, so
+ * ties preserve the reranker's judgement rather than scrambling it. A partition would do the same,
+ * but a comparator says the intent in one line.
+ */
+export function rankByFiqhArea(hits: DalilHit[], question: string): DalilHit[] {
+  const area = fiqhAreaOf(question);
+  if (!area) return hits;
+  const want = fiqhKitabOf(area);
+  const inArea = (h: DalilHit): number => (want.has(`${h.collection}:${bookOf(h.path)}`) ? 0 : 1);
+  return [...hits].sort((a, b) => inArea(a) - inArea(b));
+}
 
 // ── /api/events — the memory write path (issue 02) ────────────────────────────
 

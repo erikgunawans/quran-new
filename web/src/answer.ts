@@ -32,7 +32,7 @@ import { AnswerBlockedError } from "./answer-live.ts";
 import type { HadithCard } from "./hadith-card.ts";
 import { retrieveKnowledge } from "./knowledge.ts";
 import { isRealAyah } from "./quran.ts";
-import { retrieve, type Corpus } from "./retrieve.ts";
+import { retrieve, REFERENCE_SCORE, type Corpus } from "./retrieve.ts";
 
 // Re-export so existing importers (answer.test.ts) keep resolving it here; the definition lives in
 // quran.ts, next to surahMeta, so the Worker can share it without pulling retrieval into its bundle.
@@ -81,7 +81,7 @@ export async function gatherGrounding(
   corpus: Corpus,
   question: string,
   modelThemes: string[],
-): Promise<{ verses: GroundingVerse[]; entries: GroundingEntry[]; refs: string[] }> {
+): Promise<{ verses: GroundingVerse[]; entries: GroundingEntry[]; refs: string[]; weakVerses: boolean }> {
   const hits = retrieve(corpus, question, MAX_VERSES, modelThemes);
   const verses: GroundingVerse[] = hits.map((h) => ({
     ref: h.verse.ref,
@@ -114,7 +114,29 @@ export async function gatherGrounding(
   }
 
   const refs = verses.map((v) => v.ref);
-  return { verses, entries, refs };
+  // WEAK = the Qur'an lane returned something, but only because it recognised a FEELING.
+  //
+  // Erik's sequence (2026-08-17) is ayat, then hadits, then fikih. Before this, step two could only
+  // run when step one returned NOTHING — the hadith gate keys on `entries`, and `entries` only fills
+  // on `verses.length === 0`. Measured against 48 live reader turns, the questions that never
+  // reached hadith were exactly the ones that retrieved one or two feeling-verses: `bagaimana adab
+  // kepada orang tua` (2 verses), `apa keutamaan sedekah` (1), `bolehkah aku pacaran` (2). Those are
+  // hadith topics; the sequence was mostly theoretical because of them.
+  //
+  // The split is the scorer's OWN, not a threshold invented here. `retrieve()` admits a verse on one
+  // of two signals: an explicit reference (100) or a recognised feeling (10 each); word overlap can
+  // re-rank but never qualify. A reference means the reader named an ayah and the Qur'an lane has
+  // genuinely answered — leave it alone. A feeling means we matched a MOOD, which for a ruling or
+  // knowledge question may be orthogonal to what was asked, and step two should still run.
+  //
+  // ONLY THE HADITH LANE OPENS ON THIS. `entries` stays gated on `verses.length === 0`, untouched.
+  // That gate exists because the ruling index, ungated, hijacked real feelings — "aku capek banget
+  // sama utang" pulled its verses AND a stack of riba law, and the model answered the debt instead
+  // of the exhausted person. Widening the hadith lane does not reopen that: hadith is retrieved
+  // semantically from the question, and it is offered to the model as extra material rather than
+  // substituted for the feeling verses.
+  const weakVerses = verses.length > 0 && hits.every((h) => h.score < REFERENCE_SCORE);
+  return { verses, entries, refs, weakVerses };
 }
 
 /**
@@ -132,14 +154,14 @@ export async function synthesizeAnswer(
   modelThemes: string[],
   model: AnswerModel,
 ): Promise<SynthesisOutcome | null> {
-  const { verses, entries } = await gatherGrounding(corpus, question, modelThemes);
+  const { verses, entries, weakVerses } = await gatherGrounding(corpus, question, modelThemes);
 
   // ISC-418. Nothing of ours to author from → bow out before the network call, not after a ~6s
   // generation. The Worker enforces the same rule as the authority (a client can post anything); this
   // is the latency half, and both call the one `hasGrounding` so they cannot drift apart.
   if (!hasGrounding({ verses, entries })) return null;
 
-  const ctx: AnswerContext = { question, verses, entries };
+  const ctx: AnswerContext = { question, verses, entries, weakVerses };
   let result: AnswerResult;
   try {
     result = await model(ctx);
