@@ -119,8 +119,18 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
            both false the moment machine Indonesian began rendering, and the second one doubly so
            because it implies what a reader now sees HAS been reviewed record by record. It has not:
            the ustadz approved the method, not each sentence. Saying "Arab tetap yang kanonik" keeps
-           the true claim (the Arabic is the authority) without the false one. -->
-      <p class="hadith-note" role="note">Nama kitab diterjemahkan agar mudah dicari; <b>teks Arabnya tetap yang kanonik</b>, beserta sumber dan derajatnya. Terjemahan Indonesianya <b>hasil mesin (AI)</b> — sudah diizinkan ustadz untuk ditampilkan, tapi belum ditinjau satu per satu, jadi rujuklah teks Arabnya untuk kepastian. Kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
+           the true claim (the Arabic is the authority) without the false one.
+
+           FOLDED 2026-08-17 at Erik's request — four lines of provenance met every reader before
+           they reached a single hadith. It is a <details>, NOT a hidden block: the disclosure that
+           the Indonesian is machine output and unreviewed stays on screen at all times, in the
+           summary, because that is the claim a reader needs BEFORE deciding to trust a line of it.
+           Only the elaboration folds. Hiding the machine-output fact behind a click would be a
+           different change from shortening the banner, and it is not the one that was asked for. -->
+      <details class="hadith-note hadith-fold">
+        <summary class="hadith-fold-sum">Terjemahan Indonesianya <b>hasil mesin (AI)</b> dan belum ditinjau satu per satu — <span class="hadith-fold-more">selengkapnya</span></summary>
+        <p class="hadith-fold-body">Nama kitab diterjemahkan agar mudah dicari; <b>teks Arabnya tetap yang kanonik</b>, beserta sumber dan derajatnya. Terjemahan Indonesianya sudah diizinkan ustadz untuk ditampilkan, tapi belum ditinjau satu per satu, jadi rujuklah teks Arabnya untuk kepastian. Kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
+      </details>
       <div class="hadith-controls">
         <div class="hadith-tabs" role="tablist" aria-label="Pilih koleksi">${tabs}</div>
         <input class="hadith-filter" type="search" placeholder="Cari kitab — nomor, nama Indonesia, atau Arab…" aria-label="Cari kitab" />

@@ -146,6 +146,23 @@ describe("hadith index render", () => {
     expect(mount.textContent).not.toContain("sudah ditinjau ulama");
   });
 
+  test("the note is folded by default, but the machine-output fact is NOT folded with it", async () => {
+    mockFetch({ "/hadith/index.json": INDEX });
+    await renderHadis(mount);
+    const fold = mount.querySelector<HTMLDetailsElement>("details.hadith-fold");
+    expect(fold).not.toBeNull();
+    // Folded — the four-line banner no longer meets every reader before the first hadith.
+    expect(fold!.open).toBe(false);
+    // AND THIS IS THE HALF THAT MAY NOT REGRESS. The elaboration folds; the disclosure does not.
+    // `textContent` cannot tell the two apart — a <details> reports its hidden body either way — so
+    // this asserts on the SUMMARY, which is the only part a collapsed note actually shows. Putting
+    // "hasil mesin (AI)" inside the body would leave a reader trusting machine Indonesian they were
+    // never told was machine Indonesian, and every existing assertion above would still pass.
+    const summary = fold!.querySelector("summary")?.textContent ?? "";
+    expect(summary).toContain("hasil mesin (AI)");
+    expect(summary).toContain("belum ditinjau satu per satu");
+  });
+
   test("kitab cards carry an Indonesian title beside the canonical Arabic", async () => {
     mockFetch({ "/hadith/index.json": INDEX });
     await renderHadis(mount);

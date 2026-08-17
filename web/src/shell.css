@@ -1341,6 +1341,23 @@
 }
 .hadith-note b { color: var(--ink); }
 
+/* The folded provenance note. Scoped to `.hadith-fold` on purpose: `.hadith-note` is shared by six
+   things on four surfaces, including the "Memuat kitab…" and "Gagal memuat" states, and restyling
+   the base class would fold an error message. */
+.hadith-fold { padding: 0; }
+.hadith-fold-sum {
+  cursor: pointer; list-style: none; padding: 13px 16px; display: block;
+  border-radius: var(--r-md, 12px);
+}
+/* Both are needed — WebKit uses the pseudo-element, everyone else honours `list-style`. */
+.hadith-fold-sum::-webkit-details-marker { display: none; }
+.hadith-fold-sum::marker { content: ""; }
+.hadith-fold-more { color: var(--primary); font-weight: 500; white-space: nowrap; }
+.hadith-fold-more::after { content: " ▾"; }
+.hadith-fold[open] .hadith-fold-more::after { content: " ▴"; }
+.hadith-fold-body { margin: 0; padding: 0 16px 14px; }
+.hadith-fold-sum:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
 /* Collection tabs + filter — so the reader meets one collection at a time, not a 154-kitab wall. */
 .hadith-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; }
 .hadith-tabs { display: inline-flex; gap: 6px; background: var(--primary-wash); padding: 4px; border-radius: 999px; }
