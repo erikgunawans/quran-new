@@ -543,18 +543,6 @@ export function hadithShape(prose: string, isGrounded: (id: string) => boolean):
  */
 const OWN_WORDING_MIN_WORDS = 8;
 
-/**
- * Quoted spans, straight or curly. The pair is matched left-to-right so a run of terms in one
- * sentence — `"musik" atau "alat musik"` — yields two short spans rather than one long one.
- *
- * THE CLOSING QUOTE IS OPTIONAL, and that is not sloppiness. Indonesian and English both put the
- * full stop INSIDE the closing quote (`…bagi mereka.”`), and the sentence splitter this rule runs
- * over splits on that stop — so the closing quote lands in the NEXT segment and a strictly-paired
- * pattern matches nothing. The first real violation this rule was written for failed exactly that
- * way. A span therefore runs from the opening quote to the closing one or to the end of the
- * sentence, whichever comes first.
- */
-const QUOTED_SPAN = /[“"]([^”"]+)(?:[”"]|$)/gu;
 
 /**
  * Sentences that write out the wording of scripture or of the Prophet ﷺ instead of citing it.
@@ -566,23 +554,87 @@ const QUOTED_SPAN = /[“"]([^”"]+)(?:[”"]|$)/gu;
  * The app's entire provenance posture is that the WORDS come from the pinned corpus with
  * attribution; a rule that only checked receipts left the words unguarded.
  *
- * Scoped to the sentence, so quoting a term (`"lahwal hadits"`) or the reader's own voice is
- * untouched: the span must be long AND sit in a sentence that is either citing an ayah or
- * attributing to the Prophet ﷺ. Returns the offending sentence, or null.
+ * WHAT THE RULE ASKS, AND WHY IT CHANGED — NARROWED 2026-08-17 (late-4), on measured cost.
+ *
+ * The first cut asked whether the SENTENCE cited an ayah. That is a different question from whether
+ * the QUOTE is scripture, and 24 live turns priced the difference: `bolehkah perempuan jadi pemimpin`
+ * refused 3 of 3 and `apa hukum riba…` 2 of 3, both questions whose good answers necessarily quote
+ * SCHOLARSHIP at length while citing ayat. ISA.md names the first as one of the two answers a hard
+ * rule would destroy; it had destroyed it. Verified by construction: the rule refused a scholar's
+ * position, our own knowledge entry and the reader's own framing identically to a hand-written ayah
+ * translation, because it never looked at whose words were in the quotation marks.
+ *
+ * So it now asks for one of the two things a quotation of scripture actually carries:
+ *   DIVINE ATTRIBUTION — `Allah berfirman/menggambarkan/menegaskan`, `firman-Nya`, `artinya`,
+ *     `terjemahannya`. This is the shape the 2026-08-17 QS 2:187 violation had.
+ *   ADJACENCY — the quote sits against its citation, `"…" (QS Al-Isra 17:32)`. This shape carries no
+ *     attribution verb at all and was the ORIGINAL ISC-419 evidence.
+ * and it stands down when a HUMAN subject plainly owns the words and nothing divine is claimed.
+ *
+ * ADJACENCY IS MEASURED ON THE WHOLE PROSE, NOT PER SENTENCE, AND THAT IS A FIX. Writing the stop
+ * inside the closing quote (`…jalan yang buruk.”`) is how real prose is punctuated, and the sentence
+ * splitter breaks there — so the quote and its `(QS 17:32)` landed in DIFFERENT segments and the
+ * bare-citation shape, the commonest violation of the three on record, was never caught by the
+ * version that shipped this morning. The window spans the split.
+ *
+ * KNOWN AND ACCEPTED HOLE: `para ulama menyebutkan bahwa "<a verse's wording>"` with no citation
+ * anywhere near it passes. Closing it needs the quoted span checked against the corpus, not a
+ * grammar rule. The posture this wall defends is presenting our rendering AS scripture; an
+ * unattributed, uncited quotation does not do that.
  */
+/** The words belong to Allah / the Qur'an — the sentence says so. */
+const DIVINE_ATTR = [
+  /\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\b(berfirman|berkata|menyebut|menyebutkan|menggambarkan|menegaskan|menjelaskan|memerintahkan|melarang|mengingatkan)\b/,
+  /\bfirman(-?\s?nya)?\b/,
+  /\b(yang\s+)?artinya\b/,
+  /\bterjemahan(-?\s?nya)?\b/,
+  /\bbunyinya\b/,
+];
+/**
+ * A human subject owns the quoted words. Tested only on the text IMMEDIATELY BEFORE the quote, so a
+ * scholar named at the top of a paragraph cannot license a verse quoted at the bottom of it.
+ */
+const HUMAN_ATTR =
+  /\b(ulama|ustadz|kiai|kyai|mufti|imam|syaikh|syekh|orang|kami|kita|kamu|anda|entri|catatan|penafsir|mufassir|sebagian|banyak|menurut)\b[^“"]{0,72}$/;
+/**
+ * Quoted spans, straight or curly, anywhere in the prose. Matched left-to-right so a run of terms —
+ * `"musik" atau "alat musik"` — yields two short spans rather than one long one.
+ *
+ * THE CLOSING QUOTE IS OPTIONAL, and that is not sloppiness. Indonesian and English both put the full
+ * stop INSIDE the closing quote (`…bagi mereka.”`); a strictly-paired pattern matched nothing on the
+ * first real violation this rule was written for. A span runs from the opening quote to the closing
+ * one or to the end of the LINE, whichever comes first — bounded to the line so an unpaired quote
+ * cannot swallow the rest of the answer now that this scans the whole prose rather than one sentence.
+ *
+ * NOT WIDENED TO `«…»` OR `'…'`, deliberately. Guillemets are unattested in this model's Indonesian
+ * output (the two in ISA.md are that file's own nesting convention, not prod's bytes), and a single
+ * quote is an apostrophe in `wallahu a'lam`, `ta'ala` and `do'a`, so admitting it would open spans
+ * inside ordinary words. Widen only on evidence from live prose.
+ */
+const QUOTED_SPAN_ANY = /[“"]([^”"\n]+)(?:[”"]|$)/gmu;
+/** How far from a long quote a citation still reads as belonging to it. */
+const ADJACENT_CHARS = 48;
+
 export function wordingShape(prose: string): string | null {
-  for (const raw of normaliseForSentences(prose).split(/[.!?\n]+/)) {
-    if (!raw.trim()) continue;
-    const s = raw.toLowerCase();
-    const citesAyah = REF_IN_PROSE.test(raw);
+  const text = normaliseForSentences(prose);
+  QUOTED_SPAN_ANY.lastIndex = 0;
+  for (const m of text.matchAll(QUOTED_SPAN_ANY)) {
+    const span = (m[1] ?? "").trim();
+    if (span.split(/\s+/u).filter(Boolean).length < OWN_WORDING_MIN_WORDS) continue;
+
+    const start = m.index ?? 0;
+    const end = start + m[0].length;
+    const before = text.slice(Math.max(0, start - 160), start).toLowerCase();
+    const near = `${text.slice(Math.max(0, start - ADJACENT_CHARS), start)} ${text.slice(end, end + ADJACENT_CHARS)}`;
+
+    const divine = DIVINE_ATTR.some((re) => re.test(before));
+    const prophetic = muhammadSpeechAct(before) || PROPHETIC.some((re) => re.test(before));
+    if (divine || prophetic) return (m[0] ?? "").trim();
+
     REF_IN_PROSE.lastIndex = 0;
-    const attributes = muhammadSpeechAct(s) || PROPHETIC.some((re) => re.test(s));
-    if (!citesAyah && !attributes) continue;
-    QUOTED_SPAN.lastIndex = 0;
-    for (const m of raw.matchAll(QUOTED_SPAN)) {
-      const words = (m[1] ?? "").trim().split(/\s+/u).filter(Boolean).length;
-      if (words >= OWN_WORDING_MIN_WORDS) return raw.trim();
-    }
+    const adjacent = REF_IN_PROSE.test(near);
+    REF_IN_PROSE.lastIndex = 0;
+    if (adjacent && !HUMAN_ATTR.test(before)) return (m[0] ?? "").trim();
   }
   return null;
 }

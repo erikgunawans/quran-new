@@ -126,3 +126,71 @@ describe("the wall consults the rule", () => {
     expect(r.ok).toBe(true);
   });
 });
+
+/**
+ * NARROWING, 2026-08-17 (late-4) — measured on prod, after the wall was deployed.
+ *
+ * The first cut asked only whether the SENTENCE cited an ayah. That is not the same question as
+ * whether the QUOTE is scripture, and 24 live turns showed what the difference costs: `bolehkah
+ * perempuan jadi pemimpin` was refused 3 of 3, and `apa hukum riba…` 2 of 3. Both are questions whose
+ * good answers necessarily quote SCHOLARSHIP at length while citing ayat — and ISA.md names the first
+ * of them as one of the two answers "a hard rule would have destroyed". It had destroyed it.
+ *
+ * Verified by construction before this change: `wordingShape` refused a scholar's position, our own
+ * knowledge entry, and the reader's own framing, identically to a hand-written ayah translation. It
+ * could not tell them apart, because it never looked at who the words belonged to.
+ *
+ * So the rule now asks for one of two things a quotation of scripture actually has:
+ *   - a DIVINE attribution in the sentence (`Allah berfirman/menggambarkan…`, `firman-Nya`,
+ *     `artinya`, `terjemahannya`), or
+ *   - ADJACENCY — the quote sits against the citation, which is the bare `"…" (QS 17:32)` shape that
+ *     carries no attribution verb at all and is the most common violation of the three recorded.
+ * and it stands down when a HUMAN subject owns the quoted words and no divine attribution is present.
+ */
+describe("scripture's wording vs everyone else's", () => {
+  test("bare quote against its citation is still refused — no attribution verb needed", () => {
+    // The original ISC-419 evidence. There is no `berfirman` here; the citation IS the claim.
+    const prose =
+      'Islam menutup jalan menuju zina: “Dan janganlah kamu mendekati zina; sesungguhnya zina itu adalah suatu perbuatan yang keji dan suatu jalan yang buruk.” (QS Al-Isra 17:32)';
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test("`yang artinya` still gives it away", () => {
+    const prose =
+      'Ada ayat dalam QS Luqman 31:6 yang artinya kurang lebih “orang yang membeli ucapan yang melalaikan untuk menyesatkan manusia dari jalan Allah”.';
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test("a scholar's position, quoted at length beside an ayah, survives", () => {
+    // The shape that took `bolehkah perempuan jadi pemimpin` off prod 3 of 3.
+    const prose =
+      'Kisah Ratu Saba’ dalam QS An-Naml 27:23 sering dibahas, dan sebagian ulama menyimpulkan bahwa “perempuan boleh memegang kepemimpinan dalam urusan dunia selama ia memenuhi syarat kecakapan”.';
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  test("our own knowledge entry, quoted beside an ayah, survives", () => {
+    const prose =
+      'Tentang QS An-Nisa 4:34, entri kami menjelaskan “laki-laki adalah pemimpin bagi perempuan dalam konteks rumah tangga, bukan larangan mutlak bagi perempuan untuk memimpin”.';
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  test("the reader's framing, quoted beside an ayah, survives", () => {
+    const prose =
+      'Kamu bertanya soal QS An-Nisa 4:34, dan banyak orang membacanya sebagai “perempuan tidak boleh jadi pemimpin sama sekali dalam urusan apa pun”, padahal tidak begitu.';
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  test("a human subject does NOT buy amnesty once Allah is named as the speaker", () => {
+    // The hole the human-attribution stand-down would otherwise open: attribute to the scholars, then
+    // print the verse anyway. Divine attribution outranks the stand-down.
+    const prose =
+      'Para ulama menyebutkan bahwa dalam QS Al-Isra 17:32 Allah berfirman “dan janganlah kamu mendekati zina, sesungguhnya ia perbuatan keji dan jalan yang buruk”.';
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test("the Prophet's own words are untouched by the narrowing", () => {
+    const prose =
+      'Rasulullah bersabda, “tidaklah seorang muslim tertimpa kelelahan, penyakit, kesedihan, dan kesusahan melainkan Allah menghapus dosanya”.';
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+});
