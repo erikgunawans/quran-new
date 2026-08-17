@@ -8,6 +8,85 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-17 (late-3) — the letter went out, and the wall the prompt could not replace
+
+**Shipped and live.** Two authored-surface copy defects fixed as separate diffs and deployed to prod
+(worker `baaf3b21`, bundle `index-BBTkDZJz.js`). The zero-entry pointer no longer tells a narrow
+question it is too broad — it names the chapter it searched and says no line there matched, which is
+true whichever way routing landed and makes the `apa yang al quran katakan tentang neraka` mis-route
+visible to the reader. And the entry list no longer credits Ustadz Muhammad Thalib with a selection
+and a ranking that are ours: at most 8 lines out of up to 626, scored and ordered by our scorer.
+Both verified live at 2 s sampling across the whole window, `itu luas` and `kumpulkan soal` absent at
+every sample. The same run independently re-confirmed ISC-476 — the AI answer landed at T+14 s and
+`li.know-entry` stayed at 4 through T+26 s.
+
+**The ustadz letter is SENT** (Erik, 2026-08-17). `docs/review/tanya-ai-request-2026-08-17.md` now
+records that, with the line that matters: sent is not approved, and ISC-417 stays NOT MET until he
+answers.
+
+**What the letter FORBIDS, and it is not what the last handoff assumed.** Its question 3 says
+*"Kami perlu tahu batas yang Ustadz anggap benar sebelum kami memasang aturan penyaringnya"* — we
+will not install the filter on claims about Allah and the unseen before he answers. The previous
+handoff's item 3 read "fix `SYNTHESIS_SYSTEM_PROMPT` first, after the letter is sent". Those
+conflict, and the letter wins: doing it would break a promise now in his hands AND make the letter's
+measured 8/8 figure stale while he is still reading it. ISC-464(b) is blocked on the ANSWER.
+
+**ISC-419/420 re-measured live — 7 authored answers under reader conditions.**
+
+- **ISC-420 clean, 0 of 7.** Every scholar mention said they DIFFER, which rule 6 welcomes. Both
+  answers this file calls the ones a hard rule would destroy (`apakah musik haram`, `bolehkah
+  perempuan jadi pemimpin`) are in the sample and both are clean.
+- **ISC-419 NOT MET.** `bolehkah aku pacaran` shipped QS 2:187's wording in quotation marks beside
+  the citation while our own translation card rendered the same verse below it.
+
+**The finding under the finding: the receipt rules were walls, the WORDING rules were not.** Verified
+by construction with a resolving marker present — prose quoting the hadith's own words passes the
+guard, and prose writing out an ayah's translation passes. Rule 2 and rule 7's second half lived
+only in the prompt, and 3 of 7 live answers broke them.
+
+**A false diagnosis, caught by a control before it was reported.** The first reading was "the hadith
+wall is BYPASSED on prod" — two answers carried prophetic attributions with no marker, and feeding
+that captured text to the shipped `hadithShape` returned a refusal. Both legs true, conclusion
+wrong: **the renderer strips markers before display**, so `innerText` is text the guard never sees.
+The `/api/answer` body (`{"answer":null,"blocked":"bad_hadith"}`) and 5 rendered hadith cards settled
+it. Capture the RESPONSE, not the rendering.
+
+**Built, TDD, on Erik's explicit scope call (both wordings): `own_wording`.** `wordingShape` in
+`answer-guard.ts`, composed into `guardAnswerProse` under a new violation kind, marker-blind on
+purpose — that is what separates it from `bad_hadith`, and both hadith violations carried a
+resolving marker. Threshold set from the measured distribution, not taste: violations at 18, 12 and
+11 words; the tightest benign case (the reader's own imagined voice) at 6; bare terms at 1-3. Eight
+is the gap, force-red in both directions. **Cost measured on the same live prose: 3 of 8 refused on
+first generation, 0 of the 5 clean ones touched** — and it is a retry rate, not a silence rate, since
+the retry has been open since 2026-08-16. The same hadith ships paraphrased and is refused quoted.
+
+**Two things the tests taught that reasoning had not.** The sentence splitter breaks a quote pair
+when the full stop sits inside the closing quote — which is how real prose is written, and which
+made a strictly-paired pattern match nothing and catch zero real violations. And the first benign
+test passed for the wrong reason: mutating the threshold 8 → 3 left it green, because its `?` splits
+the sentence. The boundary is now pinned directly.
+
+**Also this session.** The tafseer-okf 3D graph is published as a private Artifact
+(https://claude.ai/code/artifact/8ef99b58-fbec-4148-aeca-d40345ac85d1) after reading all 417 lines
+and auditing the embedded data — structural only, but note the labels include Dorar's Arabic *bab*
+titles in full, up to 141 characters. Publishing exposed a real defect: `value="3"` on a range input
+does not survive the Artifact wrapper, so the viewer opened at 1× showing all 1,418 edges — the
+hairball the default exists to prevent. Fixed by driving the control from the `minW` constant
+(`b5ea6ea0` in tafseer-okf).
+
+**Gates.** `bun test` **1538/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run
+build` exit 0. **ISA progress corrected to 488/499** — the front-matter said 500 and the computed
+count is 499 across 18 slices, with no duplicate ids and no indented criteria hiding from the
+parser. That is the second consecutive session in which the hand-written denominator was wrong.
+
+**Next.** The `own_wording` wall is committed and **NOT deployed** — deploying changes what reaches
+readers, unlike the copy fixes, and the honest next measurement is to deploy and re-run the same 8
+questions to see how much of the 38% the retry absorbs. And the letter now contains a sentence that
+was false when it was sent (*"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia
+hasil mesin"*) and becomes true when this deploys — whether that warrants a follow-up note to Ustadz
+Ahmad is Erik's call.
+
+---
 ## 2026-08-17 (late) — the card stays, and a corpus repair that cost nothing
 
 Anchor: `origin/main` `5d0ce87`. **Deployed to prod and verified live** — worker version
