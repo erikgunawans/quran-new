@@ -98,6 +98,26 @@ interface Row {
   readonly entries: number;
   /** Did the Qur'an lane qualify only on a feeling? Opens the hadith lane. */
   readonly weak: boolean;
+  /**
+   * The Worker's own `dalil` report, flattened.
+   *
+   * WHY IT IS HERE NOW. The 2026-08-17 (late-4) handoff's instruction for ISC-484 was "check the
+   * response body's `dalil` report — `records>0` with an empty `hadith` array means retrieval worked
+   * and the model declined to cite". This probe — the instrument that same handoff named for the
+   * job — read only `answer` and `blocked` off that body and threw the rest away, so the check it
+   * was pointed at had to be done by a second, unrecorded script. An instrument that cannot answer
+   * the question it is cited for is the blind-instrument failure this repo keeps paying for.
+   *
+   * `cited` is the length of the response's `hadith` array: how many of the offered hadith the
+   * answer actually carried a resolving marker for. `offered>0` with `cited:0` on an ANSWERED turn
+   * is the model declining to cite; on a `blocked:bad_hadith` turn it is the model attributing
+   * without a receipt. Those are different failures and the bucket alone cannot separate them.
+   */
+  readonly offered: number;
+  readonly records: number;
+  readonly cited: number;
+  readonly dalilMs: number | null;
+  readonly failed: string | null;
   /** The outcome bucket, as the READER experiences it. */
   readonly bucket: string;
   /**
@@ -133,6 +153,11 @@ async function turn(p: Probe): Promise<Row> {
     verses: g.verses.length,
     entries: g.entries.length,
     weak: g.weakVerses,
+    offered: 0,
+    records: 0,
+    cited: 0,
+    dalilMs: null as number | null,
+    failed: null as string | null,
     prose: "",
   };
   if (g.verses.length === 0 && g.entries.length === 0) {
@@ -156,11 +181,26 @@ async function turn(p: Probe): Promise<Row> {
     });
     const ms = Math.round(performance.now() - t0);
     if (!res.ok) return { ...base, bucket: `http:${res.status}`, leak: "-", words: 0, ms };
-    const data = (await res.json()) as { answer?: string | null; blocked?: string | null };
+    const data = (await res.json()) as {
+      answer?: string | null;
+      blocked?: string | null;
+      hadith?: unknown[];
+      dalil?: { offered?: number; records?: number; failed?: string | null; ms?: { total?: number } | null };
+    };
+    // The retrieval story travels with the row from here on, so a surprising bucket can be read
+    // against what the model was actually handed rather than guessed at.
+    const dalil = {
+      offered: data.dalil?.offered ?? 0,
+      records: data.dalil?.records ?? 0,
+      cited: data.hadith?.length ?? 0,
+      dalilMs: data.dalil?.ms?.total ?? null,
+      failed: data.dalil?.failed ?? null,
+    };
     if (typeof data.answer === "string" && data.answer.length > 0) {
       const w = wordingShape(data.answer);
       return {
         ...base,
+        ...dalil,
         bucket: "answered",
         leak: w === null ? "clean" : `LEAK:${w.slice(0, 40)}`,
         words: data.answer.split(/\s+/).length,
@@ -168,7 +208,14 @@ async function turn(p: Probe): Promise<Row> {
         prose: data.answer,
       };
     }
-    return { ...base, bucket: data.blocked ? `blocked:${data.blocked}` : "null:no-reason", leak: "-", words: 0, ms };
+    return {
+      ...base,
+      ...dalil,
+      bucket: data.blocked ? `blocked:${data.blocked}` : "null:no-reason",
+      leak: "-",
+      words: 0,
+      ms,
+    };
   } catch (e) {
     return { ...base, bucket: `error:${(e as Error).message.slice(0, 40)}`, leak: "-", words: 0, ms: Math.round(performance.now() - t0) };
   }
@@ -187,7 +234,8 @@ for (let r = 0; r < REPEAT; r += 1) {
     const row = await turn(p);
     rows.push(row);
     console.log(
-      `${row.bucket.padEnd(22)} ${String(row.themes).padStart(2)}t/${String(row.verses).padStart(2)}v/${String(row.entries).padStart(2)}e${row.weak ? " WEAK" : "     "}  ${String(row.ms).padStart(6)}ms  ${row.leak.padEnd(8)} ${row.q}`,
+      `${row.bucket.padEnd(22)} ${String(row.themes).padStart(2)}t/${String(row.verses).padStart(2)}v/${String(row.entries).padStart(2)}e${row.weak ? " WEAK" : "     "}` +
+        `  h${row.offered}→${row.records}→${row.cited}  ${String(row.ms).padStart(6)}ms  ${row.leak.padEnd(8)} ${row.q}`,
     );
   }
 }
@@ -199,6 +247,46 @@ console.log(`\n── every outcome bucket (${rows.length} turns) ──`);
 for (const [b, n] of [...buckets].sort((a, b2) => b2[1] - a[1])) {
   console.log(`  ${String(n).padStart(3)}  ${((n / rows.length) * 100).toFixed(0).padStart(3)}%  ${b}`);
 }
+// THE SPLIT THAT MATTERS FOR ISC-484/487, and the reason `dalil` is now on the row.
+//
+// A turn where the model was handed hadith is a materially different turn from one where it was
+// not: a bigger user message, a second citation grammar to satisfy, and a whole extra refusal mode
+// (`bad_hadith`) that simply cannot fire without them. Averaging the two together produced the
+// single "answered turns average 12.2 s" figure the last checkpoint reported, which is a mean over
+// two populations. Split here so the cost of carrying hadith is visible rather than blended away.
+//
+// This is a COMPARISON WITHIN ONE RUN, over turns that differ in what retrieval happened to return
+// — not a control arm. It cannot tell you what these same questions would have done without their
+// hadith; only re-posting the identical body with the lane shut can do that. Read it as "what does
+// a hadith-carrying turn cost", never as "the cascade caused this".
+const withH = rows.filter((r) => r.records > 0);
+const withoutH = rows.filter((r) => r.records === 0 && r.bucket !== "no-grounding");
+const stat = (rs: typeof rows, label: string) => {
+  // An EMPTY arm prints and says so. Silently dropping the line makes "this run had no such turns"
+  // look identical to "this side was never measured", and the whole point of the split is that a
+  // reader can see BOTH sides — including the run where one side is empty, which is itself the
+  // finding (every grounded turn carried hadith, so this run contains no within-run comparison).
+  if (rs.length === 0) {
+    console.log(`  ${label.padEnd(26)}   0 turns — none in this run, so no comparison is available`);
+    return;
+  }
+  const ans = rs.filter((r) => r.bucket === "answered");
+  const mean = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : 0);
+  console.log(
+    `  ${label.padEnd(26)} ${String(rs.length).padStart(3)} turns · answered ${String(ans.length).padStart(2)}/${rs.length}` +
+      ` (${Math.round((ans.length / rs.length) * 100)}%) · mean ${String(mean(rs.map((r) => r.ms))).padStart(6)}ms` +
+      ` · answered mean ${String(mean(ans.map((r) => r.ms))).padStart(6)}ms`,
+  );
+};
+console.log(`\n── the cost of carrying hadith (within-run comparison, NOT a control arm) ──`);
+stat(withH, "hadith offered to model");
+stat(withoutH, "no hadith (grounded turns)");
+const uncited = withH.filter((r) => r.bucket === "answered" && r.cited === 0);
+console.log(
+  `  answered WITH hadith but citing none: ${uncited.length}/${withH.filter((r) => r.bucket === "answered").length}` +
+    ` — the model was offered a receipt and wrote around it`,
+);
+
 const leaks = rows.filter((r) => r.leak.startsWith("LEAK"));
 console.log(`\nLeaks past the deployed wall (wordingShape on returned prose): ${leaks.length}`);
 for (const l of leaks) console.log(`  ${l.leak}  ${l.q}`);

@@ -589,8 +589,10 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
    * The retrieval story for this turn: four small numbers and a stage token, read off state that is
    * final by the time either return path runs.
    *
-   * HOW TO READ IT. `eligible:false` → the question never qualified, because grounding had verses and
-   * so `entries` was empty; that gate lives in web/src/answer.ts:98, NOT here. `bound:false` → this
+   * HOW TO READ IT. `eligible:false` → the question never qualified for EITHER lane: grounding had
+   * verses (so `entries` was empty, that gate lives in web/src/answer.ts:98, NOT here) and those
+   * verses were not weak. `weak:true` → the SECOND lane is what opened it: the Qur'an lane matched
+   * only a feeling, so hadith runs alongside verses. `bound:false` → this
    * deploy has no dalil bindings, which is the INTENDED state for `--env synthesis` and `--env demo`.
    * `offered:0` with `failed:null` → retrieval ran and genuinely matched nothing. `offered>0` with
    * `records:0` → the display shards did not resolve (`fetchDisplayRecords` drops those silently, by
@@ -611,8 +613,21 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
    * that named the model. If this state returns, construct the passing string by hand BEFORE
    * concluding anything about the model.
    */
+  // ONE EXPRESSION, read by both the report below and the gate that actually runs the chain.
+  //
+  // It used to be two. The report computed `eligible` as `entries.length > 0`, which WAS the whole
+  // gate when it was written; the 2026-08-17 cascade added the weak-verse lane to the gate and left
+  // the report behind. Every weak-verse turn then printed `eligible:false` beside `records:2` — a
+  // diagnostic contradicting itself on exactly the turns the cascade was built for, and the reading
+  // that costs a session is "ineligible, so the cascade never fired". Duplicating the condition and
+  // testing the two copies match would only re-assert the copy; sharing the binding means they
+  // cannot differ. `weak` says which half fired, which is the thing the report could never say.
+  const weakVerses = body.weakVerses === true;
+  const dalilEligible = entries.length > 0 || weakVerses;
+
   const dalilReport = () => ({
-    eligible: entries.length > 0,
+    eligible: dalilEligible,
+    weak: weakVerses,
     bound,
     offered: offered.length,
     records: records.length,
@@ -638,9 +653,9 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // down: it can only turn a retrieval lane ON. It admits nothing, bypasses no guard, and every wall
   // below — `verifyGrounding` above, `capForDisplay`, `fetchDisplayRecords`, `isGroundedHadith`,
   // `guardAnswerProse` — runs exactly as before. A forged `true` buys a reader some hadith they could
-  // have got by rephrasing; it cannot buy an unbacked attribution.
-  const weakVerses = body.weakVerses === true;
-  if ((entries.length > 0 || weakVerses) && bound) {
+  // have got by rephrasing; it cannot buy an unbacked attribution. (Both it and `dalilEligible` are
+  // bound above `dalilReport`, so the report names the lane instead of contradicting it.)
+  if (dalilEligible && bound) {
     // Started before the `try` and closed in a `finally` so a turn that THREW still reports how long
     // it spent before dying. A failure that is also slow and a failure that is instant need different
     // fixes, and `failed:<stage>` alone cannot tell them apart.

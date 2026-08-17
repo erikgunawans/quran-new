@@ -8,6 +8,59 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-17 (late-5) — ISC-484 was diagnosed wrong, and the control arm says so
+
+**Nothing deployed this session.** Anchor `8755cf9`. Changes are one Worker diagnostic fix (not yet
+live), two instrument fixes, and the ISA correction below.
+
+**ISC-484 is MET, and the line describing it was wrong in the way that would have cost the next
+session.** It said the model "reaches for a prophetic attribution and does not carry a resolving
+marker", and sent the reader to the PROMPT half — rule 7 of `SYNTHESIS_SYSTEM_PROMPT`. Measured with
+a **paired control arm** against live prod (same question, same verified verses, posted twice
+back-to-back with only `weakVerses` flipped, so the hadith lane is the single difference), 9 pairs
+over the three WEAK questions:
+
+| hadith lane | answered | answered mean | turns ≥20 s | answered turns citing ≥1 hadith |
+|---|---|---|---|---|
+| **ON** (cascade) | **7/9 (78%)** | 12.8 s | 3/9 | **7/7** |
+| **OFF** (pre-cascade) | 6/9 (67%) | 8.2 s | 3/9 | 0/6 |
+
+**Every answered turn that was offered hadith cited one with a resolving marker — 7 of 7.** Rule 7
+lands; there is no prompt work to do. The widened lane also answers MORE often than the arm without
+it. The earlier reading came from unpaired single-shot samples that happened to catch the ~26 s
+turns — I reproduced exactly that on the first probe of the session (`bad_hadith` at 26.4 s) and it
+was still wrong.
+
+**The ~26 s wall is ARM-INDEPENDENT: 3/9 with the lane ON, 3/9 with it OFF**, and the pre-cascade arm
+produced its own dead turns (`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). So it is not
+the cascade, not the hadith payload and not `bad_hadith` — it is that a retry does not fit inside
+`MODEL_DEADLINE_MS` on any lane. That is ISC-487, still Erik's call, and it is now the whole of what
+is left in the cycle. The real cost of carrying hadith is **+4.5 s** on an answered turn, of which
+the dalil chain is 1.3–4.0 s, so 1–3 s is the model.
+
+**Run-to-run movement is larger than anything a bucket total can show.** `wall-live-probe --repeat 3`
+read **25% answered** this afternoon against late-4's 46%, 0 leaks both times, no deploy in between.
+The paired arm is the only comparison in this cycle worth acting on.
+
+**The `dalil` report was lying, on exactly the turns the cascade was built for.** It computed
+`eligible` as `entries.length > 0` — which WAS the whole gate when written — while the gate itself
+had grown a second lane. Every weak-verse turn printed `eligible:false` beside `records:2`, a
+diagnostic contradicting itself, and the natural reading ("ineligible, so the cascade never fired")
+is a session lost. Fixed by sharing ONE binding between the report and the gate rather than
+duplicating the condition and testing the copies agree; a new `weak` field says which half fired.
+`src/app/probe-hadith-gate.ts` had the same stale copy and would have called the cascade's own turns
+"gated" — fixed, and it now reports the weak lane separately.
+
+**The instrument could not answer the question it was cited for.** The late-4 handoff pointed at
+`wall-live-probe.ts` for ISC-484 and, in the same breath, told the reader to check the response
+body's `dalil` report — which that probe read and threw away. It now records `offered → records →
+cited` and the dalil timings on every row, and splits the summary by whether the model was handed
+hadith at all. No second unrecorded script needed next time.
+
+**Gates:** `bun test` 1569/0 exit 0 · typecheck exit 0 (all 5 passes). ISA **496/508**, computed.
+
+---
+
 ## 2026-08-17 (late-4) — the wall shipped, cost something, and the answer got two more sources
 
 **Everything below is DEPLOYED to prod and verified by served bytes**, in four deploys: worker

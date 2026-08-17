@@ -65,7 +65,7 @@ const QUESTIONS: readonly string[] = [
   "apa keutamaan menahan marah",
 ];
 
-type Row = { q: string; verses: number; entries: number; eligible: boolean };
+type Row = { q: string; verses: number; entries: number; weak: boolean; eligible: boolean };
 const rows: Row[] = [];
 
 for (const q of QUESTIONS) {
@@ -74,19 +74,27 @@ for (const q of QUESTIONS) {
     q,
     verses: g.verses.length,
     entries: g.entries.length,
-    // The Worker's gate, verbatim: worker/src/index.ts:549 `entries.length > 0 && …bindings`.
-    eligible: g.entries.length > 0,
+    weak: g.weakVerses,
+    // The Worker's gate, verbatim: `(entries.length > 0 || weakVerses) && …bindings`. The second
+    // half arrived with the 2026-08-17 cascade; a probe still reporting only the first would call
+    // the very turns that cascade opened "gated", which is the reading this probe exists to prevent.
+    eligible: g.entries.length > 0 || g.weakVerses,
   });
 }
 
 for (const r of rows) {
-  const mark = r.eligible ? "ELIGIBLE" : "gated   ";
-  console.log(`${mark} | verses ${String(r.verses).padStart(2)} · entries ${String(r.entries).padStart(2)} | ${r.q}`);
+  const mark = r.eligible ? (r.entries > 0 ? "ELIGIBLE" : "WEAK-LANE") : "gated    ";
+  console.log(
+    `${mark.padEnd(9)} | verses ${String(r.verses).padStart(2)} · entries ${String(r.entries).padStart(2)} | ${r.q}`,
+  );
 }
 
 const eligible = rows.filter((r) => r.eligible).length;
+const weakOnly = rows.filter((r) => r.eligible && r.entries === 0).length;
 const noVerses = rows.filter((r) => r.verses === 0).length;
 console.log(
-  `\n${rows.length} probed — ELIGIBLE for hadith ${eligible} · zero-verse turns ${noVerses} · gated ${rows.length - eligible}`,
+  `\n${rows.length} probed — ELIGIBLE for hadith ${eligible} (${weakOnly} via the WEAK-verse lane) · zero-verse turns ${noVerses} · gated ${rows.length - eligible}`,
 );
-console.log("`entries` is populated ONLY when verses.length === 0 (answer.ts:98), so eligible ≤ zero-verse.");
+console.log(
+  "`entries` is populated ONLY when verses.length === 0 (answer.ts:98); the weak-verse lane is what lets a turn WITH verses still reach hadith.",
+);
