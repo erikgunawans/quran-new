@@ -643,14 +643,20 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
       return `<li class="know-entry"><span class="know-text">${esc(e.text)}</span>${cite}${home}</li>`;
     })
     .join("");
-  // When every line really did come from the routed chapter, the original sentence is exactly true
-  // and stays untouched. It stops being true the moment a line is borrowed, so that case gets its
-  // own sentence rather than a claim the entries below contradict.
+  // Which chapters the lines came from changes the sentence; that a line was BORROWED from another
+  // chapter must be said, or the scholar's Ibadah entry sits silently under a heading he never wrote
+  // it for.
+  //
+  // What both forms must not say is "Ini yang {author} kumpulkan soal {category}". The list below is
+  // at most MAX_ENTRIES = 8 lines, chosen and ordered by OUR scorer out of `totalEntries` (626 in the
+  // largest chapter) — so that sentence credited the scholar with a selection and a ranking that are
+  // ours. He collected the index; we picked eight of it. The reader is now told which half is which,
+  // because a subset presented as the whole is the same overstatement the review gate exists to stop.
   const spansChapters = k.entries.some((e) => e.categorySlug !== k.slug);
   return (
     (spansChapters
-      ? `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> dan bab lain yang membahas hal serupa — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`
-      : `<p class="said">Ini yang <b>${esc(k.source.author)}</b> kumpulkan soal <b>${esc(k.category)}</b> — aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`) +
+      ? `<p class="said">Ini baris-baris dari indeks <b>${esc(k.source.author)}</b> yang paling cocok dengan pertanyaanmu — dari bab <b>${esc(k.category)}</b> dan bab lain yang membahas hal serupa. Pemilihan dan urutannya dari kami, bukan dari beliau. Aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`
+      : `<p class="said">Ini baris-baris dari indeks <b>${esc(k.source.author)}</b> soal <b>${esc(k.category)}</b> yang paling cocok dengan pertanyaanmu. Pemilihan dan urutannya dari kami, bukan dari beliau. Aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya:</p>`) +
     `<ul class="know-list">${entries}</ul>` +
     `<p class="know-more"><a href="#/peta/${esc(k.slug)}">Lihat semua ${k.totalEntries} entri tentang ${esc(k.category)} di Tematik →</a></p>` +
     credit

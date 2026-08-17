@@ -47,3 +47,41 @@ describe("the zero-entry pointer names the real cause", () => {
     expect(main).toContain("Coba tanya pakai kata lain");
   });
 });
+
+/**
+ * THE ENTRY LIST WAS CREDITED TO THE SCHOLAR, SELECTION AND ORDER INCLUDED.
+ *
+ * *"Ini yang {author} kumpulkan soal {category}"* reads as: this is his collection on the topic. It
+ * is not. `knowledge.ts` scores every entry against the question, sorts by that score, dedupes, and
+ * `.slice(0, MAX_ENTRIES)` — eight lines out of up to 626. The lines are verbatim his; the eight and
+ * the order are ours, and on a scholarship surface an unmarked subset presented as the whole is the
+ * overstatement the review gate exists to catch.
+ *
+ * Both branches are asserted. The spans-chapters branch is the one that fires on the borrowed-line
+ * case and is the easier of the two to fix on one side only.
+ */
+describe("the entry list is credited honestly", () => {
+  it("no longer presents our top-8 as the scholar's own collection", () => {
+    expect(main).not.toMatch(/Ini yang <b>\$\{esc\(k\.source\.author\)\}<\/b> kumpulkan/u);
+  });
+
+  it("says the lines are the ones that fit the question, not the whole chapter", () => {
+    const fits = main.match(/yang paling cocok dengan pertanyaanmu/gu) ?? [];
+    // One per branch: routed-chapter-only and spans-chapters.
+    expect(fits.length).toBe(2);
+  });
+
+  it("names WHO selected and ordered them, on both branches", () => {
+    const ours = main.match(/Pemilihan dan urutannya dari kami, bukan dari beliau\./gu) ?? [];
+    expect(ours.length).toBe(2);
+  });
+
+  it("still says the lines are not our interpretation, and still cites each one", () => {
+    const notOurs = main.match(/Aku nggak menafsirkan sendiri, tiap baris langsung menunjuk ke ayatnya/gu) ?? [];
+    expect(notOurs.length).toBe(2);
+  });
+
+  it("still names the borrowed-chapter case rather than filing it silently", () => {
+    expect(main).toContain("dan bab lain yang membahas hal serupa");
+  });
+});
