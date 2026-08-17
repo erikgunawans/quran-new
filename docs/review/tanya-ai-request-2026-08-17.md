@@ -1,7 +1,9 @@
 # Permohonan pertimbangan — bolehkah aplikasi menyusun sendiri jawaban agama?
 
 > Ditujukan kepada **Ustadz Ahmad Isrofiel Mardlatillah**.
-> Ditulis 2026-08-17. **Status: SIAP DIKIRIM — menunggu Erik mengirimkannya.**
+> Ditulis 2026-08-17. **Status: SUDAH DIKIRIM oleh Erik, 2026-08-17. Belum ada jawaban.**
+> Terkirim ≠ disetujui. Selama belum ada jawaban dari Ustadz, tidak satu pun pertanyaan di surat ini
+> boleh dicatat sebagai sudah dijawab, dan ISC-417 tetap **NOT MET**.
 > Menggantikan `hukum-pin-request-2026-08-12.md`, yang tidak boleh dikirim dalam bentuknya karena
 > memuat satu kalimat yang sudah tidak benar sejak 12 Agustus 2026.
 
