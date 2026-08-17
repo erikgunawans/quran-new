@@ -35,7 +35,7 @@
  * synthesis edition degrades to the trustworthy edition for that one turn, never a fabricated ruling.
  */
 
-export type AnswerViolationKind = "arabic" | "bad_ref" | "fatwa" | "bad_hadith";
+export type AnswerViolationKind = "arabic" | "bad_ref" | "fatwa" | "bad_hadith" | "own_wording";
 
 export interface AnswerViolation {
   readonly kind: AnswerViolationKind;
@@ -534,6 +534,60 @@ export function hadithShape(prose: string, isGrounded: (id: string) => boolean):
 }
 
 /**
+ * A quoted span long enough to BE the source's wording rather than a term the sentence is about.
+ *
+ * Set from the distribution measured across seven live prod answers on 2026-08-17, not from taste:
+ * the violations were 18, 12 and 11 words; the longest benign quote was 6 (the reader's own imagined
+ * voice), and every other benign one was a bare term of 1-3 words. Eight is the gap, with two words
+ * of margin under it.
+ */
+const OWN_WORDING_MIN_WORDS = 8;
+
+/**
+ * Quoted spans, straight or curly. The pair is matched left-to-right so a run of terms in one
+ * sentence — `"musik" atau "alat musik"` — yields two short spans rather than one long one.
+ *
+ * THE CLOSING QUOTE IS OPTIONAL, and that is not sloppiness. Indonesian and English both put the
+ * full stop INSIDE the closing quote (`…bagi mereka.”`), and the sentence splitter this rule runs
+ * over splits on that stop — so the closing quote lands in the NEXT segment and a strictly-paired
+ * pattern matches nothing. The first real violation this rule was written for failed exactly that
+ * way. A span therefore runs from the opening quote to the closing one or to the end of the
+ * sentence, whichever comes first.
+ */
+const QUOTED_SPAN = /[“"]([^”"]+)(?:[”"]|$)/gu;
+
+/**
+ * Sentences that write out the wording of scripture or of the Prophet ﷺ instead of citing it.
+ *
+ * THIS IS NOT A RECEIPT RULE, and it is deliberately blind to markers. `hadithShape` already asks
+ * whether an attribution carries a receipt; this asks what the app PRINTED. An answer can hold a
+ * marker that resolves perfectly and still put the app's own Indonesian rendering of the hadith on
+ * the screen — which is exactly what shipped on 2026-08-17, twice, with the card rendering below it.
+ * The app's entire provenance posture is that the WORDS come from the pinned corpus with
+ * attribution; a rule that only checked receipts left the words unguarded.
+ *
+ * Scoped to the sentence, so quoting a term (`"lahwal hadits"`) or the reader's own voice is
+ * untouched: the span must be long AND sit in a sentence that is either citing an ayah or
+ * attributing to the Prophet ﷺ. Returns the offending sentence, or null.
+ */
+export function wordingShape(prose: string): string | null {
+  for (const raw of normaliseForSentences(prose).split(/[.!?\n]+/)) {
+    if (!raw.trim()) continue;
+    const s = raw.toLowerCase();
+    const citesAyah = REF_IN_PROSE.test(raw);
+    REF_IN_PROSE.lastIndex = 0;
+    const attributes = muhammadSpeechAct(s) || PROPHETIC.some((re) => re.test(s));
+    if (!citesAyah && !attributes) continue;
+    QUOTED_SPAN.lastIndex = 0;
+    for (const m of raw.matchAll(QUOTED_SPAN)) {
+      const words = (m[1] ?? "").trim().split(/\s+/u).filter(Boolean).length;
+      if (words >= OWN_WORDING_MIN_WORDS) return raw.trim();
+    }
+  }
+  return null;
+}
+
+/**
  * Deferral CONSTRUCTIONS — the grammar of handing the question to a human, not a vocabulary of
  * words that appear near one.
  *
@@ -607,6 +661,12 @@ export function guardAnswerProse(
 
   const fatwa = fatwaShape(prose);
   if (fatwa) violations.push({ kind: "fatwa", detail: fatwa.slice(0, 80) });
+
+  // The app printing the SOURCE's own words rather than citing them. Checked beside the receipt
+  // rules, never instead of them: an answer can satisfy every receipt and still put our Indonesian
+  // rendering of a verse next to the official one, which is what shipped on 2026-08-17.
+  const wording = wordingShape(prose);
+  if (wording) violations.push({ kind: "own_wording", detail: wording.slice(0, 80) });
 
   // Two ways to fail the hadith rule, and both must be caught.
   // (a) An attribution to the Prophet ﷺ with no resolvable marker behind it.
