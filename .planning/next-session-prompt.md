@@ -1,3 +1,162 @@
+# Next session — New-Quranku (checkpoint 2026-08-17 late-5)
+
+> Prepended by /wrap 2026-08-17 late-5. Anchor `8f3ab32` — the dalil-report fix and the ISC-484
+> correction, **committed and pushed, NOT deployed**. Supersedes the `840539a0` anchor.
+> That handoff's **item 2 is DISCHARGED — by being FALSIFIED, not fixed.** Do not go looking for
+> the prompt work it described; there is none. Its item 1 STILL STANDS. Items 3–11 survive.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-17 (late-5)**).
+
+**Current state.** Gates green — `bun test` **1569/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 496/508**, computed. Clean tree except
+untracked `WARP.md` — leave it. **PROD IS ONE COMMIT BEHIND**: `8f3ab32` touches `worker/src/index.ts`
+and has NOT been deployed. The change is diagnostic-only (a report field plus a no-op refactor), so
+nothing is broken by the delay — but prod's `dalil` report keeps printing the contradiction below
+until it ships. Hadith generator still STOPPED (1,746/14,736).
+
+**Second repo:** `~/printing-press/library/tafseer-okf` clean and pushed at `b8beb353`.
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Carried forward verbatim for the third handoff running, because it is the item most likely to be
+"unblocked" by someone reading a stale line. The letter's question 3 commits us to learning the
+ustadz's boundary BEFORE installing the filter, and reports 8 of 8 as measured fact.
+**ISC-464(b) is blocked on the ANSWER, not the send.**
+
+This does NOT conflict with Erik's 2026-08-17 decision to build the cascade without waiting for
+sign-off. He authorised NEW SOURCES, not the filter the letter names.
+
+## 2. ISC-484 is MET. Its diagnosis was WRONG. Do not do the prompt work it asked for
+
+The last handoff's top item said the widened hadith lane makes the model "reach for a prophetic
+attribution WITHOUT a resolving marker" and sent the next session to rule 7 of
+`SYNTHESIS_SYSTEM_PROMPT`. Measured with a **paired control arm** against live prod — same question,
+same verified verses, POSTed twice back-to-back with only `weakVerses` flipped — 9 pairs over the
+three WEAK questions:
+
+| hadith lane | answered | answered mean | turns ≥20 s | answered turns citing ≥1 hadith |
+|---|---|---|---|---|
+| **ON** (cascade) | **7/9 (78%)** | 12.8 s | 3/9 | **7/7** |
+| **OFF** (pre-cascade) | 6/9 (67%) | 8.2 s | 3/9 | 0/6 |
+
+**Rule 7 lands 7 times out of 7.** Editing the prompt would have "fixed" a rule that was already
+working. The widened lane answers MORE often than the arm without it. `turns ≥20 s` is **3/9 in BOTH
+arms**, so the ~26 s wall is arm-independent — not the cascade, not the hadith payload, not
+`bad_hadith`. Carrying hadith costs **+4.5 s** on an answered turn, of which 1.3–4.0 s is the dalil
+chain (`dalil.ms.total`), so 1–3 s is the model.
+
+**ISC-454 carried the same falsified reading** ("zero cards, and the cause is the PROMPT") and has
+been corrected in place rather than flipped — what keeps it open is the rights half and ISC-487,
+neither of which is a measurement.
+
+## 3. ISC-487 — the ~26 s wall is now the ONLY open engineering item in the cycle. ERIK'S CALL
+
+Sharpened this session: it is **arm-independent**. The pre-cascade arm produced its own dead turns
+(`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). A retry does not fit inside
+`MODEL_DEADLINE_MS` on ANY lane.
+
+**Do not "fix" this by raising the deadline.** There are 5 s of headroom before `MODEL_DEADLINE_MS`
+crosses the client's `TIMEOUT_MS` (30 s), and that ordering is load-bearing. The lever is
+first-attempt latency.
+
+## 4. The letter contains a sentence that was false when sent. ERIK'S CALL — still open
+
+*"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
+`own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
+
+## 5. "Gustaf" is unresolved and deliberately not acted on
+
+Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+
+## 6. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
+
+82 → 17 with a control arm showing 0 of 2,367 passing spans broken. The 17 are a hand-read mix of
+whole unbroken ayat (real corruption) and artifact shapes the trim does not cover. Erik chose to STOP
+here. `okf/aqeeda/id/` stays uncommitted.
+
+## 7. QS 7:19 on ruling questions · 8. `neraka` routes to SCRIPTURE · 9. Audio DENGAR click ·
+## 10. `MAX_DISPLAY = 2` rights call · 11. Continuous chat PRD — all unchanged, carried forward
+
+## 12. The other 11 open ISCs, so none is invisible
+
+`ISC-98` (real-iOS `visualViewport` spot-check) · `ISC-323` + `ISC-323.2` (live vs offline candidate
+set) · `ISC-353.0` (superseded, kept for the trail) · `ISC-372` (blocked on ISC-323.2) · `ISC-417`
+(ustadz sign-off — his ANSWER) · `ISC-419` / `ISC-420` (fixed at ingestion, awaiting his answer) ·
+`ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (rights half + ISC-487) ·
+`ISC-464` (b is blocked by §1) · `ISC-487` (§3).
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — a whole-run bucket total is NOT evidence in this app.** The same 24-turn probe read 25%
+  then 38% answered within two hours with NO deploy between; late-4 recorded 46%. Only a PAIRED arm
+  (same question, same body, one bit flipped) or a row only the change could emit is actionable.
+- **NEW — an unpaired single-shot turn has now produced the same false diagnosis twice** (ISC-454
+  2026-08-15, ISC-484 2026-08-17). I reproduced it myself on this session's first probe
+  (`bad_hadith` at 26.4 s) before pairing it. Pair before concluding.
+- **NEW — a diagnostic that mirrors a gate is a COPY of that gate and drifts silently.** `dalilReport`
+  computed `eligible` from the OLD gate and printed `eligible:false` beside `records:2` on exactly
+  the turns the cascade was built for. Fixed by SHARING ONE BINDING (`dalilEligible`) with the gate —
+  not by duplicating the condition and testing the copies agree, which re-asserts the copy.
+  `probe-hadith-gate.ts` held the same stale copy.
+- **NEW — `wall-live-probe.ts` now records the `dalil` report** (`h offered→records→cited`) and
+  splits its summary by whether the model was handed hadith. It prints an EMPTY arm rather than
+  dropping the line. Do not re-add a second unrecorded script to read the response body.
+- **The Fikih router may ONLY re-rank.** `fikih-route.ts` says so and `fiqh-rank.test.ts` enforces it.
+  Wire it into an admission decision and the whole safety argument is void.
+- **`entries` must stay gated on `verses.length === 0`.** Only the HADITH lane was widened. That gate
+  stops the ruling index hijacking a real feeling. Do not "simplify" the two gates into one.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.** Re-check after a beat,
+  with a cache-buster AND `Cache-Control: no-cache`.
+- **`interceptor act` takes `<ref>` with NO `click` keyword**, and a SYNTHETIC click does not activate
+  a native `<details>`.
+- **A sent letter is a commitment and outranks a handoff item.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE, never
+  `innerText`, when judging a guard.
+- **The sentence splitter breaks a quote pair when the full stop sits inside the closing quote.**
+- **A `value=` attribute does NOT survive the Artifact publish wrapper.**
+- **The `dari bab` label is CSS-generated** — count `a.know-cat` ELEMENTS, never search text.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s**, not at settle.
+- **A "lane X never renders" claim needs a control arm that makes it render.**
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`.
+- **Force-red every new test.** And if a proposed test can only re-assert a copy of the code, do not
+  write it — remove the copy instead.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own table parsers.
+- **frequency has failed THREE times against this index. Do not try IDF again.**
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.**
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.**
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.** New Indonesian goes through the
+  IndonesianPolish skill — but match the LOCAL register.
+- **Never hand-set ISA `progress:`.** Compute it.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE.** Committable only when `aqeeda:verify-id` exits 0.
+- **Routes and identifiers stay `hadis`** (`#/hadis`, `nav-hadis`, `renderHadis`, `.hadith-*`) even
+  though the reader-facing label is now **Hadits**. So does the system prompt's
+  `"Hadis yang terambil"` heading — it is paired with the grounding builder's matching header.
+
+## Open items waiting on me (the user)
+
+- **Deploy `8f3ab32` to prod?** Diagnostic-only, but prod's `dalil` report lies until it ships.
+- **ISC-487 — the ~26 s wall** (§3): accept it, or spend a session on first-attempt latency? It is
+  now the ONLY open engineering item in the cycle.
+- **A follow-up note to Ustadz Ahmad?** (§4) — the letter's hadith sentence was false when sent.
+- **Who is Gustaf?** (§5) — declined to record for now; still unresolved.
+- **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
+- **Deploy `new-quranku-ai` and/or `demo-quranku`?** Prod-only chosen twice; both now several deploys
+  behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild first.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-17 late-4)
 
 > Prepended by /wrap 2026-08-17 late-4. Anchor `840539a0` — the ayat → hadits → fikih cascade,
