@@ -1,3 +1,147 @@
+# Next session — New-Quranku (checkpoint 2026-08-17 late-4)
+
+> Prepended by /wrap 2026-08-17 late-4. Anchor `840539a0` — the ayat → hadits → fikih cascade,
+> **committed, pushed AND deployed** (worker `ddfa28af`, bundle `index-CyVBC63y.js`). The wrap's own
+> checkpoint commit sits above it and touches only `PROGRESS.md`, `ISA.md` and this file.
+> Supersedes the `bb4e951` anchor.
+> That handoff's **items 2, 4 and 5 are DISCHARGED** — 2 deployed and re-measured, 4 done at
+> 82 → 17 with a clean control, 5 decided (prod only, unchanged). Its **item 1 STILL STANDS and is
+> still the most important line in this file.** Items 3, 6, 7, 8, 9 survive.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-17 (late-4)**).
+
+**Current state.** Gates green — `bun test` **1569/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 495/508**, computed. Clean tree except
+untracked `WARP.md` — leave it. **PROD IS CURRENT**: four deploys landed this session and the last
+one is verified by served bytes. No undeployed commit, no stale dist. Hadith generator still STOPPED
+(1,746/14,736).
+
+**Second repo:** `~/printing-press/library/tafseer-okf` clean and pushed at `b8beb353`.
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Carried forward verbatim from the last two handoffs because it has not changed and it is the item
+most likely to be "unblocked" by someone reading a stale line. The letter's question 3 commits us to
+learning the ustadz's boundary BEFORE installing the filter, and reports 8 of 8 as measured fact.
+**ISC-464(b) is blocked on the ANSWER, not the send.**
+
+Note this does NOT conflict with Erik's 2026-08-17 decision to build the cascade without waiting for
+sign-off. Those are different things: he authorised NEW SOURCES, not the filter the letter names.
+
+## 2. ISC-484 — the widened hadith lane REFUSES where it used to answer. This is the top job
+
+The cascade works — proven by a row only it could emit (`apa keutamaan sedekah`, `blocked:bad_hadith`
+at 1 verse / 0 entries, unreachable before). But on the two questions it was built for, the model
+reaches for a prophetic attribution WITHOUT a resolving marker, so `bad_hadith` stops it.
+`bagaimana adab kepada orang tua` and `apa keutamaan sedekah` both answered cleanly BEFORE.
+
+**The remaining work is the PROMPT half, not retrieval.** Rule 7 of `SYNTHESIS_SYSTEM_PROMPT`
+already specifies the marker syntax; the model is not following it on these turns. Before editing
+the prompt, check the response body's `dalil` report — `records>0` with an empty `hadith` array means
+retrieval worked and the model declined to cite, which the Worker's own comment calls a prompt
+problem. `records:0` would mean something else entirely.
+
+Measure with `bun run src/eval/wall-live-probe.ts --repeat 3`. Require the two `WEAK` rows to answer.
+
+## 3. ISC-487 — the wall's real cost is LATENCY, and nobody has ruled on it. ERIK'S CALL
+
+3 of 4 remaining `own_wording` refusals land at ~26 s: the retry exhausted the Worker's 25 s
+`MODEL_DEADLINE_MS` and the FIRST attempt's verdict was reported. Only one (15.8 s) is a genuine
+second violation. Answered turns average 12.2 s, refusals 24.8 s.
+
+**Do not "fix" this by raising the deadline.** There are 5 s of headroom before `MODEL_DEADLINE_MS`
+crosses the client's `TIMEOUT_MS` (30 s), and that ordering is load-bearing. The lever is
+first-attempt latency.
+
+## 4. The letter contains a sentence that was false when sent. ERIK'S CALL — still open
+
+*"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
+`own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
+
+## 5. "Gustaf" is unresolved and deliberately not acted on
+
+Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. Asked whether to create a separate record for a second reviewer — **he chose not to
+record it yet.** So his standing decision to iterate during testing lives in the session transcript
+and in PROGRESS.md, and NOT in `docs/review/`. Do not invent a record for Gustaf.
+
+## 6. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
+
+82 → 17 with a control arm showing 0 of 2,367 passing spans broken. The handoff predicted exit 0;
+that was wrong. The 17 are a hand-read mix of whole unbroken ayat (real corruption) and a few
+artifact shapes the trim does not cover. Erik chose to STOP here. `okf/aqeeda/id/` stays uncommitted.
+
+## 7. QS 7:19 on ruling questions · 8. `neraka` routes to SCRIPTURE · 9. Audio DENGAR click ·
+## 10. `MAX_DISPLAY = 2` rights call · 11. Continuous chat PRD — all unchanged, carried forward
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — the Fikih router may ONLY re-rank.** `fikih-route.ts` says so and `fiqh-rank.test.ts`
+  enforces it. A keyword list is acceptable there ONLY because it cannot admit or refuse a hadith;
+  wire it into an admission decision and the whole safety argument is void. Keyword lists have
+  failed three times in this repo as GATES.
+- **NEW — `entries` must stay gated on `verses.length === 0`.** Only the HADITH lane was widened.
+  The entries gate is what stops the ruling index hijacking a real feeling ("aku capek banget sama
+  utang" → riba law). Do not "simplify" the two gates into one.
+- **NEW — a bucket total across two live runs is not a comparison.** `/api/classify` returned zero
+  themes on all 24 turns of one run and some themes on another, which moved `no-grounding` by 3
+  turns for reasons unrelated to the change under test. Compare per-question, or compare a row only
+  the change could emit.
+- **NEW — the first curl after a deploy reads the STALE `index.html` from the edge.** It reported
+  the previous bundle hash this session even though the deploy log showed the new asset uploaded.
+  Re-check after a beat, with a cache-buster AND `Cache-Control: no-cache`.
+- **NEW — `interceptor act` takes `<ref>` with NO `click` keyword.** `act <tab> click e26` treats
+  `click` as the ref and `e26` as text to type, and dies with `stale element [undefined]` — which
+  looks exactly like the known minimized-window failure and is not it. Also: a SYNTHETIC click does
+  not activate a native `<details>`; confirm toggles with a real activation.
+- **A sent letter is a commitment and outranks a handoff item.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE, never
+  `innerText`, when judging a guard.
+- **The sentence splitter breaks a quote pair when the full stop sits inside the closing quote.**
+  This is why `wordingShape` allows an unterminated span AND why adjacency is measured over the
+  whole prose rather than per sentence.
+- **A `value=` attribute does NOT survive the Artifact publish wrapper.**
+- **The `dari bab` label is CSS-generated** — count `a.know-cat` ELEMENTS, never search text.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s**, not at settle.
+- **A "lane X never renders" claim needs a control arm that makes it render.**
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`.
+- **Force-red every new test.** Two of the fiqh-router tests passed under mutation this session and
+  had to be rewritten; they were pinning nothing.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own table parsers.
+- **frequency has failed THREE times against this index. Do not try IDF again.**
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.**
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.**
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.** New Indonesian goes through the
+  IndonesianPolish skill — but match the LOCAL register.
+- **Never hand-set ISA `progress:`.** Compute it. It was wrong two sessions running.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE.** Committable only when `aqeeda:verify-id` exits 0.
+- **Routes and identifiers stay `hadis`** (`#/hadis`, `nav-hadis`, `renderHadis`, `.hadith-*`) even
+  though the reader-facing label is now **Hadits**. So does the system prompt's
+  `"Hadis yang terambil"` heading — it is paired with the grounding builder's matching header.
+
+## Open items waiting on me (the user)
+
+- **ISC-487 — the wall's latency cost** (§3): accept it, or spend a session on first-attempt latency?
+- **A follow-up note to Ustadz Ahmad?** (§4) — the letter's hadith sentence was false when sent.
+- **Who is Gustaf?** (§5) — declined to record for now; still unresolved.
+- **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
+- **Deploy `new-quranku-ai` and/or `demo-quranku`?** Prod-only chosen twice; both now several
+  deploys behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild first.
+- **The audio DENGAR click** (§9) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (§10) — a rights call.
+
+---
 # Next session — New-Quranku (checkpoint 2026-08-17 late-3)
 
 > Prepended by /wrap 2026-08-17 late-3. Anchor `bb4e951` — the `own_wording` wall, **committed and

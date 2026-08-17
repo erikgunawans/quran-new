@@ -8,6 +8,97 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-17 (late-4) — the wall shipped, cost something, and the answer got two more sources
+
+**Everything below is DEPLOYED to prod and verified by served bytes**, in four deploys: worker
+`84a6d4c7` (the `own_wording` wall), `e0f2ae79` (narrowed), `a9c295ce` (the folded note + Hadits),
+`ddfa28af` (the ayat → hadits → fikih cascade, bundle `index-CyVBC63y.js`).
+
+**The `own_wording` wall is live and leak-free — and it destroyed the two answers this file names.**
+Deployed on Erik's approval, then re-measured with a NEW instrument (`src/eval/wall-live-probe.ts`,
+committed) that drives the real reader path: live `/api/classify` for themes, the same
+`gatherGrounding` prod runs, the same POST body `answer-live.ts` sends. The eight questions the
+previous handoff said to "re-run" had never been written down; they are recorded in that file now,
+six attested and two labelled `added`. Result over 24 turns: 46% answered, **21% `blocked:own_wording`
+after the retry** — and `bolehkah perempuan jadi pemimpin` refused 3 of 3, `apakah musik haram` timed
+out 3 of 3. ISA calls those two the answers a hard rule would destroy. It had destroyed them.
+
+**Mechanism, verified by construction before changing anything:** the rule asked whether the
+SENTENCE cited an ayah, which is a different question from whether the QUOTE is scripture. It refused
+a scholar's position, our own knowledge entry and the reader's own framing identically to a
+hand-written ayah translation. Narrowed to require DIVINE ATTRIBUTION or ADJACENCY to the citation,
+standing down when a human subject owns the words. **The narrowing also closed a hole the first cut
+had:** adjacency now spans the whole prose, so the bare `"…" (QS 17:32)` shape — the ORIGINAL ISC-419
+evidence, and the commonest of the three on record — is caught. That test went red before the change.
+
+**The number that matters more than the refusal rate.** 3 of the 4 remaining `own_wording` refusals
+land at ~26 s: the retry exhausted the Worker's 25 s deadline and the FIRST attempt's verdict was
+reported. Only one (15.8 s) is a genuine second violation. Answered turns average 12.2 s against
+24.8 s for refusals. **The wall's dominant cost is that a retry does not fit in the turn budget**,
+and there are 5 s of headroom before `MODEL_DEADLINE_MS` crosses the client's `TIMEOUT_MS`. The lever
+is first-attempt latency. ISC-487, open, Erik has not ruled.
+
+**Erik's sequence: ayat → hadits → fikih, built (ISC-479..484).** Investigation first, and it
+inverted the assumption: step two could only run when step one returned NOTHING, because the Worker
+gate reads `entries` and `entries` fills only on `verses.length === 0`. Over 48 live turns the
+questions that never reached hadith were exactly the ones retrieving one or two FEELING-verses —
+`bagaimana adab kepada orang tua`, `apa keutamaan sedekah`, `bolehkah aku pacaran`, all hadith
+topics. The split used is the SCORER'S OWN (`REFERENCE_SCORE` 100 vs a feeling's 10), now exported so
+it cannot drift from the decision. Only the hadith lane widens; `entries` stays gated on zero verses,
+because that gate is what stops the ruling index hijacking a real feeling.
+
+**Fikih contributes ORDER, not text, because there is nothing to answer from.** `fikih.ts` is a
+topic→kitab map — "a doorway, not a treatise" — and no legally-clean Indonesian fiqh corpus exists
+off the shelf. `rankByFiqhArea` prefers hits from the kitab the compilers themselves filed the
+material under and does nothing else; force-red shows that turning the stable sort into a filter
+fails three tests. That it can only re-rank is the entire reason a keyword router is acceptable here
+when keyword lists have failed three times in this repo as GATES.
+
+**Confirmed by a row only the change could emit:** `apa keutamaan sedekah` returned
+`blocked:bad_hadith` at 1 verse / 0 entries — a verdict that requires the model to have been offered
+hadith, unreachable at `verses > 0` before. **Bucket totals are NOT comparable** and are not cited:
+`/api/classify` returned zero themes on all 24 after-turns against some themes before, so
+`no-grounding` doubled for unrelated reasons.
+
+**AND IT IS NOT YET A WIN FOR THE READER (ISC-484, open).** On the two questions the widening was
+built for, the model reaches for a prophetic attribution without a resolving marker and `bad_hadith`
+stops it. Both answered cleanly BEFORE. Retrieval is done; the PROMPT half is the remaining work.
+
+**Erik's standing decision, recorded:** this proceeds without waiting on the scholar's sign-off, on
+the basis of his own agreement that correction happens during testing. **ISC-417 stays NOT MET.** He
+declined to have it written into `docs/review/` for now, and named the reviewer "Gustaf" where every
+record says Ustadz Ahmad Isrofiel Mardlatillah — unresolved, deliberately not acted on.
+
+**Also shipped.** The Hadis provenance banner is folded into a `<details>` at Erik's request, with
+the machine-output disclosure kept in the always-visible summary — the elaboration folds, the fact
+does not. The four existing honesty tests could NOT have caught burying it (`textContent` reports a
+collapsed body either way); the new test asserts on the `<summary>`, and force-red proves it. And
+"Hadis" → **"Hadits"** on every reader-facing surface, on Erik's call after he was told KBBI
+standardises "hadis" and that his typed "Hadist" is neither form; routes, identifiers and the system
+prompt's paired heading deliberately unchanged.
+
+**Second repo — the aqidah gate, 82 → 17 (`b8beb353` in tafseer-okf).** `scriptureQuotes` ran from
+one introducer to the next citation and swallowed the author's connective prose, so 65 of the 82
+"corruptions" were spans that could never appear verbatim in a faithful translation. Now trimmed to
+the ayah the citation delimits. **The trim does not narrow what the gate asserts** — it corrects the
+span and still demands byte-for-byte presence. Control arm run BEFORE implementing: of the 2,367
+already-passing spans it breaks **0**. After `repair-id --apply`: exact 2,367 → 2,432, nfc-only 0,
+MISSING 17. **The gate still exits 1 on purpose** — the handoff predicted exit 0 and that prediction
+was wrong; a hand-read of the 17 shows whole unbroken ayat (real corruption, what the gate is for)
+mixed with a few uncovered artifact shapes. `okf/aqeeda/id/` stays uncommitted. The gate's private
+copy of the extraction rule was folded into the shared lib — a gate holding its own copy of the rule
+it gates can silently stop testing the shipped behaviour.
+
+**Gates.** `bun test` **1569/0** exit 0 · typecheck exit 0 (all five passes) · `VITE_ANSWER_MODE=
+synthesis bun run build` exit 0, with the new CSS rules confirmed in the SHIPPED stylesheet rather
+than trusted to the exit code. **ISA computed to 495/508** (never hand-set).
+
+**Next.** ISC-484 — the prompt half, so the widened lane answers instead of refusing. Then ISC-487 —
+first-attempt latency, the wall's real cost. Both are measurable with the committed probe.
+
+
+---
+
 ## 2026-08-17 (late-3) — the letter went out, and the wall the prompt could not replace
 
 **Shipped and live.** Two authored-surface copy defects fixed as separate diffs and deployed to prod
