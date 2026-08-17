@@ -1777,9 +1777,14 @@
    comes back as a citation with no text. It is styled to read as an INDEX (rules,
    monospaced-feeling cites, no card chrome) precisely so it never looks like a
    collapsed hadith the reader could expand. There is nothing to expand. */
-.dalil-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-.dalil-head-q { margin: 0; font-size: clamp(19px, 2.2vw, 24px); color: var(--ink); text-wrap: pretty; }
-.dalil-head-back { font-family: var(--f-ui); font-size: 13.5px; color: var(--ink-2); text-decoration: none; white-space: nowrap; }
+/* STACKED, not space-between. The first version put the back link at the far inline end, which is
+   exactly where the floating reader toolbar (sidebar toggle + the A/A/A size buttons) is painted —
+   hit-testing the link's own centre returned `BUTTON.icon-btn`, so the link rendered fine and could
+   not be clicked. Stacking is width-INDEPENDENT: no padding value to guess, and it cannot re-collide
+   when the toolbar gains a control. */
+.dalil-head { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 20px; padding-inline-end: 140px; }
+.dalil-head-q { margin: 0; font-size: clamp(19px, 2.2vw, 24px); color: var(--ink); text-wrap: pretty; order: 2; }
+.dalil-head-back { font-family: var(--f-ui); font-size: 13.5px; color: var(--ink-2); text-decoration: none; white-space: nowrap; order: 1; }
 .dalil-head-back:hover { color: var(--ink); }
 .dalil-searching, .dalil-empty { margin: 24px 0; color: var(--ink-2); font-size: 15px; line-height: 1.6; text-wrap: pretty; }
 
@@ -1809,10 +1814,25 @@
 .dalil-refs-title { margin: 0; font-family: var(--f-ui); font-size: 14px; font-weight: 600; color: var(--ink); }
 .dalil-refs-note { margin: 6px 0 14px; font-size: 13px; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
 .dalil-ref-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+/* GRID, not wrapping flex. As a flex row the long Muslim bab titles wrapped onto a second flex line
+   that began at the row's inline start — under the citation rather than beside it — so three of six
+   rows read as two separate entries and the list stopped scanning as an index. Three columns pin the
+   citation and the grade, and let only the bab wrap, inside its own column. */
+/* `minmax(136px, auto)` and not `auto`: each anchor is its OWN grid, so an `auto` first column sizes
+   per row and the bab column started anywhere from 462px to 483px — a ragged left edge down a list
+   whose whole job is to be scanned. 136px is the measured max citation width (128.4px, "Sahih
+   al-Bukhari 5063" — the corpus is Bukhari + Muslim with 4-digit numbers) plus headroom. It is a
+   FLOOR, not a cap: a longer collection still grows the column and merely re-ragged that one row. */
 .dalil-ref > a {
-  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  display: grid; grid-template-columns: minmax(136px, auto) auto 1fr; align-items: baseline; gap: 4px 10px;
   padding: 9px 10px; border-radius: var(--r-sm, 8px);
   text-decoration: none; color: inherit; transition: background var(--t);
+}
+/* Below the reading measure the three columns do not fit; the bab drops to its own row and is
+   indented to the text column so it still reads as belonging to the citation above it. */
+@media (max-width: 560px) {
+  .dalil-ref > a { grid-template-columns: auto 1fr; }
+  .dalil-ref-bab { grid-column: 1 / -1; padding-inline-start: 2px; }
 }
 .dalil-ref > a:hover { background: var(--primary-wash); }
 .dalil-ref-cite { font-family: var(--f-ui); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
