@@ -1,3 +1,174 @@
+# Next session — New-Quranku (checkpoint 2026-08-18 late-1)
+
+> Prepended by /wrap 2026-08-18 late-1. Anchor `e426bd3` — section-scoped search, **committed,
+> pushed AND DEPLOYED** (worker `4bf633a2`, bundle `index-KFCMiW0O.js` / `index-BuvZdTir.css`).
+> Supersedes the `8f3ab32` anchor. That handoff's **items 1–6 all survive** except its open
+> "deploy `8f3ab32`" question, which is DISCHARGED — that commit shipped inside this deploy.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-18 (late-1)**).
+
+**Current state.** Gates green — `bun test` **1574/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 503/517**, computed. Clean tree except
+untracked `WARP.md` — leave it. **PROD IS CURRENT** and verified by served bytes + a before/after
+control (`/api/dalil` 405 → 200). Hadith generator still STOPPED (1,746/14,736).
+
+**Second repo:** `~/printing-press/library/tafseer-okf` clean and pushed at `b8beb353`.
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Carried verbatim for the fourth handoff running, because it is the item most likely to be
+"unblocked" by someone reading a stale line. The letter's question 3 commits us to learning the
+ustadz's boundary BEFORE installing the filter, and reports 8 of 8 as measured fact.
+**ISC-464(b) is blocked on the ANSWER, not the send.**
+
+## 2. ISC-493 — section search answers gibberish. The obvious fix is FORBIDDEN by data. ERIK'S CALL
+
+`zxqw plumbus flarn` returns 2 hadith cards and 6 references exactly as a real question does,
+because vector search always returns its top-k; `dalilEmptyEl` is only reachable when retrieval
+itself fails. **Do not "fix" this with a rerank floor without re-reading this.** On 3 samples the
+separation looked huge (REAL 0.75–0.85 vs non-real 0.19–0.41). At **20** samples it collapsed:
+
+| | value | query |
+|---|---|---|
+| worst REAL | **0.4805** | `hukum poligami` |
+| best NON-REAL | **0.4102** | `qqqq wwww eeee rrrr` |
+
+A 0.0703 window, against a score `dalil.ts` twice documents as "NOT a correctness signal, and not
+comparable across questions". A threshold there silences a legitimate fiqh question to suppress
+nonsense. Cosine separates worse. Options: accept as search behaviour (the box says "Cari Hadits",
+and a search returning nearest matches is not the answer path manufacturing an answer), or re-frame
+the results copy as "closest in the corpus".
+
+## 3. ISC-494 — the Fikih doorway vanishes on mixed questions. Pre-existing. ERIK'S CALL
+
+`hukum menceraikan istri saat haid` names NO area: `fiqhAreaOf` returns `null` on a TIE, and
+`menceraikan` (talak) and `haid` (thaharah) each score 1. Deliberately conservative — it declines to
+guess rather than guessing wrong — but the doorway is absent exactly where a reader wants it.
+**Changing tie-breaking touches the re-rank the whole Fikih safety argument rests on.** Not changed
+unilaterally.
+
+## 4. ISC-323.2 — the probe channel is OPEN and the next probe is named
+
+Two explanations eliminated this session: not an embedder mismatch (`build-index.ts:38,109` and
+`dalil.ts:72,107` are both `baai/bge-m3` via OpenRouter, no prefix), not a metric mismatch
+(`okf-hadith` is `1024 / cosine`). What survives is **ANN recall over `topK`** — an exhaustive
+offline scan can reach a rank-28 record the live index never returns — or an index/cache population
+difference. **Next probe: vector count of the live index vs `data/okf/vectors-bge-m3.jsonl`.**
+Closing this unblocks ISC-323 and ISC-372 is already closed.
+
+Run the probe from the REPO ROOT (see the new constraint below):
+`bunx wrangler dev --config worker/wrangler.dalil-probe.toml --remote --port 8799`
+
+## 5. ISC-487 — the ~26 s wall, still the only open latency item. ERIK'S CALL
+
+Arm-independent (3/9 dead turns in BOTH arms). **Do not "fix" it by raising the deadline** — there
+are 5 s of headroom before `MODEL_DEADLINE_MS` crosses the client `TIMEOUT_MS` (30 s) and that
+ordering is load-bearing. The lever is first-attempt latency.
+
+## 6. The letter contains a sentence that was false when sent. ERIK'S CALL — still open
+
+*"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
+`own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
+
+## 7. "Gustaf" is unresolved and deliberately not acted on
+
+Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+
+## 8. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
+
+82 → 17 with a control arm showing 0 of 2,367 passing spans broken. Erik chose to STOP here.
+`okf/aqeeda/id/` stays uncommitted.
+
+## 9. QS 7:19 on ruling questions · 10. `neraka` routes to SCRIPTURE · 11. Audio DENGAR click ·
+## 12. `MAX_DISPLAY = 2` rights call · 13. Continuous chat PRD — all unchanged, carried forward
+
+## 14. Every open ISC, so none is invisible (13 open + 1 deferred)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` [DEFERRED-VERIFY] (60fps on real mid-range Android)
+· `ISC-323` + `ISC-323.2` (§4) · `ISC-353.0` (superseded, kept for the trail) · `ISC-417` (ustadz
+sign-off — his ANSWER) · `ISC-419` / `ISC-420` (fixed at ingestion, awaiting his answer) ·
+`ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (rights half + ISC-487) ·
+`ISC-464` (b is blocked by §1) · `ISC-487` (§5) · `ISC-493` (§2) · `ISC-494` (§3).
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — `wrangler dev --remote` MUST run from the REPO ROOT.** `worker/` pins wrangler 3.114.17,
+  whose `dev --remote` opens a legacy edge preview session and dies with *"Could not create remote
+  preview session on your account."* **That error names the account and means the VERSION** — it
+  cost two sessions chasing a Cloudflare permissions problem that did not exist. Root is 4.120.0.
+- **NEW — a rerank/cosine score cannot gate topicality either.** Not just correctness. See §2: the
+  separation that looks decisive at n=3 is a 0.07 window at n=20. Always widen the sample before
+  setting a bound, and state the current max.
+- **NEW — `referenceLineOf` is an explicit key literal and must never become a spread.** It is the
+  rights wall for the reference list. `worker/src/dalil-search.test.ts` asserts the key SET, not the
+  absence of `arabic`/`english`, because the leak that matters is a field added to `DalilHit` later.
+- **NEW — a deploy log can say `No files to upload` while the assets DID ship.** Seen 2026-08-18
+  with freshly-built hashes. Verify by SERVED BYTES; the log line is not evidence either way.
+- **NEW — a stale `CacheStorage` entry survives a SERVER RESTART.** Clearing the dist and restarting
+  wrangler did not shift the browser off the old bundle; `caches.delete()` did. Clear it before
+  believing any post-deploy visual probe.
+- **The Fikih router may ONLY re-rank.** `fikih-route.ts` says so and `fiqh-rank.test.ts` enforces it.
+  `/api/dalil` passes `fiqh` as a plain boolean ONLY because the lane cannot admit or refuse.
+- **`entries` must stay gated on `verses.length === 0`.** Only the HADITH lane was widened.
+- **`MAX_DISPLAY = 2` did not move to build section search** — and must not move by accident.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.** Re-check after a beat,
+  with a cache-buster AND `Cache-Control: no-cache`.
+- **The DOM screenshot times out at 15 s on the heavier routes** (paint complexity, documented). Stop
+  after ~3 attempts and substitute `eval --main` computed-style probes, STATING the missing-pixel gap.
+  The OS capture grabs Chrome's FRONT window, which may be a different one.
+- **`interceptor act` takes `<ref>` with NO `click` keyword**, and a SYNTHETIC click does not open a
+  native `<details>`.
+- **A sent letter is a commitment and outranks a handoff item.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm or a row only the change could emit.
+- **An unpaired single-shot turn has produced the same false diagnosis twice** (ISC-454, ISC-484).
+- **A diagnostic that mirrors a gate is a COPY of that gate and drifts silently.** Share one binding.
+- **The sentence splitter breaks a quote pair when the full stop sits inside the closing quote.**
+- **The `dari bab` label is CSS-generated** — count `a.know-cat` ELEMENTS, never search text.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s**, not at settle.
+- **A "lane X never renders" claim needs a control arm that makes it render.**
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`.
+- **Force-red every new test.** If a proposed test can only re-assert a copy of the code, remove the copy.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own table parsers.
+- **frequency has failed THREE times against this index. Do not try IDF again.**
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal (`function Ms(){try{return\`synthesis\`}…`), not a config grep.
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.** New Indonesian goes through the
+  IndonesianPolish skill — but match the LOCAL register.
+- **Never hand-set ISA `progress:`.** Compute it.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE.** Committable only when `aqeeda:verify-id` exits 0.
+- **Routes and identifiers stay `hadis`** (`#/hadis`, `nav-hadis`, `renderHadis`, `.hadith-*`) even
+  though the reader-facing label is **Hadits**.
+
+## Open items waiting on me (the user)
+
+- **ISC-493** (§2) — accept gibberish returning nearest matches as search behaviour, or re-frame the
+  results copy? The rerank floor is measured and rejected; do not re-derive it.
+- **ISC-494** (§3) — leave the doorway absent on tie-matched questions, or change tie-breaking (which
+  touches the Fikih safety argument)?
+- **ISC-487 — the ~26 s wall** (§5): accept it, or spend a session on first-attempt latency?
+- **A follow-up note to Ustadz Ahmad?** (§6) — the letter's hadith sentence was false when sent.
+- **Who is Gustaf?** (§7) — declined to record for now; still unresolved.
+- **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
+- **Deploy `new-quranku-ai` and/or `demo-quranku`?** Both several deploys behind, and `new-quranku-ai`
+  SHARES `web/dist` so it needs a synthesis rebuild first.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (§12) — a rights call, deliberately not pre-empted by
+  the reference-line design.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-17 late-5)
 
 > Prepended by /wrap 2026-08-17 late-5. Anchor `8f3ab32` — the dalil-report fix and the ISC-484

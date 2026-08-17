@@ -8,6 +8,81 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+
+## 2026-08-18 (late-1) — the composer serves the section you are standing in, and a week-old "account failure" was a directory
+
+**Deployed to prod.** Worker version `4bf633a2`, bundle `index-KFCMiW0O.js` / `index-BuvZdTir.css`,
+live at new-quranku.axiara.ai. Anchor `e426bd3`.
+
+**ISC-372's recorded cause was FALSIFIED, not fixed — and it had blocked three ISCs.** The entry
+blamed "a Cloudflare-side/account-scope failure" and stopped after two attempts. Paired arms, same
+config, same account, minutes apart: from `worker/` (wrangler **3.114.17**) startup dies at
+`✘ Could not create remote preview session on your account.` — verbatim the string on record; from
+the **repo root** (wrangler **4.120.0**) the same command prints `Total Upload: 11.47 KiB` and
+`Ready on http://localhost:8798`. v3's `dev --remote` opens a LEGACY edge preview session; v4 does
+not. **The error names the account and means the version.** The probe config's own header had
+documented `cd worker &&` — the one directory that cannot work — so the fix is in the header
+(ISC-372.1), not only in a memory file.
+
+**ISC-323.2 is narrower now, with two candidate explanations eliminated.** Not an embedder mismatch:
+`build-index.ts:38,109` and `dalil.ts:72,107` both use `baai/bge-m3` via OpenRouter with no prefix.
+Not a metric mismatch: `wrangler vectorize get okf-hadith` reports `1024 / cosine`. What survives is
+ANN recall over `topK` (an exhaustive offline scan reaches a rank-28 record the live index never
+returns), or an index/cache population difference. Next probe is a vector count against
+`data/okf/vectors-bge-m3.jsonl`. Live re-confirms ISC-323 unchanged: rank 1 is Bukhari 540.
+
+**Erik's feature (2026-08-17): typing inside Hadits or Fikih searches that section.** Both routes
+previously fell through to `ask(q)`, which leads with ayat and reaches hadith only when retrieval
+found NO verse — so someone who walked into Hadits and asked about talak got consoled instead of
+answered. Submit now branches on `#/hadis` and `#/fikih` exactly as it already branched on `#/baca`
+and `#/peta`. New `/api/dalil` is retrieval only: **no model in the path**, so it cannot author a
+ruling and there is no prose for the guards to police — the same argument that puts `/api/find-surah`
+on the principled edition.
+
+**The display cap did not move.** `MAX_DISPLAY = 2` is unchanged. Erik chose (2026-08-17) the
+two-tier result precisely so the list could grow without touching the rights position: records the
+cap excludes come back as REFERENCE LINES — citation, grade, kitab, link, **no hadith text**.
+`referenceLineOf` is an explicit seven-key literal rather than a spread, and the test asserts the key
+SET, because the leak that matters is a field added to `DalilHit` next month arriving free.
+Force-red: a spread fails 4 of 5, naming `arabic`, `english`, `path`, `score`, `rerank_score`.
+
+**Two layout defects that shipped green and were only findable by looking.** `.dalil-head` used
+`space-between`, putting "Kembali ke Hadits" at x=1207 — exactly where the floating reader toolbar
+paints. Hit-testing the link's own centre returned `BUTTON.icon-btn`: it **rendered perfectly and did
+nothing**. Now stacked, which is width-independent. And the reference list, as a wrapping flex row,
+broke long bab titles onto a second flex line starting at the row's inline start, so 3 of 6 rows read
+as two entries; now a three-column grid with `minmax(136px, auto)` (136px = measured max 128.4px plus
+headroom, a FLOOR not a cap). Bab column spread went 21px → 6px.
+
+**The rerank floor was measured and REJECTED.** Section search returns nearest matches for gibberish
+too (`zxqw plumbus flarn` → 2 cards), so `dalilEmptyEl` only fires when retrieval itself fails. On 3
+samples a floor looked clean (REAL 0.75–0.85 vs non-real 0.19–0.41) and **collapsed at 20**: worst
+real is `hukum poligami` at **0.4805**, best non-real `qqqq wwww eeee rrrr` at **0.4102** — a 0.0703
+window, against a score `dalil.ts` twice documents as "not comparable across questions". A threshold
+there would silence a legitimate fiqh question to suppress nonsense. Left open as ISC-493 rather than
+shipped.
+
+**Deploy verified by before/after, not by exit code.** Baseline captured first: `/api/dalil` → **405**
+on bundle `index-CyVBC63y.js`. After: **200** in 2,458 ms on `index-KFCMiW0O.js`. The deploy log said
+`No files to upload` while new hashes had just been built — served bytes disproved it. Synthesis
+edition confirmed by the INLINED literal (`function Ms(){try{return\`synthesis\`}...`), not a config
+grep. Real Chrome on live prod: `readVisible:true chatHidden:true cards:2 refs:6 backClickable:true
+anyRefHasText:false`. No regressions — `/api/classify` 200, `/api/find-surah` 200 (resolved "sapi
+betina" → 2), root serves the SPA.
+
+**Prod exercised what local did not.** On the Fikih arm production returned DIFFERENT records from
+the Hadits arm (Muslim 3529, all-Muslim reference set vs Bukhari 5118), where locally both arms were
+identical. The re-rank is doing observable work; the earlier "the two sections converge" reading came
+from the weaker local sample.
+
+**Gates:** `bun test` **1574/0** exit 0 · typecheck exit 0 (all 5 passes) · `VITE_ANSWER_MODE=synthesis
+bun run build` exit 0 · all 19 new CSS rules confirmed in the SHIPPED bundle. **ISA 503/517**, computed.
+
+**Next:** ISC-493 and ISC-494 are Erik's calls. ISC-323.2's next probe is a vector count. The ustadz
+still owes the answer carrying ISC-417/419/420/464(b). `new-quranku-ai` and `demo-quranku` remain
+several deploys behind.
+---
+
 ## 2026-08-17 (late-5) — ISC-484 was diagnosed wrong, and the control arm says so
 
 **Nothing deployed this session.** Anchor `8755cf9`. Changes are one Worker diagnostic fix (not yet
