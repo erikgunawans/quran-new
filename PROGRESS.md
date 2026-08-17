@@ -8,6 +8,117 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-17 (late) — the card stays, and a corpus repair that cost nothing
+
+Anchor: `origin/main` `5d0ce87`. **Deployed to prod and verified live** — worker version
+`f3fc6ab4`, bundle `index-DZQQeRQP.js` → `index-De6rz3fV.js`. Gates green: `bun test` **1517/0**,
+typecheck 0, `VITE_ANSWER_MODE=synthesis bun run build` 0. **ISA 488/500.** Clean tree except
+untracked `WARP.md` — leave it. A second repo moved this session:
+`~/printing-press/library/tafseer-okf`, now pushed (`49ebf8c3`).
+
+**Four decisions Erik made, some of them four sessions old.** ISC-476: keep the scholar's entries
+below the composed answer. tafseer-okf: push, recorded as private-research only. The ustadz request:
+prep it, Erik sends. `MODEL_DEADLINE_MS`: leave both, accept ~10% tail silence.
+
+### ISC-476 — the knowledge card no longer vanishes mid-read
+
+The composed answer used to replace the whole node at ~T+16 s, taking Ustadz Muhammad Thalib's cited
+entries off the screen four seconds after the reader started on them. It now renders ABOVE and the
+scholar's card sits underneath behind the rule `.tier3` already uses — what is above is
+machine-composed and ours, what is below is his, and an unmarked join would let the prose borrow his
+authority.
+
+The turn stores a **key**, never markup, so a restored thread re-derives the entries from today's
+index exactly as a standalone `knowledge` turn does. Nothing disappears on reload either. Only the
+two lanes where the app authors nothing are carried; our own refusal copy would contradict the
+answer above it, and verse cards would duplicate what the composed answer already renders.
+
+**Verified live by the probe the criterion names**, storage and CacheStorage cleared and the
+endpoint warmed first so the first post-deploy request was not the evidence:
+
+| | knowcat | kept | chars |
+|---|---|---|---|
+| T+12 s | 0 | 0 | 60 (composing) |
+| T+14 s | **1** | 0 | 841 (the scholar's card) |
+| T+18 s | **1** | **1** | 9,839 (AI answer lands) |
+| T+46 s | **1** | **1** | 9,839 |
+
+The count never goes 1 → 0; before the change the same probe read 0 from T+16 s. Ordering confirmed
+numerically — the kept card begins at character 9,070 of 9,839, i.e. below the prose. The screenshot
+times out on this page's gradient ground (documented Interceptor limit), so a computed-style probe
+stood in and proved more for this claim: the divider resolves its token (`1.11px solid
+oklch(0.32 0.018 165)`, not a fallback), the CSS-generated `dari bab ` label renders on `a.know-cat`
+reading *Ekonomi Islam*, all 5 entries survive, and the credit line travels WITH the entries rather
+than being orphaned. Zero failed resources.
+
+### The aqidah gate — the prescribed fix would have paid to reproduce the bug
+
+`aqeeda:verify-id` was red at 245 of 1,454 records (315 nfc-only, 82 MISSING) and the resume note
+prescribed deleting every failing record and re-translating. Measured first, because a ~20% rate
+across three separate runs is the signature of something systematic.
+
+It was. **237 of 397 failures — 60% — because the model TRANSLITERATES the surah citation**
+(`[البقرة: 173]` → `[al-Baqarah: 173]`) that the splice anchored on. A further 44 failed on the same
+anchor with reordered diacritics. In every one of those 237 the ayah itself was present and
+NFC-equal, so the ayah is the reliable anchor and the citation never was.
+
+Nothing needed re-translating. `tool/repair-aqeeda-id.ts` re-splices records already on disk:
+
+| | before | after |
+|---|---|---|
+| exact | 2,052 | **2,367** |
+| nfc-only | 315 | **0** |
+| MISSING | 82 | 82 |
+
+**Zero inference spend.** The prescribed fix would have re-run ~245 records at ~3 min each and
+reproduced the same anchor failure. The splice moved to `tool/lib/` so the repair tool can use it
+without importing the translator (which runs `main()` on import and has twice launched the full
+corpus by accident), and it now walks canonical-composition clusters — `nfc(text).indexOf()` returns
+an index into the normalized string and cannot be used to splice the original.
+
+**The gate is STILL RED at 82 and was not made green.** Those are a source-side defect: the
+extraction regex swallows the author's connective prose into the "quotation", so it can never appear
+verbatim. 73% of them carry a prose connector against **1.1%** of the 2,367 correctly-spliced spans.
+Tightening that regex narrows what the gate asserts — Erik's call, not a fix to slip in beside a
+repair.
+
+### Two claims died to a control arm this session
+
+Worth recording because both were about to be reported as fact. A corpus-match test said "1,573
+extracted spans are prose" — but the control showed it recognised only 36.4% of *known-good*
+spliced spans, so the instrument was too weak and the number was retracted. And the old ustadz
+letter's "the model ignores retrieval" came from two probes with no control; with one, it reads 96%
+grounded vs 35% blank. The rewritten letter corrects it rather than passing our own measurement
+error to a scholar.
+
+### tafseer-okf — pushed, with the basis written down
+
+Confirmed private first, since that is the entire basis. All 6,350 Tarjamah Tafsiriyah records and
+the generator now record it in `clearance_path`: no grant located, none claimed, private-research
+retrieval corpus only, permission from Ustadz Muhammad Thalib / Majelis Mujahidin Indonesia required
+before it leaves the repo or reaches a reader. New-Quranku's display of the same text is a decision
+about that app and is explicitly NOT the basis for the corpus.
+
+### The ustadz request — rewritten, ready, unsent
+
+`hukum-pin-request-2026-08-12.md` carried its own ⛔ DO NOT SEND and was right to: it told Ustadz
+Ahmad "Aplikasi tidak mengarang jawaban", true when written and false since `EDITION` flipped to
+synthesis the same afternoon. Replaced by `tanya-ai-request-2026-08-17.md`, which puts the real
+question first — may the app compose religious answers in its own words — and carries the ayah-pin
+list underneath. The uncomfortable admissions stay in, including that all 8 audited production
+paragraphs assert something about Allah or the unseen with no citation, and that the mode shipped
+before he was asked. A covering WhatsApp message sits beside it. **Erik sends it. Nothing left this
+machine.**
+
+### Next
+
+1. Decide the aqidah extractor question — narrow what the gate asserts, or leave it red.
+2. Send the ustadz letter (Erik).
+3. `new-quranku-ai` and `demo-quranku` are still on older deploys; `new-quranku-ai` shares
+   `web/dist` and would pick up this build.
+
+---
+
 ## 2026-08-17 — the tags are shown for four seconds, and the KB gained its own primary text
 
 **Handoff item 1, answered and inverted.** The question was whether the knowledge card is *rarely*

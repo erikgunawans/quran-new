@@ -1,3 +1,155 @@
+# Next session — New-Quranku (checkpoint 2026-08-17 late)
+
+> Prepended by /wrap 2026-08-17 late. Anchor `5d0ce87` — **the DEPLOYED and verified state**; the
+> wrap's own checkpoint commit sits directly above it and touches only `PROGRESS.md` and this file,
+> so `origin/main` being one commit ahead of the anchor is expected, not drift.
+> Supersedes the `4daa219` anchor.
+> That handoff's **items 1, 2, 4 and 6 are DISCHARGED** — 1 built+deployed+verified, 2 pushed with
+> the basis recorded, 4 rewritten and ready for Erik to send, 6 decided (no change). Its item 3 is
+> HALF discharged; the rest survive and are carried forward below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-17 (late)**).
+
+**Current state.** Gates green — `bun test` **1517/0** exit 0 · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 488/500.** Clean tree except untracked
+`WARP.md` — leave it. **PROD IS CURRENT AND VERIFIED THIS SESSION**: worker `f3fc6ab4`, bundle
+`index-De6rz3fV.js`, `EDITION: "synthesis"`. Unlike the last three handoffs there is no undeployed
+commit and no stale dist — `web/dist` currently holds a SYNTHESIS build, which is what prod wants.
+The hadith generator remains STOPPED (1,746/14,736).
+
+**A SECOND REPO IS IN PLAY:** `~/printing-press/library/tafseer-okf` (private,
+`erikgunawans/tafseer-okf`), now PUSHED and clean at `49ebf8c3`. Its `okf/aqeeda/id/` lane is
+gitignored on purpose and holds 199 records repaired this session but never committed — that is the
+gitignore working, not an omission.
+
+---
+
+## 1. The aqidah gate is still red at 82 — and making it green is a JUDGEMENT CALL. ERIK'S CALL
+
+`bun run aqeeda:verify-id` exits **1**: 2,367 exact, **0 nfc-only**, **82 MISSING**. The nfc-only
+half was fixed this session offline at zero cost (see PROGRESS.md). The 82 are a DIFFERENT defect
+and were deliberately left alone.
+
+**Diagnosis, measured:** the source-side extraction regex in `tool/lib/splice-scripture.ts`
+(`scriptureQuotes`) over-captures — it runs from `تعالى:` to the next bracketed citation, and when
+the author's connective prose sits inside that span (`وقال سُبحانَه:`, `وهذا يشمَلُ`, `الآية`) the
+"quotation" is not scripture at all. It can therefore never appear verbatim in a translation, and
+the translator was RIGHT to translate it. Evidence with a control arm: **73%** of the 82 contain a
+prose connector against **1.1%** of the 2,367 correctly-spliced spans — a 66× enrichment.
+
+**Why it was not just fixed:** tightening that regex NARROWS WHAT THE GATE ASSERTS, and the gate is
+what stands between a partial machine-translated aqidah lane and a commit. Making a red gate green
+by weakening the check is exactly the move that needs Erik's eyes, not mine.
+
+Probe if he approves: tighten `scriptureQuotes` to stop a span at a prose connector, re-run
+`aqeeda:repair-id --apply`, then `aqeeda:verify-id` must exit 0 — and re-run the 1.1% control to
+confirm the tightening did not start dropping REAL quotations.
+
+## 2. Send the ustadz letter — READY, waiting only on Erik
+
+`docs/review/tanya-ai-request-2026-08-17.md` (the letter) and
+`docs/review/tanya-ai-request-2026-08-17-pengantar.md` (the WhatsApp text). Erik chose "you send it
+— I'll prep the message" on 2026-08-17. Both are written, polished through IndonesianPolish, and
+committed. **Nothing leaves this machine.** The old `hukum-pin-request-2026-08-12.md` is marked
+SUPERSEDED — do not send it, it contains a sentence that is false.
+
+This letter carries ISC-417/418/419/420 with it. If he answers, several ISA items unblock at once.
+
+## 3. ISC-419 / ISC-420 — the receipt half of the critique. STILL BLOCKED ON THE ANSWER TO ITEM 2
+
+Unchanged. All 8 real prod paragraphs carry an unattributed claim about God or the unseen; a receipt
+guard as prescribed refuses ~100% of answers. **Recommended path unchanged:** fix
+`SYNTHESIS_SYSTEM_PROMPT` first, re-measure the residue, guard only what is left.
+
+## 4. Two sibling Workers are on older deploys
+
+Only prod (`new-quranku-proxy`) was deployed this session. `new-quranku-ai` (`--env synthesis`) and
+`demo-quranku` (`--env demo`) are untouched. `new-quranku-ai` shares `web/dist`, so
+`cd worker && bunx wrangler deploy --env synthesis` would ship this same build to it; the demo needs
+`bun run demo:build` first because it serves `web/dist-demo`. Erik did not ask for either — ask
+before deploying them.
+
+## 5. QS 7:19 on ruling questions — PRE-EXISTING, seen twice
+
+Still surfaces on `apa hukum riba dalam islam dan kenapa dilarang`. Within-chapter ranking, the axis
+where frequency has failed three times. **Do not open without a control set.**
+
+## 6. Two copy defects, both authored-surface, both their own diff (unchanged)
+
+- The zero-entry pointer misstates the cause (`"Pertanyaan soal {category} itu luas"`).
+  `apa yang al quran katakan tentang neraka` routes to the SCRIPTURE chapter because the literal
+  words `al quran` capture routing and `neraka` is ignored. A narrow question told it is too broad.
+- `main.ts`'s scholar-voice sentence still presents an app-ranked, 8-capped subset.
+
+## 7. Audio DENGAR on the `#/baca` shelf card (unchanged, blocked on one click from Erik)
+
+## 8. `MAX_DISPLAY = 2` (unchanged — a rights call) · 9. Continuous chat PRD (unchanged)
+
+## 10. Optional: publish the 3D graph as an Artifact
+
+`graph/okf-graph-3d.html` in tafseer-okf is self-contained and holds only structural metadata — no
+corpus text — so it is safe to publish. Two attempts 502'd from the artifact service; retry.
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — the model transliterates Arabic citations into Latin.** `[البقرة: 173]` becomes
+  `[al-Baqarah: 173]`. Never anchor a splice, a match, or a test on a bracketed surah citation
+  surviving a translation. Anchor on the AYAH.
+- **NEW — `nfc(text).indexOf(x)` returns an index into the NORMALIZED string** and cannot be used to
+  splice the original. Walk canonical-composition clusters (starter + its combining marks) to get a
+  normalized view AND a byte-accurate map back in one pass.
+- **NEW — before reporting a corpus-match number, run the control.** A test that recognised only
+  36.4% of KNOWN-GOOD spans was about to be reported as "1,573 spans are prose". Ask what the
+  instrument says about cases you already know the answer to.
+- **NEW — the screenshot times out on this app's gradient ground.** Documented Interceptor limit,
+  not a minimized window and not a stale extension. Substitute `eval --main` computed-style probes
+  and STATE the missing-pixel gap; do not loop past ~3 attempts.
+- **The `dari bab` label is CSS-generated** (`styles.css`, `.know-cat::before{content:"dari bab "}`).
+  `textContent` searches return 0 on a perfectly-rendering page. Count `a.know-cat` ELEMENTS.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s resolution**, not just at
+  settle. A settle-only reading says "unseen"; the truth was "shown and retracted".
+- **A "lane X never renders" claim needs a control arm that makes it render.** Patching
+  `window.fetch` to reject `/api/answer` is the one that works here.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`.
+  It also silently discards the REST of a compound command.
+- **Force-red every new test**, and check the mutation actually applied before trusting the red.
+- **Never Python.** House rule — TypeScript/bun for every script, including throwaway probes.
+- **frequency has now failed THREE times against this index. Do not try IDF again.**
+- **`ACTION_FRAME` is deliberately NOT consulted by `subjectWordsOf`.** **`RULING_FRAME` is excluded
+  from shard SELECTION only and must NOT feed `isFrameWord`.** **`stemReach`'s one-directional rule
+  is the `musik` guard.** Do not tidy any of these away.
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **A stale `CacheStorage` entry serves the OLD bundle after a deploy.** Clear it before probing.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Always
+  `VITE_ANSWER_MODE=synthesis bun run build`.
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Erik decided
+  2026-08-17 to leave both and accept the ~10% tail silence.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL (Erik, 2026-08-15).** All new Indonesian
+  goes through the IndonesianPolish skill.
+- **Never hand-set ISA `progress:`.** Compute it. It was found off by one this session.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE** — a partial lane in git looks exactly like a
+  complete one. It may only be committed when `aqeeda:verify-id` exits 0.
+- **Do not re-translate to fix a splice.** Measure the failure class first; the last prescribed
+  re-translation would have cost ~245 records × ~3 min to reproduce the same bug.
+
+## Open items waiting on me (the user)
+
+- **The aqidah extractor** (item 1) — narrow what the gate asserts, or leave it red?
+- **Send the ustadz letter** (item 2) — written and ready; only Erik can send it. It carries
+  ISC-417 (he has still never signed off on AI-authored answers at all) and ISC-419/420 with it.
+- **Deploy `new-quranku-ai` and/or `demo-quranku`?** (item 4) — both are on older builds.
+- **The audio DENGAR click** (item 7) — one manual ▶ on `quran.tarjamahtafsiriyah.com/audio-quran`.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (item 8) — a rights call.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-17)
 
 > Prepended by /wrap 2026-08-17 (anchor `4daa219` (the checkpoint commit; this line was fixed by the follow-up commit above it)). Supersedes the late-4 anchor `0446c2b`.
