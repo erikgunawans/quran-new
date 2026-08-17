@@ -66,7 +66,7 @@ export function resetHadithCache(): void {
 export async function loadHadithIndex(): Promise<HadithIndex> {
   if (indexCache) return indexCache;
   const res = await fetch("/hadith/index.json");
-  if (!res.ok) throw new Error(`Gagal memuat daftar Hadis (${res.status}).`);
+  if (!res.ok) throw new Error(`Gagal memuat daftar Hadits (${res.status}).`);
   indexCache = (await res.json()) as HadithIndex;
   return indexCache;
 }

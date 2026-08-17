@@ -280,14 +280,14 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
     // someone asking in Indonesian to a wall of untranslated text.
     case "hadith-defer":
       return `
-        <p class="said">Pertanyaan seperti ini biasanya dijawab dari <b>hadis</b>, bukan dari ayat.</p>
+        <p class="said">Pertanyaan seperti ini biasanya dijawab dari <b>hadits</b>, bukan dari ayat.</p>
         <div class="silence">
           <p>Aku belum bisa mengutip sabda Nabi ﷺ di sini, karena aku belum bisa menunjukkan
           sumbernya secara utuh supaya kamu bisa memeriksanya sendiri. Aku memilih diam daripada
           menyebut sabda beliau tanpa rujukan — dan aku juga tidak mau menyimpulkan jawabannya
           untukmu.</p>
-          <p>Tab <a href="#/hadis">Hadis</a> memuat kitab-kitab utamanya, tapi <b>teksnya masih
-          bahasa Arab</b>. Untuk kepastian sebuah hadis, sebaiknya tanyakan ke <b>ustadz</b>. Kalau
+          <p>Tab <a href="#/hadis">Hadits</a> memuat kitab-kitab utamanya, tapi <b>teksnya masih
+          bahasa Arab</b>. Untuk kepastian sebuah hadits, sebaiknya tanyakan ke <b>ustadz</b>. Kalau
           mau, coba tanyakan lagi dari sisi <b>ayatnya</b> — itu bisa aku bantu telusuri.</p>
         </div>`;
 
@@ -690,7 +690,7 @@ function announceTurn(t: Turn): void {
     // nothing would have no way to tell this apart from the silence turn — the same conflation this
     // whole change exists to undo, one modality over.
     case "hadith-defer":
-      say("Pertanyaan seperti ini dijawab dari hadis, bukan dari ayat. New-Quranku tidak mengutip sabda Nabi tanpa rujukan.");
+      say("Pertanyaan seperti ini dijawab dari hadits, bukan dari ayat. New-Quranku tidak mengutip sabda Nabi tanpa rujukan.");
       break;
     case "answer-blocked":
       say("Belum ada jawaban yang bisa dipertanggungjawabkan untuk ini. New-Quranku tidak menyampaikan jawaban yang belum lolos pemeriksaan.");

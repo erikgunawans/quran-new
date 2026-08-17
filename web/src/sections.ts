@@ -67,7 +67,7 @@ function kitabCard(collectionId: string, b: HadithCollectionMeta["books"][number
         ${id ? `<span class="hadith-kitab-id">${esc(id)}</span>` : ""}
         <span class="hadith-kitab-ar" dir="rtl" lang="ar">${esc(b.ar)}</span>
       </span>
-      <span class="hadith-kitab-count">${b.hadith} hadis</span>
+      <span class="hadith-kitab-count">${b.hadith} hadits</span>
     </a>`;
 }
 
@@ -93,7 +93,7 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
   try {
     index = await loadHadithIndex();
   } catch (err) {
-    mount.innerHTML = errorView("Hadis", err);
+    mount.innerHTML = errorView("Hadits", err);
     return;
   }
 
@@ -109,8 +109,8 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
     <div class="read-index hadith-index">
       <header class="tematik-head">
         <div class="tematik-head-l">
-          <h1 class="qk-hero-gradient tematik-title">Hadis</h1>
-          <p class="tematik-sub">Ṣaḥīḥ al-Bukhārī & Ṣaḥīḥ Muslim — ${index.total.toLocaleString("id-ID")} hadis, tersusun menurut kitab.</p>
+          <h1 class="qk-hero-gradient tematik-title">Hadits</h1>
+          <p class="tematik-sub">Ṣaḥīḥ al-Bukhārī & Ṣaḥīḥ Muslim — ${index.total.toLocaleString("id-ID")} hadits, tersusun menurut kitab.</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
@@ -215,7 +215,7 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
     coll = findCollection(index, collectionId);
     shard = await loadHadithBook(collectionId, book);
   } catch (err) {
-    mount.innerHTML = errorView("Hadis", err);
+    mount.innerHTML = errorView("Hadits", err);
     return;
   }
 
@@ -229,7 +229,7 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
     <div class="read-index hadith-book">
       <header class="tematik-head">
         <div class="tematik-head-l">
-          <p class="hadith-crumb"><a href="#/hadis">Hadis</a> › ${esc(coll?.name ?? collectionId)}</p>
+          <p class="hadith-crumb"><a href="#/hadis">Hadits</a> › ${esc(coll?.name ?? collectionId)}</p>
           ${
             // The book page's own title was still Arabic-only even after the grid was translated,
             // so a reader could find "Bersuci" and then land on a page that would not say so. The
@@ -240,7 +240,7 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
                  <p class="hadith-book-ar" dir="rtl" lang="ar">${esc(shard.book.ar)}</p>`
               : `<h1 class="tematik-title" dir="rtl" lang="ar">${esc(shard.book.ar)}</h1>`
           }
-          <p class="tematik-sub">${count} hadis · ${esc(coll?.name ?? shard.collection_ar)}</p>
+          <p class="tematik-sub">${count} hadits · ${esc(coll?.name ?? shard.collection_ar)}</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/hadis">Kembali</a></div>
       </header>
@@ -260,7 +260,7 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
               // BELUM ditinjau ulama") stays exactly as written; only this suffix changed.
               return `<p class="hadith-note ai-note" role="note">${esc(String(m?.notice ?? ""))}${
                 m?.reviewerNeeded
-                  ? ` Sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadis belum dilakukan.`
+                  ? ` Sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadits belum dilakukan.`
                   : ""
               }</p>`;
             })()
@@ -310,7 +310,7 @@ export function renderDoa(mount: HTMLElement): void {
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <p class="hadith-note" role="note">Semua doa di sini <b>berasal dari Al-Qur'an</b> dan terbuka pada ayatnya sendiri — lengkap dengan terjemahan yang sudah ada di aplikasi ini. Judulnya kami yang menulis; lafal dan artinya bukan. Doa harian dari hadis belum ditampilkan karena sumbernya masih menunggu izin tertulis.</p>
+      <p class="hadith-note" role="note">Semua doa di sini <b>berasal dari Al-Qur'an</b> dan terbuka pada ayatnya sendiri — lengkap dengan terjemahan yang sudah ada di aplikasi ini. Judulnya kami yang menulis; lafal dan artinya bukan. Doa harian dari hadits belum ditampilkan karena sumbernya masih menunggu izin tertulis.</p>
       <div class="doa-grid">${DOA_THEMES.map(doaCard).join("")}</div>
     </div>`;
 }
@@ -339,7 +339,7 @@ function fiqhCard(a: FiqhArea, lookup: Map<string, KitabInfo>): string {
             ${idn ? `<span class="fikih-kitab-id">${esc(idn)}</span>` : ""}
             <span class="fikih-kitab-ar" dir="rtl" lang="ar">${esc(info.ar)}</span>
           </span>
-          <span class="fikih-kitab-meta">${collLabel(r.collection)} · ${info.hadith} hadis</span>
+          <span class="fikih-kitab-meta">${collLabel(r.collection)} · ${info.hadith} hadits</span>
         </a>`;
     })
     .join("");
@@ -369,11 +369,11 @@ export async function renderFikih(mount: HTMLElement): Promise<void> {
       <header class="tematik-head">
         <div class="tematik-head-l">
           <h1 class="qk-hero-gradient tematik-title">Fikih</h1>
-          <p class="tematik-sub">Pintu ke dalilnya — tiap amal ibadah menautkan ke kitab hadis Ṣaḥīḥ yang menaunginya, menurut susunan para imam.</p>
+          <p class="tematik-sub">Pintu ke dalilnya — tiap amal ibadah menautkan ke kitab hadits Ṣaḥīḥ yang menaunginya, menurut susunan para imam.</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <p class="hadith-note" role="note">Ini <b>pintu masuk ke dalil</b>, bukan uraian hukum — kami tidak berfatwa. Tiap topik menautkan ke kitab hadis yang relevan (susunan Imam al-Bukhārī & Muslim sendiri). Uraian fikih beserta dalil Al-Qur'an dari rujukan berlisensi menyusul setelah ditinjau ustadz.</p>
+      <p class="hadith-note" role="note">Ini <b>pintu masuk ke dalil</b>, bukan uraian hukum — kami tidak berfatwa. Tiap topik menautkan ke kitab hadits yang relevan (susunan Imam al-Bukhārī & Muslim sendiri). Uraian fikih beserta dalil Al-Qur'an dari rujukan berlisensi menyusul setelah ditinjau ustadz.</p>
       <div class="fikih-grid">${FIQH_AREAS.map((a) => fiqhCard(a, lookup)).join("")}</div>
     </div>`;
 }
