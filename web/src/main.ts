@@ -962,6 +962,12 @@ async function ask(question: string) {
       // ── the fast answer ──────────────────────────────────────────────────
       const fast = await resolvePrincipled(turn);
       answer.innerHTML = (await renderTurn(fast)) + stillComposingNotice();
+      // HOLD THE NODE, do not re-query later. The removal below has to be safe against a world that
+      // moved: by the time the upgrade settles the reader may have asked again, and a selector lookup
+      // at that moment can find a NEWER turn's notice and delete that one instead. A direct reference
+      // can only ever remove the promise this turn made. If the upgrade replaced `innerHTML` the node
+      // is already detached and `remove()` is a no-op, which is the behaviour we want.
+      const notice = answer.querySelector(".still-composing");
       announceTurn(fast);
       // Remembered NOW, in position, so a second question asked while this one is still composing
       // cannot reorder the conversation. `replaceTurn` swaps it where it sits when the upgrade lands.
@@ -984,9 +990,25 @@ async function ask(question: string) {
         })
         .catch(() => {
           // The request died or hit the 30 s backstop. The fast answer is already on screen and is a
-          // real answer, so there is nothing to tell the reader — but the "still composing" line is
-          // now a lie and has to go.
-          if (answer.isConnected) answer.querySelector(".still-composing")?.remove();
+          // real answer, so there is nothing to tell the reader — the notice is removed in `finally`.
+        })
+        // THE PROMISE IS RETRACTED ON EVERY ENDING, not just the throwing one.
+        //
+        // This used to live in the `.catch` alone, and that covered exactly one of the three ways an
+        // upgrade ends. The other two both fall through `if (!composed) return` above: the model
+        // answered with nothing better, or the wall REFUSED it — and `applyAi` returns null for every
+        // refusal kind except `bad_hadith`. So on any refused turn the reader was left reading
+        // "aku masih menyusun jawaban yang lebih lengkap…" forever, about work that had already
+        // stopped. ISC-487 measures those turns at ~24.8 s on average, so the false promise sat on
+        // screen from 9 s until the reader gave up or navigated away.
+        //
+        // `finally` is the point: the notice is a claim about work being IN FLIGHT, so it must be
+        // retracted when the flight ends, whatever the outcome was. Nothing here decides what the
+        // reader is TOLD about a refusal — that is the terminal-copy question, and it is deliberately
+        // still open (ISC-487.2), because a refusal verdict and an expired deadline are currently
+        // indistinguishable on this path.
+        .finally(() => {
+          notice?.remove();
         });
       return;
     }

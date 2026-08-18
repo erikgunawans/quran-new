@@ -200,3 +200,69 @@ describe("Anti: the corpus-gap copy never claims the corpus is empty either", ()
     expect(copy).toContain("18:10");
   });
 });
+
+/**
+ * THE THIRD LIE, AND IT IS NOT COPY — IT IS A PROMISE NOBODY RETRACTED.
+ *
+ * The two suites above stop the app claiming the corpus is empty. This one stops it claiming that
+ * work is still happening after the work has stopped.
+ *
+ * At `FAST_ANSWER_MS` (9 s) the reader is handed the principled answer plus a line that says
+ * "aku masih menyusun jawaban yang lebih lengkap…", and the composed answer keeps coming underneath.
+ * That line is a claim about work IN FLIGHT, so it is only true until the flight ends. It was removed
+ * on exactly ONE of the three ways an upgrade can end — the `.catch` — and the other two both fall
+ * through `if (!composed) return`: the model answered with nothing better, or the WALL REFUSED it,
+ * which `applyAi` reports as null for every violation kind except `bad_hadith`.
+ *
+ * So on a refused turn the promise stayed on screen permanently. ISC-487 measures those turns at
+ * 24.8 s on average against a 9 s fast answer, which means the line sat there — false — from the
+ * moment the reader started reading until they navigated away.
+ *
+ * WHY THIS IS A SOURCE TEST. The notice's whole lifetime is inside one detached promise chain in
+ * `ask()`, with no seam a unit test can hold. Re-creating the chain in the test would assert the
+ * test's own reproduction, which is worth nothing. What CAN be pinned is the property the fix rests
+ * on: the retraction runs on every ending, and it runs against a held node rather than a selector.
+ */
+describe("Anti: the still-composing promise is retracted on every ending", () => {
+  const askChain = () => {
+    const src = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // From the fast-answer marker to the end of the detached upgrade chain.
+    const from = src.indexOf("// ── the fast answer ─");
+    expect(from).toBeGreaterThan(-1);
+    return src.slice(from, src.indexOf("turn = await resolvePrincipled(turn);", from));
+  };
+
+  test("the retraction is in a finally, not only in the catch", () => {
+    // The whole defect in one assertion. A `.catch`-only removal covers the throwing ending and
+    // leaves the two resolving ones — including every refusal — telling the reader work continues.
+    const chain = askChain();
+    expect(chain).toMatch(/\.finally\(\(\) => \{\s*notice\?\.remove\(\);\s*\}\)/);
+  });
+
+  test("Anti: the notice is never re-queried by selector after the turn settles", () => {
+    // The aliasing trap, and the scope of this assertion is the whole point of it.
+    //
+    // The FIRST draft of this test forbade `querySelector(".still-composing")` anywhere in the chain
+    // and went red against the correct implementation — because the fix's own capture line uses that
+    // selector, once, synchronously, while the node it wants is the only one on screen. The test was
+    // wrong, not the fix. Capturing is fine; RE-QUERYING at settle time is the bug, because by then
+    // the reader may have asked again and the lookup can find a NEWER turn's notice and delete it,
+    // retracting a promise the app is still keeping.
+    //
+    // So the window is the settle handlers only — everything from the detached chain onward.
+    const chain = askChain();
+    const settle = chain.slice(chain.indexOf("void pending"));
+    expect(settle.length).toBeGreaterThan(0);
+    expect(settle).not.toContain('querySelector(".still-composing")');
+  });
+
+  test("the held reference is captured in the same block that renders the notice", () => {
+    // Capture must follow the innerHTML write that creates the node; a reference taken before it
+    // would be null forever and the retraction would silently do nothing on every path.
+    const chain = askChain();
+    const rendered = chain.indexOf("stillComposingNotice()");
+    const captured = chain.indexOf('const notice = answer.querySelector(".still-composing")');
+    expect(rendered).toBeGreaterThan(-1);
+    expect(captured).toBeGreaterThan(rendered);
+  });
+});
