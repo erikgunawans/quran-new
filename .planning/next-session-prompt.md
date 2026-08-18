@@ -1,3 +1,213 @@
+# Next session — New-Quranku (checkpoint 2026-08-18 late-4)
+
+> Prepended by /wrap 2026-08-18 late-4. Anchor `23ee51b` (work in `6b4aedf`) — **THREE of the
+> previous handoff's open decisions are DISCHARGED by Erik's answers**, committed and pushed,
+> **NOTHING DEPLOYED and nothing owed a deploy**. Supersedes the `c589078` anchor. From that handoff:
+> its **§2 (ISC-323.3) is ANSWERED — the answer is NO**; its **§3 (ISC-493) is CLOSED by decision**;
+> its **§4 (ISC-494) is MET**; its **deploy question is answered "neither"**. Its **§1, §5, §6, §7, §8
+> and §9–13 all survive verbatim.** Do not re-derive the ISC-493 rerank floor; it is measured, rejected,
+> and now closed.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-18 (late-4)**).
+
+**Current state.** Gates green — `bun test` **1580/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 537/551**, computed across all THREE markers.
+Clean tree except untracked `WARP.md` — **leave it** (it was accidentally committed this session in
+`6b4aedf` and untracked again in `23ee51b`; do not re-add it). **PROD IS CURRENT** (worker
+`4bf633a2`, bundle `index-KFCMiW0O.js` / `index-BuvZdTir.css`) and nothing shipped this session.
+Hadith generator still STOPPED (1,746/14,736).
+
+**Second repo:** `~/printing-press/library/tafseer-okf` clean and pushed at `b8beb353`.
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Carried verbatim for the sixth handoff running, because it is the item most likely to be
+"unblocked" by someone reading a stale line. The letter's question 3 commits us to learning the
+ustadz's boundary BEFORE installing the filter, and reports 8 of 8 as measured fact.
+**ISC-464(b) is blocked on the ANSWER, not the send.**
+
+## 2. ISC-323.4 — the ONLY new decision. ERIK'S CALL, and a recommendation is already on the table
+
+ISC-323.3 is answered by measurement and the answer is **no**. Paired arms through the production
+binding, three runs, `worker/src/dalil-probe.ts` `/rerank`:
+
+| arm | `hadith-muslim-154` after `voyageai/rerank-2.5` | within `MAX_DISPLAY = 2`? |
+|---|---|---|
+| **plain** — production today (control) | **absent** | no |
+| **exact** — `returnValues: true` | **rank 3**, score 0.6289 | **no** |
+
+Cost measured at **653 ms**. Bukhari 540 scores 0.6602 and 541 scores 0.6367 — both on-topic, both
+correctly graded, and **the reranker returned byte-identical scores for every shared record across
+arms**, so it did not re-judge anything, it inserted one record at its own merit and that merit is
+third. **The lever's whole case was "then the reranker can finally see it." It can, and it disagrees.**
+Not applied. `exactScores` is shipped **default-off** and reachable only from the probe.
+
+**ISC-323.4 is a question about the CRITERION, not the code.** ISC-323 demands that record at rank 1.
+It was written when the diagnosis was a RECALL failure (cosine rank 28, unreachable at K=8) — a
+diagnosis that was correct and was fixed by `CANDIDATE_K = 50`. Since then the criterion has been
+quietly asserting a scholarly judgment: *which hadith best answers "gimana hukumnya meninggalkan
+sholat"*. That is not an engineering call.
+
+**Recommendation given to Erik on 2026-08-18, not yet accepted:** tombstone ISC-323 with an honest
+note (*not met, cause understood, cost of the only known fix measured and rejected*), and route the
+editorial half — "which hadith should lead on hukum meninggalkan sholat?" — to Ustadz Ahmad, batched
+with the questions already waiting on him. **Do NOT restate the criterion to match the measurement**,
+and **do NOT raise `MAX_DISPLAY` to make rank 3 visible** — that is a rights call wearing an
+engineering costume.
+
+## 3. ISC-487 — the ~26 s wall. RECOMMENDED as the next session's work
+
+Now the only open item a reader actually feels, and **the coupling that made it awkward is gone**:
+ISC-323.3 would have added ~600 ms to every dalil turn and it is not happening, so latency work is
+unobstructed for the first time in several sessions. Prior measurement: retrieval is 1.2–2.7 s of a
+5.5–27.3 s turn and the **12 s client abort is the real defect**. **Do not "fix" it by raising the
+deadline** — there are 5 s of headroom before `MODEL_DEADLINE_MS` crosses the client `TIMEOUT_MS`
+(30 s) and that ordering is load-bearing. The lever is first-attempt latency.
+
+## 4. ISC-493 is CLOSED — accepted as search behaviour (Erik, 2026-08-18). Do not reopen it
+
+No code changed, deliberately. The rerank floor is measured and rejected (0.0703 window at n=20:
+worst REAL `hukum poligami` 0.4805 vs best NON-REAL `qqqq wwww eeee rrrr` 0.4102). **Do not
+re-derive it.** The stale-measurement caveat is also moot — it was conditional on adopting exact
+scoring, and §2 answered no.
+
+## 5. ISC-494 is MET — and two facts every prior handoff had wrong
+
+`fiqhAreaOf` now resolves a tie to the **earliest-mentioned area**. Two corrections that matter for
+anyone touching this file: (a) the tie on `hukum menceraikan istri saat haid` is **THREE-way**, not
+two — `istri` is a `nikah` cue and was never counted; (b) `sai` was listed **twice** under `haji`,
+so that area scored 2 for one cue and won ties it had no claim to (`hukum wudu lalu sai` → *haji*).
+Both fixed. **Two residuals were ACCEPTED, not solved:** the rule is user-phrasing-dependent by
+construction, and on a genuinely ambiguous question the doorway now names a kitab on a positional
+guess where it used to stay silent.
+
+## 6. The letter contains a sentence that was false when sent. ERIK'S CALL — still open
+
+*"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
+`own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's. **If §2's
+recommendation is taken, this note and the ISC-323.4 editorial question travel together.**
+
+## 7. "Gustaf" is unresolved and deliberately not acted on
+
+Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+
+## 8. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
+
+82 → 17 with a control arm showing 0 of 2,367 passing spans broken. Erik chose to STOP here.
+`okf/aqeeda/id/` stays uncommitted.
+
+## 9. QS 7:19 on ruling questions · 10. `neraka` routes to SCRIPTURE · 11. Audio DENGAR click ·
+## 12. `MAX_DISPLAY = 2` rights call · 13. Continuous chat PRD — all unchanged, carried forward
+
+## 14. Every open ISC, so none is invisible (13 open + 1 deferred = 551 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`, a THIRD marker — see the
+counting constraint below** · `ISC-323` (§2 — now gated on ISC-323.4, NOT on ISC-323.3) ·
+`ISC-323.4` (§2, NEW) · `ISC-353.0` (superseded, kept for the trail) · `ISC-417` (ustadz sign-off —
+his ANSWER) · `ISC-419` / `ISC-420` (fixed at ingestion, awaiting his answer) · `ISC-440.6` (two Nabi
+Yunus sentences, pinned not fixed) · `ISC-454` (rights half + ISC-487) · `ISC-464` (b is blocked by
+§1) · `ISC-487` (§3). **ISC-493 and ISC-494 are CLOSED and are no longer on this list.**
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — a pool fix cannot substitute for disagreeing with the ranker.** When a retrieval change is
+  justified by "then stage N can see it", run stage N and READ ITS SCORE. Do not ship the pool change
+  and infer the outcome. Identical cross-arm scores are the tell that the ranker was never the
+  variable. And check the DISPLAY cap, not just the rank — `capForDisplay` slices to 2, so rank 3 is
+  invisible no matter how correct it is.
+- **NEW — `null` from `fiqhAreaOf` was a SIGNAL, not an absence, and it has THREE consumers.**
+  `index.ts:844` (`rankByFiqhArea`, stable partition), `index.ts:1206` (doorway payload), and
+  `web/src/dalil-search.ts:165` (`fiqhDoorwayEl`, `if (!area) return ""`) — the last is the one a
+  reader sees and it was missed by grepping the function name, because the value crosses an API
+  boundary and gets renamed to a field. **Grep the FIELD name too.**
+- **NEW — `git add -A` is banned in this repo.** It swept untracked `WARP.md` into `6b4aedf` against
+  an explicit handoff instruction. Stage paths deliberately.
+- **NEW — an `includes()` guard can match your own prose and silently skip the write.** An
+  `if (!s.includes("ISC-323.4"))` guard matched a MENTION of that id inside another criterion's body,
+  so the insert never ran while the script reported success. Count the criterion LINE
+  (`/^- \[ \] ISC-323\.4:/m`), never a substring.
+- **NEW — `Inference.ts --mode advisor --auto-state` can load the WRONG ISA.** It loaded
+  `sider-contrast-roll-and-devbuild` for a quran-new task and opened with a "fatal flaw: the ISA
+  doesn't match" that was its own bug. **Read past it — the rest of that pass found three real
+  defects.** Pass state explicitly if you need it right.
+- **The ISA has THREE checkbox markers, not two.** `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]` (ISC-189).
+  An "off-by-one denominator" is far more often an unmatched marker than a hand-set number.
+- **A negative result about a corpus needs a control that is known PRESENT.**
+- **`wrangler vectorize get-vectors --ids` is an ARRAY flag taking SPACE-separated values.**
+- **Offline cosine is right about the VECTORS and wrong about what the live scorer RANKS.** Explained
+  by ISC-323.2, and §2 has now decided not to close the gap.
+- **`wrangler dev --remote` MUST run from the REPO ROOT.** `worker/` pins wrangler 3.114.17, whose
+  `dev --remote` dies with *"Could not create remote preview session on your account."* **That error
+  names the account and means the VERSION.** Root is 4.120.0. Probe command:
+  `bunx wrangler dev --config worker/wrangler.dalil-probe.toml --remote --port 8799`, then
+  `curl 'http://127.0.0.1:8799/rerank'` (or `/scoring`, or `/?q=`).
+- **A rerank/cosine score cannot gate topicality either** — not just correctness.
+- **`referenceLineOf` is an explicit key literal and must never become a spread.**
+- **A deploy log can say `No files to upload` while the assets DID ship.** Verify by SERVED BYTES.
+- **A stale `CacheStorage` entry survives a SERVER RESTART.**
+- **The Fikih router may ONLY re-rank.** Re-verified structurally this session across all three
+  consumers; `fiqh-rank.test.ts` enforces it.
+- **`entries` must stay gated on `verses.length === 0`.**
+- **`MAX_DISPLAY = 2` did not move** — and must not move by accident, including to make §2's rank 3
+  visible.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.**
+- **The DOM screenshot times out at 15 s on the heavier routes.**
+- **`interceptor act` takes `<ref>` with NO `click` keyword**, and a SYNTHETIC click does not open a
+  native `<details>`.
+- **A sent letter is a commitment and outranks a handoff item.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm or a row only the change could emit.
+- **A diagnostic that mirrors a gate is a COPY of that gate and drifts silently.**
+- **The sentence splitter breaks a quote pair when the full stop sits inside the closing quote.**
+- **The `dari bab` label is CSS-generated** — count `a.know-cat` ELEMENTS, never search text.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s**, not at settle.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`, then
+  read the file in a SEPARATE command.
+- **Force-red every new test.** It caught a live defect this session (`sai` double-counting) and
+  proved the `exactScores` param was not a no-op. If a proposed test can only re-assert a copy of the
+  code, remove it.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own table parsers.
+- **frequency has failed THREE times against this index. Do not try IDF again.**
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal (``function Ms(){try{return\`synthesis\`}…``), not a config grep. Confirmed synthesis this
+  session, and the rebuild reproduced `index-KFCMiW0O.js` — the exact bundle prod serves.
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).**
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it — across all three markers.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE.**
+- **Routes and identifiers stay `hadis`** (`#/hadis`, `nav-hadis`, `renderHadis`, `.hadith-*`) even
+  though the reader-facing label is **Hadits**.
+
+## Open items waiting on me (the user)
+
+- **ISC-323.4 (§2) — NEW and the freshest.** Tombstone ISC-323 and send the editorial half to the
+  ustadz, or keep it as written and accept NOT MET indefinitely? A recommendation is on the table and
+  Erik has not answered.
+- **ISC-487 — the ~26 s wall** (§3): recommended as the next session's work, now uncoupled from
+  ISC-323.3. Confirm before a session is spent on it.
+- **A follow-up note to Ustadz Ahmad?** (§6) — the letter's hadith sentence was false when sent, and
+  §2's editorial question would ride along with it.
+- **Who is Gustaf?** (§7) — declined to record for now; still unresolved.
+- **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
+- **Deploy `new-quranku-ai` and/or `demo-quranku`?** Answered "neither" on 2026-08-18; both remain
+  several deploys behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild
+  first. Re-ask only if Erik raises it.
+- **Whether `MAX_DISPLAY = 2` may ever rise** (§12) — a rights call, and §2 gives a new reason someone
+  might be tempted. It should still not move.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-18 late-3)
 
 > Prepended by /wrap 2026-08-18 late-3. Anchor `3be6240` + the wrap commit — **ISC-323.2 ANSWERED,

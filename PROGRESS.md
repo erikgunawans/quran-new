@@ -9,6 +9,55 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 ---
 
 
+## 2026-08-18 (late-4) — three of Erik's calls, and the lever that answered itself
+
+**Erik answered four open decisions and three produced work.** ISC-323.3: "measure first, default-off
+param". ISC-493: accept as search behaviour. ISC-494: change tie-breaking. Deploys: neither.
+
+**ISC-323.3 is ANSWERED, and the answer is no.** `DalilSearchOptions.exactScores` shipped default-off
+(absent, not `false`) and `dalil-probe.ts` gained a `/rerank` route running BOTH arms end-to-end
+through the real `searchDalil` — same question, same request, plain arm as control. Stable over three
+runs against the live index: **`hadith-muslim-154` reaches rank 3** after `voyageai/rerank-2.5` in
+the exact arm and is **absent entirely** in the plain arm. Rank 3 is outside `MAX_DISPLAY = 2`, so
+`target_within_display_cap` is `false` — **the record survives the reranker and still never reaches a
+reader**, for a measured **653 ms**. The lever's entire case was "the reranker can finally see it"; it
+can, and it prefers Bukhari 540 (0.6602) and 541 (0.6367) over it at 0.6289. Not applied.
+
+**That opens ISC-323.4, which is a question about the CRITERION.** ISC-323 demands that record at rank
+1; the ranker judges it third-best behind two on-topic, correctly-graded records. The criterion has
+been quietly asserting a scholarly judgment ever since the recall bug it was written for got fixed.
+Deliberately NOT resolved by restating it to match the measurement — that is the failure mode this ISA
+exists to prevent.
+
+**ISC-494 MET, with two corrections to the record.** `fiqhAreaOf` resolves a tie to the
+earliest-mentioned area instead of `null`; the rule is grammatical (Indonesian names the subject first,
+trails the circumstance), never juristic. **The tie is THREE-way, not the two-way carried for five
+handoffs** — `istri` is a `nikah` cue and was never counted. **And `sai` was listed TWICE under
+`haji`**, so that area scored 2 for one cue and won ties it had no claim to: `hukum wudu lalu sai`
+routed to *haji* over *thaharah*. Both fixed; cues now deduped.
+
+**The advisor pass changed the work rather than blessing it.** Its `--auto-state` loaded the WRONG ISA
+(`sider-contrast-roll-and-devbuild`), so its framing critique was void — but three findings were real
+and are fixed, not filed: a **third consumer** I had missed (`web/src/dalil-search.ts:165`
+`fiqhDoorwayEl` gates on `if (!area) return ""` and is what actually renders the reader's card, so
+`null` was a SIGNAL and not an absence); an **over-claim** that the reranker is pool-order-independent
+(withdrawn — n=1, arms differed in membership and order but NOT size, scores rounded to 4 dp); and a
+**missing force-red on ISC-496** (flipping the default on now proves the test fails). Its
+permutation-probe suggestion was declined as beyond Erik's question, and its shared-dist warning was
+falsified by bundle hash — `web/dist` holds `index-KFCMiW0O.js`, the exact bundle prod runs.
+
+**ISC-493 closed by decision, zero code.** The rerank-floor rejection stands on its own measurement
+(0.0703 window at n=20) and was not re-derived.
+
+**Own mistake, stated:** `git add -A` swept `WARP.md` into `6b4aedf` against the handoff's explicit
+instruction; untracked again in `23ee51b`. It is untracked on disk.
+
+**State at wrap.** Gates green — `bun test` **1580/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 537/551**, computed across all three markers.
+**PROD IS CURRENT and nothing shipped** (worker `4bf633a2`, bundle `index-KFCMiW0O.js`). Hadith
+generator still STOPPED (1,746/14,736).
+
+
 ## 2026-08-18 (late-3) — wrap, and a correction to late-2's denominator claim
 
 **CORRECTION to the checkpoint below.** Late-2 states "the ISA denominator was off by one before
