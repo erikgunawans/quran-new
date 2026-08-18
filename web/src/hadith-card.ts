@@ -10,7 +10,20 @@
  * THE INDONESIAN, AND WHY IT ARRIVES IN TWO DIFFERENT FIELDS. This block used to read "there is no
  * Indonesian here", on the reasoning that an unreviewed AI rendering was already refused for the
  * Dorar surah preface and a mistranslated hadith is worse — it is a fabricated saying of the Prophet
- * ﷺ. That reasoning was never refuted; what changed is who carries the judgement. Ustadz Ahmad
+ * ﷺ.
+ *
+ * THAT PREMISE IS STALE AND COST A REVIEW (2026-08-18). The Dorar preface's AI Indonesian is NOT
+ * refused any more: it was reversed on 2026-08-08 and `surah-intro.ts:205-229` now offers it as a
+ * reader-selectable "Bahasa Indonesia" tab on all 114 surahs — `editions.id` with
+ * `translation: "ai"`, `reviewStatus: "unreviewed"`, `reviewerNeeded: "Ustadz Ahmad Isrofiel"`, and
+ * 61 of the 114 carry prophetic-speech markers. So the app has a FOURTH surface rendering machine
+ * Indonesian about the Prophet ﷺ, from a DIFFERENT corpus under DIFFERENT rights terms (Dorar is
+ * `usage: private`, shipped on Erik's own call). Three passes of a scholarly review missed it
+ * because this comment and `PROGRESS.md` both still said it had been refused. Corrected here rather
+ * than deleted, because the sentence that hid a surface is worth keeping as the reason it hid.
+ *
+ * The comparative reasoning ("a mistranslated hadith is worse") was never refuted; what changed is
+ * who carries the judgement. Ustadz Ahmad
  * approved DISPLAYING the machine Indonesian (relayed verbally by Erik, 2026-08-12), and Erik ruled
  * 2026-08-13 that the approval extends from the Hadis tab to this card (ISC-449).
  *
