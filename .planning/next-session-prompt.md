@@ -1,3 +1,126 @@
+# Next session — New-Quranku (checkpoint 2026-08-19 late)
+
+> Prepended by /wrap 2026-08-19 late. Anchor `<SHA>` (work in `18e3e36`, `6e837a6`, `6d4d909`,
+> `712558a`). **Supersedes the `6ad6f69` anchor.** From that handoff: its **§2 (ISC-538) is
+> DISCHARGED** — Erik chose keep-as-drafted; its **§3 (the letter) had THREE more gate passes and is
+> still DRAF**; its **§5 deploy question is ANSWERED and SHIPPED**; its **§7 ("Gustaf") is CLOSED —
+> Erik had the name deleted**; its **§1, §4, §6 and §8–13 survive.** Do not re-derive the ISC-323.3
+> rerank measurement, the ISC-493 floor, or the ISC-487 clock re-diagnosis; all three are closed.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-19 (late)**).
+
+**Current state.** Gates green — `bun test` **1593/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler deploy --dry-run` exit 0. **ISA 553/570** across all three markers. Clean tree
+except untracked `WARP.md` — **leave it**. **PROD IS CURRENT AND AHEAD OF WHERE IT WAS**: worker
+`cfb0b05d`, bundle `index-hqD14U2e.js`, verified by served bytes. **`new-quranku-ai` NO LONGER
+EXISTS** — Worker deleted, `[env.synthesis]` tombstoned, DNS record deleted. Hadith generator still
+STOPPED (1,746/14,736 — the sidecar is 14,655, a different number; see the letter).
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Eighth handoff running. The letter's question 3 commits us to learning the ustadz's boundary BEFORE
+installing the filter. **ISC-464(b) is blocked on the ANSWER, not the send.**
+
+## 2. The letter is DRAF, had SIX gate passes, and I did NOT certify it clean
+
+`docs/review/ustadz-followup-2026-08-18.md`, **BELUM DIKIRIM**. Six `scholarly-gate` passes, six
+BLOCKs, **no finding repeated**. Erik said "read it" — that is his next action, not another pass.
+
+**Do not simply run a seventh pass and call it done.** The gate stopped being a proofreader around
+pass 4 and became a discovery instrument: each pass found a reader-facing SURFACE nobody had
+enumerated, and each new surface falsified a sentence written about the earlier ones. My standing
+recommendation, not yet accepted: **build a one-time inventory of every reader-facing surface that
+touches hadith or scholarship** — text layer, bab layer, kitab names, surah preface, answer prose,
+search cards, answer cards — and write the letter from the inventory instead of patching it.
+
+## 3. ISC-537 is now RUNNABLE and was not run
+
+The deploy it was gated on has happened. Drive a **refused** turn past 9 s through Interceptor and
+confirm the "masih menyusun" line is gone once the turn settles. Constraints: sample the whole
+window at 2 s (not at settle), and read the `/api/answer` RESPONSE — the renderer strips markers.
+
+## 4. ISC-533 / ISC-535 / ISC-536 — now have a live distribution available, still not moved
+
+ISC-532's `gen:{attempts,reason}` is live on prod. **It is a FREQUENCY instrument, not a forcing
+function** — ask what it would print if the feature were reverted; the answer is "the same thing".
+ISC-536 still forbids moving `MIN_RETRY_MS` before a live distribution EXISTS. It can now be
+collected. Do not raise `MODEL_DEADLINE_MS`.
+
+## 5. Two rights questions surfaced by pass 6 and NOT acted on — Erik's call
+
+- The cards render `h.english` publicly, while `hadith-id-approval-2026-08-12.md` records sunnah.com's
+  terms as **"private research use"**. Never asked, never settled.
+- `MAX_DISPLAY = 2` is defended as a licensing restraint while the browse page publishes the entire
+  Ṣaḥīḥayn with machine Indonesian. The letter now discloses that asymmetry; nobody has resolved it.
+
+## 6. Every open ISC, so none is invisible (15 open + 2 deferred = 570 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED —
+do not build against it) · `ISC-353.0` (superseded, kept for the trail) · `ISC-417` (ustadz sign-off
+— his ANSWER) · `ISC-419`/`ISC-420` (fixed at ingestion; now DEPLOYED but NOT re-measured) ·
+`ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (deployed, block rate NOT
+re-measured) · `ISC-464` (b blocked by §1) · `ISC-487` (re-diagnosed, deliberately NOT MET) ·
+`ISC-533` `ISC-534` `ISC-535` `ISC-536` (§4) · `ISC-537` **`[DEFERRED-VERIFY]`** (§3) · `ISC-538`
+(DISCHARGED as a decision; criterion still open pending the send).
+
+---
+
+## Constraints to honor (carried forward — plus six new)
+
+- **NEW — a grep can report a false ABSENCE.** A source template literal that wraps across lines is
+  carried into the bundle WITH its newline and indentation, so a long single-line pattern cannot
+  match. Grep short fragments that cannot straddle a break, and treat 0 on a long phrase as unproven.
+- **NEW — a correction is an edit too, and has had LESS scrutiny than what it replaces.** Two of pass
+  5's blocking findings were defects introduced by applying pass 4's fixes. Re-run the gate AFTER
+  applying its findings; "all findings applied" is not "clean".
+- **NEW — hand-typed grounding does not verify.** `verifyGrounding` hashes (ref, text) against
+  `grounding-digest.json` and FAILS CLOSED, so a forged `/api/answer` payload returns the same bare
+  `{"answer":null}` a broken deploy would. Build it from `groundingTextOf(v)` and assert IN-DIGEST
+  first. `worker/smoke-answer.ts`'s Al-Ikhlas payload is one of these.
+- **NEW — deleting a host CREATES an exposure.** Once its DNS is gone the name is unclaimed, so any
+  allowlist still trusting it is a standing grant to whoever registers it next. Audit every allowlist.
+- **NEW — removing a surface can make a check UNFAILABLE rather than failing.** A smoke assertion
+  that passes when the request throws goes green against a deleted host.
+- **NEW — a test may pin what copy must NOT claim, never a WORLD-FACT.** Nothing re-derives a
+  world-fact. Ask which file could falsify the assertion without touching the test.
+- **An environment that is never deployed is a time capsule of every defect fixed since.**
+- **This ISA's `### Cycle` headings do not bound the criteria** — nine ISCs live past
+  `## Test Strategy`. The TOTAL is right; the final rows' attribution is not. Do not "fix" it.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned in this repo.** Stage paths deliberately.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own parsers.
+- **Force-red every new test.** It caught defects in three separate sessions now.
+- **`--env synthesis` is GONE and must not be recreated** to "restore" anything — see the tombstone
+  in `worker/wrangler.toml`.
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.**
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal (\`return\`synthesis\`\`), not a config grep.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Neither moves.
+- **`MAX_DISPLAY = 2` did not move** — and must not, on an engineering argument.
+- **The Fikih router may ONLY re-rank**, and `entries` must stay gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect, echo `$?`, read separately.
+- **Routes and identifiers stay `hadis`** even though the reader-facing label is **Hadits**.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it across all three markers.
+
+## Open items waiting on me (the user)
+
+- **Read the letter** (§2) — `docs/review/ustadz-followup-2026-08-18.md`. Then: send, or commission
+  the surface inventory first?
+- **The two rights questions** (§5) — public English text under "private research use" terms, and
+  the `MAX_DISPLAY = 2` asymmetry.
+- **ISC-419/420/454 re-measurement** (§6) — all three now say "not until deployed"; it IS deployed.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-19 early)
 
 > Prepended by /wrap 2026-08-19 early. Anchor `6ad6f69` (work in `abaaed7`, `b4cb3cd`, `3f37c53`,

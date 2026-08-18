@@ -9,6 +9,88 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 ---
 
 
+## 2026-08-19 — six gate passes, and what we were telling readers while apologising for it
+
+**Started as a deploy. Became a mapping problem.** The handoff's only unblocked item was a fourth
+`scholarly-gate` pass on the ustadz follow-up. It blocked. So did the fifth, and the sixth — **six
+passes, six BLOCKs, and not one finding repeated across any of them.** The gate was not failing to
+converge on a letter; it was discovering reader-facing surfaces one pass at a time, and every new
+surface falsified a sentence already written about the previous ones.
+
+**Erik's five calls (asked and answered this session):** ISC-538 stays as drafted (disclosed,
+excluded) · deploy ISC-529 + ISC-532 · fix both permission over-claims · **delete new-quranku-ai** ·
+**delete the reviewer name** he had floated but declined to record. Then, on the follow-up: retire
+the config block and the DNS record too.
+
+**Shipped to prod, twice, both verified by served bytes and not by an exit code.** Worker
+`2ce7f4e8` (bundle `index-UWoPUbVQ.js`) carried ISC-529 + ISC-532; worker `cfb0b05d` (bundle
+`index-hqD14U2e.js`, sha256 `89ba7b44…` matching local) carried the copy fixes. ISC-532 confirmed
+live on a grounded request: `gen: {"attempts":[{"ms":12996,"budgetMs":25000,"outcome":"ok"}],
+"reason":"answered"}`.
+
+**Three things I got wrong, recorded because each was a different failure mode.**
+
+1. **A grep reported a false ABSENCE.** I searched the deployed bundle for the refusal copy, got 0,
+   and told Erik the false sentence had not shipped. It had — the source template literal wraps
+   across two lines, so the bundle carries `menunjukkan\n          sumbernya` and no single-line
+   pattern matches. Short fragments (`teksnya masih`) found it immediately.
+2. **Two of pass 5's blocking findings were defects I introduced applying pass 4's fixes.** I scoped
+   the "we never re-translate a scholar's sentence" promise to the hadith corpus — the one place it
+   is false, because `translate-babs.ts` feeds the compilers' own bab titles to a model told to
+   render them *"wajar dan ringkas"*. And I wrote that cards "always" show collection and translator;
+   the Hadits-tab card shows neither, and the translator named is the ENGLISH one. **A correction is
+   new prose making new claims, and it has had less scrutiny than the text it replaces, not more.**
+3. **My first `/api/answer` probe was forged and I nearly read a regression into it.** Prod returned
+   a bare `{"answer":null}` in 317 ms; the sibling worker answered the same payload. `verifyGrounding`
+   hashes (ref, text) against `grounding-digest.json` and FAILS CLOSED — my hand-typed Al-Ikhlas text
+   was never in the digest, so prod was behaving exactly as designed. The control arm answering was
+   itself the defect (see below), not proof my payload was good.
+
+**The defect the control arm exposed — ISC-544.** `new-quranku-ai.axiara.ai` had not been redeployed
+since before ISC-418. Paired arms, identical POST, `{"verses":[],"entries":[]}`:
+
+| worker | zero-grounding result |
+|---|---|
+| `new-quranku` (prod) | `{"answer":null}` in **0.1 s** — the bail fires |
+| `new-quranku-ai` (never redeployed) | **1,757-char authored Islamic answer** in 17.4 s |
+
+A public surface was still composing religious answers out of parametric memory, months after Erik
+ruled on 2026-08-13 that it must not. **An environment that is never deployed is a time capsule of
+every defect fixed since** — the fix was on main the whole time, and main ships nothing.
+
+**Retiring it exposed two more (ISC-545), and this is the half that nearly shipped.** The dead host
+was still in `ALLOWED_ORIGINS`; deleting its DNS is what makes the name UNCLAIMED, so that entry was
+a standing grant of cross-origin POST rights to `/api/answer` to whoever registers it next —
+**deleting the DNS creates the exposure rather than closing it.** And `smoke-answer.ts` check ④
+passes whenever the request THROWS, and a request to a deleted host throws: removing a surface made
+a smoke test **unfailable** rather than failing.
+
+**The largest finding of the six passes — ISC-543.** `answer-contract.ts:148` instructs the model to
+say what a hadith TEACHES *in its own words* and never to write its wording. So the reader's first
+sentence is *"Rasulullah ﷺ mengajarkan bahwa…"* — a machine-authored attribution to the Prophet ﷺ,
+carrying none of the translation warnings. The letter had been a **translation inventory** ("machine
+Indonesian appears in N places"), and a translation inventory could never have found it.
+
+**A false cause in the letter already SENT — ISC-542.** It told the ustadz that QS 2:221 was missed
+*"semata-mata karena 'beda agama' tidak berbagi satu kata pun dengan 'musyrik'"*. Measured:
+`hukum nikah dengan orang musyrik` **contains** "musyrik" and still fails; `hukum menikah beda agama`
+omits it and succeeds. The discriminator is the `nikah`/`menikah` prefix — our affix matcher. **We
+laid our own bug at a scholar's word choice, then used it to justify asking him to endorse a pinned
+list.** Retracted; questions 4–6 of that letter explicitly not withdrawn.
+
+**A test was pinning a false statement to readers — ISC-539.** `expect(copy).toContain("bahasa Arab")`
+held the claim that the Hadits tab is Arabic-only, green for six days after it stopped being true.
+The test deliberately read the shipped source so a copy edit would face it; that design is right.
+The assertion encoded a **world-fact** rather than a property of the refusal, and nothing re-derives
+a world-fact.
+
+**Gates:** `bun test` **1593/0** exit 0 · typecheck exit 0 (all five passes) · synthesis build exit 0
+· `wrangler deploy --dry-run` exit 0 · `--env synthesis` correctly ERRORS. ISA **553/570**, computed
+across all three markers, never hand-set.
+
+**Not done, deliberately:** ISC-537's live probe (the deploy unblocked it; the Interceptor run was
+not made) · the letter is **DRAF / BELUM DIKIRIM** and I am not certifying it clean.
+
 ## 2026-08-19 (early) — the 26-second wall was never a wait, and a letter uncovered a fourth surface
 
 **Erik answered three open decisions and all three produced work.** ISC-323.4: tombstone and send the
