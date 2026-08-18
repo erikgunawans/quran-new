@@ -13,7 +13,7 @@ Dua hal. Yang pertama adalah kesalahan kami, dan kami dahulukan.
 
 ## Bagian 1 — ralat: surat kemarin salah menggambarkan keadaan aplikasi
 
-Di surat 17 Agustus kami menyatakannya di **tiga tempat**. Dua kalimat di bagian *"Sabda Nabi ﷺ"*:
+Di surat 17 Agustus kami menyatakannya di **tiga bagian**. Dua kalimat di bagian *"Sabda Nabi ﷺ"*:
 
 > *"Aplikasi **tidak pernah** menampilkan teks hadis dalam bahasa Indonesia hasil mesin."*
 >
@@ -23,7 +23,8 @@ Di surat 17 Agustus kami menyatakannya di **tiga tempat**. Dua kalimat di bagian
 
 Kalimat itu kami kutip utuh dengan sengaja, sebab anak kalimat terakhirnya pun tidak benar dan perlu
 kami cabut tersendiri. Rujukan memang kami tampilkan: kartu hadis **di bawah jawaban dan di hasil
-pencarian** memuat nama kitab, nomor, derajat, tautan sumber, dan nama penerjemah **teks Inggrisnya**;
+pencarian** memuat nama koleksi dan nomor hadis, derajatnya, judul babnya dalam bahasa Inggris, teks
+Inggrisnya, tautan ke sumber, dan — bila data kami memuatnya — nama penerjemah **teks Inggris itu**;
 kartu di **halaman Hadits** memuat nomor, derajat, dan tautan sumber. Yang tidak boleh kami tutupi:
 **teks Indonesianya tidak punya penerjemah manusia sama sekali** — ia hasil mesin. Jadi alasan yang
 kami sampaikan kepada Ustadz keliru, dan bentuk sebenarnya pun perlu Ustadz ketahui apa adanya.
@@ -32,9 +33,8 @@ Dan satu lagi — yang paling mengikat — sebagai janji di daftar *"Yang tidak 
 
 > *"Tidak menampilkan teks hadis bahasa Indonesia hasil mesin kepada pembaca."*
 
-**Ketiganya tidak benar. Dua di antaranya sudah tidak benar sebelum surat itu kami kirim, dan yang
-ketiga menjadi lebih tidak benar lagi sesudahnya.** Yang ketiga kami sesali paling dalam: sebuah
-daftar berjudul *"Yang tidak kami lakukan"* adalah janji, bukan sekadar keterangan. **Janji itu
+**Ketiganya sudah tidak benar sebelum surat itu kami kirim**, dan yang ketiga menjadi lebih tidak
+benar lagi sesudahnya. Yang ketiga kami sesali paling dalam: sebuah daftar berjudul *"Yang tidak kami lakukan"* adalah janji, bukan sekadar keterangan. **Janji itu
 dengan ini kami cabut**, karena ia tidak pernah kami tepati sejak 13 Agustus 2026 — dan karena pada
 18 Agustus 2026, sehari sesudah surat itu kami kirim dan selagi janji itu masih berdiri, kami justru
 menambah satu tempat lagi yang melanggarnya. Rinciannya kami sebut di bawah.
@@ -63,8 +63,9 @@ Inilah keadaannya apa adanya:
    dan teks mesin hanya masuk yang pertama.
 6. Bila jawaban sebuah pertanyaan ada pada hadis, aplikasi **tidak** diam. Ia menjawab dan menampilkan
    kartu hadisnya. Aplikasi berhenti sebelum pencarian hadis dijalankan **hanya** bila pencarian kami
-   tidak menemukan bahan apa pun sama sekali — tidak ada ayat **dan** tidak ada entri indeks. Di luar
-   keadaan itu, termasuk pada pertanyaan hukum seperti contoh di Bagian 2, pencarian hadis memang
+   tidak menemukan bahan apa pun sama sekali — tidak ada ayat **dan** tidak ada entri indeks — **atau
+   bila pembaca menyebut nomor ayat tertentu, sebab dalam hal itu jalur Al-Qur'an kami anggap sudah
+   menjawab dan pencarian hadis tidak dijalankan**. Di luar keadaan itu, termasuk pada pertanyaan hukum seperti contoh di Bagian 2, pencarian hadis memang
    berjalan.
 7. Dan kami harus jujur tentang penjaga mutu kami. Bila ia menolak kalimat jawaban yang disusun mesin,
    pembaca pada umumnya **tetap menerima jawaban** — yaitu jawaban jalur biasa yang sudah tampil lebih
@@ -74,6 +75,47 @@ Inilah keadaannya apa adanya:
    penolakan itu bekerja, tetapi pembaca hampir tidak pernah melihatnya. Itu cacat yang kami ketahui,
    belum kami perbaiki, dan kami sebutkan di sini supaya Ustadz tidak menilai penjaga itu lebih kuat
    daripada keadaannya.
+8. **Dan satu hal yang lebih berat daripada keempat tempat di atas — dan yang paling mudah luput bila
+   kami hanya bicara soal "terjemahan".** Ketika aplikasi menjawab dengan hadis, **kalimat jawabannya
+   sendiri disusun mesin**, dan mesin itu justru kami **larang** mengutip teks hadisnya. Perintah kami
+   berbunyi: sebutkan **apa yang diajarkan hadis itu dengan kata-katamu sendiri** — misalnya
+   *"Rasulullah ﷺ mengajarkan bahwa amal bergantung pada niatnya"* — lalu biarkan penandanya yang
+   membawa rujukan. Kartu hadisnya ditampilkan di bawah kalimat itu. Jadi yang pertama dibaca orang
+   **bukan terjemahan, melainkan kalimat karangan mesin yang menisbatkan ajaran kepada Nabi ﷺ**.
+   Kalimat itu **tidak** memakai tanda *"Terjemahan mesin · belum ditinjau"*; ia hanya memakai
+   keterangan umum bahwa jawaban disusun AI. Hal ini termasuk pokok surat kami tanggal 17 Agustus yang
+   belum Ustadz jawab; kami sebut lagi di sini supaya ia tidak tersembunyi di balik kata "kartu".
+
+### Ralat kedua: sebab yang kami sebutkan untuk kekeliruan "nikah beda agama" itu salah
+
+Di surat 17 Agustus kami menulis bahwa entri yang tepat (QS. Al-Baqarah 2:221) tidak muncul untuk
+pertanyaan *"hukum nikah beda agama"* — dan kami menyebut sebabnya:
+
+> *"…**semata-mata karena frasa 'beda agama' tidak berbagi satu kata pun dengan kata 'musyrik' yang
+> dipakai Ustadz Muhammad Thalib.**"*
+
+Sesudah kami ukur langsung, sebab itu **tidak benar**, dan kami menyesal telah menyandarkannya pada
+pilihan kata Ustadz Muhammad Thalib. Yang menentukan bukan kata *musyrik*, melainkan **bentuk kata
+pada pertanyaannya**:
+
+| Pertanyaan | Hasil |
+|---|---|
+| hukum **nikah** beda agama | 4:25 dan 2:136 — 2:221 **tidak** muncul |
+| hukum **menikah** beda agama | 2:221 **muncul** |
+| hukum **nikah** dengan orang **musyrik** | 2:221 **tidak** muncul (pertanyaannya bahkan tersasar ke bab lain) |
+| hukum **menikah** dengan orang musyrik | 2:221 **muncul di urutan pertama** |
+
+Entri beliau berbunyi *"**Menikah** dengan kaum musyrik laki-laki/perempuan"*. Mesin pencari kami
+mencocokkan kata secara utuh, sehingga *"nikah"* tidak dianggap cocok dengan *"menikah"*. Perhatikan
+baris ketiga: pertanyaan itu **memuat** kata *musyrik* dan tetap gagal. Jadi kekeliruannya ada pada
+**alat kami**, bukan pada kalimat Ustadz Muhammad Thalib. Keadaan yang kami laporkan — 4:25 muncul
+untuk pertanyaan yang bukan tentangnya — memang benar; **alasannya** yang keliru kami sampaikan.
+
+Ini kami sebut karena pertanyaan nomor 4–6 di surat 17 Agustus meminta pertimbangan Ustadz atas
+usulan **mengunci daftar entri**, dan usulan itu kami sandarkan pada sebab yang salah. Bila sebab
+sebenarnya bisa kami perbaiki pada alatnya, mungkin penguncian itu tidak diperlukan. Karena itu kami
+**tidak menarik** pertanyaan 4–6, tetapi mohon Ustadz menimbangnya dengan keterangan yang benar ini.
+Selama Ustadz belum menjawab, kami tidak mengubah apa pun pada daftar itu.
 
 ### Empat tempat, dan hanya satu di antaranya izin Ustadz
 
@@ -116,6 +158,12 @@ Dan satu hal yang harus kami sampaikan meski memalukan bagi kami. Di halaman Had
 
 Jadi ketika kami memohon penegasan tertulis di bawah ini, nama Ustadz sesungguhnya sudah tercantum
 di hadapan pembaca atas dasar pesan lisan yang diteruskan. Itu keliru urutannya, dan kami minta maaf.
+Dan ada yang membuatnya lebih berat lagi. Kalimat itu berdiri **di atas seluruh halaman kitab**, dan
+di halaman itu bukan hanya teks hadisnya yang hasil mesin — **judul-judul babnya juga**. Jadi kalimat
+itu, apa adanya, sudah menyebut nama Ustadz sebagai pemberi izin bagi lapisan yang tidak pernah kami
+tanyakan kepada Ustadz. Itu keputusan kami, bukan keputusan Ustadz, dan kami sebutkan di sini sebelum
+Ustadz menjawab nomor 4.
+
 Bila Ustadz menghendaki, kalimat itu kami ganti dengan kalimat tanpa nama sampai penegasan tertulis
 ada — atau kami hapus sama sekali. Cukup Ustadz sebutkan.
 
@@ -144,7 +192,7 @@ belum ditinjau. Isinya bukan hanya keterangan. Kami hitung langsung pada berkas 
 |---|---|
 | menukil **ijmak** ulama | **98** |
 | menyebutkan **sabda Nabi ﷺ** (*bersabda* / *Rasulullah*), sebagian di dalam tanda kutip | **61** |
-| menyebut **Nabi ﷺ** dalam bentuk apa pun | 79 |
+| menyebut **Nabi ﷺ** atau **Rasulullah** dalam bentuk apa pun | 93 |
 | menyebut kesepakatan ulama (*sepakat*) | 25 |
 | menyebut **jumhur** | 19 |
 
@@ -194,12 +242,16 @@ Pertanyaan kami, dan kami menerima jawaban apa pun:
 1. Untuk **halaman Hadits saat kitab-kitabnya ditelusuri** — hanya bagian itu — benarkah demikian yang
    Ustadz maksudkan dahulu? Dan apakah Ustadz masih berpendapat sama sekarang, setelah mengetahui
    cakupannya 99%, bahwa 7.222 hadis Bukhari kini punya teks Indonesia padahal dahulu tidak satu pun,
-   dan cacatnya seperti di atas?
+   dan cacatnya seperti di atas? (Judul-judul bab yang tampil di halaman yang sama kami tanyakan
+   terpisah di nomor 4; jawaban "benar" untuk nomor 1 tidak kami berlakukan untuknya.)
 2. Bila benar, apakah Ustadz berkenan menegaskannya **secara tertulis**, agar kelak jelas siapa yang
    mengizinkan apa? Dan berkenankah nama Ustadz kami sebut di layar sebagai pemberi izin — atau kami
-   ganti dengan kalimat tanpa nama sampai penegasan tertulis itu ada?
+   ganti dengan kalimat tanpa nama sampai penegasan tertulis itu ada? (Nama Ustadz juga tercantum
+   pada pengantar surah, di sana sebagai pihak yang **ditunggu tinjauannya** — bukan sebagai pemberi
+   izin. Bila Ustadz meminta namanya tidak dipakai, kami cabut dari kedua tempat itu.)
 3. Untuk **tiga tempat yang belum pernah Ustadz izinkan** — hasil pencarian di halaman Hadits, hasil
-   pencarian di halaman Fikih, dan kartu hadis di bawah jawaban — boleh atau tidak? Bila Ustadz
+   pencarian di halaman Fikih, dan kartu hadis di bawah jawaban **beserta kalimat karangan mesin yang
+   mendahuluinya (butir 8 di atas)** — boleh atau tidak? Bila Ustadz
    membedakan ketiganya, mohon disebutkan yang mana.
 4. Untuk **judul-judul bab** hasil mesin, yang disusun program berbeda dan tidak pernah kami tanyakan
    — boleh ditampilkan atau tidak?
@@ -240,6 +292,10 @@ membebani kecepatan aplikasi tanpa mengubah apa pun yang dilihat pembaca.
 itu berasal dari **syarat perizinan sunnah.com**, tempat kami mengambil hadis — mereka mengizinkan
 penggunaan per hadis untuk keperluan pengajaran, bukan penyalinan besar-besaran. Karena itu, **jawaban
 Ustadz tidak dapat menggeser batas tersebut**, dan kami tidak akan menggesernya dengan alasan jawaban
+Ustadz. Perlu kami jujurkan bentuknya, supaya batas itu tidak terbaca sebagai pengekangan yang lebih
+besar daripada kenyataannya: batas dua itu berlaku pada jalur jawaban dan pencarian. Halaman Hadits
+sendiri memang menampilkan **seluruh kitab** beserta terjemahan mesinnya, dan apakah itu sesuai
+ketentuan sunnah.com adalah urusan kami dengan pemilik sumber — bukan hal yang kami mintakan penilaian
 Ustadz. Menambah jumlah hadis yang tampil adalah urusan kami dengan pemilik sumber, bukan urusan
 Ustadz.
 
@@ -251,15 +307,17 @@ Yang kami mohon dari Ustadz:
 
 6. Untuk pertanyaan *"hukum meninggalkan sholat"* yang diajukan orang awam, hadis mana yang
    sepatutnya **didahulukan**?
-7. Adakah di antara ketiganya yang menurut Ustadz **tidak sepatutnya** ditampilkan tanpa penjelasan
-   pendamping?
+7. Adakah di antara ketiga hadis di atas — Bukhari 540, Bukhari 541, dan Muslim 154 — yang menurut
+   Ustadz **tidak sepatutnya** ditampilkan tanpa penjelasan pendamping? (Muslim 154 hari ini tidak
+   tampil sama sekali; pertanyaan ini mengandaikan ia tampil.)
 8. Bila menurut Ustadz kedua Bukhari di atas sudah memadai, cukup Ustadz sampaikan demikian — kami
    biarkan urutannya apa adanya.
 
 Satu batas yang perlu kami sebutkan supaya jawaban Ustadz tidak terbawa: jawaban Ustadz atas nomor
 6–8 kami catat semata-mata mengenai **hadis mana yang sepatutnya didahulukan** — bukan mengenai di
 halaman mana ia ditampilkan, dan bukan pula mengenai boleh-tidaknya teks Indonesia hasil mesin. Yang
-itu tetap bergantung pada jawaban nomor 3 dan 4.
+itu tetap bergantung pada jawaban nomor 3 dan 4. **Kecuali nomor 7**: jawaban atasnya justru mengenai
+perlu-tidaknya penjelasan pendamping, dan itu kami catat serta jalankan apa adanya.
 
 Selama menunggu jawaban Ustadz, kami **tidak** akan mengubah urutan ini atas pertimbangan teknis
 kami sendiri.
@@ -270,12 +328,19 @@ kami sendiri.
   yang kami sebut terus terang, dan yang justru menjadi sebab surat ini ada**. Pertama, **judul bab
   susunan Imam Bukhari dan Imam Muslim** (4.864 judul) kami terjemahkan mesin, dan perintah yang kami
   berikan kepada mesin berbunyi *"terjemahkan … yang wajar dan **ringkas**"* — jadi meringkas memang
-  kami lakukan di sana, dan dari lapisan inilah cacat makna yang kami sebut di atas berasal. Kedua,
+  kami perintahkan di sana, dan dari lapisan inilah cacat makna yang kami sebut di atas berasal. Dan
+  kami tidak boleh berhenti di situ: perintah untuk **teks hadisnya sendiri** pun berbunyi *"Sertakan
+  **sanadnya (rantai perawi) secara ringkas**, lalu matan (isi hadis) secara lengkap."* Artinya
+  matannya kami minta lengkap, tetapi **sanadnya kami minta diringkas mesin**. Pada contoh yang kami
+  periksa sanadnya tampil utuh, tetapi perintahnya memang demikian dan kami belum mengukur berapa
+  banyak yang benar-benar terpangkas. Ustadz berhak mengetahuinya sebelum menjawab nomor 1. Kedua,
   pengantar surah dari Dorar kami terjemahkan mesin lengkap dengan kutipan para imam — Ibnu Jarīr,
   Al-Qurṭubī, Ibnul-Qayyim dan lainnya — beserta tanda kutip dan nomor halamannya. Keduanya bertanda
   AI di layar.
 - Tidak mencatat teks hasil mesin sebagai teks yang sudah diperiksa.
-- Tidak menuliskan keputusan Erik sebagai keputusan Ustadz.
+- Tidak menuliskan keputusan Erik sebagai keputusan Ustadz — **kecuali satu kalimat yang sudah
+  terlanjur tayang dan kami buka di Bagian 1; kalimat itu kami perbaiki menurut jawaban Ustadz atas
+  nomor 2 dan nomor 4.**
 - Tidak menggeser batas dua hadis, dengan alasan apa pun dari surat ini.
 - Tidak memakai jawaban Ustadz atas surat ini untuk kumpulan mana pun selain Bukhari dan Muslim
   **dari sunnah.com** — khususnya tidak untuk pengantar surah yang kami ambil dari Dorar.
