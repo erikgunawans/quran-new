@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-19 late)
 
-> Prepended by /wrap 2026-08-19 late. Anchor `<SHA>` (work in `18e3e36`, `6e837a6`, `6d4d909`,
+> Prepended by /wrap 2026-08-19 late. Anchor `707f8bb` (work in `18e3e36`, `6e837a6`, `6d4d909`,
 > `712558a`). **Supersedes the `6ad6f69` anchor.** From that handoff: its **§2 (ISC-538) is
 > DISCHARGED** — Erik chose keep-as-drafted; its **§3 (the letter) had THREE more gate passes and is
 > still DRAF**; its **§5 deploy question is ANSWERED and SHIPPED**; its **§7 ("Gustaf") is CLOSED —
