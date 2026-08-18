@@ -1,7 +1,9 @@
 # Susulan — ralat, dan satu pertanyaan pemilihan hadis
 
 > Ditujukan kepada **Ustadz Ahmad Isrofiel Mardlatillah**.
-> Disusun 2026-08-18. **Status: DRAF. BELUM DIKIRIM.** Menunggu pemeriksaan dan pengiriman oleh Erik.
+> Disusun 2026-08-18. **Status: SUDAH DIKIRIM oleh Erik, 2026-08-19. Belum ada jawaban.**
+> Terkirim ≠ disetujui. Selama belum ada jawaban, tidak satu pun butir di surat ini boleh dicatat
+> sebagai sudah disetujui.
 > Menyusul `tanya-ai-request-2026-08-17.md`, yang sudah dikirim 2026-08-17 dan **belum dijawab**.
 > Surat ini **tidak** menggantikan surat itu dan **tidak** mengurangi satu pun pertanyaannya.
 > Selama Ustadz belum menjawab, ISC-417 tetap **NOT MET**, dan tidak ada satu pun butir di sini yang
