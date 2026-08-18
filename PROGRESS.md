@@ -9,6 +9,34 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 ---
 
 
+## 2026-08-18 (late-3) — wrap, and a correction to late-2's denominator claim
+
+**CORRECTION to the checkpoint below.** Late-2 states "the ISA denominator was off by one before
+this session" and records `504/517`. **That is wrong, and the number it corrected was right.** The
+ISA carries a THIRD checkbox marker — `- [DEFERRED-VERIFY]`, used by ISC-189 (60fps on a real
+mid-range Android) — which my counter matched with neither `[x]` nor `[ ]`, so it fell out of the
+numerator AND the denominator at once. The previous session's `503/517` was 503 met + 13 open + 1
+deferred and was correct all along. Recounted across all three markers: **504 met + 13 open + 1
+deferred = 504/518**, now written to `ISA.md`. The commit message on `3be6240` carries the same
+false claim and cannot be amended — this entry is the correction of record.
+
+**The lesson generalises past this repo, and /wrap's own parser already warns about it:** a marker
+present in a document's legend but absent from the parser does not fail loudly, it silently shrinks
+the total. An "off-by-one in the denominator" is far more often an unmatched marker than a
+miscount — check the marker vocabulary before concluding someone hand-set a number.
+
+**Session substance is in late-2 and unchanged by this correction:** ISC-323.2 is answered — the live
+Vectorize query path scores against an approximate representation, the offline reproduction was right
+about the vectors all along, and the ~+600 ms lever (`returnValues: true`) is left unapplied as
+ISC-323.3 for Erik. No production behaviour changed this session.
+
+**State at wrap.** Gates green — `bun test` **1574/0** exit 0 · typecheck exit 0 (all 5 passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 504/518**, computed across all three
+markers. Clean tree except untracked `WARP.md` — left alone. **PROD IS CURRENT** (worker
+`4bf633a2`, bundle `index-KFCMiW0O.js`); nothing shipped this session, so no deploy is owed.
+Hadith generator still STOPPED (1,746/14,736).
+
+
 ## 2026-08-18 (late-2) — ISC-323.2 is ANSWERED: the live scorer is approximate, and the offline reproduction was right all along
 
 **One probe, and it eliminated both surviving explanations rather than choosing between them.** The
