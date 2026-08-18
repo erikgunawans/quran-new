@@ -1,3 +1,183 @@
+# Next session — New-Quranku (checkpoint 2026-08-19 early)
+
+> Prepended by /wrap 2026-08-19 early. Anchor `6ad6f69` (work in `abaaed7`, `b4cb3cd`, `3f37c53`,
+> `6ad6f69`). **Supersedes the `23ee51b` anchor.** From that handoff: its **§2 (ISC-323.4) is
+> DISCHARGED — Erik chose tombstone-and-ask**; its **§3 (ISC-487) was WORKED and RE-DIAGNOSED**; its
+> **§6 (the ustadz note) is DRAFTED, not sent.** Its **§1, §4, §5, §7, §8 and §9–13 survive verbatim.**
+> **Do not re-derive the ISC-323.3 rerank measurement or the ISC-493 floor; both are closed.**
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-19 (early)**).
+
+**Current state.** Gates green — `bun test` **1593/0** exit 0 · typecheck exit 0 (all five passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **ISA 546/563**, computed across all three markers.
+Clean tree except untracked `WARP.md` — **leave it**. **PROD IS UNCHANGED** (worker `4bf633a2`,
+bundle `index-KFCMiW0O.js`) and **nothing shipped this session** — but unlike last session, prod is
+now BEHIND main in a way that matters: the ISC-529 fix and the ISC-532 diagnostic are both committed
+and both unreachable by a reader until Erik deploys. Hadith generator still STOPPED (1,746/14,736).
+
+---
+
+## 1. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Carried verbatim for the seventh handoff running, because it is the item most likely to be
+"unblocked" by someone reading a stale line. The letter's question 3 commits us to learning the
+ustadz's boundary BEFORE installing the filter. **ISC-464(b) is blocked on the ANSWER, not the send.**
+
+## 2. ISC-538 — the FOURTH surface. NEW, and the most consequential open item. ERIK'S CALL
+
+The scholarly gate's third pass found a reader-facing surface nobody had named in three review
+passes. `web/src/surah-intro.ts:205-229` offers a reader-selectable **"Bahasa Indonesia"** tab on the
+surah preface. Verified in the **BUILT** artefact, not just source: all **114** `web/dist/surah-intro/*.json`
+carry `editions.id` with `translation:"ai"`, `reviewStatus:"unreviewed"`,
+`reviewerNeeded:"Ustadz Ahmad Isrofiel"` — and **61 of the 114 contain prophetic-speech markers**
+(`bersabda`/`Rasulullah`), some inside quotation marks, alongside quotations attributed to **named
+imams**. Its own generator banner reads *"jangan disajikan ke pengguna sebelum ditinjau Ustadz Ahmad
+Isrofiel"*; `surah-intro.ts:166-170` records that Erik chose to offer it anyway.
+
+**Dorar is `usage: private` under different terms from sunnah.com, so ONE APPROVAL CANNOT SPAN BOTH.**
+
+Why it hid: `hadith-card.ts:12-13` and `PROGRESS.md:2463` both still said that AI rendering "was
+refused" for this preface. That was reversed 2026-08-08. **The code comment is corrected; PROGRESS.md
+is append-only and keeps its entry as history.** A memory said the same wrong thing and is corrected.
+
+**Already applied to the letter:** the question is bounded in writing to the Bukhari/Muslim corpus, the
+fourth surface is DISCLOSED, and the letter states the ustadz's answer will not be applied to it.
+**Undecided and needs Erik:** own letter, folded in, or standing on his existing rights call?
+
+## 3. The ustadz letter is a DRAFT and I did NOT call it clean
+
+`docs/review/ustadz-followup-2026-08-18.md`, marked **BELUM DIKIRIM**. `scholarly-gate` blocked it
+**three times and found something new on every pass** — 4 blocking, then 1, then 2. Every finding was
+real and all are applied. **A fourth pass is likely to find more; run one before Erik sends.** Do not
+report it as ready.
+
+What it now does: retracts THREE false claims in the sent 2026-08-17 letter (two sentences plus a
+written undertaking in its "Yang tidak kami lakukan" list, which is the binding register); separates
+the Hadits tab (the ustadz's, verbal+relayed) from the Fikih tab and answer card (**Erik's own
+2026-08-13 ruling** — never write these up as the ustadz's); states `MAX_DISPLAY = 2` is a licensing
+position his answer cannot move, BEFORE asking him which hadith should lead; states that in production
+Muslim 154 is **absent from the pool**, not rank 3 (rank 3 was the rejected arm); discloses the scale
+change 1,746 → 14,655 of 14,736; and discloses that the measured meaning-alteration defect is from the
+**bab-title** layer while the hadith-text layer has **no measured error rate at all**.
+
+## 4. ISC-487 — RE-DIAGNOSED, and the criterion was measuring the wrong clock
+
+**`FAST_ANSWER_MS = 9000` means the reader NEVER waits 26 seconds.** They hold a real cited principled
+answer at 9 s and it upgrades in place. Confirmed on the DEPLOYED bundle (`var Il=9e3`). The turn
+clock and the reader clock diverged at ISC-466 and every reading since conflated them. **Do not
+re-derive this and do not go back to chasing turn duration.**
+
+Still NOT MET, deliberately. Two levers remain and BOTH are gated on deploying ISC-532:
+- **ISC-533** — the `answer-blocked` copy is unreachable past 9 s. **OPEN AND READER-VISIBLE, not
+  "instrumented".** Fixing it today would render *"an answer was found and is being held back"* on
+  turns that merely ran out of clock, because `verdictAfterFailure` preserves the first verdict when
+  the second attempt throws and a deadline abort IS a throw.
+- **ISC-535** — `MIN_RETRY_MS = 6_000` against a ~8,450 ms median generation. A retry admitted at the
+  threshold cannot finish. **ISC-536 forbids moving it** before a live distribution exists: some
+  admitted retries currently SUCCEED and the answered rate must not fall.
+
+## 5. ISC-532 shipped but is NOT the forcing function, and this is the trap
+
+`gen:{attempts,reason}` reports how the GENERATION LOOP terminated, server-side, on the far side of
+the broken display path. **Asked the disqualifying question — what would it print if ISC-533 were
+fixed versus reverted? The same thing.** It is a FREQUENCY instrument, not a verification one. A
+`reason` histogram will NOT tell you the blocked channel works. **ISC-537 is the live read, and it is
+`[DEFERRED-VERIFY]` because the deploy is Erik's.**
+
+## 6. The ISC-529 fix made the app QUIETER, and that is a cost not a win
+
+Removing the false "still composing" promise was right, but before it a reader at least saw that
+something else had been happening; now **nothing indicates a fuller answer was produced and withheld**.
+That is why §4's ISC-533 severity rose. Do not let a handoff or a summary describe it as closed.
+
+## 7. "Gustaf" is unresolved and deliberately not acted on · 8. The aqidah gate is GREEN-ER but still
+## red at 17 · 9. QS 7:19 on ruling questions · 10. `neraka` routes to SCRIPTURE · 11. Audio DENGAR
+## click · 12. `MAX_DISPLAY = 2` rights call · 13. Continuous chat PRD — all unchanged, carried forward
+
+## 14. Every open ISC, so none is invisible (15 open + 2 deferred = 563 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323`
+**(TOMBSTONED — closed, do not build against it)** · `ISC-353.0` (superseded, kept for the trail) ·
+`ISC-417` (ustadz sign-off — his ANSWER) · `ISC-419`/`ISC-420` (fixed at ingestion, awaiting his
+answer) · `ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (rights half +
+ISC-487) · `ISC-464` (b blocked by §1) · `ISC-487` (§4) · `ISC-533` `ISC-534` `ISC-535`
+`ISC-536` (§4/§5) · `ISC-537` **`[DEFERRED-VERIFY]`** (§5) · `ISC-538` (§2, NEW).
+**ISC-323.4, ISC-493, ISC-494 are CLOSED and no longer on this list.**
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — a latency criterion must name WHOSE CLOCK it measures.** "The turn took 26 s" and "the reader
+  waited 26 s" were the same sentence until ISC-466 and are not now. Before costing any latency lever,
+  check what the reader already has on screen at that moment.
+- **NEW — a letter can be honest sentence-by-sentence and still misattribute authority**, because
+  attribution lives in the JOIN between two true clauses. **Every letter touching a scholar's approval
+  goes through `scholarly-gate` BEFORE it reaches Erik, not after.** And state which CORPUS a
+  permission covers, in writing.
+- **NEW — a test that goes red against the CORRECT fix is broken, not strict.** One of my three new
+  assertions forbade a string the fix itself introduces; force-red is what found it. An `Anti:`
+  assertion needs a WINDOW, not just a forbidden string.
+- **NEW — an agent's finding is not evidence, and neither is your first refutation of it.** The gate
+  claimed 14,655 sidecar records; my first count said 310 and looked like a refutation. **My count was
+  wrong** — the shards are `{meta, hadith}` and I counted top-level keys. Recount before disputing.
+- **NEW — ask what a diagnostic would print if the feature were REVERTED.** If the answer is "the same
+  thing", it is a frequency instrument and not a forcing function. This is how ISC-532 was correctly
+  classified before anyone leaned on it.
+- **This ISA's `### Cycle` headings do not bound the criteria.** Nine ISCs (479-487) live past
+  `## Test Strategy`, so any per-cycle parser attributes them to the LAST cycle heading. The TOTAL is
+  right; the final row's attribution is not. Do not "fix" this by moving criteria — IDs are stable.
+- **The ISA has THREE checkbox markers, not two.** `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned in this repo.** Stage paths deliberately.
+- **An `includes()` guard can match your own prose.** Count the criterion LINE
+  (`/^- \[ \] ISC-N:/m`), never a substring.
+- **`Inference.ts --mode advisor` takes `<task> <state> <question>`** — three args, or
+  `--auto-state` with two. `--auto-state` can load the WRONG ISA; pass state explicitly.
+- **A negative result about a corpus needs a control that is known PRESENT.**
+- **`wrangler dev --remote` MUST run from the REPO ROOT** (root 4.120.0; `worker/` pins 3.114.17,
+  whose `dev --remote` dies naming the account when it means the VERSION).
+- **A rerank/cosine score cannot gate topicality or correctness.**
+- **`referenceLineOf` is an explicit key literal and must never become a spread.**
+- **A deploy log can say `No files to upload` while the assets DID ship.** Verify by SERVED BYTES.
+- **The Fikih router may ONLY re-rank**, and `entries` must stay gated on `verses.length === 0`.
+- **`MAX_DISPLAY = 2` did not move** — and must not, including to make ISC-323's rank 3 visible.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **A diagnostic that mirrors a gate is a COPY of that gate and drifts silently.** Share one binding.
+- **The `dari bab` label is CSS-generated** — count `a.know-cat` ELEMENTS, never search text.
+- **Sample a progressively-upgraded UI across the WHOLE window at 2 s**, not at settle.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect to a file, echo `$?`, then
+  read the file in a SEPARATE command.
+- **Force-red every new test.** It caught two live defects this session, including one of my own tests.
+- **Never Python.** TypeScript/bun for every script, including the wrap's own table parsers.
+- **frequency has failed THREE times against this index. Do not try IDF again.**
+- **A routing/ranking test that asserts a SLUG proves nothing about what the reader gets.**
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **`bun run build` exits 0 when the CSS parser silently DISCARDS a rule.** Grep the SHIPPED output.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal (``return\`synthesis\```), not a config grep. Current `web/dist` IS synthesis.
+- **Verify a deploy by SERVED BYTES and a remote SHA, never by the command's exit code.**
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Neither moves.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it — across all three markers.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **`okf/aqeeda/id/` is gitignored ON PURPOSE.**
+- **Routes and identifiers stay `hadis`** even though the reader-facing label is **Hadits**.
+
+## Open items waiting on me (the user)
+
+- **ISC-538 (§2) — NEW and the biggest.** The Dorar Indonesian preface: own letter to the ustadz,
+  folded into the current draft, or left standing on Erik's existing rights call?
+- **Send the ustadz letter? (§3)** Drafted and batched, three gate passes applied — **but not certified
+  clean.** Run a fourth gate pass, then Erik reads it himself before sending.
+- **Deploy ISC-529 + ISC-532? (§5)** Both are committed and both are invisible to readers until Erik
+  ships. ISC-533, ISC-535 and ISC-537 are all downstream of that one deploy.
+- **A follow-up note about "Gustaf"** (§7) — still not recorded, still Erik's call.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-18 late-4)
 
 > Prepended by /wrap 2026-08-18 late-4. Anchor `23ee51b` (work in `6b4aedf`) — **THREE of the

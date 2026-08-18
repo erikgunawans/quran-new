@@ -9,6 +9,86 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 ---
 
 
+## 2026-08-19 (early) — the 26-second wall was never a wait, and a letter uncovered a fourth surface
+
+**Erik answered three open decisions and all three produced work.** ISC-323.4: tombstone and send the
+editorial half to the ustadz. ISC-487: spend the session on it. The ustadz note: batch the correction
+with the editorial question.
+
+**ISC-323 is TOMBSTONED, text byte-intact.** Restating a criterion to match the measurement converts a
+failure into a definition, so the original wording stands and the honest position sits beside it: not
+met, cause understood (ISC-323.2), only known fix measured and rejected (ISC-323.3). `MAX_DISPLAY`
+explicitly barred from moving to make rank 3 visible. The editorial half — *which hadith should lead on
+hukum meninggalkan sholat* — is routed to Ustadz Ahmad.
+
+**ISC-487 was measuring the wrong clock, and that is the session's finding.** `FAST_ANSWER_MS = 9000`
+means the reader NEVER waits 26 seconds — they hold a real cited principled answer at 9 s and the
+composed answer upgrades in place. Confirmed on the DEPLOYED bundle (`var Il=9e3` in
+`index-KFCMiW0O.js`), not just on main. The turn clock and the reader clock stopped being the same
+number when ISC-466 shipped; every reading of ISC-487 since has conflated them. Chasing turn duration
+would have optimised a number no reader experiences.
+
+**What actually lands at ~26 s is two browser defects nobody could see.** (a) The `answer-blocked`
+copy is UNREACHABLE past 9 s: `blockedBy`'s only consumer is the last line of `resolvePrincipled`,
+which on the fast path already ran BEFORE the model answered and is never called again — so the Worker
+preserves the refusal verdict with care and the browser discards it. Three tests police that copy's
+wording and **none** check it can be reached. (b) The "masih menyusun" promise was never retracted on a
+refusal — removal lived only in `.catch`, one of three endings. Confirmed on prod's own minified
+bytes (`t&&(...)` with the sole `remove()` inside the catch). **(b) is FIXED; (a) is deliberately
+still shut.**
+
+**(a) is deferred because fixing it today would name the wrong actor.** `verdictAfterFailure`
+preserves the first attempt's verdict when the second THROWS, and a deadline abort is a throw — so a
+timed-out turn carries a verdict byte-identical to a real refusal. Rendering it now would tell nearly
+every slow reader *"an answer was found and is being held back"* when the truth is *"we ran out of
+clock"*. The advisor caught this and reordered the whole session: B → instrument → A → `MIN_RETRY_MS`.
+
+**And the advisor caught something worse about the fix that DID ship.** Removing the false promise made
+the app **quieter, not more honest** — before, a reader at least saw that something else had been
+happening; now nothing indicates a fuller answer was produced and withheld. So (a)'s severity rose the
+moment (b) landed. It is recorded as **open and reader-visible**, never "instrumented".
+
+**The instrument shipped, and it does NOT verify (a).** `worker/src/answer-generation.ts` lifts the
+generation loop out of `handleAnswer` (which had no seam — it wrapped a live `fetch` in a
+Worker-only handler) and reports `gen:{attempts:[{ms,budgetMs,outcome}], reason}`. One binding, tokens
+not messages, `nextAttemptBudget` imported not reimplemented, `turnDeadline` still computed once at
+the call site. Ten tests, one mutation each. **But asked the disqualifying question — what would `gen`
+print if (a) were fixed versus reverted? The same thing.** It is a frequency instrument, not a
+verification one.
+
+**`MIN_RETRY_MS` is a stated defect and was deliberately NOT moved.** 6,000 ms admits a retry against
+a ~8,450 ms median generation, so a retry admitted at the threshold cannot finish — arithmetic, not bad
+luck. But cutting retries cuts some that currently succeed, and nothing can see per-attempt outcomes
+until the diagnostic deploys.
+
+**The scholarly gate blocked the ustadz letter THREE times and found something new every pass.**
+(1) It credited Erik's own 2026-08-13 ruling to the ustadz while asking him to confirm it *in writing*.
+(2) It called `MAX_DISPLAY = 2` "a limit we set ourselves" one paragraph above inviting him to say
+which hadith should lead — it is a licensing position no scholarly answer can move. (3) It put Muslim
+154 at rank 3, true only of the rejected arm; in production it is absent from the pool, so the cap was
+not the cause. (4) It named two reader-facing surfaces; there are three (the Fikih tab renders machine
+Indonesian under the fiqh doorway).
+
+**(5) The third pass found a FOURTH surface, in a different corpus — ISC-538, and it is Erik's call.**
+`surah-intro.ts:205-229` offers a reader-selectable **"Bahasa Indonesia"** preface on all **114**
+surahs; verified in the BUILT artefact, every shard carries `editions.id` with `translation:"ai"`,
+`reviewStatus:"unreviewed"`, `reviewerNeeded:"Ustadz Ahmad Isrofiel"`, and **61 of the 114 contain
+prophetic-speech markers**, some quoted, plus quotations attributed to named imams. Dorar is
+`usage: private` under different terms from sunnah.com, so **one approval cannot span both**. It hid
+through three passes because `hadith-card.ts` still said that AI rendering "was refused" for this
+preface — reversed 2026-08-08. Comment corrected rather than deleted. The letter now bounds its question
+to Bukhari/Muslim **in writing** and discloses the fourth surface as explicitly out of scope.
+
+**Gates, each re-run independently rather than read off an agent's report:** `bun test` **1593/0**
+exit 0 (was 1580) · typecheck exit 0 (all five passes) · `VITE_ANSWER_MODE=synthesis bun run build`
+exit 0. **ISA 546/563** computed across all three markers. **NOTHING DEPLOYED** — prod stays at worker
+`4bf633a2`, bundle `index-KFCMiW0O.js`. Four commits pushed, verified by remote SHA.
+
+**Next:** the letter is a DRAFT and I am not calling it clean — three gate passes, three blocks, each
+new. ISC-538 needs Erik's scope decision. ISC-533 (the refusal copy) and ISC-535 (`MIN_RETRY_MS`) are
+both gated on deploying ISC-532, and that deploy is Erik's.
+
+
 ## 2026-08-18 (late-4) — three of Erik's calls, and the lever that answered itself
 
 **Erik answered four open decisions and three produced work.** ISC-323.3: "measure first, default-off
