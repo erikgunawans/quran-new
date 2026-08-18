@@ -407,7 +407,7 @@ stops it. Both answered cleanly BEFORE. Retrieval is done; the PROMPT half is th
 
 **Erik's standing decision, recorded:** this proceeds without waiting on the scholar's sign-off, on
 the basis of his own agreement that correction happens during testing. **ISC-417 stays NOT MET.** He
-declined to have it written into `docs/review/` for now, and named the reviewer "Gustaf" where every
+declined to have it written into `docs/review/` for now, and named the reviewer [nama tidak dicatat] where every
 record says Ustadz Ahmad Isrofiel Mardlatillah — unresolved, deliberately not acted on.
 
 **Also shipped.** The Hadis provenance banner is folded into a `<details>` at Erik's request, with

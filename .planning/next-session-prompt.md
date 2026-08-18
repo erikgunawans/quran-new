@@ -90,7 +90,7 @@ Removing the false "still composing" promise was right, but before it a reader a
 something else had been happening; now **nothing indicates a fuller answer was produced and withheld**.
 That is why §4's ISC-533 severity rose. Do not let a handoff or a summary describe it as closed.
 
-## 7. "Gustaf" is unresolved and deliberately not acted on · 8. The aqidah gate is GREEN-ER but still
+## 7. [nama tidak dicatat] is unresolved and deliberately not acted on · 8. The aqidah gate is GREEN-ER but still
 ## red at 17 · 9. QS 7:19 on ruling questions · 10. `neraka` routes to SCRIPTURE · 11. Audio DENGAR
 ## click · 12. `MAX_DISPLAY = 2` rights call · 13. Continuous chat PRD — all unchanged, carried forward
 
@@ -174,7 +174,7 @@ ISC-487) · `ISC-464` (b blocked by §1) · `ISC-487` (§4) · `ISC-533` `ISC-53
   clean.** Run a fourth gate pass, then Erik reads it himself before sending.
 - **Deploy ISC-529 + ISC-532? (§5)** Both are committed and both are invisible to readers until Erik
   ships. ISC-533, ISC-535 and ISC-537 are all downstream of that one deploy.
-- **A follow-up note about "Gustaf"** (§7) — still not recorded, still Erik's call.
+- **A follow-up note about [nama tidak dicatat]** (§7) — still not recorded, still Erik's call.
 
 ---
 
@@ -269,10 +269,10 @@ guess where it used to stay silent.
 `own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's. **If §2's
 recommendation is taken, this note and the ISC-323.4 editorial question travel together.**
 
-## 7. "Gustaf" is unresolved and deliberately not acted on
+## 7. [nama tidak dicatat] is unresolved and deliberately not acted on
 
-Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
-Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+Erik named the reviewer [nama tidak dicatat]; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for [nama tidak dicatat].
 
 ## 8. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
 
@@ -378,7 +378,7 @@ Yunus sentences, pinned not fixed) · `ISC-454` (rights half + ISC-487) · `ISC-
   ISC-323.3. Confirm before a session is spent on it.
 - **A follow-up note to Ustadz Ahmad?** (§6) — the letter's hadith sentence was false when sent, and
   §2's editorial question would ride along with it.
-- **Who is Gustaf?** (§7) — declined to record for now; still unresolved.
+- **Who is [nama tidak dicatat]?** (§7) — declined to record for now; still unresolved.
 - **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
 - **Deploy `new-quranku-ai` and/or `demo-quranku`?** Answered "neither" on 2026-08-18; both remain
   several deploys behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild
@@ -483,10 +483,10 @@ ISC-323.3 would ADD ~600 ms to every dalil turn, so these two are one decision, 
 *"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
 `own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
 
-## 7. "Gustaf" is unresolved and deliberately not acted on
+## 7. [nama tidak dicatat] is unresolved and deliberately not acted on
 
-Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
-Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+Erik named the reviewer [nama tidak dicatat]; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for [nama tidak dicatat].
 
 ## 8. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
 
@@ -586,7 +586,7 @@ Yunus sentences, pinned not fixed) · `ISC-454` (rights half + ISC-487) · `ISC-
 - **ISC-487 — the ~26 s wall** (§5): accept it, or spend a session on first-attempt latency? Note it
   is now coupled to ISC-323.3.
 - **A follow-up note to Ustadz Ahmad?** (§6) — the letter's hadith sentence was false when sent.
-- **Who is Gustaf?** (§7) — declined to record for now; still unresolved.
+- **Who is [nama tidak dicatat]?** (§7) — declined to record for now; still unresolved.
 - **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
 - **Deploy `new-quranku-ai` and/or `demo-quranku`?** Both several deploys behind, and `new-quranku-ai`
   SHARES `web/dist` so it needs a synthesis rebuild first.
@@ -668,10 +668,10 @@ ordering is load-bearing. The lever is first-attempt latency.
 *"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
 `own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
 
-## 7. "Gustaf" is unresolved and deliberately not acted on
+## 7. [nama tidak dicatat] is unresolved and deliberately not acted on
 
-Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
-Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+Erik named the reviewer [nama tidak dicatat]; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for [nama tidak dicatat].
 
 ## 8. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
 
@@ -756,7 +756,7 @@ sign-off — his ANSWER) · `ISC-419` / `ISC-420` (fixed at ingestion, awaiting 
   touches the Fikih safety argument)?
 - **ISC-487 — the ~26 s wall** (§5): accept it, or spend a session on first-attempt latency?
 - **A follow-up note to Ustadz Ahmad?** (§6) — the letter's hadith sentence was false when sent.
-- **Who is Gustaf?** (§7) — declined to record for now; still unresolved.
+- **Who is [nama tidak dicatat]?** (§7) — declined to record for now; still unresolved.
 - **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
 - **Deploy `new-quranku-ai` and/or `demo-quranku`?** Both several deploys behind, and `new-quranku-ai`
   SHARES `web/dist` so it needs a synthesis rebuild first.
@@ -833,10 +833,10 @@ first-attempt latency.
 *"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
 `own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
 
-## 5. "Gustaf" is unresolved and deliberately not acted on
+## 5. [nama tidak dicatat] is unresolved and deliberately not acted on
 
-Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
-Mardlatillah**. He chose NOT to record it. Do not invent a record for Gustaf.
+Erik named the reviewer [nama tidak dicatat]; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Mardlatillah**. He chose NOT to record it. Do not invent a record for [nama tidak dicatat].
 
 ## 6. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
 
@@ -917,7 +917,7 @@ set) · `ISC-353.0` (superseded, kept for the trail) · `ISC-372` (blocked on IS
 - **ISC-487 — the ~26 s wall** (§3): accept it, or spend a session on first-attempt latency? It is
   now the ONLY open engineering item in the cycle.
 - **A follow-up note to Ustadz Ahmad?** (§4) — the letter's hadith sentence was false when sent.
-- **Who is Gustaf?** (§5) — declined to record for now; still unresolved.
+- **Who is [nama tidak dicatat]?** (§5) — declined to record for now; still unresolved.
 - **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
 - **Deploy `new-quranku-ai` and/or `demo-quranku`?** Prod-only chosen twice; both now several deploys
   behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild first.
@@ -986,12 +986,12 @@ first-attempt latency.
 *"Aplikasi tidak pernah menampilkan teks hadis dalam bahasa Indonesia hasil mesin."* The
 `own_wording` deploy made it true. Whether a follow-up note goes to the ustadz is Erik's.
 
-## 5. "Gustaf" is unresolved and deliberately not acted on
+## 5. [nama tidak dicatat] is unresolved and deliberately not acted on
 
-Erik named the reviewer "Gustaf"; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
+Erik named the reviewer [nama tidak dicatat]; every record in `docs/review/` says **Ustadz Ahmad Isrofiel
 Mardlatillah**. Asked whether to create a separate record for a second reviewer — **he chose not to
 record it yet.** So his standing decision to iterate during testing lives in the session transcript
-and in PROGRESS.md, and NOT in `docs/review/`. Do not invent a record for Gustaf.
+and in PROGRESS.md, and NOT in `docs/review/`. Do not invent a record for [nama tidak dicatat].
 
 ## 6. The aqidah gate is GREEN-ER but still red at 17 — and that is correct
 
@@ -1060,7 +1060,7 @@ artifact shapes the trim does not cover. Erik chose to STOP here. `okf/aqeeda/id
 
 - **ISC-487 — the wall's latency cost** (§3): accept it, or spend a session on first-attempt latency?
 - **A follow-up note to Ustadz Ahmad?** (§4) — the letter's hadith sentence was false when sent.
-- **Who is Gustaf?** (§5) — declined to record for now; still unresolved.
+- **Who is [nama tidak dicatat]?** (§5) — declined to record for now; still unresolved.
 - **The ustadz's ANSWER** — carries ISC-417, ISC-419/420 and ISC-464(b). Do not pre-empt it (§1).
 - **Deploy `new-quranku-ai` and/or `demo-quranku`?** Prod-only chosen twice; both now several
   deploys behind, and `new-quranku-ai` SHARES `web/dist` so it needs a synthesis rebuild first.

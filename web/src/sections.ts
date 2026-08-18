@@ -129,7 +129,7 @@ export async function renderHadis(mount: HTMLElement): Promise<void> {
            different change from shortening the banner, and it is not the one that was asked for. -->
       <details class="hadith-note hadith-fold">
         <summary class="hadith-fold-sum">Terjemahan Indonesianya <b>hasil mesin (AI)</b> dan belum ditinjau satu per satu — <span class="hadith-fold-more">selengkapnya</span></summary>
-        <p class="hadith-fold-body">Nama kitab diterjemahkan agar mudah dicari; <b>teks Arabnya tetap yang kanonik</b>, beserta sumber dan derajatnya. Terjemahan Indonesianya sudah diizinkan ustadz untuk ditampilkan, tapi belum ditinjau satu per satu, jadi rujuklah teks Arabnya untuk kepastian. Kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
+        <p class="hadith-fold-body"><b>Nama kitab kami sendiri yang menuliskannya</b>, mengikuti penamaan yang lazim di edisi Indonesia — bukan hasil mesin, dan bukan pula sesuatu yang kami mintakan izin kepada siapa pun; <b>teks Arabnya tetap yang kanonik</b>, beserta sumber dan derajatnya. <b>Terjemahan teks hadisnya</b> di dalam tiap kitab hasil mesin dan belum ditinjau satu per satu, jadi rujuklah teks Arabnya untuk kepastian. Kami menampilkan karya ulama apa adanya, tidak mengarang isinya.</p>
       </details>
       <div class="hadith-controls">
         <div class="hadith-tabs" role="tablist" aria-label="Pilih koleksi">${tabs}</div>
@@ -258,9 +258,18 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
               // not be collapsed in either direction — implying blanket review would be worse than
               // implying no permission. The generated file's own sentence ("Terjemahan mesin (AI),
               // BELUM ditinjau ulama") stays exactly as written; only this suffix changed.
+              // SCOPED 2026-08-19 — the permission does not cover this whole page.
+              //
+              // The suffix named the reviewer above a page that interleaves TWO machine layers: the
+              // hadith TEXT (translate-hadith.ts, the layer he permitted verbally on 2026-08-12) and
+              // the BAB TITLES (translate-babs.ts, a different generator, shipped 2026-08-10, never
+              // put to him). An unqualified "sudah diizinkan <name>" therefore credited him for the
+              // layer nobody asked him about — and it is the bab layer that carries the one measured
+              // meaning-alteration defect. Naming the layer is the whole fix; the permission claim
+              // itself is unchanged and still true of what it now names.
               return `<p class="hadith-note ai-note" role="note">${esc(String(m?.notice ?? ""))}${
                 m?.reviewerNeeded
-                  ? ` Sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadits belum dilakukan.`
+                  ? ` Terjemahan <b>teks hadis</b>-nya sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadits belum dilakukan. <b>Judul bab</b> diterjemahkan mesin secara terpisah dan belum dimintakan izin.`
                   : ""
               }</p>`;
             })()

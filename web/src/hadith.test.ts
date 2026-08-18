@@ -144,6 +144,13 @@ describe("hadith index render", () => {
     expect(mount.textContent).not.toContain("teks hadisnya tetap Arab");
     expect(mount.textContent).not.toContain("Terjemahan teks hadis menyusul");
     expect(mount.textContent).not.toContain("sudah ditinjau ulama");
+    // THIRD ANTI, added 2026-08-19. The note used to close "Terjemahan Indonesianya sudah diizinkan
+    // ustadz untuk ditampilkan" — on THIS page, whose only Indonesian is the kitab names, and those
+    // are OURS (hadith-titles.ts:11 — "authored here rather than machine-generated"). No scholar was
+    // ever asked about them. So the sentence claimed a scholar's permission for our own writing, in
+    // the one direction this test already calls the worse sin. The permission claim belongs on the
+    // kitab page, where it names the hadith TEXT layer it actually covers.
+    expect(mount.textContent).not.toContain("Terjemahan Indonesianya sudah diizinkan");
   });
 
   test("the note is folded by default, but the machine-output fact is NOT folded with it", async () => {
