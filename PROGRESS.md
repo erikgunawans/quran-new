@@ -9,6 +9,62 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 ---
 
 
+## 2026-08-18 (late-2) — ISC-323.2 is ANSWERED: the live scorer is approximate, and the offline reproduction was right all along
+
+**One probe, and it eliminated both surviving explanations rather than choosing between them.** The
+handoff sent this session to count vectors. The count is clean — `wrangler vectorize info okf-hadith`
+reports **14,736**, exactly matching `docs/reference/okf-manifest.json`, with no pending mutations —
+and `hadith-muslim-154` is PRESENT when fetched by id. So population was never it. But ANN recall
+was not it either.
+
+**The live query path scores against an APPROXIMATE representation.** Paired arms inside the Worker
+runtime, through the production binding, same query vector, same `topK: 50`:
+
+| arm | score range | `hadith-muslim-154` |
+|---|---|---|
+| **plain** — what `dalil.ts:272` sends today | **0.4291–0.4866** | **ABSENT from top-50** |
+| **exact** — `returnValues: true` | **0.5157–0.5926** | **rank 24** |
+
+The orderings agree in **1 of 50 positions**. The exact arm reproduces the recorded OFFLINE range
+(0.51–0.59); the plain arm reproduces the recorded LIVE range (0.43–0.50). That correspondence is
+what closes the question: **offline cosine was right about the vectors and wrong only about what the
+live scorer ranks.** The exact scores are true cosines — recomputing them locally from the returned
+values matches the reported score to **4e-7** over the top 10.
+
+**The error is not a constant offset, which is why ordering scrambles.** Per-record deficit runs
+**0.093–0.121**. That ±0.014 spread is comparable to the **0.026** total spread of the live top-8 —
+the noise is the same size as the signal it is supposed to rank.
+
+**A second, query-free corroboration.** Querying by `--vector-id` — a vector the index literally
+contains — self-scores **0.8883–0.9041, mean 0.8977 over n=25**, never 1.0, and snaps to exactly
+**1.0** when `--return-values` is passed. All 25 self-retrieve at rank 1, so ANN recall on an exact
+match is intact. A self-similarity below 1 can only come from the scoring side.
+
+**Two false starts, both caught by a control arm, both worth recording.** First, I reconstructed
+vector ids as `sha256(text)` from `build-index.ts` and both target records came back ABSENT — a
+dramatic finding, and wrong: `sha256` is the *embedding cache* key, while the vector id is
+`r.entry.id ?? r.entry.path`, i.e. the file's own frontmatter `id`. The control (a record known live
+at rank 1) also read ABSENT, which is what exposed the error. Second, `--ids a,b` is **not** a list:
+wrangler's `--ids` is an ARRAY flag taking space-separated values, so a comma form is sent as ONE
+76-byte id and the API rejects it with `id too long; max is 64 bytes`. Both "absences" were my
+instrument, not the index. **A negative result about a corpus needs a control that is known present.**
+
+**Cost of the lever, measured because ISC-487 is open.** `returnValues: true` at topK=50 costs
+**~+600 ms** (plain mean **243 ms** over 5 runs, exact mean **837 ms**) and ships 50×1024 floats.
+**Not applied.** ISC-323.3 opens it as ERIK'S CALL: a better candidate pool is not by itself a better
+answer, and whether Muslim 154 survives `voyageai/rerank-2.5` to rank 1 is unmeasured. Per this
+repo's own rule, a ranking result naming a record proves nothing about what the reader gets.
+
+**The ISA denominator was off by one before this session.** `progress: 503/517` was recorded against
+an ISA holding **516** bullet-ISC lines. Recomputed, not hand-set: **504/517** (504 met, 13 open,
+517 total after ISC-323.3 was added).
+
+**Changed:** `worker/src/dalil-probe.ts` gains a dev-only `/scoring` route (not deployed, not routed,
+not referenced by `index.ts`); `ISA.md` ISC-323.2 closed with evidence and ISC-323.3 opened.
+**No production behaviour changed.** Gates green — `bun test` **1574/0** exit 0 · typecheck exit 0
+(all 5 passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0.
+
+
 ## 2026-08-18 (late-1) — the composer serves the section you are standing in, and a week-old "account failure" was a directory
 
 **Deployed to prod.** Worker version `4bf633a2`, bundle `index-KFCMiW0O.js` / `index-BuvZdTir.css`,

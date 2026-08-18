@@ -5,10 +5,53 @@
  * index" and "a question returns the right hadith" are different claims, and only the second one
  * matters. Run it with wrangler.dalil-probe.toml — see that file's header.
  */
-import { capForDisplay, fetchDisplayRecords, searchDalil, type DalilEnv } from "./dalil.ts";
+import { capForDisplay, embedQuestion, fetchDisplayRecords, searchDalil, type DalilEnv } from "./dalil.ts";
 
 export default {
   async fetch(request: Request, env: DalilEnv): Promise<Response> {
+
+    /**
+     * ISC-323.2 — paired scoring arms, run INSIDE the Worker runtime.
+     *
+     * `wrangler vectorize query` shows the live candidate set differing from an offline exhaustive
+     * cosine over the same vectors, and shows that difference vanishing when `--return-values` is
+     * passed. The CLI is not the production client, so it cannot answer whether the Worker BINDING
+     * behaves the same way. This route asks the binding directly: same query vector, same topK,
+     * one arm with `returnValues` and one without, reported side by side.
+     */
+    if (new URL(request.url).pathname === "/scoring") {
+      const question = new URL(request.url).searchParams.get("q") ?? "gimana hukumnya meninggalkan sholat";
+      const target = new URL(request.url).searchParams.get("id") ?? "hadith-muslim-154";
+      const topK = Number(new URL(request.url).searchParams.get("k") ?? 50);
+      const vector = await embedQuestion(question, env.OPENROUTER_API_KEY ?? "");
+      // The shipped VECTORIZE interface deliberately does not declare `returnValues`; widening it
+      // would change a production type to run a dev experiment. Cast here instead, in the dev-only file.
+      const idx = env.VECTORIZE as unknown as {
+        query(v: number[], o: Record<string, unknown>): Promise<{ matches: { id: string; score: number }[] }>;
+      };
+      // Serial, not Promise.all: the point is the per-arm cost, and concurrent arms hide it.
+      const t0 = Date.now();
+      const plain = await idx.query(vector, { topK, returnMetadata: "none" });
+      const t1 = Date.now();
+      const exact = await idx.query(vector, { topK, returnMetadata: "none", returnValues: true });
+      const t2 = Date.now();
+      const summarise = (m: { id: string; score: number }[]) => ({
+        n: m.length,
+        low: Number(Math.min(...m.map((x) => x.score)).toFixed(4)),
+        high: Number(Math.max(...m.map((x) => x.score)).toFixed(4)),
+        target_rank: m.findIndex((x) => x.id === target) + 1 || null,
+        top8: m.slice(0, 8).map((x) => x.id),
+      });
+      let samePos = 0;
+      for (let i = 0; i < Math.min(plain.matches.length, exact.matches.length); i++) {
+        if (plain.matches[i]?.id === exact.matches[i]?.id) samePos++;
+      }
+      return new Response(
+        JSON.stringify({ question, target, topK, ms: { plain: t1 - t0, exact: t2 - t1 }, plain: summarise(plain.matches), exact: summarise(exact.matches), identical_positions: samePos }, null, 2),
+        { headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const q = new URL(request.url).searchParams.get("q");
     if (!q) return new Response(JSON.stringify({ error: "pass ?q=" }), { status: 400 });
 
