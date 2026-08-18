@@ -35,7 +35,7 @@ import { norm } from "./retrieve.ts";
  * `\b`-bounded stem under-fires on exactly these forms — `menikahi` does not match `nikah` — and
  * that failure mode is on record in this repo. Listing the forms is dumber and correct.
  */
-const AREA_CUES: Readonly<Record<string, readonly string[]>> = {
+export const AREA_CUES: Readonly<Record<string, readonly string[]>> = {
   thaharah: ["wudu", "wudhu", "berwudu", "berwudhu", "tayamum", "tayammum", "mandi", "junub", "haid",
     "hadas", "hadats", "najis", "bersuci", "istinja", "mensucikan", "suci"],
   salat: ["salat", "shalat", "sholat", "sembahyang", "rakaat", "rakaah", "azan", "adzan", "iqamah",
@@ -62,31 +62,72 @@ const AREA_CUES: Readonly<Record<string, readonly string[]>> = {
 };
 
 /**
+ * The token index at which a cue first appears, or -1.
+ *
+ * Token indices rather than character offsets, for the same reason the matching itself is
+ * token-based: `istri` as a substring would also be found inside a longer word, and a rule that can
+ * be fooled by a substring is not a rule about where the reader named the subject.
+ */
+function cuePosition(tokens: readonly string[], cue: string): number {
+  if (!cue.includes(" ")) return tokens.indexOf(cue);
+  const parts = cue.split(" ");
+  for (let i = 0; i + parts.length <= tokens.length; i++) {
+    if (parts.every((p, j) => tokens[i + j] === p)) return i;
+  }
+  return -1;
+}
+
+/**
  * The area a question belongs to, or null.
  *
  * Scored rather than first-match: `hukum jual beli emas dengan cara kredit` touches muamalah four
  * times and makanan not at all, and a first-match walk over an object's key order would decide that
- * on declaration order instead. Ties resolve to null — an ambiguous question gets no boost, which
- * leaves retrieval exactly as it is today.
+ * on declaration order instead.
+ *
+ * A TIE RESOLVES TO THE EARLIEST-MENTIONED AREA (changed 2026-08-18, ISC-494, Erik's call). It used
+ * to resolve to null, on the reasoning that "ambiguity costs nothing; a wrong guess costs ordering".
+ * The second half is still true — this function can only re-rank, so a wrong area costs ordering and
+ * nothing else. The FIRST half was wrong, and `hukum menceraikan istri saat haid` is what showed it:
+ * `menceraikan` (talak), `istri` (nikah) and `haid` (thaharah) each score 1, the three-way tie
+ * returned null, and null does not merely decline to boost — `index.ts` sends `area: null` and the
+ * reader loses the Fikih doorway entirely, on exactly the mixed question where they most want it.
+ * Ambiguity was costing the whole affordance.
+ *
+ * THE TIE-BREAK IS GRAMMATICAL, NOT JURISTIC, and that distinction is the whole licence for it.
+ * Indonesian questions name the subject first and trail the circumstance — `hukum X saat Y`,
+ * `bolehkah X ketika Y` — so the earliest cue is the reader's topic and the later ones qualify it.
+ * Nothing here decides that divorcing during menstruation is anything; it decides that the question
+ * is filed under كتاب الطلاق, which is where the compilers themselves put it. Rulings remain
+ * `fatwaShape`'s business, and it still refuses.
+ *
+ * If two areas tie on BOTH count and position the answer is still null — the safe direction survives
+ * where the rule genuinely cannot separate. That branch is currently unreachable, because no cue is
+ * shared between areas; `fikih-route.test.ts` pins that precondition so the day it changes is
+ * noticed rather than discovered.
  */
 export function fiqhAreaOf(question: string): FiqhArea | null {
-  const words = new Set(norm(question).split(" ").filter(Boolean));
-  const phrase = norm(question);
-  let best: { area: FiqhArea; n: number } | null = null;
+  const tokens = norm(question).split(" ").filter(Boolean);
+  let best: { area: FiqhArea; n: number; at: number } | null = null;
   let tied = false;
 
   for (const area of FIQH_AREAS) {
-    const cues = AREA_CUES[area.id] ?? [];
+    // DISTINCT cues. `sai` was listed twice under `haji` and silently scored 2, which inflated that
+    // area in every comparison it took part in — `hukum wudu lalu sai` routed to haji over thaharah.
+    // The tie-break reads this number, so it has to mean "how many different cues matched".
+    const cues = new Set(AREA_CUES[area.id] ?? []);
     let n = 0;
+    let at = Number.MAX_SAFE_INTEGER;
     for (const cue of cues) {
-      // Multi-word cues (`rumah tangga`) cannot be found in the word set.
-      if (cue.includes(" ") ? phrase.includes(cue) : words.has(cue)) n += 1;
+      const pos = cuePosition(tokens, cue);
+      if (pos < 0) continue;
+      n += 1;
+      if (pos < at) at = pos;
     }
     if (n === 0) continue;
-    if (!best || n > best.n) {
-      best = { area, n };
+    if (!best || n > best.n || (n === best.n && at < best.at)) {
+      best = { area, n, at };
       tied = false;
-    } else if (n === best.n) {
+    } else if (n === best.n && at === best.at) {
       tied = true;
     }
   }

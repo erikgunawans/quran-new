@@ -231,6 +231,26 @@ async function timed<T>(sink: DalilTimings | undefined, key: keyof DalilTimings,
 }
 
 /**
+ * Options that change how retrieval is SCORED, never what it is allowed to return.
+ *
+ * `exactScores` — ask Vectorize for true cosines instead of the approximate representation the
+ * default query path scores against. ISC-323.2 established the difference is real and large: same
+ * index, same query vector, same `topK: 50`, the two orderings agree in 1 of 50 positions and the
+ * exact arm's range (0.5157–0.5926) reproduces offline cosine while the plain arm's (0.4291–0.4866)
+ * reproduces what production has always seen. It costs ~+600 ms and a 50×1024-float payload.
+ *
+ * DEFAULT-OFF ON PURPOSE, and the default is the thing under test. Erik's ISC-323.3 answer of
+ * 2026-08-18 was "measure first" — this option exists so `dalil-probe.ts` can run the exact arm
+ * against the live index WITHOUT the production path changing by one byte, while ISC-487 (the ~26 s
+ * wall) is open and would absorb the whole +600 ms. `dalil-exact.test.ts` pins BOTH states by
+ * capturing what the binding was actually handed, because a parameter nothing reads would look
+ * exactly like a fix.
+ */
+export interface DalilSearchOptions {
+  readonly exactScores?: boolean;
+}
+
+/**
  * Search the hadith corpus for one question.
  *
  * Returns up to MAX_RETRIEVE reranked hits for the model to reason over. Callers that intend to SHOW
@@ -242,6 +262,7 @@ export async function searchDalil(
   question: string,
   candidateK = CANDIDATE_K,
   timings?: DalilTimings,
+  opts?: DalilSearchOptions,
 ): Promise<DalilHit[]> {
   const apiKey = env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
@@ -268,8 +289,29 @@ export async function searchDalil(
   void textsPromise.catch(() => {});
 
   const vector = await timed(timings, "embed", () => embedQuestion(question, apiKey));
+
+  // SPREAD, not `returnValues: opts?.exactScores`. The key must be ABSENT by default rather than
+  // present-and-false: absence is the shape production has always sent, and a binding that treats an
+  // explicit `false` differently from an omitted key would make this line change behaviour on the one
+  // path it exists not to touch. `dalil-exact.test.ts` asserts absence with `in`, not falsiness.
+  //
+  // The cast is confined to this expression. The shipped `VectorizeIndex` type does not declare
+  // `returnValues`, and widening a production type to reach a dev-only measurement is the wrong
+  // trade — the same reasoning `dalil-probe.ts` already records for its own cast.
+  const queryOptions: Record<string, unknown> = {
+    topK: candidateK,
+    returnMetadata: "all",
+    ...(opts?.exactScores ? { returnValues: true } : {}),
+  };
   const { matches } = await timed(timings, "vectorize", () =>
-    env.VECTORIZE.query(vector, { topK: candidateK, returnMetadata: "all" }),
+    (
+      env.VECTORIZE as unknown as {
+        query(
+          v: number[],
+          o: Record<string, unknown>,
+        ): Promise<{ matches: { id: string; score: number; metadata?: Record<string, string | number> }[] }>;
+      }
+    ).query(vector, queryOptions),
   );
 
   const candidates = matches
