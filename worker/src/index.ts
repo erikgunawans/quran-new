@@ -132,9 +132,11 @@ interface ExecutionContext {
 const MAX_QUESTION_LEN = 600;
 
 /** Origins allowed to call the API cross-origin (both prod editions + local vite/wrangler dev). */
+// `new-quranku-ai.axiara.ai` was removed 2026-08-19 with the Worker and the DNS record it named.
+// Left in, an allowed origin for a host nobody controls is a standing offer: the name no longer
+// resolves, so whoever claims it next inherits cross-origin POST rights to this endpoint.
 const ALLOWED_ORIGINS = new Set([
   "https://new-quranku.axiara.ai",
-  "https://new-quranku-ai.axiara.ai",
   "https://demo-quranku.axiara.ai",
   "http://localhost:5173",
   "http://localhost:8787",

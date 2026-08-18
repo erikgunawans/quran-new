@@ -111,34 +111,33 @@ EDITION = "synthesis"
 #   wrangler secret put OPENROUTER_API_KEY
 #   wrangler secret put SEALION_API_KEY      # optional, only if you use the SEA-LION path
 
-# ── env: synthesis — the AI-authoring alternative (new-quranku-ai.axiara.ai) ──────────────────────
+# ── env: synthesis — RETIRED 2026-08-19, DELETED, DO NOT RECREATE ─────────────────────────────────
 #
-# A SEPARATE Worker + route, SAME codebase. Its front-end assets are built with VITE_ANSWER_MODE=
-# synthesis so main.ts takes the /api/answer path; the principled deploy above is untouched.
-# wrangler env blocks do NOT inherit top-level [assets]/[vars], so both are redeclared here.
+# `new-quranku-ai.axiara.ai` — the AI-authoring alternative that ran side by side with the principled
+# app from 2026-07-19 so Erik could compare them. The Worker `new-quranku-ai-proxy` was deleted on
+# 2026-08-19 (`wrangler delete --env synthesis`) and its `[env.synthesis]` blocks were removed here in
+# the same commit. The DNS AAAA `new-quranku-ai` → 100:: was deleted from the axiara.ai zone too, so
+# the hostname does not resolve. Its OPENROUTER_API_KEY died with the Worker.
 #
-# DEPLOY (Erik, both are separate one-liners):
-#   Principled : bun run build                       && cd worker && bunx wrangler deploy
-#   Synthesis  : VITE_ANSWER_MODE=synthesis bun run build && cd worker && bunx wrangler deploy --env synthesis
-# SECRET (once): cd worker && bunx wrangler secret put OPENROUTER_API_KEY --env synthesis
-# DNS (once): add a PROXIED placeholder AAAA `new-quranku-ai` → 100:: on the axiara.ai zone (same
-#   trick as new-quranku); the route below then binds the Worker to the hostname.
-[env.synthesis]
-name = "new-quranku-ai-proxy"
-routes = [
-  { pattern = "new-quranku-ai.axiara.ai/*", zone_name = "axiara.ai" }
-]
-
-[env.synthesis.assets]
-directory = "../web/dist"
-binding = "ASSETS"
-not_found_handling = "single-page-application"
-
-[env.synthesis.vars]
-ORIGIN_HOST = "nur-227613425590.asia-southeast2.run.app"
-OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
-# The AI-authoring edition — this var unlocks /api/answer on this deploy only.
-EDITION = "synthesis"
+# WHY IT WAS DELETED, because "it was redundant" is the wrong lesson. It had not been redeployed since
+# before ISC-418, and ISC-418 is the criterion that stops the model authoring from NOTHING. Measured
+# 2026-08-19 with paired arms, identical POST, `{"verses":[],"entries":[]}`:
+#
+#     new-quranku    (prod, current)      → {"answer":null} in 0.1 s   — the bail fires
+#     new-quranku-ai (never redeployed)   → 1,757-char authored Islamic answer in 17.4 s
+#
+# Same for grounding that fails the digest hash. So a public surface was still composing religious
+# answers out of parametric memory, months after Erik ruled on 2026-08-13 that it must not — because
+# **an environment that is never deployed is a time capsule of every defect fixed since**. The fix
+# was in the codebase and on main the whole time, and neither of those ships anything.
+#
+# THE COMPARISON THIS SERVED IS OVER: prod itself has run EDITION = "synthesis" since 2026-08-12 (see
+# the top-level [vars] above), so the two editions are no longer two.
+#
+# If a second edition is ever wanted again, write it fresh rather than restoring this block — and give
+# it a deploy that runs whenever prod's does, or it will rot the same way. Do not simply re-add
+# `[env.synthesis]`: that resurrects the surface WITHOUT its secret and without the ISC-418 fix
+# unless the front end is rebuilt with VITE_ANSWER_MODE=synthesis first.
 
 # ── env: demo — the QuranKu-clone showcase (demo-quranku.axiara.ai) ────────────────────────────────
 #

@@ -2,18 +2,32 @@
 /**
  * Post-deploy smoke test for the SYNTHESIS edition's /api/answer.
  *
- * Run this right after deploying new-quranku-ai (see wrangler.toml → env.synthesis). It confirms four
- * things without any secret (the key lives in the Worker): the site is up, the synthesis edition
- * AUTHORS a grounded answer, that answer is actually grounded (no Arabic, no citation outside the
- * grounding we sent), and — critically — the PRINCIPLED edition still refuses to author (EDITION gate).
+ * RETARGETED 2026-08-19, and the reason matters more than the new address. This script used to point
+ * SYNTH at `new-quranku-ai.axiara.ai` and PRINCIPLED at `new-quranku.axiara.ai`, and check that the
+ * second refused to author. BOTH ends of that comparison are gone:
+ *
+ *   - `new-quranku-ai` was deleted on 2026-08-19 (see wrangler.toml → the retired env: synthesis
+ *     tombstone). The hostname does not resolve.
+ *   - `new-quranku` has run EDITION = "synthesis" since 2026-08-12 at Erik's instruction, so it IS
+ *     the authoring edition. There is no principled deploy left to refuse anything.
+ *
+ * Left alone, this file would have gone GREEN FOR THE WRONG REASON: check ④ passes when the request
+ * throws, and a request to a deleted host throws. A smoke test that cannot fail is worse than none,
+ * so ④ is deleted rather than repointed — restore it only if a genuinely non-authoring deploy exists
+ * again, and make it assert against THAT deploy.
+ *
+ * KNOWN GAP, deliberately not papered over: GROUNDING below is hand-copied Al-Ikhlas text and does
+ * NOT verify against `grounding-digest.json`. `verifyGrounding` hashes (ref, text) and fails closed,
+ * so on a current deploy these verses are dropped, `hasGrounding` is false, and ISC-418 returns a
+ * bare {"answer":null} — indistinguishable from an outage. Build the payload from `groundingTextOf(v)`
+ * in web/src/grounding-digest.ts and assert IN-DIGEST before trusting any result here.
  *
  *   bun run worker/smoke-answer.ts            (or: bun run smoke:answer)
- *   SYNTH_URL=… PRINCIPLED_URL=… bun run worker/smoke-answer.ts   # override targets
+ *   SYNTH_URL=… bun run worker/smoke-answer.ts   # override target
  *
  * Exit code is non-zero if any check fails, so it doubles as a CI gate.
  */
-const SYNTH = process.env.SYNTH_URL ?? "https://new-quranku-ai.axiara.ai";
-const PRINCIPLED = process.env.PRINCIPLED_URL ?? "https://new-quranku.axiara.ai";
+const SYNTH = process.env.SYNTH_URL ?? "https://new-quranku.axiara.ai";
 
 const ARABIC = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/;
 
@@ -63,7 +77,7 @@ function ungroundedRefs(prose: string): string[] {
 }
 
 async function run(): Promise<void> {
-  console.log(`\nSMOKE — synthesis edition\n  synth:      ${SYNTH}\n  principled: ${PRINCIPLED}\n`);
+  console.log(`\nSMOKE — synthesis edition\n  target: ${SYNTH}\n`);
 
   // 1. Site up.
   console.log("① site reachable");
@@ -98,16 +112,6 @@ async function run(): Promise<void> {
     check("answer is null when nothing was retrieved", answer === null, answer === null ? "" : "authored without grounding!");
   } catch (e) {
     fail("empty-grounding request", String(e));
-  }
-
-  // 5. The principled edition must NOT author (EDITION gate).
-  console.log("④ principled edition refuses to author (EDITION gate)");
-  try {
-    const { answer } = await postAnswer(PRINCIPLED, GROUNDING);
-    check("principled /api/answer returns null", answer === null, answer === null ? "" : "principled deploy is authoring — check EDITION var!");
-  } catch (e) {
-    // A 404 / SPA-fallback here is also acceptable: the endpoint simply isn't authoring.
-    pass("principled /api/answer not authoring", `(no JSON answer: ${String(e).slice(0, 60)})`);
   }
 
   console.log(`\n${failures === 0 ? "✅ ALL CHECKS PASSED" : `❌ ${failures} CHECK(S) FAILED`}\n`);
