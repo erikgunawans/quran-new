@@ -24,7 +24,6 @@ import {
   guardAnswerProse,
   groundedHadithFrom,
   markersInProse,
-  type AnswerViolationKind,
 } from "../../web/src/answer-guard.ts";
 import { isRealAyah } from "../../web/src/quran.ts";
 import { hashGrounding } from "../../web/src/grounding-digest.ts";
@@ -49,7 +48,8 @@ import {
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
-import { MAX_ATTEMPTS, nextAttemptBudget, verdictAfterFailure } from "./answer-retry.ts";
+import { runGeneration, newGenTrace } from "./answer-generation.ts";
+import { verdictAfterFailure } from "./answer-retry.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -719,7 +719,6 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
 
   const user = buildAnswerUserMessage({ question, verses, entries, hadith });
 
-  let answer: string | null = null;
   // WHY the answer is null, when it is null. Until this existed the endpoint had ONE null channel for
   // two entirely different events — "the model had nothing to say" and "the model said something good
   // and the wall stopped it" — and the browser rendered the identical honest-silence copy for both.
@@ -728,7 +727,17 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // receipt. A reader cannot tell a corpus gap from a deliberate refusal, so they read the refusal as
   // ignorance. Naming the blocking rule lets the browser say which one happened. Absent on success and
   // on model failure; the principled edition never sets it, so an older client sees today's behaviour.
-  let blocked: AnswerViolationKind | null = null;
+  const gen = newGenTrace();
+  // The generation story for this turn, read off bindings that are final by the time either return
+  // path runs.
+  //
+  // HOW TO READ IT. `attempts` contains one row per attempt that actually STARTED, never a placeholder
+  // for one refused admission. `reason` is the single terminal token chosen at the exit point that
+  // ended the turn; it is not reconstructed afterwards from the array. The key itself is ABSENT on
+  // earlier return paths for the same reason `DalilTimings` omits stages that did not run: "never
+  // reached generation" is a different fact from "generation ran and did nothing", and collapsing the
+  // two would erase exactly the distinction this diagnostic exists to surface.
+  const genReport = () => ({ attempts: gen.attempts, reason: gen.reason });
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
     // ONE BUDGET FOR THE TURN, not one per call. `callChatModel` defaults to a fresh
@@ -742,13 +751,20 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     // One retry on a guard reject (a fresh generation usually clears it), exactly like compose. A
     // model error/timeout is caught below and NOT retried. Citations are validated against the real
     // mushaf (isRealAyah), not the grounding — the model may reach for any ayah, just not a fake one.
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
-      const deadlineMs = nextAttemptBudget({ attempt, blocked, remainingMs: turnDeadline - Date.now() });
-      if (deadlineMs === null) break;
-      const candidate = (
-        await callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, { ...ANSWER_PARAMS, deadlineMs })
-      )?.trim();
-      if (!candidate) continue;
+    //
+    // The loop itself now lives in `answer-generation.ts`, for the same reason `answer-retry.ts`
+    // exists: wrapped around a live `fetch` inside this Worker-only handler it had no seam, so the
+    // policy could only be changed on reasoning. What is passed in here is exactly what the inline
+    // loop called — same prompt, same params, same three guard arguments — and the seam exists to
+    // make the TURN's story reportable, not to make any of those decisions negotiable.
+    await runGeneration(gen, {
+      turnDeadline,
+      now: Date.now,
+      // `attempt` is deliberately unread here. It names the generation for the diagnostic, and this
+      // call is identical on both — a retry that changed the payload would be a different experiment,
+      // not a second draw from the same one, which is the whole premise the retry rests on.
+      generate: ({ deadlineMs }) =>
+        callChatModel(cfg, SYNTHESIS_SYSTEM_PROMPT, user, { ...ANSWER_PARAMS, deadlineMs }),
       // The third argument is the REAL hadith-grounding predicate as of this cycle (ISC-434/435).
       //
       // It used to be a literal `() => false`, with a long comment explaining that this was
@@ -762,35 +778,8 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // On the overwhelming majority of turns (any feeling question, and any turn where the dalil
       // bindings are absent) `hadith` is empty and this predicate is false for every id — which is
       // byte-for-byte the old behaviour, and correctly so.
-      const verdict = guardAnswerProse(candidate, isRealAyah, isGroundedHadith);
-      if (verdict.ok) {
-        answer = candidate;
-        blocked = null;
-        break;
-      }
-      // Last attempt wins the diagnosis: report the rule that actually stopped the final candidate.
-      blocked = verdict.violations[0]?.kind ?? null;
-      // THE `bad_hadith` BREAK THAT USED TO LIVE HERE IS GONE (2026-08-16, Erik's call), and this
-      // note exists so it is not restored from the reasoning that justified it.
-      //
-      // It read: "a `bad_hadith` verdict means the first attempt already had everything it needed —
-      // the hadith and the marker syntax — and chose an unbacked attribution anyway, so a second ~6s
-      // generation is a bet with no evidence behind it." That rests on the failure being DETERMINISTIC
-      // for the turn. Measured against prod across 25 live eligible turns over 10 distinct questions,
-      // every one `eligible:true, offered:2, records:2, failed:null`: `bad_hadith` fired on **12 of
-      // 25**, and the SAME question with identical grounding produced BOTH outcomes —
-      // `apakah sedekah boleh diungkit ungkit` ran bad, bad, ok, bad, ok. It is variance, so the
-      // second generation now has exactly the evidence the break said it lacked.
-      //
-      // The break's OTHER leg was latency: two ~6s generations against the browser's 12s `TIMEOUT_MS`,
-      // observed aborting at 12,126 ms and rendering the corpus-gap copy over a refusal. That leg
-      // expired with ISC-466 — `FAST_ANSWER_MS` (9 s) now bounds what the READER waits and the answer
-      // upgrades in place, so a retry costs no stare, and `TIMEOUT_MS` is a 30 s backstop.
-      //
-      // What replaces the break is the SHARED BUDGET at the top of this loop, which is the honest
-      // form of the same concern: a retry is refused when it cannot finish inside what the turn has
-      // left (`MIN_RETRY_MS`), rather than refused by name.
-    }
+      guard: (candidate) => guardAnswerProse(candidate, isRealAyah, isGroundedHadith),
+    });
   } catch {
     // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,
     // and this is the path a timeout takes.
@@ -806,7 +795,11 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     //
     // `verdictAfterFailure` never invents one: an attempt that threw before generating anything
     // leaves `blocked` null, and that turn is a genuine absence which must keep saying so.
-    return json({ answer: null, blocked: verdictAfterFailure(blocked), dalil: dalilReport() }, 200, request);
+    return json(
+      { answer: null, blocked: verdictAfterFailure(gen.blocked), dalil: dalilReport(), gen: genReport() },
+      200,
+      request,
+    );
   }
 
   // WHAT THE READER GETS A CARD FOR: the hadith the answer actually cited, in the order it cited
@@ -816,13 +809,13 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   //
   // `markersInProse` is only safe on prose that CLEARED the guard, which is exactly the state here:
   // `answer` is non-null only on `verdict.ok`. Every marker in it therefore already resolved.
-  const cited = answer
-    ? markersInProse(answer)
+  const cited = gen.answer
+    ? markersInProse(gen.answer)
         .map((id) => records.find((r) => r.id === id))
         .filter((r): r is HadithCard => r !== undefined)
     : [];
 
-  return json({ answer, blocked, hadith: cited, dalil: dalilReport() }, 200, request);
+  return json({ answer: gen.answer, blocked: gen.blocked, hadith: cited, dalil: dalilReport(), gen: genReport() }, 200, request);
 }
 
 /** `hadith/muslim/001/002/0034.md` → `1`. The `hadith-id` shard key; 0 when the path is unusable. */
