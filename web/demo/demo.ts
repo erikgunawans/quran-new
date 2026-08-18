@@ -389,11 +389,10 @@ const COUNT_DEFER = `<div class="qk-silence">
    because the demo shares `Turn` through `thread.ts` storage, and a non-total renderer is how a stored
    turn becomes a blank bubble. */
 const HADITH_DEFER = `<div class="qk-silence">
-  <p>Pertanyaan seperti ini biasanya dijawab dari <b>hadis</b>, bukan dari ayat. Aku belum bisa
-  mengutip sabda Nabi ﷺ di sini, karena aku belum bisa menunjukkan sumbernya secara utuh supaya kamu
-  bisa memeriksanya sendiri.</p>
-  <p>Aku memilih diam daripada menyebut sabda beliau tanpa rujukan, dan aku juga tidak mau
-  menyimpulkan jawabannya untukmu. Untuk kepastian sebuah hadis, tanyakan ke <b>ustadz</b>.</p>
+  <p>Pertanyaan seperti ini biasanya dijawab dari <b>hadis</b>, bukan dari ayat. Aku memilih tidak
+  menyimpulkan sendiri dari hadis di sini — menyebut sabda Nabi ﷺ sebagai jawaban atas pertanyaanmu
+  adalah penilaian keilmuan, dan itu bukan tempatku.</p>
+  <p>Untuk kepastian sebuah hadis, tanyakan ke <b>ustadz</b>.</p>
 </div>`;
 
 /* A refusal that is not about hadith, where the corpus-gap copy would otherwise have made a false

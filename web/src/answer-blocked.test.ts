@@ -130,8 +130,16 @@ describe("a refusal and an absence must not be the same event", () => {
     // No claim of having found it, and no conclusion drawn for the reader.
     expect(copy).not.toContain("Aku menemukan jawabannya");
     expect(copy).not.toMatch(/\bbenar\b/i);
-    // Names the kind of source and its real limitation, rather than promising an answer waits there.
-    expect(copy).toContain("bahasa Arab");
+    // Names the kind of source and its REAL limitation, rather than promising an answer waits there.
+    //
+    // This assertion used to read `toContain("bahasa Arab")`, pinning the copy's claim that the Hadits
+    // tab holds Arabic only. That stopped being true on 2026-08-13 (`SHOW_MACHINE_HADITH_TEXT = true`,
+    // hadith-id.ts:110) and 14,655 of 14,736 records now carry machine Indonesian — so the test was
+    // holding a false statement in production, and the 2026-08-18 ustadz letter retracts that exact
+    // sentence to the scholar while the app kept saying it to readers. The limitation named must be the
+    // one that is actually true: the Indonesian is machine-made and unreviewed.
+    expect(copy).toContain("hasil mesin dan belum ditinjau");
+    expect(copy).not.toContain("bahasa Arab");
   });
 
   test("Anti: the non-hadith refusal copy never claims the corpus is empty", () => {

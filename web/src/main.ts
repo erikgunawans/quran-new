@@ -289,13 +289,12 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
       return `
         <p class="said">Pertanyaan seperti ini biasanya dijawab dari <b>hadits</b>, bukan dari ayat.</p>
         <div class="silence">
-          <p>Aku belum bisa mengutip sabda Nabi ﷺ di sini, karena aku belum bisa menunjukkan
-          sumbernya secara utuh supaya kamu bisa memeriksanya sendiri. Aku memilih diam daripada
-          menyebut sabda beliau tanpa rujukan — dan aku juga tidak mau menyimpulkan jawabannya
-          untukmu.</p>
-          <p>Tab <a href="#/hadis">Hadits</a> memuat kitab-kitab utamanya, tapi <b>teksnya masih
-          bahasa Arab</b>. Untuk kepastian sebuah hadits, sebaiknya tanyakan ke <b>ustadz</b>. Kalau
-          mau, coba tanyakan lagi dari sisi <b>ayatnya</b> — itu bisa aku bantu telusuri.</p>
+          <p>Aku memilih tidak menyimpulkan sendiri dari hadits di sini. Menyebut sabda Nabi ﷺ
+          sebagai jawaban atas pertanyaanmu adalah penilaian keilmuan, dan itu bukan tempatku.</p>
+          <p>Tab <a href="#/hadis">Hadits</a> memuat kitab-kitab utamanya — teks Arabnya kanonik,
+          <b>terjemahan Indonesianya hasil mesin dan belum ditinjau</b>. Untuk kepastian sebuah
+          hadits, sebaiknya tanyakan ke <b>ustadz</b>. Kalau mau, coba tanyakan lagi dari sisi
+          <b>ayatnya</b> — itu bisa aku bantu telusuri.</p>
         </div>`;
 
     // A refusal that is NOT about hadith, landing where the corpus-gap copy would otherwise have lied.
