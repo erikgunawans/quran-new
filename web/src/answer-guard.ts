@@ -615,17 +615,63 @@ const QUOTED_SPAN_ANY = /[“"]([^”"\n]+)(?:[”"]|$)/gmu;
 /** How far from a long quote a citation still reads as belonging to it. */
 const ADJACENT_CHARS = 48;
 
+/**
+ * Verbs that claim the quote IS the wording, as opposed to being about it.
+ *
+ * WHY THIS LIST EXISTS — a live violation, 2026-08-19. Prod shipped, on `apa hukum riba dalam islam
+ * dan kenapa dilarang`:
+ *
+ *     Allah berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba dengan berlipat ganda."
+ *
+ * A hand-written rendering of an ayah, in quotation marks, attributed to Allah, next to the ref —
+ * the exact thing ISC-419 prohibits. `wordingShape` returned `clean`, and `DIVINE_ATTR` matches that
+ * sentence perfectly. It never got that far: the quote is SEVEN words and `OWN_WORDING_MIN_WORDS` is
+ * eight, so the loop `continue`d before any attribution was examined. Adding one word to the same
+ * sentence makes it CAUGHT — the entire difference between shipped and blocked was the floor.
+ *
+ * WHY THE FLOOR IS RIGHT ANYWAY, AND WHY IT MUST NOT SIMPLY BE LOWERED. Its comment says it was set
+ * from a distribution: violations at 18, 12 and 11 words, longest benign quote 6. That reasoning was
+ * sound and the number was still wrong, because a bound taken from the largest observation seen so
+ * far only holds until a smaller one arrives. Lowering it to 7 would buy exactly one word of margin
+ * and re-make the same mistake. The floor's real job is to spare BARE TERMS — `Allah menyebut mereka
+ * "munafik"` — and a term is short because it is a term, not because of where the threshold sits.
+ *
+ * SO THE SPLIT IS BY WHAT THE VERB CLAIMS, NOT BY LENGTH. `berfirman`, `firman`, `bersabda`,
+ * `artinya`, `bunyinya` assert *these are the words*; nothing following them is a bare term, and a
+ * short one is a MORE compact forgery, not a safer one. Those bypass the floor entirely. The looser
+ * verbs in `DIVINE_ATTR`/`PROPHETIC` — `menyebut`, `menggambarkan`, `menjelaskan`, `melarang` —
+ * assert only *this is about*, which is where the benign bare term lives, so they keep the floor.
+ *
+ * This is narrower than "short quotes are now blocked": it costs nothing that the 8-word floor was
+ * protecting, because everything it newly catches carries an explicit verbatim claim in front of it.
+ */
+const VERBATIM_CLAIM = [
+  /\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\b(berfirman|berkata)\b/,
+  /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,40}\b(bersabda|menyabdakan|berkata|berpesan)\b/,
+  /\bfirman(-?\s?nya)?\b/,
+  /\bsabda(-?\s?nya)?\b/,
+  /\b(yang\s+)?artinya\b/,
+  /\bterjemahan(-?\s?nya)?\b/,
+  /\bbunyinya\b/,
+];
+
 export function wordingShape(prose: string): string | null {
   const text = normaliseForSentences(prose);
   QUOTED_SPAN_ANY.lastIndex = 0;
   for (const m of text.matchAll(QUOTED_SPAN_ANY)) {
     const span = (m[1] ?? "").trim();
-    if (span.split(/\s+/u).filter(Boolean).length < OWN_WORDING_MIN_WORDS) continue;
+    const words = span.split(/\s+/u).filter(Boolean).length;
 
     const start = m.index ?? 0;
     const end = start + m[0].length;
     const before = text.slice(Math.max(0, start - 160), start).toLowerCase();
     const near = `${text.slice(Math.max(0, start - ADJACENT_CHARS), start)} ${text.slice(end, end + ADJACENT_CHARS)}`;
+
+    // Checked BEFORE the length floor, which is the whole fix. A verbatim claim in front of a quote
+    // is not made innocent by the quote being short.
+    if (VERBATIM_CLAIM.some((re) => re.test(before))) return (m[0] ?? "").trim();
+
+    if (words < OWN_WORDING_MIN_WORDS) continue;
 
     const divine = DIVINE_ATTR.some((re) => re.test(before));
     const prophetic = muhammadSpeechAct(before) || PROPHETIC.some((re) => re.test(before));

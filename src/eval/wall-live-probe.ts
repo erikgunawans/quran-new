@@ -118,6 +118,25 @@ interface Row {
   readonly cited: number;
   readonly dalilMs: number | null;
   readonly failed: string | null;
+  /**
+   * The Worker's `gen` diagnostic (ISC-532) — PER-ATTEMPT, which is the whole point.
+   *
+   * WHY IT IS HERE NOW. ISC-535 needs a percentile of the measured GENERATION distribution and
+   * ISC-536 forbids moving `MIN_RETRY_MS` until that distribution exists. This probe is the
+   * instrument both criteria point at, and until now it read `answer`, `blocked`, `hadith` and
+   * `dalil` off the response and dropped `gen` on the floor — so it could report how a turn ENDED
+   * but never how long each attempt ran, nor whether a second attempt happened, nor whether that
+   * second attempt SUCCEEDED. That last number is the one ISC-536 says no instrument in this repo
+   * can see, and it has been on the wire since ISC-532 shipped.
+   *
+   * `row.ms` is NOT a substitute: it is the wall-clock of the whole POST, so it carries retrieval,
+   * the network, and both attempts blended into one figure. A percentile taken from it would set
+   * `MIN_RETRY_MS` from the wrong distribution — the same class of arithmetic error as the 6_000 it
+   * would be replacing.
+   */
+  readonly attempts: readonly { readonly ms: number; readonly budgetMs: number; readonly outcome: string }[];
+  /** How the generation LOOP terminated, server-side: `deadline` | `blocked` | `ok` | … */
+  readonly genReason: string | null;
   /** The outcome bucket, as the READER experiences it. */
   readonly bucket: string;
   /**
@@ -158,6 +177,8 @@ async function turn(p: Probe): Promise<Row> {
     cited: 0,
     dalilMs: null as number | null,
     failed: null as string | null,
+    attempts: [] as Row["attempts"],
+    genReason: null as string | null,
     prose: "",
   };
   if (g.verses.length === 0 && g.entries.length === 0) {
@@ -186,6 +207,7 @@ async function turn(p: Probe): Promise<Row> {
       blocked?: string | null;
       hadith?: unknown[];
       dalil?: { offered?: number; records?: number; failed?: string | null; ms?: { total?: number } | null };
+      gen?: { attempts?: { ms?: number; budgetMs?: number; outcome?: string }[]; reason?: string | null } | null;
     };
     // The retrieval story travels with the row from here on, so a surprising bucket can be read
     // against what the model was actually handed rather than guessed at.
@@ -195,6 +217,15 @@ async function turn(p: Probe): Promise<Row> {
       cited: data.hadith?.length ?? 0,
       dalilMs: data.dalil?.ms?.total ?? null,
       failed: data.dalil?.failed ?? null,
+      // A Worker that predates ISC-532 sends no `gen` at all. That must read as "the diagnostic is
+      // ABSENT", not as "this turn ran zero attempts" — an empty array in a percentile is a silent
+      // zero. `genReason` stays null in that case and the report says so out loud.
+      attempts: (data.gen?.attempts ?? []).map((a) => ({
+        ms: a.ms ?? 0,
+        budgetMs: a.budgetMs ?? 0,
+        outcome: a.outcome ?? "?",
+      })),
+      genReason: data.gen?.reason ?? null,
     };
     if (typeof data.answer === "string" && data.answer.length > 0) {
       const w = wordingShape(data.answer);
@@ -286,6 +317,68 @@ console.log(
   `  answered WITH hadith but citing none: ${uncited.length}/${withH.filter((r) => r.bucket === "answered").length}` +
     ` — the model was offered a receipt and wrote around it`,
 );
+
+// ── the GENERATION distribution (ISC-535) and the retry's actual yield (ISC-536) ────────────────
+//
+// Read per-ATTEMPT, never per-turn. `MIN_RETRY_MS` gates whether a SECOND attempt is admitted, so
+// the only distribution that can set it is the distribution of how long ONE attempt takes. The
+// question the threshold has to answer is "if I admit a retry with X ms of budget left, will it
+// finish?" — and that is answered by the attempt percentiles below, not by turn wall-clock.
+//
+// A turn whose Worker sent no `gen` is EXCLUDED and counted separately. Folding it in as zero
+// attempts would drag every percentile down and make a stale deploy look like a fast one.
+const withGen = rows.filter((r) => r.genReason !== null || r.attempts.length > 0);
+const noGen = rows.filter((r) => r.bucket !== "no-grounding" && r.genReason === null && r.attempts.length === 0);
+const allAttempts = withGen.flatMap((r) => r.attempts);
+console.log(`\n── generation distribution, PER ATTEMPT (ISC-535) ──`);
+if (noGen.length > 0) {
+  console.log(`  ⚠ ${noGen.length} grounded turn(s) returned NO \`gen\` block — excluded, not counted as zero.`);
+  console.log(`    That means the Worker answering them predates ISC-532. Check what is deployed before reading on.`);
+}
+if (allAttempts.length === 0) {
+  console.log(`  no attempts observed — nothing here can set a threshold`);
+} else {
+  const pct = (xs: number[], p: number) => {
+    const s = [...xs].sort((a, b) => a - b);
+    return s[Math.min(s.length - 1, Math.floor((p / 100) * s.length))]!;
+  };
+  const ms = allAttempts.map((a) => a.ms);
+  console.log(
+    `  ${allAttempts.length} attempts over ${withGen.length} turns` +
+      ` · min ${pct(ms, 0)} · p25 ${pct(ms, 25)} · median ${pct(ms, 50)} · p75 ${pct(ms, 75)}` +
+      ` · p90 ${pct(ms, 90)} · max ${pct(ms, 100)} ms`,
+  );
+  // Split by outcome: an attempt KILLED by its budget did not "take" that long, it was cut off
+  // there. Blending truncated attempts into a completion-time percentile inflates the estimate of
+  // how long a generation needs, which is the opposite of the error `MIN_RETRY_MS = 6_000` makes,
+  // and just as wrong.
+  const byOutcome = new Map<string, number[]>();
+  for (const a of allAttempts) byOutcome.set(a.outcome, [...(byOutcome.get(a.outcome) ?? []), a.ms]);
+  for (const [o, xs] of [...byOutcome].sort((a, b) => b[1].length - a[1].length)) {
+    console.log(
+      `    ${String(xs.length).padStart(3)}  ${o.padEnd(24)} median ${String(pct(xs, 50)).padStart(6)} ms` +
+        ` · max ${String(pct(xs, 100)).padStart(6)} ms${o === "threw" ? "   ← CUT OFF at budget, not a completion time" : ""}`,
+    );
+  }
+  // ISC-536's blocker, stated in its own terms: it forbids raising `MIN_RETRY_MS` because "some of
+  // those retries are currently SUCCEEDING" and no instrument can see per-attempt outcomes. It can
+  // now. These two lines are that number.
+  const retried = withGen.filter((r) => r.attempts.length > 1);
+  const retrySaved = retried.filter((r) => r.bucket === "answered");
+  console.log(
+    `  retries admitted: ${retried.length}/${withGen.length} turns` +
+      ` · of those, ${retrySaved.length} ended ANSWERED (the yield ISC-536 protects)`,
+  );
+  const secondAttempts = withGen.flatMap((r) => r.attempts.slice(1));
+  console.log(
+    `  second attempts: ${secondAttempts.length}` +
+      ` · budget granted ${secondAttempts.map((a) => a.budgetMs).join(", ") || "-"} ms` +
+      ` · ran ${secondAttempts.map((a) => a.ms).join(", ") || "-"} ms`,
+  );
+  const reasons = new Map<string, number>();
+  for (const r of withGen) reasons.set(r.genReason ?? "-", (reasons.get(r.genReason ?? "-") ?? 0) + 1);
+  console.log(`  terminal \`gen.reason\`: ${[...reasons].map(([k, v]) => `${k}=${v}`).join(" · ")}`);
+}
 
 const leaks = rows.filter((r) => r.leak.startsWith("LEAK"));
 console.log(`\nLeaks past the deployed wall (wordingShape on returned prose): ${leaks.length}`);

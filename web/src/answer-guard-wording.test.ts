@@ -49,11 +49,24 @@ describe("an ayah's wording, written by the app", () => {
 });
 
 /**
- * The boundary, asserted directly. Same sentence, same citation, same punctuation — only the length
- * of the quoted span differs, so nothing but the threshold can decide these two.
+ * The boundary, asserted directly — and REWRITTEN 2026-08-19, because the version that stood here
+ * was GREEN while asserting the defect.
+ *
+ * It read `Allah berfirman “satu dua tiga empat lima enam tujuh”` and asserted `toBeNull()`: seven
+ * words after an explicit claim to be quoting God, expected to pass. It did pass, for two sessions,
+ * and prod duly shipped `Allah berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba
+ * dengan berlipat ganda."` — seven words, the same shape, an ISC-419 violation in front of a reader.
+ * The suite could not catch it because the suite had been taught to expect it.
+ *
+ * The lesson is about the FIXTURE, not the threshold. To test a length floor you must hold
+ * everything else at its most permissive; this fixture instead pinned the floor's behaviour under
+ * the one preamble that should defeat it. So the floor is now probed with a TOPICAL verb, which is
+ * the case it actually exists to protect, and the verbatim claim gets its own block below.
  */
-describe("the eight-word boundary", () => {
-  const around = (quote: string) => `Seperti disebut dalam QS Al-Baqarah 2:155, Allah berfirman “${quote}” kepada kita semua`;
+describe("the eight-word floor, probed where the floor is the only thing deciding", () => {
+  // `menyebut` says the sentence is ABOUT the quoted words. That is the bare-term case the floor
+  // exists for, and the only preamble under which length is genuinely the deciding variable.
+  const around = (quote: string) => `Seperti disebut dalam QS Al-Baqarah 2:155, Allah menyebut “${quote}” kepada kita semua`;
 
   test("seven words is a phrase, and passes", () => {
     expect(wordingShape(around("satu dua tiga empat lima enam tujuh"))).toBeNull();
@@ -61,6 +74,37 @@ describe("the eight-word boundary", () => {
 
   test("eight words is a quotation, and is refused", () => {
     expect(wordingShape(around("satu dua tiga empat lima enam tujuh delapan"))).not.toBeNull();
+  });
+});
+
+/**
+ * A verbatim claim defeats the floor at ANY length.
+ *
+ * These are the tests the shipped violation should have had. Each asserts the same thing from a
+ * different direction: once a sentence says *these are the words*, how few of them there are stops
+ * being evidence of innocence — a short forgery is a compact one, not a safer one.
+ */
+describe("a verbatim claim is not made innocent by being short", () => {
+  test("the live 2026-08-19 riba violation is refused", () => {
+    const prose =
+      'Allah berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba dengan berlipat ganda." Ini bukan hanya soal jumlah yang besar.';
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test("the Prophet's ﷺ half of the same seam is closed too", () => {
+    // The repo has twice shipped a wall built for God and not for the Prophet, or the reverse. If
+    // this one ever goes red alone, that seam has reopened.
+    expect(wordingShape('Rasulullah ﷺ bersabda, "Malu itu bagian dari iman."')).not.toBeNull();
+  });
+
+  test("three words after `berfirman` is still refused", () => {
+    expect(wordingShape('Allah berfirman, "Bertakwalah kepada Allah."')).not.toBeNull();
+  });
+
+  test("but a bare term the sentence is ABOUT still survives", () => {
+    // The cost check. If this goes red the fix has started eating the benign case the floor was
+    // protecting, and `VERBATIM_CLAIM` has been widened into a topical verb.
+    expect(wordingShape('Allah menyebut mereka “munafik” di banyak tempat.')).toBeNull();
   });
 });
 
