@@ -582,9 +582,98 @@ const OWN_WORDING_MIN_WORDS = 8;
  * grammar rule. The posture this wall defends is presenting our rendering AS scripture; an
  * unattributed, uncited quotation does not do that.
  */
-/** The words belong to Allah / the Qur'an — the sentence says so. */
+/** Verbs that put a subject in an attribution relation to the quoted words. */
+const DIVINE_VERB =
+  "berfirman|berkata|menyebut|menyebutkan|menggambarkan|menegaskan|menjelaskan|memerintahkan|melarang|mengingatkan";
+
+/**
+ * Human roles that can own a speech act. One definition, two consumers — `HUMAN_ATTR` below, whose
+ * stand-down this vocabulary was written for, and `APPOSITIVE_BREAK`, which needs the same answer to
+ * the same question: could someone other than Allah have said this?
+ *
+ * `menurut` is the odd one out and is kept anyway. It is a PREPOSITION, not an agent, so as an
+ * appositive break it is doing something the other entries are not — but it only ever appears where
+ * an owner follows it, and dropping it here would fork the vocabulary that this const exists to keep
+ * single. Noted rather than silently carried, because it is not covered by the two limits below.
+ */
+const HUMAN_ROLE =
+  "ulama|ustadz|kiai|kyai|mufti|imam|syaikh|syekh|orang|entri|catatan|penafsir|mufassir|sebagian|banyak|menurut";
+
+/**
+ * The span an APPOSITIVE may occupy between a divine designation and its verb — any length inside one
+ * sentence, stopping at a genuine second agent.
+ *
+ * WHY THERE IS NO NUMBER HERE. This was `[^.!?]{0,40}`, and one comma-set epithet walked the live
+ * riba violation through at every quote length:
+ *
+ *     Allah, Tuhan semesta alam yang Maha Pengasih dan Maha Penyayang kepada kita, berfirman, "…"
+ *
+ * The cap conflated two jobs. Same-SENTENCE binding is done by `[^.!?]`, and that is the part doing
+ * real work. Proximity was a guessed number standing in for "no one else owns this verb" — and an
+ * epithet is unbounded, so any replacement number is bypassed by a longer one. This file already
+ * learned that lesson on the eight-word floor; raising 40 to 80 would learn it a third time.
+ *
+ * So the proxy is replaced by the thing it was proxying for: the span runs until someone else who
+ * could own the verb turns up. It carries the same preposition lookbehind `OTHER_AGENT` uses, so
+ * `kepada kita` inside an epithet stays a RECIPIENT while `dan kita` ends the span.
+ *
+ * THE SPAN IS AN EXTRA ARM, NEVER A REPLACEMENT — and that correction came from a `scholarly-gate`
+ * BLOCK on the first cut of this very change, caught by a paired HEAD-vs-tree probe that the green
+ * suite could not see. `[^.!?]{0,40}` matched straight THROUGH an agent pronoun; this span stops at
+ * one. So swapping the window out lost six refusals HEAD was making, each one an ayah rendering
+ * attributed to Allah — `Allah mengajarkan kita lewat ayat ini, lalu menegaskan, "…"` and five like
+ * it, all inside forty characters. Union, never replacement, is the rule `hadithShape` states thirty
+ * lines up (ISC-440); this file breaks a wall every time it is treated as advice.
+ *
+ * WHY THE BREAK VOCABULARY IS WIDER THAN `AGENT_PRONOUN`. The same gate pass found the appositive arm
+ * newly refusing `…Allah menutup pintu kezaliman…, dan Imam Nawawi menegaskan bahwa "…"` — a
+ * scholar's position quoted beside an ayah, which is ISC-486 — now UN-MARKED, because
+ * this arm broke it for bare proper names. `AGENT_PRONOUN` alone
+ * does not know `imam`, `mufti`, `penafsir` or `banyak orang` can own a verb, but `HUMAN_ATTR`
+ * already enumerates exactly them, so the break reuses that vocabulary rather than a third list.
+ *
+ * TWO LIMITS REMAIN, AND THEY FAIL IN OPPOSITE DIRECTIONS. Naming only the safe one is how a guard
+ * comes to be read as stronger than it is, which `ustadz-followup-2026-08-18` commits us in writing
+ * not to do.
+ *
+ *   - OVER-REFUSAL. A human subject in neither vocabulary — `gurunya`, `penulisnya`, a bare proper
+ *     name like `Ibnu Katsir` or `Buya Hamka` — does not break the span, so a designation early in a
+ *     long sentence can still reach a verb that is not its own. **The rate for that class is 100%,
+ *     not the "3 in 6" an earlier version of this comment reported**: measured over 15 owner forms ×
+ *     6 verbs, every survivor survived because its form CONTAINS a `HUMAN_ROLE` token (`Imam` Nawawi,
+ *     `Syaikh` Utsaimin, seorang `mufti`), and no bare name survived at all. A denominator mixing the
+ *     rescued class with the broken one reads as a rate and is not one. Safe polarity; ISC-486.
+ *   - UNDER-REFUSAL, and this one is the price of the `HUMAN_ROLE` half. Those nouns are ordinary
+ *     words as well as roles, so one planted INSIDE an epithet ends the span early and the bypass
+ *     reopens for the loose verbs. Measured against a control — the same epithet without the noun is
+ *     refused:
+ *
+ *         Allah, Tuhan yang menciptakan seluruh ORANG di muka bumi ini, melarang, "…"      passes
+ *         Allah, Tuhan yang memberi BANYAK nikmat tak terhitung jumlahnya, menjelaskan, "…" passes
+ *
+ *     `berfirman` is airtight regardless — `VERBATIM_DIVINE` needs no subject — so this reaches only
+ *     the nine looser verbs. Closing it needs the break to ask whether the noun is near enough to the
+ *     verb to OWN it (`AGENT_BEFORE_VERB`'s question), not merely whether it appears. That is real
+ *     machinery and it is NOT built here: several of this change's own defects were introduced by a
+ *     correction to it — the count and its basis live under ISC-419 in `ISA.md`, which is the ONE
+ *     place that number is stated, because two copies of it already disagreed once. This would be a
+ *     further correction on top. Tracked there.
+ */
+const APPOSITIVE_BREAK = `(?<!\\b(?:kepada|bagi|untuk|pada|terhadap|dari|oleh|sama)\\s)\\b(?:${AGENT_PRONOUN}|${HUMAN_ROLE})\\b`;
+const DIVINE_APPOSITIVE = `(?:(?!${APPOSITIVE_BREAK})[^.!?])*`;
+
+/**
+ * The words belong to Allah / the Qur'an — the sentence says so.
+ *
+ * `allah|tuhan` and `dia|ia` are split because they are not equally load-bearing. The designations
+ * are unambiguous wherever they sit, so they get the appositive arm as well as the window. The
+ * pronouns are anaphoric — `ia berkata` is the commonest reported-speech shape in Indonesian — and
+ * are divine only by proximity, so they keep the tight window alone.
+ */
 const DIVINE_ATTR = [
-  /\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\b(berfirman|berkata|menyebut|menyebutkan|menggambarkan|menegaskan|menjelaskan|memerintahkan|melarang|mengingatkan)\b/,
+  new RegExp(`\\b(allah|tuhan)\\b[^.!?]{0,40}\\b(${DIVINE_VERB})\\b`),
+  new RegExp(`\\b(allah|tuhan)\\b${DIVINE_APPOSITIVE}\\b(${DIVINE_VERB})\\b`),
+  new RegExp(`\\b(dia|ia)\\b[^.!?]{0,40}\\b(${DIVINE_VERB})\\b`),
   /\bfirman(-?\s?nya)?\b/,
   /\b(yang\s+)?artinya\b/,
   /\bterjemahan(-?\s?nya)?\b/,
@@ -593,9 +682,12 @@ const DIVINE_ATTR = [
 /**
  * A human subject owns the quoted words. Tested only on the text IMMEDIATELY BEFORE the quote, so a
  * scholar named at the top of a paragraph cannot license a verse quoted at the bottom of it.
+ *
+ * The role nouns live in `HUMAN_ROLE` above rather than inline, because `APPOSITIVE_BREAK` needs the
+ * same vocabulary and two copies of a list like this drift. The pronouns stay here: they belong to
+ * this rule's stand-down, not to the question of who can own a verb.
  */
-const HUMAN_ATTR =
-  /\b(ulama|ustadz|kiai|kyai|mufti|imam|syaikh|syekh|orang|kami|kita|kamu|anda|entri|catatan|penafsir|mufassir|sebagian|banyak|menurut)\b[^“"]{0,72}$/;
+const HUMAN_ATTR = new RegExp(`\\b(?:${HUMAN_ROLE}|kami|kita|kamu|anda)\\b[^“"]{0,72}$`);
 /**
  * Quoted spans, straight or curly, anywhere in the prose. Matched left-to-right so a run of terms —
  * `"musik" atau "alat musik"` — yields two short spans rather than one long one.
@@ -699,8 +791,25 @@ const ADJACENT_CHARS = 48;
  * Ahmad Isrofiel Mardlatillah; the index is authored by Ustadz Muhammad Thalib's team, and he
  * reviewed nothing here. Do not escalate this class as a permission question: that is how the
  * Prophet ﷺ wall gets narrowed under a rights banner.
+ *
+ * THE SUBJECT REQUIREMENT IS GONE FROM `berfirman`, and dropping it is the fix rather than a
+ * shortcut around one. It was `\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\bberfirman\b`, and the epithet
+ * bypass above defeated the window. Widening the window is the third-best answer; deleting it is the
+ * best one, because the subject was never carrying weight here. `berfirman` is not a general
+ * reported-speech verb the way `berkata` is — Indonesian reserves it for God (the royal usage is
+ * archaic and absent from this corpus), so the sentence claims divine speech whether or not a
+ * designation happens to sit within some number of characters of it. `firman` beside it has been
+ * subject-less since the rule was written, for exactly this reason; the two now agree.
+ *
+ * THIS RULE's change is a widening — it can only add refusals. **That was NOT true of the commit it
+ * arrived in, and the sentence originally claimed it for both halves.** `DIVINE_ATTR`'s first cut
+ * swapped its window for the appositive span instead of adding one, and lost six refusals; the arms
+ * are now a union and the claim is scoped to the half that earns it. A polarity claim covering a
+ * whole commit is the kind that is checked by reading, and reading is what missed it — the paired
+ * HEAD-vs-tree probe found it in one run. `DIVINE_ATTR` keeps its subject test because its verbs are
+ * ordinary ones.
  */
-const VERBATIM_DIVINE = [/\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\bberfirman\b/, /\bfirman(-?\s?nya)?\b/];
+const VERBATIM_DIVINE = [/\bberfirman\b/, /\bfirman(-?\s?nya)?\b/];
 
 export function wordingShape(prose: string): string | null {
   const text = normaliseForSentences(prose);

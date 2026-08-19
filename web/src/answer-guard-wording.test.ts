@@ -304,3 +304,127 @@ describe("scripture's wording vs everyone else's", () => {
     expect(wordingShape(prose)).not.toBeNull();
   });
 });
+
+/**
+ * AN APPOSITIVE BETWEEN THE SUBJECT AND ITS VERB — hole (a), found by `scholarly-gate` on the commit
+ * that shipped the divine bypass, verified live on 2026-08-19, fixed here.
+ *
+ * `VERBATIM_DIVINE` bound subject to verb inside `[^.!?]{0,40}` and `DIVINE_ATTR` carried the same
+ * cap, so one comma-delimited epithet walked the live riba violation straight through AT ANY LENGTH:
+ *
+ *     Allah, Tuhan semesta alam yang Maha Pengasih dan Maha Penyayang kepada kita, berfirman, "…"
+ *
+ * Not a sub-eight-word seam — a full bypass, because the appositive is unbounded and the window was
+ * not. THE FIX IS NOT A BIGGER NUMBER. This file's own SCOPE block records why: a bound taken from
+ * the longest bypass seen so far only holds until a longer one arrives.
+ *
+ * WHICH ROWS ACTUALLY TEST WHICH ARM — measured by deleting each arm, not asserted. Two arms catch
+ * these: subject-less `VERBATIM_DIVINE` takes every `berfirman` row whatever the epithet does, and
+ * `DIVINE_ATTR`'s appositive span takes the rest. So the three `berfirman` rows survive the span's
+ * deletion and CANNOT detect a re-introduced cap — an earlier version of this comment claimed the
+ * long row was exactly that tripwire, and deleting the arm left it green. The `menjelaskan` rows are
+ * the arm's only witnesses, which is why there are now two of them at different epithet lengths.
+ *
+ * The describe name is scoped to the DIVINE VERBATIM claim on purpose: `berfirman` is airtight at any
+ * epithet, the loose verbs are not (see the UNDER-REFUSAL limit above `APPOSITIVE_BREAK`).
+ */
+describe("an appositive cannot walk a divine verbatim claim past the wall", () => {
+  const EPITHET = "Tuhan semesta alam yang Maha Pengasih dan Maha Penyayang kepada kita";
+
+  test.each([
+    [`Allah, ${EPITHET}, berfirman, "Bertakwalah kalian."`, "two words — below the floor, `berfirman`"],
+    [
+      `Allah, ${EPITHET}, berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba dengan berlipat ganda."`,
+      "the live riba violation, wearing an epithet",
+    ],
+    [
+      `Allah, ${EPITHET}, menjelaskan, "Janganlah kamu memakan riba dengan berlipat ganda karena itu merugikan sesama."`,
+      "above the floor, a looser DIVINE_ATTR verb",
+    ],
+    [
+      `Allah, Tuhan semesta alam, Yang Maha Pengasih lagi Maha Penyayang, Yang menciptakan langit dan bumi beserta segala isinya tanpa sekutu, Yang kepada-Nya kita semua kembali, berfirman, "Bertakwalah kalian."`,
+      "an epithet far longer than the fix was tuned against",
+    ],
+    [
+      `Allah, Tuhan semesta alam, Yang Maha Pengasih lagi Maha Penyayang, Yang menciptakan langit dan bumi beserta segala isinya tanpa sekutu, menjelaskan, "Janganlah kamu memakan riba dengan berlipat ganda karena itu merugikan sesama."`,
+      "the same long epithet on the arm's OWN verb — this is the cap detector",
+    ],
+  ])("refused: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  /**
+   * THE PAIRED ARM — the rows the first cut of this change BROKE, and the reason it is a union rather
+   * than a swap. Each was REFUSED before the appositive span existed and must stay refused after it.
+   *
+   * They are here because a green suite could not see the loss. `{0,40}` matched straight through an
+   * agent pronoun; the span stops at one, so replacing the window silently deleted six refusals — all
+   * of them an ayah rendering in quotation marks attributed to Allah, which is the exact object of
+   * ISC-419. Found by a HEAD-vs-tree probe on the same strings, not by reading the regex.
+   *
+   * SIX FLIPPED, AND ALL SIX ARE PINNED. It was five for one correction pass while this comment said
+   * six — one regression witness in nobody's suite, disclosed by a count nobody adds up.
+   */
+  const AYAH_RENDERING = '"Janganlah kamu memakan riba dengan berlipat ganda karena itu merugikan sesama."';
+
+  test.each([
+    [`Allah mengajarkan kita lewat ayat ini, lalu menegaskan, ${AYAH_RENDERING}`, "`kita` inside the window"],
+    [`Allah memberi mereka peringatan keras, lalu melarang, ${AYAH_RENDERING}`, "`mereka`"],
+    [`Allah menegur kalian dalam ayat ini, dan menjelaskan, ${AYAH_RENDERING}`, "`kalian`"],
+    [`Allah menuntun kami dengan ayat ini, lalu menyebutkan, ${AYAH_RENDERING}`, "`kami`"],
+    // The sixth. It was missing for one pass while the comment said six had flipped and five were
+    // pinned — a gap disclosed by a count nobody adds up. `berkata` is the verb the SCOPE block calls
+    // the commonest reported-speech verb in Indonesian, so it is the last one to leave unpinned.
+    [`Allah mengajarkan kita lewat ayat ini, lalu berkata, ${AYAH_RENDERING}`, "`berkata`, the loosest verb"],
+    [`Allah menyayangi kita sebagai hamba-Nya, dan melarang, ${AYAH_RENDERING}`, "idiomatic religious prose"],
+  ])("the window still catches what the span cannot: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  /**
+   * THE COST CHECK, and its claim is now scoped to what the rows actually reach. The first version of
+   * this block asserted it sampled "a divine designation whose speech act belongs to someone else"
+   * and sampled no such thing: two rows terminated on `AGENT_PRONOUN` and one had no divine
+   * designation at all. A comment that names a class the rows do not enter reads as coverage.
+   *
+   * Row 4 is the one that matters — a scholar's position quoted beside an ayah, which is ISC-486 —
+   * un-marked as of this change, because the arm broke it for bare proper names. The appositive arm's first cut refused it, because `AGENT_PRONOUN` does not know that
+   * `imam` can own a verb. `HUMAN_ROLE` does.
+   */
+  test.each([
+    [
+      'Allah Maha Mengetahui segala sesuatu, dan kita sering berkata, "aku tidak sanggup menanggung ujian sebesar ini seorang diri."',
+      "an agent pronoun ends the span",
+    ],
+    [
+      'Ia menemui gurunya di masjid seusai salat subuh, lalu gurunya berkata, "belajarlah dengan sabar sebab ilmu tidak datang seketika."',
+      // NOT "the verb is owned by another" — the code has no such notion here, and the first label
+      // said it did. `Ia berkata, "…"` on its own is REFUSED; this passes for one reason only, that
+      // the `dia|ia` window does not reach. That is the whole assertion: the pronoun branch keeps its
+      // window and the appositive span was not extended to it.
+      "the `dia|ia` window, deliberately not widened",
+    ],
+    [
+      'Kami membahas sifat Allah yang Maha Penyayang; seorang ustadz kemudian menjelaskan, "kesabaran adalah pangkal dari setiap kebaikan yang dituntut agama."',
+      // NOT "a human role ends the span" — `ustadz` is in `AGENT_PRONOUN` already, so this row would
+      // pass with `HUMAN_ROLE` deleted and witnesses nothing about it. Row 4 is the only witness.
+      "an agent pronoun ends the span, a designation away",
+    ],
+    // GENERIC SUBJECT, and that is the second time this block has had to learn it. The row that stood
+    // here named Imam Nawawi and put a verbatim fiqh ruling nobody sourced into his mouth — the same
+    // class as the hadith qudsi it replaced, one notch down, and the same class the `beliau` block
+    // seventeen lines up already forbids. `seorang mufti` exercises `HUMAN_ROLE` identically.
+    //
+    // The LEAD clause was rewritten too, on a third pass. It read `Riba dilarang karena Allah menutup
+    // pintu kezaliman dalam muamalah` — an authored statement of divine MOTIVE with no source, which
+    // survived two corrections because attention went each time to the clause after the comma. The
+    // fixture only needs a divine designation upstream of a human speaker; it does not need to say
+    // anything about why Allah does what He does.
+    [
+      'Ayat itu menyebut nama Allah pada bagian akhirnya, dan seorang mufti menegaskan bahwa "setiap tambahan yang disyaratkan dalam akad pinjaman termasuk yang dilarang".',
+      "ISC-486 — a scholar’s position quoted beside an ayah",
+    ],
+  ])("still passes: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).toBeNull();
+  });
+});
