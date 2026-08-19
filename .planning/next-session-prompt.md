@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-19 late-3)
 
-> Prepended by /wrap 2026-08-19 late-3. Anchor `ANCHOR2` (work in `d20f078`, `4a28bf2`, `0b9e8a9`,
+> Prepended by /wrap 2026-08-19 late-3. Anchor `8a16cbf` (work in `d20f078`, `4a28bf2`, `0b9e8a9`,
 > `e6aa468`, `5919078`, `4c3b9b0`, `226825c`). **Supersedes the `90bcde3` anchor.** From that
 > handoff: its **§1 (deploy) is DONE**; its **§2 (the scholarly-gate pass) is DONE — three passes,
 > three BLOCKs, all applied**; its **§4 (post-deploy ISC-419 re-measure) is DONE and the criterion
