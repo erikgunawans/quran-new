@@ -52,8 +52,11 @@ describe("the budget is shared across the turn, not per call", () => {
    * Single generations were already measured at 26.7 / 27.4 / 28.0 / 31.1 s on 2026-08-16.
    */
   it("gives the retry what is LEFT, never a fresh deadline", () => {
-    const budget = nextAttemptBudget({ attempt: 1, blocked: "bad_hadith", remainingMs: 9_400 });
-    expect(budget).toBe(9_400);
+    // 14_000 rather than the original 9_400 only because `MIN_RETRY_MS` rose to 11_500 on the
+    // 2026-08-19 distribution. This test is about pass-through, not about the floor: the figure just
+    // has to clear the floor and sit under the deadline, and 9_400 no longer does the first.
+    const budget = nextAttemptBudget({ attempt: 1, blocked: "bad_hadith", remainingMs: 14_000 });
+    expect(budget).toBe(14_000);
     expect(budget!).toBeLessThan(MODEL_DEADLINE_MS);
   });
 

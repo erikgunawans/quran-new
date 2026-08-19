@@ -236,7 +236,12 @@ describe("the diagnostic is instrument-only", () => {
    */
   it("keeps the constants and invocation counts exactly where the old loop left them", async () => {
     expect(MODEL_DEADLINE_MS).toBe(25_000);
-    expect(MIN_RETRY_MS).toBe(6_000);
+    // 11_500 since 2026-08-19 (ISC-535), set from the p50 of 20 completing generations measured
+    // live and bounded below the smallest budget that has ever produced a successful retry. This
+    // pin exists so a constant cannot drift as a SIDE EFFECT of a diagnostic change — it is not a
+    // claim that the value never moves. Moving it deliberately means editing this line and saying
+    // why in `answer-retry.ts`; ISC-536 governs whether it may move at all.
+    expect(MIN_RETRY_MS).toBe(11_500);
     expect(MAX_ATTEMPTS).toBe(2);
 
     const answeredTrace = newGenTrace();

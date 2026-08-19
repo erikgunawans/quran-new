@@ -28,15 +28,42 @@ import type { AnswerViolationKind } from "../../web/src/answer-guard.ts";
 export const MAX_ATTEMPTS = 2;
 
 /**
- * The least time worth handing a RETRY. A verbose hadith generation measures ~6 s (a passing control
- * measured 3,772 ms; the hadith-carrying answers run longer), so a retry given less than this cannot
- * produce an answer — it can only make the reader wait longer for the same refusal, and bill an
- * upstream call for the privilege.
+ * The least time worth handing a RETRY — set from a PERCENTILE of the measured completion
+ * distribution, which is what ISC-535 asked for and what the old value did not have.
+ *
+ * WHAT THE OLD NUMBER WAS. 6_000, justified as "a verbose hadith generation measures ~6 s (a passing
+ * control measured 3,772 ms)". That is the FASTEST observation in a small sample used as a predictor
+ * of completion — the floor of a distribution standing in for its centre. It is the same shape of
+ * error as `OWN_WORDING_MIN_WORDS = 8`, which was set from the smallest violation seen so far and
+ * duly let a smaller one through (see `wordingShape`).
+ *
+ * THE DISTRIBUTION, measured live 2026-08-19 against prod worker `cfb0b05d` over 49 grounded turns
+ * (`wall-live-probe --repeat 3` then `--repeat 4`), reading the per-attempt `gen` diagnostic. Of 20
+ * attempts that COMPLETED (`outcome: "ok"`):
+ *
+ *     min 3,950 · p25 7,900 · p50 9,647 · p75 13,557 · p90 14,609 · max 18,486 ms
+ *
+ * A `threw` attempt is excluded: it was cut off at its budget and never completed, so folding it in
+ * would measure the deadline rather than the work.
+ *
+ * WHY 11_500 AND NOT THE p50. The binding constraint is not the median, it is ISC-536: the answered
+ * rate must not fall, and retries DO save turns — 5 of 22 retries in the sample ended answered. The
+ * budgets those five were granted were 11,554 · 13,352 · 16,393 · 18,365 · 19,861 ms, so **11_500
+ * sits just below the smallest budget that has ever produced a save** and cannot cut any observed
+ * success. Of the 22 retries, only 3 were granted less than this, and **none of the three completed**
+ * — so on this sample the change costs zero answers and stops three doomed spends.
+ *
+ * WHAT THIS NUMBER DOES NOT KNOW, stated so the next person does not over-trust it. The success arm
+ * is n=5. The two runs disagree materially with NO deploy between them — 29% vs 41% answered, `ok`
+ * p50 11,468 vs 8,677 — which is the run-to-run variance this repo has been bitten by before, so the
+ * percentile itself is not stable to three digits. 11_500 is defensible because it is bounded below
+ * an observed floor, not because the p50 is precise. **Move it again only against a fresh
+ * distribution, never against arithmetic**, and re-read ISC-536 first.
  *
  * Deliberately NOT applied to the first attempt. A turn with 3 s left should still try, because the
  * alternative there is a guaranteed null; only a retry is a spend that has an alternative.
  */
-export const MIN_RETRY_MS = 6_000;
+export const MIN_RETRY_MS = 11_500;
 
 /**
  * The budget in ms for the attempt about to run, or `null` when it must not run at all.
