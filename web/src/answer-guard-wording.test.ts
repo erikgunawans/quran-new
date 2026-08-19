@@ -91,20 +91,76 @@ describe("a verbatim claim is not made innocent by being short", () => {
     expect(wordingShape(prose)).not.toBeNull();
   });
 
-  test("the Prophet's ﷺ half of the same seam is closed too", () => {
-    // The repo has twice shipped a wall built for God and not for the Prophet, or the reverse. If
-    // this one ever goes red alone, that seam has reopened.
-    expect(wordingShape('Rasulullah ﷺ bersabda, "Malu itu bagian dari iman."')).not.toBeNull();
+  /**
+   * The Prophet's ﷺ half of the same seam.
+   *
+   * FOUR of these five went out in the first cut of this fix and the `scholarly-gate` pass caught
+   * them: the original bypass hand-rolled `nabi|rasul|rasulullah|beliau|muhammad` + four verbs, a
+   * strict SUBSET of `muhammadSubjects`, so at exactly the length band this rule exists to close God
+   * was covered and the Prophet ﷺ was not. And the single test guarding it asserted only the ONE
+   * subject the hand-rolled list happened to contain — the same green-test-pins-the-defect structure
+   * this file's own comment indicts, one length band over. The fix was to stop writing a list and
+   * call `muhammadSpeechAct`; these cases are what makes that non-optional.
+   */
+  test.each([
+    ['Rasulullah ﷺ bersabda, "Malu itu bagian dari iman."', "canonical subject"],
+    ['Baginda bersabda, "Malu itu bagian dari iman."', "Baginda — absent from the hand-rolled list"],
+    ['Nabiyullah bersabda, "Malu itu bagian dari iman."', "Nabiyullah — likewise"],
+    ['Rasulullah mengatakan, "Malu itu bagian dari iman."', "a weak speech verb"],
+    ['Hal itu disabdakan oleh Rasulullah, "Malu itu bagian dari iman."', "passive construction"],
+  ])("refuses a short prophetic wording: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test("a gloss beside a REFERENCE is a scripture claim", () => {
+    expect(wordingShape('Dalam QS Al-Isra 17:32 yang artinya "janganlah mendekati zina".')).not.toBeNull();
   });
 
   test("three words after `berfirman` is still refused", () => {
     expect(wordingShape('Allah berfirman, "Bertakwalah kepada Allah."')).not.toBeNull();
   });
 
-  test("but a bare term the sentence is ABOUT still survives", () => {
-    // The cost check. If this goes red the fix has started eating the benign case the floor was
-    // protecting, and `VERBATIM_CLAIM` has been widened into a topical verb.
-    expect(wordingShape('Allah menyebut mereka “munafik” di banyak tempat.')).toBeNull();
+  /**
+   * THE COST CHECK, and it is not decoration — the first cut of this fix failed every case below.
+   *
+   * Its comment claimed the change "costs nothing that the 8-word floor was protecting". That was a
+   * claim, not a measurement, and the `scholarly-gate` pass measured six benign strings flipping to
+   * REFUSE. Two causes, both from writing a new list instead of reusing a built one: `berkata` under
+   * `dia|ia` is the commonest reported-speech verb in Indonesian, not a divine speech act; and
+   * `artinya`/`terjemahannya` are subject-less, so they fired on a gloss of any ordinary term.
+   *
+   * If any of these goes red, the bypass has grown back into the benign class.
+   */
+  test.each([
+    ['Allah menyebut mereka “munafik” di banyak tempat.', "a bare term under a TOPICAL verb"],
+    ['Kata "riba" artinya "tambahan" dalam bahasa Arab.', "a gloss with no reference in view"],
+    ['Ada istilah "taqwa", yang artinya "menjaga diri".', "likewise"],
+    ['Terjemahannya kira-kira "orang yang bertakwa".', "likewise, subject-less"],
+    ['Seorang sahabat datang, ia berkata, "aku takut."', "reported HUMAN speech"],
+    ['Banyak orang merasa begitu; ia berkata, "aku sendirian."', "likewise"],
+  ])("still passes: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  /**
+   * A KNOWN false positive, pinned deliberately rather than fixed — and the reason is the polarity.
+   *
+   * `MUHAMMAD_SUBJECT` matches `muhammad` inside **Ustadz Muhammad Thalib's own name**, so a quote
+   * attributed to `beliau` right after it reads as prophetic speech. That is a live collision, not a
+   * hypothetical: he is the Indeks Tematik author whose entries this app displays under an explicit
+   * permission, so his name genuinely appears in composed prose.
+   *
+   * Measured, this is PRE-EXISTING: the same sentence with a nine-word quote already refused before
+   * `d20f078`. What this fix changed is its REACH, down to short quotes. It is left standing because
+   * the alternative is narrowing `muhammadSpeechAct` — the highest-stakes wall in the file, which
+   * this repo has reopened twice — to rescue a pointer. The file's own doctrine settles it: an
+   * ambiguous name costs a pointer, never a fabricated hadith.
+   *
+   * **Do not "fix" this by narrowing the Prophet ﷺ wall.** If it needs solving it is a separate
+   * piece of work under the display-permission lens, not a guard-tightening commit.
+   */
+  test("KNOWN: the reviewer's own name collides with the Prophet ﷺ subject class", () => {
+    expect(wordingShape('Ustadz Muhammad Thalib menulis entri itu; beliau berkata, "kaum musyrik."')).not.toBeNull();
   });
 });
 

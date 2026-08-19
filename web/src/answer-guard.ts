@@ -642,18 +642,41 @@ const ADJACENT_CHARS = 48;
  * verbs in `DIVINE_ATTR`/`PROPHETIC` — `menyebut`, `menggambarkan`, `menjelaskan`, `melarang` —
  * assert only *this is about*, which is where the benign bare term lives, so they keep the floor.
  *
- * This is narrower than "short quotes are now blocked": it costs nothing that the 8-word floor was
- * protecting, because everything it newly catches carries an explicit verbatim claim in front of it.
+ * CORRECTED 2026-08-19, same day, by the `scholarly-gate` pass on the first cut. That version said
+ * here that the change "costs nothing that the 8-word floor was protecting". **That was a claim, not
+ * a measurement, and the measurement contradicted it.** Six strings flipped to REFUSE, every one of
+ * them in the benign class the floor's own docblock describes — bare glosses (`Kata "riba" artinya
+ * "tambahan"`), reported human speech (`ia berkata, "aku takut."`), and worst of the set, **the app
+ * refusing to quote Ustadz Muhammad Thalib's own indexed entry** (`beliau berkata, "kaum musyrik."`),
+ * which is the scholarship we hold an explicit permission to DISPLAY. Two causes, both from writing
+ * a new list instead of reusing the built one:
+ *
+ *   - `berkata` under the subject class `dia|ia` is not a divine speech act, it is the commonest
+ *     reported-speech verb in Indonesian. `Allah berkata` is not even idiomatic; `berfirman` is the
+ *     word. Dropped — the divine side keeps `berfirman` and the `firman` noun alone.
+ *   - `artinya` / `terjemahannya` / `bunyinya` are SUBJECT-LESS, so they fired on any gloss of any
+ *     term. They only claim to be reproducing SCRIPTURE when a reference is in view, which is
+ *     exactly the shape of ISC-419's original `apakah musik haram` violation (*"yang artinya kurang
+ *     lebih"* beside a citation). Now gated on ref-adjacency.
+ *
+ * The same pass found the mirror defect: the hand-rolled prophetic pattern was a strict SUBSET of
+ * `muhammadSubjects`, so at the very length band this rule exists to close, God was fully covered
+ * and the Prophet ﷺ was not — `Baginda bersabda`, `Nabiyullah bersabda`, `Rasulullah mengatakan` and
+ * the passive `disabdakan oleh Rasulullah` all walked through. That is the half-built wall this file
+ * has now been burned by three times. **So the prophetic side does not get a list at all**: it calls
+ * `muhammadSpeechAct`, the instrument already built for this, which carries the closed subject class,
+ * the possessive absorption, and the other-agent break that stops `Ustadz … beliau berkata` from
+ * reading as the Prophet ﷺ. A hand-written copy of a careful rule is not a cheaper version of it.
  */
-const VERBATIM_CLAIM = [
-  /\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\b(berfirman|berkata)\b/,
-  /\b(nabi|rasul|rasulullah|beliau|muhammad)\b[^.!?]{0,40}\b(bersabda|menyabdakan|berkata|berpesan)\b/,
-  /\bfirman(-?\s?nya)?\b/,
-  /\bsabda(-?\s?nya)?\b/,
-  /\b(yang\s+)?artinya\b/,
-  /\bterjemahan(-?\s?nya)?\b/,
-  /\bbunyinya\b/,
-];
+/** Divine verbatim claims. `berfirman` only — see the note above on why `berkata` was removed. */
+const VERBATIM_DIVINE = [/\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\bberfirman\b/, /\bfirman(-?\s?nya)?\b/];
+/** The Prophet's ﷺ own wording, as a noun. The verb forms come from `muhammadSpeechAct`. */
+const VERBATIM_SABDA = /\bsabda(-?\s?nya)?\b/;
+/**
+ * "which means…" — a claim to be rendering something's wording. Subject-less, so it is a scripture
+ * claim only when a reference is adjacent; on its own it glosses an ordinary term.
+ */
+const VERBATIM_GLOSS = /\b((yang\s+)?artinya|terjemahan(-?\s?nya)?|bunyinya)\b/;
 
 export function wordingShape(prose: string): string | null {
   const text = normaliseForSentences(prose);
@@ -667,9 +690,18 @@ export function wordingShape(prose: string): string | null {
     const before = text.slice(Math.max(0, start - 160), start).toLowerCase();
     const near = `${text.slice(Math.max(0, start - ADJACENT_CHARS), start)} ${text.slice(end, end + ADJACENT_CHARS)}`;
 
+    REF_IN_PROSE.lastIndex = 0;
+    const adjacent = REF_IN_PROSE.test(near);
+    REF_IN_PROSE.lastIndex = 0;
+
     // Checked BEFORE the length floor, which is the whole fix. A verbatim claim in front of a quote
-    // is not made innocent by the quote being short.
-    if (VERBATIM_CLAIM.some((re) => re.test(before))) return (m[0] ?? "").trim();
+    // is not made innocent by the quote being short — a shorter forgery is a more compact one.
+    const verbatim =
+      VERBATIM_DIVINE.some((re) => re.test(before)) ||
+      VERBATIM_SABDA.test(before) ||
+      muhammadSpeechAct(before) ||
+      (VERBATIM_GLOSS.test(before) && adjacent);
+    if (verbatim) return (m[0] ?? "").trim();
 
     if (words < OWN_WORDING_MIN_WORDS) continue;
 
@@ -677,9 +709,6 @@ export function wordingShape(prose: string): string | null {
     const prophetic = muhammadSpeechAct(before) || PROPHETIC.some((re) => re.test(before));
     if (divine || prophetic) return (m[0] ?? "").trim();
 
-    REF_IN_PROSE.lastIndex = 0;
-    const adjacent = REF_IN_PROSE.test(near);
-    REF_IN_PROSE.lastIndex = 0;
     if (adjacent && !HUMAN_ATTR.test(before)) return (m[0] ?? "").trim();
   }
   return null;
