@@ -616,96 +616,91 @@ const QUOTED_SPAN_ANY = /[“"]([^”"\n]+)(?:[”"]|$)/gmu;
 const ADJACENT_CHARS = 48;
 
 /**
- * Verbs that claim the quote IS the wording, as opposed to being about it.
+ * A claim that the quote IS God's wording, as opposed to being about it.
  *
- * WHY THIS LIST EXISTS — a live violation, 2026-08-19. Prod shipped, on `apa hukum riba dalam islam
- * dan kenapa dilarang`:
+ * WHY THIS EXISTS — a live violation, 2026-08-19. Prod shipped, on `apa hukum riba dalam islam dan
+ * kenapa dilarang`:
  *
  *     Allah berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba dengan berlipat ganda."
  *
- * A hand-written rendering of an ayah, in quotation marks, attributed to Allah, next to the ref —
- * the exact thing ISC-419 prohibits. `wordingShape` returned `clean`, and `DIVINE_ATTR` matches that
- * sentence perfectly. It never got that far: the quote is SEVEN words and `OWN_WORDING_MIN_WORDS` is
- * eight, so the loop `continue`d before any attribution was examined. Adding one word to the same
- * sentence makes it CAUGHT — the entire difference between shipped and blocked was the floor.
+ * A machine-composed rendering of an ayah, in quotation marks, attributed to Allah, next to the ref
+ * — the exact thing ISC-419 prohibits. `wordingShape` returned `clean`, and `DIVINE_ATTR` matches
+ * that sentence perfectly. It never got that far: the quote is SEVEN words and
+ * `OWN_WORDING_MIN_WORDS` is eight, so the loop `continue`d before any attribution was examined.
+ * Adding one word to the same sentence makes it CAUGHT — the entire difference between shipped and
+ * blocked was the floor.
  *
  * WHY THE FLOOR IS RIGHT ANYWAY, AND WHY IT MUST NOT SIMPLY BE LOWERED. Its comment says it was set
  * from a distribution: violations at 18, 12 and 11 words, longest benign quote 6. That reasoning was
- * sound and the number was still wrong, because a bound taken from the largest observation seen so
- * far only holds until a smaller one arrives. Lowering it to 7 would buy exactly one word of margin
- * and re-make the same mistake. The floor's real job is to spare BARE TERMS — `Allah menyebut mereka
+ * sound and the number was still wrong, because a bound taken from the smallest violation seen so
+ * far only holds until a smaller one arrives. Lowering it to 7 would buy one word of margin and
+ * re-make the same mistake. The floor's real job is to spare BARE TERMS — `Allah menyebut mereka
  * "munafik"` — and a term is short because it is a term, not because of where the threshold sits.
  *
- * SO THE SPLIT IS BY WHAT THE VERB CLAIMS, NOT BY LENGTH. `berfirman`, `firman`, `bersabda`,
- * `artinya`, `bunyinya` assert *these are the words*; nothing following them is a bare term, and a
- * short one is a MORE compact forgery, not a safer one. Those bypass the floor entirely. The looser
- * verbs in `DIVINE_ATTR`/`PROPHETIC` — `menyebut`, `menggambarkan`, `menjelaskan`, `melarang` —
- * assert only *this is about*, which is where the benign bare term lives, so they keep the floor.
+ * SO THE SPLIT IS BY WHAT THE VERB CLAIMS, NOT BY LENGTH. `berfirman` and the `firman` noun assert
+ * *these are the words*; nothing following them is a bare term, and a short one is a more compact
+ * forgery, not a safer one. Those bypass the floor. The looser verbs in `DIVINE_ATTR` — `menyebut`,
+ * `menggambarkan`, `menjelaskan`, `melarang` — assert only *this is about*, which is where the
+ * benign bare term lives, so they keep the floor.
  *
- * CORRECTED 2026-08-19, same day, by the `scholarly-gate` pass on the first cut. That version said
- * here that the change "costs nothing that the 8-word floor was protecting". **That was a claim, not
- * a measurement, and the measurement contradicted it.** Six strings flipped to REFUSE, every one of
- * them in the benign class the floor's own docblock describes — bare glosses (`Kata "riba" artinya
- * "tambahan"`), reported human speech (`ia berkata, "aku takut."`), and the app refusing to quote a
- * named scholar via `beliau` — `Ustadz Muhammad Thalib … beliau berkata, "kaum musyrik."`.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────────
+ * SCOPE: THIS RULE COVERS THE DIVINE CASE ONLY. That is a decision, not an oversight — Erik's call,
+ * 2026-08-19, after three `scholarly-gate` passes and three BLOCKs. Read this before extending it.
  *
- * **Be precise about what that last one is and is not, because the first correction was not.** It is
- * a guard FALSE POSITIVE, not a rights problem. F-1 (relayed verbally by Erik, `PROGRESS.md`
- * 2026-07-17 — there is no `docs/review/` artefact) permits DISPLAYING the Indeks Tematik; it does
- * not reach AI-composed prose that puts quoted words in the author's mouth, and
- * `tanya-ai-request-2026-08-17.md` separately commits us never to re-render his sentences. Nor is he
- * "the reviewer" — that is Ustadz Ahmad Isrofiel Mardlatillah; Ustadz Muhammad Thalib is the index's
- * late author, who reviewed nothing. Do not escalate this class as a permission question: that is
- * how the Prophet ﷺ wall gets narrowed under a rights banner.
+ * The divine half above is the violation that was actually MEASURED on prod, and all three passes
+ * agree it is sound and costs nothing. Every attempt to extend the same bypass to the Prophet ﷺ in
+ * the same commit introduced a NEW defect, each caught only by the next pass:
  *
- * Two causes, both from writing a new list instead of reusing the built one:
+ *   1. A hand-rolled subject list (`nabi|rasul|rasulullah|beliau|muhammad`) was a strict subset of
+ *      `muhammadSubjects`, so `Baginda bersabda`, `Nabiyullah bersabda` and the passive forms walked
+ *      through — the wall was built for God and not for the Prophet ﷺ, which this file had already
+ *      been burned by twice.
+ *   2. Reusing `muhammadSpeechAct` to fix that pulled in its TOPICAL verb stems (`sebut`, `jelas`,
+ *      `larang`, `ajar`), because that function serves the RECEIPT rule, where topical verbs are
+ *      attributions too. It inverted the seam instead of closing it: `Nabi Muhammad menyebut mereka
+ *      "munafik"` refused while the identical sentence about Allah passed.
+ *   3. A verbatim-only verb list (`bersabda|menyabdakan|disabdakan`) paired with `muhammadSubjects`
+ *      fixed 2, but silently dropped the clause window and other-agent break that live inside
+ *      `muhammadSpeechAct` — so subject and verb no longer had to be in the same SENTENCE — and left
+ *      seven further verbatim verbs (`berkata`, `mengatakan`, `menuturkan`, `menyampaikan`,
+ *      `berpesan`, `mengucapkan`, `bertutur`) uncaught while the comment disclosed only one.
  *
- *   - `berkata` under the subject class `dia|ia` is not a divine speech act, it is the commonest
- *     reported-speech verb in Indonesian. `Allah berkata` is not even idiomatic; `berfirman` is the
- *     word. Dropped — the divine side keeps `berfirman` and the `firman` noun alone.
- *   - `artinya` / `terjemahannya` / `bunyinya` are SUBJECT-LESS, so they fired on any gloss of any
- *     term. **They are now out of the bypass entirely**, and the honest reading of that is that this
- *     rule does NOT fix the short-gloss shape. Gating them on ref-adjacency was tried and rejected:
- *     `ADJACENT_CHARS` is 48, so four extra words between the citation and the gloss defeated it,
- *     and shipping a gate that a sentence can walk around is worse than declining the case — it
- *     reads as covered. Glosses stay caught at eight words and up, via `DIVINE_ATTR`, as before.
+ * Underneath all three is a genuine ambiguity that no amount of machinery resolves: `beliau berkata`
+ * is the Prophet ﷺ or a named scholar depending on nothing the sentence contains. Include those
+ * verbs and the app refuses to quote scholars; exclude them and seven verbatim prophetic forms pass.
+ * That trade needs deciding on its own, not as a rider on a divine-side fix.
  *
- * The same pass found the mirror defect: the hand-rolled prophetic pattern was a strict SUBSET of
- * `muhammadSubjects`, so at the very length band this rule exists to close, God was fully covered
- * and the Prophet ﷺ was not — `Baginda bersabda`, `Nabiyullah bersabda`, `Rasulullah mengatakan` and
- * the passive `disabdakan oleh Rasulullah` all walked through. That is the half-built wall this file
- * has now been burned by three times. **So the prophetic side does not get a list at all**: it calls
- * `muhammadSpeechAct`, the instrument already built for this, which carries the closed subject class,
- * the possessive absorption, and the other-agent break that stops `Ustadz … beliau berkata` from
- * reading as the Prophet ﷺ. A hand-written copy of a careful rule is not a cheaper version of it.
+ * **The prophetic sub-eight-word seam is therefore OPEN, exactly as it was before this rule existed
+ * — this is not a regression, it is a hole declined.** It is caught at eight words and up, by
+ * `muhammadSpeechAct` and `PROPHETIC` below, as it always was. There is deliberately NO test
+ * asserting the seam passes: a green test pinning a known hole is what let the divine violation ship
+ * in the first place, and one of those is enough. It is tracked in ISA.md instead.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────────
+ *
+ * TWO THINGS THIS RULE ALSO DOES NOT DO, both learned by trying and measuring:
+ *
+ *   - `berkata` is NOT a divine verbatim verb here, though `DIVINE_ATTR` carries it above the floor.
+ *     Under the subject class `dia|ia` it is the commonest reported-speech verb in Indonesian, so it
+ *     refused `ia berkata, "aku takut."` — ordinary human speech. `Allah berkata` is not idiomatic
+ *     anyway; `berfirman` is the word.
+ *   - `artinya` / `terjemahannya` / `bunyinya` are SUBJECT-LESS, so they fired on a gloss of any
+ *     ordinary term (`Kata "riba" artinya "tambahan"`). They are out of the bypass entirely, and the
+ *     honest reading is that this rule does NOT fix the short-gloss shape. Gating them on
+ *     ref-adjacency was tried and rejected: `ADJACENT_CHARS` is 48, so four extra words between the
+ *     citation and the gloss defeated it, and a gate a sentence can walk around is worse than a
+ *     declined case because it reads as covered. Glosses stay caught at eight words and up.
+ *
+ * ON THE SCHOLAR FALSE POSITIVES the earlier cuts produced — `Ustadz Muhammad Thalib … beliau
+ * berkata, "kaum musyrik."` — be precise, because the first correction was not. That is a guard
+ * FALSE POSITIVE, not a rights problem. F-1 (relayed verbally by Erik, `PROGRESS.md` 2026-07-17;
+ * there is no `docs/review/` artefact) permits DISPLAYING the Indeks Tematik; it does not reach
+ * AI-composed prose that puts quoted words in the author's mouth, and `tanya-ai-request-2026-08-17`
+ * separately commits us never to re-render his sentences. Nor is he "the reviewer" — that is Ustadz
+ * Ahmad Isrofiel Mardlatillah; the index is authored by Ustadz Muhammad Thalib's team, and he
+ * reviewed nothing here. Do not escalate this class as a permission question: that is how the
+ * Prophet ﷺ wall gets narrowed under a rights banner.
  */
-/** Divine verbatim claims. `berfirman` only — see the note above on why `berkata` was removed. */
 const VERBATIM_DIVINE = [/\b(allah|tuhan|dia|ia)\b[^.!?]{0,40}\bberfirman\b/, /\bfirman(-?\s?nya)?\b/];
-/** The Prophet's ﷺ own wording, as a noun — unambiguous, used of no one else. */
-const VERBATIM_SABDA = /\bsabda(-?\s?nya)?\b/;
-/**
- * The prophetic VERBATIM verbs — and the reason this is a short list rather than a call to
- * `muhammadSpeechAct`, which a second `scholarly-gate` pass BLOCKED for exactly that shortcut.
- *
- * `muhammadSpeechAct` is the right instrument for the RECEIPT rule and the wrong one here, because
- * its verb set (`SPEECH_ACT_STEMS`) deliberately includes the topical stems — `sebut`, `jelas`,
- * `larang`, `ajar`, `tunjuk`, `tegas`. Routing the bypass through it therefore let TOPICAL prophetic
- * verbs skip the floor, which is the precise opposite of what the docblock above says this rule
- * does, and it inverted the seam rather than closing it: measured, `Nabi Muhammad ﷺ menyebut mereka
- * "munafik"` refused while the identical sentence about Allah passed. That is the floor's own named
- * benign example with the subject swapped.
- *
- * So: take the SUBJECT machinery, which is closed and careful and covers `Baginda`, `Nabiyullah`,
- * the possessive absorption and the passive forms — and pair it with verbs that can only ever mean
- * *these are his words*. `bersabda`/`menyabdakan`/`disabdakan` are reserved for the Prophet ﷺ in
- * Indonesian religious register; nobody writes them of a scholar. That is what keeps
- * `Imam Nawawi … beliau berkata` out, since `beliau` is itself a `MUHAMMAD_SUBJECT`.
- *
- * KNOWN GAP, left open deliberately: `Rasulullah mengatakan "…"` under eight words is NOT caught.
- * `mengatakan` is equally what one writes of a scholar, so covering it here would re-open the
- * false-positive class this correction exists to close. It remains caught at eight words and up.
- */
-const SABDA_VERB = /\b(bersabda|menyabdakan|disabdakan)\b/;
 
 export function wordingShape(prose: string): string | null {
   const text = normaliseForSentences(prose);
@@ -726,13 +721,9 @@ export function wordingShape(prose: string): string | null {
     // Checked BEFORE the length floor, which is the whole fix. A verbatim claim in front of a quote
     // is not made innocent by the quote being short — a shorter forgery is a more compact one.
     //
-    // The prophetic side reuses `muhammadSubjects` (the closed, carefully-built noun class) but NOT
-    // `muhammadSpeechAct`, and that split is the correction — see the note above `VERBATIM_SABDA`.
-    const verbatim =
-      VERBATIM_DIVINE.some((re) => re.test(before)) ||
-      VERBATIM_SABDA.test(before) ||
-      (muhammadSubjects(before).length > 0 && SABDA_VERB.test(before));
-    if (verbatim) return (m[0] ?? "").trim();
+    // DIVINE ONLY, deliberately. See the SCOPE block above `VERBATIM_DIVINE` before adding a
+    // prophetic clause here; three attempts at one shipped three separate defects.
+    if (VERBATIM_DIVINE.some((re) => re.test(before))) return (m[0] ?? "").trim();
 
     if (words < OWN_WORDING_MIN_WORDS) continue;
 

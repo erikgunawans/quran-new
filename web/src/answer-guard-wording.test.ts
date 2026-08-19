@@ -92,29 +92,22 @@ describe("a verbatim claim is not made innocent by being short", () => {
   });
 
   /**
-   * The Prophet's ﷺ half of the same seam.
+   * THE PROPHETIC HALF IS NOT COVERED BY THIS RULE, and that is Erik's decision of 2026-08-19 after
+   * three `scholarly-gate` BLOCKs — see the SCOPE block in `answer-guard.ts`. Three attempts to
+   * extend the bypass to the Prophet ﷺ each shipped a different defect: a subject list narrower than
+   * `muhammadSubjects`; then `muhammadSpeechAct`, which dragged in its topical verbs and inverted
+   * the seam; then a verbatim verb list that silently lost the clause window and disclosed one
+   * uncaught verb when there were eight.
    *
-   * FOUR of these five went out in the first cut of this fix and the `scholarly-gate` pass caught
-   * them: the original bypass hand-rolled `nabi|rasul|rasulullah|beliau|muhammad` + four verbs, a
-   * strict SUBSET of `muhammadSubjects`, so at exactly the length band this rule exists to close God
-   * was covered and the Prophet ﷺ was not. And the single test guarding it asserted only the ONE
-   * subject the hand-rolled list happened to contain — the same green-test-pins-the-defect structure
-   * this file's own comment indicts, one length band over.
+   * **There is intentionally no test here asserting that a short prophetic wording PASSES.** A green
+   * test pinning a known hole is exactly what let the divine violation ship — this file opens with
+   * that story — and adding a second one to record the decision would repeat it. The gap lives in
+   * ISA.md, where an open item cannot be mistaken for a satisfied assertion.
    *
-   * The SECOND pass then blocked the fix for that: it reused `muhammadSpeechAct`, whose verb set
-   * includes the topical stems, so topical prophetic verbs skipped the floor and the seam inverted
-   * rather than closing. The shipped design takes the closed SUBJECT class and pairs it with verbs
-   * that can only mean *these are his words*. `mengatakan` is deliberately absent — see the gap case
-   * in the cost check below.
+   * What stays asserted is the part that did not change: at eight words and up the prophetic wall is
+   * `muhammadSpeechAct` + `PROPHETIC`, untouched by any of this, and the block further down still
+   * covers it.
    */
-  test.each([
-    ['Rasulullah bersabda, "Malu itu bagian dari iman."', "canonical subject"],
-    ['Baginda bersabda, "Malu itu bagian dari iman."', "Baginda — absent from the hand-rolled list"],
-    ['Nabiyullah bersabda, "Malu itu bagian dari iman."', "Nabiyullah — likewise"],
-    ['Hal itu disabdakan oleh Rasulullah, "Malu itu bagian dari iman."', "passive construction"],
-  ])("refuses a short prophetic wording: %s (%s)", (prose) => {
-    expect(wordingShape(prose)).not.toBeNull();
-  });
 
   test("three words after `berfirman` is still refused", () => {
     expect(wordingShape('Allah berfirman, "Bertakwalah kepada Allah."')).not.toBeNull();
