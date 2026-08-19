@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-19 late-2)
 
-> Prepended by /wrap 2026-08-19 late-2. Anchor `ANCHOR_SHA` (work in `77737aa`, `143323a`,
+> Prepended by /wrap 2026-08-19 late-2. Anchor `90bcde3` (work in `77737aa`, `143323a`,
 > `d20f078`, `4a28bf2`, `15dc044`). **Supersedes the `707f8bb` anchor.** From that handoff: its
 > **§2 (the letter) is CLOSED — Erik sent it**; its **§3 (ISC-537) is MET**; its **§4 (ISC-533/535/
 > 536) is HALF CLOSED — 535 and 536 are MET, 533 and 534 survive**; its **§1, §5 and §6 survive.**
