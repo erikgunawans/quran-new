@@ -168,7 +168,14 @@ describe("a verbatim claim is not made innocent by being short", () => {
     ['Dalam Indeks Tematik, Ustadz Muhammad Thalib menyebut bab itu "Perintah dan Larangan".', "a real chapter title"],
     ['Ustadz Muhammad Thalib menulis entri itu; beliau berkata, "kaum musyrik."', "the originally-pinned string"],
     ['Imam Nawawi menjelaskan hal itu; beliau berkata, "sabar itu cahaya."', "no `muhammad` token at all"],
-    ['Ustadz Ahmad Isrofiel menjawab surat kami; beliau berkata, "boleh."', "the reviewer himself"],
+    // A fixture must never put an ANSWER in the reviewer's mouth. The row that stood here named the
+    // real reviewer and had him reply to our letter granting permission. He has not replied, and
+    // both sent letters say categorically that nothing may be recorded as answered until he does.
+    // No reader could ever have seen it — `wordingShape`'s return reaches `violations[].detail` and
+    // nothing consumes `.detail` — so it was a record injury rather than a shipped claim. It is
+    // still the thing this suite's own subject matter forbids, and it is not reproduced here even
+    // to document its removal. A generic scholar carries the test's point without inventing a reply.
+    ['Seorang ustadz menjawab surat kami; beliau berkata, "begitulah."', "a scholar, no real name"],
   ])("a scholar quoted via `beliau` is not the Prophet ﷺ: %s (%s)", (prose) => {
     expect(wordingShape(prose)).toBeNull();
   });
