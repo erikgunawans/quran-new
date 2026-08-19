@@ -1,3 +1,127 @@
+# Next session — New-Quranku (checkpoint 2026-08-19 late-3)
+
+> Prepended by /wrap 2026-08-19 late-3. Anchor `ANCHOR2` (work in `d20f078`, `4a28bf2`, `0b9e8a9`,
+> `e6aa468`, `5919078`, `4c3b9b0`, `226825c`). **Supersedes the `90bcde3` anchor.** From that
+> handoff: its **§1 (deploy) is DONE**; its **§2 (the scholarly-gate pass) is DONE — three passes,
+> three BLOCKs, all applied**; its **§4 (post-deploy ISC-419 re-measure) is DONE and the criterion
+> is STILL OPEN for a different reason**; its **§3, §5 and §6 survive.** Do not re-derive the
+> ISC-537 probe, the generation distribution, or the three gate passes; all are closed.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-19 (late-3)**).
+
+**Current state.** Gates green — `bun test` **1609/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler --dry-run` exit 0. **ISA 557/570.** Clean tree except untracked `WARP.md` —
+**leave it**. **PROD IS CURRENT AND MATCHES MAIN**: worker `da3031a7`, bundle `index-CWwCYulA.js`,
+verified by served-bytes sha256 `66bd3671…`. Hadith generator still STOPPED (1,746/14,736).
+
+---
+
+## 1. TWO NAMED HOLES ARE OPEN IN THE WORDING WALL. Neither is a regression; both are tracked
+
+Both were found by the gate, both verified by me, both deliberately NOT fixed on Erik's ship-narrow
+call. **Do not mark ISC-419 met without closing (a).**
+
+- **(a) The appositive bypass — SCRIPTURE side, and it is the blocker.** `VERBATIM_DIVINE` binds
+  subject to verb within `[^.!?]{0,40}` and `DIVINE_ATTR` carries the SAME cap, so:
+  `Allah, Tuhan semesta alam yang Maha Pengasih dan Maha Penyayang kepada kita, berfirman,
+  "Bertakwalah kalian."` **passes at seven words AND at nine.** Not a sub-8 gap — a full bypass at
+  any length, and it is the live riba violation with a longer subject phrase. Write that string into
+  a failing test FIRST.
+- **(b) The prophetic sub-8 seam.** Eight verbatim verbs (`bersabda`, `berkata`, `mengatakan`,
+  `menuturkan`, `menyampaikan`, `berpesan`, `mengucapkan`, `bertutur`) are uncaught under eight
+  words. Caught at 8+ by `muhammadSpeechAct` + `PROPHETIC`, untouched.
+
+**Read the SCOPE block above `VERBATIM_DIVINE` in `web/src/answer-guard.ts` BEFORE touching either.**
+It records three failed attempts in full. The trap underneath (b): **`beliau berkata` is the Prophet
+ﷺ or a named scholar depending on nothing the sentence contains.** Include those verbs and the app
+refuses to quote scholars; exclude them and seven verbatim prophetic forms pass. That trade is its
+own decision and needs stating up front, not discovering a fourth time.
+
+## 2. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Tenth handoff running. The letter is SENT (2026-08-19) and **UNANSWERED**, which does NOT unblock
+this — question 3 commits us to learning his boundary first. **ISC-464(b) is blocked on the ANSWER**,
+and ISC-417 stays NOT MET until he replies.
+
+## 3. ISC-533 / ISC-534 survive, and 533's evidence base changed
+
+**The stale-verdict hazard is OBSERVED**, 2 of 21 grounded turns: `blocked:"bad_hadith"` /
+`blocked:"own_wording"` returned alongside `gen.reason:"deadline"`. Any `answer-blocked` copy must
+read the terminal reason from **`gen.reason`**, never `blockedBy` — they disagree on ~10% of grounded
+turns. ISC-534 (blocked copy is an ANNOTATION beside a fast answer, never a replacement) untouched.
+**Do not raise `MODEL_DEADLINE_MS`.**
+
+## 4. Two rights questions, STILL Erik's call, untouched for a fourth handoff
+
+- The cards render `h.english` publicly while `hadith-id-approval-2026-08-12.md` records sunnah.com's
+  terms as **"private research use"**. Never asked, never settled.
+- `MAX_DISPLAY = 2` is defended as a licensing restraint while the browse page publishes the entire
+  Ṣaḥīḥayn with machine Indonesian. The sent letter discloses the asymmetry; nobody has resolved it.
+
+## 5. Every open ISC (12 open + 1 deferred = 570 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) ·
+`ISC-353.0` (superseded, kept for the trail) · `ISC-417` (his ANSWER) · `ISC-419` (**deployed,
+re-measured clean, still open on §1a**) · `ISC-420` (0 hits in 12 answered turns across two runs, but
+still n-small) · `ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (deployed,
+block rate not re-measured) · `ISC-464` (b blocked by §2) · `ISC-487` (re-diagnosed, deliberately NOT
+MET) · `ISC-533` `ISC-534` (§3).
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — re-run the gate AFTER applying its findings.** Three passes on one change; **two of the
+  three BLOCKs were defects my own corrections introduced.** "All findings applied" is not "clean".
+  And reproduce each finding yourself before acting — the gate is another model.
+- **NEW — never record a declined gap as a PASSING test.** A green test is read as a satisfied
+  requirement and its comment second, if at all. That artifact is exactly what let the original
+  violation ship. Declined gaps go in `ISA.md` as open items with the failing string.
+- **NEW — a cost check that samples only the half you did not break is not a cost check.** Pass 2's
+  eight regressions were invisible because the new cost block contained zero prophetic cases.
+- **NEW — `muhammadSpeechAct` is the RECEIPT instrument, not a verbatim one.** Its verb set carries
+  the topical stems on purpose. Reusing it for a wording rule inverts the seam.
+- **NEW — a fixture must never put words in a real scholar's mouth.** One named the reviewer and had
+  him grant permission he has not granted. No reader could see it; it was still a record injury.
+- **`MIN_RETRY_MS` is 11,500 (`4a28bf2`), bounded below the 11,554 ms smallest successful retry
+  budget — NOT the p50.** Success arm n=5. ISC-536 stays in force: move it again only against a
+  fresh distribution with a bigger success arm.
+- **A whole-run bucket total is NOT evidence.** Three runs this session: 29%, 41%, 21% answered, with
+  one deploy among them. Only a PAIRED arm, or a row only the change could emit.
+- **Verify a deploy by SERVED BYTES and a remote SHA**, and rebuild at HEAD first — the dist on disk
+  can be a commit behind, which makes build-meta name the wrong commit.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.**
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal (`` return`synthesis` ``) in the bundle, not a config grep.
+- **This ISA's `### Cycle` headings do not bound the criteria** — 150 ISCs sit BEFORE the first
+  heading. The TOTAL is right; per-cycle attribution is not. Do not "fix" it.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned.** Stage paths deliberately. **Never Python**, including wrap parsers.
+- **Force-red every new test**, and prefer two disjoint mutations over one.
+- **`--env synthesis` is GONE and must not be recreated.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Neither moves.
+- **`MAX_DISPLAY = 2` did not move** — and must not, on an engineering argument.
+- **The Fikih router may ONLY re-rank**, and `entries` stays gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect, echo `$?`, read separately.
+- **Interceptor refs go stale after `navigate`** — re-read the tree and confirm `#q`'s value landed
+  before clicking send; a silent type failure looks exactly like a submit that did nothing.
+- **Routes and identifiers stay `hadis`** though the reader-facing label is **Hadits**.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it across all three markers.
+
+## Open items waiting on me (the user)
+
+- **§1 — which hole, if either, to close**, and whether to fund the `beliau berkata` trade properly.
+- **The two rights questions** (§4) — public English text under "private research use", and the
+  `MAX_DISPLAY = 2` asymmetry. Fourth handoff carrying these.
+- **The Dorar Indonesian preface** — own letter, folded in, or left on the standing rights call?
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-19 late-2)
 
 > Prepended by /wrap 2026-08-19 late-2. Anchor `90bcde3` (work in `77737aa`, `143323a`,

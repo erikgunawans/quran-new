@@ -8,6 +8,101 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-19 (late-3) — three gate BLOCKs on one fix, and the deploy that finally went out
+
+**The session's second half was a single change fought over three times, and the gate won every
+round.** Erik authorised a `scholarly-gate` pass on `d20f078` (the ISC-419 guard fix from earlier
+today). It blocked. The correction blocked. The correction's correction blocked. **Three passes,
+three BLOCKs, thirteen distinct findings, and not one of them repeated** — the same discovery
+behaviour the ustadz letter showed over six passes, on code this time.
+
+**Every finding reproduced before I acted on it.** That mattered: the gate is another model and has
+been wrong before. It was not wrong here, on any of the thirteen.
+
+**Pass 1 — the cost claim was a claim, not a measurement.** `d20f078`'s comment said the change
+"costs nothing that the 8-word floor was protecting". Six benign strings flipped to REFUSE, all in
+the class the floor's own docblock names — bare glosses (`Kata "riba" artinya "tambahan"`), reported
+human speech (`ia berkata, "aku takut."`), and the app refusing to quote a named scholar via
+`beliau`. Cause: `berkata` under `dia|ia` is the commonest reported-speech verb in Indonesian, and
+`artinya`/`terjemahannya` are subject-less so they fired on a gloss of any term. It also found the
+prophetic half was narrower than the divine half, **and that my test asserted only the one subject
+my hand-rolled list happened to contain** — the identical green-test-pins-the-defect structure I had
+indicted three paragraphs into my own commit message.
+
+**Pass 2 — the correction re-committed the defect on the other half.** I fixed the prophetic
+narrowness by calling `muhammadSpeechAct`. Its verb set deliberately carries the TOPICAL stems,
+because it serves the RECEIPT rule where topical verbs are attributions too. So I did not close the
+seam, **I inverted it**: `Nabi Muhammad menyebut mereka "munafik"` refused while the identical
+sentence about Allah passed — the floor's own named benign example with the subject swapped. Eight
+more benign strings regressed, and the cost check written to catch exactly this **contained zero
+prophetic cases**, so it stayed green through all eight.
+
+Pass 2 also killed the pin I had written: I blamed `MUHAMMAD_SUBJECT` matching `muhammad` inside
+Ustadz Muhammad Thalib's name, but `beliau` is *itself* in that class, so `Imam Nawawi … beliau
+berkata` behaved identically with no `muhammad` token present. **A pin whose stated cause is false
+sends the next person to fix nothing.** And it caught the ref-adjacency gloss gate as walkable —
+`ADJACENT_CHARS` is 48, four extra words defeat it, so `d20f078` caught four ISC-419-shaped strings
+and my "fix" shipped three.
+
+**Pass 3 — and the finding that belonged to this gate more than any other.** A test fixture I had
+written named **Ustadz Ahmad Isrofiel Mardlatillah — the actual reviewer — and had him answer our
+letter granting permission.** He has not answered. Both sent letters say categorically that nothing
+may be recorded as answered until he does. No reader could ever have seen it (`wordingShape`'s
+return reaches `violations[].detail`, which nothing consumes), so it was a record injury rather than
+a shipped claim — but a grep for his name returning a sentence in which he says yes is precisely
+what this whole apparatus exists to prevent. **Committed its removal on its own (`5919078`), ahead
+of the other five findings, and did not reproduce the string even to document it.**
+
+Pass 3 also showed my "KNOWN GAP" comment disclosed one uncaught verb where there were eight, and
+that dropping `muhammadSpeechAct` had silently taken the clause window and other-agent break with
+it — so subject and verb no longer had to share a SENTENCE.
+
+**Erik's call: ship narrow.** Offered two ways out — revert the prophetic bypass and ship only the
+measured divine fix, or rework `muhammadSpeechAct` to take a verb set. He chose the first. Under it
+sits a genuine ambiguity no machinery resolves: **`beliau berkata` is the Prophet ﷺ or a named
+scholar depending on nothing the sentence contains.** Include those verbs and the app refuses to
+quote scholars; exclude them and seven verbatim prophetic forms pass. That trade is its own decision.
+
+**One judgement call worth recording, because the obvious move was wrong.** I did NOT add a test
+asserting the prophetic seam passes. Recording the decision that way would have produced a green
+test pinning a known hole — the exact artifact that let the original violation ship, and which the
+file now opens with a story about. The gap went into ISA.md, where an open item cannot be mistaken
+for a satisfied assertion.
+
+**DEPLOYED.** Worker `da3031a7`, bundle `index-CWwCYulA.js`, verified by served-bytes sha256
+`66bd3671…` matching local — not by an exit code. Rebuilt at HEAD first: the dist on disk had been
+built at `5919078`, one commit behind, so build-meta would have named the wrong commit. The
+synthesis literal was confirmed INLINE in the shipped bundle (`` return`synthesis` ``), not inferred
+from config.
+
+**Post-deploy re-measure, 24 turns: the fix works.** 0 leaks, and **zero quoted spans of any length**
+across the 5 answered turns. Four of the five open with `berfirman`/`bersabda`/`firman` and then
+PARAPHRASE without quotation marks — the shape the prompt rule has asked for since 2026-08-12 and
+never got. `apa hukum riba…`, the question that produced the violation, answered clean. The wall is
+changing the form of answers, not costing them.
+
+**Not claimed:** the answered rate was 5/24 here against 7/24 and 13/32 pre-deploy — but those two
+pre-deploy runs disagreed with EACH OTHER by 12 points with no deploy between them. Inside known
+variance, no paired arm, so nothing here measures the deploy's effect on answered rate.
+
+**ISC-419 is STILL NOT MET, and not because of the prophetic seam.** Pass 3 found a pre-existing
+scripture-side bypass that I verified after deploying: `VERBATIM_DIVINE` binds subject to verb
+within `[^.!?]{0,40}` and `DIVINE_ATTR` carries the SAME cap, so an appositive over forty characters
+walks past both — *"Allah, Tuhan semesta alam yang Maha Pengasih dan Maha Penyayang kepada kita,
+berfirman, "Bertakwalah kalian.""* passes at seven words **and at nine**. Not a sub-8 gap: a full
+bypass of the divine wording rule at any length. It predates every commit made today, and it is the
+live riba violation with a longer subject phrase.
+
+**Also this session, before the gate work:** the ustadz letter recorded as SENT (ISC-538 MET, writing
+requirement only); ISC-537 MET on three live turns; ISC-535/536 MET with `MIN_RETRY_MS` 6,000 →
+11,500 from a 49-turn distribution, bounded below the 11,554 ms smallest successful retry rather
+than set at the p50.
+
+**Gates at close:** `bun test` **1609/0** exit 0 · typecheck exit 0 · synthesis build exit 0 ·
+`wrangler --dry-run` exit 0. **ISA 557/570.**
+
+---
+
 ## 2026-08-19 (late-2) — the letter went out, and two walls were measured instead of argued about
 
 **The session's whole shape: every claim here came from driving prod, not from reading code.** Erik
