@@ -1,3 +1,140 @@
+# Next session — New-Quranku (checkpoint 2026-08-19 late-2)
+
+> Prepended by /wrap 2026-08-19 late-2. Anchor `ANCHOR_SHA` (work in `77737aa`, `143323a`,
+> `d20f078`, `4a28bf2`, `15dc044`). **Supersedes the `707f8bb` anchor.** From that handoff: its
+> **§2 (the letter) is CLOSED — Erik sent it**; its **§3 (ISC-537) is MET**; its **§4 (ISC-533/535/
+> 536) is HALF CLOSED — 535 and 536 are MET, 533 and 534 survive**; its **§1, §5 and §6 survive.**
+> Do not re-derive the ISC-537 probe, the generation distribution, or the ISC-323.3 rerank
+> measurement; all three are closed.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-19 (late-2)**).
+
+**Current state.** Gates green — `bun test` **1597/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler deploy --dry-run` exit 0. **ISA 557/570** across all three markers. Clean tree
+except untracked `WARP.md` — **leave it**. **PROD IS UNCHANGED and is now BEHIND main in a way that
+matters**: worker `cfb0b05d`, bundle `index-hqD14U2e.js`. Two reader-facing fixes are committed and
+unreachable. Hadith generator still STOPPED (1,746/14,736).
+
+---
+
+## 1. DEPLOY IS ITEM ONE, and until it happens prod is actively wrong in two ways
+
+Not a tidy-up. Both of these are measured, live, reader-facing:
+
+- **Prod prints hand-written ayah wording.** `d20f078` fixes it. Until deployed, `wordingShape`
+  still waves through any ≤7-word quote after `Allah berfirman` — measured, one shipped answer.
+- **Prod still admits 6-second retries.** `4a28bf2` raises `MIN_RETRY_MS` to 11,500. Until deployed,
+  turns keep paying for retries that the distribution says will not finish.
+
+Deploys are Erik's. **Verify by SERVED BYTES and a remote SHA, never by the command's exit code**,
+and the first curl after a deploy reads the STALE `index.html` from the edge.
+
+## 2. A `scholarly-gate` pass on `d20f078` is OUTSTANDING and should precede the deploy
+
+The change narrows what the app will print about scripture and the Prophet ﷺ — exactly that gate's
+subject. It was not run because this session's harness config forbade spawning agents unsolicited.
+**Ask Erik before running it, then run it before he ships.** Note the standing lesson: re-run the
+gate AFTER applying its findings — a correction is an edit with LESS scrutiny than what it replaces.
+
+## 3. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Ninth handoff running. **The letter is now SENT (2026-08-19), which does NOT unblock this** —
+question 3 commits us to learning the ustadz's boundary before installing the filter, and
+**ISC-464(b) is blocked on the ANSWER**. ISC-417 likewise stays NOT MET until he replies.
+
+## 4. ISC-419 needs a POST-DEPLOY re-measure, and one passing turn will not do
+
+`apa hukum riba…` was refused `own_wording` on two of its three turns in the same 24-turn sample
+that caught the violation, so a single clean turn proves nothing. Re-run
+`bun run src/eval/wall-live-probe.ts --repeat 3` against the deployed fix and read the answered
+prose, not just the bucket count.
+
+## 5. ISC-533 / ISC-534 survive, and 533's evidence base changed today
+
+**The stale-verdict hazard is now OBSERVED**, 2 of 21 grounded turns: `blocked:"bad_hadith"` /
+`blocked:"own_wording"` returned alongside `gen.reason:"deadline"`. So `answer-blocked` copy must
+read the terminal reason from **`gen.reason`**, never from `blockedBy` — the two disagree on ~10% of
+grounded turns. ISC-534 (blocked copy is an ANNOTATION beside a fast answer, never a replacement) is
+untouched. **Do not raise `MODEL_DEADLINE_MS`.**
+
+## 6. Two rights questions, STILL Erik's call, untouched for a third handoff
+
+- The cards render `h.english` publicly while `hadith-id-approval-2026-08-12.md` records sunnah.com's
+  terms as **"private research use"**. Never asked, never settled.
+- `MAX_DISPLAY = 2` is defended as a licensing restraint while the browse page publishes the entire
+  Ṣaḥīḥayn with machine Indonesian. The sent letter discloses the asymmetry; nobody has resolved it.
+
+## 7. Every open ISC, so none is invisible (12 open + 1 deferred = 570 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED —
+do not build against it) · `ISC-353.0` (superseded, kept for the trail) · `ISC-417` (ustadz sign-off
+— his ANSWER, letter now sent) · `ISC-419` (**re-measured 2026-08-19 and STILL VIOLATED**; fix
+committed, needs deploy + §4) · `ISC-420` (0 hits in 7 answered turns, but n=7 — not enough to
+close) · `ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454` (deployed, block rate
+NOT re-measured) · `ISC-464` (b blocked by §3) · `ISC-487` (re-diagnosed, deliberately NOT MET) ·
+`ISC-533` `ISC-534` (§5).
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — a test fixture can teach the suite to expect the bug.** The 8-word floor's own test used
+  `Allah berfirman "…seven words"` and asserted it passes. To test a threshold, hold every OTHER
+  variable at its most permissive. When a test names a numeric boundary, read what else its fixture
+  asserts.
+- **NEW — fix a bad bound by splitting on MEANING, not by moving the number.** 8→7 buys one word and
+  re-makes the error. A bound set from the smallest violation seen so far holds only until a smaller
+  one arrives.
+- **NEW — a criterion citing an instrument is not evidence the instrument can answer it.** ISC-535
+  and ISC-536 both named `wall-live-probe` while it dropped `gen` on the floor. Diff the FIELDS a
+  criterion needs against the fields the probe parses, before running it.
+- **NEW — exclude `outcome:"threw"` from any completion percentile.** It was cut off at budget, so
+  it measures the deadline, not the work. And `row.ms` (whole-POST wall-clock) is not a substitute
+  for per-attempt `gen.attempts[].ms`.
+- **NEW — three turns cannot contain a two-attempt shape.** I wrote "hazard unobserved" into the ISA
+  off a 3-turn probe and a 24-turn run falsified it within the hour. Say "not sampled", not "not
+  present".
+- **`MIN_RETRY_MS` is 11,500 as of `4a28bf2`, bounded below the 11,554 ms smallest successful retry
+  budget — NOT set at the p50.** The success arm is n=5 and the two runs disagree (29% vs 41%
+  answered, `ok` p50 11,468 vs 8,677) with no deploy between. ISC-536 stays in force: move it again
+  only against a fresh distribution with a bigger success arm.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could
+  emit. Two runs this session differed by 12 points with nothing changed between them.
+- **This ISA's `### Cycle` headings do not bound the criteria** — 150 ISCs sit BEFORE the first
+  heading and nine live past `## Test Strategy`. The TOTAL is right; per-cycle attribution is not.
+  Do not "fix" it.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned in this repo.** Stage paths deliberately.
+- **Never Python** — including the wrap's own parsers. TypeScript/bun for every script.
+- **Force-red every new test.** It caught the ISC-419 fix's real coverage this session.
+- **`--env synthesis` is GONE and must not be recreated** — see the tombstone in `worker/wrangler.toml`.
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **A plain `bun run build` leaves a PRINCIPLED dist while prod runs SYNTHESIS.** Verify the INLINED
+  literal, not a config grep.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Neither moves.
+- **`MAX_DISPLAY = 2` did not move** — and must not, on an engineering argument.
+- **The Fikih router may ONLY re-rank**, and `entries` must stay gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect, echo `$?`, read separately.
+- **Interceptor refs go stale after `navigate`** — re-read the tree, and confirm `#q`'s value landed
+  before clicking send; a silent type failure looks exactly like a submit that did nothing.
+- **Routes and identifiers stay `hadis`** even though the reader-facing label is **Hadits**.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it across all three markers.
+
+## Open items waiting on me (the user)
+
+- **Deploy** (§1) — two measured reader-facing defects are fixed on main and unreachable.
+- **Authorise the `scholarly-gate` pass on `d20f078`** (§2) — it should precede the deploy.
+- **The two rights questions** (§6) — public English text under "private research use", and the
+  `MAX_DISPLAY = 2` asymmetry. Third handoff carrying these.
+- **The Dorar Indonesian preface** — own letter, folded in, or left on the standing rights call?
+  ISC-538 is met on the writing requirement but this decision is still open.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-19 late)
 
 > Prepended by /wrap 2026-08-19 late. Anchor `707f8bb` (work in `18e3e36`, `6e837a6`, `6d4d909`,

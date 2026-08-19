@@ -8,6 +8,94 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-19 (late-2) — the letter went out, and two walls were measured instead of argued about
+
+**The session's whole shape: every claim here came from driving prod, not from reading code.** Erik
+opened with "the letter to Ustadz has been sent". That closed the item six gate passes had been
+circling, and freed the three criteria the last handoff said were "now re-measurable, still not
+measured". Measuring them found two live defects nobody had a ticket for.
+
+**The letter (§2, closed).** Erik's own edit had flipped the status word to `DIKIRIM` but left the
+following clause — *"Menunggu pemeriksaan dan pengiriman oleh Erik"* — standing, so the header said
+sent and awaiting-sending in the same sentence. Rewritten to the convention the 2026-08-17 letter
+already uses, including the explicit `Terkirim ≠ disetujui`. **ISC-538 MET**, and deliberately
+narrowly: the criterion asks that the corpus scope be stated IN WRITING before a scholar is asked to
+rule, and it was. No approval is recorded, ISC-417 stays NOT MET, the Dorar-preface decision is
+still Erik's.
+
+**ISC-537 MET — and it needed BOTH endings to be honest.** Three live turns through Interceptor
+against worker `cfb0b05d`, sampled at 2 s across the whole window, every verdict read from the
+`/api/answer` body rather than the DOM. The refusal the criterion names
+(`blocked:"bad_hadith"`, attempts 12,940 + 6,478 ms) held the notice t=11→20 s and dropped it by
+t=22 s. Two deadline turns held it ~10→27 s and dropped it by t=28/29 s. **Only the deadline pair
+actually executed the `finally` ISC-529 added** — `applyAi` returns non-null for `bad_hadith`, so
+that run replaced `innerHTML` and detached the node, making `remove()` a no-op. A probe that had
+caught only a `bad_hadith` turn would have reported MET while never running the fix.
+
+**ISC-419 re-measured and STILL VIOLATED — prod shipped a hand-written ayah.** From a 24-turn
+`wall-live-probe` run:
+
+> *Allah berfirman dalam QS Ali Imran 3:130, "Janganlah kamu memakan riba dengan berlipat ganda."*
+
+`wordingShape` returned `clean`. `DIVINE_ATTR` matches that sentence perfectly — it never got there.
+The quote is **seven words**, `OWN_WORDING_MIN_WORDS` is **eight**, and the loop `continue`s on
+length before reading any attribution. Adding one word makes it CAUGHT.
+
+**And a GREEN TEST WAS PINNING IT.** `the eight-word boundary > seven words is a phrase, and passes`
+built its fixture as `Allah berfirman "satu dua tiga empat lima enam tujuh"` and asserted
+`toBeNull()`. Green for two sessions. The suite could not catch the violation because it had been
+taught to expect it. **The lesson is the fixture, not the threshold:** to test a length floor you
+must hold every other variable at its most permissive, and that one pinned the floor under the
+single preamble that should defeat it.
+
+Fixed in `d20f078` — not by lowering the floor, which would buy one word and re-make the same
+mistake, but by splitting on **what the verb claims**. `berfirman`/`firman`/`bersabda`/`sabda`/
+`artinya`/`bunyinya` assert *these are the words* and bypass the floor at any length; the topical
+verbs keep it, because that is where the benign bare term (`Allah menyebut mereka "munafik"`) lives.
+The Prophet's ﷺ half is closed in the same commit — this repo has twice shipped a wall built for one
+and not the other.
+
+**ISC-535 / ISC-536 MET — the number came from a distribution that had to be built first.** Both
+criteria named `wall-live-probe` as their instrument while the probe read only
+`answer`/`blocked`/`hadith`/`dalil` off the response and dropped `gen` on the floor. So it could say
+how a turn ENDED but not how long an attempt ran, whether a retry happened, or whether one
+succeeded — **the last being the exact number ISC-536 says nothing in this repo can see, sitting on
+the wire unread since ISC-532 shipped.** Taught it to capture `gen`, then ran 49 grounded turns.
+
+Of 20 attempts that COMPLETED: **min 3,950 · p25 7,900 · p50 9,647 · p75 13,557 · p90 14,609 · max
+18,486 ms.** `MIN_RETRY_MS` 6,000 → **11,500** (`4a28bf2`) — set just under **11,554 ms**, the
+smallest budget that has ever produced a successful retry, rather than at the p50, because
+ISC-536's fear proved real: **5 of 22 retries ended answered.** Only 3 of 22 were granted less than
+11,500 ms and none of those completed, so on this sample the change costs zero answers.
+
+**Two corrections to things this ISA said, both mine, both from the same session.**
+
+1. **ISC-533's stale-verdict hazard is OBSERVED, not hypothetical.** I wrote "unobserved, not
+   absent" at 07:00 off a 3-turn sample. The 24-turn run produced it twice in 21 grounded turns:
+   `blocked:"bad_hadith"` with `gen.reason:"deadline"`, and `blocked:"own_wording"` with
+   `gen.reason:"deadline"`. The two fields **disagree on ~10% of grounded turns**, which is both the
+   proof the criterion wanted and the disqualifying evidence for driving the copy off `blocked`.
+2. **ISC-535's own defect statement was too strong.** It says a 6,000 ms retry "**cannot** finish —
+   by construction". One of the twenty completions came in at **3,950 ms**. The defect is real but
+   probabilistic, and leaving the overstatement in place would have been the same species of error
+   as the constant it condemns.
+
+**What the two probe runs also say about reading any single run.** 24 turns gave 29% answered with
+`ok` p50 11,468 ms; 32 turns gave 41% answered with `ok` p50 8,677 ms — **no deploy between them.**
+That is why 11,500 is defended as a bound below an observed floor and not as a percentile precise to
+three digits.
+
+**Nothing shipped.** Prod is unchanged at worker `cfb0b05d` / bundle `index-hqD14U2e.js`. Both fixes
+are committed and unreachable by a reader until Erik deploys — so **prod still prints hand-written
+ayah wording and still admits 6-second retries.** A `scholarly-gate` pass on `d20f078` is also
+outstanding; it narrows what the app prints about scripture and the Prophet ﷺ, which is that gate's
+subject, and it was not run because this session's config forbids spawning agents unsolicited.
+
+**Gates at close:** `bun test` **1597/0** exit 0 · typecheck exit 0 (all five passes) · synthesis
+build exit 0 · `wrangler deploy --dry-run` exit 0. **ISA 553 → 557/570.**
+
+---
+
 
 ## 2026-08-19 — six gate passes, and what we were telling readers while apologising for it
 
