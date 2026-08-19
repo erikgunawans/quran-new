@@ -99,21 +99,21 @@ describe("a verbatim claim is not made innocent by being short", () => {
    * strict SUBSET of `muhammadSubjects`, so at exactly the length band this rule exists to close God
    * was covered and the Prophet ﷺ was not. And the single test guarding it asserted only the ONE
    * subject the hand-rolled list happened to contain — the same green-test-pins-the-defect structure
-   * this file's own comment indicts, one length band over. The fix was to stop writing a list and
-   * call `muhammadSpeechAct`; these cases are what makes that non-optional.
+   * this file's own comment indicts, one length band over.
+   *
+   * The SECOND pass then blocked the fix for that: it reused `muhammadSpeechAct`, whose verb set
+   * includes the topical stems, so topical prophetic verbs skipped the floor and the seam inverted
+   * rather than closing. The shipped design takes the closed SUBJECT class and pairs it with verbs
+   * that can only mean *these are his words*. `mengatakan` is deliberately absent — see the gap case
+   * in the cost check below.
    */
   test.each([
-    ['Rasulullah ﷺ bersabda, "Malu itu bagian dari iman."', "canonical subject"],
+    ['Rasulullah bersabda, "Malu itu bagian dari iman."', "canonical subject"],
     ['Baginda bersabda, "Malu itu bagian dari iman."', "Baginda — absent from the hand-rolled list"],
     ['Nabiyullah bersabda, "Malu itu bagian dari iman."', "Nabiyullah — likewise"],
-    ['Rasulullah mengatakan, "Malu itu bagian dari iman."', "a weak speech verb"],
     ['Hal itu disabdakan oleh Rasulullah, "Malu itu bagian dari iman."', "passive construction"],
   ])("refuses a short prophetic wording: %s (%s)", (prose) => {
     expect(wordingShape(prose)).not.toBeNull();
-  });
-
-  test("a gloss beside a REFERENCE is a scripture claim", () => {
-    expect(wordingShape('Dalam QS Al-Isra 17:32 yang artinya "janganlah mendekati zina".')).not.toBeNull();
   });
 
   test("three words after `berfirman` is still refused", () => {
@@ -121,18 +121,27 @@ describe("a verbatim claim is not made innocent by being short", () => {
   });
 
   /**
-   * THE COST CHECK, and it is not decoration — the first cut of this fix failed every case below.
+   * THE COST CHECK — and BOTH gate passes blocked on this, for different halves.
    *
-   * Its comment claimed the change "costs nothing that the 8-word floor was protecting". That was a
-   * claim, not a measurement, and the `scholarly-gate` pass measured six benign strings flipping to
-   * REFUSE. Two causes, both from writing a new list instead of reusing a built one: `berkata` under
-   * `dia|ia` is the commonest reported-speech verb in Indonesian, not a divine speech act; and
-   * `artinya`/`terjemahannya` are subject-less, so they fired on a gloss of any ordinary term.
+   * Pass 1: the comment claimed the change "costs nothing that the 8-word floor was protecting".
+   * That was a claim, not a measurement, and six benign strings had flipped to REFUSE — `berkata`
+   * under `dia|ia` is ordinary reported speech, and `artinya`/`terjemahannya` are subject-less so
+   * they fired on a gloss of any term.
+   *
+   * Pass 2: the CORRECTION to pass 1 re-committed the same error on the other half. It routed the
+   * prophetic side through `muhammadSpeechAct`, whose verb set carries the topical stems, so eight
+   * more benign strings flipped — and the cost check written to catch exactly this contained ZERO
+   * prophetic cases, so it stayed green through all eight. The prophetic rows below exist because a
+   * cost check that only samples the half you did not break is not a cost check.
    *
    * If any of these goes red, the bypass has grown back into the benign class.
    */
   test.each([
-    ['Allah menyebut mereka “munafik” di banyak tempat.', "a bare term under a TOPICAL verb"],
+    ['Allah menyebut mereka "munafik" di banyak tempat.', "a bare term under a TOPICAL verb"],
+    ['Nabi Muhammad menyebut mereka "munafik" di banyak tempat.', "the SAME sentence about the Prophet ﷺ"],
+    ['Nabi menjelaskan makna "sabar" dengan sederhana.', "prophetic + topical verb"],
+    ['Beliau melarang perbuatan yang disebut "riba".', "likewise"],
+    ['Rasulullah menyebut bulan itu "Ramadan".', "likewise"],
     ['Kata "riba" artinya "tambahan" dalam bahasa Arab.', "a gloss with no reference in view"],
     ['Ada istilah "taqwa", yang artinya "menjaga diri".', "likewise"],
     ['Terjemahannya kira-kira "orang yang bertakwa".', "likewise, subject-less"],
@@ -143,24 +152,25 @@ describe("a verbatim claim is not made innocent by being short", () => {
   });
 
   /**
-   * A KNOWN false positive, pinned deliberately rather than fixed — and the reason is the polarity.
+   * SCHOLARS QUOTED VIA `beliau` — the cost class that nearly shipped twice, named correctly.
    *
-   * `MUHAMMAD_SUBJECT` matches `muhammad` inside **Ustadz Muhammad Thalib's own name**, so a quote
-   * attributed to `beliau` right after it reads as prophetic speech. That is a live collision, not a
-   * hypothetical: he is the Indeks Tematik author whose entries this app displays under an explicit
-   * permission, so his name genuinely appears in composed prose.
+   * The first correction pinned one of these as a KNOWN false positive and explained it as
+   * `MUHAMMAD_SUBJECT` matching `muhammad` inside Ustadz Muhammad Thalib's name. **That explanation
+   * was wrong**, and the second gate pass falsified it in one line: `beliau` is itself an
+   * alternative inside `MUHAMMAD_SUBJECT`, so strings with no `muhammad` token anywhere behaved
+   * identically. The real class was every scholar quoted via `beliau` — including Ustadz Ahmad
+   * Isrofiel, the actual reviewer. A pin whose stated cause is wrong sends the next person to fix
+   * the wrong thing.
    *
-   * Measured, this is PRE-EXISTING: the same sentence with a nine-word quote already refused before
-   * `d20f078`. What this fix changed is its REACH, down to short quotes. It is left standing because
-   * the alternative is narrowing `muhammadSpeechAct` — the highest-stakes wall in the file, which
-   * this repo has reopened twice — to rescue a pointer. The file's own doctrine settles it: an
-   * ambiguous name costs a pointer, never a fabricated hadith.
-   *
-   * **Do not "fix" this by narrowing the Prophet ﷺ wall.** If it needs solving it is a separate
-   * piece of work under the display-permission lens, not a guard-tightening commit.
+   * These now PASS, because the shipped bypass requires a verb reserved for the Prophet ﷺ.
    */
-  test("KNOWN: the reviewer's own name collides with the Prophet ﷺ subject class", () => {
-    expect(wordingShape('Ustadz Muhammad Thalib menulis entri itu; beliau berkata, "kaum musyrik."')).not.toBeNull();
+  test.each([
+    ['Dalam Indeks Tematik, Ustadz Muhammad Thalib menyebut bab itu "Perintah dan Larangan".', "a real chapter title"],
+    ['Ustadz Muhammad Thalib menulis entri itu; beliau berkata, "kaum musyrik."', "the originally-pinned string"],
+    ['Imam Nawawi menjelaskan hal itu; beliau berkata, "sabar itu cahaya."', "no `muhammad` token at all"],
+    ['Ustadz Ahmad Isrofiel menjawab surat kami; beliau berkata, "boleh."', "the reviewer himself"],
+  ])("a scholar quoted via `beliau` is not the Prophet ﷺ: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).toBeNull();
   });
 });
 
