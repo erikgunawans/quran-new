@@ -8,6 +8,81 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-19 (late-4) — the appositive hole closed, and my own fix deleted six refusals on the way
+
+**One change, five `scholarly-gate` passes, 22 findings — and six of them were defects an earlier
+pass's own corrections introduced.** Resumed from the `8a16cbf` handoff and started its item 1: hole
+(a), the scripture-side appositive bypass. Reproduced it first — five bypass strings passing, one
+control refusing — then wrote the failing tests before touching the guard, per the handoff.
+
+**The fix is not a bigger number, and that was the whole design question.** `VERBATIM_DIVINE` and
+`DIVINE_ATTR` both bound subject to verb inside `[^.!?]{0,40}`; an epithet is unbounded, so any
+replacement number waits for a longer epithet. The cap conflated two jobs — same-SENTENCE binding
+(done by `[^.!?]`, load-bearing) and proximity (a guessed number standing in for "no one else owns
+this verb"). So `berfirman` loses its subject test **entirely**: Indonesian reserves the verb for
+God, so the subject was never carrying weight and deleting it cannot be walked around. `DIVINE_ATTR`
+gained an appositive arm for `allah|tuhan`, terminated by a genuine second agent rather than by a
+character count.
+
+**PASS 1 BLOCKED, and it was right: my fix was a NARROWING.** I SWAPPED the window for the span
+instead of unioning with it. `[^.!?]{0,40}` matches straight THROUGH an agent pronoun; the span stops
+dead at one. Paired HEAD-vs-tree probe: **HEAD refused 7 of 7, my tree passed 6.** Six deleted
+refusals — `Allah mengajarkan kita lewat ayat ini, lalu menegaskan, "<an ayah rendering>"` and five
+like it, all inside forty characters, **every one this criterion's exact object.** `bun test` was
+1616/0 green through all six. The doctrine broken is stated thirty lines up in the same file
+(`hadithShape`, ISC-440): *union, never replacement* — and my docblock quoted the polarity claim
+while violating it. Arms are now a union; all six lost refusals are pinned.
+
+**Passes 2–5 found only PROSE claiming more than the code does.** The guard has been correct since
+pass 2; three independent generated sweeps (628,992 / 23,040 / mine) all report **0 refusals lost**,
+which also holds structurally — arms 1+3 reconstruct HEAD's regex exactly, arm 2 is additive, the new
+`/\bberfirman\b/` is a strict superset, `HUMAN_ATTR` is unchanged element-for-element. What the later
+passes caught instead: a headline saying "CLOSED" flat while its own limits paragraph four lines down
+said the bypass reopens; a paired control cited at seven words, below the floor, where neither arm
+could have failed; a false-refusal rate ("3 in 6") whose denominator mixed the rescued class with the
+broken one when the real rate is 100%; "verified across `web/public/surah/*.json`" for a claim that
+corpus could not have falsified; a cost-check block whose rows all terminated on `AGENT_PRONOUN` and
+so witnessed nothing about the vocabulary they were written for; and **two fixtures putting words in
+real mouths** — a hadith qudsi (*inna raḥmatī sabaqat ghaḍabī*) in an unnamed ustadz's, then, in the
+correction to that, a fabricated fiqh ruling in **Imam Nawawi's**. Same class, one notch down. This
+file has now learned the generic-subject rule three times.
+
+**Six correction-introduced defects, at least one in every round, including the count of them.**
+Pass 5's single finding was this very count's own header, left stale at "THREE times, 17 findings"
+while a sentence two paragraphs below it already referenced pass 4. Each pass made the number wrong
+by finding the thing that changed it.
+
+**Verified by mutation, not by assertion.** Delete the `{0,40}` arm → exactly **6** rows red. Delete
+the appositive arm → exactly **2** (both `menjelaskan`; the `berfirman` rows cannot detect it, which
+falsified my own "cap detector" claim). Delete `HUMAN_ROLE` from the break → exactly **1**.
+
+**TWO LIMITS STAY OPEN, recorded in ISA.md, neither pinned by a passing test.** *Under-refusal:*
+`HUMAN_ROLE`'s entries are ordinary words too, so one planted inside an epithet ends the span early
+and the bypass reopens **for the nine loose verbs only** — `berfirman` is airtight. *Over-refusal:*
+every bare proper name now refuses (48/48 — `Ibnu Katsir`, `Quraish Shihab`, `Buya Hamka`,
+`Al-Ghazali`, `gurunya`, `penulisnya`). One `AGENT_BEFORE_VERB`-style proximity test serves both; it
+was deliberately NOT built as a fifth correction inside one change. A THIRD path neither limit covers
+is pre-existing: `wordingShape` reads 160 chars before the quote and that window crosses sentence
+boundaries.
+
+**ISC-486 un-marked `[x]` → `[ ]`, and that is a judgement call Erik can overturn.** It is now false
+for bare proper names, the commonest citation form in Indonesian religious prose. The gate cited
+Erik's own sent letter against leaving the plain mark: *"Jawaban yang bersyarat dicatat beserta
+syaratnya, dan tidak pernah dicatat sebagai persetujuan polos."* No script parses these markers — the
+audience is human, which is exactly who lifts a `[x]` out of its paragraph. Un-marking then orphaned
+three sentences still asserting "marked MET", one of them the block the checkbox points at; all three
+fixed. `progress:` recomputed across all three markers, never hand-set: **557 → 556/570.**
+
+**Committed and pushed as `bcc963d`. NOT DEPLOYED — deploys are Erik's.** ISC-419 stays open pending
+the deploy and a fresh re-measure; the criterion's own text requires it, and `apa hukum riba…` was
+refused on two of three turns in the last sample, so one passing turn proves nothing.
+
+**Gates at close:** `bun test` **1624/0** exit 0 · typecheck exit 0 · synthesis build exit 0 with the
+inlined `` return`synthesis` `` literal present once · `wrangler --dry-run` exit 0. **ISA 556/570.**
+
+---
+
+
 ## 2026-08-19 (late-3) — three gate BLOCKs on one fix, and the deploy that finally went out
 
 **The session's second half was a single change fought over three times, and the gate won every

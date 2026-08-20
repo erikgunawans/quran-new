@@ -1,3 +1,164 @@
+# Next session — New-Quranku (checkpoint 2026-08-19 late-4)
+
+> Prepended by /wrap 2026-08-19 late-4. Anchor `bcc963d`. **Supersedes the `8a16cbf`/`d69e297`
+> anchor.** From that handoff: its **§1(a) — the appositive bypass — is CLOSED, committed, pushed,
+> and NOT deployed**; its **§1(b), §2, §3, §4 and §5 all survive unchanged.** Do not re-derive the
+> appositive reproduction, the union fix, or the five gate passes; all are closed and recorded under
+> ISC-419 in `ISA.md`.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-19 (late-4)**).
+
+**Current state.** Gates green — `bun test` **1624/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570** (was 557; ISC-486 un-marked, see §2). Clean
+tree except untracked `WARP.md` — **leave it**. **PROD IS NOW BEHIND MAIN IN A WAY THAT MATTERS**:
+worker `da3031a7`, bundle `index-CWwCYulA.js` — it does NOT carry `bcc963d`, so the appositive
+bypass is still open to readers. Hadith generator still STOPPED (1,746/14,736).
+
+---
+
+## 1. DEPLOY `bcc963d` AND RE-MEASURE. This is item 1 and it is Erik's call to run
+
+The fix is committed and pushed and reaches nobody. Deploys are gated to Erik — ask, do not run it.
+`web/dist` on disk is already a **synthesis** build at `bcc963d`, but **rebuild at HEAD first**
+anyway (`VITE_ANSWER_MODE=synthesis bun run build` — that is the env var, **not** `EDITION`), verify
+the inlined `` return`synthesis` `` literal is present exactly once, then verify the deploy by
+**served bytes and a remote sha256**, never an exit code.
+
+**Then re-measure ISC-419 on a FRESH sample.** One passing turn proves nothing: `apa hukum riba…`
+was refused `own_wording` on two of its three turns in the last sample. The criterion cannot be
+marked MET on the probe alone — the probe questions do not happen to produce long appositives.
+
+## 2. TWO LIMITS ARE OPEN ON THE WALL, failing in OPPOSITE directions. ONE fix serves both
+
+Both recorded under ISC-419 in `ISA.md`, both verified, **neither pinned by a passing test** — and
+that is deliberate, see the constraint below.
+
+- **UNDER-refusal.** `APPOSITIVE_BREAK` includes `HUMAN_ROLE`, whose entries (`orang`, `banyak`,
+  `sebagian`, `catatan`) are ordinary words as well as roles. One planted inside an epithet ends the
+  span early and the bypass reopens **for the nine loose verbs only**: `Allah, Tuhan yang menciptakan
+  seluruh ORANG di muka bumi ini, melarang, "…"` passes; the same epithet without the noun REFUSES.
+  **`berfirman` is airtight regardless** — `VERBATIM_DIVINE` needs no subject.
+- **OVER-refusal.** Every bare proper name now refuses — **48 of 48** combinations: `Ibnu Katsir`,
+  `Quraish Shihab`, `Buya Hamka`, `Al-Ghazali`, `Ibnu Taimiyah`, `gurunya`, `penulisnya`, `muridnya`.
+  **This is why ISC-486 was un-marked `[x]` → `[ ]`** — it is now false for the commonest citation
+  form in Indonesian religious prose. That flip is a judgement call Erik can overturn; the reasoning
+  is in the criterion itself and rests on his own sent letter's *beserta syaratnya* convention.
+
+**The fix for both is the same:** make the break ask whether the noun is near enough to the verb to
+OWN it — `AGENT_BEFORE_VERB`'s question, already implemented in `muhammadSpeechAct`. It was
+deliberately NOT built as a fifth correction inside one change. **A THIRD path neither limit covers
+is PRE-EXISTING and will survive any fix aimed at the span:** `wordingShape` reads the 160 characters
+before the quote and that window CROSSES SENTENCE BOUNDARIES, so `Allah berfirman … . Ibnu Katsir
+menjelaskan bahwa "…"` refuses on HEAD too.
+
+## 3. Hole (b) — the prophetic sub-8 seam — UNCHANGED, and still Erik's trade to fund
+
+Eight verbatim verbs (`bersabda`, `berkata`, `mengatakan`, `menuturkan`, `menyampaikan`, `berpesan`,
+`mengucapkan`, `bertutur`) uncaught under eight words. Caught at 8+ by `muhammadSpeechAct` +
+`PROPHETIC`, untouched. **Read the SCOPE block above `VERBATIM_DIVINE` in `web/src/answer-guard.ts`
+BEFORE touching it** — it records three failed attempts in full. The trade underneath: **`beliau
+berkata` is the Prophet ﷺ or a named scholar depending on nothing the sentence contains.** Include
+those verbs and the app refuses to quote scholars; exclude them and seven verbatim prophetic forms
+pass. State that trade up front; do not discover it a fourth time.
+
+## 4. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Eleventh handoff running. The letter is SENT (2026-08-19) and **UNANSWERED**, which does NOT unblock
+this — question 3 commits us to learning his boundary first. **ISC-464(b) is blocked on the ANSWER**,
+and ISC-417 stays NOT MET until he replies.
+
+## 5. ISC-533 / ISC-534 survive, unchanged
+
+**The stale-verdict hazard is OBSERVED**, 2 of 21 grounded turns: `blocked:"bad_hadith"` /
+`blocked:"own_wording"` returned alongside `gen.reason:"deadline"`. Any `answer-blocked` copy must
+read the terminal reason from **`gen.reason`**, never `blockedBy` — they disagree on ~10% of grounded
+turns. ISC-534 (blocked copy is an ANNOTATION beside a fast answer, never a replacement) untouched.
+**Do not raise `MODEL_DEADLINE_MS`.**
+
+## 6. Two rights questions, STILL Erik's call, untouched for a FIFTH handoff
+
+- The cards render `h.english` publicly while `hadith-id-approval-2026-08-12.md` records sunnah.com's
+  terms as **"private research use"**. Never asked, never settled.
+- `MAX_DISPLAY = 2` is defended as a licensing restraint while the browse page publishes the entire
+  Ṣaḥīḥayn with machine Indonesian. The sent letter discloses the asymmetry; nobody has resolved it.
+
+## 7. Every open ISC (13 open + 1 deferred = 570 total)
+
+`ISC-98` (real-iOS `visualViewport`) · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) ·
+`ISC-353.0` (superseded, kept for the trail) · `ISC-417` (his ANSWER) · `ISC-419` (**fixed for
+`berfirman`, committed, NOT deployed; open on §1 and §2**) · `ISC-420` (0 hits in 12 answered turns
+across two runs, still n-small) · `ISC-440.6` (two Nabi Yunus sentences, pinned not fixed) · `ISC-454`
+(deployed, block rate not re-measured) · `ISC-464` (b blocked by §4) · `ISC-486` (**NEWLY un-marked,
+see §2**) · `ISC-487` (re-diagnosed, deliberately NOT MET) · `ISC-533` `ISC-534` (§5).
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — a SWAP is not a WIDENING, and the suite cannot see the difference.** Replacing a crude
+  bound with a smarter predicate DELETES refusals the crude bound was making: `[^.!?]{0,40}` matched
+  straight THROUGH an agent pronoun where the new span stops at one, and the swap silently deleted
+  **six** refusals while `bun test` stayed 1616/0 green. **Union, never replacement** (ISC-440,
+  stated in that same file). Prove supersetness with a **paired HEAD-vs-tree probe** —
+  `git show HEAD:<path>` imported beside the tree — before writing any polarity claim, and never
+  claim a polarity for a whole commit when only one half earns it.
+- **NEW — the later gate passes are about the PROSE, and they matter as much.** Five passes: one
+  BLOCK on the code, then four rounds of comments and ISA entries claiming more than the code does —
+  a headline contradicted by its own limits paragraph, a control measured where nothing could fail, a
+  rate whose denominator mixed the rescued class with the broken one, a corpus citation that could
+  not have falsified the claim it was offered for. On this repo an overstated wall IS the failure the
+  review record exists to catch. Keep going; they converge.
+- **NEW — a fixture must never put words in a real mouth, and this file has now learned it THREE
+  times.** A fabricated approval from the reviewer; then a hadith qudsi in an unnamed ustadz's mouth;
+  then, in the correction to THAT, a fabricated fiqh ruling in Imam Nawawi's. Use a generic subject
+  (`seorang mufti`, `penafsir itu`) — it exercises the same code. And check the LEAD clause too: one
+  survived two corrections because attention went each time to the clause after the comma.
+- **NEW — after flipping any ISA marker, grep every file for sentences asserting the old status.**
+  Un-marking ISC-486 orphaned three, one of them the very block the checkbox points at.
+- **Re-run the gate AFTER applying its findings, every time.** Six of this change's defects were
+  introduced by an earlier pass's own corrections — at least one in every round, including the count
+  of them. "All findings applied" is not "clean". Reproduce each finding yourself first.
+- **Never record a declined gap as a PASSING test — and a `- [x]` checkbox is the same artifact.**
+  Declined gaps go in `ISA.md` as open items with the failing string. A criterion MET for one class
+  and false for another gets `- [ ]` plus the condition, never `- [x]` plus a caveat.
+- **`MIN_RETRY_MS` is 11,500 (`4a28bf2`), bounded below the 11,554 ms smallest successful retry
+  budget — NOT the p50.** Success arm n=5. ISC-536 stays in force.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Verify a deploy by SERVED BYTES and a remote SHA**, and rebuild at HEAD first.
+- **The first curl after a deploy reads the STALE `index.html` from the edge.**
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`** — a gate pass got this wrong and
+  stamped `web/dist` principled. A plain `bun run build` leaves a PRINCIPLED dist while prod runs
+  SYNTHESIS. Verify the INLINED literal (`` return`synthesis` ``) in the bundle, not a config grep.
+- **This ISA's `### Cycle` headings do not bound the criteria** — attribution by document position is
+  unreliable (the "Cycle 7 — recitation" heading carries 119 ISCs). The TOTAL is right. Do not "fix" it.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned.** Stage paths deliberately. **Never Python**, including wrap parsers.
+- **Force-red every new test**, and prefer disjoint mutations — one per load-bearing piece.
+- **`--env synthesis` is GONE and must not be recreated.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **`TIMEOUT_MS` (30 s, client) must stay ABOVE `MODEL_DEADLINE_MS` (25 s, Worker).** Neither moves.
+- **`MAX_DISPLAY = 2` did not move** — and must not, on an engineering argument.
+- **The Fikih router may ONLY re-rank**, and `entries` stays gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **Editing `web/src/topic-subjects.ts` REQUIRES `bun run app:topic-subjects`** — it is GENERATED.
+- **Do NOT restart the hadith generator.** Stopped deliberately at 1,746/14,736.
+- **The Bash preflight hook BLOCKS a gate piped into head/tail** — redirect, echo `$?`, read separately.
+- **Interceptor refs go stale after `navigate`** — re-read the tree before clicking send.
+- **Routes and identifiers stay `hadis`** though the reader-facing label is **Hadits**.
+- **The formal `Anda` / `Saudaraku` register is INTENTIONAL.**
+- **Never hand-set ISA `progress:`.** Compute it across all three markers.
+
+## Open items waiting on me (the user)
+
+- **Deploy `bcc963d`** (§1) — the fix reaches no reader until you do.
+- **Whether to fund the `AGENT_BEFORE_VERB` proximity fix** for §2's two limits, or leave both open.
+- **Whether to overturn the ISC-486 `[x]` → `[ ]` un-marking** (§2).
+- **Hole (b)** (§3) — whether to close it, and which side of the `beliau berkata` trade to pay for.
+- **The two rights questions** (§6) — fifth handoff carrying these.
+- **The Dorar Indonesian preface** — own letter, folded in, or left on the standing rights call?
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-19 late-3)
 
 > Prepended by /wrap 2026-08-19 late-3. Anchor `8a16cbf` (work in `d20f078`, `4a28bf2`, `0b9e8a9`,
