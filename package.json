@@ -29,6 +29,7 @@
     "eval:framing": "bun run src/eval/run.ts",
     "eval:answer": "bun run src/eval/answer-run.ts",
     "eval:grounding": "bun run src/eval/grounding-probe.ts",
+    "eval:echo": "bun run src/eval/scripture-echo.ts",
     "app:graph": "bun run src/app/build-graph.ts",
     "app:graph:derived": "bun run src/app/build-graph-derived.ts",
     "app:related": "bun run src/app/build-related-verses.ts",

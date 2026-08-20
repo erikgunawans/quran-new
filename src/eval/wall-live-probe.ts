@@ -96,6 +96,15 @@ interface Row {
   readonly themes: number;
   readonly verses: number;
   readonly entries: number;
+  /**
+   * The REFS posted as grounding — not just how many.
+   *
+   * `scripture-echo` anchors its paraphrase axis on the ayahs a turn cited or was handed, and
+   * without this field the only anchors available are the refs the prose itself names. That makes
+   * an UNCITED re-worded rendering of a verse the model was handed invisible, which is precisely
+   * the shape ISC-419's open seam has. A count cannot serve as an anchor; the refs can.
+   */
+  readonly verseRefs: readonly string[];
   /** Did the Qur'an lane qualify only on a feeling? Opens the hadith lane. */
   readonly weak: boolean;
   /**
@@ -171,6 +180,7 @@ async function turn(p: Probe): Promise<Row> {
     themes: themes.length,
     verses: g.verses.length,
     entries: g.entries.length,
+    verseRefs: g.verses.map((v) => v.ref),
     weak: g.weakVerses,
     offered: 0,
     records: 0,
@@ -380,9 +390,27 @@ if (allAttempts.length === 0) {
   console.log(`  terminal \`gen.reason\`: ${[...reasons].map(([k, v]) => `${k}=${v}`).join(" · ")}`);
 }
 
-const leaks = rows.filter((r) => r.leak.startsWith("LEAK"));
-console.log(`\nLeaks past the deployed wall (wordingShape on returned prose): ${leaks.length}`);
-for (const l of leaks) console.log(`  ${l.leak}  ${l.q}`);
+// ── the line that cannot fail, relabelled to what it can actually tell you ───────────
+//
+// This re-runs `wordingShape` on prose that the DEPLOYED `guardAnswerProse` already cleared with
+// that same function. A zero is therefore true by construction — it prints 0 whether the wording fix
+// shipped, was reverted, or never existed — and it was read as ISC-419 evidence for a whole session.
+//
+// It is not useless; it is a DEPLOY check, and only that. A non-zero means the Worker returned prose
+// this build would refuse, i.e. the deploy did not take or prod is running older code. The label now
+// says so, and says out loud what it cannot measure, so the number cannot be lifted out of context
+// a second time. For whether an answer hand-wrote scripture, use `bun run eval:echo`, which anchors
+// on the shipped corpus and shares no function with the wall.
+const stale = rows.filter((r) => r.leak.startsWith("LEAK"));
+console.log(
+  `\nDEPLOY CHECK — prose this build would refuse but prod returned: ${stale.length}` +
+    ` (non-zero ⇒ prod is running older code)`,
+);
+for (const l of stale) console.log(`  ${l.leak}  ${l.q}`);
+console.log(
+  `  ⚠ NOT an ISC-419 measurement. This re-scans with \`wordingShape\`, the very function the egress` +
+    ` gate used, so a zero is tautological. Score the dump with \`eval:echo\` instead.`,
+);
 
 // Dump every answered turn's prose, so a bucket count is never the only evidence on the record.
 const OUT = flag("dump");
