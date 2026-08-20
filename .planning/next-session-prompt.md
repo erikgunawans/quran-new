@@ -29,12 +29,23 @@ calls.** Get that mechanism right; the first write-up got it backwards.
 four** while question 3 of the 2026-08-18 letter — which names these exact three surfaces — is
 unanswered. `docs/review/rights-2026-08-21.md` ruling 6.
 
-**DO NOT justify it as "the state the 2026-08-17 letter promised."** That was the BLOCK this session
-took: the promise was ABSOLUTE (zero of four; the browse page has rendered this since 2026-08-12, so
-we are at one of four) and it had **already been retracted** in the letter the note is appended to.
+**TWO justifications were tried and BOTH were BLOCKed by `scholarly-gate`. Do not reach for either.**
+1. *"the state the 2026-08-17 letter promised"* — that promise was ABSOLUTE, was already false when
+   sent, and has been retracted. (And be exact: `:68` is a STATEMENT of state; the PROMISE is the
+   *"Yang tidak kami lakukan"* list item at `:139`, and the retraction attaches to the list item.)
+2. *"widens a standing breach from one surface to four"* — **the ONE surface is the Hadits browse
+   page, which is the one surface the ustadz DID permit** (relayed 2026-08-12, rendering since
+   **2026-08-13**, `f067bd2` — those are different dates and mixing them is its own defect). Calling
+   his own permission a breach wrongs him.
 
-The fix, when someone is allowed to make it: `web/src/main.ts:545` and `web/src/dalil-search.ts:127`.
-**Line 545, not 532** — the annotation moved it. There is no test for this, on purpose.
+The accurate form, which was available all along: it switches on **three surfaces he has never
+permitted** — the exact three question 3 asks about.
+
+The fix, when someone is allowed to make it: both `loadHadithIds(h.collection, h.book)` call sites —
+`web/src/main.ts` and `hydrateMachineIndonesian` in `web/src/dalil-search.ts`. **Cited by SYMBOL on
+purpose: that line number rotted FOUR times in four commits** (532 → 545 → 550), broken each time by
+the very commit that wrote it, and the sweep missed the copies in the TABLES twice. There is no test
+for this, on purpose.
 
 ## 2. DO NOT BUILD THE ECHO-WALL UNION. Erik's ruling stands. UNCHANGED
 
@@ -90,9 +101,15 @@ letters *to* him and he has sent nothing.
   is consistent with several routes. The route was written from a glance and was backwards.
 - **NEW — a single date over multiple surfaces reads in the flattering direction.** `e80ff9f` covered
   one of three; the other two were `734c577`, five days younger, on the date the letter regrets most.
-- **NEW — a correction pass leaves residue.** After fixing `main.ts:532`→`545`, the same stale
-  pointer survived in TWO tables. Sweep the whole tree for the old string, do not fix the sites you
-  remember.
+- **NEW — a correction pass leaves residue, and the residue lives in the TABLES.** Two consecutive
+  fixes updated the prose pointer and left the stale line in the same two summary tables. Sweep the
+  whole tree with `rg` for the OLD string; never fix the sites you remember.
+- **NEW — do not run `git add -A` in this repo.** It swept `WARP.md` in twice, once immediately after
+  a `git rm --cached` in the same sequence, which made a commit message false as it was written.
+  Stage named files.
+- **NEW — three gate passes, three verdicts, and the second and third BLOCKed the FIX rather than the
+  original.** Two findings were the exact failure the previous commit message claimed to have closed.
+  Budget a gate pass AFTER every correction, and expect it to find something.
 - **A correction is the least-scrutinised edit.** Re-run the gate AFTER applying it.
 - **Name WHO permitted a thing and WHICH SURFACE.**
 - **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
