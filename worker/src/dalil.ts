@@ -64,8 +64,21 @@ export const CANDIDATE_K = 50;
 /** Retrieval breadth after reranking — what the model may reason over. */
 export const MAX_RETRIEVE = 8;
 /**
- * Display cap — what a reader may ever be shown in one answer. Decision 1 of the Tanya agent PRD,
- * resting on sunnah.com About §8 (per-entry didactic use, no mass reproduction).
+ * Display cap — what a reader may ever be shown in one answer.
+ *
+ * **EDITORIAL, NOT A RIGHTS LIMIT. Erik's ruling, 2026-08-20.** This block used to rest the number
+ * on sunnah.com About §8 (per-entry didactic use, no mass reproduction), and that justification
+ * could not survive being read next to the browse page, which publishes the entire Ṣaḥīḥayn. Two
+ * cards and a whole collection cannot both be what §8 permits. The number is what an ANSWER should
+ * carry — a reader gets the two strongest receipts, not a reading list — and that is a judgement
+ * about answers, which is a perfectly good reason for it. It simply is not a legal one.
+ *
+ * §8 IS NOT THEREBY DISPOSED OF, and deleting the citation would have hidden that. If §8 binds
+ * anything here it binds the BROWSE page, which is where mass reproduction actually happens; that
+ * is an open item and not this constant's problem. Recorded rather than dropped.
+ *
+ * The number does not move — Erik's standing rule, and it never rested on the licensing claim
+ * anyway. What changed is only what the comment claims for it. Decision 1 of the Tanya agent PRD.
  */
 export const MAX_DISPLAY = 2;
 

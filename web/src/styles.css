@@ -851,14 +851,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   line-height: 2;
   color: var(--ink);
 }
-.ai-hadith .hadith-en {
-  margin: 0.85rem 0 0;
-  font-family: var(--f-ui);
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--ink-2);
-  text-wrap: pretty;
-}
+/* `.ai-hadith .hadith-en` removed 2026-08-20: the card no longer emits an English narration
+   (Erik's ruling — sunnah.com's terms are private research use). Dead selector, dropped rather
+   than left to look like a surface that still exists. See web/src/hadith-card.ts. */
 .ai-hadith .hadith-cite {
   display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
   margin-top: 0.9rem; padding-top: 0.7rem; border-top: 1px solid var(--line);

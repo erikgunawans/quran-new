@@ -24,8 +24,23 @@ describe("the card shows the sourced artifact untouched", () => {
     expect(html).toContain("حَدَّثَنَا أَبُو غَسَّانَ الْمِسْمَعِيُّ");
   });
 
-  test("English renders verbatim", () => {
-    expect(html).toContain("Between a man and polytheism and unbelief there is the abandonment of prayer.");
+  /**
+   * REVERSED 2026-08-20 on Erik's ruling. This test previously asserted `English renders verbatim`,
+   * and it was green for as long as the card was publishing text that
+   * `docs/review/hadith-id-approval-2026-08-12.md` records sunnah.com's terms as covering for
+   * "private research use" only. A passing test is exactly how that survived six handoffs of being
+   * raised and never asked: the behaviour looked deliberate because something asserted it.
+   *
+   * `h.english` stays on the RECORD and stays in the model's user message
+   * (`answer-contract.ts`) — the ruling was about PUBLISHING it, not about holding it.
+   */
+  test("the English narration is NOT published — sunnah.com's terms are private research use", () => {
+    expect(html).not.toContain("Between a man and polytheism and unbelief there is the abandonment of prayer.");
+    expect(html).not.toContain('class="hadith-en"');
+  });
+
+  test("the Arabic still carries the card — pulling the English must not empty it", () => {
+    expect(html).toContain("حَدَّثَنَا أَبُو غَسَّانَ الْمِسْمَعِيُّ");
   });
 
   test("collection, number and grade are all present", () => {
@@ -39,8 +54,18 @@ describe("the card shows the sourced artifact untouched", () => {
     expect(html).toContain('rel="noopener noreferrer"');
   });
 
-  test("translator credit is shown — the record's rights.attribution requires it", () => {
-    expect(html).toContain("Darussalam / Muhsin Khan and the named translators");
+  /**
+   * The credit went WITH the text it credited. "Terjemahan Inggris: Darussalam / Muhsin Khan" on a
+   * card carrying no English credits an artifact the reader cannot see. This is an adjacent call I
+   * made rather than one Erik ruled on — the ruling named `h.english` — and it is flagged as such.
+   */
+  test("the English translator credit goes with the English it credited", () => {
+    expect(html).not.toContain("Darussalam / Muhsin Khan and the named translators");
+    expect(html).not.toContain("Terjemahan Inggris");
+  });
+
+  test("the source link stays — attribution to sunnah.com is not what was withdrawn", () => {
+    expect(html).toContain('href="https://sunnah.com/muslim:154"');
   });
 });
 

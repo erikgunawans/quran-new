@@ -41,7 +41,6 @@
  * function is one refactor away from being lost.
  */
 import { esc } from "./esc.ts";
-import { mdEmphasis } from "./prose-format.ts";
 
 /** Matches `DisplayRecord` in worker/src/dalil.ts — the shape the private text layer returns. */
 export interface HadithCard {
@@ -54,7 +53,11 @@ export interface HadithCard {
   book_en: string;
   bab_en: string;
   source_url: string;
-  /** Who rendered the English. Shown on every card — required by the record's own rights.attribution. */
+  /**
+   * Who rendered the English. **No longer shown on any card** — the credit went with the English
+   * when Erik ruled on 2026-08-20 that the narration must not be published. Kept on the record
+   * because the record still HOLDS the English; what was withdrawn is publication, not possession.
+   */
   translator: string;
   /** Ustadz-approved Indonesian, when one exists for THIS record. Absent means no Indonesian shows. */
   reviewed_id?: string;
@@ -76,7 +79,11 @@ export interface HadithCard {
   book?: number;
 }
 
-/** The rights wall, restated. Same number as `MAX_DISPLAY` in worker/src/dalil.ts. */
+/**
+ * The editorial cap, restated. Same number as `MAX_DISPLAY` in worker/src/dalil.ts, and see that
+ * docblock for why it is NOT "the rights wall" — which is what this line called it until Erik ruled
+ * on 2026-08-20 that the cap is an editorial judgement about answers, not a licensing limit.
+ */
 export const MAX_DISPLAY_CARDS = 2;
 
 /**
@@ -106,15 +113,27 @@ export function hadithCardEl(h: HadithCard): string {
 
       <p class="ar" dir="rtl" lang="ar">${esc(h.arabic)}</p>
 
-      ${
-        h.english
-          // The sunnah.com export carries markdown in the text itself — every narration opens
-          // `**Narrated \`Aisha:**` — so the reader met raw asterisks in the middle of a hadith.
-          // Rendering them is presentation, NOT correction: it changes no word of the narration,
-          // it shows the emphasis its own source marked. Verbatim still means verbatim.
-          ? `<p class="hadith-en" lang="en">${mdEmphasis(esc(h.english))}</p>`
-          : ""
-      }
+      ${/*
+        NO ENGLISH NARRATION. Erik's ruling, 2026-08-20.
+
+        The card used to render `h.english` verbatim, with a `mdEmphasis` pass so the source's own
+        `**Narrated \`Aisha:**` markdown read as emphasis rather than raw asterisks. That was careful
+        presentation of text we should not have been publishing at all:
+        `docs/review/hadith-id-approval-2026-08-12.md` records sunnah.com's terms as **"private
+        research use"**, and a public card is neither private nor research.
+
+        The question had been raised in six consecutive handoffs and never actually PUT to Erik, and
+        a passing test (`English renders verbatim`) made the behaviour look settled the whole time.
+
+        SCOPE OF THE RULING — it named `h.english`, the narration. Two neighbours are deliberately
+        NOT touched here and are flagged instead of quietly swept in:
+          · `bab_en`, the English chapter title, still renders — a heading is a different artifact
+            from the narration and Erik ruled on the narration.
+          · `machine_id`, the machine Indonesian, still renders per the ruling — though it was
+            GENERATED FROM this English, which is a derivative-work question nobody has asked.
+        `h.english` also stays on the record and in the model's user message (`answer-contract.ts`);
+        what was withdrawn is PUBLICATION, not possession.
+      */ ""}
 
       ${
         h.reviewed_id
@@ -129,7 +148,10 @@ export function hadithCardEl(h: HadithCard): string {
 
       <footer class="hadith-cite">
         <a href="${esc(h.source_url)}" target="_blank" rel="noopener noreferrer">${esc(h.source_url.replace(/^https?:\/\//, ""))}</a>
-        ${h.translator ? `<span class="translator">Terjemahan Inggris: ${esc(h.translator)}</span>` : ""}
+        ${/* The "Terjemahan Inggris: …" credit went with the English it credited — crediting a
+             translation the reader cannot see is not attribution, it is noise. The SOURCE link
+             above stays: what was withdrawn is the text, not the acknowledgement of where the
+             record came from. Adjacent to Erik's ruling rather than named by it. */ ""}
       </footer>
     </article>`;
 }
