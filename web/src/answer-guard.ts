@@ -594,7 +594,7 @@ const DIVINE_VERB =
  * `menurut` is the odd one out and is kept anyway. It is a PREPOSITION, not an agent, so as an
  * appositive break it is doing something the other entries are not — but it only ever appears where
  * an owner follows it, and dropping it here would fork the vocabulary that this const exists to keep
- * single. Noted rather than silently carried, because it is not covered by the two limits below.
+ * single. Noted rather than silently carried, because it is not covered by any of the THREE limits below (it was "the two limits" until 2026-08-20; limit 3 was added below it and this sentence was not updated in the same pass that updated the header).
  */
 const HUMAN_ROLE =
   "ulama|ustadz|kiai|kyai|mufti|imam|syaikh|syekh|orang|entri|catatan|penafsir|mufassir|sebagian|banyak|menurut";
@@ -632,9 +632,18 @@ const HUMAN_ROLE =
  * does not know `imam`, `mufti`, `penafsir` or `banyak orang` can own a verb, but `HUMAN_ATTR`
  * already enumerates exactly them, so the break reuses that vocabulary rather than a third list.
  *
- * TWO LIMITS REMAIN, AND THEY FAIL IN OPPOSITE DIRECTIONS. Naming only the safe one is how a guard
- * comes to be read as stronger than it is, which `ustadz-followup-2026-08-18` commits us in writing
- * not to do.
+ * THREE LIMITS REMAIN. Naming only the safe one is how a guard comes to be read as stronger than it
+ * is, which `ustadz-followup-2026-08-18` commits us in writing not to do — *"supaya Ustadz tidak
+ * menilai penjaga itu lebih kuat daripada keadaannya."*
+ *
+ * This header said TWO for a whole gate pass AFTER limit 3 was added forty lines below it, while the
+ * matching `ISA.md` header was corrected in the same diff. So the two records disagreed on how many
+ * limits were open and **the one a maintainer reads in the code stated the smaller number** — under
+ * the sentence above, which says that is exactly how the guard gets over-read.
+ *
+ * NUMBERING IS ISA's, NOT THE BULLET ORDER BELOW. Limit 1 = UNDER-refusal, limit 2 = OVER-refusal,
+ * limit 3 = the adjacency stand-down — matching ISC-419 in `ISA.md`. The bullets below run
+ * OVER first for historical reasons, so "limit 1" in this file never means "the first bullet".
  *
  *   - OVER-REFUSAL. A human subject in neither vocabulary — `gurunya`, `penulisnya`, a bare proper
  *     name like `Ibnu Katsir` or `Buya Hamka` — does not break the span, so a designation early in a
@@ -652,27 +661,179 @@ const HUMAN_ROLE =
  *         Allah, Tuhan yang memberi BANYAK nikmat tak terhitung jumlahnya, menjelaskan, "…" passes
  *
  *     `berfirman` is airtight regardless — `VERBATIM_DIVINE` needs no subject — so this reaches only
- *     the nine looser verbs. Closing it needs the break to ask whether the noun is near enough to the
- *     verb to OWN it (`AGENT_BEFORE_VERB`'s question), not merely whether it appears. That is real
- *     machinery and it is NOT built here: several of this change's own defects were introduced by a
- *     correction to it — the count and its basis live under ISC-419 in `ISA.md`, which is the ONE
- *     place that number is stated, because two copies of it already disagreed once. This would be a
- *     further correction on top. Tracked there.
+ *     the nine looser verbs. **NARROWED, NOT CLOSED — and the word "CLOSED" stood here over two
+ *     different false versions of this sentence before it came down.** `APPOSITIVE_OWNS_VERB` and the
+ *     third arm below close it wherever the role noun sits AWAY from the verb — 72 of 72 of the
+ *     comma-terminated epithets measured, and 7,020 of 7,020 across a wider comma grid. **That is a
+ *     measured set, NOT the class "comma-terminated": a draft said "every comma-terminated epithet"
+ *     and `Allah, Tuhan yang menciptakan seluruh orang di muka bumi ini, DAN KITA menegaskan, "…"`
+ *     falsifies it — comma-terminated and still OPEN, because the owner sits after the comma.** The
+ *     comma is not the discriminator; POSITION RELATIVE TO THE VERB is. It stays OPEN wherever an
+ *     owner token is the last or
+ *     second-to-last word before the verb, because that is exactly when the adjacency stand-down
+ *     fires — see limit 3 below. The limit's text is kept rather than deleted because the arm it
+ *     describes is still here and still has this shape; what changed is that a second arm now covers
+ *     part of what it misses. Read the two together.
+ *   - The OVER-refusal limit above is NOT closed, and the third arm does not close it — it ENLARGES
+ *     it. That is the opposite of what the first version of this paragraph said, and the correction
+ *     came from a `scholarly-gate` BLOCK: proximity makes the BREAK fire less often, but the third
+ *     arm is not the break, and it ignores upstream owners the span used to stop at. On HEAD a bare
+ *     name is RESCUED whenever any owner token appears earlier in the sentence — `…yang KITA baca
+ *     bersama tadi malam, dan Ibnu Katsir menjelaskan bahwa "…"` passes, because the span ends at
+ *     `kita` before ever reaching the verb. Measured at 120 of 120. A bare name with NO upstream
+ *     token was already refused on HEAD, so this makes ISC-486 UNIFORMLY false for that class rather
+ *     than newly false. The reducing fix is a proper-name vocabulary on the ownership test — shown to
+ *     work, not built here; see the cost block below and ISC-486 in `ISA.md`.
+ *   - LIMIT 3, THE ADJACENCY STAND-DOWN FIRES INSIDE AN EPITHET. Pre-existing, not a regression —
+ *     HEAD passes these too — and the reason the word "CLOSED" above was wrong twice. The stand-down
+ *     asks only whether an owner token sits within one word of the verb; it cannot tell whether that
+ *     token is the sentence's subject or a noun buried in a description of Allah. Every pinned row
+ *     terminates its epithet with a COMMA, and a comma defeats `\\w+\\s+`, so the arm fires. Move the
+ *     same noun to the tail of the epithet — ordinary Indonesian, no comma — and all three arms stand
+ *     down together:
+ *
+ *         Allah, Tuhan yang menghidupkan dan mematikan setiap makhluk dan banyak ORANG melarang, "…"
+ *         Allah, Tuhan yang telah menciptakan langit dan bumi beserta KITA semua menegaskan, "…"
+ *
+ *     **EVERY ROW OPEN across eight tail-position epithet shapes × nine loose verbs — 72 of 72 on the grid described here, whose eight shapes are enumerated below.** ⚠ **The numeral 72 carries FOUR senses in these two files and two of them are opposite (a draft said THREE and missed `HUMAN_ATTR`'s `{0,72}` character bound at the foot of this file — a universal asserted about a numeral is still a universal): `72 GAINED` (refusals added), `72 of 72` CLOSED (comma-terminated set, limit 1), and this one, `72 of 72` OPEN (tail-position set, limit 3). The first two are the same rows; this third is a disjoint set of coincidentally equal size, ~30 lines away in the same docblock. A draft replaced a wrong "72 of 207" with a bare "72 of 72" and created the collision while fixing the denominator.** **AND 72 IS NOT THE ONLY ONE — 36 and 18 carry the identical shape and are flagged here rather than left: `36` is a count of under-refusals AND two disjoint 36-row measured sets AND a 36-of-36 figure; `18` is a count of over-refusals AND an 18-row owner-free set AND the numerator of the discredited "18 of 63" rate AND the largest word count in the `OWN_WORDING_MIN_WORDS` distribution ("the violations were 18, 12 and 11 words"). The `18` flag missed that fourth sense on its first pass while the `72` flag had already been widened to catch exactly that kind of non-measurement numeral — a flag held to a lower standard than the flag beside it.** And the 100% is a property of THIS eight-shape set, not of tail position as a class — an independently-chosen eight-shape set returned 54–59 of 72 — and that denominator is a FIFTH sense of 72, a different eight-shape grid, which the four-sense list above does not cover. **A draft wrote "72 of 207", and 8×9 is exactly 72 while 207 is not divisible by 8: the numerator came from the stated grid and the denominator from a larger one that mixed in shapes this class does not cover. That reads as a 35% rate and is not one** — the same denominator error `ISA.md` corrects under ISC-486 ("a denominator mixing the rescued class with the broken one reads as a rate and is not one"). Wider: 2 designations × 26 owner tokens × 8 tail shapes × 9 loose verbs × 2 quotes = 7,488 rows, 7,488 open on tree AND on HEAD, including the plain
+ *     `Allah yang …` relative clause — but ONLY when an owner token sits at the tail. A draft said
+ *     "with no appositive at all", which is false as a universal and in the direction that OVERSTATES
+ *     the hole: `Allah yang Maha Pengasih menegaskan, "…"` is REFUSED on tree and on HEAD; the same
+ *     clause ending `beserta KITA semua` is open. THE EIGHT TAIL SHAPES, enumerated because a draft
+ *     cited a grid it never listed: four `Allah, Tuhan yang …` appositives (`… dan banyak <T>`,
+ *     `… beserta <T> semua`, `… kepada setiap <T>`, `… di dalam <T>`), two `Allah yang …` relative
+ *     clauses (`… dan banyak <T>`, `… beserta <T> semua`), and two more appositives
+ *     (`… bagi hamba dan <T>`, `… setiap bagian tubuh <T>`), each closed by one of the nine loose
+ *     verbs. THE ENUMERATION LISTS TAILS, NOT BODIES, and the result depends on the body clearing
+ *     arm 1's forty characters — the same eight tails on a SHORT body are REFUSED. A reader
+ *     reproducing 72 of 72 needs that constraint; without it the grid does not reproduce.
+ *     **EVERY token in `AGENT_PRONOUN` ∪ `HUMAN_ROLE` opens it at tail position — 26 of 26 measured,
+ *     one row per token, identical on HEAD.** Not merely the four nouns limit 1 names: a draft said
+ *     "all four nouns … and both pronoun forms", which reads as six and is twenty-six. `berfirman` is
+ *     airtight throughout. Deliberately NOT pinned by a passing test; recorded with its failing
+ *     strings under ISC-419 in `ISA.md`, per this file's convention for a declined gap.
  */
 const APPOSITIVE_BREAK = `(?<!\\b(?:kepada|bagi|untuk|pada|terhadap|dari|oleh|sama)\\s)\\b(?:${AGENT_PRONOUN}|${HUMAN_ROLE})\\b`;
 const DIVINE_APPOSITIVE = `(?:(?!${APPOSITIVE_BREAK})[^.!?])*`;
 
 /**
+ * A `PRONOUN_APPOSITIVE` — the same span stopping only at `AGENT_PRONOUN` — STOOD HERE FOR ONE GATE
+ * PASS AND WAS REVERTED. It is recorded rather than deleted because the reasoning that produced it is
+ * the kind that will be produced again.
+ *
+ * It was written to answer a `scholarly-gate` finding that the ownership arm below enlarges ISC-486:
+ * on HEAD a bare scholar name is rescued whenever any owner token appears earlier in the sentence,
+ * and the arm ignores upstream tokens. Splitting `APPOSITIVE_BREAK` — always-agents (`kita`, `mereka`)
+ * stop the span, sometimes-agents (`orang`, `banyak`) do not — restored that rescue for the first kind
+ * and cut the over-refusal from 120 of 120 to 80 of 120.
+ *
+ * IT ALSO RE-OPENED THE BYPASS THIS WHOLE CRITERION EXISTS TO CLOSE, and the next gate pass found it:
+ * a pronoun planted inside an epithet longer than forty characters ends the span too, so all three
+ * arms stop before the verb and the divine attribution walks through. **45 of 45 pronoun-epithet rows
+ * passed.** `Allah, Tuhan yang menciptakan KITA semua di muka bumi ini, menegaskan, "<an ayah
+ * rendering>"` — which is ISA.md's own recorded live-violation shape, caught until now only because it
+ * happened to fit inside forty characters.
+ *
+ * THE TRADE, MEASURED IN BOTH DIRECTIONS AT ONCE, is why it is gone: the split bought 18 fewer
+ * over-refusals and cost 36 more under-refusals. On this wall those units are not comparable — an
+ * under-refusal is the app printing its own rendering as Allah's words, an over-refusal is a scholar's
+ * quotation declined. The premise it rested on was false in the same breath: `kita` in
+ * `menciptakan kita semua` is an OBJECT, so the token is not "an agent wherever it appears" either.
+ */
+
+/**
+ * The break's question, asked the other way round: not "does an owner APPEAR between the designation
+ * and the verb", but "does one sit near enough to OWN it".
+ *
+ * This is `AGENT_BEFORE_VERB`'s test — owner, then at most one intervening word, then the verb — and
+ * the shape is taken from there rather than re-guessed, because `muhammadSpeechAct` already answers
+ * this question for the prophetic wall and two answers to one question drift. It reuses
+ * `APPOSITIVE_BREAK` verbatim for the same reason the break reuses `HUMAN_ROLE`: the preposition
+ * lookbehind is load-bearing here too, and a third copy of that vocabulary is a third thing to
+ * forget. `Allah menurunkan rahmat-Nya KEPADA KITA, menegaskan, "…"` must still refuse — `kita` is
+ * a RECIPIENT — while `…, dan KITA menegaskan, "…"` must stand the arm down.
+ *
+ * WHY THIS IS A THIRD ARM AND NOT A REPLACEMENT FOR `DIVINE_APPOSITIVE`. Union, never replacement —
+ * the rule stated thirty lines above `hadithShape` (ISC-440), and the one whose breach deleted six
+ * refusals one commit ago while `bun test` stayed 1616/0 green. Additive means no refusal CAN be
+ * lost, rather than none appearing to be. Measured, not assumed: a paired HEAD-vs-tree sweep of 880
+ * designation × epithet × verb × quote combinations returns 72 GAINED and **0 LOST**.
+ *
+ * An earlier draft justified the arm as a "strict superset" of the span instead. It is not one, and
+ * `scholarly-gate` produced the counterexample: this lookbehind is not scoped to the region BETWEEN
+ * the designation and the verb, so an owner standing before the designation blocks it while leaving
+ * the span untouched — `menurut ulama allah menegaskan bahwa "…"` matches arm 2 and not arm 3. The
+ * union is what makes the change safe; the superset argument was wrong and was never what made it so.
+ *
+ * WHAT IT COSTS, AND THE COST IS THE OVER-REFUSAL LIMIT GETTING WORSE. The arm ignores owner tokens
+ * UPSTREAM of the verb, and on HEAD those are what rescue a bare scholar name — the span ends there
+ * before the verb is ever reached. So this passed on HEAD and is refused here:
+ *
+ *     …pada bagian akhir pembahasan yang KITA baca tadi malam, dan Ibnu Katsir menjelaskan bahwa "…"
+ *
+ * **120 of 120** such rows, measured by `scholarly-gate` — not by this change's own first cost probe,
+ * which reported "18 of 63" from a grid that put no owner token upstream and therefore could not have
+ * contained the class it was offered as the cost of. A bare name with NO upstream token was already
+ * refused on HEAD (27 of 27 here, and 48 of 48 in ISC-486's own measurement), so what this arm does
+ * is make ISC-486 UNIFORMLY false for bare names rather than newly false.
+ *
+ * NO PROXIMITY TEST RECONCILES LIMITS 1 AND 2 — but the residue is NOT irreducible, and a draft of
+ * this comment called it that. `scholarly-gate` refuted it in one pass by adding a proper-name
+ * vocabulary to the ownership test alone: the bare-name rows are rescued, all four ISC-419 bypass
+ * rows stay refused, whole suite green. The sentence distinguishes the cases after all — the owner
+ * adjacent to the verb is a NAME. That path is not taken here because it is a real design question
+ * and not a fourth correction inside one change: `before` is lower-cased before any arm sees it, so
+ * capitalisation is unavailable and a hand-kept name list is what remains. Recorded under ISC-486.
+ *
+ * WHY THE COST IS PAID RATHER THAN SPLIT. Narrowing the span to always-agent tokens does cut this to
+ * 80 of 120 — and it re-opens the bypass for pronoun epithets. **Two grids measure that re-opening and
+ * they are not in conflict: 45 of 45 on a 5-epithet × 9-verb grid, and 36 of 36 on the 4-epithet ×
+ * 9-verb paired grid that scores both directions at once.** The paired grid is the one the trade is
+ * read off, because it is the only one that prices both sides on the same rows: 36 under-refusals
+ * opened against 18 over-refusals rescued. See the reverted `PRONOUN_APPOSITIVE` block above. The
+ * units are not comparable either way: an under-refusal is the
+ * app printing its own rendering as Allah's words, an over-refusal is a scholar's quotation declined
+ * with the reader told nothing. The divine side is chosen deliberately, and the cost is a cost, not
+ * a second win. Exact figures under ISC-486 in `ISA.md`.
+ */
+const APPOSITIVE_OWNS_VERB = `(?<!${APPOSITIVE_BREAK}\\s+(?:\\w+\\s+)?)`;
+
+/**
  * The words belong to Allah / the Qur'an — the sentence says so.
  *
  * `allah|tuhan` and `dia|ia` are split because they are not equally load-bearing. The designations
- * are unambiguous wherever they sit, so they get the appositive arm as well as the window. The
- * pronouns are anaphoric — `ia berkata` is the commonest reported-speech shape in Indonesian — and
- * are divine only by proximity, so they keep the tight window alone.
+ * are unambiguous wherever they sit, so they get all THREE arms — the 40-character window, the
+ * appositive span, and the ownership test. The pronouns are anaphoric — `ia berkata` is the commonest
+ * reported-speech shape in Indonesian — and are divine only by proximity, so they keep the tight
+ * window alone.
+ *
+ * The three designation arms are a UNION, and deletion says which of them still earns its place —
+ * arm 1 turns **4** rows red, arm 3 turns **8**, **arm 2 turns none**. That is measured by deleting
+ * each line in turn, with the probe asserting the line it deleted was an arm: two earlier versions of
+ * this measurement reported all-zero because their edit never applied, and a third read 10/0/4 off a
+ * narrower arm 3 that has since been reverted. A mutation probe that cannot fail is the same artifact
+ * as a test that cannot fail, and this comment has now shipped both.
+ *
+ *   - ARM 1, the window, reaches straight THROUGH an owner adjacent to the verb. It is the ONLY arm
+ *     that does. Its four rows are the block `the 40-character window catches what neither the span
+ *     nor the ownership arm can`, and they exist because arm 3 adopts the six pass-1 regression rows
+ *     that were previously arm 1's only witnesses — without them, deleting arm 1 is green across the
+ *     whole file, which is exactly what it was when this was first measured.
+ *   - ARM 2, the span, turns no row red — but it is NOT logically subsumed, and an earlier version of
+ *     this comment said it was. `scholarly-gate` supplied the counterexample: arm 3's lookbehind is
+ *     not scoped to the region between designation and verb, so `menurut ulama allah menegaskan bahwa
+ *     "…"` matches arm 2 and not arm 3. Subsumed on every row in this file, measured; not subsumed as
+ *     a property. It is kept for that reason and for the older one — `union, never replacement` is
+ *     this file's law, and "provably loses nothing" is the exact reasoning that cost six refusals one
+ *     commit ago.
+ *   - ARM 3, the ownership test, reaches past ANY owner token that is not adjacent to the verb —
+ *     `HUMAN_ROLE` and `AGENT_PRONOUN` alike. Restricting it to the first kind was tried and reverted;
+ *     the block above `APPOSITIVE_BREAK` records why.
  */
 const DIVINE_ATTR = [
   new RegExp(`\\b(allah|tuhan)\\b[^.!?]{0,40}\\b(${DIVINE_VERB})\\b`),
   new RegExp(`\\b(allah|tuhan)\\b${DIVINE_APPOSITIVE}\\b(${DIVINE_VERB})\\b`),
+  new RegExp(`\\b(allah|tuhan)\\b[^.!?]*?${APPOSITIVE_OWNS_VERB}\\b(${DIVINE_VERB})\\b`),
   new RegExp(`\\b(dia|ia)\\b[^.!?]{0,40}\\b(${DIVINE_VERB})\\b`),
   /\bfirman(-?\s?nya)?\b/,
   /\b(yang\s+)?artinya\b/,

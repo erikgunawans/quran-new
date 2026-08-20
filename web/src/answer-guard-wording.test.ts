@@ -428,3 +428,166 @@ describe("an appositive cannot walk a divine verbatim claim past the wall", () =
     expect(wordingShape(prose)).toBeNull();
   });
 });
+
+/**
+ * THE UNDER-REFUSAL LIMIT, NARROWED (NOT CLOSED — see limit 3 in the guard) — LIMIT 1 in the guard's ISA-matched numbering (not "the second" — the guard's bullets run OVER-refusal first, and there are THREE limits, not two), the one the appositive arm shipped with, and
+ * the one whose polarity is safe: closing it ADDS refusals and can delete none.
+ *
+ * `APPOSITIVE_BREAK` reuses `HUMAN_ROLE`, and those nouns are ordinary Indonesian words as well as
+ * roles. One planted inside an epithet ended the span early, so the arm never reached the verb and
+ * the bypass reopened for the nine loose verbs:
+ *
+ *     Allah, Tuhan yang menciptakan seluruh ORANG di muka bumi ini, melarang, "<an ayah rendering>"
+ *
+ * THE FIX IS NOT A SMALLER VOCABULARY. Dropping `orang` and `banyak` from `HUMAN_ROLE` would break
+ * `HUMAN_ATTR`, which is the consumer that vocabulary was written for, and would re-fork the list the
+ * const exists to keep single. The break was asking the wrong question: whether an owner APPEARS,
+ * rather than whether one is near enough to the verb to OWN it. That second question is
+ * `AGENT_BEFORE_VERB`'s, already answered in `muhammadSpeechAct`, and the third arm asks it here.
+ *
+ * IT IS A THIRD ARM, NOT A REPLACEMENT — the rule this file breaks a wall with every time it is
+ * treated as advice (ISC-440, and the pass-1 BLOCK on the arm directly above). A draft of this
+ * paragraph called the new arm "a strict superset of the old span's" and used that to say union and
+ * replacement would agree anyway. It is NOT a superset — the arm's lookbehind is not scoped to the
+ * region between designation and verb, so `menurut ulama allah menegaskan bahwa "…"` matches the span
+ * and not the arm. The union is what makes this safe, and the superset argument was never what did.
+ *
+ * THE CONTROL IS THE SAME EPITHET WITH THE ROLE NOUN SWAPPED FOR AN ORDINARY ONE. Without it these
+ * rows only witness that a long epithet is refused, which the block above already establishes; with
+ * it they witness that the role noun was the variable. Both controls REFUSE on HEAD and after.
+ *
+ * `berfirman` is deliberately absent from these rows. `VERBATIM_DIVINE` needs no subject, so it takes
+ * every `berfirman` row whatever the epithet holds — a `berfirman` row here would be green with this
+ * whole arm deleted and would witness nothing, which is the mistake the cap-detector comment above
+ * records having already made once.
+ */
+describe("a role noun set away from its verb no longer buys a bypass", () => {
+  const AYAH_RENDERING = '"Janganlah kamu memakan riba dengan berlipat ganda karena itu merugikan sesama."';
+
+  test.each([
+    [
+      `Allah, Tuhan yang menciptakan seluruh orang di muka bumi ini, melarang, ${AYAH_RENDERING}`,
+      "`orang` — an ordinary noun that is also a HUMAN_ROLE entry",
+    ],
+    [
+      `Allah, Tuhan yang memberi banyak nikmat tak terhitung jumlahnya, menjelaskan, ${AYAH_RENDERING}`,
+      "`banyak` — a quantifier, never an agent here",
+    ],
+    [
+      `Allah, Tuhan yang tak butuh catatan amal dari siapa pun juga, menegaskan, ${AYAH_RENDERING}`,
+      "`catatan` — a noun, not a speaker",
+    ],
+    [
+      `Allah, Tuhan yang menguji sebagian hamba dengan kelapangan rezeki, memerintahkan, ${AYAH_RENDERING}`,
+      "`sebagian` — a partitive",
+    ],
+    // THE PRONOUN HALF, and it is here because a correction pass shipped a version that closed the
+    // four rows above and left these four open — under the word "CLOSED", for a whole gate pass.
+    // `kita` in `menciptakan kita semua` is an OBJECT, not an agent, so a span that ends at every
+    // pronoun ends inside an epithet exactly as `orang` did. Same bypass, different vocabulary.
+    [
+      `Allah, Tuhan yang menciptakan kita semua di muka bumi ini, menegaskan, ${AYAH_RENDERING}`,
+      "`kita` as an object inside the epithet",
+    ],
+    [
+      `Allah, Tuhan yang mengajarkan kita lewat ayat-ayat-Nya yang mulia, menjelaskan, ${AYAH_RENDERING}`,
+      "`kita` again, past the 40-character window",
+    ],
+    [
+      `Allah, Tuhan yang menuntun mereka sejak zaman dahulu kala, melarang, ${AYAH_RENDERING}`,
+      "`mereka` as an object",
+    ],
+    [
+      `Allah, Tuhan yang memberi kami rezeki tanpa pernah putus, memerintahkan, ${AYAH_RENDERING}`,
+      "`kami` as an object",
+    ],
+  ])("refused: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  test.each([
+    [
+      `Allah, Tuhan yang menciptakan seluruh langit di muka bumi ini, melarang, ${AYAH_RENDERING}`,
+      "the same epithet, ordinary noun — refused on HEAD too",
+    ],
+    [
+      `Allah, Tuhan yang memberi limpahan nikmat tak terhitung jumlahnya, menjelaskan, ${AYAH_RENDERING}`,
+      "the same epithet, ordinary noun — refused on HEAD too",
+    ],
+  ])("control, the role noun was the variable: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+
+  /**
+   * THE COST ROWS — prose whose quoted words belong to a HUMAN and must keep passing. ONE mechanism
+   * holds them: ADJACENCY (`APPOSITIVE_OWNS_VERB`), an owner plus at most one intervening word, the
+   * shape `AGENT_BEFORE_VERB` already accepts.
+   *
+   * EVERY QUOTE HERE IS AT LEAST EIGHT WORDS, and that is load-bearing rather than incidental. A
+   * `scholarly-gate` pass found two rows in this block quoting seven — under `OWN_WORDING_MIN_WORDS`,
+   * so `wordingShape` `continue`s before any arm is consulted and the row passes for a reason that has
+   * nothing to do with the code it was written for. They were green with the whole arm deleted. That
+   * is the exact failure the docblock thirty lines up congratulates this block for avoiding on the
+   * `berfirman` rows, reintroduced one describe later by a correction pass.
+   *
+   * There is deliberately NO row here for a bare proper name. That class is REFUSED — 120 of 120 with
+   * an upstream owner token, and already refused on HEAD without one — and a passing row asserting
+   * otherwise would pin a known hole as satisfied behaviour. It is recorded under ISC-486 in `ISA.md`
+   * with its failing string, which is where a declined gap belongs.
+   */
+  test.each([
+    [
+      'Ayat itu menyebut nama Allah pada bagian akhirnya, dan seorang mufti menegaskan bahwa "setiap tambahan yang disyaratkan dalam akad pinjaman termasuk yang dilarang".',
+      "ISC-486 — a HUMAN_ROLE owner adjacent to its verb",
+    ],
+    [
+      'Ayat itu menyebut nama Allah pada bagian akhirnya, lalu penafsir itu menjelaskan bahwa "riba menutup pintu tolong-menolong di antara sesama manusia yang beriman".',
+      "a HUMAN_ROLE owner adjacent to its verb, no collective attribution",
+    ],
+    [
+      'Ayat itu menyebut nama Allah pada bagian akhir pembahasan panjang tadi malam, dan penafsir itu menjelaskan bahwa "riba menutup pintu tolong-menolong di antara sesama manusia yang beriman".',
+      "the same, with a long lead — adjacency is what holds it, not distance from the designation",
+    ],
+  ])("still passes: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  test("a recipient is not an owner, so the arm still refuses", () => {
+    const prose = `Allah menurunkan rahmat-Nya kepada kita, menegaskan, ${AYAH_RENDERING}`;
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+});
+
+/**
+ * ARM 1'S OWN WITNESSES — added because the third arm made the suite BLIND to arm 1's deletion.
+ *
+ * Deleting the 40-character window left this file green until these rows existed. That is not a
+ * curiosity: the six refusals the pass-1 BLOCK cost us are window refusals, and the rows that pin
+ * them (`the window still catches what the span cannot`, above) now ALSO pass through the ownership
+ * arm, so they stopped witnessing the arm they were written for. A regression row that has quietly
+ * acquired a second catcher is a row that no longer guards anything.
+ *
+ * WHAT ONLY ARM 1 CATCHES: an owner sitting ADJACENT to the verb but INSIDE forty characters of the
+ * designation. The ownership arm stands down there by design — an adjacent owner owns the verb — and
+ * the span arm stops at the owner. Only the window reads straight through. HEAD refuses all four, so
+ * under `union, never replacement` they must keep refusing; deleting arm 1 turns exactly these red
+ * and nothing else in the file.
+ *
+ * The tension is real and is not resolved here: the same adjacency that makes the ownership arm stand
+ * down is overridden by the window when it happens to fall inside forty characters. The two arms
+ * disagree about who owns `menegaskan` in `Allah dan kita menegaskan, "…"`, and the union keeps the
+ * REFUSING answer. That is the safe direction and it is deliberate, but it means the wall's answer to
+ * "who owns this verb" depends on a character count. Recorded under ISC-486 in `ISA.md`.
+ */
+describe("the 40-character window catches what neither the span nor the ownership arm can", () => {
+  const AYAH_RENDERING = '"Janganlah kamu memakan riba dengan berlipat ganda karena itu merugikan sesama."';
+
+  test.each([
+    [`Allah dan kita menegaskan, ${AYAH_RENDERING}`, "`kita` adjacent, inside the window"],
+    [`Allah lalu mereka melarang, ${AYAH_RENDERING}`, "`mereka` adjacent, inside the window"],
+    [`Allah, dan ulama menjelaskan, ${AYAH_RENDERING}`, "`ulama` — a HUMAN_ROLE owner, adjacent"],
+    [`Allah serta kami menyebutkan, ${AYAH_RENDERING}`, "`kami` adjacent"],
+  ])("refused: %s (%s)", (prose) => {
+    expect(wordingShape(prose)).not.toBeNull();
+  });
+});
