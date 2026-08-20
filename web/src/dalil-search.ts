@@ -129,6 +129,11 @@ export async function hydrateMachineIndonesian(cards: HadithCard[]): Promise<Had
       } catch {
         // Unreachable shard → Arabic only. (Said "Arabic + English" until 2026-08-21; the English
         // narration was withdrawn from publication on 2026-08-20.)
+        //
+        // THIS BRANCH IS NOT AN EDGE CASE — IT IS EVERY CALL. `h.collection` is a display name
+        // ("Sahih Muslim"); the shards are keyed by slug ("muslim"). So Hadits search and Fikih
+        // search have never shown this text. Left broken on Erik's 2026-08-21 ruling while the
+        // ustadz's question 3 is unanswered — `docs/review/rights-2026-08-21.md` ruling 6.
       }
     }),
   );

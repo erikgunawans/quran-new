@@ -523,8 +523,21 @@ async function aiHtml(
   const hadithFor = new Map(hadith.filter((h) => h.arabic && h.source_url).map((h) => [h.id, { ...h }]));
   // The machine Indonesian (ISC-449) is resolved through `hadith-id.ts`, so the
   // `SHOW_MACHINE_HADITH_TEXT` gate stays the single place that decides whether this text may show
-  // at all. Only Ṣaḥīḥ Muslim books 1–21 carry it today; every other record simply renders without,
-  // exactly as the card did before.
+  // at all. (This said "Only Ṣaḥīḥ Muslim books 1–21 carry it today" until 2026-08-21; counted on the
+  // shipped files that day, 14,655 hadith across BOTH collections carry it.)
+  //
+  // AND NONE OF IT REACHES THIS CARD. `h.collection` is a DISPLAY NAME off the wire — "Sahih Muslim"
+  // — while the shards are keyed by SLUG, `hadith-id/muslim/1.json`. The fetch below asks for
+  // `/hadith-id/Sahih Muslim/1.json`, the SPA fallback answers `index.html` at HTTP **200**,
+  // `res.json()` throws on the HTML, and the `catch` degrades to Arabic-only. Silent since `e80ff9f`.
+  // Measured 2026-08-21 with a paired arm on live prod cards: 0/2 filled here, 2/2 with the slug.
+  //
+  // ERIK RULED 2026-08-21: LEAVE IT BROKEN. Not because it is harmless — because this dead state is
+  // the state the 2026-08-17 letter PROMISED Ustadz Ahmad, and question 3 of the 2026-08-18 letter,
+  // which asks about this exact surface, is unanswered. Repairing the key switches it on for the
+  // first time while he is still owed an answer. See `docs/review/rights-2026-08-21.md` ruling 6 for
+  // what unblocks it. Do not "tidy" this into a slug lookup; that is the whole change, and it is
+  // deliberately not made.
   await Promise.all(
     [...hadithFor.values()].map(async (h) => {
       if (h.reviewed_id || !h.book || !h.collection) return;

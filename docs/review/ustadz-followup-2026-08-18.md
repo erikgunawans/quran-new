@@ -394,3 +394,50 @@ diucapkan Erik tidak boleh berdiri di dalam paragraf yang berlabel keputusan Eri
 Dicatat di sini karena file ini semula satu-satunya berkas di `docs/review/` yang memuat pernyataan
 yang sudah dinilai keliru **tanpa penanda apa pun di filenya sendiri** — dua berkas lain menunjuk ke
 sini, sementara file ini tidak menunjuk ke mana-mana.
+
+---
+
+**Tambahan catatan, 2026-08-21 — DAN INI YANG PALING BERAT DI HALAMAN INI.**
+
+Surat ini menyatakan bahwa teks Indonesia hasil mesin itu tampil di **empat tempat** (`:56-57`), lalu
+memerincinya satu per satu (`:136-142`). **Tiga dari empat tempat itu tidak pernah menampilkannya
+sama sekali** — dan baru diketahui hari ini, dua hari sesudah surat dikirim.
+
+Sebabnya teknis dan sepenuhnya kesalahan kami. Kunci pencarian berkas terjemahan memakai **nama
+tampilan** (`"Sahih Muslim"`), sedangkan berkasnya disimpan dengan **nama ringkas** (`muslim`). Berkas
+yang dicari tidak pernah ada; permintaannya jatuh ke halaman utama aplikasi, penguraiannya gagal, dan
+penanganannya diam-diam mundur ke "tampilkan Arabnya saja". Tidak ada pesan galat, tidak ada uji yang
+gagal. Terjadi sejak fitur kartu hadis itu pertama kali dibuat (`e80ff9f`).
+
+Jadi keadaan sebenarnya, per hari ini:
+
+| tempat yang disebut surat ini | teks Indonesia mesin benar-benar tampil? |
+|---|---|
+| Halaman Hadits, saat kitab-kitabnya ditelusuri | **ya** |
+| Hasil pencarian di halaman Hadits | **tidak, tidak pernah** |
+| Hasil pencarian di halaman Fikih | **tidak, tidak pernah** |
+| Kartu hadis di bawah jawaban | **tidak, tidak pernah** |
+
+Diukur, bukan dibaca dari kode: fungsi yang benar-benar dipakai aplikasi dijalankan atas kartu yang
+benar-benar dikirim server — 0 dari 2 terisi dengan nilai yang dipakai sekarang, 2 dari 2 terisi bila
+kuncinya dibetulkan. Perbandingan berpasangan, bukan satu sisi saja.
+
+**Keputusan Erik, 2026-08-21: JANGAN dibetulkan sekarang.** Alasannya: ketiga tempat yang mati itu —
+secara tidak sengaja — justru keadaan yang **dijanjikan** kepada Ustadz dalam surat 17 Agustus.
+Membetulkannya berarti menyalakan ketiganya untuk pertama kalinya **selagi jawaban Ustadz atas
+pertanyaan 3 belum ada**, dan itu bentuknya sama persis dengan penambahan halaman Fikih pada
+18 Agustus yang sudah kami mintakan maaf di Bagian 1 surat ini. Kekeliruan yang dibiarkan berdiri
+bukan karena nyaman, melainkan karena membetulkannya hari ini akan menambah satu perbuatan lagi yang
+harus dimintakan maaf.
+
+**Ustadz belum diberi tahu soal ini, dan itu juga keputusan Erik (2026-08-21).** Bukan karena tidak
+penting — justru sebaliknya. Alasannya: menambah surat keempat kepada orang yang belum menjawab dua
+surat sebelumnya kemungkinan besar lebih merugikan daripada memuatnya dalam satu surat setelah
+Ustadz menjawab. Bila dan ketika surat berikutnya disusun, **koreksi ini harus ada di dalamnya**, dan
+catatan ini adalah pengingat yang mengikat untuk itu.
+
+**Surat di atas tetap tidak diubah satu huruf pun.** Yang ditambah hanyalah catatan ini.
+
+*(Untuk pembaca repo, bukan untuk Ustadz: perbaikan kuncinya satu baris di dua tempat —
+`web/src/main.ts:532` dan `web/src/dalil-search.ts:127`. Sengaja TIDAK dikerjakan. Jangan pula
+dicatat sebagai uji yang lulus; lubang yang diketahui tidak boleh dipatok oleh uji hijau.)*
