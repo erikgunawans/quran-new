@@ -399,15 +399,23 @@ sini, sementara file ini tidak menunjuk ke mana-mana.
 
 **Tambahan catatan, 2026-08-21 — DAN INI YANG PALING BERAT DI HALAMAN INI.**
 
-Surat ini menyatakan bahwa teks Indonesia hasil mesin itu tampil di **empat tempat** (`:56-57`), lalu
-memerincinya satu per satu (`:136-142`). **Tiga dari empat tempat itu tidak pernah menampilkannya
+Surat ini menyatakan bahwa teks Indonesia hasil mesin itu tampil di **empat tempat** (`:56-58`), lalu
+memerincinya satu per satu (`:126-149`). *(Catatan ini semula menulis `:56-57` dan `:136-142`. Yang
+pertama memotong justru baris yang menyebut tempat keempat; yang kedua hanya memuat sebagian dari
+perinciannya.)* **Tiga dari empat tempat itu tidak pernah menampilkannya
 sama sekali** — dan baru diketahui hari ini, dua hari sesudah surat dikirim.
 
 Sebabnya teknis dan sepenuhnya kesalahan kami. Kunci pencarian berkas terjemahan memakai **nama
 tampilan** (`"Sahih Muslim"`), sedangkan berkasnya disimpan dengan **nama ringkas** (`muslim`). Berkas
 yang dicari tidak pernah ada; permintaannya jatuh ke halaman utama aplikasi, penguraiannya gagal, dan
 penanganannya diam-diam mundur ke "tampilkan Arabnya saja". Tidak ada pesan galat, tidak ada uji yang
-gagal. Terjadi sejak fitur kartu hadis itu pertama kali dibuat (`e80ff9f`).
+gagal.
+
+Tanggalnya ada **dua**, dan catatan ini semula menyebut satu saja. Kartu hadis di bawah jawaban:
+sejak `e80ff9f`, **13 Agustus 2026**. Dua tempat pencarian: sejak `734c577`, **18 Agustus 2026** —
+yaitu tanggal yang di Bagian 1 surat ini justru paling kami sesali. Menyatukan ketiganya di bawah
+tanggal yang lebih tua membuat kekeliruan itu tampak lebih tua daripada yang sebenarnya, dan itu
+menguntungkan kami.
 
 Jadi keadaan sebenarnya, per hari ini:
 
@@ -422,22 +430,39 @@ Diukur, bukan dibaca dari kode: fungsi yang benar-benar dipakai aplikasi dijalan
 benar-benar dikirim server — 0 dari 2 terisi dengan nilai yang dipakai sekarang, 2 dari 2 terisi bila
 kuncinya dibetulkan. Perbandingan berpasangan, bukan satu sisi saja.
 
-**Keputusan Erik, 2026-08-21: JANGAN dibetulkan sekarang.** Alasannya: ketiga tempat yang mati itu —
-secara tidak sengaja — justru keadaan yang **dijanjikan** kepada Ustadz dalam surat 17 Agustus.
-Membetulkannya berarti menyalakan ketiganya untuk pertama kalinya **selagi jawaban Ustadz atas
-pertanyaan 3 belum ada**, dan itu bentuknya sama persis dengan penambahan halaman Fikih pada
-18 Agustus yang sudah kami mintakan maaf di Bagian 1 surat ini. Kekeliruan yang dibiarkan berdiri
-bukan karena nyaman, melainkan karena membetulkannya hari ini akan menambah satu perbuatan lagi yang
-harus dimintakan maaf.
+**Keputusan Erik, 2026-08-21: JANGAN dibetulkan sekarang.** Membetulkan kuncinya berarti **memperluas
+pelanggaran yang sudah berjalan, dari satu tempat menjadi empat**, selagi jawaban Ustadz atas
+**pertanyaan 3** — yang justru menyebut ketiga tempat itu satu per satu (`:254-257`) — belum ada.
+Bentuknya sama persis dengan penambahan halaman Fikih pada 18 Agustus yang sudah kami mintakan maaf
+di Bagian 1 surat ini. Kekeliruan yang dibiarkan berdiri bukan karena nyaman, melainkan karena
+membetulkannya hari ini akan menambah satu perbuatan lagi yang harus dimintakan maaf.
 
-**Ustadz belum diberi tahu soal ini, dan itu juga keputusan Erik (2026-08-21).** Bukan karena tidak
-penting — justru sebaliknya. Alasannya: menambah surat keempat kepada orang yang belum menjawab dua
-surat sebelumnya kemungkinan besar lebih merugikan daripada memuatnya dalam satu surat setelah
-Ustadz menjawab. Bila dan ketika surat berikutnya disusun, **koreksi ini harus ada di dalamnya**, dan
-catatan ini adalah pengingat yang mengikat untuk itu.
+*(Catatan ini semula beralasan bahwa ketiga tempat yang mati itu "justru keadaan yang **dijanjikan**
+kepada Ustadz dalam surat 17 Agustus". **Itu tidak benar, dan tidak benarnya menguntungkan kami** —
+dalam dua hal. Pertama, janjinya mutlak: "Aplikasi **tidak pernah** menampilkan teks hadis dalam
+bahasa Indonesia hasil mesin" — nol dari empat tempat, bukan tiga dari empat. Keadaan yang sebenarnya
+adalah **satu dari empat**: halaman Hadits menampilkannya sejak 12 Agustus 2026 dan masih. Kedua,
+janji itu **sudah kami cabut sendiri** di Bagian 1 surat ini juga. Bersandar pada janji yang sudah
+dicabut, untuk menggambarkan keadaan yang tidak pernah sesuai dengannya, di dalam catatan yang kelak
+akan dimuat dalam surat berikutnya kepada Ustadz — itu persis kekeliruan yang harus dijaga oleh
+halaman ini. Alasan yang lebih lemah di atas tetap berdiri tanpa perlu klaim itu.)*
+
+**Ustadz belum diberi tahu soal ini, dan itu keputusan Erik (2026-08-21).** Yang berasal dari Erik
+hanyalah keputusan itu sendiri.
+
+**Pertimbangan di baliknya adalah penilaian penulis catatan — bukan kalimat Erik**, dipisahkan
+begini karena alasan yang tidak diucapkan Erik tidak boleh berdiri di dalam paragraf yang berlabel
+keputusan Erik: menambah **satu surat lagi** kepada orang yang belum menjawab dua surat sebelumnya
+tampaknya lebih merugikan daripada memuatnya dalam satu surat sesudah Ustadz menjawab. *(Catatan ini
+semula menulis "surat keempat". Surat berikutnya adalah yang **ketiga**, dan membesarkan hitungannya
+berarti membesarkan pula beban yang dipakai untuk membenarkan keputusan tidak memberi tahu.)*
+
+Bila dan ketika surat berikutnya disusun, **koreksi ini harus ada di dalamnya**, dan catatan ini
+adalah pengingat yang mengikat untuk itu.
 
 **Surat di atas tetap tidak diubah satu huruf pun.** Yang ditambah hanyalah catatan ini.
 
 *(Untuk pembaca repo, bukan untuk Ustadz: perbaikan kuncinya satu baris di dua tempat —
-`web/src/main.ts:532` dan `web/src/dalil-search.ts:127`. Sengaja TIDAK dikerjakan. Jangan pula
+`web/src/main.ts:545` dan `web/src/dalil-search.ts:127`. Semula tertulis `main.ts:532`; komentar yang
+ditambahkan bersama catatan ini sendiri menggeser barisnya turun tiga belas baris. Sengaja TIDAK dikerjakan. Jangan pula
 dicatat sebagai uji yang lulus; lubang yang diketahui tidak boleh dipatok oleh uji hijau.)*

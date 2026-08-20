@@ -35,8 +35,11 @@ could not be a broken check.
 **ISC-419's echo-wall union stays UNBUILT** per Erik's standing ruling. Eight more answered-turn
 observations exist now; the union is still not built and `ECHO_MIN_RUN` was not lowered.
 
-**§8 IS RULED — after fifteen handoffs carrying it as "open" without anyone ASKING it.** Erik,
-2026-08-21: the Hadits browse page stays. It carries no sunnah.com-authored work — the hadith text is
+**§8 IS RULED.** Erik, 2026-08-21: the Hadits browse page stays. *(This first said "after fifteen
+handoffs carrying it as open" — false. The §8-vs-browse framing was created 2026-08-20 by `6ede5cf`;
+it was open ONE DAY. The fifteen belongs to the unanswered letters.)* The three-part basis was
+composed by the DA and put to Erik as the option's stated reasoning; he selected it. Assent his,
+wording not. It carries no sunnah.com-authored work — the hadith text is
 canonical public-domain Arabic, their English is dropped at build time, the structural metadata and
 Indonesian kitab titles are ours. Residual exposure recorded rather than argued away: §8 is a
 terms-of-use condition and a condition can bind where copyright does not. `docs/review/rights-2026-08-21.md`
@@ -51,25 +54,30 @@ Found while verifying the deploy. **Not looked for.**
 
 `h.collection` off the wire is a DISPLAY NAME — `"Sahih Muslim"`. The shards are keyed by SLUG —
 `hadith-id/muslim/1.json`. So the fetch asks for `/hadith-id/Sahih Muslim/1.json`, the **SPA fallback
-answers `index.html` at HTTP 200**, `res.json()` throws on the HTML, and the `catch` degrades to
-Arabic-only. No error, no failing test, no telemetry. **Silent since `e80ff9f`.**
+answers `index.html` at HTTP 200**. `res.json()` throws — and `loadHadithIds` **catches that itself**
+and returns an empty file, so the call-site `catch` fires on ZERO calls and `machine_id` is simply
+never assigned. *(First written as a call-site `catch`; the outcome was measured and right, the route
+was read off the code and read wrong.)* **Two dates:** the answer card since `e80ff9f` (2026-08-13),
+the two search surfaces since `734c577` (**2026-08-18** — the date the letter regrets most).
 
 | surface | renders? |
 |---|---|
 | Hadits browse page (`sections.ts:225`, passes the route slug) | **yes** |
 | Hadits search results (`dalil-search.ts:127`) | **no, never** |
 | Fikih search results (same call site) | **no, never** |
-| Hadith card under an answer (`main.ts:532`) | **no, never** |
+| Hadith card under an answer (`main.ts:545`) | **no, never** |
 
 **Measured with a PAIRED ARM using the SHIPPED `hydrateMachineIndonesian` over the cards live prod
 returned: 0/2 filled with the wire value, 2/2 with the slug.** One arm would have proved nothing — a
 probe that fills nothing looks exactly like a probe that is broken.
 
-**ERIK RULED: DO NOT FIX IT.** The three dead surfaces are, by accident, the state the 2026-08-17
-letter PROMISED the ustadz, and question 3 of the 2026-08-18 letter asks about this exact surface and
-is unanswered. Repairing the key switches all three on for the first time while he is still owed an
-answer — the same shape as the 2026-08-18 Fikih addition already apologised for in that letter's
-Bagian 1. **Recorded, NOT pinned by a test:** a green test over the broken key would make the hole
+**ERIK RULED: DO NOT FIX IT.** Repairing the key **widens a standing breach from one surface to
+four**, while question 3 — which names these exact three surfaces — is unanswered. Same shape as the
+2026-08-18 Fikih addition already apologised for in that letter's Bagian 1. *(First justified as "the
+state the 2026-08-17 letter PROMISED" — false in our favour, twice: that promise was ABSOLUTE (zero
+of four; the browse page has rendered this since 2026-08-12, so we were at one of four), and it had
+already been RETRACTED in the very letter the note is appended to. Caught by `scholarly-gate`, which
+BLOCKed.)* **Recorded, NOT pinned by a test:** a green test over the broken key would make the hole
 look like a decision someone had checked.
 
 **The sent letter told the ustadz the text appears in EMPAT TEMPAT. Three of the four never did.**

@@ -528,16 +528,21 @@ async function aiHtml(
   //
   // AND NONE OF IT REACHES THIS CARD. `h.collection` is a DISPLAY NAME off the wire — "Sahih Muslim"
   // — while the shards are keyed by SLUG, `hadith-id/muslim/1.json`. The fetch below asks for
-  // `/hadith-id/Sahih Muslim/1.json`, the SPA fallback answers `index.html` at HTTP **200**,
-  // `res.json()` throws on the HTML, and the `catch` degrades to Arabic-only. Silent since `e80ff9f`.
-  // Measured 2026-08-21 with a paired arm on live prod cards: 0/2 filled here, 2/2 with the slug.
+  // `/hadith-id/Sahih Muslim/1.json` and the SPA fallback answers `index.html` at HTTP **200**.
+  // `loadHadithIds` CATCHES THAT ITSELF (`hadith-id.ts:74-81`) and returns an empty file, so
+  // `hadithIdText` returns null and `if (id)` is simply false — the `catch` below never runs. (This
+  // comment said the call-site catch was where it failed until 2026-08-21; it fires on zero calls.)
+  // Measured with a paired arm on live prod cards: 0/2 filled here, 2/2 with the slug.
+  // Dates: this call site since `e80ff9f` (2026-08-13); the two SEARCH surfaces share
+  // `dalil-search.ts:127` and date from `734c577` (2026-08-18) — younger, not the same breakage.
   //
-  // ERIK RULED 2026-08-21: LEAVE IT BROKEN. Not because it is harmless — because this dead state is
-  // the state the 2026-08-17 letter PROMISED Ustadz Ahmad, and question 3 of the 2026-08-18 letter,
-  // which asks about this exact surface, is unanswered. Repairing the key switches it on for the
-  // first time while he is still owed an answer. See `docs/review/rights-2026-08-21.md` ruling 6 for
-  // what unblocks it. Do not "tidy" this into a slug lookup; that is the whole change, and it is
-  // deliberately not made.
+  // ERIK RULED 2026-08-21: LEAVE IT BROKEN. Not because it is harmless — because repairing the key
+  // WIDENS A STANDING BREACH from one surface to four (the Hadits browse page has rendered this text
+  // since 2026-08-12), while question 3 of the 2026-08-18 letter, which names these exact three
+  // surfaces, is unanswered. Do NOT justify it as "the state the 2026-08-17 letter promised": that
+  // promise was absolute, was already false when sent, and has since been retracted. See
+  // `docs/review/rights-2026-08-21.md` ruling 6. Do not "tidy" this into a slug lookup; that is the
+  // whole change, and it is deliberately not made.
   await Promise.all(
     [...hadithFor.values()].map(async (h) => {
       if (h.reviewed_id || !h.book || !h.collection) return;

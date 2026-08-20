@@ -77,11 +77,12 @@ export const MAX_RETRIEVE = 8;
  *
  * §8 IS NOT THEREBY DISPOSED OF, and deleting the citation would have hidden that. If §8 binds
  * anything here it binds the BROWSE page, which is where mass reproduction actually happens; that
- * is not this constant's problem. It was an OPEN item here until 2026-08-21, when it was finally
- * put to Erik and ruled: the browse page stays, because it carries no sunnah.com-authored work —
- * the Arabic is public domain, their English is dropped at build time, the metadata is ours
- * (`docs/review/rights-2026-08-21.md` ruling 5). That ruling does NOT hand this constant a
- * licensing basis back; the cap stays editorial.
+ * is not this constant's problem. It was an OPEN item here until 2026-08-21, when it was put to Erik
+ * and RULED: the browse page stays. The basis recorded for it — no sunnah.com-authored work on that
+ * page, the Arabic being public domain, their English dropped at build time, the metadata ours — was
+ * put TO him as the option's stated reasoning and selected by him, not articulated by him; read
+ * `docs/review/rights-2026-08-21.md` ruling 5 for that distinction before quoting any of it. The
+ * ruling does NOT hand this constant a licensing basis back; the cap stays editorial.
  *
  * The number does not move — Erik's standing rule, and it never rested on the licensing claim
  * anyway. What changed is only what the comment claims for it. Decision 1 of the Tanya agent PRD.
