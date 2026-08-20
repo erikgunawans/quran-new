@@ -2,6 +2,79 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-20 (late-2) — the English withdrawal was half-done, and three gate passes to close it
+
+**Anchor `881f2dd`** (on `6ede5cf`, on `6309562`). Gates: `bun test` **1687/0** exit 0 · typecheck
+exit 0 · synthesis build exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570, no checkbox moved** —
+ISC-419 stays NOT MET; the wall still misses at run 3 and the union is parked on Erik's call.
+**NOT DEPLOYED.** Prod is still worker `b63b5300` / bundle `index-BjZH83ls.js` and does NOT carry
+any of this.
+
+### Erik ruled five times, and two of the questions had never actually been PUT
+
+Four of the five were items the previous handoff carried as "waiting on Erik" — the shape recorded
+in `a-question-never-put-stays-open`. Each was answered in one exchange.
+
+1. **Echo-wall union (`run ≥ 4 OR shared ≥ 8`) — GATHER MORE TURNS FIRST.** Not shipped.
+   `ECHO_MIN_RUN` untouched. The margin was 7-against-10 on eight answered turns with ONE positive.
+2. **`bab_en` — WITHDRAW.** English chapter titles. **`book_en` — WITHDRAW** on the follow-up.
+3. **`machine_id` — KEEP**, explicitly, though it was machine-translated FROM the withdrawn English.
+4. **`scholarly-gate` — run retroactively.** It earned its keep three times over.
+5. **`MAX_DISPLAY` contradiction — reconcile the code, send the ustadz nothing.**
+
+### The finding nobody asked for: the withdrawal was incomplete, and its evidence could not have seen it
+
+`21ed3c9` stopped PAINTING the English. The evidence recorded was a grep of the served CLIENT
+BUNDLE (`hadith-en` 0 ✓). **The leak was in the Worker's response.** `/api/answer` returned
+`DisplayRecord` objects raw in `hadith:`, and `/api/dalil` spread them into `cards` — so the
+sunnah.com narration and the Muhsin Khan credit were still served as JSON on two public endpoints.
+Unpainted, not unpublished. A curl-able endpoint is publication by exactly the argument that
+retired the rendered element.
+
+Closed by **`publishedCardOf`** — field-by-field, never a spread, mirroring `referenceLineOf`'s
+discipline, with an exact-SET test, applied on BOTH routes. The model's user message keeps the
+English per the ruling's scope. Bundle-verified WITH CONTROLS: `source_url: r.source_url` 1 and
+`book: r.book` 2 prove the grep works, against `english: r.english` 1 whose only context is
+`buildAnswerUserMessage`.
+
+### Three gate passes, and two of three BLOCKs were introduced by the previous pass's own corrections
+
+- **Pass 2 BLOCK — `publishedCardOf` dropped `book`.** Not a `DisplayRecord` field; grafted from the
+  corpus path so the client can find the Indonesian shard (ISC-449). `main.ts` bails on `!h.book`,
+  so **every answer card would have rendered Arabic alone** — deleting the exact thing Erik had just
+  ruled to keep, for a reader who by assumption cannot read Arabic. **Its exact-SET test pinned the
+  defect as correct.** The test now names the consequence via `main.ts`'s own predicate.
+- **Pass 3 BLOCK — the `?? 0` repair re-armed it at the type level.** A bare `DisplayRecord` still
+  typechecked to `book: 0`, and a set test cannot see a key present holding 0. Closed by making
+  `book` REQUIRED; probe-verified that a bare `DisplayRecord` is now a compile error.
+- **Pass 3's real finding was ATTRIBUTION, and it survived two passes.** A new `docs/review` record
+  and a new comment both said "the ustadz's VERBAL approval covers DISPLAYING this Indonesian" —
+  about the ANSWER CARD, the one surface the sent letter singles out as *Erik's* extension, never
+  the ustadz's, and unanswered as question 3. **The record's own header says "Nothing on this page
+  carries Ustadz Ahmad's authority"** and §3 handed it to him anyway. **The qualifier already
+  existed eighty lines up; a correction removed it.**
+
+### Also landed
+
+- **`AnswerViolationRule` + `gen.rule`** — the blind instrument from handoff §2. Two checks report
+  `own_wording` and two report `bad_hadith`, so nothing could say which wall fired. `kind` is
+  unmoved (reader's channel); `rule` is diagnostic and reaches no reader surface.
+- **`docs/review/rights-2026-08-20.md`** — the rulings existed only in comments, so a gate pass had
+  to audit the code against the code. `hadith-id-approval-2026-08-12.md` amended by APPEND; the
+  VERBAL status line is byte-identical. `ustadz-followup-2026-08-18.md` gets a dated status note
+  appended BELOW the sent text — it was the only record holding a statement Erik has ruled false
+  with no marker in its own file.
+- **The `belum ditinjau` label is pinned at the stylesheet level.** Every prior test asserted the
+  CLASS; the sentence is `content:` on a `::before` and invisible to every DOM probe this repo owns.
+  The first pin used `match` not `matchAll`, so a later scoped override passed it — force-red fixed.
+- **The card's XSS pin fed `bab_en`** and was its only hostile field; withdrawing it would have
+  deleted the card's only escaping test. Re-pointed at `collection` and `arabic`, both force-red.
+
+### What did NOT move, deliberately
+
+`MAX_DISPLAY = 2` · `ECHO_MIN_RUN` · `reviewed_id` (zero writes) · the God/unseen filter (the sent
+letter still forbids it) · prod.
+
 > **Note (2026-07-16):** The app was **renamed from "Nur" to "New-Quranku"** and the نور/light identity
 > retired (Erik's call). Earlier checkpoints below still say "Nur" — that is history, kept as-is per the
 > append-only rule. From here on the product is New-Quranku.

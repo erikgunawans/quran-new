@@ -1,3 +1,154 @@
+# Next session — New-Quranku (checkpoint 2026-08-20 late-2)
+
+> Prepended by /wrap 2026-08-20 (late-2). Anchor `881f2dd`. **Supersedes the `2f3c1d9` anchor.**
+> From that handoff: its **§1 is RULED ON — Erik chose GATHER MORE TURNS, so the union is NOT built
+> and must not be.** Its **§2 is DONE** — the `own_wording` bucket is split. Its **§3, §4, §5, §6,
+> §7, §8 survive unchanged.** Its "open items" list is CLEARED except the ustadz's letter: the two
+> rights questions and the gate offer were all put and all answered.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-20 (late-2)**).
+
+**Current state.** Gates green — `bun test` **1687/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570, no checkbox moved.** Clean tree except
+untracked `WARP.md` — **leave it**. Hadith generator still STOPPED (1,746/14,736).
+
+**PROD DOES NOT CARRY THIS SESSION'S WORK.** Prod is still worker `b63b5300`, bundle
+`index-BjZH83ls.js`, from `9b6a5922`. Two commits (`6ede5cf`, `881f2dd`) are local and **unpushed**.
+
+---
+
+## 1. PUSH, THEN ASK ABOUT DEPLOYING. This is item 1 and it is short
+
+`6ede5cf` and `881f2dd` are committed and **not pushed**. Push them (direct-to-main, the established
+workflow). **Then ASK Erik before deploying** — deploys are his, always.
+
+**The deploy decision is not neutral this time.** The rights fix (`publishedCardOf`) stops two public
+endpoints serving the sunnah.com narration and the Muhsin Khan credit. That leak is LIVE on prod
+right now. Erik withdrew the English on 2026-08-20 believing it had shipped; it half-shipped. Put
+that plainly when you ask, and do not deploy without his word anyway.
+
+## 2. DO NOT BUILD THE ECHO-WALL UNION. Erik ruled: gather more turns first
+
+`run ≥ 4 OR shared ≥ 8` is measured and **deliberately not built**. Erik was given (a) ship now,
+(b) gather more turns, (c) ship log-only, and **chose (b)**. The margin was 7-against-10 on eight
+answered turns **with ONE positive** — a threshold measured on a set with one positive is not a
+threshold. Do not lower `ECHO_MIN_RUN` to 3 either; that refuses a live good answer (measured,
+force-red). What is wanted is MORE ANSWERED TURNS through the offline `scripture-echo` detector.
+
+`gen.rule` now exists and is what makes that measurement attributable — see §3.
+
+## 3. `gen.rule` IS ON THE WIRE BUT HAS NEVER BEEN READ FROM A LIVE DEPLOY
+
+`wall-live-probe` prints the tally, and against TODAY's prod it will print **all `-`**, because prod
+predates the field. That row means "the Worker is too old", NOT "no rule fired" — the probe says so
+in a comment and you must not read it the other way. It becomes informative only after §1 deploys.
+
+**It still does not make a bucket total evidence.** A whole-run total is not evidence on this
+project. It makes a PAIRED arm constructible where one was not.
+
+## 4. THE RIGHTS WALL COVERS TWO ROUTES; `dalil-probe.ts` IS DEV-ONLY AND STILL EMITS
+
+`worker/src/dalil-probe.ts` emits `book_en`, `bab_en` and `translator`. It has its own wrangler
+config and is **not routed from `index.ts`**, so it is out of scope for "neither rides the wire" —
+noted in `docs/review/rights-2026-08-20.md` so a future grep does not read it as a contradiction.
+Do not "fix" it into the shipped path.
+
+## 5. THE OPEN RIGHTS QUESTION NOBODY HAS ASKED: §8 AND THE BROWSE PAGE
+
+`MAX_DISPLAY` was reclassified as editorial precisely because two cards and a whole collection
+cannot both be what sunnah.com About §8 permits. **The browse page publishes the entire Ṣaḥīḥayn.**
+If §8 binds anything, it binds that — not a two-card cap. Recorded as open in
+`docs/review/rights-2026-08-20.md`; **never put to Erik.** Put it.
+
+## 6. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Fourteenth handoff running. SENT 2026-08-19, **UNANSWERED**. ISC-464(b) is blocked on the ANSWER;
+ISC-417 stays NOT MET until he replies. **Question 3 of that letter is also what the answer card's
+Indonesian currently runs on** — Erik's own 2026-08-13 extension, not the ustadz's permission. Say
+it that way, everywhere, always. See §9.
+
+## 7. LIMIT 3 ON THE DIVINE WALL IS STILL OPEN AND PRE-EXISTING. UNCHANGED
+
+All 26 tokens in `AGENT_PRONOUN` ∪ `HUMAN_ROLE` still buy a bypass; HEAD passes them too. The
+enumeration lists TAILS, not BODIES. Not pinned by a passing test, deliberately.
+
+## 8. ISC-486 IS WORSE BY DESIGN; THE REDUCING PATH IS A PROPER-NAME VOCABULARY. UNCHANGED
+
+120 of 120. The narrowing to 80 was tried and REVERTED. Blocker: `wordingShape` lower-cases.
+
+## 9. THE ATTRIBUTION RULE THIS SESSION COST THREE GATE PASSES TO LEARN — READ THIS ONE
+
+A new `docs/review` record and a new source comment both wrote *"the ustadz's VERBAL approval covers
+DISPLAYING this Indonesian"* about the ANSWER CARD. The sent letter tells him, in terms, that this
+surface is **Erik's** interpretation and that he was **never asked**. The record's own header said
+*"Nothing on this page carries Ustadz Ahmad's authority"* — and §3 handed it to him four paragraphs
+later. **The qualifier already existed eighty lines up in the same file; a correction removed it.**
+
+Both are fixed. The rule: **whenever you write that something is permitted, name WHO permitted it
+and WHICH SURFACE they permitted it on.** Erik extended the Hadits-page approval to the answer card
+on 2026-08-13. That is his sentence, not the ustadz's, forever.
+
+## 10. Every open ISC (13 open + 1 deferred = 570 total) — UNCHANGED
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) · `ISC-353.0` (superseded) ·
+`ISC-417` (his ANSWER) · `ISC-419` (**wall deployed; misses at run 3; union parked per §2**) ·
+`ISC-420` · `ISC-440.6` · `ISC-454` · `ISC-464` (b blocked by §6) · `ISC-486` (§8) · `ISC-487` ·
+`ISC-533` · `ISC-534`.
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — an instrument pointed at the RENDERER cannot see a leak in the RESPONSE BODY.** The
+  English withdrawal's evidence was a grep of the served client bundle; two public endpoints were
+  still serving the narration as JSON. Ask WHERE the artifact you grepped comes from.
+- **NEW — an exact-SET test cannot see a key that is PRESENT holding a sentinel.** `book: 0` reads
+  as "no shard" and deletes the Indonesian; the set test passes either way. Where a value carries
+  meaning, assert the VALUE and the CONSEQUENCE, not the key list.
+- **NEW — prefer a compile error to a comment claiming a guarantee.** `book?: number` with `?? 0`
+  re-armed the defect it fixed. Required types moved it to typecheck, where a probe can prove it.
+- **NEW — name WHO permitted a thing and WHICH SURFACE.** See §9. A correct document header is no
+  protection; the defect was four paragraphs below one.
+- **NEW — a correction is the least-scrutinised edit, AND removing a qualifier is a correction.**
+  Three passes; two BLOCKs were the previous pass's own fixes. Re-run the gate after applying.
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **A measured set is not a class, and a threshold from a set with ONE positive is not a threshold.**
+- **Ask what a probe would say if the feature were REVERTED, before citing its number.**
+- **A question recorded as "waiting on Erik" may never have been ASKED.** Four were put this session
+  and all four answered in one exchange. Check before carrying one forward again.
+- **Never record a declined gap as a PASSING test — and a `- [x]` checkbox is the same artifact.**
+- **Verify a deploy by SERVED BYTES and a remote SHA**, and rebuild at HEAD first. Read the WORKER
+  BUNDLE, with CONTROLS — a grep that finds nothing may be a broken grep.
+- **The first curl after a deploy reads the STALE `index.html`.**
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.** Verify the INLINED literal.
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.** `gen.rule` names the CHECK.
+- **Do NOT raise `MODEL_DEADLINE_MS`.** `MIN_RETRY_MS` is 11,500 (`4a28bf2`).
+- **The live theme classifier is NONDETERMINISTIC** — 0 themes on 23 of 24 turns.
+- **This ISA's `### Cycle` headings do not bound the criteria.** The TOTAL is right.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned.** Stage paths deliberately. **Never Python**, including wrap parsers.
+- **Force-red every new test**, and prefer disjoint mutations — one per load-bearing piece.
+- **`--env synthesis` is GONE and must not be recreated.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **`MAX_DISPLAY = 2` did not move** and must not. Its basis is EDITORIAL (Erik, 2026-08-20); the
+  canonical statement is the `MAX_DISPLAY` docblock and three other comments now point at it.
+- **`h.english`, `translator`, `bab_en`, `book_en` must not be published.** They stay on the record
+  and `english` stays in the model's user message.
+- **The Fikih router may ONLY re-rank**, and `entries` stays gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+- **`docs/review/` sent letters are ARTEFACTS.** Append a dated status note below; never edit the
+  sent text.
+
+---
+
+## Open items waiting on me (the user)
+
+- **Deploy `881f2dd`?** The English leak is live on prod until you do. §1.
+- **Ustadz Ahmad's letter, SENT 2026-08-19, UNANSWERED** — blocks ISC-417 and ISC-464(b), forbids
+  the God/unseen filter, and question 3 is what the answer card's Indonesian runs on.
+- **sunnah.com §8 vs the BROWSE PAGE** (§5) — never asked, and it is the real §8 question.
+- **More answered turns for the echo threshold** (§2) — you chose to gather before shipping.
+
 # Next session — New-Quranku (checkpoint 2026-08-20 late)
 
 > Prepended by /wrap 2026-08-20 (late). Anchor `2f3c1d9`. **Supersedes the `8df0330` anchor.** From
