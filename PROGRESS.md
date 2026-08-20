@@ -4,7 +4,7 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ## 2026-08-20 (late-2) — the English withdrawal was half-done, and three gate passes to close it
 
-**Anchor `881f2dd`** (on `6ede5cf`, on `6309562`). Gates: `bun test` **1687/0** exit 0 · typecheck
+**Anchor `24086a6`** (on `57888be`, `881f2dd`, `6ede5cf`, `6309562`). Gates: `bun test` **1687/0** exit 0 · typecheck
 exit 0 · synthesis build exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570, no checkbox moved** —
 ISC-419 stays NOT MET; the wall still misses at run 3 and the union is parked on Erik's call.
 **NOT DEPLOYED.** Prod is still worker `b63b5300` / bundle `index-BjZH83ls.js` and does NOT carry

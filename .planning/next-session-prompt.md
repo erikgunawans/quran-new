@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-20 late-2)
 
-> Prepended by /wrap 2026-08-20 (late-2). Anchor `881f2dd`. **Supersedes the `2f3c1d9` anchor.**
+> Prepended by /wrap 2026-08-20 (late-2). Anchor `24086a6`. **Supersedes the `2f3c1d9` anchor.**
 > From that handoff: its **§1 is RULED ON — Erik chose GATHER MORE TURNS, so the union is NOT built
 > and must not be.** Its **§2 is DONE** — the `own_wording` bucket is split. Its **§3, §4, §5, §6,
 > §7, §8 survive unchanged.** Its "open items" list is CLEARED except the ustadz's letter: the two
@@ -13,13 +13,13 @@ exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570, no checkbox moved.** Clean
 untracked `WARP.md` — **leave it**. Hadith generator still STOPPED (1,746/14,736).
 
 **PROD DOES NOT CARRY THIS SESSION'S WORK.** Prod is still worker `b63b5300`, bundle
-`index-BjZH83ls.js`, from `9b6a5922`. Two commits (`6ede5cf`, `881f2dd`) are local and **unpushed**.
+`index-BjZH83ls.js`, from `9b6a5922`. FOUR commits (`6ede5cf`, `881f2dd`, `57888be`, `24086a6`) are local and **unpushed**.
 
 ---
 
 ## 1. PUSH, THEN ASK ABOUT DEPLOYING. This is item 1 and it is short
 
-`6ede5cf` and `881f2dd` are committed and **not pushed**. Push them (direct-to-main, the established
+`6ede5cf`, `881f2dd`, `57888be` and `24086a6` are committed and **not pushed**. Push them (direct-to-main, the established
 workflow). **Then ASK Erik before deploying** — deploys are his, always.
 
 **The deploy decision is not neutral this time.** The rights fix (`publishedCardOf`) stops two public
