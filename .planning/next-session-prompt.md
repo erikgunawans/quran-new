@@ -1,3 +1,119 @@
+# Next session — New-Quranku (checkpoint 2026-08-21)
+
+> Prepended by /wrap 2026-08-21. Anchor `89f5720`. **Supersedes the `7660617` / `dd0982a` anchors.**
+> From that handoff: **its §1 IS DONE — Erik approved the deploy and it is LIVE and verified.**
+> **Its §3 is DISCHARGED** — `gen.rule` has now been read from a live deploy. **Its §5 IS RULED** —
+> the §8 question was finally PUT and answered. Its **§2, §4, §6, §7, §8 survive unchanged.**
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-21**).
+
+**Current state.** Gates green — `bun test` **1687/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0. **ISA 556 met / 13 open / 1 deferred = 570**, no checkbox moved. Clean tree except untracked
+`WARP.md` — **leave it**.
+
+**PROD NOW CARRIES THIS WORK.** Worker version **`ccb77595`** (was `b63b5300`). The rights leak is
+CLOSED — verified by a paired before/after arm on the same `/api/dalil` query, and by 3 real cards
+off `/api/answer` with `/api/dalil` as a live control.
+
+---
+
+## 1. THE ID-KEY HOLE IS REAL, RECORDED, AND MUST NOT BE FIXED
+
+The machine Indonesian has **never rendered** on the answer card, Hadits search, or Fikih search.
+`h.collection` is a DISPLAY NAME (`"Sahih Muslim"`); the shards are keyed by SLUG (`muslim`). The SPA
+fallback returns `index.html` at **HTTP 200**, and **`loadHadithIds` catches its own failure**
+(`web/src/hadith-id.ts:74-81`) and returns an empty file — **the call-site `catch` fires on ZERO
+calls.** Get that mechanism right; the first write-up got it backwards.
+
+**Erik ruled 2026-08-21: LEAVE IT BROKEN.** Fixing it **widens a standing breach from one surface to
+four** while question 3 of the 2026-08-18 letter — which names these exact three surfaces — is
+unanswered. `docs/review/rights-2026-08-21.md` ruling 6.
+
+**DO NOT justify it as "the state the 2026-08-17 letter promised."** That was the BLOCK this session
+took: the promise was ABSOLUTE (zero of four; the browse page has rendered this since 2026-08-12, so
+we are at one of four) and it had **already been retracted** in the letter the note is appended to.
+
+The fix, when someone is allowed to make it: `web/src/main.ts:545` and `web/src/dalil-search.ts:127`.
+**Line 545, not 532** — the annotation moved it. There is no test for this, on purpose.
+
+## 2. DO NOT BUILD THE ECHO-WALL UNION. Erik's ruling stands. UNCHANGED
+
+`run ≥ 4 OR shared ≥ 8` is measured and deliberately not built. Do not lower `ECHO_MIN_RUN` to 3.
+Eight more answered turns were gathered this session; that is still not enough for a threshold.
+
+## 3. `gen.rule` IS NOW READABLE — the §3 blocker is gone
+
+First live reading, 8 turns: **`wording=2 · -=4 · hadith_unbacked=1`** — not a row of `-`. Terminal
+`gen.reason` `deadline=3 · answered=2 · blocked=2`. **No rate is claimed from eight turns of one
+run**, and none should be. `-` means "did not refuse", not "refused anonymously".
+
+## 4. `dalil-probe.ts` IS DEV-ONLY AND STILL EMITS. UNCHANGED
+
+Not routed from `index.ts`. Do not "fix" it into the shipped path.
+
+## 5. §8 IS RULED — and the lesson is about WHO said it
+
+Browse page stays (`docs/review/rights-2026-08-21.md` ruling 5). **The three-part basis was composed
+by the DA and put to Erik as the option's stated reasoning; he SELECTED it.** Assent his, wording
+not. Never quote it as his articulation. The `MAX_DISPLAY` cap stays EDITORIAL and the ruling does
+not hand it a licensing basis back.
+
+## 6. TWO UNANSWERED LETTERS **TO** Ustadz Ahmad. UNCHANGED — and now with a debt attached
+
+- `docs/review/tanya-ai-request-2026-08-17.md` — SENT 2026-08-17. Blocks **ISC-417**; it is *this*
+  one that forbids installing the God/unseen filter.
+- `docs/review/ustadz-followup-2026-08-18.md` — SENT 2026-08-19, **EIGHT** questions. Blocks
+  **ISC-464(b)**.
+
+**NEW DEBT: the next letter is the THIRD, and the ID-key correction MUST be folded into it.** That
+letter told him the machine Indonesian appears in EMPAT TEMPAT; three of the four never did. The
+binding reminder is the appended status note. **Never write "Ustadz Ahmad's letter"** — they are
+letters *to* him and he has sent nothing.
+
+## 7. LIMIT 3 ON THE DIVINE WALL. UNCHANGED. 8. ISC-486 IS 120/120. UNCHANGED
+
+## 9. Every open ISC (13 open + 1 deferred = 570)
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** (note: it uses a THIRD marker form, `- [DEFERRED-VERIFY]`
+— a `[ ]`/`[x]` parser silently drops it and reports 569) · `ISC-323` (TOMBSTONED) · `ISC-353.0` ·
+`ISC-417` (his ANSWER) · `ISC-419` · `ISC-420` · `ISC-440.6` · `ISC-454` · `ISC-464` (b blocked) ·
+`ISC-486` · `ISC-487` · `ISC-533` · `ISC-534`.
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — a JUSTIFICATION is a claim and gets audited like one.** The gate BLOCKed on the *reason*
+  for a decision, not on its facts. Every fact in ruling 6 was right; the sentence justifying it was
+  false in our favour. Ask of any justification: is this the flattering reading?
+- **NEW — read the mechanism, do not infer it from the outcome.** A measured outcome (0/2 vs 2/2)
+  is consistent with several routes. The route was written from a glance and was backwards.
+- **NEW — a single date over multiple surfaces reads in the flattering direction.** `e80ff9f` covered
+  one of three; the other two were `734c577`, five days younger, on the date the letter regrets most.
+- **NEW — a correction pass leaves residue.** After fixing `main.ts:532`→`545`, the same stale
+  pointer survived in TWO tables. Sweep the whole tree for the old string, do not fix the sites you
+  remember.
+- **A correction is the least-scrutinised edit.** Re-run the gate AFTER applying it.
+- **Name WHO permitted a thing and WHICH SURFACE.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **A measured set is not a class**, and a threshold from a set with ONE positive is not a threshold.
+- **Ask what a probe would say if the feature were REVERTED, before citing its number.**
+- **A question recorded as "waiting on Erik" may never have been ASKED.** Both put this session were
+  answered in one exchange. §8 had sat "open" since the day before, not for fifteen handoffs.
+- **Never record a declined gap as a PASSING test — a `- [x]` checkbox is the same artifact.**
+- **Verify a deploy by SERVED BYTES and a remote SHA**, rebuild at HEAD first, and use a CONTROL.
+- **The first curl after a deploy reads the STALE `index.html`.**
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.** Verify the INLINED literal.
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.** `gen.rule` names the CHECK.
+- **Do NOT raise `MODEL_DEADLINE_MS`.**
+- **The live theme classifier is NONDETERMINISTIC.**
+- **A bare `curl` to `/api/answer` posts no grounding and returns `{"answer":null}` in 0.1s.** That is
+  the no-grounding early return, NOT a broken deploy. Use `wall-live-probe`, which posts real
+  grounding.
+- **This ISA's `### Cycle` headings do not bound the criteria.** The TOTAL is right.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-20 late-2)
 
 > Prepended by /wrap 2026-08-20 (late-2). Anchor `dd0982a`, PUSHED. **Supersedes the `2f3c1d9` anchor.**

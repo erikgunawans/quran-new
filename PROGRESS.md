@@ -93,7 +93,22 @@ written and is not now; corrected in place.
 Both dead call sites are annotated so this is not rediscovered. **Comment-only — proven by filtering
 the diff for non-comment lines (none) — and gates re-run green after.**
 
-**Commits:** `481131c` (§8 ruling) · `cb01931` (the finding). Not yet pushed at time of writing.
+**Commits:** `481131c` (§8 ruling) · `cb01931` (the finding) · `d78eba7` (this checkpoint) ·
+`89f5720` (the scholarly-gate BLOCK corrections).
+
+**THE GATE BLOCKED THIS SESSION'S OWN RECORD, and the BLOCK was on a JUSTIFICATION, not a fact.**
+Every fact in ruling 6 was right; the sentence justifying it — "exactly the state the 2026-08-17
+letter promised" — was false in our favour twice (the promise was absolute, so we were at one of four
+not zero of four; and it had already been retracted in the letter the note is appended to). Eight
+further FLAGs, all verified independently and all held: the failure MECHANISM was read off the code
+and read backwards (`loadHadithIds` catches internally, so the call-site `catch` fires on zero
+calls); `e80ff9f` covered one of three surfaces and the other two are `734c577`, 2026-08-18 — the
+date the letter regrets most; "fifteen handoffs" was fabricated (one day); the §8 argument was
+credited to Erik when he selected reasoning the DA composed; an unspoken cost-benefit stood inside a
+paragraph labelled as Erik's decision; "surat keempat" is the third letter; "neither letter touches
+this question" was an assertion of silence and wrong; and four line citations were off — including
+`main.ts:532`, which `cb01931`'s own annotation had invalidated. **Fixing that last one then left the
+same stale pointer in TWO tables**, which is the whole lesson in miniature.
 
 **Still open and untouched:** the divine-wall limit-3 bypass · ISC-486 at 120/120 · both letters to
 Ustadz Ahmad unanswered (ISC-417, ISC-464(b)) · `dalil-probe.ts` still dev-only and still emitting.
