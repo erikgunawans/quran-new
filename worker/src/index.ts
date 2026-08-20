@@ -780,7 +780,23 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // On the overwhelming majority of turns (any feeling question, and any turn where the dalil
       // bindings are absent) `hadith` is empty and this predicate is false for every id — which is
       // byte-for-byte the old behaviour, and correctly so.
-      guard: (candidate) => guardAnswerProse(candidate, isRealAyah, isGroundedHadith),
+      // The FOURTH argument is this turn's verified grounding, for the echo wall (ISC-419).
+      //
+      // `verses` here has already been through `sanitizeGrounding` (bounded) and `verifyGrounding`
+      // (proved verbatim ours by hash), so this is our published wording and not something a caller
+      // supplied. Passing `[]` — which is what the parameter defaults to — would leave the wall
+      // switched off while every test around it still passed, so it is passed explicitly here and
+      // asserted by `answer-guard-echo.test.ts` rather than left to a default.
+      //
+      // ONE text per verse today; see `EchoVerse` for why the companion translation is not here yet
+      // and what carrying it would take.
+      guard: (candidate) =>
+        guardAnswerProse(
+          candidate,
+          isRealAyah,
+          isGroundedHadith,
+          verses.map((v) => ({ ref: v.ref, texts: [v.text] })),
+        ),
     });
   } catch {
     // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,

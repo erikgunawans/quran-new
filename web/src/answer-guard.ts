@@ -1007,6 +1007,117 @@ export function wordingShape(prose: string): string | null {
 }
 
 /**
+ * A verse as the WALL needs it — every translation we ship for that ayah, not just the one the
+ * model was shown.
+ *
+ * `texts` is plural because of a measurement, not a hunch. The 2026-08-17 QS 17:32 violation scores
+ * a contiguous run of **18 words against the COMPANION translation and 2 against the PRIMARY**, and
+ * `gatherGrounding` posts `primary ?? companion` — one of them. A wall reading only the posted text
+ * would have missed the exact violation that motivated this rule.
+ *
+ * ⚠ **AND TODAY THE WORKER SUPPLIES EXACTLY ONE, so that gap is OPEN, not closed.** The shape is
+ * plural so the wall is ready, but the wire is not: `sanitizeGrounding` rebuilds each item as
+ * `{ref, surah_name, text}` and `verifyGrounding` proves it ours by `hash(ref, text)` against a
+ * build-time digest. Carrying the companion means adding `hash(ref, companion)` to that digest
+ * (`src/app/build-grounding-digest.ts`) and verifying the second field separately — trusting a
+ * browser-supplied one would let a caller weaken or trip the wall at will. That is a coherent
+ * follow-up with a known design, and it is deliberately NOT half-built here: a partially wired
+ * guard is the exact artifact this repo keeps paying for.
+ *
+ * So, stated as a limit rather than left to be discovered: **a rendering that tracks the COMPANION
+ * translation of a verse whose PRIMARY was posted is not caught.** The 17:32 violation is of that
+ * shape. What IS caught is a rendering tracking the posted text, which is what shipped live on
+ * 2026-08-20.
+ */
+export interface EchoVerse {
+  readonly ref: string;
+  readonly texts: readonly string[];
+}
+
+/**
+ * How many CONTIGUOUS words a sentence may share with a translation we ship before it stops being a
+ * description of the ayah and starts being a copy of it.
+ *
+ * FOUR, and the number is measured rather than chosen. Over five live answered turns (2026-08-20)
+ * scored sentence-by-sentence against every posted verse, the highest run in any NON-violating
+ * sentence was 3, and the violating sentence scored 5. Against the three production violations this
+ * file records: 17:32 scores 18, 2:187 scores 12, and today's 2:261 splice scores 5. Three is the
+ * boundary a good answer actually reaches — `Dalam QS Al-Isra 17:23, Allah menetapkan…` runs 3 — so
+ * moving this to 3 refuses a real answer that this project has on record as one it wants to keep.
+ */
+const ECHO_MIN_RUN = 4;
+
+/** Words, lower-cased and stripped of punctuation. No stemming — see `scriptureEchoShape`. */
+const echoWords = (s: string): string[] =>
+  s.toLowerCase().normalize("NFC").replace(/[^a-z0-9' ]+/gu, " ").split(/\s+/u).filter(Boolean);
+
+/** Longest run of consecutive words appearing in both sequences. */
+function sharedRun(a: readonly string[], b: readonly string[]): number {
+  let best = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    for (let j = 0; j < b.length; j += 1) {
+      let k = 0;
+      while (i + k < a.length && j + k < b.length && a[i + k] === b[j + k]) k += 1;
+      if (k > best) best = k;
+    }
+  }
+  return best;
+}
+
+/**
+ * Does any sentence COPY the wording of a translation we ship, rather than describe the ayah?
+ *
+ * WHY THIS EXISTS ALONGSIDE `wordingShape` AND NOT INSIDE IT. `wordingShape` asks a grammar
+ * question — is there an attribution verb or a citation near a QUOTED span — and it is deliberately
+ * marker-blind and corpus-blind, taking prose alone. That is exactly why it passed this, live, on
+ * 2026-08-20:
+ *
+ *     "dalam QS Al-Baqarah 2:261, Allah menggambarkan pahala sedekah seperti sebutir biji yang
+ *      menumbuhkan tujuh tangkai, dan setiap tangkai berisi seratus biji"
+ *
+ * `yang menumbuhkan tujuh tangkai` is a verbatim four-word run from the shipped primary and
+ * `seratus biji` is verbatim in both, but there is no quotation mark anywhere, so a rule scanning
+ * quoted spans has nothing to scan. It is the 2026-08-17 violation's construction — same lead-in,
+ * same `menggambarkan` — minus the one feature `wordingShape` keys on.
+ *
+ * The criterion's own prompt rule already forbids this in words: *"not as a paraphrase presented as
+ * the verse's wording"*. This is that clause made enforceable. It is a SECOND opinion beside
+ * `wordingShape`, never a replacement — union, never swap (ISC-440), because a swap is not a
+ * widening and this project has already lost six refusals to one.
+ *
+ * NO STEMMER, NO CORPUS, NO FREQUENCY TABLE, and each absence was tested rather than assumed. A
+ * stem-based run and a rare-word overlap score were both measured first: sentence-scoped, overlap
+ * does NOT separate (a benign closing du'a — *"Semoga Allah memudahkan kita semua untuk berbakti
+ * kepada orang tua"* — scores a higher share of QS 19:14's distinctive words than the violation
+ * scores of QS 2:261's, because a four-word ayah is easy to cover). Plain contiguous words
+ * separate cleanly and need nothing but the two strings.
+ *
+ * WHAT IT DOES NOT CATCH, stated because a wall's gaps are the part worth writing down:
+ *   · A LOOSE paraphrase. The earlier 2026-08-20 form — *"satu biji yang ditanam, lalu tumbuh tujuh
+ *     tangkai"* — runs 2 and PASSES. This closes verbatim and near-verbatim copying, not paraphrase;
+ *     paraphrase remains the prompt rule's job, and the prompt rule is a request.
+ *   · Any ayah not in `verses`. The wall can only compare against text it was handed, so a
+ *     rendering of a verse retrieval never returned is invisible here.
+ *
+ * Returns the offending sentence, or null.
+ */
+export function scriptureEchoShape(prose: string, verses: readonly EchoVerse[]): string | null {
+  if (verses.length === 0) return null;
+  for (const raw of prose.split(/(?<=[.!?])\s+/u)) {
+    const sentence = raw.trim();
+    if (!sentence) continue;
+    const words = echoWords(sentence);
+    if (words.length < ECHO_MIN_RUN) continue;
+    for (const v of verses) {
+      for (const text of v.texts) {
+        if (sharedRun(words, echoWords(text)) >= ECHO_MIN_RUN) return sentence;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Deferral CONSTRUCTIONS — the grammar of handing the question to a human, not a vocabulary of
  * words that appear near one.
  *
@@ -1070,6 +1181,21 @@ export function guardAnswerProse(
   prose: string,
   isCitable: (ref: string) => boolean,
   isGroundedHadith: (id: string) => boolean = () => false,
+  /**
+   * This turn's grounding verses, with EVERY translation we ship for each — for `scriptureEchoShape`.
+   *
+   * ⚠ DEFAULTS TO EMPTY, WHICH SILENTLY DISABLES THE ECHO WALL. That is the same shape as the
+   * `isGroundedHadith = () => false` default directly above, which is on record in this repo as
+   * having made a whole class of hadith check inert at one call site while three others looked
+   * fine. It is optional here only because two of the five call sites are OFFLINE EVALS that have
+   * no verse text to give it, and a required parameter would have them passing `[]` anyway — the
+   * same hole with more ceremony.
+   *
+   * The live path is policed by a test instead: `answer-guard-echo.test.ts` asserts the Worker
+   * forwards real verses, because a wall that quietly receives nothing is indistinguishable from a
+   * wall that found nothing.
+   */
+  scripture: readonly EchoVerse[] = [],
 ): AnswerGuardResult {
   const violations: AnswerViolation[] = [];
 
@@ -1086,6 +1212,15 @@ export function guardAnswerProse(
   // rendering of a verse next to the official one, which is what shipped on 2026-08-17.
   const wording = wordingShape(prose);
   if (wording) violations.push({ kind: "own_wording", detail: wording.slice(0, 80) });
+
+  // The same rule from the other side — copying the SHIPPED WORDING rather than quoting it. Runs
+  // BESIDE `wordingShape` and reports the same `own_wording` kind, because to a reader the failure
+  // is identical: the app printed its own rendering of an ayah next to its own card for that ayah.
+  // A union, never a replacement: `wordingShape` catches quoted renderings this cannot see (it has
+  // no verse text for an ayah retrieval never returned), and this catches unquoted ones that have
+  // no attribution grammar for `wordingShape` to find.
+  const echo = scriptureEchoShape(prose, scripture);
+  if (echo) violations.push({ kind: "own_wording", detail: echo.slice(0, 80) });
 
   // Two ways to fail the hadith rule, and both must be caught.
   // (a) An attribution to the Prophet ﷺ with no resolvable marker behind it.
