@@ -65,7 +65,7 @@ the two search surfaces since `734c577` (**2026-08-18** — the date the letter 
 | Hadits browse page (`sections.ts:225`, passes the route slug) | **yes** |
 | Hadits search results (`dalil-search.ts:127`) | **no, never** |
 | Fikih search results (same call site) | **no, never** |
-| Hadith card under an answer (`main.ts:545`) | **no, never** |
+| Hadith card under an answer (`main.ts`, the `hadithFor` hydration loop) | **no, never** |
 
 **Measured with a PAIRED ARM using the SHIPPED `hydrateMachineIndonesian` over the cards live prod
 returned: 0/2 filled with the wire value, 2/2 with the slug.** One arm would have proved nothing — a
