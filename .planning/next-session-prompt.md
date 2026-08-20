@@ -1,3 +1,144 @@
+# Next session — New-Quranku (checkpoint 2026-08-20 late)
+
+> Prepended by /wrap 2026-08-20 (late). Anchor `2f3c1d9`. **Supersedes the `8df0330` anchor.** From
+> that handoff: its **§1 is DONE** — the independent detector exists, is force-red verified, and has
+> been run twice against live prod. Its **§2 is RULED ON and SHIPPED**. Its **§6 rights questions are
+> BOTH RULED ON and shipped.** Its §3, §4, §5, §7 survive unchanged. Do not rebuild the detector or
+> re-ask those three rulings.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-20 (late)**).
+
+**Current state.** Gates green — `bun test` **1669/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler --dry-run` exit 0. **ISA 556/570, no checkbox moved.** Clean tree except untracked
+`WARP.md` — **leave it**. **PROD IS CURRENT AND CARRIES THIS SESSION'S WORK**: worker `b63b5300` at
+`9b6a5922`, page `db3207a6…`, bundle `index-BjZH83ls.js`, both byte-identical to local dist. Hadith
+generator still STOPPED (1,746/14,736).
+
+---
+
+## 1. THE ECHO WALL IS LIVE AND IT MISSES THE VIOLATION IT WAS BUILT FOR. This is item 1
+
+`scriptureEchoShape` refuses a sentence sharing ≥ 4 contiguous words with a shipped translation of a
+grounded verse. On the FIRST post-deploy run, `apa keutamaan sedekah` shipped the same ayah and the
+same `Dalam QS …, Allah menggambarkan …` construction at **run 3** and passed. Verified by running
+the SHIPPED function on the SHIPPED prose — verdict `pass` — so **the deploy is sound and the RULE is
+the problem.** Three variants are on record at runs 5, 3 and 2 and a reader cannot tell them apart.
+
+**The reducing path is measured and deliberately NOT built.** Distinct shared content stems,
+sentence-scoped against the posted translation, needs no corpus and no df table: missed violation
+**10**, caught violation 7, best GOOD sentence **7**. So `run ≥ 4 OR shared ≥ 8` catches both and
+spares everything measured. **The margin is 7 against 10 on eight answered turns and the nearest good
+sentence — `Dalam QS Al-Isra 17:23, Allah menetapkan bahwa…` at 7 — is one step from refusal.**
+Erik was given (a) ship the union now, (b) gather more turns first, and **has not answered**. Ask
+before shipping; do not lower `ECHO_MIN_RUN` to 3, which refuses a live good answer (measured,
+force-red).
+
+## 2. `own_wording` IS ONE BUCKET FOR TWO CHECKS, SO THE WALL'S LIVE EFFECT IS UNATTRIBUTABLE
+
+`wordingShape` and `scriptureEchoShape` both push `kind: "own_wording"`, deliberately (identical to a
+reader) — but the probe reports the bucket and the Worker returns only `blocked: own_wording`, so
+**no instrument can say which check fired.** Post-deploy `own_wording` was 5/24 against 4/24 before,
+and that difference is NOT attributable to anything: run-to-run spread on identical code is already
+documented at 46% vs 25%. Fixing this needs a distinct kind or the violation `detail` on the wire.
+This is the blind-instrument shape a THIRD time; it was introduced by this session's own change.
+
+## 3. LIMIT: THE WORKER SUPPLIES ONE TRANSLATION AND WE SHIP TWO
+
+QS 17:32's violation runs **18 against the COMPANION and 2 against the PRIMARY**, and
+`gatherGrounding` posts `primary ?? companion` — so that exact violation slips the wall today.
+`EchoVerse.texts` is plural so the wall is ready; the WIRE is not. Carrying the companion means
+adding `hash(ref, companion)` to the build-time grounding digest (`src/app/build-grounding-digest.ts`)
+and verifying the second field separately — a browser-supplied one would let a caller weaken or trip
+the wall. Deliberately not half-built.
+
+## 4. DETECTOR BLIND SPOT, PINNED BY A PASSING TEST
+
+An UNANCHORED paraphrase is invisible to `scripture-echo`: with no anchor the QS 2:261 paraphrase
+ranks below an unrelated ayah sharing `tumbuh`. Anchors are prose citations ∪ `verseRefs`. The
+verbatim sweep has no such gap. If `det.sweep(PARAPHRASE_2_261, 6)` ever stops returning empty, the
+header's limit 1 is stale and must be rewritten before any number from it is trusted.
+
+## 5. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+
+Thirteenth handoff running. SENT 2026-08-19, **UNANSWERED**. ISC-464(b) is blocked on the ANSWER;
+ISC-417 stays NOT MET until he replies.
+
+## 6. LIMIT 3 ON THE DIVINE WALL IS STILL OPEN AND PRE-EXISTING
+
+The adjacency stand-down fires INSIDE an epithet whenever an owner token sits at the tail, so all 26
+tokens in `AGENT_PRONOUN` ∪ `HUMAN_ROLE` still buy a bypass; HEAD passes them too. Failing strings in
+`ISA.md` under ISC-419 and in the guard docblock. The enumeration lists TAILS, not BODIES. Not pinned
+by a passing test, deliberately.
+
+## 7. ISC-486 IS WORSE BY DESIGN; THE REDUCING PATH IS A PROPER-NAME VOCABULARY
+
+120 of 120. A narrowing to 80 was tried and REVERTED (it re-opened the divine bypass for pronoun
+epithets, 18 over-refusals bought for 36 under-refusals). Blocker: `wordingShape` lower-cases the 160
+chars before the quote, so capitalisation is unavailable.
+
+## 8. A PRE-EXISTING FIXTURE PUTS THE PROPHET'S ﷺ WORDS IN A NAMED IMAM'S MOUTH
+
+`web/src/answer-guard-wording.test.ts:163` — `Imam Nawawi … "sabar itu cahaya."` is وَالصَّبْرُ
+ضِيَاءٌ, Ṣaḥīḥ Muslim 223. Recorded under ISC-419, deliberately not fixed; the row is INERT (3 words,
+under `OWN_WORDING_MIN_WORDS`).
+
+## 9. Every open ISC (13 open + 1 deferred = 570 total)
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) · `ISC-353.0` (superseded) ·
+`ISC-417` (his ANSWER) · `ISC-419` (**wall deployed; misses at run 3 — see §1**) · `ISC-420` ·
+`ISC-440.6` · `ISC-454` · `ISC-464` (b blocked by §5) · `ISC-486` (§7) · `ISC-487` · `ISC-533` ·
+`ISC-534`.
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — re-measure a discriminator at the WINDOW you will ship at.** Whole-prose, rare-word overlap
+  separates and `run` does not; SENTENCE-scoped it inverts, because a four-word ayah is trivial to
+  cover. The offline detector and the shipped wall correctly use OPPOSITE axes. Porting the probe's
+  axis into the wall would have shipped a rule refusing closing du'as and passing the violation.
+- **NEW — a threshold measured on a set with ONE positive is not a threshold.** "Four is the only
+  value that separates this set" was true and useless; the next run produced a variant one word
+  below. State how many POSITIVES the set contained, not just how many rows.
+- **NEW — an absence from a grep is a fact about the grep.** Two patterns reported the guard wiring
+  gone from the worker bundle; it was intact at line 3338. The bundle is multi-line and unminified.
+- **NEW — a question recorded as "waiting on Erik" may never have been ASKED.** Two rights items sat
+  six handoffs; put once with the contradiction and 2–3 options, both answered immediately. Check
+  whether an item was ever put before carrying it forward again.
+- **Ask what a probe would say if the feature were REVERTED, before citing its number.**
+- **A measured set is not a class, and the gap is where the bias hides.** State the SET.
+- **Re-run the gate AFTER applying its findings, every time.**
+- **Never record a declined gap as a PASSING test — and a `- [x]` checkbox is the same artifact.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Verify a deploy by SERVED BYTES and a remote SHA**, and rebuild at HEAD first. Read the WORKER
+  BUNDLE for wiring that defaults to a no-op — `guardAnswerProse`'s 4th arg defaults to `[]`.
+- **The first curl after a deploy reads the STALE `index.html`** (did not fire this time; still warm up).
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.** Verify the INLINED literal.
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.**
+- **Do NOT raise `MODEL_DEADLINE_MS`.** `MIN_RETRY_MS` is 11,500 (`4a28bf2`).
+- **The live theme classifier is NONDETERMINISTIC** — 0 themes on 23 of 24 turns in BOTH runs today.
+- **This ISA's `### Cycle` headings do not bound the criteria.** The TOTAL is right. Do not "fix" it.
+- **The ISA has THREE checkbox markers** — `- [x]`, `- [ ]`, `- [DEFERRED-VERIFY]`.
+- **`git add -A` is banned.** Stage paths deliberately. **Never Python**, including wrap parsers.
+- **Force-red every new test**, and prefer disjoint mutations — one per load-bearing piece.
+- **`--env synthesis` is GONE and must not be recreated.**
+- **The renderer STRIPS `[H:…]` markers before display** — capture the `/api/answer` RESPONSE.
+- **`MAX_DISPLAY = 2` did not move** and must not; it is now documented as EDITORIAL, not licensing.
+- **`h.english` must not be published.** It stays on the record and in the model's user message.
+- **The Fikih router may ONLY re-rank**, and `entries` stays gated on `verses.length === 0`.
+- **Widening may never MANUFACTURE an answer.** Honest silence stands.
+
+## Open items waiting on me (the user)
+
+- **§1 — ship the `shared ≥ 8` union now, or gather more answered turns first?** Not answered.
+- **Ustadz Ahmad's letter, SENT 2026-08-19, UNANSWERED** — blocks ISC-417 and ISC-464(b).
+- **`bab_en` (English chapter titles) still render**, and `machine_id` was GENERATED FROM the English
+  we just stopped publishing. Neither was covered by the `h.english` ruling; flagged, never asked.
+- **`scholarly-gate` was NOT run** on this session's scripture/hadith changes — agent use is not
+  invoked here unless Erik asks. Offer it before the next deploy.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-20)
 
 > Prepended by /wrap 2026-08-20. Anchor `8df0330`. **Supersedes the `bcc963d` anchor.** From that

@@ -8,6 +8,72 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-20 (late) — a detector that can fail, three rulings that had never been asked, and a wall that missed on its first live run
+
+**The blind instrument is gone.** `src/eval/scripture-echo.ts` asks a CORPUS question — does this
+prose reproduce wording we ship — where `wordingShape` asks a GRAMMAR one, and it imports nothing
+from `answer-guard.ts`. Two axes: longest contiguous shared stem run (corpus-wide, anchor-free) and
+rare-stem overlap (df ≤ 150 over the 12,472 shipped translations). **Forced red on three production
+strings before any zero was trusted** — 17:32 (`run 11`), 2:187 (`run 9`, guillemets read as quoted),
+2:261 (`hit 4/13`, unquoted) — and five disjoint mutations each turn the suite red.
+
+**Writing its tests found two silent defects IN THE DETECTOR, both under-reporting.** `ditanam` and
+`menanam` never collapsed (meN- elides the root consonant, so a naive strip gives `anam` against the
+corpus's `tanam`) and the paraphrase still fired on four OTHER stems — it looked like it worked while
+missing the exact echo it was built for. And `pukul 09:30` parsed as QS 9:30, a false anchor that
+manufactures rows. A detector's errors have a direction, and this one's pointed at a cleaner world.
+
+**Measured, non-circular, n = 5 answered turns: ZERO quoted renderings and zero corpus-sweep hits** —
+the first zero this criterion has had from an instrument that can fail — **and one unquoted
+near-verbatim splice of QS 2:261**, `yang menumbuhkan tujuh tangkai` verbatim from the shipped
+primary. It is the 2026-08-17 violation's construction, same `menggambarkan` lead-in, minus the
+quotation marks. One of the eleven candidates was a false positive on the run axis and 11 must not be
+read as 11 findings.
+
+**THREE RULINGS FROM ERIK, TWO OF THEM WAITING SIX HANDOFFS AND NEVER ACTUALLY ASKED.** Put once with
+the contradiction stated and options attached, all three came back the same exchange. `h.english` is
+no longer published (sunnah.com's terms are "private research use"; the English stays on the record
+and in the model's message — publication withdrawn, not possession). `MAX_DISPLAY = 2` is editorial,
+not licensing; the §8 citation is KEPT because if it binds anything it binds the browse page. And the
+wall widened. **A passing test — `English renders verbatim` — had made the rights violation look
+settled the entire time.**
+
+**THE WALL SHIPPED, WAS VERIFIED, AND MISSED THE SAME VIOLATION ON THE FIRST FRESH RUN.**
+`scriptureEchoShape` refuses a sentence sharing ≥ 4 contiguous words with a translation we ship for a
+grounded verse — no stemmer, no corpus, no frequency table. Deployed as worker `b63b5300` at
+`9b6a5922`: page `948abc13…` → `db3207a6…`, bundle `index-Da5Logen.js` → `index-BjZH83ls.js`, both
+byte-identical to local dist. Then `apa keutamaan sedekah` shipped the same ayah, same construction,
+at **run 3 — one word below the line** — and passed. Verified by running the SHIPPED function on the
+SHIPPED prose: verdict `pass`, so the rule worked as built and the deploy is sound.
+
+**"Four is the only value that separates this set" was true of the set and false of the class, and
+the next run falsified it.** Three variants are now on record at runs 5, 3 and 2 that a reader cannot
+tell apart — the run axis measures how many connective words the model left between the borrowed
+ones. This is `measured-set-is-not-a-class` repeating INSIDE the entry that cites it, and the cost
+was priced as though five turns with one violation characterised a class.
+
+**The reducing path is measured and NOT built.** Distinct shared content stems, sentence-scoped
+against the posted translation — no corpus needed — scores the missed violation **10**, the caught
+one 7, and the best GOOD sentence **7**. `run ≥ 4 OR shared ≥ 8` catches both and spares everything
+measured, but 7-against-10 on eight answered turns is thin and the nearest good sentence is one step
+from refusal. Recorded with its numbers rather than shipped.
+
+**Also found: the axis INVERTS with the window.** Whole-prose, rare-word overlap separates and run
+does not; sentence-scoped it reverses — a benign closing du'a covers half of QS 19:14's distinctive
+vocabulary, more than the violation covers of 2:261's, because a four-word ayah is trivial to cover.
+The offline detector and the shipped wall correctly use OPPOSITE axes.
+
+**Gates: `bun test` 1669/0 exit 0 (was 1642) · typecheck exit 0 · synthesis build exit 0 · wrangler
+dry-run exit 0.** Five commits pushed. **ISA 556/570, no checkbox moved** — ISC-419 stays `- [ ]`.
+The live theme classifier returned 0 themes on 23 of 24 turns in BOTH runs (ISC-487), which is why
+grounded answers are scarce and every sample here is small.
+
+**Two greps reported the guard wiring as ABSENT from the worker bundle** before I read the bundle
+directly and found it intact at line 3338; the bundle is multi-line and unminified and both patterns
+assumed one line. An absence from a grep is a fact about the grep.
+
+---
+
 ## 2026-08-20 — the under-refusal narrowed and DEPLOYED, and nine gate passes that never touched the regex
 
 **Resumed from the `bcc963d` handoff, started its item 2, and shipped: `7556cfd` is on prod
