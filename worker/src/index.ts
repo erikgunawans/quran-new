@@ -40,11 +40,13 @@ import {
   capForDisplay,
   classifyDalilFailure,
   fetchDisplayRecords,
+  publishedCardOf,
   searchDalil,
   type DalilEnv,
   type DalilFailure,
   type DalilHit,
   type DalilTimings,
+  type PublishedCard,
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
@@ -739,7 +741,14 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // earlier return paths for the same reason `DalilTimings` omits stages that did not run: "never
   // reached generation" is a different fact from "generation ran and did nothing", and collapsing the
   // two would erase exactly the distinction this diagnostic exists to surface.
-  const genReport = () => ({ attempts: gen.attempts, reason: gen.reason });
+  // `rule` rides HERE and not on `blocked`, deliberately. `blocked` is the reader's channel and the
+  // browser branches on it; `own_wording` covers two different checks and `bad_hadith` two more, so
+  // the kind alone cannot say which wall fired. After the echo wall deployed, `own_wording` moved
+  // 4/24 → 5/24 with no instrument able to attribute the difference, against a run-to-run spread
+  // already documented at 46% vs 25% on identical code — a whole-run bucket total is not evidence
+  // on this project, and without the rule it could not even become one. Diagnostic only: it names a
+  // guard that already refused, never a reason a reader is shown.
+  const genReport = () => ({ attempts: gen.attempts, reason: gen.reason, rule: gen.blockedRule });
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
     // ONE BUDGET FOR THE TURN, not one per call. `callChatModel` defaults to a fresh
@@ -827,10 +836,20 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   //
   // `markersInProse` is only safe on prose that CLEARED the guard, which is exactly the state here:
   // `answer` is non-null only on `verdict.ok`. Every marker in it therefore already resolved.
+  //
+  // AND IT GOES THROUGH `publishedCardOf`, which it did not until 2026-08-20 (late). `records` are
+  // `DisplayRecord`s — the INTERNAL shape, carrying the sunnah.com narration and its translator
+  // credit because the Worker needs the narration upstream to build the model's user message. This
+  // line used to hand those objects straight to `json()`, so the English Erik withdrew from
+  // publication was still served on a public endpoint, unpainted rather than unpublished. The
+  // withdrawal's evidence was a grep of the served CLIENT BUNDLE and could not have seen it.
   const cited = gen.answer
     ? markersInProse(gen.answer)
         .map((id) => records.find((r) => r.id === id))
+        // `HadithCard`, not `DisplayRecord`: `records` carries the grafted `book`, and narrowing to
+        // `DisplayRecord` here would drop it before `publishedCardOf` could carry it through.
         .filter((r): r is HadithCard => r !== undefined)
+        .map(publishedCardOf)
     : [];
 
   return json({ answer: gen.answer, blocked: gen.blocked, hadith: cited, dalil: dalilReport(), gen: genReport() }, 200, request);
@@ -1120,14 +1139,18 @@ async function handleFindSurah(request: Request, env: Env): Promise<Response> {
  * the other six tells the reader those six do not exist. A reference line is the honest middle: it
  * says "this record is here, in this kitab, graded this" and hands over a link, while displaying no
  * hadith text at all. That is the same position the Fikih section already ships — a doorway.
+ *
+ * `bab_en` WAS THE EIGHTH KEY UNTIL 2026-08-20 (late) and is withdrawn: sunnah.com's English
+ * chapter title is the same "private research use" apparatus as the narration, one level up. What
+ * is left still says which record this is, how it is graded, and where to read it. `book_en` is
+ * kept and FLAGGED, not settled — it is English from the same source, one level up again, and Erik
+ * has not been asked about it.
  */
 export interface DalilReference {
   id: string;
   collection: string;
   hadith_number: number;
   grade: string;
-  book_en: string;
-  bab_en: string;
   source_url: string;
 }
 
@@ -1137,7 +1160,7 @@ export interface DalilReference {
  * The explicit projection is the whole guarantee and it is why this is a function rather than a
  * `const ref = { ...hit }` with two deletes. `DalilHit` does not carry `arabic`/`english` today;
  * a spread would start leaking them the day someone adds them, silently, with every test still
- * green. Listing the seven permitted keys means a new field on `DalilHit` reaches a reader only
+ * green. Listing the permitted keys means a new field on `DalilHit` reaches a reader only
  * when a human edits THIS function. `dalil-search.test.ts` force-reds on exactly that.
  */
 export function referenceLineOf(h: DalilHit): DalilReference {
@@ -1146,8 +1169,6 @@ export function referenceLineOf(h: DalilHit): DalilReference {
     collection: h.collection,
     hadith_number: h.hadith_number,
     grade: h.grade,
-    book_en: h.book_en,
-    bab_en: h.bab_en,
     source_url: h.source_url,
   };
 }
@@ -1196,12 +1217,23 @@ async function handleDalilSearch(request: Request, env: Env): Promise<Response> 
   // which two the reader actually sees. After the cap it could only shuffle two and be decorative.
   const offered = capForDisplay(ordered);
 
-  let cards: HadithCard[] = [];
+  // THE SPREAD WENT THROUGH `publishedCardOf` ON 2026-08-20 (late), and until then this endpoint
+  // was the other half of a leak that was reported closed.
+  //
+  // `refs` on this route has been walled by `referenceLineOf` since it was written; `cards` never
+  // was. `{ ...r }` of a `DisplayRecord` published `english`, `translator` and `bab_en` verbatim —
+  // so after the answer route was walled, `POST /api/dalil` was still serving the full sunnah.com
+  // narration and the Darussalam / Muhsin Khan credit as JSON, and a comment on the answer route's
+  // new wall said this list "already had this wall". Half of it did. That sentence is the exact
+  // stale-assertion shape the withdrawal itself was caught by.
+  //
+  // `book` is added BEFORE the projection because `publishedCardOf` carries it: it is the routing
+  // key for the machine-Indonesian shard and is not part of `DisplayRecord`.
+  let cards: PublishedCard[] = [];
   try {
-    cards = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) => ({
-      ...r,
-      book: bookOf(offered.find((h) => h.id === r.id)?.path ?? ""),
-    }));
+    cards = (await fetchDisplayRecords(env as unknown as DalilEnv, offered)).map((r) =>
+      publishedCardOf({ ...r, book: bookOf(offered.find((h) => h.id === r.id)?.path ?? "") }),
+    );
   } catch {
     cards = []; // text layer down → references still stand, since they need no text
   }

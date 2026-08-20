@@ -8,7 +8,7 @@
  * confidence, which is worse than the silence it replaced.
  */
 import { describe, expect, it } from "bun:test";
-import { classifyDalilFailure } from "./dalil.ts";
+import { classifyDalilFailure, publishedCardOf, type DisplayRecord } from "./dalil.ts";
 
 describe("classifyDalilFailure", () => {
   it("names the stage for every message dalil.ts actually throws", () => {
@@ -215,5 +215,107 @@ describe("searchDalil timeline", () => {
     } finally {
       h.restore();
     }
+  });
+});
+
+/**
+ * THE RIGHTS WALL FOR THE ANSWER CARD — `publishedCardOf`.
+ *
+ * `/api/answer` returned `DisplayRecord` objects RAW in its `hadith:` array. `DisplayRecord` carries
+ * `english` (sunnah.com's narration, whose terms are "private research use") and `translator` (the
+ * Darussalam / Muhsin Khan credit). Erik withdrew both from publication on 2026-08-20, and the fix
+ * that shipped removed them from the RENDERER — the evidence recorded for it was a grep of the
+ * served client bundle, which could not have seen this, because the leak is in the Worker's
+ * response. A curl-able public endpoint serving the narration is publication by the same argument
+ * that retired the rendered element. `bab_en` — sunnah.com's English chapter title — was withdrawn
+ * on Erik's ruling of 2026-08-20 (late) and is out for the same reason one level up.
+ *
+ * The `/api/dalil` route had this wall on HALF of its response — `referenceLineOf` guards `refs`,
+ * an exact-SET test pins it, and `cards` was a raw spread that published everything. The answer
+ * card had no wall at all. Both go through this projection now; the first draft of this comment
+ * said the other endpoint was "already" walled, which was the stale-assertion shape one more time.
+ * This is the same discipline on both routes, and
+ * the assertion is deliberately on the SET: a denylist ("no english") passes for every field nobody
+ * has thought of yet, which is exactly the leak it exists to stop.
+ */
+describe("publishedCardOf — the rights wall for the answer card", () => {
+  const record = (): DisplayRecord & { book: number } => ({
+    id: "hadith-bukhari-2201",
+    arabic: "نص عربي",
+    english: "English narration body.",
+    collection: "Sahih al-Bukhari",
+    hadith_number: 2201,
+    grade: "sahih",
+    book_en: "Loans",
+    bab_en: "Payment of Loans",
+    source_url: "https://sunnah.com/bukhari:2201",
+    translator: "Muhsin Khan",
+    book: 38,
+  });
+
+  /**
+   * The keys a reader is permitted to receive for a hadith the app IS showing them.
+   *
+   * `book` IS ON THIS LIST AND MUST STAY. It is not a `DisplayRecord` field — `index.ts` grafts it
+   * on from the corpus path specifically so the client can find the machine-Indonesian shard
+   * (ISC-449). The first draft of this wall dropped it, and because `main.ts` bails on `!h.book`,
+   * that silently deleted the Indonesian from EVERY answer card — leaving Arabic alone on a card
+   * whose whole reason for carrying Indonesian is that most readers cannot read the Arabic. It is
+   * also the one thing Erik explicitly ruled to KEEP in the same breath as withdrawing `bab_en`.
+   * The exact-SET assertion below pinned that defect as correct for one commit.
+   *
+   * `book_en` was withdrawn 2026-08-20 (late) on Erik's ruling, one level up from `bab_en`.
+   */
+  const PERMITTED = ["id", "arabic", "collection", "hadith_number", "grade", "source_url", "book"] as const;
+
+  it("carries no key beyond the permitted set", () => {
+    expect(Object.keys(publishedCardOf(record())).sort()).toEqual([...PERMITTED].sort());
+  });
+
+  it("drops the English narration and its translator credit, on the wire as well as in the object", () => {
+    const card = publishedCardOf(record()) as unknown as Record<string, unknown>;
+    expect(card.english).toBeUndefined();
+    expect(card.translator).toBeUndefined();
+    const wire = JSON.stringify(card);
+    expect(wire).not.toContain("English narration body.");
+    expect(wire).not.toContain("Muhsin Khan");
+  });
+
+  it("drops bab_en and book_en, both withdrawn 2026-08-20 (late)", () => {
+    const card = publishedCardOf(record()) as unknown as Record<string, unknown>;
+    expect(card.bab_en).toBeUndefined();
+    expect(card.book_en).toBeUndefined();
+    const wire = JSON.stringify(card);
+    expect(wire).not.toContain("Payment of Loans");
+    expect(wire).not.toContain("Loans");
+  });
+
+  /**
+   * THE CONSEQUENCE, NAMED. Asserting `book` is on the permitted SET says nothing about WHY, and a
+   * set assertion is exactly what pinned its absence as correct for one commit. `web/src/main.ts`
+   * bails on `!h.book` before it will even attempt the shard lookup, so a card without it renders
+   * the Arabic and nothing else — to a reader who, by assumption, cannot read the Arabic.
+   */
+  it("carries `book`, without which the client cannot resolve the machine Indonesian at all", () => {
+    const card = publishedCardOf(record());
+    expect(card.book).toBe(38);
+    // The exact predicate `main.ts` uses before it attempts the lookup. If this ever reads true,
+    // the Indonesian is gone from every answer card and no other test in the repo notices.
+    const c = card as unknown as Record<string, unknown>;
+    expect(Boolean(c.reviewed_id || !card.book || !card.collection)).toBe(false);
+  });
+
+  /**
+   * The Arabic STAYS. It is the sourced artifact and the only text on the card whose provenance is
+   * not a machine translation; withdrawing it would leave a hadith card with no hadith on it.
+   */
+  it("keeps the Arabic and everything an attribution line needs", () => {
+    const card = publishedCardOf(record());
+    expect(card.arabic).toBe("نص عربي");
+    expect(card.id).toBe("hadith-bukhari-2201");
+    expect(card.collection).toBe("Sahih al-Bukhari");
+    expect(card.hadith_number).toBe(2201);
+    expect(card.grade).toBe("sahih");
+    expect(card.source_url).toBe("https://sunnah.com/bukhari:2201");
   });
 });

@@ -20,7 +20,7 @@
  * nothing about admission, guarding or throwing; it gives those decisions a name and a public,
  * non-revealing report.
  */
-import type { AnswerViolationKind } from "../../web/src/answer-guard.ts";
+import type { AnswerViolationKind, AnswerViolationRule } from "../../web/src/answer-guard.ts";
 import { MAX_ATTEMPTS, nextAttemptBudget } from "./answer-retry.ts";
 
 export type GenOutcome = "ok" | "empty" | "threw" | `blocked:${AnswerViolationKind}`;
@@ -37,12 +37,21 @@ export interface GenTrace {
   attempts: GenAttempt[];
   reason: GenReason;
   blocked: AnswerViolationKind | null;
+  /**
+   * WHICH CHECK earned `blocked`, when the kind alone cannot say.
+   *
+   * `own_wording` is pushed by two different checks and `bad_hadith` by two more, so `blocked`
+   * names the reader's verdict but not the rule behind it. After the echo wall deployed, that made
+   * its live effect unattributable — `own_wording` 4/24 → 5/24 against a documented run-to-run
+   * spread of 46% vs 25%. This field is what an instrument reads; nothing reader-facing does.
+   */
+  blockedRule: AnswerViolationRule | null;
   answer: string | null;
 }
 
 interface GuardVerdict {
   readonly ok: boolean;
-  readonly violations: readonly { readonly kind: AnswerViolationKind }[];
+  readonly violations: readonly { readonly kind: AnswerViolationKind; readonly rule: AnswerViolationRule }[];
 }
 
 export interface RunGenerationDeps {
@@ -53,7 +62,7 @@ export interface RunGenerationDeps {
 }
 
 export function newGenTrace(): GenTrace {
-  return { attempts: [], reason: "no_attempt", blocked: null, answer: null };
+  return { attempts: [], reason: "no_attempt", blocked: null, blockedRule: null, answer: null };
 }
 
 /**
@@ -149,6 +158,7 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
     if (verdict.ok) {
       trace.answer = candidate;
       trace.blocked = null;
+      trace.blockedRule = null;
       trace.attempts.push({ ms, budgetMs, outcome: "ok" });
       trace.reason = "answered";
       break;
@@ -159,7 +169,13 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
     // ONE BINDING, NOT TWO. The per-attempt outcome is derived from the SAME `trace.blocked`
     // assignment the caller later reads in the catch path; it does not re-evaluate
     // `verdict.violations[0]?.kind` in a second place that could drift.
-    trace.blocked = verdict.violations[0]?.kind ?? null;
+    //
+    // The RULE is read off that same row for the same reason. `own_wording` is pushed by two
+    // different checks, so the kind cannot say which wall fired; reading the rule from a second
+    // `verdict.violations[0]` lookup would be exactly the drift this comment exists to forbid.
+    const first = verdict.violations[0];
+    trace.blocked = first?.kind ?? null;
+    trace.blockedRule = first?.rule ?? null;
     // THE `bad_hadith` BREAK THAT USED TO LIVE IN THIS LOOP IS GONE (2026-08-16, Erik's call), and
     // this note travelled with the loop out of `handleAnswer` so it is not restored from the
     // reasoning that justified it.

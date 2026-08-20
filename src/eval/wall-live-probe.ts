@@ -146,6 +146,18 @@ interface Row {
   readonly attempts: readonly { readonly ms: number; readonly budgetMs: number; readonly outcome: string }[];
   /** How the generation LOOP terminated, server-side: `deadline` | `blocked` | `ok` | … */
   readonly genReason: string | null;
+  /**
+   * WHICH CHECK earned the refusal — `gen.rule`, added 2026-08-20 (late).
+   *
+   * `blocked` is the READER's verdict and two different checks report `own_wording`
+   * (`wordingShape` and `scriptureEchoShape`), with two more reporting `bad_hadith`. So the bucket
+   * this probe already prints could not attribute the echo wall's live effect at all: post-deploy
+   * `own_wording` moved 4/24 → 5/24 against a run-to-run spread documented at 46% vs 25% on
+   * IDENTICAL code, and no instrument in the project could say which wall produced any of the five.
+   * A whole-run bucket total is not evidence here; with the rule on the row it can at least become
+   * a paired one.
+   */
+  readonly genRule: string | null;
   /** The outcome bucket, as the READER experiences it. */
   readonly bucket: string;
   /**
@@ -189,6 +201,7 @@ async function turn(p: Probe): Promise<Row> {
     failed: null as string | null,
     attempts: [] as Row["attempts"],
     genReason: null as string | null,
+    genRule: null as string | null,
     prose: "",
   };
   if (g.verses.length === 0 && g.entries.length === 0) {
@@ -217,7 +230,11 @@ async function turn(p: Probe): Promise<Row> {
       blocked?: string | null;
       hadith?: unknown[];
       dalil?: { offered?: number; records?: number; failed?: string | null; ms?: { total?: number } | null };
-      gen?: { attempts?: { ms?: number; budgetMs?: number; outcome?: string }[]; reason?: string | null } | null;
+      gen?: {
+        attempts?: { ms?: number; budgetMs?: number; outcome?: string }[];
+        reason?: string | null;
+        rule?: string | null;
+      } | null;
     };
     // The retrieval story travels with the row from here on, so a surprising bucket can be read
     // against what the model was actually handed rather than guessed at.
@@ -236,6 +253,7 @@ async function turn(p: Probe): Promise<Row> {
         outcome: a.outcome ?? "?",
       })),
       genReason: data.gen?.reason ?? null,
+      genRule: data.gen?.rule ?? null,
     };
     if (typeof data.answer === "string" && data.answer.length > 0) {
       const w = wordingShape(data.answer);
@@ -388,6 +406,13 @@ if (allAttempts.length === 0) {
   const reasons = new Map<string, number>();
   for (const r of withGen) reasons.set(r.genReason ?? "-", (reasons.get(r.genReason ?? "-") ?? 0) + 1);
   console.log(`  terminal \`gen.reason\`: ${[...reasons].map(([k, v]) => `${k}=${v}`).join(" · ")}`);
+
+  // WHICH WALL, not just which verdict. Printed unconditionally, including when it is all `-`:
+  // a row of dashes says the deployed Worker predates `gen.rule` and this line is uninformative,
+  // which is a different fact from "no rule fired" and must not read as the same one.
+  const rules = new Map<string, number>();
+  for (const r of withGen) rules.set(r.genRule ?? "-", (rules.get(r.genRule ?? "-") ?? 0) + 1);
+  console.log(`  refusing \`gen.rule\`:  ${[...rules].map(([k, v]) => `${k}=${v}`).join(" · ")}`);
 }
 
 // ── the line that cannot fail, relabelled to what it can actually tell you ───────────

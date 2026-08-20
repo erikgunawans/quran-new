@@ -161,3 +161,63 @@ describe("the limits, pinned rather than described", () => {
     expect(scriptureEchoShape("Biji itu.", verses(["2:261", V_2_261_PRIMARY]))).toBeNull();
   });
 });
+
+/**
+ * ATTRIBUTION. `wordingShape` and `scriptureEchoShape` both report `kind: "own_wording"`, and that
+ * is deliberate — to a reader the two failures are the same failure, and splitting the kind would
+ * split the reader-facing copy for no reader-visible reason (the ISC-528 shape: a verdict the
+ * browser has no branch for). But it left the WALL'S LIVE EFFECT UNATTRIBUTABLE: post-deploy
+ * `own_wording` moved 4/24 → 5/24 and no instrument in the project could say which of the two
+ * checks fired, on a run-to-run spread already documented at 46% vs 25%.
+ *
+ * So the discriminator goes on a SECOND field, `rule`, which names the CHECK. `kind` is the
+ * reader's channel and does not move; `rule` is the diagnostic channel, alongside `gen.reason`.
+ * This is the blind-instrument shape a third time, and it was introduced by the echo wall's own
+ * change — so it is pinned here rather than left to the next probe to rediscover.
+ */
+describe("the two own_wording checks are distinguishable to an instrument", () => {
+  const LIVE_2_261 =
+    "Coba bayangkan, dalam QS Al-Baqarah 2:261, Allah menggambarkan pahala sedekah seperti sebutir " +
+    "biji yang menumbuhkan tujuh tangkai, dan setiap tangkai berisi seratus biji.";
+
+  /** The 2026-08-17 QUOTED violation — `wordingShape`'s case, with no verse posted at all. */
+  const QUOTED_2_187 =
+    "Dalam QS Al-Baqarah 2:187, Allah menggambarkan — “istri-istri kalian menjadi penenteram bagi " +
+    "kalian, kalian menjadi penenteram bagi mereka.”";
+
+  test("the ECHO wall's violation names the echo rule", () => {
+    const res = guardAnswerProse(LIVE_2_261, () => true, () => false, verses(["2:261", V_2_261_PRIMARY]));
+    const own = res.violations.filter((v) => v.kind === "own_wording");
+    expect(own.map((v) => v.rule)).toEqual(["echo"]);
+  });
+
+  test("the QUOTED wall's violation names the wording rule, with no verse posted", () => {
+    const res = guardAnswerProse(QUOTED_2_187, () => true, () => false, []);
+    const own = res.violations.filter((v) => v.kind === "own_wording");
+    expect(own.map((v) => v.rule)).toEqual(["wording"]);
+  });
+
+  /**
+   * BOTH, on one sentence — the case the shared bucket erases entirely. A quoted splice of a verse
+   * we also posted trips each check independently, and the bucket reports a single `own_wording`
+   * either way. Two rows, two rules, one kind.
+   *
+   * THE QUOTED SPAN IS NINE WORDS ON PURPOSE. The first draft of this fixture quoted six and only
+   * `echo` fired, because `wordingShape` has an `OWN_WORDING_MIN_WORDS` floor beneath it — which is
+   * precisely the fixture-teaches-the-suite-the-bug shape, and the fix was to lengthen the span
+   * rather than to weaken the assertion to whatever the string happened to produce.
+   */
+  test("a sentence that trips BOTH reports both rules under the one kind", () => {
+    const BOTH =
+      "Dalam QS Al-Baqarah 2:261, Allah menggambarkan — “laksana orang menanam sebuah biji yang " +
+      "menumbuhkan tujuh tangkai.”";
+    const res = guardAnswerProse(BOTH, () => true, () => false, verses(["2:261", V_2_261_PRIMARY]));
+    const own = res.violations.filter((v) => v.kind === "own_wording");
+    expect(own.map((v) => v.rule).sort()).toEqual(["echo", "wording"]);
+  });
+
+  test("every other check names its own rule too, so no violation is anonymous", () => {
+    const res = guardAnswerProse("Ini adalah ﷻ dan نص عربي.", () => true, () => false, []);
+    expect(res.violations.every((v) => typeof v.rule === "string" && v.rule.length > 0)).toBe(true);
+  });
+});

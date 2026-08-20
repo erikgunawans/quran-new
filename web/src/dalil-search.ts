@@ -11,13 +11,19 @@
  * So this surface cannot produce a fatwa, cannot paraphrase a hadith, and has no prose for the
  * answer guard to police. It is the hadith twin of "Cari Surah": navigation.
  *
- * THE TWO-TIER RESULT IS THE RIGHTS POSITION, NOT A LAYOUT CHOICE. `MAX_DISPLAY = 2` caps how many
- * hadith may be SHOWN and does not move (Erik, 2026-08-17 — the cap is an open rights call, and
- * this feature deliberately does not pre-empt it). But returning two cards and silently discarding
- * the other six would tell the reader those six do not exist. So the rest come back as REFERENCE
- * LINES: collection, number, grade, kitab, link — and no hadith text whatsoever. The reader learns
- * the record is there and can go read it at the source. That is the same honest doorway the Fikih
- * section already is.
+ * THE TWO-TIER RESULT IS NOT A LAYOUT CHOICE. `MAX_DISPLAY = 2` caps how many hadith may be SHOWN
+ * and does not move. Returning two cards and silently discarding the other six would tell the
+ * reader those six do not exist, so the rest come back as REFERENCE LINES: collection, number,
+ * grade, link — and no hadith text whatsoever. The reader learns the record is there and can go
+ * read it at the source. That is the same honest doorway the Fikih section already is.
+ *
+ * WHICH HALF IS THE RIGHTS POSITION, since this block asserted the wrong one until 2026-08-20
+ * (late) — it read "the cap is an open rights call". The COUNT is editorial (Erik, 2026-08-20; the
+ * canonical statement is the `MAX_DISPLAY` docblock in `worker/src/dalil.ts`). What is genuinely a
+ * rights position is the second tier carrying NO TEXT. Those are separable and were conflated here.
+ *
+ * The kitab title left the reference line on 2026-08-20 (late): `book_en` is sunnah.com's English,
+ * withdrawn with `bab_en` and the narration.
  */
 import { esc } from "./esc.ts";
 import { hadithIdText, loadHadithIds } from "./hadith-id.ts";
@@ -34,14 +40,19 @@ const DALIL_ENDPOINT = "/api/dalil";
  */
 const TIMEOUT_MS = 20000;
 
-/** A record the reader may NAVIGATE to but not READ here. Mirrors `DalilReference` in the Worker. */
+/**
+ * A record the reader may NAVIGATE to but not READ here. Mirrors `DalilReference` in the Worker.
+ *
+ * IT STOPPED MIRRORING ON 2026-08-20 (late) and is corrected here: `book_en` and `bab_en` were
+ * withdrawn from the Worker's projection, so declaring them made this type assert that withdrawn
+ * fields are still on the wire. Nothing read them, so it was never a leak — but a type contract
+ * that describes a wire shape it no longer has is the same stale-assertion failure as a header.
+ */
 export interface DalilReference {
   id: string;
   collection: string;
   hadith_number: number;
   grade: string;
-  book_en: string;
-  bab_en: string;
   source_url: string;
 }
 
@@ -127,9 +138,10 @@ export async function hydrateMachineIndonesian(cards: HadithCard[]): Promise<Had
 export const referenceLabel = (r: DalilReference): string => `${r.collection} ${r.hadith_number}`;
 
 /**
- * The reference list. Deliberately austere: an attribution, a grade, the kitab it sits in, and a
- * link out to the source. No excerpt, no snippet, no "…" teaser — a teaser is display of the text
- * in a smaller font, and the cap does not bend because the font got smaller.
+ * The reference list. Deliberately austere: an attribution, a grade, and a link out to the source.
+ * The kitab title went with `book_en` on 2026-08-20 (late). No excerpt, no snippet, no "…" teaser —
+ * a teaser is display of the text in a smaller font, and the cap does not bend because the font got
+ * smaller.
  */
 export function referenceListEl(refs: readonly DalilReference[]): string {
   if (refs.length === 0) return "";
@@ -140,7 +152,10 @@ export function referenceListEl(refs: readonly DalilReference[]): string {
         `<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">` +
         `<span class="dalil-ref-cite">${esc(referenceLabel(r))}</span>` +
         `<span class="dalil-ref-grade">${esc(r.grade)}</span>` +
-        `<span class="dalil-ref-bab">${esc(r.bab_en)}</span>` +
+        // NO `dalil-ref-bab`. A `<span class="dalil-ref-bab">` carrying `bab_en` sat here until
+        // 2026-08-20 (late), when Erik withdrew sunnah.com's English chapter AND kitab titles for
+        // the same reason he withdrew the narration: "private research use". The reference line
+        // still says which record this is, how it is graded, and where to read it.
         `</a></li>`,
     )
     .join("");

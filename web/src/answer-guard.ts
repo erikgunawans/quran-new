@@ -37,8 +37,38 @@
 
 export type AnswerViolationKind = "arabic" | "bad_ref" | "fatwa" | "bad_hadith" | "own_wording";
 
+/**
+ * WHICH CHECK FIRED — the diagnostic channel, distinct from `kind`, which is the READER's channel.
+ *
+ * Two kinds are produced by more than one check. `own_wording` is pushed by both `wordingShape` and
+ * `scriptureEchoShape`, deliberately: to a reader the two failures are the same failure (the app
+ * printed its own rendering of an ayah beside its own card for that ayah), so splitting the kind
+ * would split reader-facing copy for no reader-visible reason — the ISC-528 shape, a verdict the
+ * browser has no branch for. `bad_hadith` is likewise pushed by both `hadithShape` and the
+ * unresolvable-marker sweep.
+ *
+ * The cost of that sharing was that the wall's live effect became UNATTRIBUTABLE: after the echo
+ * wall deployed, `own_wording` moved 4/24 → 5/24 and no instrument in the project could say which
+ * of the two checks fired, against a run-to-run spread already documented at 46% vs 25% on
+ * identical code. That is the blind-instrument shape a third time, and it was introduced by the
+ * echo wall's own change.
+ *
+ * So `rule` names the check and `kind` does not move. Nothing reader-facing reads `rule`; it rides
+ * the `gen` diagnostic channel beside `gen.reason`, and the live probe attributes on it.
+ */
+export type AnswerViolationRule =
+  | "arabic"
+  | "bad_ref"
+  | "fatwa"
+  | "hadith_unbacked"
+  | "hadith_marker"
+  | "wording"
+  | "echo";
+
 export interface AnswerViolation {
   readonly kind: AnswerViolationKind;
+  /** The CHECK that produced this row. Required, so a new check cannot be anonymous by default. */
+  readonly rule: AnswerViolationRule;
   readonly detail: string;
 }
 
@@ -1202,16 +1232,16 @@ export function guardAnswerProse(
   // Honorifics are stripped before the script test — see HONORIFIC. Everything else in the Arabic
   // ranges is still a hard violation.
   const arabic = ARABIC.exec(prose.replace(HONORIFIC, ""));
-  if (arabic) violations.push({ kind: "arabic", detail: arabic[0] });
+  if (arabic) violations.push({ kind: "arabic", rule: "arabic", detail: arabic[0] });
 
   const fatwa = fatwaShape(prose);
-  if (fatwa) violations.push({ kind: "fatwa", detail: fatwa.slice(0, 80) });
+  if (fatwa) violations.push({ kind: "fatwa", rule: "fatwa", detail: fatwa.slice(0, 80) });
 
   // The app printing the SOURCE's own words rather than citing them. Checked beside the receipt
   // rules, never instead of them: an answer can satisfy every receipt and still put our Indonesian
   // rendering of a verse next to the official one, which is what shipped on 2026-08-17.
   const wording = wordingShape(prose);
-  if (wording) violations.push({ kind: "own_wording", detail: wording.slice(0, 80) });
+  if (wording) violations.push({ kind: "own_wording", rule: "wording", detail: wording.slice(0, 80) });
 
   // The same rule from the other side — copying the SHIPPED WORDING rather than quoting it. Runs
   // BESIDE `wordingShape` and reports the same `own_wording` kind, because to a reader the failure
@@ -1219,20 +1249,23 @@ export function guardAnswerProse(
   // A union, never a replacement: `wordingShape` catches quoted renderings this cannot see (it has
   // no verse text for an ayah retrieval never returned), and this catches unquoted ones that have
   // no attribution grammar for `wordingShape` to find.
+  //
+  // The shared KIND is what a reader sees; `rule: "echo"` is what an instrument sees. See
+  // `AnswerViolationRule` for why the discriminator went on a second field rather than on `kind`.
   const echo = scriptureEchoShape(prose, scripture);
-  if (echo) violations.push({ kind: "own_wording", detail: echo.slice(0, 80) });
+  if (echo) violations.push({ kind: "own_wording", rule: "echo", detail: echo.slice(0, 80) });
 
   // Two ways to fail the hadith rule, and both must be caught.
   // (a) An attribution to the Prophet ﷺ with no resolvable marker behind it.
   const hadith = hadithShape(prose, isGroundedHadith);
-  if (hadith) violations.push({ kind: "bad_hadith", detail: hadith.slice(0, 80) });
+  if (hadith) violations.push({ kind: "bad_hadith", rule: "hadith_unbacked", detail: hadith.slice(0, 80) });
 
   // (b) A marker that does not resolve against this turn's grounding — the hadith analogue of
   //     `bad_ref`. A model that invents "[H:bukhari:99999]" must not reach a renderer.
   for (const m of prose.matchAll(MARKER_IN_PROSE)) {
     const id = markerToId(m[1]!, m[2]!);
     if (!isGroundedHadith(id)) {
-      violations.push({ kind: "bad_hadith", detail: m[0] });
+      violations.push({ kind: "bad_hadith", rule: "hadith_marker", detail: m[0] });
       break;
     }
   }
@@ -1240,7 +1273,7 @@ export function guardAnswerProse(
   for (const m of prose.matchAll(REF_IN_PROSE)) {
     const ref = normRef(m[1]!, m[2]!);
     if (!isCitable(ref)) {
-      violations.push({ kind: "bad_ref", detail: ref });
+      violations.push({ kind: "bad_ref", rule: "bad_ref", detail: ref });
       break; // one bad citation is enough to reject the whole answer
     }
   }

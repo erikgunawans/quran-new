@@ -841,8 +841,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
      half its own box, and rows of differing height rendered visibly different corners once already. */
   padding: 2px 9px; background: var(--primary-wash);
 }
-/* The bab title is context, not a heading: it wraps to its own line rather than squeezing the ref. */
-.ai-hadith .bab { flex-basis: 100%; font-size: 12px; color: var(--ink-3); text-wrap: pretty; }
+/* `.ai-hadith .bab` removed 2026-08-20 (late): the card no longer emits an English chapter title
+   (Erik's ruling — same sunnah.com "private research use" terms as the narration). Dead selector,
+   dropped rather than left to look like a surface that still exists. See web/src/hadith-card.ts. */
 /* Scales with the reader's A/A/A control, exactly like every other Arabic in the app. */
 .ai-hadith .ar {
   margin: 0;

@@ -27,7 +27,7 @@ describe("guardAnswerProse — citations must be grounded", () => {
     const prose = "Ini dijelaskan dalam QS 4:82 dan QS 112:1.";
     const r = guardAnswerProse(prose, allow("112:1"));
     expect(r.ok).toBe(false);
-    expect(r.violations[0]).toEqual({ kind: "bad_ref", detail: "4:82" });
+    expect(r.violations[0]).toEqual({ kind: "bad_ref", rule: "bad_ref", detail: "4:82" });
   });
 
   test("ref spelled with a dot or spaces is still checked", () => {

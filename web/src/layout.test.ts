@@ -249,3 +249,45 @@ describe("the inner panel's green hairline is LIGHT-ONLY", () => {
     );
   });
 });
+
+/**
+ * THE PROVENANCE LABEL ON MACHINE-TRANSLATED HADITH — the one claim that must never quietly go.
+ *
+ * With the English narration withdrawn (2026-08-20) and the English chapter title withdrawn
+ * (2026-08-20, late), a reader who does not read Arabic gets exactly ONE legible sentence about the
+ * Prophet ﷺ from a hadith card: the machine Indonesian. What makes shipping that honest is the
+ * label "Terjemahan mesin · belum ditinjau", and the label is `content:` on a `::before`.
+ *
+ * Every existing invariant test asserts the CLASS (`answer-hadith.test.ts`, `hadith-card.test.ts`
+ * both check `class="hadith-id is-ai"`) and NOT the sentence — and this project has a recorded trap
+ * that CSS-generated text is invisible to every DOM probe it owns. So the rule could be scoped
+ * away, renamed, or have its `content` emptied, and unreviewed machine Indonesian about the Prophet
+ * ﷺ would ship UNLABELLED with the entire suite green. That is the exact shape of the two failures
+ * this file's own header describes.
+ *
+ * Asserted on the CSS SOURCE, with comments stripped, for the reason stated at the top: the failure
+ * mode is the rule being deleted or weakened IN THE FILE.
+ */
+describe("machine-translated hadith cannot ship without saying so", () => {
+  test("the ::before rule exists and still carries the sentence", () => {
+    expect(shellLive).toContain(".hadith-id.is-ai::before");
+    expect(shellLive).toContain('content: "Terjemahan mesin · belum ditinjau"');
+  });
+
+  test("the selector is unscoped, so it reaches the card on every surface that renders one", () => {
+    // A scoped variant (`.ai-hadith .hadith-id.is-ai::before`) would label the answer card and
+    // silently skip any other surface. The rule that ships is the bare one.
+    //
+    // EVERY occurrence, not the first. `match` with `/m` returns only the first, so a LATER scoped
+    // override emptying `content` passed all three of these tests — the pin claimed to close a hole
+    // it left open. `matchAll` is what makes the claim in the docblock true.
+    const rules = [...shellLive.matchAll(/^[^\n{]*\.hadith-id\.is-ai::before/gm)].map((m) => m[0].trim());
+    expect(rules).toEqual([".hadith-id.is-ai::before"]);
+  });
+
+  test("styles.css does not redefine the label out from under it", () => {
+    // `styles.css` deliberately defers to `shell.css` here. If it ever grows its own
+    // `.hadith-id.is-ai::before` with a different `content`, load order decides what a reader sees.
+    expect(stylesLive).not.toContain(".hadith-id.is-ai::before");
+  });
+});

@@ -7,7 +7,7 @@
  * their distinctions. These tests keep the measurement honest and the control flow unchanged.
  */
 import { describe, expect, it } from "bun:test";
-import type { AnswerViolationKind } from "../../web/src/answer-guard.ts";
+import type { AnswerViolationKind, AnswerViolationRule } from "../../web/src/answer-guard.ts";
 import { runGeneration, newGenTrace, classifyGenFailure } from "./answer-generation.ts";
 import { verdictAfterFailure, MAX_ATTEMPTS, MIN_RETRY_MS } from "./answer-retry.ts";
 import { MODEL_DEADLINE_MS } from "./providers.ts";
@@ -41,8 +41,13 @@ const admitted = (budgetMs: number | null): number => {
 
 const okVerdict = () => ({ ok: true, violations: [] as const });
 
-const blockedVerdict = (kind: AnswerViolationKind) =>
-  ({ ok: false, violations: [{ kind }] as const });
+/**
+ * The RULE is a parameter, defaulted, because the two must be able to disagree in a test: the
+ * loop reads them off ONE row and a fake that welds them together could not catch a drift where
+ * `blockedRule` is read from a second lookup.
+ */
+const blockedVerdict = (kind: AnswerViolationKind, rule: AnswerViolationRule = "fatwa") =>
+  ({ ok: false, violations: [{ kind, rule }] as const });
 
 describe("a turn that answers", () => {
   /**
@@ -394,5 +399,87 @@ describe("a generation that throws for a reason that is not the clock", () => {
     expect(wire).not.toContain("sk-or-v1");
     expect(wire).not.toContain("upstream said");
     expect(Object.keys(trace.attempts[0]!).sort()).toEqual(["budgetMs", "ms", "outcome"]);
+  });
+});
+
+/**
+ * WHICH WALL FIRED — the attribution channel (`trace.blockedRule`), added because `blocked` alone
+ * could not answer it.
+ *
+ * `own_wording` is pushed by both `wordingShape` and `scriptureEchoShape`, and `bad_hadith` by both
+ * `hadithShape` and the unresolvable-marker sweep. When the echo wall deployed, the post-deploy
+ * `own_wording` rate moved 4/24 → 5/24 and NOTHING on the wire could say which of the two checks
+ * had produced any of those five. That is a blind instrument, the third in this project, and this
+ * suite is where it stops being one.
+ *
+ * The kind is deliberately held CONSTANT across these cases and only the rule varies — otherwise a
+ * passing test would be consistent with the loop reading the rule off the kind.
+ */
+describe("the loop reports WHICH check refused, not only the reader's verdict", () => {
+  it("carries the rule beside the kind, and they are read off the same row", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+
+    await runGeneration(trace, {
+      turnDeadline: 25_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        return "candidate";
+      },
+      guard: () => blockedVerdict("own_wording", "echo"),
+    });
+
+    expect(trace.blocked).toBe("own_wording");
+    expect(trace.blockedRule).toBe("echo");
+  });
+
+  it("distinguishes the OTHER own_wording check on an identical kind", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+
+    await runGeneration(trace, {
+      turnDeadline: 25_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        return "candidate";
+      },
+      guard: () => blockedVerdict("own_wording", "wording"),
+    });
+
+    expect(trace.blocked).toBe("own_wording");
+    expect(trace.blockedRule).toBe("wording");
+  });
+
+  /**
+   * THE RESET. A retry that clears the wall must not leave the first attempt's rule standing, or
+   * every answered turn downstream of one refusal would be reported as having been refused by a
+   * rule — the stale-verdict shape this project has already measured at ~10% of grounded turns.
+   */
+  it("clears the rule when a retry produces an admissible answer", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+    let n = 0;
+
+    await runGeneration(trace, {
+      turnDeadline: 40_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        n += 1;
+        return "candidate";
+      },
+      guard: () => (n === 1 ? blockedVerdict("own_wording", "echo") : okVerdict()),
+    });
+
+    expect(trace.answer).toBe("candidate");
+    expect(trace.reason).toBe("answered");
+    expect(trace.blocked).toBeNull();
+    expect(trace.blockedRule).toBeNull();
+  });
+
+  it("a turn that never generated names no rule at all", () => {
+    expect(newGenTrace().blockedRule).toBeNull();
   });
 });

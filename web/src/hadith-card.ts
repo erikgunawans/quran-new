@@ -1,11 +1,23 @@
 /**
  * The hadith card — PRD decision 2, "split the register".
  *
- * This is the ONLY surface in the app allowed to show hadith text, and what it shows is the sourced
- * artifact untouched: Arabic and English verbatim, with collection, number, grade, source_url and
- * translator credit. The model's Indonesian prose may explain the POINT of a hadith in the app's own
- * voice; it may never present that explanation as the hadith. The card is where the actual words
- * live, and they arrive from the pinned corpus, not from a model.
+ * What this card shows is the sourced artifact untouched: the ARABIC verbatim, with collection,
+ * number, grade and source_url. The model's Indonesian prose may explain the POINT of a hadith in
+ * the app's own voice; it may never present that explanation as the hadith. The card is where the
+ * actual words live, and they arrive from the pinned corpus, not from a model.
+ *
+ * THIS PARAGRAPH WAS WRONG TWICE AND BOTH CORRECTIONS BELONG HERE, because the failure shape is the
+ * point: a stale header makes behaviour look settled, which is exactly how the English survived six
+ * handoffs behind a passing test (see the comment two hundred lines down).
+ *
+ *   1. It said "Arabic and English verbatim … and translator credit" until 2026-08-20 (late) — one
+ *      commit AFTER the English and the credit were withdrawn from publication.
+ *   2. It opened "This is the ONLY surface in the app allowed to show hadith text", and that was
+ *      false when written and still false after the field list was fixed. There are at least three
+ *      others: the Hadis browse page renders whole books (`sections.ts`), `dalil-search.ts` renders
+ *      its own cards, and this same file records a FOURTH surface — the Dorar surah preface — in
+ *      the paragraph below. The first correction rewrote the sentence's tail and left its stronger,
+ *      falser head standing, which is the same mistake one clause over.
  *
  * THE INDONESIAN, AND WHY IT ARRIVES IN TWO DIFFERENT FIELDS. This block used to read "there is no
  * Indonesian here", on the reasoning that an unreviewed AI rendering was already refused for the
@@ -36,9 +48,10 @@
  *
  * WHY THE CAP IS RE-APPLIED HERE. `dalil.ts` caps retrieval at MAX_DISPLAY and `fetchDisplayRecords`
  * caps again before fetching text. This is the third wall, and it is not redundancy for its own
- * sake: sunnah.com's terms permit per-hadith didactic display and forbid mass reproduction, so
- * "never render a list of hadith" is a rights position, and a rights position that lives in only one
- * function is one refactor away from being lost.
+ * sake: "never render a list of hadith" is a load-bearing position, and one that lives in only a
+ * single function is one refactor away from being lost. WHAT THE COUNT RESTS ON is editorial, not
+ * licensing (Erik, 2026-08-20 — the canonical statement is the `MAX_DISPLAY` docblock in
+ * `worker/src/dalil.ts`). This paragraph asserted the licensing basis until 2026-08-20 (late).
  */
 import { esc } from "./esc.ts";
 
@@ -108,7 +121,19 @@ export function hadithCardEl(h: HadithCard): string {
       <header class="hadith-head">
         <span class="ref">${esc(hadithRef(h))}</span>
         ${grade ? `<span class="grade" data-grade="${esc(h.grade.trim().toLowerCase())}">${esc(grade)}</span>` : ""}
-        ${h.bab_en ? `<span class="bab">${esc(h.bab_en)}</span>` : ""}
+        ${/*
+          NO ENGLISH CHAPTER TITLE. Erik's ruling, 2026-08-20 (late).
+
+          `<span class="bab">${esc(h.bab_en)}</span>` rendered here until then. The 2026-08-20
+          ruling below named `h.english`, the narration, and this comment recorded `bab_en` as
+          deliberately untouched — "a heading is a different artifact from the narration". That
+          reading did not survive being PUT to Erik: it is the same sunnah.com English editorial
+          apparatus one level up, published under the same "private research use" terms.
+
+          The trail is kept rather than deleted, because the point is that the question was flagged
+          for six handoffs and never asked. It was asked on 2026-08-20 (late) and answered in one
+          exchange. `machine_id` was asked in the same breath and KEPT — see below.
+        */ ""}
       </header>
 
       <p class="ar" dir="rtl" lang="ar">${esc(h.arabic)}</p>
@@ -125,12 +150,18 @@ export function hadithCardEl(h: HadithCard): string {
         The question had been raised in six consecutive handoffs and never actually PUT to Erik, and
         a passing test (`English renders verbatim`) made the behaviour look settled the whole time.
 
-        SCOPE OF THE RULING — it named `h.english`, the narration. Two neighbours are deliberately
-        NOT touched here and are flagged instead of quietly swept in:
-          · `bab_en`, the English chapter title, still renders — a heading is a different artifact
-            from the narration and Erik ruled on the narration.
-          · `machine_id`, the machine Indonesian, still renders per the ruling — though it was
-            GENERATED FROM this English, which is a derivative-work question nobody has asked.
+        SCOPE OF THE RULING — it named `h.english`, the narration. Two neighbours were flagged here
+        rather than quietly swept in, and BOTH have since been put to Erik (2026-08-20, late):
+          · `bab_en`, the English chapter title — WITHDRAWN. Same English apparatus, same terms.
+          · `machine_id`, the machine Indonesian — KEPT, explicitly, even though it was GENERATED
+            FROM this English. That is the whole of what Erik ruled: keep it. The DERIVATIVE-WORK
+            QUESTION IS STILL OPEN AND WAS NOT ASKED — whether publishing a machine translation of
+            text you may not publish is itself publication. It was put to him as context for the
+            keep/withdraw choice, not as a question in its own right, and he answered the choice.
+            Do not read the ruling as settling the principle.
+            What the ruling does rest on is unchanged and documented: the ustadz's VERBAL approval
+            covers DISPLAYING this Indonesian, and it keeps its `belum ditinjau` badge, which is the
+            claim that actually matters. See `docs/review/rights-2026-08-20.md`.
         `h.english` also stays on the record and in the model's user message (`answer-contract.ts`);
         what was withdrawn is PUBLICATION, not possession.
       */ ""}

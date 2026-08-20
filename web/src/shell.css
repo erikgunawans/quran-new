@@ -1824,17 +1824,21 @@
    al-Bukhari 5063" — the corpus is Bukhari + Muslim with 4-digit numbers) plus headroom. It is a
    FLOOR, not a cap: a longer collection still grows the column and merely re-ragged that one row. */
 .dalil-ref > a {
+  /* THE THIRD TRACK IS NOW EMPTY and is left in place deliberately. It held `.dalil-ref-bab` until
+     2026-08-20 (late). With two spans rendering, cite and grade sit in tracks 1-2 exactly as before
+     and `1fr` absorbs the trailing space — visually identical to what shipped. Collapsing it to two
+     tracks is a layout change that wants a rendered check, not a same-session tidy. */
   display: grid; grid-template-columns: minmax(136px, auto) auto 1fr; align-items: baseline; gap: 4px 10px;
   padding: 9px 10px; border-radius: var(--r-sm, 8px);
   text-decoration: none; color: inherit; transition: background var(--t);
 }
-/* Below the reading measure the three columns do not fit; the bab drops to its own row and is
-   indented to the text column so it still reads as belonging to the citation above it. */
+/* Below the reading measure the columns do not fit side by side.
+   The third column (`.dalil-ref-bab`, the English chapter title) was withdrawn 2026-08-20 (late),
+   so the narrow-viewport rule that dropped it to its own row went with it. */
 @media (max-width: 560px) {
   .dalil-ref > a { grid-template-columns: auto 1fr; }
-  .dalil-ref-bab { grid-column: 1 / -1; padding-inline-start: 2px; }
 }
 .dalil-ref > a:hover { background: var(--primary-wash); }
 .dalil-ref-cite { font-family: var(--f-ui); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
 .dalil-ref-grade { font-family: var(--f-ui); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); }
-.dalil-ref-bab { font-size: 13px; color: var(--ink-2); line-height: 1.45; min-width: 0; }
+/* `.dalil-ref-bab` removed 2026-08-20 (late) along with the field it painted. */

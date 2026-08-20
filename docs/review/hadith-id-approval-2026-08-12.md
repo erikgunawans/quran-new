@@ -108,3 +108,40 @@ not absent.
 **1,746 of 14,736 (11.8%), all Ṣaḥīḥ Muslim books 1–21, ZERO Bukhari.** So "show it on every card"
 is not yet a thing the corpus can do, however the UI behaves. `src/app/translate-hadith.ts` was
 restarted 2026-08-13 to close that gap (~24h, resumable per book).
+
+---
+
+## Amended 2026-08-20 — two of this document's statements were superseded by Erik
+
+**Appended, not edited in place.** Two passages above are now false as written and are corrected
+here rather than rewritten, because what a record said at the time is part of the record. Full
+reasoning: `docs/review/rights-2026-08-20.md`.
+
+### 1. "The English text … renders as the sourced artifact under the existing attribution"
+
+**Superseded.** Erik ruled 2026-08-20 that the English narration and the Darussalam / Muhsin Khan
+translator credit **must not be published at all** — on this document's own "private research use"
+citation. What was withdrawn is publication, not possession: the English stays on the record and in
+the model's user message.
+
+Extended 2026-08-20 (late) to `bab_en` and `book_en`, sunnah.com's English chapter and kitab titles.
+
+**Unchanged:** the scholarly-review status of everything on this page. Nothing here widened, and
+`reviewed_id` stays pure.
+
+### 2. "The 2-card display cap … is a RIGHTS position from sunnah.com's terms"
+
+**Superseded as to its BASIS. The cap itself is untouched and does not move.**
+
+Erik ruled 2026-08-20 that `MAX_DISPLAY = 2` is an **editorial** judgement about what an answer
+should carry, not a licensing limit — the licensing argument could not survive being read next to
+the browse page, which publishes the entire Ṣaḥīḥayn.
+
+**What this document got right and what still stands:** no scholarly approval reaches the cap. That
+was true when written and is true now; only the non-scholarly basis changed, from licensing to
+editorial. Both readings put it outside anything an ustadz rules on.
+
+**Note for anyone reading `ustadz-followup-2026-08-18.md`:** that letter — sent 2026-08-19,
+unanswered — states the licensing basis to Ustadz Ahmad and tells him his answer cannot move the
+cap. It is not being corrected to him: the cap he was promised is the cap he gets, and the basis was
+never his to rule on. Erik's call, 2026-08-20 (late).

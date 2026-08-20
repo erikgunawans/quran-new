@@ -38,19 +38,23 @@ const hit = (over: Partial<Record<string, unknown>> = {}): DalilHit =>
     ...over,
   }) as unknown as DalilHit;
 
-/** The seven keys a reader is permitted to receive for a record they may not read here. */
+/**
+ * The keys a reader is permitted to receive for a record they may not read here.
+ *
+ * `bab_en` AND `book_en` were both on this list until 2026-08-20 (late). Erik withdrew sunnah.com's
+ * English chapter and kitab titles for the same reason he withdrew the narration a commit earlier —
+ * "private research use" — so two keys are gone and this SET is what force-reds if either returns.
+ */
 const PERMITTED = [
   "id",
   "collection",
   "hadith_number",
   "grade",
-  "book_en",
-  "bab_en",
   "source_url",
 ] as const;
 
 describe("referenceLineOf — the rights wall for reference lines", () => {
-  test("carries no key beyond the seven permitted", () => {
+  test("carries no key beyond the permitted set", () => {
     // The assertion is on the SET. A denylist ("no arabic, no english") passes for any field not on
     // the list, which is exactly the leak this is here to stop.
     expect(Object.keys(referenceLineOf(hit())).sort()).toEqual([...PERMITTED].sort());
@@ -66,13 +70,18 @@ describe("referenceLineOf — the rights wall for reference lines", () => {
     expect(wire).not.toContain("English translation body.");
   });
 
+  test("withdraws bab_en — the English chapter title, out since 2026-08-20 (late)", () => {
+    const ref = referenceLineOf(hit()) as unknown as Record<string, unknown>;
+    expect(ref.bab_en).toBeUndefined();
+    expect(JSON.stringify(ref)).not.toContain("Whoever permitted divorce");
+  });
+
   test("keeps everything an attribution line needs", () => {
     const ref = referenceLineOf(hit());
     expect(ref.id).toBe("hadith-bukhari-5251");
     expect(ref.collection).toBe("Sahih al-Bukhari");
     expect(ref.hadith_number).toBe(5251);
     expect(ref.grade).toBe("sahih");
-    expect(ref.bab_en).toBe("Whoever permitted divorce");
     expect(ref.source_url).toBe("https://sunnah.com/bukhari:5251");
   });
 

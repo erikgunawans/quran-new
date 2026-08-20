@@ -6,10 +6,12 @@
  *
  * FOUR RULES THAT ARE NOT NEGOTIABLE HERE:
  *
- * 1. THE DISPLAY CAP IS ENFORCED IN CODE, NOT IN A PROMPT. sunnah.com's terms permit per-hadith
- *    didactic display with attribution and forbid mass reproduction of collections. So retrieval may
- *    range over all 14,736 records, but `MAX_DISPLAY` of them may ever reach a reader. A prompt is a
- *    request; this is a wall.
+ * 1. THE DISPLAY CAP IS ENFORCED IN CODE, NOT IN A PROMPT. Retrieval may range over all 14,736
+ *    records, but `MAX_DISPLAY` of them may ever reach a reader. A prompt is a request; this is a
+ *    wall. WHAT THE CAP RESTS ON IS EDITORIAL, NOT LICENSING — Erik's ruling, 2026-08-20; see the
+ *    `MAX_DISPLAY` docblock, which is the ONE canonical statement and the only place to change it.
+ *    This paragraph rested it on sunnah.com About §8 until 2026-08-20 (late), contradicting that
+ *    ruling in the same file that records it.
  *
  * 2. SIMILARITY SCORE IS NOT A CONFIDENCE SIGNAL. Measured in Phase 0 and re-measured on 2026-08-10:
  *    right and wrong hits share the same cosine band, and the rerank scores do not separate them
@@ -371,7 +373,14 @@ export async function searchDalil(
   return timed(timings, "rerank", () => rerank(apiKey, question, groundable, texts));
 }
 
-/** The rights wall. Whatever the model asked for, this is what a reader may see. */
+/**
+ * The display wall. Whatever the model asked for, this is what a reader may see.
+ *
+ * Called "the rights wall" until 2026-08-20 (late). The COUNT is editorial (Erik, 2026-08-20 — see
+ * the `MAX_DISPLAY` docblock); what remains a genuine rights position is that everything this wall
+ * excludes carries NO hadith text at all, only a reference line. Naming the count a rights limit
+ * made the two inseparable, and they are not.
+ */
 export const capForDisplay = (hits: DalilHit[]): DalilHit[] => hits.slice(0, MAX_DISPLAY);
 
 /** Where retrieval died, at the coarsest granularity that still tells us what to go fix. */
@@ -416,6 +425,76 @@ export interface DisplayRecord {
   translator: string;
 }
 
+/**
+ * A hadith card AS PUBLISHED — what `/api/answer` is permitted to put on the wire.
+ *
+ * THIS TYPE IS THE RIGHTS WALL FOR THE ANSWER CARD, and it is the analogue of `DalilReference` for
+ * the other endpoint. `DisplayRecord` is the INTERNAL shape: it carries `english`, `translator` and
+ * `bab_en` because the Worker needs the narration to build the model's user message. None of those
+ * three may be published:
+ *
+ *   - `english` and `translator` — the sunnah.com narration and its Darussalam / Muhsin Khan
+ *     credit. Withdrawn by Erik on 2026-08-20; sunnah.com's terms are "private research use".
+ *   - `bab_en` and `book_en` — sunnah.com's English chapter and kitab titles. Both withdrawn by
+ *     Erik on 2026-08-20 (late): the same English editorial apparatus, one and two levels up from
+ *     the narration.
+ *
+ * The withdrawal that shipped on 2026-08-20 removed all of these from the RENDERER, and the
+ * evidence recorded for it was a grep of the served CLIENT BUNDLE — which could not have seen this,
+ * because the leak was in the Worker's response body. `/api/answer` was still serving the full
+ * narration and the credit as JSON, unpainted rather than unpublished. A curl-able public endpoint
+ * is publication by exactly the argument that retired the rendered `<p class="hadith-en">`.
+ *
+ * `arabic` STAYS. It is the sourced artifact, the only text on the card that is not a machine
+ * translation, and withdrawing it would leave a hadith card with no hadith on it.
+ *
+ * `book` STAYS, AND IT IS THE EASIEST FIELD IN THIS FILE TO DELETE BY ACCIDENT. It is the numeric
+ * book index, NOT part of `DisplayRecord` — `index.ts` grafts it on from the corpus path for one
+ * reason: the client needs it to locate the machine-Indonesian shard (ISC-449). `main.ts` bails on
+ * `!h.book`, so dropping it here removes the Indonesian from every answer card and leaves the
+ * Arabic standing alone, for a reader who by assumption cannot read the Arabic. The first draft of
+ * this wall did exactly that, and its exact-SET test pinned the result as correct. The Indonesian
+ * is also the one thing Erik ruled to KEEP in the same breath as withdrawing `bab_en`.
+ *
+ * Do not confuse it with `book_en`, which is WITHDRAWN. One is an integer the client routes on; the
+ * other is sunnah.com's English kitab title.
+ */
+export interface PublishedCard {
+  id: string;
+  arabic: string;
+  collection: string;
+  hadith_number: number;
+  grade: string;
+  source_url: string;
+  /** The numeric book index — a routing key for the Indonesian shard, not English text. */
+  book: number;
+}
+
+/**
+ * Project a display record down to what may be published — FIELD BY FIELD, never a spread.
+ *
+ * The explicit projection is the whole guarantee, for the identical reason `referenceLineOf` gives:
+ * a `{ ...record }` with three deletes starts leaking the day someone adds a fourth field, silently,
+ * with every test still green. Listing the permitted keys means a new field on `DisplayRecord`
+ * reaches a reader only when a human edits THIS function. `dalil.test.ts` force-reds on the SET.
+ */
+export function publishedCardOf(r: DisplayRecord & { book?: number }): PublishedCard {
+  return {
+    id: r.id,
+    arabic: r.arabic,
+    collection: r.collection,
+    hadith_number: r.hadith_number,
+    grade: r.grade,
+    source_url: r.source_url,
+    // `?? 0` is NOT a silent default — 0 is the established "no usable shard" sentinel. `bookOf`
+    // already returns 0 for an unusable corpus path, and `main.ts` reads `!h.book` as "no shard to
+    // look up". A card that genuinely has no book number therefore behaves exactly as it did
+    // before this wall existed. What must never happen is a card that HAS one arriving without it,
+    // which is why the callers graft `book` on before projecting rather than letting it fall here.
+    book: r.book ?? 0,
+  };
+}
+
 /** `hadith/bukhari/010/060/0683.md` → `bukhari/010` — the display shard holding that record. */
 const shardKey = (path: string): string => {
   const parts = path.split("/");
@@ -425,9 +504,10 @@ const shardKey = (path: string): string => {
 /**
  * Fetch the reader-facing text for hits that have already passed the display cap.
  *
- * Re-applies `capForDisplay` rather than trusting the caller. The cap is the rights position of the
- * whole feature; a wall that only holds when called correctly is not a wall. Records missing from
- * the text layer are dropped — an unciteable hadith is not shown at all.
+ * Re-applies `capForDisplay` rather than trusting the caller. A wall that only holds when called
+ * correctly is not a wall, and this one gates TEXT FETCHING — which is the rights-bearing step,
+ * whatever the count itself rests on (editorial; Erik, 2026-08-20). Records missing from the text
+ * layer are dropped — an unciteable hadith is not shown at all.
  */
 export async function fetchDisplayRecords(env: DalilEnv, hits: DalilHit[]): Promise<DisplayRecord[]> {
   if (!env.CORPUS || !env.CORPUS_DIGEST) throw new Error("CORPUS bucket not bound");

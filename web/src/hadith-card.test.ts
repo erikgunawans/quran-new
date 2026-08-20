@@ -99,8 +99,21 @@ describe("the display cap is a wall here too", () => {
 });
 
 describe("escaping", () => {
+  /**
+   * RE-POINTED 2026-08-20 (late), NOT DELETED. This fed its hostile string through `bab_en`, which
+   * was the only field on the card carrying one — so withdrawing the English chapter title took the
+   * card's entire XSS pin with it, and the suite would have gone green with nothing checking that a
+   * corpus field is escaped at all. `collection` and `arabic` are the two rendered text fields that
+   * remain, and both are corpus-supplied, so both carry the pin now.
+   */
   test("hostile text in a corpus field cannot inject markup", () => {
-    const html = hadithCardEl(rec({ bab_en: '"><script>alert(1)</script>' }));
+    const html = hadithCardEl(rec({ collection: '"><script>alert(1)</script>' }));
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
+  });
+
+  test("the Arabic body is escaped too — it is the last verbatim source text on the card", () => {
+    const html = hadithCardEl(rec({ arabic: '"><script>alert(1)</script>' }));
     expect(html).not.toContain("<script>");
     expect(html).toContain("&lt;script&gt;");
   });
