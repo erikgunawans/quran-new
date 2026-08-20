@@ -69,15 +69,25 @@ const asCards = (raw: unknown): HadithCard[] => {
     out.push({
       id: r.id,
       arabic: r.arabic,
-      english: typeof r.english === "string" ? r.english : "",
       collection: typeof r.collection === "string" ? r.collection : "",
       hadith_number: Number(r.hadith_number) || 0,
       grade: typeof r.grade === "string" ? r.grade : "",
-      book_en: typeof r.book_en === "string" ? r.book_en : "",
-      bab_en: typeof r.bab_en === "string" ? r.bab_en : "",
       source_url: r.source_url,
-      translator: typeof r.translator === "string" ? r.translator : "",
       book: Number(r.book) || 0,
+      // NOT READ FROM THE WIRE — the Worker stopped sending these on 2026-08-20 (late), when
+      // `publishedCardOf` became the rights wall on `/api/answer`. `english` and `translator` are
+      // sunnah.com's narration and its credit; `book_en` and `bab_en` are its English kitab and
+      // chapter titles. All four were withdrawn from publication on Erik's rulings.
+      //
+      // Pinned to "" rather than parsed, deliberately. `typeof r.english === "string" ? … : ""`
+      // stood here and produced the identical value — but it ASSERTED that the field is part of
+      // the wire contract, which is the stale-contract shape this session retired in three other
+      // files. It would also silently start republishing the narration the day a Worker change put
+      // the field back. They stay on `HadithCard` because it mirrors the Worker's INTERNAL record.
+      english: "",
+      translator: "",
+      book_en: "",
+      bab_en: "",
     });
   }
   return out;

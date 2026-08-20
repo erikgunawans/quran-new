@@ -126,9 +126,11 @@ const VERDICT = [
  * An opaque hadith marker: `[H:bukhari:6962]`, `[H:muslim:154]`.
  *
  * The model may never hand-write hadith text, exactly as it may never hand-write Arabic. It cites by
- * marker; the renderer resolves the marker into a card carrying the verbatim Arabic and English with
- * full attribution. Opaque on purpose — the model cannot compose a marker for a hadith it did not
- * receive this turn, because it has no way to know the number.
+ * marker; the renderer resolves the marker into a card carrying the verbatim Arabic with full
+ * attribution. (This read "the verbatim Arabic and English" until 2026-08-21 — the English
+ * narration was withdrawn from publication on 2026-08-20.) Opaque on purpose — the model cannot
+ * compose a marker for a hadith it did not receive this turn, because it has no way to know the
+ * number.
  */
 const MARKER_IN_PROSE = /\[H:([a-z][a-z-]*):(\d{1,6})\]/g;
 

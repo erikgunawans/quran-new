@@ -571,7 +571,12 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // The entries are the VERIFIED ones — `verifyGrounding` ran above — so a forged body cannot switch
   // this lane on either.
   let offered: DalilHit[] = [];
-  let records: HadithCard[] = [];
+  // `book` is REQUIRED here, not optional as on `HadithCard`, and that is the type-level guarantee
+  // `publishedCardOf` relies on. Without it a record could reach the projection with no book number,
+  // which resolves to 0, which `main.ts` reads as "no shard" — deleting the Indonesian from every
+  // answer card with no compile error and no failing test. That shipped once (2026-08-20 late) and
+  // an exact-SET test pinned it as correct, because the key was present with value 0.
+  let records: (HadithCard & { book: number })[] = [];
   // THE ONE BIT THAT WAS INVISIBLE. Measured 2026-08-15: zero hadith cards rendered across a live
   // run, and nothing anywhere could say whether retrieval had returned nothing or had thrown — the
   // catch below was bare, and this Worker has no telemetry by design. Erik chose this over adding
@@ -846,9 +851,10 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   const cited = gen.answer
     ? markersInProse(gen.answer)
         .map((id) => records.find((r) => r.id === id))
-        // `HadithCard`, not `DisplayRecord`: `records` carries the grafted `book`, and narrowing to
-        // `DisplayRecord` here would drop it before `publishedCardOf` could carry it through.
-        .filter((r): r is HadithCard => r !== undefined)
+        // The element type of `records`, NOT `HadithCard` and NOT `DisplayRecord`: both declare
+        // `book` optional or absent, and narrowing to either discards the guarantee at the exact
+        // step that needs it.
+        .filter((r): r is (typeof records)[number] => r !== undefined)
         .map(publishedCardOf)
     : [];
 
@@ -1132,7 +1138,7 @@ async function handleFindSurah(request: Request, env: Env): Promise<Response> {
 }
 
 /**
- * A hit the reader may NAVIGATE to but not READ here — collection, number, grade, kitab, link.
+ * A hit the reader may NAVIGATE to but not READ here — collection, number, grade, link.
  *
  * THIS TYPE IS THE RIGHTS WALL FOR THE LIST. `MAX_DISPLAY` caps how many hadith may be SHOWN, and
  * that cap does not move (Erik, 2026-08-17). But a search that returns two cards and silently drops
@@ -1140,11 +1146,16 @@ async function handleFindSurah(request: Request, env: Env): Promise<Response> {
  * says "this record is here, in this kitab, graded this" and hands over a link, while displaying no
  * hadith text at all. That is the same position the Fikih section already ships — a doorway.
  *
- * `bab_en` WAS THE EIGHTH KEY UNTIL 2026-08-20 (late) and is withdrawn: sunnah.com's English
- * chapter title is the same "private research use" apparatus as the narration, one level up. What
- * is left still says which record this is, how it is graded, and where to read it. `book_en` is
- * kept and FLAGGED, not settled — it is English from the same source, one level up again, and Erik
- * has not been asked about it.
+ * `bab_en` AND `book_en` were both withdrawn on 2026-08-20 (late), on Erik's ruling: sunnah.com's
+ * English chapter and kitab titles are the same "private research use" apparatus as the narration,
+ * one and two levels up. This type carried seven keys before; it carries five now. What is left
+ * still says which record this is, how it is graded, and where to read it — the kitab is gone from
+ * the doorway, which is the cost. See `docs/review/rights-2026-08-20.md` §2.
+ *
+ * THIS DOCBLOCK WAS WRONG THREE WAYS FOR ONE COMMIT and the corrections are kept, because this is
+ * the block a future dev reads before re-adding a field: it said `book_en` was "kept and FLAGGED",
+ * said "Erik has not been asked about it", and called `bab_en` "THE EIGHTH KEY". `book_en` was
+ * removed in that same commit, Erik HAD ruled on it, and there were seven keys, not eight.
  */
 export interface DalilReference {
   id: string;

@@ -127,7 +127,8 @@ export async function hydrateMachineIndonesian(cards: HadithCard[]): Promise<Had
         const id = hadithIdText(await loadHadithIds(h.collection, h.book), h.hadith_number);
         if (id) h.machine_id = id;
       } catch {
-        // Unreachable shard → Arabic + English only, the state the card shipped in.
+        // Unreachable shard → Arabic only. (Said "Arabic + English" until 2026-08-21; the English
+        // narration was withdrawn from publication on 2026-08-20.)
       }
     }),
   );

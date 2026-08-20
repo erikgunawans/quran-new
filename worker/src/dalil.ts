@@ -478,7 +478,7 @@ export interface PublishedCard {
  * with every test still green. Listing the permitted keys means a new field on `DisplayRecord`
  * reaches a reader only when a human edits THIS function. `dalil.test.ts` force-reds on the SET.
  */
-export function publishedCardOf(r: DisplayRecord & { book?: number }): PublishedCard {
+export function publishedCardOf(r: DisplayRecord & { book: number }): PublishedCard {
   return {
     id: r.id,
     arabic: r.arabic,
@@ -486,12 +486,14 @@ export function publishedCardOf(r: DisplayRecord & { book?: number }): Published
     hadith_number: r.hadith_number,
     grade: r.grade,
     source_url: r.source_url,
-    // `?? 0` is NOT a silent default — 0 is the established "no usable shard" sentinel. `bookOf`
-    // already returns 0 for an unusable corpus path, and `main.ts` reads `!h.book` as "no shard to
-    // look up". A card that genuinely has no book number therefore behaves exactly as it did
-    // before this wall existed. What must never happen is a card that HAS one arriving without it,
-    // which is why the callers graft `book` on before projecting rather than letting it fall here.
-    book: r.book ?? 0,
+    // REQUIRED IN THE SIGNATURE, not defaulted here. A `?? 0` stood at this line for one commit
+    // and it was a hole, not a safety net: 0 is the "no usable shard" sentinel (`bookOf` returns it
+    // for an unusable path, `main.ts` reads `!h.book` as "no shard"), so a future caller passing a
+    // bare `DisplayRecord` would have typechecked, produced `book: 0`, and silently deleted the
+    // Indonesian from every card — the exact defect this wall shipped with, re-armed. The
+    // exact-SET test cannot catch it either, because the key IS present, holding 0.
+    // Making `book` required moves the failure to compile time, where it belongs.
+    book: r.book,
   };
 }
 

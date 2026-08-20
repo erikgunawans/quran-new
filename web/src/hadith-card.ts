@@ -159,9 +159,17 @@ export function hadithCardEl(h: HadithCard): string {
             text you may not publish is itself publication. It was put to him as context for the
             keep/withdraw choice, not as a question in its own right, and he answered the choice.
             Do not read the ruling as settling the principle.
-            What the ruling does rest on is unchanged and documented: the ustadz's VERBAL approval
-            covers DISPLAYING this Indonesian, and it keeps its `belum ditinjau` badge, which is the
-            claim that actually matters. See `docs/review/rights-2026-08-20.md`.
+            AND THE PERMISSION UNDER IT IS ERIK'S EXTENSION, NOT THE USTADZ'S GRANT. Ustadz Ahmad
+            approved displaying this Indonesian on the HADITS BROWSE PAGE (verbal, relayed,
+            2026-08-12). Erik judged on 2026-08-13 that the approval reaches THIS card and switched
+            it on (ISC-449) — his reading of the ustadz's words, not the ustadz's words. The ustadz
+            was never asked; it is question 3 of the letter sent 2026-08-19 and is UNANSWERED.
+            A draft of this comment said "the ustadz's VERBAL approval covers DISPLAYING this
+            Indonesian" with no such qualifier, on the one surface the letter singles out as NOT
+            his. The qualifier already existed eighty lines up, on `machine_id`; a correction
+            removed it. See `docs/review/rights-2026-08-20.md` §3 and
+            `docs/review/ustadz-followup-2026-08-18.md:138-141`.
+            The `belum ditinjau` badge is what actually carries the claim, and it stays.
         `h.english` also stays on the record and in the model's user message (`answer-contract.ts`);
         what was withdrawn is PUBLICATION, not possession.
       */ ""}

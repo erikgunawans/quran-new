@@ -358,3 +358,29 @@ tidak pernah dicatat sebagai persetujuan polos. Jawaban yang disampaikan lisan a
 dicatat sebagai lisan dan melalui perantara, dan **tidak** memenuhi permintaan nomor 2 — karena
 jawaban lisan dan jawaban tertulis adalah dua hal berbeda, dan hanya satu di antaranya bertahan bila
 kelak ada yang bertanya siapa mengizinkan apa.
+
+---
+
+## Catatan status — ditambahkan 2026-08-21. BUKAN bagian dari surat yang dikirim.
+
+**Surat di atas tidak diubah satu huruf pun.** Ini catatan di bawahnya, untuk pembaca repo, bukan
+untuk Ustadz. Surat yang sudah dikirim adalah artefak; ia dicatat, tidak disunting.
+
+**Status: DIKIRIM 2026-08-19. BELUM DIJAWAB** per 2026-08-21. Ketiga pertanyaannya masih terbuka —
+termasuk pertanyaan 3, tentang kartu hadis di bawah jawaban, yang sampai sekarang berjalan atas
+penafsiran Erik (13 Agustus 2026), bukan atas izin Ustadz.
+
+**Satu kalimat di surat ini sudah dinilai keliru oleh Erik sesudah surat dikirim.** Bagian tentang
+`MAX_DISPLAY = 2` menyatakan bahwa batas dua hadis berasal dari syarat perizinan sunnah.com. Pada
+2026-08-20 Erik memutuskan bahwa dasarnya **editorial**, bukan perizinan — alasan penuhnya di
+`docs/review/rights-2026-08-20.md` §4.
+
+**Ustadz tidak dikoreksi soal ini, dan itu keputusan Erik (2026-08-20, malam).** Alasannya: batas
+yang dijanjikan kepada Ustadz tetap dijalankan — angkanya tidak bergerak dan tidak akan bergerak —
+dan dasar batas itu memang bukan perkara yang Ustadz dimintai pendapatnya. Menambah surat keempat
+kepada orang yang belum menjawab surat ketiga dinilai lebih merugikan daripada membiarkan satu
+kalimat teknis berdiri.
+
+Dicatat di sini karena file ini semula satu-satunya berkas di `docs/review/` yang memuat pernyataan
+yang sudah dinilai keliru **tanpa penanda apa pun di filenya sendiri** — dua berkas lain menunjuk ke
+sini, sementara file ini tidak menunjuk ke mana-mana.

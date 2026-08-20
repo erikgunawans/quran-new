@@ -532,7 +532,8 @@ async function aiHtml(
         const id = hadithIdText(await loadHadithIds(h.collection, h.book), h.hadith_number);
         if (id) h.machine_id = id;
       } catch {
-        // An unreachable shard means Arabic + English only — the state this card shipped in.
+        // An unreachable shard means Arabic only. (Said "Arabic + English" until 2026-08-21; the
+      // English narration was withdrawn from publication on 2026-08-20.)
       }
     }),
   );
