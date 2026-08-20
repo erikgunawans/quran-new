@@ -2,6 +2,94 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-21 — the leak is closed on prod, §8 is finally ruled, and the Indonesian never rendered
+
+**DEPLOYED, on Erik's word.** `7660617` → worker version **`ccb77595`** (was `b63b5300`, bundle
+`index-BjZH83ls.js` from `9b6a5922`). Rebuilt at HEAD first; gates green before the deploy —
+`bun test` **1687/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run build` exit 0
+with the inlined `` return`synthesis` `` literal present **×1** · `wrangler deploy --dry-run` exit 0.
+
+**THE RIGHTS LEAK WAS REAL AND IS NOW CLOSED — measured as a PAIRED ARM on the same query.**
+`POST /api/dalil {"query":"niat dalam beramal"}`:
+
+| | keys on `cards[0]` |
+|---|---|
+| **before** (`b63b5300`) | `id, arabic, english, collection, hadith_number, grade, book_en, bab_en, source_url, translator, book` |
+| **after** (`ccb77595`) | `id, arabic, collection, hadith_number, grade, source_url, book` |
+
+Two cards before, two after — the projection withdrew fields, it did not empty the route.
+
+**And on `/api/answer`, which is the harder half**, because a REFUSED turn returns `hadith: []` by
+construction and is evidence of nothing. Two answered turns citing hadith yielded **3 real cards**,
+every key set exactly `[arabic, book, collection, grade, hadith_number, id, source_url]`, zero
+withdrawn fields. Run with `/api/dalil` as a live CONTROL in the same script, so "found nothing"
+could not be a broken check.
+
+**`book` asserted by VALUE, not by key** — the constraint this handoff added. Live values `1` and
+`2`, not the `0` sentinel that reads as "no shard".
+
+**`gen.rule` READ FROM A LIVE DEPLOY FOR THE FIRST TIME.** `wall-live-probe`, 8 turns:
+`wording=2 · -=4 · hadith_unbacked=1` — **not a row of all `-`**. Terminal `gen.reason`
+`deadline=3 · answered=2 · blocked=2`. **No rate is claimed from eight turns of one run.**
+
+**ISC-419's echo-wall union stays UNBUILT** per Erik's standing ruling. Eight more answered-turn
+observations exist now; the union is still not built and `ECHO_MIN_RUN` was not lowered.
+
+**§8 IS RULED — after fifteen handoffs carrying it as "open" without anyone ASKING it.** Erik,
+2026-08-21: the Hadits browse page stays. It carries no sunnah.com-authored work — the hadith text is
+canonical public-domain Arabic, their English is dropped at build time, the structural metadata and
+Indonesian kitab titles are ours. Residual exposure recorded rather than argued away: §8 is a
+terms-of-use condition and a condition can bind where copyright does not. `docs/review/rights-2026-08-21.md`
+ruling 5; `MAX_DISPLAY` stays editorial and its docblock now says the ruling does not give it a
+licensing basis back.
+
+---
+
+### THE FINDING: the machine Indonesian has NEVER rendered on three of the four surfaces
+
+Found while verifying the deploy. **Not looked for.**
+
+`h.collection` off the wire is a DISPLAY NAME — `"Sahih Muslim"`. The shards are keyed by SLUG —
+`hadith-id/muslim/1.json`. So the fetch asks for `/hadith-id/Sahih Muslim/1.json`, the **SPA fallback
+answers `index.html` at HTTP 200**, `res.json()` throws on the HTML, and the `catch` degrades to
+Arabic-only. No error, no failing test, no telemetry. **Silent since `e80ff9f`.**
+
+| surface | renders? |
+|---|---|
+| Hadits browse page (`sections.ts:225`, passes the route slug) | **yes** |
+| Hadits search results (`dalil-search.ts:127`) | **no, never** |
+| Fikih search results (same call site) | **no, never** |
+| Hadith card under an answer (`main.ts:532`) | **no, never** |
+
+**Measured with a PAIRED ARM using the SHIPPED `hydrateMachineIndonesian` over the cards live prod
+returned: 0/2 filled with the wire value, 2/2 with the slug.** One arm would have proved nothing — a
+probe that fills nothing looks exactly like a probe that is broken.
+
+**ERIK RULED: DO NOT FIX IT.** The three dead surfaces are, by accident, the state the 2026-08-17
+letter PROMISED the ustadz, and question 3 of the 2026-08-18 letter asks about this exact surface and
+is unanswered. Repairing the key switches all three on for the first time while he is still owed an
+answer — the same shape as the 2026-08-18 Fikih addition already apologised for in that letter's
+Bagian 1. **Recorded, NOT pinned by a test:** a green test over the broken key would make the hole
+look like a decision someone had checked.
+
+**The sent letter told the ustadz the text appears in EMPAT TEMPAT. Three of the four never did.**
+That letter's Bagian 1 is itself an apology for three earlier false descriptions of the app; this
+would have been a fourth, inside the same letter. Erik ruled: **append-only status note now, fold the
+correction into the NEXT letter rather than send a fourth to someone who has answered neither of the
+first two.** The note is appended (47 added, **0 deleted** — verified by `--numstat`).
+
+**What it would turn on if fixed:** 14,655 machine-translated hadith across both collections, counted
+on the shipped files. A comment claiming *"Only Ṣaḥīḥ Muslim books 1–21 carry it today"* was true when
+written and is not now; corrected in place.
+
+Both dead call sites are annotated so this is not rediscovered. **Comment-only — proven by filtering
+the diff for non-comment lines (none) — and gates re-run green after.**
+
+**Commits:** `481131c` (§8 ruling) · `cb01931` (the finding). Not yet pushed at time of writing.
+
+**Still open and untouched:** the divine-wall limit-3 bypass · ISC-486 at 120/120 · both letters to
+Ustadz Ahmad unanswered (ISC-417, ISC-464(b)) · `dalil-probe.ts` still dev-only and still emitting.
+
 ## 2026-08-20 (late-2) — the English withdrawal was half-done, and three gate passes to close it
 
 **Anchor `dd0982a`**, PUSHED to `origin/main` and verified by `git ls-remote`. Gates: `bun test` **1687/0** exit 0 · typecheck
