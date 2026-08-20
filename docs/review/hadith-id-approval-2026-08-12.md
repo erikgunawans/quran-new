@@ -111,7 +111,7 @@ restarted 2026-08-13 to close that gap (~24h, resumable per book).
 
 ---
 
-## Amended 2026-08-20 — two of this document's statements were superseded by Erik
+## Amended 2026-08-20 — three of this document's statements were superseded or need a caveat
 
 **Appended, not edited in place.** Two passages above are now false as written and are corrected
 here rather than rewritten, because what a record said at the time is part of the record. Full
@@ -145,3 +145,28 @@ editorial. Both readings put it outside anything an ustadz rules on.
 unanswered — states the licensing basis to Ustadz Ahmad and tells him his answer cannot move the
 cap. It is not being corrected to him: the cap he was promised is the cap he gets, and the basis was
 never his to rule on. Erik's call, 2026-08-20 (late).
+
+### 3. "The display cap … A rights position, not a layout choice" (the earlier mention, above)
+
+**Same supersession as item 2, and it was missed when that item was written.** The heading it sits
+under reads "What was NOT approved, and is unchanged", so a reader can find the retired licensing
+basis there without ever reaching item 2. The cap is untouched and does not move; its BASIS is
+editorial (Erik, 2026-08-20). Both mentions in this document are now annotated.
+
+### Caveat on the SCOPE of the approval recorded above — added 2026-08-21
+
+The approval statement near the top of this document names the **text layer**
+(`web/public/hadith-id/`), not a page, and records that the ustadz asked for it to be shown in the
+app first, for testing. **It states no surface restriction.**
+
+Elsewhere in the repo that approval is described as covering "the Hadits browse page". **That
+narrowing is OURS, not his.** `ustadz-followup-2026-08-18.md:173` says so in the letter's own words:
+*"catatan kami tidak mencatat halaman yang mana"*. We hold to the narrow reading because
+under-claiming a permission is the safe error and because it matches what we told him — not because
+he drew that line.
+
+**So this document does not, by itself, cover the ANSWER CARD.** Erik extended the approval to the
+card on 2026-08-13 (ISC-449) on his own reading; the ustadz was never asked, and it is question 3
+of the letter sent 2026-08-19, still unanswered. Recorded here because this is the file a reader
+opens first when asking "what did the ustadz approve", and until now it was the only one of the
+three from which they could leave believing the card was covered.

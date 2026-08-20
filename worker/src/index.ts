@@ -1143,7 +1143,7 @@ async function handleFindSurah(request: Request, env: Env): Promise<Response> {
  * THIS TYPE IS THE RIGHTS WALL FOR THE LIST. `MAX_DISPLAY` caps how many hadith may be SHOWN, and
  * that cap does not move (Erik, 2026-08-17). But a search that returns two cards and silently drops
  * the other six tells the reader those six do not exist. A reference line is the honest middle: it
- * says "this record is here, in this kitab, graded this" and hands over a link, while displaying no
+ * says "this record is here, graded this" and hands over a link, while displaying no
  * hadith text at all. That is the same position the Fikih section already ships — a doorway.
  *
  * `bab_en` AND `book_en` were both withdrawn on 2026-08-20 (late), on Erik's ruling: sunnah.com's

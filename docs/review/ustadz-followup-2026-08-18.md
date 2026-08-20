@@ -366,9 +366,15 @@ kelak ada yang bertanya siapa mengizinkan apa.
 **Surat di atas tidak diubah satu huruf pun.** Ini catatan di bawahnya, untuk pembaca repo, bukan
 untuk Ustadz. Surat yang sudah dikirim adalah artefak; ia dicatat, tidak disunting.
 
-**Status: DIKIRIM 2026-08-19. BELUM DIJAWAB** per 2026-08-21. Ketiga pertanyaannya masih terbuka —
-termasuk pertanyaan 3, tentang kartu hadis di bawah jawaban, yang sampai sekarang berjalan atas
-penafsiran Erik (13 Agustus 2026), bukan atas izin Ustadz.
+**Status: DIKIRIM 2026-08-19. BELUM DIJAWAB** per 2026-08-21. **Kedelapan pertanyaannya masih
+terbuka** — nomor 1-5 dan 6-8 di atas. (Catatan ini semula menulis "ketiga pertanyaannya", yang
+mengecilkan apa yang sebenarnya masih di hadapan Ustadz.) Termasuk di antaranya: pertanyaan 3,
+tentang kartu hadis di bawah jawaban, yang sampai sekarang berjalan atas penafsiran Erik
+(13 Agustus 2026), bukan atas izin Ustadz; pertanyaan 4 tentang judul bab; dan pertanyaan 7.
+
+**Surat ini bukan satu-satunya yang belum dijawab.** `docs/review/tanya-ai-request-2026-08-17.md`
+dikirim 2026-08-17 dan juga belum dijawab — dan surat itulah, bukan surat ini, yang menahan
+pemasangan aturan penyaring soal Allah dan perkara gaib (ISC-417).
 
 **Satu kalimat di surat ini sudah dinilai keliru oleh Erik sesudah surat dikirim.** Bagian tentang
 `MAX_DISPLAY = 2` menyatakan bahwa batas dua hadis berasal dari syarat perizinan sunnah.com. Pada
@@ -377,9 +383,13 @@ penafsiran Erik (13 Agustus 2026), bukan atas izin Ustadz.
 
 **Ustadz tidak dikoreksi soal ini, dan itu keputusan Erik (2026-08-20, malam).** Alasannya: batas
 yang dijanjikan kepada Ustadz tetap dijalankan — angkanya tidak bergerak dan tidak akan bergerak —
-dan dasar batas itu memang bukan perkara yang Ustadz dimintai pendapatnya. Menambah surat keempat
-kepada orang yang belum menjawab surat ketiga dinilai lebih merugikan daripada membiarkan satu
-kalimat teknis berdiri.
+dan dasar batas itu memang bukan perkara yang Ustadz dimintai pendapatnya.
+
+**Satu pertimbangan tambahan, dan ini penilaian penulis catatan — bukan kalimat Erik:** menambah
+satu surat lagi kepada orang yang belum menjawab dua surat sebelumnya tampaknya lebih merugikan
+daripada membiarkan satu kalimat teknis berdiri. Yang berasal dari Erik hanyalah keputusannya
+sendiri — kode direkonsiliasi, Ustadz tidak dikoreksi. Dipisahkan begini karena alasan yang tidak
+diucapkan Erik tidak boleh berdiri di dalam paragraf yang berlabel keputusan Erik.
 
 Dicatat di sini karena file ini semula satu-satunya berkas di `docs/review/` yang memuat pernyataan
 yang sudah dinilai keliru **tanpa penanda apa pun di filenya sendiri** — dua berkas lain menunjuk ke

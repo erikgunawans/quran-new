@@ -60,12 +60,23 @@ cannot both be what sunnah.com About §8 permits. **The browse page publishes th
 If §8 binds anything, it binds that — not a two-card cap. Recorded as open in
 `docs/review/rights-2026-08-20.md`; **never put to Erik.** Put it.
 
-## 6. DO NOT install the God/unseen filter. The sent letter still forbids it. UNCHANGED
+## 6. DO NOT install the God/unseen filter. THERE ARE **TWO** UNANSWERED LETTERS, NOT ONE
 
-Fourteenth handoff running. SENT 2026-08-19, **UNANSWERED**. ISC-464(b) is blocked on the ANSWER;
-ISC-417 stays NOT MET until he replies. **Question 3 of that letter is also what the answer card's
-Indonesian currently runs on** — Erik's own 2026-08-13 extension, not the ustadz's permission. Say
-it that way, everywhere, always. See §9.
+Fourteenth handoff running, and every previous one named only one letter. Both are letters **TO**
+Ustadz Ahmad — he has sent nothing, and no artefact from him exists.
+
+- **`docs/review/tanya-ai-request-2026-08-17.md` — SENT 2026-08-17, UNANSWERED.** *This* is the one
+  that forbids the God/unseen filter: *"Kami perlu tahu batas yang Ustadz anggap benar sebelum kami
+  memasang aturan penyaringnya"* (`:52`). **ISC-417 stays NOT MET until he replies.**
+- **`docs/review/ustadz-followup-2026-08-18.md` — SENT 2026-08-19, UNANSWERED.** It poses **EIGHT**
+  numbered questions (`:244-261` nos. 1-5, `:310-316` nos. 6-8), not three. **ISC-464(b) is blocked
+  on this one.** Its **question 3** is what the answer card's Indonesian currently runs on — Erik's
+  own 2026-08-13 extension, not the ustadz's permission. Say it that way, everywhere, always (§9).
+  Question 4 (bab titles) and question 7 (whether Muslim 154 / Bukhari 540-541 need a companion
+  explanation) are also outstanding and have never appeared in a handoff.
+
+**Never write "Ustadz Ahmad's letter."** The possessive conjures a written artefact from the scholar,
+which is the one thing this project must not manufacture. They are letters *to* him.
 
 ## 7. LIMIT 3 ON THE DIVINE WALL IS STILL OPEN AND PRE-EXISTING. UNCHANGED
 
@@ -144,8 +155,9 @@ on 2026-08-13. That is his sentence, not the ustadz's, forever.
 ## Open items waiting on me (the user)
 
 - **Deploy `881f2dd`?** The English leak is live on prod until you do. §1.
-- **Ustadz Ahmad's letter, SENT 2026-08-19, UNANSWERED** — blocks ISC-417 and ISC-464(b), forbids
-  the God/unseen filter, and question 3 is what the answer card's Indonesian runs on.
+- **TWO letters TO Ustadz Ahmad are unanswered** (§6): 2026-08-17 blocks ISC-417 and forbids the
+  God/unseen filter; 2026-08-19 blocks ISC-464(b) and has EIGHT open questions, of which no. 3 is
+  what the answer card's Indonesian runs on. He has sent nothing — never call these "his letter".
 - **sunnah.com §8 vs the BROWSE PAGE** (§5) — never asked, and it is the real §8 question.
 - **More answered turns for the echo threshold** (§2) — you chose to gather before shipping.
 
