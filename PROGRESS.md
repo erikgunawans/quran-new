@@ -8,6 +8,64 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-20 — the under-refusal narrowed and DEPLOYED, and nine gate passes that never touched the regex
+
+**Resumed from the `bcc963d` handoff, started its item 2, and shipped: `7556cfd` is on prod
+(`new-quranku.axiara.ai`, worker version `b847f6eb`) on Erik's instruction.** Verified by served
+bytes and a remote sha256, never an exit code: page `14da2425…` → `948abc13…`, bundle
+`index-CWwCYulA.js` → `index-Da5Logen.js`, remote asset **byte-identical to local dist**, and the
+worker bundle confirmed carrying the arm. The first curl returned the STALE edge copy exactly as
+this file's own constraint predicts; tries 2–4 settled.
+
+**The change is two lines.** `DIVINE_ATTR` gains a third `allah|tuhan` arm, `APPOSITIVE_OWNS_VERB`,
+asking `AGENT_BEFORE_VERB`'s question — is an owner near enough to OWN the verb — instead of the
+break's question, whether one merely appears. Additive; union, never replacement (ISC-440). **0
+refusals lost in every paired HEAD-vs-tree sweep run**, mine plus three independent gate sweeps at
+90,000 / 115,200 / 171,600 rows.
+
+**NARROWED, NOT CLOSED — and the word "CLOSED" was wrong three times before it came down.** Limit 3
+is new to the record and pre-existing in the code: the adjacency stand-down fires INSIDE an epithet
+whenever an owner token sits at the tail, so all 26 tokens in `AGENT_PRONOUN` ∪ `HUMAN_ROLE` still
+buy a bypass there. Each time the word was wrong, the measured set had been built so it could not
+show the failure — a cost probe with no upstream owner, epithets all terminated by a comma, a
+denominator borrowed from a wider grid.
+
+**A correction of mine re-opened the very hole the change closes, and the gate caught it.** Fixing
+the over-refusal by narrowing the span to always-agent pronouns re-opened the divine bypass for
+pronoun epithets at 45 of 45 — `Allah, Tuhan yang menciptakan KITA semua di muka bumi ini,
+menegaskan, "…"`. A paired grid priced both directions on the same rows: **18 over-refusals bought
+for 36 under-refusals.** Those units are not comparable on this wall, so it was REVERTED and the
+dead constant kept as a docblock.
+
+**NINE `scholarly-gate` passes, nine BLOCKs, and not one finding ever touched the regex.** Seven of
+eight classified blocks were defects introduced by the previous pass's own corrections. Every finding
+was prose claiming more than the code does, and nearly all in one direction: guard reads stronger,
+hole reads smaller, review reads cleaner. Twice I asserted a universal INSIDE the paragraph
+documenting the habit of asserting them. The gate also refuted the load-bearing claim I asked it to
+attack — that the residual over-refusal was irreducible — by building a proper-name variant that
+reduces it with a green suite.
+
+**RE-MEASURED, AND ISC-419 IS STILL NOT MET BECAUSE THE INSTRUMENT CANNOT FAIL.**
+`wall-live-probe --repeat 3`, 24 turns: `own_wording` 29% · `null:no-reason` 21% · `answered` 21% ·
+`no-grounding` 13% · `bad_hadith` 13% · `fatwa` 4%; terminal `gen.reason` blocked=9 deadline=7
+answered=5. **The probe's "Leaks past the deployed wall: 0" is tautological** — `guardAnswerProse`
+calls `wordingShape` and IS the egress gate, so every returned answer is clean by construction; the
+line prints 0 whether the fix shipped or was reverted. The 29% is NOT attributed to this change: a
+whole-run bucket total is not evidence here and run-to-run spread is already documented at 46% vs
+25% answered on identical code.
+
+**The one non-circular read found a seam worth Erik's ruling.** Answer prose captured directly (n=1;
+the live theme classifier returned no grounding for 4 of 6 questions, the ISC-487 confound). No
+quoted scripture rendering, hadith markers resolvable — but an **unquoted** close paraphrase of QS
+2:261 sits beside the app's own card for that ayah. `wordingShape` scans QUOTED spans, so the seam
+is outside the rule as written. Recorded, not ruled on.
+
+**Commits:** `7556cfd` (the guard + tests + ISA), `8df0330` (the re-measure record).
+**Gates at close:** `bun test` 1642/0 exit 0 · typecheck exit 0 · synthesis build exit 0 · inlined
+literal ×1 · `wrangler --dry-run` exit 0. **ISA 556/570**, no checkbox moved.
+
+---
+
 ## 2026-08-19 (late-4) — the appositive hole closed, and my own fix deleted six refusals on the way
 
 **One change, five `scholarly-gate` passes, 22 findings — and six of them were defects an earlier
