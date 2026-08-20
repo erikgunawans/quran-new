@@ -71,13 +71,30 @@ the two search surfaces since `734c577` (**2026-08-18** — the date the letter 
 returned: 0/2 filled with the wire value, 2/2 with the slug.** One arm would have proved nothing — a
 probe that fills nothing looks exactly like a probe that is broken.
 
-**ERIK RULED: DO NOT FIX IT.** Repairing the key **widens a standing breach from one surface to
-four**, while question 3 — which names these exact three surfaces — is unanswered. Same shape as the
+**ERIK RULED: DO NOT FIX IT.** Repairing the key **switches on three surfaces the ustadz has never
+permitted** — the exact three question 3 asks him about, and that question is unanswered. Same shape as the
 2026-08-18 Fikih addition already apologised for in that letter's Bagian 1. *(First justified as "the
 state the 2026-08-17 letter PROMISED" — false in our favour, twice: that promise was ABSOLUTE (zero
 of four; the browse page has rendered this since 2026-08-12, so we were at one of four), and it had
-already been RETRACTED in the very letter the note is appended to. Caught by `scholarly-gate`, which
-BLOCKed.)* **Recorded, NOT pinned by a test:** a green test over the broken key would make the hole
+already been RETRACTED in the very letter the note is appended to. Caught by `scholarly-gate`, which BLOCKed. **Its replacement was BLOCKed too, on the
+next pass:** "widens a standing breach from one surface to four" calls the Hadits browse page a
+breach, and that page is the ONE surface Ustadz Ahmad actually permitted — the fix had removed the
+retracted promise as a shield and re-imported it as a charge against the thing he approved.)*
+
+**THE SECOND GATE PASS BLOCKED THE FIRST FIX — three BLOCKs, six FLAGs, and two of them are the exact
+failure the fix's own commit message claims to have closed.** (1) the breach framing above; (2) the
+correction parenthetical misidentified WHICH sentence was the promise — `:68` is a statement of
+state, the promise is the *"Yang tidak kami lakukan"* list item at `:139`, and the retraction attaches
+to the list item — contradicting the letter body 400 lines above it in the same file; (3) "sejak
+12 Agustus" is the PERMISSION-relay date, while rendering began 2026-08-13 (`f067bd2`), which the
+letter says twice — a permission date shipped as a render date inside the correction indicting "a
+single date read in the flattering direction". Plus: `main.ts:545` had ALREADY rotted to `:550`,
+broken by the very commit that wrote it — **third rot in three commits**, now fixed by citing the
+SYMBOL (`loadHadithIds(h.collection, h.book)`) instead of a line; one of four §8 restatements still
+read as Erik's articulation; a `§9` cross-reference that resolves nowhere; the "fifteen" figure
+re-homed to a second uncited place by the correction that convicted it; a quotation that silently
+dropped its subject clause; and **`WARP.md` committed by `git add -A` after the handoff said to leave
+it** — now untracked again. **Recorded, NOT pinned by a test:** a green test over the broken key would make the hole
 look like a decision someone had checked.
 
 **The sent letter told the ustadz the text appears in EMPAT TEMPAT. Three of the four never did.**

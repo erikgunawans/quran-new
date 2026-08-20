@@ -430,22 +430,35 @@ Diukur, bukan dibaca dari kode: fungsi yang benar-benar dipakai aplikasi dijalan
 benar-benar dikirim server — 0 dari 2 terisi dengan nilai yang dipakai sekarang, 2 dari 2 terisi bila
 kuncinya dibetulkan. Perbandingan berpasangan, bukan satu sisi saja.
 
-**Keputusan Erik, 2026-08-21: JANGAN dibetulkan sekarang.** Membetulkan kuncinya berarti **memperluas
-pelanggaran yang sudah berjalan, dari satu tempat menjadi empat**, selagi jawaban Ustadz atas
-**pertanyaan 3** — yang justru menyebut ketiga tempat itu satu per satu (`:254-257`) — belum ada.
+**Keputusan Erik, 2026-08-21: JANGAN dibetulkan sekarang.** Membetulkan kuncinya berarti
+**menyalakan tiga tempat yang belum pernah Ustadz izinkan** — persis ketiga tempat yang kami tanyakan
+pada **pertanyaan 3** (`:254-257`), dan pertanyaan itu belum Ustadz jawab.
+
+*(Catatan ini sempat berbunyi "memperluas **pelanggaran** yang sudah berjalan, dari satu tempat
+menjadi empat". **Itu keliru, dan keliru dengan cara yang merugikan Ustadz.** "Satu tempat" itu
+adalah halaman Hadits — justru satu-satunya tempat yang **Ustadz sendiri izinkan**, secara lisan,
+diteruskan Erik pada 12 Agustus 2026. Yang berdiri di sana bukan pelanggaran: izinnya ada. Menyebut
+apa yang Ustadz izinkan sebagai "pelanggaran yang sudah berjalan" adalah kekeliruan kami, bukan
+keadaan yang sebenarnya.)*
 Bentuknya sama persis dengan penambahan halaman Fikih pada 18 Agustus yang sudah kami mintakan maaf
 di Bagian 1 surat ini. Kekeliruan yang dibiarkan berdiri bukan karena nyaman, melainkan karena
 membetulkannya hari ini akan menambah satu perbuatan lagi yang harus dimintakan maaf.
 
 *(Catatan ini semula beralasan bahwa ketiga tempat yang mati itu "justru keadaan yang **dijanjikan**
-kepada Ustadz dalam surat 17 Agustus". **Itu tidak benar, dan tidak benarnya menguntungkan kami** —
-dalam dua hal. Pertama, janjinya mutlak: "Aplikasi **tidak pernah** menampilkan teks hadis dalam
-bahasa Indonesia hasil mesin" — nol dari empat tempat, bukan tiga dari empat. Keadaan yang sebenarnya
-adalah **satu dari empat**: halaman Hadits menampilkannya sejak 12 Agustus 2026 dan masih. Kedua,
-janji itu **sudah kami cabut sendiri** di Bagian 1 surat ini juga. Bersandar pada janji yang sudah
-dicabut, untuk menggambarkan keadaan yang tidak pernah sesuai dengannya, di dalam catatan yang kelak
-akan dimuat dalam surat berikutnya kepada Ustadz — itu persis kekeliruan yang harus dijaga oleh
-halaman ini. Alasan yang lebih lemah di atas tetap berdiri tanpa perlu klaim itu.)*
+kepada Ustadz dalam surat 17 Agustus". **Itu tidak benar, dan tidak benarnya menguntungkan kami.**
+Yang digambarkan di surat itu adalah **nol dari empat** tempat, sedangkan keadaan sebenarnya
+**satu dari empat** — jadi tiga tempat yang mati tidak pernah sama dengan keadaan yang digambarkan.
+
+Dan perlu tepat kalimat mana yang mana, karena surat ini sendiri sudah memisahkannya di Bagian 1 dan
+catatan berikutnya sempat menyatukannya kembali: kalimat *"Aplikasi **tidak pernah** menampilkan…"*
+adalah **keterangan keadaan**, sedangkan **janjinya** adalah butir daftar *"Yang tidak kami lakukan"*
+— dan **janji itulah** yang kami cabut di `:39`, bukan kalimat keterangan tadi. Ketiganya memang
+sudah tidak benar; tetapi pencabutannya melekat pada butir daftar itu.
+
+Satu koreksi tanggal pula: halaman Hadits menampilkan teks itu **sejak 13 Agustus 2026**, sebagaimana
+surat ini sendiri menyebutnya dua kali (`:40`, `:47`) — bukan 12 Agustus. **12 Agustus adalah tanggal
+izin Ustadz diteruskan**, bukan tanggal teksnya mulai tayang. Alasan yang lebih lemah di atas tetap
+berdiri tanpa perlu satu pun klaim yang dikoreksi di sini.)*
 
 **Ustadz belum diberi tahu soal ini, dan itu keputusan Erik (2026-08-21).** Yang berasal dari Erik
 hanyalah keputusan itu sendiri.
@@ -463,6 +476,8 @@ adalah pengingat yang mengikat untuk itu.
 **Surat di atas tetap tidak diubah satu huruf pun.** Yang ditambah hanyalah catatan ini.
 
 *(Untuk pembaca repo, bukan untuk Ustadz: perbaikan kuncinya satu baris di dua tempat —
-`web/src/main.ts:545` dan `web/src/dalil-search.ts:127`. Semula tertulis `main.ts:532`; komentar yang
-ditambahkan bersama catatan ini sendiri menggeser barisnya turun tiga belas baris. Sengaja TIDAK dikerjakan. Jangan pula
+kedua pemanggilan `loadHadithIds(h.collection, h.book)` — di `web/src/main.ts` dan pada
+`hydrateMachineIndonesian` di `web/src/dalil-search.ts`. Disebut lewat NAMA, bukan nomor baris:
+nomornya sudah bergeser tiga kali dalam tiga commit (532 → 545 → 550), tiap kali oleh komentar yang
+ditulis bersama penunjuknya sendiri. Sengaja TIDAK dikerjakan. Jangan pula
 dicatat sebagai uji yang lulus; lubang yang diketahui tidak boleh dipatok oleh uji hijau.)*

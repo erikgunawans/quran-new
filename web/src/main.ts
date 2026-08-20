@@ -537,12 +537,17 @@ async function aiHtml(
   // `dalil-search.ts:127` and date from `734c577` (2026-08-18) — younger, not the same breakage.
   //
   // ERIK RULED 2026-08-21: LEAVE IT BROKEN. Not because it is harmless — because repairing the key
-  // WIDENS A STANDING BREACH from one surface to four (the Hadits browse page has rendered this text
-  // since 2026-08-12), while question 3 of the 2026-08-18 letter, which names these exact three
-  // surfaces, is unanswered. Do NOT justify it as "the state the 2026-08-17 letter promised": that
-  // promise was absolute, was already false when sent, and has since been retracted. See
-  // `docs/review/rights-2026-08-21.md` ruling 6. Do not "tidy" this into a slug lookup; that is the
-  // whole change, and it is deliberately not made.
+  // SWITCHES ON THREE SURFACES THE USTADZ HAS NEVER PERMITTED, the exact three that question 3 of
+  // the 2026-08-18 letter asks him about, and that question is unanswered.
+  //
+  // TWO JUSTIFICATIONS WERE TRIED HERE AND BOTH WERE WRONG; do not reach for either again.
+  //   1. "the state the 2026-08-17 letter promised" — that promise was absolute, was already false
+  //      when sent, and has since been retracted.
+  //   2. "widens a standing breach from one surface to four" — the ONE surface is the Hadits browse
+  //      page, which is the one surface he DID permit (relayed 2026-08-12, rendering since
+  //      2026-08-13). Calling his own permission a breach wrongs him.
+  // See `docs/review/rights-2026-08-21.md` ruling 6. Do not "tidy" this into a slug lookup; that is
+  // the whole change, and it is deliberately not made.
   await Promise.all(
     [...hadithFor.values()].map(async (h) => {
       if (h.reviewed_id || !h.book || !h.collection) return;
