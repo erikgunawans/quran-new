@@ -1,6 +1,6 @@
 # Next session — New-Quranku (checkpoint 2026-08-21 morning)
 
-> Prepended 2026-08-21 (morning). Anchor `e0bf013` + this session's commit. **Supersedes the
+> Prepended 2026-08-21 (morning). **Anchor `d2d622a`** (verified landed on origin/main). **Supersedes the
 > `c1b163a` anchor.** From that handoff: **§1's RATE did not reproduce but its MECHANISM STANDS** —
 > and §1 named the wrong function for it (see §2 below). Its §2 (provider pin), §3 (no model switch),
 > §4 (no echo union), §6 (dalil-probe dev-only), §7 (ID-key stays broken), §8 (two unanswered
