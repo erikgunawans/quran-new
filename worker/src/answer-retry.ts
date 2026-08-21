@@ -89,6 +89,49 @@ export const MIN_RETRY_MS = 11_500;
  * in place, so the second generation costs no stare. What it must NOT do is outrun the client, which
  * is what the shared budget above is for.
  */
+/**
+ * The least a FIRST attempt may be squeezed to before capping it stops being worth it.
+ *
+ * Roughly p75 of the measured completion distribution documented on `MIN_RETRY_MS` (min 3,950 ·
+ * p25 7,900 · p50 9,647 · p75 13,557 · p90 14,609 · max 18,486 ms over 20 completions). A first
+ * attempt shorter than this abandons more draws than a retry can rescue.
+ */
+export const FIRST_ATTEMPT_FLOOR_MS = 13_000;
+
+/**
+ * Divide the turn so a HUNG first draw cannot cost the whole turn.
+ *
+ * THE PROBLEM, MEASURED AGAINST PROD 2026-08-21. Attempt 1 was handed the entire turn
+ * (`return opts.remainingMs`), so a provider route that never came back consumed all 25 s and there
+ * was no second draw: 4 of 12 live turns ended `reason:"deadline"` with a single
+ * `{"ms":25000,"outcome":"threw"}` attempt — and every one of those questions answered in
+ * 3.9–10.9 s when asked again. The failures are HANGS, not slow generations: nothing has ever been
+ * observed to COMPLETE later than 18,486 ms. The turn was losing to a draw it never got to repeat.
+ *
+ * THE RULE. Reserve `MIN_RETRY_MS` out of the first attempt's budget, so a hang is abandoned with
+ * exactly enough left to draw again. On the production 25,000 ms turn that yields 13,500 ms —
+ * comfortably past p75, so most first draws still finish inside it.
+ *
+ * DERIVED, NOT A CONSTANT, AND THAT MATTERS. A hardcoded 13,500 was written first and was WRONG: on
+ * a shorter turn (the 20,000 ms one the tests use) it leaves 6,500 ms, below `MIN_RETRY_MS`, so the
+ * retry is refused and the cap has bought nothing but a shorter first attempt — strictly worse than
+ * not capping. A cap and a retry floor have to be two halves of one budget or they fight.
+ *
+ * WHICH IS WHY IT ONLY APPLIES WHEN THE TURN CAN AFFORD BOTH. Below `FIRST_ATTEMPT_FLOOR_MS` the
+ * split is not available and the first attempt keeps the whole remaining turn, exactly as before.
+ *
+ * THE COST, STATED: draws between 13.5 s and 18.5 s do complete today and will now be abandoned —
+ * about a quarter of them by p75. They are re-drawn against a fresh route with `MIN_RETRY_MS`, which
+ * the same distribution completes more often than not. A bet on the measured shape, to be
+ * re-measured rather than assumed.
+ *
+ * `MODEL_DEADLINE_MS` IS NOT TOUCHED. The turn is still 25 s; only its division changed.
+ */
+function firstAttemptBudget(remainingMs: number): number {
+  const capped = remainingMs - MIN_RETRY_MS;
+  return capped >= FIRST_ATTEMPT_FLOOR_MS ? capped : remainingMs;
+}
+
 export function nextAttemptBudget(opts: {
   attempt: number;
   blocked: AnswerViolationKind | null;
@@ -97,6 +140,9 @@ export function nextAttemptBudget(opts: {
   if (opts.attempt >= MAX_ATTEMPTS) return null;
   if (opts.remainingMs <= 0) return null;
   if (opts.attempt > 0 && opts.remainingMs < MIN_RETRY_MS) return null;
+  // The split applies to the FIRST attempt only. A retry already runs on what the turn has left, and
+  // capping it too would hand back time nothing else can spend.
+  if (opts.attempt === 0) return firstAttemptBudget(opts.remainingMs);
   return opts.remainingMs;
 }
 

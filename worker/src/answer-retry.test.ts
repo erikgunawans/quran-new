@@ -7,12 +7,44 @@
  * reasoning alone. It is a pure function now so the next change has to survive a red test.
  */
 import { describe, expect, it } from "bun:test";
-import { MIN_RETRY_MS, MAX_ATTEMPTS, nextAttemptBudget, verdictAfterFailure } from "./answer-retry.ts";
+import {
+  FIRST_ATTEMPT_FLOOR_MS,
+  MIN_RETRY_MS,
+  MAX_ATTEMPTS,
+  nextAttemptBudget,
+  verdictAfterFailure,
+} from "./answer-retry.ts";
 import { MODEL_DEADLINE_MS } from "./providers.ts";
 
 describe("the first attempt", () => {
-  it("always runs, and gets whatever the turn has left", () => {
-    expect(nextAttemptBudget({ attempt: 0, blocked: null, remainingMs: MODEL_DEADLINE_MS })).toBe(MODEL_DEADLINE_MS);
+  it("always runs, but RESERVES the retry's budget out of its own", () => {
+    // CHANGED 2026-08-21. This asserted `toBe(MODEL_DEADLINE_MS)` — attempt 1 took the whole turn,
+    // so a provider route that never came back ended the turn with no second draw. Measured against
+    // prod that day: 4 of 12 turns died as a single `{"ms":25000,"outcome":"threw"}`, and all four
+    // of those questions answered in 3.9–10.9 s on a re-run.
+    expect(nextAttemptBudget({ attempt: 0, blocked: null, remainingMs: MODEL_DEADLINE_MS })).toBe(
+      MODEL_DEADLINE_MS - MIN_RETRY_MS,
+    );
+  });
+
+  it("leaves EXACTLY enough for a retry to be admitted — the two halves must sum to the turn", () => {
+    // The property that makes the split worth having. Force-red: any cap that does not reserve
+    // precisely `MIN_RETRY_MS` either refuses the retry it just paid for, or does not cap at all.
+    const first = nextAttemptBudget({ attempt: 0, blocked: null, remainingMs: MODEL_DEADLINE_MS });
+    expect(first).not.toBeNull();
+    const left = MODEL_DEADLINE_MS - (first as number);
+    expect(left).toBe(MIN_RETRY_MS);
+    // …and that remainder must actually buy a second attempt, not merely equal the threshold.
+    expect(nextAttemptBudget({ attempt: 1, blocked: null, remainingMs: left })).toBe(MIN_RETRY_MS);
+  });
+
+  it("does NOT cap when the turn is too short to afford both halves", () => {
+    // THE CASE THAT CAUGHT A HARDCODED 13_500. On a 20 s turn that constant left 6.5 s — under
+    // `MIN_RETRY_MS` — so the retry was refused AND the first attempt was shortened: strictly worse
+    // than not capping. The budget is derived from the turn for exactly this reason.
+    const shortTurn = 20_000;
+    expect(shortTurn - MIN_RETRY_MS).toBeLessThan(FIRST_ATTEMPT_FLOOR_MS); // the premise
+    expect(nextAttemptBudget({ attempt: 0, blocked: null, remainingMs: shortTurn })).toBe(shortTurn);
   });
 
   it("does not run when the turn has already spent its budget", () => {

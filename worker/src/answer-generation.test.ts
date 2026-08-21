@@ -330,6 +330,63 @@ describe("a turn that never starts a generation", () => {
   });
 });
 
+describe("a generation that TIMES OUT is redrawn — Erik's 'it has to be answered', 2026-08-21", () => {
+  it("retries after a deadline throw and answers on the second draw", async () => {
+    // THE DEFECT THIS CLOSES, measured against prod 2026-08-21: 4 of 12 live turns ended
+    // `reason:"deadline"` with a single `{"ms":25000,"outcome":"threw"}` attempt, and every one of
+    // those questions answered in 3.9–10.9 s when asked again. The turn was losing to a bad draw it
+    // never got to repeat, because a throw aborted the loop outright.
+    //
+    // Asserting the ATTEMPT COUNT, not just the answer: a fix that answered on the first draw would
+    // satisfy `trace.answer` while proving nothing about the retry.
+    const trace = newGenTrace();
+    let calls = 0;
+    let clock = 0;
+    await runGeneration(trace, {
+      turnDeadline: 25_000,
+      now: () => clock,
+      generate: async ({ deadlineMs }) => {
+        calls += 1;
+        if (calls === 1) {
+          clock += deadlineMs; // the hung route burns its whole budget
+          throw new DOMException("The operation timed out.", "TimeoutError");
+        }
+        clock += 4_000;
+        return "Jawaban kedua yang bersih.";
+      },
+      guard: () => okVerdict(),
+    });
+    expect(calls).toBe(2);
+    expect(trace.answer).toBe("Jawaban kedua yang bersih.");
+    expect(trace.reason).toBe("answered");
+    expect(trace.attempts.map((a) => a.outcome)).toEqual(["threw", "ok"]);
+    // The first draw was capped so the second could exist at all.
+    expect(trace.attempts[0]?.budgetMs).toBe(13_500);
+  });
+
+  it("still gives up when the deadline leaves too little for a retry", async () => {
+    // The narrowing that keeps `handleAnswer`'s catch path reachable: when no retry is admissible
+    // the throw propagates exactly as it always did. Force-red: dropping the `retryBudget === null`
+    // clause makes this resolve instead of rejecting.
+    const trace = newGenTrace();
+    const boom = new DOMException("The operation timed out.", "TimeoutError");
+    let clock = 0;
+    await expect(
+      runGeneration(trace, {
+        turnDeadline: 25_000,
+        now: () => clock,
+        generate: async () => {
+          clock = 24_000; // only 1 s left — under MIN_RETRY_MS
+          throw boom;
+        },
+        guard: () => okVerdict(),
+      }),
+    ).rejects.toBe(boom);
+    expect(trace.reason).toBe("deadline");
+    expect(trace.attempts.length).toBe(1);
+  });
+});
+
 describe("a generation that throws for a reason that is not the clock", () => {
   /**
    * The whole point of splitting `"deadline"` from `"threw"` is that they need different fixes: one
@@ -356,7 +413,10 @@ describe("a generation that throws for a reason that is not the clock", () => {
       }),
     ).rejects.toBe(upstream);
 
-    expect(trace.attempts).toEqual([{ ms: 0, budgetMs: 25_000, outcome: "threw" }]);
+    // budgetMs is 13_500, not 25_000: since 2026-08-21 the first attempt reserves `MIN_RETRY_MS`
+    // out of the turn so a hung route cannot spend all of it. A non-clock throw is still NOT
+    // retried and still propagates — that is what this case pins, and it is unchanged.
+    expect(trace.attempts).toEqual([{ ms: 0, budgetMs: 13_500, outcome: "threw" }]);
     expect(trace.reason).toBe("threw");
     expect(trace.blocked).toBeNull();
     expect(verdictAfterFailure(trace.blocked)).toBeNull();

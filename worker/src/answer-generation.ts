@@ -186,7 +186,34 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
     } catch (e) {
       trace.attempts.push({ ms: deps.now() - t0, budgetMs, outcome: "threw" });
       trace.reason = classifyGenFailure(e);
-      throw e;
+      // A DEADLINE IS NOW RETRIED; A REAL ERROR IS STILL NOT. (2026-08-21, Erik's "it has to be
+      // answered".)
+      //
+      // Every throw used to abort the turn here. Combined with attempt 1 holding the whole budget,
+      // that made one hung provider route the end of the turn — measured against prod the same day,
+      // 4 of 12 turns died as `[{"ms":25000,"outcome":"threw"}]` and every one of those questions
+      // answered in 3.9–10.9 s when asked again. The turn was losing to a draw it never repeated.
+      //
+      // The distinction is the whole point and it is why `classifyGenFailure` returns a TOKEN rather
+      // than a boolean. `"deadline"` means the clock fired — the route said nothing, so a second draw
+      // is a genuinely different experiment and the premise the retry rests on holds. `"threw"` is
+      // anything else (a 4xx, a malformed body, a bug) — repeating that is repeating the same
+      // experiment expecting a different result, and it is still re-thrown so `handleAnswer`'s catch
+      // keeps its exact shape.
+      //
+      // NARROWED TO EXACTLY THE CASE BEING FIXED. The retry is taken only when `nextAttemptBudget`
+      // would actually ADMIT one; otherwise the throw propagates exactly as it always has, so
+      // `handleAnswer`'s catch — and its `verdictAfterFailure(gen.blocked)` response shape — is
+      // reached on every path that reached it before. Falling through to the normal return instead
+      // would have quietly swapped that shape on deadline turns, which is the kind of second-order
+      // change this repo has lost sessions to.
+      const retryBudget = nextAttemptBudget({
+        attempt: attempt + 1,
+        blocked: trace.blocked,
+        remainingMs: deps.turnDeadline - deps.now(),
+      });
+      if (trace.reason !== "deadline" || retryBudget === null) throw e;
+      continue;
     }
 
     const ms = deps.now() - t0;
