@@ -1,3 +1,131 @@
+# Next session — New-Quranku (checkpoint 2026-08-21 evening)
+
+> Prepended by /wrap 2026-08-21 (evening). **Anchor `1b89497`** — verified landed via
+> `git ls-remote`, not by the push's exit code. **Supersedes the `d2d622a` anchor.** From that
+> handoff: its §1 (the two rules named backwards) is **DONE** — ISC-559 met. Its §2's BLOCKER is
+> **GONE** — ISC-554 met, refused prose is readable. Its §3 (do not use `eval:answer`), §4 (echo wall
+> inert on verse-less turns), §5 (the 33 s turn is ISC-487, do NOT raise `MODEL_DEADLINE_MS`), §6 (an
+> agent with write access reverted ISA.md) and §7 (open items) all **SURVIVE UNCHANGED**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-21 (evening)**).
+
+**Current state.** Gates green — `bun test` **1712/0** exit 0 · typecheck exit 0 (five passes) ·
+synthesis build exit 0. **ISA 569/587** (568 met + ISC-418 reversed; 17 open, 1 deferred). Clean tree
+except untracked `WARP.md` — **leave it, and never `git add -A`.** **Nothing was deployed.** Prod is
+still worker `4339cb45`.
+
+---
+
+## 1. THE REFUSED PROSE IS READABLE NOW — use it, do not rebuild it
+
+`src/eval/refusal-capture.ts` runs the Worker's own `runGeneration` in-process: same loop module,
+`guardAnswerProse` with all FOUR arguments, the real `repairAnswerProse`, same prompt/params/provider,
+with the guard closure WRAPPED so every candidate the wall judged is retained — including every
+sentence mask repair tried. Publishes nothing, deploys nothing.
+
+```
+export OPENROUTER_API_KEY=...        # it is in ./.env — source it, never print it
+bun run src/eval/refusal-capture.ts --only musik --repeat 2
+bun run src/eval/refusal-capture.ts --blocked-only --out /path/OUTSIDE/the/repo.txt
+```
+
+**Its output is REFUSED model output.** It may carry fabricated divine or prophetic attribution. It
+stays on the dev surface: never quoted into `ISA.md`, `PROGRESS.md`, a letter, or anything that ships,
+and never shown to a reader. `--out` REFUSES any literal path inside the outermost git tree above the
+cwd — that is enforced, not advised.
+
+## 2. DO NEXT, IN ORDER
+
+1. **ISC-558 — `src/eval/answer-run.ts`.** Untouched, and it was item 4 of the last handoff. `:149`
+   has the stale bow-out; `:163` calls `guardAnswerProse(out, allowed)` with **two** arguments, taking
+   the defaults that switch OFF the echo wall and the hadith predicate, under a docblock claiming it
+   *"reproduce[s] the Worker's answer path exactly"*. The fix must land **WITH a declared break in the
+   `answer-judge` scored series** — that is a sequencing requirement, not a difficulty one.
+   `refusal-capture.ts` is the worked example of the four-argument wiring.
+2. **ISC-561 — repair sees only the LAST refused candidate.** `answer-generation.ts:278` assigns
+   `lastBlocked = candidate` every refusal, so attempt 2 overwrites attempt 1, and `:294` hands repair
+   only the survivor. Measured: attempt 1's prose repaired in a SINGLE deletion (`dropped: 1`, 220
+   words the wall accepts) while attempt 2's did not repair at all. **Write the failing test BEFORE
+   implementing** — this repo's record is that a prescribed fix can be byte-identical to the default.
+3. **ISC-562 — repair's progress signal is a count of RULES.** It hill-climbs on
+   `guard(text).violations.length`, but `guardAnswerProse` pushes **at most one violation per rule**
+   (`web/src/answer-guard.ts:1237-1278`) and `wordingShape` returns only its FIRST span. Two
+   independently-violating sentences under one rule therefore score 1, every single deletion still
+   scores 1, `bestIndex` stays `-1`, and repair returns `dropped: 0` after one round. The verdict
+   already carries what a fix needs — `AnswerViolation.detail` holds the offending span — but
+   `RepairVerdict`, the structural type repair accepts, does not expose it. **Widening it is
+   guard-adjacent: gate it with `scholarly-gate` before committing.**
+4. **ISC-487 (latency), ISC-419 (echo coverage), ISC-533/534, ISC-440.6, ISC-454, ISC-486** — still
+   open, none started this session.
+
+## 3. A NARROWLY-SCOPED RE-GATE NEVER RE-READS SETTLED TEXT
+
+Eleven `scholarly-gate` passes on one change. Three BLOCKs were defects introduced by **corrections to
+the previous pass**. Worse: an overclaim in the ORIGINAL ISC-561 — asserting a READER lost an answer,
+on an offline run where no reader existed — **survived six passes, and only ONE of them ever read it.**
+Pass 1 read it and missed it; passes 2-6 were scoped BY ME to "the edits under review" and never
+re-opened its prose; pass 7 caught it the moment `PROGRESS.md` restated the paragraph.
+
+**So: when re-gating more than twice, budget one pass that re-reads the WHOLE artifact, and prefer a
+CHANGED FRAME over a repeat read.** A repeat read is an opportunity, not a catch — pass 1 proves it.
+
+## 4. Open items — two need Erik, one needs the ustadz
+
+- **ISC-554's remaining half — Erik's call, UNTOUCHED.** Whether refused prose may ever be surfaced on
+  the PUBLIC endpoint. The dev-only route needed no ruling and is what shipped; the public one is his.
+- **Deploy — Erik's.** Nothing from this session needs one; the harness is not shipped code.
+- **ISC-417 / ISC-464(b) — WAITING ON THE USTADZ.** Only Ustadz Ahmad can meet ISC-417; he has a
+  heads-up only. **Two letters SENT, both unanswered — never write "Ustadz Ahmad's letter", he has
+  sent nothing.** The ID-key correction is still owed in whatever is sent next, the THIRD.
+
+## 5. Every open ISC (17 open + 1 deferred + 1 reversed; 587 total)
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) · `ISC-353.0` · `ISC-417` ·
+`ISC-418` **`[~]` reversed by Erik** · `ISC-419` · `ISC-420` · `ISC-440.6` · `ISC-454` · `ISC-464` ·
+`ISC-486` · `ISC-487` · `ISC-533` · `ISC-534` · **`ISC-552`** · **`ISC-558`** · **`ISC-561`** ·
+**`ISC-562`**.
+
+---
+
+## Constraints to honor (carried forward — plus six new)
+
+- **NEW — a narrowly-scoped re-gate never re-reads settled text.** See §3. One unscoped pass, or a
+  frame change, per multi-pass review.
+- **NEW — verify a rule's LOCATOR from the code, not only its scope.** The correction that fixed the
+  swapped function names put the cited sentence in the wrong block. `:606` is in `:579-616` (above
+  `DIVINE_VERB`), NOT in `:903-1004` (above `VERBATIM_DIVINE`).
+- **NEW — never cite a criterion ID from memory; grep it.** "ISC-546 was raised to end that" was
+  invented, inside a paragraph about invented attributions.
+- **NEW — this repo contains FOUR live git worktrees under `.claude/worktrees/`, and a worktree's
+  `.git` is a FILE.** Any "am I inside the repo" check that stops at the nearest `.git` anchors on the
+  worktree and leaves the TRACKED tree exposed.
+- **NEW — `refusal-capture.ts`'s corpus check has stood in for its `--out` guard THREE times.** Do not
+  move `CORPUS_PATH`'s existence check without re-testing containment.
+- **NEW — an original defect is caught by the FIRST full pass or by an accident.** Do not assume a
+  clean re-gate means the artifact is clean; it may only mean nobody re-read it.
+- **A correction is the least-scrutinised edit.** Re-run `scholarly-gate` AFTER applying one.
+- **A justification is a claim and gets audited like one.** Ask whether it is the flattering reading.
+- **Name WHO permitted a thing and WHICH SURFACE.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Never record a declined gap as a PASSING test — a `- [x]` checkbox is the same artifact.**
+- **35% / 96% (ISC-418) are CITE rates, not answered rates.** The ungrounded arm ANSWERS 46/46.
+- **An instrument encodes the contract it was written against.** After a behavioural change, ask what
+  each probe would print if the change were REVERTED before citing its number.
+- **Brief write-capable agents against `git checkout`/`restore`/`stash`.** One destroyed a session's
+  ISA work and reported it as a fabrication.
+- **Read an echo/guard count against its ELIGIBLE denominator.** The echo wall is inert on any
+  verse-less turn; this run, eligible on only 3/8.
+- **Verify a deploy by SERVED BYTES and a remote SHA**; the first curl after a deploy reads stale.
+- **Verify a push with `git ls-remote`, never the push's exit code, and never pipe `git push`.**
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.**
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.** `gen.rule` names the CHECK.
+- **Do NOT raise `MODEL_DEADLINE_MS`.** **Do NOT switch model.** **Do NOT build the echo union.**
+- **Never `git add -A` in this repo** — it swept `WARP.md` in twice.
+- **This ISA's `### Cycle` headings do not bound the criteria** — 150 of 587 sit before the first one.
+  The TOTAL is right; a per-cycle table is not.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-21 morning)
 
 > Prepended 2026-08-21 (morning). **Anchor `d2d622a`** (verified landed on origin/main). **Supersedes the
