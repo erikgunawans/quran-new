@@ -15,11 +15,56 @@ interface ProviderConfig {
   readonly url: string;
   readonly apiKey: string;
   readonly model: string;
+  /**
+   * OpenRouter PROVIDER ROUTING — see `OPENROUTER_ROUTING`. Absent for non-OpenRouter providers,
+   * which have no routing layer to constrain.
+   */
+  readonly routing?: Record<string, unknown>;
   readonly headers: Record<string, string>;
 }
 
 /** Default runtime model — cheap, strong, decent Bahasa Indonesia. Overridable via env. */
 const DEFAULT_OPENROUTER_MODEL = "deepseek/deepseek-v4-flash";
+
+/**
+ * PIN THE UPSTREAM PROVIDER. Erik's call, 2026-08-21, after the always-answer deploy measured a ~40%
+ * deadline rate that no amount of retry logic could fix.
+ *
+ * WHAT WAS WRONG. `deepseek/deepseek-v4-flash` is served by **18 different upstream providers** and
+ * OpenRouter silently load-balances across them. Every request was a lottery ticket. Read live from
+ * `GET /api/v1/models/deepseek/deepseek-v4-flash/endpoints` on 2026-08-21, uptime over 1 day:
+ * Azure **87.98%**, Phala **92.57%**, and three endpoints (Azure, SiliconFlow, DeepSeek's own) were
+ * flagged `status: -2`, DEGRADED, at the moment of reading. That is the shape of the failure we
+ * measured: bursty, pacing-independent (verified with a 20 s-gap control arm — 7/12 either way), and
+ * the same question failing then succeeding on a re-ask.
+ *
+ * AND IT WAS NOT ONLY A LATENCY BUG. Those providers serve the SAME model id at DIFFERENT
+ * QUANTIZATIONS — fp4, fp8, and "unknown". So the answer a reader got about the Qur'an depended on
+ * which provider won the toss. For this app that is the more serious half.
+ *
+ * `quantizations: ["fp8"]` DOES MOST OF THE WORK, which is why it leads. It admits only the ten fp8
+ * endpoints and thereby excludes, without naming them, every fp4 endpoint and every "unknown" one —
+ * including both of the worst performers (Azure 87.98%, Phala 92.57%). One constraint, both problems.
+ *
+ * `order` then prefers the four best fp8 endpoints by measured uptime, and `allow_fallbacks` keeps
+ * the remaining fp8 pool available so a single provider outage cannot take the app down — the exact
+ * failure mode pinning to ONE provider would create.
+ *
+ * `ignore` names only SiliconFlow: it is fp8 (so `quantizations` admits it) and was degraded when
+ * read. It is the one endpoint the quantization filter would otherwise let through.
+ *
+ * ⚠ THIS IS A BET ON CIRCUMSTANTIAL EVIDENCE, AND THE HONEST CAVEAT BELONGS HERE RATHER THAN IN A
+ * COMMIT MESSAGE NOBODY REREADS. OpenRouter's `uptime` measures ERRORS. Our failure is a silent
+ * timeout with no response at all, which may never register as downtime. The provider theory fits
+ * every symptom, but it is not proven — it is falsified or confirmed by re-measuring the same 12
+ * questions after this ships, and by nothing else.
+ */
+const OPENROUTER_ROUTING = {
+  quantizations: ["fp8"],
+  order: ["baidu/fp8", "gmicloud/fp8", "alibaba/fp8", "novita/fp8"],
+  allow_fallbacks: true,
+  ignore: ["siliconflow"],
+} as const;
 // TODO(F-MODEL-WIRING): confirm the exact SEA-LION base URL and model slug against sea-lion.ai docs
 // before relying on this path. SEA-LION is the optional Indonesian specialist; OpenRouter is primary.
 const DEFAULT_SEALION_BASE_URL = "https://api.sea-lion.ai/v1/chat/completions";
@@ -43,6 +88,7 @@ export function resolveProvider(name: ProviderName, env: Env): ProviderConfig {
     url: "https://openrouter.ai/api/v1/chat/completions",
     apiKey,
     model: env.OPENROUTER_MODEL ?? DEFAULT_OPENROUTER_MODEL,
+    routing: OPENROUTER_ROUTING,
     // OpenRouter asks for these for attribution/ranking; harmless and polite.
     headers: {
       "HTTP-Referer": "https://new-quranku.axiara.ai",
@@ -117,6 +163,9 @@ export async function callChatModel(
       // running these budgets near the line (see FRAMING_PARAMS / THEME params). A warmth sentence
       // and a label pick do not need a chain of thought.
       ...(opts.reasoning === "none" ? { reasoning: { effort: "none" } } : {}),
+      // Constrain WHICH upstream serves this call. Spread rather than always-present so a provider
+      // with no routing layer (SEA-LION) sends a byte-identical body to what it sent before.
+      ...(cfg.routing ? { provider: cfg.routing } : {}),
     }),
   });
 
