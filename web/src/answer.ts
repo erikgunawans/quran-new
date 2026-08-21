@@ -5,15 +5,18 @@
  *   1. gatherGrounding() — reuse the SAME retrieval the principled app uses: feeling/keyword verses
  *      via retrieve(), plus the scholar's KB entries via retrieveKnowledge(). This is the fence: the
  *      model only ever sees what retrieval already found for this question.
- *   2. If there is nothing to ground on → return null. The caller falls back to the principled
- *      pointer/silence. The AI edition never authors an answer it cannot ground.
+ *   2. Empty grounding is NO LONGER a refusal (Erik, 2026-08-21). The model answers anyway, from
+ *      what it knows, ayah-first where one genuinely fits. Retrieval's job is to SUGGEST, not to
+ *      license. What it still cannot do is invent: see the citation rules in step 3.
  *   3. Otherwise call the model, then run the answer through answer-guard (no Arabic, no citation
  *      outside the grounding). Clean → return {prose, verses}. Rejected/failed → null (fall back).
  *
- * Returning null on every doubt is deliberate: the synthesis edition can only ever be as bad as the
- * principled edition, never worse.
+ * Returning null on every doubt WAS deliberate — "the synthesis edition can only ever be as bad as
+ * the principled edition, never worse". Erik reversed that on 2026-08-21: measured against a real
+ * reader, bowing out was not "no worse", it was a non-answer to a plain question. Doubt is now
+ * handled by saying less, not by saying nothing — a violating sentence is excised and the rest of
+ * the answer ships (`worker/src/answer-repair.ts`).
  */
-import { hasGrounding } from "./answer-contract.ts";
 import type {
   AnswerContext,
   AnswerModel,
@@ -156,10 +159,20 @@ export async function synthesizeAnswer(
 ): Promise<SynthesisOutcome | null> {
   const { verses, entries, weakVerses } = await gatherGrounding(corpus, question, modelThemes);
 
-  // ISC-418. Nothing of ours to author from → bow out before the network call, not after a ~6s
-  // generation. The Worker enforces the same rule as the authority (a client can post anything); this
-  // is the latency half, and both call the one `hasGrounding` so they cannot drift apart.
-  if (!hasGrounding({ verses, entries })) return null;
+  // ISC-418'S CLIENT HALF IS GONE TOO, 2026-08-21 — AND REMOVING ONLY THE WORKER'S WOULD HAVE BEEN
+  // A NO-OP. This bow-out ran BEFORE the network call, so with it standing the Worker's copy could
+  // never have been reached on a no-grounding question and the whole change would have shipped
+  // invisibly. That is `three-walls-not-two` exactly: a predicate guarded in more than one place,
+  // where fixing the one you found first changes nothing you can see.
+  //
+  // Erik ruled 2026-08-21: every question gets an answer. There is nothing to bow out to any more —
+  // the fall-back this returned null INTO is the "Aku belum menemukan jalan…" copy he asked to be
+  // removed. Grounding is now a STRONG SUGGESTION to the model (prompt rule 1), not a licence to
+  // speak, and its absence costs suggested verses rather than the answer.
+  //
+  // The header above still describes the fence around what the model may CITE, and that fence is
+  // unchanged: it may cite only real ayat, and may attribute to the Prophet ﷺ only what carries a
+  // marker resolving against this turn's retrieval. What it may no longer do is refuse.
 
   const ctx: AnswerContext = { question, verses, entries, weakVerses };
   let result: AnswerResult;

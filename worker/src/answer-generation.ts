@@ -47,6 +47,26 @@ export interface GenTrace {
    */
   blockedRule: AnswerViolationRule | null;
   answer: string | null;
+  /**
+   * The answer reaching the reader was REPAIRED — one or more violating sentences were excised and
+   * the remainder passed the same guard. Diagnostic only; nothing reader-facing branches on it.
+   *
+   * Reported because a repaired turn and a first-pass-clean turn look identical on the wire
+   * otherwise, and this repo's standing rule is that an instrument must be able to tell a change
+   * happened. Without this field, "did repair ever fire in production?" is unanswerable — the same
+   * blindness `gen.rule` was added to fix.
+   */
+  repaired: boolean;
+  /** How many sentences repair removed. 0 whenever `repaired` is false. */
+  repairedDropped: number;
+  /**
+   * The rule that CAUSED the excision, preserved after `blocked` is cleared.
+   *
+   * `blocked` goes null on a successful repair because the reader is not being refused — and this
+   * repo has already lost time to `blocked` and `gen.reason` disagreeing. Keeping the rule here
+   * means clearing `blocked` costs no diagnosis.
+   */
+  repairedRule: AnswerViolationRule | null;
 }
 
 interface GuardVerdict {
@@ -59,10 +79,28 @@ export interface RunGenerationDeps {
   readonly guard: (candidate: string) => GuardVerdict;
   readonly now: () => number;
   readonly turnDeadline: number;
+  /**
+   * Excise violating sentences from a blocked candidate — Erik's 2026-08-21 "it has to be answered".
+   *
+   * INJECTED so the loop stays testable and so repair judges with THIS deps.guard, never a second
+   * copy of the wall. Optional purely so the offline evals, which construct these deps by hand, do
+   * not silently acquire a behaviour the deployed Worker has: an eval that repaired when prod did
+   * not would report a refusal rate prod never had.
+   */
+  readonly repair?: (candidate: string, guard: (p: string) => GuardVerdict) => { prose: string | null; dropped: number };
 }
 
 export function newGenTrace(): GenTrace {
-  return { attempts: [], reason: "no_attempt", blocked: null, blockedRule: null, answer: null };
+  return {
+    attempts: [],
+    reason: "no_attempt",
+    blocked: null,
+    blockedRule: null,
+    answer: null,
+    repaired: false,
+    repairedDropped: 0,
+    repairedRule: null,
+  };
 }
 
 /**
@@ -127,6 +165,9 @@ function terminalGenReason(trace: GenTrace): GenReason {
  * exact budget `nextAttemptBudget` handed it, including calls that throw.
  */
 export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): Promise<void> {
+  // The most recent candidate the guard REFUSED. Repair works on prose the model actually wrote;
+  // it never invents text, so with nothing retained there is nothing to repair.
+  let lastBlocked: string | null = null;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     const budgetMs = nextAttemptBudget({
       attempt,
@@ -207,6 +248,34 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
       continue;
     }
     trace.attempts.push({ ms, budgetMs, outcome: `blocked:${trace.blocked}` });
+    lastBlocked = candidate;
+  }
+
+  // ── REPAIR — Erik's ruling of 2026-08-21: the app must always answer ───────────────────────────
+  //
+  // Every attempt was refused. Before this, that was the end and the reader got
+  // "Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya" over prose the model had already
+  // written, most of which was fine. Now the offending sentences are excised and the rest ships.
+  //
+  // NO RULE IS RELAXED. `deps.guard` is the same wall, and repair returns only prose it has watched
+  // that wall accept — so nothing reaches the reader that the wall would have rejected whole. What
+  // changed is the CONSEQUENCE of a violation, not its definition.
+  //
+  // `blocked` is cleared on success because the reader is NOT being refused, and a stale `blocked`
+  // beside a delivered answer is exactly the disagreement this repo has already lost a session to.
+  // The rule survives in `repairedRule`, so clearing it costs no diagnosis.
+  if (trace.answer === null && lastBlocked !== null && deps.repair) {
+    const repaired = deps.repair(lastBlocked, deps.guard);
+    if (repaired.prose !== null) {
+      trace.answer = repaired.prose;
+      trace.repaired = true;
+      trace.repairedDropped = repaired.dropped;
+      trace.repairedRule = trace.blockedRule;
+      trace.blocked = null;
+      trace.blockedRule = null;
+      trace.reason = "answered";
+      return;
+    }
   }
 
   if (trace.reason === "no_attempt") {

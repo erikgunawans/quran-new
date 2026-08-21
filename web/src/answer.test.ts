@@ -139,10 +139,12 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
   // not buying warmth on near-misses — it was authoring Islamic answers for "cara ganti oli motor
   // beat" out of parametric memory. Erik's call: bow out (ISC-418).
   //
-  // The brush-off worry that motivated the original is now answered elsewhere rather than ignored:
-  // null falls through to the aqidah lane, the knowledge/topic pointer, and only then to silence
-  // (main.ts:664-699) — a chain that did not exist when this test was written.
-  test("no grounding → no authored answer, however warm the prose would have been", async () => {
+  // AND ON 2026-08-21 ERIK REVERSED IT. That fall-through chain — aqidah lane, knowledge/topic
+  // pointer, then silence — is precisely what he saw on screen and rejected: index rows and
+  // "Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya" in place of an answer. The history
+  // above is kept because the 46/46 measurement behind ISC-418 was real; what changed is which cost
+  // is worse to pay.
+  test("no grounding STILL ANSWERS — ISC-418 reversed by Erik, 2026-08-21", async () => {
     /**
      * The input moved from "syarat pribadi shalih khianat" to the question this docblock already
      * cites. The old one worked as a no-grounding case only while retrieval read one shard: it now
@@ -166,13 +168,21 @@ describe("synthesizeAnswer — the model leads, guarded to real ayat and no verd
       [],
       model("Menjaga amanah itu berat, dan niatmu untuk memperbaiki diri sudah satu langkah baik."),
     );
-    expect(ai).toBeNull();
+    // WAS `expect(ai).toBeNull()`. Erik reversed ISC-418 on 2026-08-21: the app must answer. Empty
+    // retrieval now costs suggested verses, not the answer.
+    //
+    // Note what this case does NOT assert: that the motor-oil question gets a GOOD answer. The model
+    // here is a stub returning fixed prose, so this proves only that the pipeline no longer refuses.
+    // Keeping an off-topic question OFF the Islamic-answer path is prompt rule 9's job and is
+    // asserted in `answer-grounding.test.ts` — named here so a reader of this file does not conclude
+    // the hazard was simply dropped.
+    expect(ai?.kind).toBe("answer");
   });
 
   test("a warm answer with NO citation still ships WHEN there is grounding behind it", async () => {
-    // The half of the original that survives, and it must: the bow-out keys on GROUNDING, never on
-    // whether the model happened to cite. An answer that teaches without a reference is still ours
-    // when our material is what it was handed.
+    // Unchanged in outcome, but no longer the contrast it was: with the bow-out gone, BOTH this case
+    // and the one above ship an answer. It stays because it pins a different rule — that shipping
+    // never keyed on whether the model happened to CITE, only on what it was handed.
     const ai = await synthesizeAnswer(
       corpus,
       "aku sedih banget rasanya",

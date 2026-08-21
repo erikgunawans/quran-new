@@ -191,7 +191,21 @@ describe("Anti: the corpus-gap copy never claims the corpus is empty either", ()
   });
 
   test("it says the limit is ours, exactly as the blocked path does", () => {
-    expect(silenceCopy()).toContain("Bukan berarti Al-Qur'an diam");
+    // The RULE is unchanged and is the reason this test exists: this copy may never imply the
+    // Qur'an has nothing on the reader's question. What changed on 2026-08-21 is the sentence that
+    // satisfies it. The old copy said "Bukan berarti Al-Qur'an diam soal ini — batasannya ada
+    // padaku", which had to deny an implication its own headline had just made. The lane is now
+    // reached only when GENERATION failed, so it names that directly and never raises the
+    // implication at all.
+    //
+    // Asserted as intent, not as the retired string: pinning the exact old sentence is how a test
+    // ends up defending wording instead of the rule behind it.
+    const copy = silenceCopy();
+    expect(copy).toContain("di sisiku");
+    // And the thing the rule actually forbids, stated as a prohibition rather than inferred from
+    // the presence of a disclaimer.
+    expect(copy).not.toContain("belum menemukan jalan");
+    expect(copy).not.toContain("Al-Qur'an tidak");
   });
 
   test("it does not describe this edition as one that declines to answer ajaran", () => {

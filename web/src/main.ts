@@ -341,11 +341,22 @@ async function renderTurn(t: Turn, animate = true): Promise<string> {
     // hukum, atau arti sebuah ayat". That was true of the principled edition and is FALSE here:
     // EDITION is "synthesis" and this app authors answers about ajaran every day. A self-description
     // the running code contradicts is the same defect as the headline, one line further down.
+    // ERIK, 2026-08-21: this lane must never again read as "there is no ayah about that".
+    //
+    // It used to open with "Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya" and then
+    // explain that the app was CHOOSING not to answer. As a final state that was the exact thing
+    // he rejected — a non-answer to a plain question, phrased as a virtue.
+    //
+    // It is now a much rarer lane: the model answers every question, grounded or not, so this is
+    // reached only when the generation itself failed (deadline, network, or prose that even
+    // repair could not clean). So the copy says THAT — a fault on our side, with a retry — rather
+    // than making a claim about the Qur'an's contents, which is what the old wording did by
+    // implication and had no standing to do.
     case "silence":
       return `
-        <p class="said">Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya.</p>
+        <p class="said">Maaf, jawabanku barusan gagal tersusun — itu di sisiku, bukan karena pertanyaanmu.</p>
         <div class="silence">
-          <p>Bukan berarti Al-Qur'an diam soal ini — batasannya ada padaku. Aku bisa saja mengarang jawaban yang terdengar meyakinkan. Aku memilih tidak.</p>
+          <p><b>Coba kirim ulang pertanyaanmu</b> — biasanya langsung jalan. Kalau masih gagal, coba susun ulang sedikit dengan kata-katamu sendiri.</p>
           <p>Kalau kamu nyari <b>topik atau konsep</b> — misalnya tentang Allah, sabar, atau rezeki — coba buka <a href="#/peta">Tematik</a>. Kalau kamu lagi <b>ngerasain sesuatu</b>, ceritakan aja pakai kata-katamu sendiri. Atau sebutkan <b>surah dan ayatnya langsung</b>, misalnya <b>18:10</b>.</p>
         </div>`;
 

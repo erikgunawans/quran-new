@@ -30,7 +30,6 @@ import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
   ANSWER_PARAMS,
   buildAnswerUserMessage,
-  hasGrounding,
   SYNTHESIS_SYSTEM_PROMPT,
   type GroundingEntry,
   type GroundingHadith,
@@ -50,6 +49,7 @@ import {
 } from "./dalil.ts";
 import type { HadithCard } from "../../web/src/hadith-card.ts";
 import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
+import { repairAnswerProse } from "./answer-repair.ts";
 import { runGeneration, newGenTrace } from "./answer-generation.ts";
 import { verdictAfterFailure } from "./answer-retry.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
@@ -542,21 +542,29 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
   if (!question) return json({ answer: null }, 200, request);
 
-  // ISC-418 — THE MODEL MAY NOT AUTHOR FROM NOTHING. This comment used to read "the model now leads
-  // and can answer without any grounding … empty grounding just means fewer suggested verses, never a
-  // refusal", and that was measured true and wrong: `bun run eval:grounding` found 46 of 46
-  // no-grounding samples answering in full, so "cara ganti oli motor beat" drew a fluent Islamic
-  // answer built from parametric memory alone. Erik ruled 2026-08-13: bow out to the principled
-  // edition instead.
+  // ISC-418 IS REVERSED BY ERIK, 2026-08-21, AND THE HISTORY STAYS SO THE REVERSAL IS LEGIBLE.
   //
-  // NO `blocked` FIELD HERE, DELIBERATELY. `blocked` means "prose was generated and the wall refused
-  // it", and the browser renders it as an answer found-but-withheld (main.ts:705). In this state no
-  // answer was found at all, so that copy would be a lie in the reader's favour. The plain null is
-  // the honest channel and already falls through to the corpus-gap/topic-pointer resolution.
+  // A `if (!hasGrounding({ verses, entries })) return json({ answer: null })` stood here. Its reason:
+  // `bun run eval:grounding` found 46 of 46 no-grounding samples answering in full, so
+  // "cara ganti oli motor beat" drew a fluent Islamic answer built from parametric memory alone, and
+  // Erik ruled 2026-08-13 to bow out to the principled edition instead.
   //
-  // Placed AFTER verifyGrounding on purpose: forged grounding is dropped up there, lands here as
-  // empty, and can no longer buy an authored answer — previously it bought one from memory.
-  if (!hasGrounding({ verses, entries })) return json({ answer: null }, 200, request);
+  // On 2026-08-21 he ruled the other way, having seen what it costs a reader: a plain question
+  // ("gimana cara menahan marah menurut Islam") that retrieved nothing returned index rows and
+  // "Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya". His words: it has to be answered.
+  // So the model now runs on every question, with or without retrieval, and answers from what it
+  // knows — ayah first where one genuinely fits, hadith next, general Islamic teaching after that.
+  //
+  // THE 2026-08-13 FAILURE IS NOT DISMISSED, IT IS RE-SITED. The motor-oil case was real, and the
+  // defence against it is now rule 9 of the prompt: an off-topic question is redirected, not dressed
+  // in Islamic language. That is a judgement the model makes far better than a keyword list would —
+  // this repo's record with keyword classifiers (`indonesian-affix-guards`,
+  // `feeling-word-subject-collision`) is that they under-fire on real Indonesian and collide with
+  // each other. If rule 9 proves insufficient the answer is a better rule, not a restored refusal.
+  //
+  // `hasGrounding` ITSELF SURVIVES as the shared definition and keeps its own tests; what is gone is
+  // this file's CALL to it. (A first draft of this comment claimed it was "still used below" — it is
+  // not, and the grep that would have caught that is the one that did.)
 
   // ISC-434 — hadith grounding, and the gate in front of it.
   //
@@ -753,7 +761,16 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   // already documented at 46% vs 25% on identical code — a whole-run bucket total is not evidence
   // on this project, and without the rule it could not even become one. Diagnostic only: it names a
   // guard that already refused, never a reason a reader is shown.
-  const genReport = () => ({ attempts: gen.attempts, reason: gen.reason, rule: gen.blockedRule });
+  const genReport = () => ({
+    attempts: gen.attempts,
+    reason: gen.reason,
+    rule: gen.blockedRule,
+    // Repair is invisible on the wire without these: a repaired answer and a first-pass-clean answer
+    // are byte-identical in shape. `repairedRule` names the wall that cost the reader a sentence.
+    repaired: gen.repaired,
+    repairedDropped: gen.repairedDropped,
+    repairedRule: gen.repairedRule,
+  });
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);
     // ONE BUDGET FOR THE TURN, not one per call. `callChatModel` defaults to a fresh
@@ -811,6 +828,10 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
           isGroundedHadith,
           verses.map((v) => ({ ref: v.ref, texts: [v.text] })),
         ),
+      // ISC-560 — a violation must cost the SENTENCE, not the answer. Erik, 2026-08-21.
+      // `repairAnswerProse` is handed the very `guard` closure above, so the prose it returns has
+      // been accepted by the same wall that judges egress; there is no second copy to drift.
+      repair: repairAnswerProse,
     });
   } catch {
     // Carries `dalil` too: a turn that died at the model still has a retrieval story worth reading,

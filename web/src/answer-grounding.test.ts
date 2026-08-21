@@ -15,7 +15,7 @@
  * invisible: both sides would still "work", just disagree about which questions get an answer.
  */
 import { describe, expect, test } from "bun:test";
-import { hasGrounding } from "./answer-contract.ts";
+import { SYNTHESIS_SYSTEM_PROMPT, hasGrounding } from "./answer-contract.ts";
 import { gatherGrounding, synthesizeAnswer } from "./answer.ts";
 import type { AnswerContext, AnswerResult } from "./answer-contract.ts";
 import type { Corpus } from "./retrieve.ts";
@@ -48,14 +48,21 @@ describe("hasGrounding — the single definition both sides call", () => {
   });
 });
 
-describe("synthesizeAnswer bows out before spending a generation", () => {
-  // A COUNTER, NOT A THROW — and the difference is the whole test.
+describe("off-topic questions still reach the model — the bow-out is GONE (Erik, 2026-08-21)", () => {
+  // THIS SUITE ASSERTED THE OPPOSITE UNTIL 2026-08-21, and the inversion is the point.
   //
-  // The first version of this used a model that threw "must not be called". It passed with the
-  // short-circuit REMOVED: `synthesizeAnswer` wraps the model call in a try/catch that returns null
-  // on any throw, so the forbidden model's exception was swallowed and `toBeNull()` was satisfied by
-  // the error path instead of the bow-out. Force-red is what caught it. The call count is the only
-  // signal that distinguishes "never asked the model" from "asked it and the answer died".
+  // It used to prove that "cara ganti oli motor beat" spent NO generation, because ISC-418 had the
+  // client bow out whenever retrieval came up empty. Erik reversed that ruling after seeing what it
+  // cost a real reader: "gimana cara menahan marah menurut Islam" retrieved nothing and returned
+  // index rows plus "Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya".
+  //
+  // The old cases are KEPT AND INVERTED rather than deleted, because the failure they guarded is
+  // real and did not go away — it MOVED. The motor-oil case must still not come back dressed in
+  // Islamic language; what stops it now is prompt rule 9, asserted directly below. Deleting these
+  // would have removed the only record that this hazard was ever considered.
+  //
+  // The counter survives for the same reason it was written: a throw would be swallowed by
+  // `synthesizeAnswer`'s catch, so only the call COUNT can tell "asked the model" from "didn't".
   let calls = 0;
   const counted = async (_ctx: AnswerContext): Promise<AnswerResult> => {
     calls += 1;
@@ -63,17 +70,31 @@ describe("synthesizeAnswer bows out before spending a generation", () => {
   };
 
   for (const q of ["cara ganti oli motor beat", "resep rendang padang yang enak"]) {
-    test(`"${q}" — zero grounding, so no authored answer and no model call`, async () => {
+    test(`"${q}" — zero grounding no longer short-circuits; the model IS asked`, async () => {
       const g = await gatherGrounding(corpus, q, []);
-      expect(g.verses).toEqual([]); // the premise this case rests on
+      expect(g.verses).toEqual([]); // the premise this case rests on, unchanged
       expect(g.entries).toEqual([]);
 
       calls = 0;
-      expect(await synthesizeAnswer(corpus, q, [], counted)).toBeNull();
-      expect(calls).toBe(0); // the load-bearing assertion — a generation was never spent
+      await synthesizeAnswer(corpus, q, [], counted);
+      // The load-bearing assertion, now inverted: removing the client bow-out is a no-op unless a
+      // generation is actually spent on an ungrounded question.
+      expect(calls).toBe(1);
     });
   }
 
+  test("prompt rule 9 is what now keeps an off-topic question from being answered Islamically", () => {
+    // The redirect is a MODEL judgement and cannot be asserted deterministically here. What can be
+    // asserted — and what would otherwise be lost silently in a prompt edit — is that the
+    // instruction the reversal depends on is actually in the shipped system prompt.
+    expect(SYNTHESIS_SYSTEM_PROMPT).toContain("ANSWER EVERY ISLAMIC QUESTION");
+    expect(SYNTHESIS_SYSTEM_PROMPT).toContain("NOT ABOUT ISLAM OR THEIR LIFE AT ALL");
+    // And that the two shapes stay distinguishable: a feeling is never off-topic.
+    expect(SYNTHESIS_SYSTEM_PROMPT).toContain("is NOT off-topic");
+  });
+});
+
+describe("a grounded question still authors", () => {
   test("a real feeling still authors — the bow-out must not silence the app", async () => {
     // FORCE-RED CONTROL. Without this, a short-circuit that returned null unconditionally would pass
     // every test above while breaking the entire product.
