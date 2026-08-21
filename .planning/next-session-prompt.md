@@ -1,3 +1,123 @@
+# Next session — New-Quranku (checkpoint 2026-08-21 morning)
+
+> Prepended 2026-08-21 (morning). Anchor `e0bf013` + this session's commit. **Supersedes the
+> `c1b163a` anchor.** From that handoff: **§1's RATE did not reproduce but its MECHANISM STANDS** —
+> and §1 named the wrong function for it (see §2 below). Its §2 (provider pin), §3 (no model switch),
+> §4 (no echo union), §6 (dalil-probe dev-only), §7 (ID-key stays broken), §8 (two unanswered
+> letters, no letter about the always-answer change) all **SURVIVE UNCHANGED**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-21 (morning)**).
+
+**Current state.** Gates green — `bun test` **1712/0** exit 0 · typecheck exit 0 (five passes) ·
+synthesis build exit 0. **ISA 566 accounted (565 met + ISC-418 reversed) / 17 open / 1 deferred = 584.** Clean tree except untracked
+`WARP.md` — **leave it, and never `git add -A`.** **Nothing was deployed this session.** Prod is
+still worker `4339cb45` from `c1b163a`.
+
+---
+
+## 1. THE TWO `own_wording` RULES ARE NAMED BACKWARDS IN THE TREE. Read this before touching repair.
+
+- `rule:"wording"` = `wordingShape` = **WHOLE-PROSE** (`web/src/answer-guard.ts:606` says so in terms).
+- `rule:"echo"` = `scriptureEchoShape` = **SENTENCE-SCOPED** (`:1138` splits on `[.!?]`; `:1137` is its early return).
+
+`worker/src/answer-repair.ts:19-21` asserts the reverse, and the previous handoff repeated it. **I
+inherited the swap and wrote an inverted ISC-552 before `scholarly-gate` caught it.** ISC-559 records
+it; the docblock is NOT yet corrected because that file was under this session's no-guard-edits
+constraint. **Correct it in the next change allowed to touch that file** — it is a comment, not a
+rule, so the edit is safe.
+
+## 2. ITEM 1 IS STILL OPEN, WITH ITS MECHANISM CONFIRMED AT n=1 AND ITS RATE UNREPRODUCED
+
+Three runs on `4339cb45`: **A** 0 blocked/14 grounded · **B** 1/14 · **C** 0/7. Not comparable to the
+prior 2–3/12 (different question set, grounded-only denominator, whole-run totals on identical code).
+The one block was `apakah musik haram`, `gen.rule: wording` — **the whole-prose rule**, i.e. §1's
+diagnosis was right. Its two attempts failed on **different** rules (`fatwa`, then `wording`), so
+per-attempt repair faces a rule SET, not one persistent violation.
+
+**BLOCKER: you cannot design the fix yet.** `/api/answer` returns `answer: null` on a block, so the
+refused PROSE is unreadable (ISC-554). Designing sentence-level surgery against prose nobody can see
+is the failure this project keeps paying for. **Two publish-nothing ways to get it** — an unrouted
+dev-only Worker with its own wrangler config (precedent: `worker/src/dalil-probe.ts`,
+`docs/review/rights-2026-08-20.md` ruling 2), or `wrangler tail`. Returning it on the public endpoint
+is Erik's call and is NOT the only option, contrary to a draft I had to correct. **Neither dev route is
+a licence for the prose to travel**, and the `dalil-probe` precedent covers a DIFFERENT class —
+third-party rights, not model output. What would be captured here is REFUSED prose, which by
+construction may carry fabricated divine or prophetic attribution: it stays on the dev surface, is
+never quoted into anything that ships, and is never shown to a reader.
+
+## 3. DO NOT USE `eval:answer` AS THE FALLBACK INSTRUMENT — it is doubly blind (ISC-558)
+
+`src/eval/answer-run.ts:149` has the SAME stale bow-out the live probe just lost, under a docblock
+claiming it *"Reproduce[s] the Worker's answer path exactly"*. And `:163` calls
+`guardAnswerProse(out, allowed)` with **two arguments**, taking the defaults that switch OFF the echo
+wall and the hadith predicate — so it can never emit `rule:"echo"` or a real `bad_hadith`. Fixing it
+must land **with a declared break in the `answer-judge` scored series**, not quietly ahead of it.
+
+## 4. THE ECHO WALL IS INERT ON ANY VERSE-LESS TURN, and always-answer makes that worse (ISC-555)
+
+`worker/src/index.ts:829` hands it `verses.map(...)`; `scriptureEchoShape` returns null on an empty
+array. Only 3/8 and 6/16 turns retrieved a verse. **Never read an echo count against a run total** —
+the probe now prints the eligible denominator for you. This is an ISC-419 COVERAGE question and it is
+not the same question as §2.
+
+## 5. THE 33 s TURN IS ISC-487, NOT A GUARD PROBLEM
+
+The one blocked turn ran 33,154 ms, past the browser's 30,000 ms `TIMEOUT_MS`, with generation using
+its full 25,000 ms deadline. The reader saw nothing regardless of the verdict. The probe now counts
+past-abort turns. **Do NOT raise `MODEL_DEADLINE_MS`.**
+
+## 6. AN AGENT WITH WRITE ACCESS REVERTED `ISA.md` MID-SESSION
+
+Forge's Codex subagent timed out; Forge concluded the new ISA cycle was fabricated and ran
+`git checkout -- ISA.md`. **It was real work from this session's own dumps** — its subagent could not
+see the scratchpad. Rebuilt from the scratchpad. **Brief write-capable audit agents explicitly: no
+`git checkout`/`restore`/`stash`.** Its technical findings were good; its provenance call was wrong.
+
+## 7. Open items — two need Erik, one needs the ustadz
+
+- **ISC-417 / ISC-464(b) — WAITING ON THE USTADZ, not on Erik.** Only Ustadz Ahmad can meet ISC-417;
+  he has a heads-up only. Two letters were SENT and both are unanswered — never write "Ustadz
+  Ahmad's letter", he has sent nothing. Erik ruled 2026-08-21 that the always-answer change gets NO
+  letter; the ID-key correction is still owed in whatever is sent next, which would be the THIRD.
+- **ISC-554** — whether refused prose may ever be surfaced, and by which route.
+- **Deploy** — nothing from this session is deployed; the probe is not shipped code, so there is
+  nothing that NEEDS deploying. Deploys remain Erik's.
+
+## 8. Every open ISC (17 open + 1 deferred; 584 total)
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** · `ISC-323` (TOMBSTONED) · `ISC-353.0` · `ISC-417` ·
+`ISC-419` · `ISC-420` · `ISC-440.6` · `ISC-454` · `ISC-464` · `ISC-486` · `ISC-487` · `ISC-533` ·
+`ISC-534` · **`ISC-552`** · **`ISC-554`** · **`ISC-558`** · **`ISC-559`**.
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — verify a rule's SCOPE from its own code, never from a comment about it.** Two files and one
+  handoff had `wordingShape` and `scriptureEchoShape` swapped. Read the docblock at the function and
+  the split expression, not a reference to it elsewhere.
+- **NEW — 35% / 96% (ISC-418) are CITE rates, not answered rates.** The ungrounded arm ANSWERS 46/46.
+  Restating them as answered rates inverts the direction of every argument built on them.
+- **NEW — an instrument encodes the contract it was written against.** After any behavioural change,
+  ask what each probe would print if the change were REVERTED before citing its number.
+- **NEW — brief write-capable agents against `git checkout`/`restore`/`stash`.** One destroyed the
+  session's ISA work and reported it as a fabrication.
+- **NEW — read an echo/guard count against its ELIGIBLE denominator.** A rule that cannot fire on a
+  turn contributes a guaranteed zero.
+- **A correction is the least-scrutinised edit.** Re-run `scholarly-gate` AFTER applying one.
+- **A justification is a claim and gets audited like one.** Ask whether it is the flattering reading.
+- **Name WHO permitted a thing and WHICH SURFACE.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Never record a declined gap as a PASSING test — a `- [x]` checkbox is the same artifact.**
+- **Verify a deploy by SERVED BYTES and a remote SHA**; the first curl after a deploy reads stale.
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.**
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.** `gen.rule` names the CHECK.
+- **Do NOT raise `MODEL_DEADLINE_MS`.** **Do NOT switch model.** **Do NOT build the echo union.**
+- **Never `git add -A` in this repo** — it swept `WARP.md` in twice.
+- **This ISA's `### Cycle` headings do not bound the criteria.** The TOTAL is right.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-21 late)
 
 > Prepended by /wrap 2026-08-21 (late). Anchor `c1b163a`. **Supersedes the `1ff4948` anchor.**

@@ -2,6 +2,85 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-21 (morning) — the instrument could not see the ruling, and the two rules were named backwards
+
+**THE HANDOFF'S ITEM 1 DID NOT REPRODUCE, AND FINDING OUT WHY IS THE SESSION.** §1 said 2–3 turns per
+run end `blocked` on whole-prose violations sentence repair cannot reach, and to design a different
+fix. Reproduce-first, **run A** on worker `4339cb45`: the probe walked 16 questions but **POSTED only
+14** — it silently skipped two, which is the defect this checkpoint is about. Of the 14 that were
+actually sent: **0 blocked, 0 deadline, 14/14 answered.** Do not read that as 16; conflating
+"the reader got nothing" with "the probe declined to ask" is the very identity the fix breaks.
+No fix was designed. What the run surfaced instead is worth more.
+
+**THE PROBE HAD NOT NOTICED THE ALWAYS-ANSWER CHANGE.** `wall-live-probe.ts` returned
+`{bucket:"no-grounding", ms:0}` **without posting** whenever retrieval came back empty — the client
+bow-out `web/src/answer.ts` deleted the day before. Ask the disqualifying question: *what would it
+print if the always-answer change were reverted?* **The same thing.** So the instrument was blind to
+the single largest change of the previous session, on exactly the class of question that motivated
+it. `apa yang al quran katakan tentang neraka` read as "the reader got nothing" on every run; prod
+answers it in **6.0–12.9 s**, first attempt `ok`, 216–234 words — verified three ways.
+
+**THE FIX AND WHAT RIDES WITH IT.** Short-circuit removed; `grounded` on every row; grounded vs
+UNGROUNDED reported as separate arms; a COMPARABILITY BREAK printed **above** the table it qualifies;
+an **echo-wall eligibility denominator**; and a **past-30 s-abort** count. Same-run re-tabulation:
+run B reads **15/16 = 94%** under the new rule and **13/16 = 81%** under the old — 13 pp that is
+a reclassification of a FIXED row set — the instrument, not the app. (Phrased this way
+deliberately: the bare "none of it the app" is recorded under ISC-548 as an error when it was
+reached by comparing two DIFFERENT runs. It holds here only because both figures are run B's same
+16 rows scored two ways.)
+
+**Three runs, labelled once.** All on worker `4339cb45`, this morning. **A** = 8 questions × 2,
+probe BEFORE the fix (14 of 16 posted). **B** = 8 × 2, after (16 of 16). **C** = 8 × 1, verifying the
+new report sections.
+
+---
+
+### THE TWO `own_wording` RULES ARE NAMED BACKWARDS IN THE TREE — and it produced an inverted finding
+
+With the probe fixed, run B produced one blocked turn: `apakah musik haram`, **`gen.rule: wording`**.
+I wrote that this CONTRADICTED the handoff's whole-prose mechanism. **`scholarly-gate` falsified it.**
+
+- `rule:"wording"` is `wordingShape`, and it **IS** the whole-prose check — `answer-guard.ts:606`:
+  *"ADJACENCY IS MEASURED ON THE WHOLE PROSE, NOT PER SENTENCE, AND THAT IS A FIX."*
+- `rule:"echo"` is `scriptureEchoShape`, and it is **sentence-scoped** — `:1138`,
+  `prose.split(/(?<=[.!?])\s+/u)`.
+
+So the observed refusal is the whole-prose rule firing on prose sentence-level repair then failed to
+clean — **exactly the shape §1 described.** The handoff named the wrong function for the right
+diagnosis, `worker/src/answer-repair.ts:19-21` carries the same swap, and I inherited it and built an
+inverted conclusion on top. Item 1's mechanism stands; only its RATE failed to reproduce.
+
+**The turn also never reached a reader:** 33,154 ms, past the browser's 30,000 ms `TIMEOUT_MS`, with
+generation consuming its full 25,000 ms deadline. Its two attempts failed on **different** rules
+(`fatwa`, then `wording`) — per-attempt repair is facing a rule SET, not one persistent violation.
+
+**THE ECHO WALL IS INERT ON ANY VERSE-LESS TURN.** Paired control: identical prose echoing twelve
+contiguous words of QS 65:7 scores `rules:["echo"]` with the verse present and `rules:[]` with
+`scripture: []`. Only **3 of 8** (run C) and **6 of 16** (run B) turns retrieved a verse — so a zero
+echo count over those runs could never have been anything else. **And the always-answer change makes
+this worse**, sending more verse-less turns to a wall that cannot police them.
+
+### Two corrections against myself, both caught by review, both recorded not softened
+
+- **Forge (ISC-557):** I dropped a filter term and called it a no-op. It was not — ungrounded turns
+  are hadith-INELIGIBLE by construction (`worker/src/index.ts:648` + `web/src/answer.ts:101,141`), so
+  all of them piled into the no-hadith arm and none into the hadith arm. `a-swap-is-not-a-widening`
+  landing on my own edit in the session I quoted it as a premortem.
+- **`scholarly-gate` (8 findings, BLOCK):** besides the inverted rules, it caught me restating
+  ISC-418's **35%/96% CITE rates as answered rates** (the ungrounded arm answered 46/46 = 100%), and
+  making a cross-run 88%→94% comparison that ISC-552 declares inadmissible two entries later.
+
+### An agent reverted ISA.md and mis-attributed the work
+
+Forge's Codex subagent timed out; Forge judged the ISC-546..554 block a fabrication and ran
+`git checkout -- ISA.md`. **The block was mine, from measurements in this session's dumps** — its
+subagent simply could not see the scratchpad. Real work destroyed and rebuilt. Forge's *technical*
+findings were sound; its provenance call was not.
+
+**Gates:** `bun test` **1712/0** exit 0 · typecheck exit 0 (five passes) · synthesis build exit 0
+(`build-meta: synthesis · e0bf013c`). **ISA 566 accounted (565 met + ISC-418 reversed) / 17 open / 1 deferred = 584.** Four of those 17 are new this cycle. No guard rule
+touched; `PROBES` byte-identical; nothing deployed.
+
 ## 2026-08-21 (late) — the app must always answer, and the provider was the lottery
 
 **ERIK'S RULING, and it reverses one of his own.** Shown a plain question — *"gimana cara menahan
