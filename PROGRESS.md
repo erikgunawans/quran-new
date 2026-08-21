@@ -2,6 +2,109 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-21 (evening) — the refusal became readable, and a narrowly-scoped re-gate never re-reads settled text
+
+**THE BLOCKER IS GONE AND IT COST NO PUBLICATION.** ISC-554 said the refused PROSE had to be readable
+somewhere before a repair fix could be designed. `src/eval/refusal-capture.ts` runs the Worker's own
+`runGeneration` in-process — the same loop module, `guardAnswerProse` with all FOUR arguments, the real
+`repairAnswerProse`, the same prompt/params/provider — and WRAPS the guard closure, so every candidate
+the wall judged is retained. Nothing is deployed, no route exists, `/api/answer` still returns
+`{answer:null}`, and **Erik's separate question — whether refused prose may ever reach the public
+endpoint — is untouched and still his.** Wrapping the closure rather than adding a field to `GenTrace`
+was the point: the Worker gains no capability it did not have, and the capture is richer than the
+refused candidate alone, because it also holds every sentence mask repair tried before giving up.
+
+Run: the eight recorded questions once each, `deepseek/deepseek-v4-flash` @ 0.4 — **8 turns, 1 blocked,
+63 refused candidates captured, 1 repaired** (`dropped 2, rule echo`). **Not a prod measurement, and
+1-in-8 is not comparable to run A/B/C**: different process, no dalil binding, freshly sampled prose.
+Refusals of the same CLASS, never the same bytes. The output stays on the dev surface.
+
+### WHY REPAIR COULD NOT CLEAN IT — two defects, both named from the mechanism, neither fixed
+
+**ISC-561.** `answer-generation.ts` assigns `lastBlocked = candidate` on every refusal, so attempt 2
+OVERWRITES attempt 1 and repair is handed only the survivor. On the one blocked turn, attempt 1's prose
+repairs in a SINGLE deletion — replayed through the real `repairAnswerProse` with the guard it faced
+live (`isRealAyah`, empty hadith predicate, empty echo verses, because that turn retrieved nothing):
+`dropped: 1`, 220 words the wall accepts — and attempt 2's does not repair at all. **What that
+establishes is that two attempts' prose can differ in REPAIRABILITY, which the current binding cannot
+express. NOT that a reader lost an answer:** this is the offline harness, no reader was involved, and
+the morning checkpoint above records prod answering this very question in **6.0–12.9 s, first attempt
+`ok`** — verified three ways. A draft of this paragraph said "the reader got silence over an answer
+that was one sentence away", which is the same conflation of *"the reader got nothing"* with *"the
+probe declined to ask"* that the morning checkpoint convicts about this exact question. **One turn.**
+
+**ISC-562.** `repairAnswerProse` hill-climbs on `guard(text).violations.length`, but that counts RULES,
+not violating sentences: `guardAnswerProse` pushes at most one violation per rule and `wordingShape`
+returns only its first span. Attempt 2 carried the divine-attribution shape TWICE; deleting either
+sentence alone still scored 1, so no move looked like progress, `bestIndex` stayed `-1`, and repair
+returned `dropped: 0` after one round. A control over its segments returns `violations=1` for every
+single deletion and `0` for none — and the SAME control over attempt 1's prose returns `0` on exactly
+one deletion, so the control discriminates rather than reporting a constant. A fix needs
+`RepairVerdict` widened to carry `detail`; that is guard-adjacent and was NOT done.
+
+### SEVEN SCHOLARLY-GATE PASSES: A FIX-CASCADE THROUGH PASS 5, AND ONE ORIGINAL DEFECT THAT SURVIVED SIX
+
+Pass 1 caught the real thing: my ISC-559 correction fixed the swapped FUNCTION and broke the LOCATOR,
+filing the `ADJACENCY IS MEASURED ON THE WHOLE PROSE` sentence under the block above `VERBATIM_DIVINE`
+when it lives in the one above `DIVINE_VERB` — the same class of error the correction existed to retire.
+**The verdicts, as the gate gave them, because a summary number here is the very thing this paragraph
+is about:** BLOCK, BLOCK, BLOCK, then clear-on-the-code with two half-applied fixes, then clear with one
+over-claim, then clear with nothing surviving — and a seventh pass on this checkpoint that BLOCKED on
+two more. The defects passes 2, 3 and 5 found were each introduced by the previous pass's own
+correction: a banner claiming three copies were one binding when one was a separate constant; an
+enumeration that contradicted its own finding in the same sentence; an unsourced ordinal inside a
+paragraph about unsourced claims; and twice a containment guard that was not guarding. **Passes 4
+and 7 were not that shape, and the heading must not
+absorb them into the cascade.** Pass 4 found fixes that landed in the harness and stopped one file
+short of the ISA — a different failure, recorded as one. **Pass 7's two defects were not
+fix-introduced at all, and one of them is the most expensive finding of the session:** *"the reader
+got silence"* was in the ORIGINAL ISC-561, written alongside the locator error the cascade starts
+from, and it **survived six gate passes undetected — and only ONE of them ever read it.** Pass 1
+audited the full diff, assessed ISC-561, and read past the sentence. Passes 2 through 6 were scoped
+BY ME to the edits under review — pass 5's wording was *"check these five edits and nothing else"*,
+the other four scoped identically in substance — ISC-561 was unchanged in all five, and its prose was
+never re-opened. Pass 7 caught it the moment `PROGRESS.md` restated
+the paragraph and forced a fresh read. **TWO EVENTS, TWO CAUSES, AND A DRAFT OF THIS PASSAGE
+KEPT COLLAPSING THEM INTO ONE.** The ESCAPE — getting past the only pass that ever looked — was a
+lapse of attention on the one full read. The SURVIVAL — standing through five more passes — was
+structural: a narrowly-scoped re-gate never re-reads settled text, so an original defect is caught by
+the first pass or by an accident that forces a fresh read. Both halves are load-bearing: without the
+missed read there is nothing to survive, and without the scoping there were five further
+opportunities to catch it. **Not "it would have been caught"** — a draft said that, and the
+counter-evidence is three sentences up: pass 1 WAS a full unscoped read and missed it. A sixth full
+read is an opportunity, not a catch. One draft said the gate "read past it every time" (wrong, and
+contradicted by the words
+beside it); the next said the mechanism was structural "not a lapse of attention", which exonerates
+the read that actually failed and puts the whole episode on scope. **The remedy is therefore both,
+and the second half is not simply
+"read it again":** read carefully on the first full pass, and budget a re-read that CHANGES THE
+FRAME. What actually broke the blindness was restating the paragraph in a different artifact, which
+forced reading it in a new context instead of re-reading settled text in place. A cascade converges;
+this does not. The other, `SIX PASSES, SIX
+BLOCKS`, was fresh prose in a new artifact and corrected nothing. A draft of this heading claimed
+"SIX PASSES, SIX
+BLOCKS"; there were three BLOCKs at that point, and the figure appears to have been re-homed from a
+memory entry about a DIFFERENT change — which is exactly what `rights-2026-08-21.md` forbids and what
+ISC-559 withheld a count to avoid.
+
+That guard is worth its own line. `--out` was DOCUMENTED as writing outside the repo while the code wrote
+wherever pointed, at the END of a paid run. Fix 1 anchored on `process.cwd()` — which held only because
+the corpus check happens to require the root. Fix 2 anchored on the nearest `.git` — wrong here, because
+four live worktrees sit under `.claude/worktrees/` and **a worktree's `.git` is a FILE**, so from inside
+one the gitignored worktree was protected and the TRACKED tree was writable. It anchors on the OUTERMOST
+git tree now. **The corpus check stood in for this guard three separate times**, and that is recorded in
+ISC-563 so nobody moves it without knowing.
+
+**The lesson is the old one, and it held every time: a correction is the least-scrutinised edit.** Two
+findings were fixed in CODE rather than by softening the prose, which is the only reason the
+claims and the artifact now agree.
+
+**Gates green** — `bun test` **1712/0** exit 0 · typecheck exit 0 (five passes) · synthesis build exit 0.
+**ISA 569/587** (568 met + ISC-418 reversed; 17 open, 1 deferred). **Nothing deployed** — prod is still
+worker `4339cb45`. `WARP.md` still untracked and still left alone.
+
+---
+
 ## 2026-08-21 (morning) — the instrument could not see the ruling, and the two rules were named backwards
 
 **THE HANDOFF'S ITEM 1 DID NOT REPRODUCE, AND FINDING OUT WHY IS THE SESSION.** §1 said 2–3 turns per

@@ -16,9 +16,23 @@
  *
  * This is not fastidiousness. It is on record in this repo (`scope-decides-the-discriminator`) that
  * these guards do NOT mean the same thing at the two scopes: rare-word overlap separates whole
- * prose and fails sentence-scoped, and the run-length check does the reverse. `scriptureEchoShape`
- * measures adjacency ACROSS the split on purpose — `answer-guard.ts:606` says so in terms: "ADJACENCY
- * IS MEASURED ON THE WHOLE PROSE, NOT PER SENTENCE, AND THAT IS A FIX."
+ * prose and fails sentence-scoped, and the run-length check does the reverse.
+ *
+ * READ EACH RULE'S SCOPE OFF ITS OWN BODY, NEVER OFF A REFERENCE TO IT. An earlier version of this
+ * block had the two `own_wording` rules exactly backwards; a later session inherited the swap and
+ * built an inverted finding on top of it before `scholarly-gate` caught it (ISC-559). What the two
+ * bodies in `answer-guard.ts` actually do:
+ *
+ *   · `wordingShape` is WHOLE-PROSE. It runs `matchAll` over the whole normalised text with no
+ *     sentence split, and the free-standing SCOPE block that governs it — `answer-guard.ts:579-616`,
+ *     which sits above `DIVINE_VERB` (a one-line docblock at `:617` stands between them, so the
+ *     range is the reliable pointer, not the adjacency) — says so at `:606`: "ADJACENCY IS MEASURED
+ *     ON THE WHOLE PROSE, NOT PER SENTENCE, AND THAT IS A FIX." This is the rule whose window spans
+ *     the split. (NOT the block above `VERBATIM_DIVINE` at `:903-1004` — that one is about a claim
+ *     that the quote IS God's wording, and a first draft of this very correction misfiled the
+ *     sentence there, which is the same class of error the correction was retiring.)
+ *   · `scriptureEchoShape` is SENTENCE-SCOPED. It returns null on empty `verses`, then splits on
+ *     `/(?<=[.!?])\s+/u` and returns the offending SENTENCE.
  *
  * So a repair that asked "is THIS sentence clean?" would be asking a question the guard does not
  * answer, and would ship prose the real wall rejects. Instead every decision here is made by running
