@@ -18,7 +18,9 @@
  * as an instrument whose docblock claimed to "reproduce the Worker's answer path exactly" while
  * calling `guardAnswerProse` with two arguments — switching the echo wall and the hadith predicate
  * OFF — so it could never emit `rule:"echo"` or a real `bad_hadith`. An instrument that cannot fail
- * confirms whatever its reader hopes.
+ * confirms whatever its reader hopes. (That harness was FIXED on 2026-08-21 and now passes four
+ * arguments and runs the same `runGeneration` this one does; the sentence stays because the lesson
+ * is about the docblock, not about that file.)
  *
  * SAME as `worker/src/index.ts`:
  *   · retrieval — `understandThemes` + `gatherGrounding` on the shipped `corpus.json`, with `/api/*`
@@ -371,7 +373,7 @@ say("REFUSAL CAPTURE — ISC-554. Refused prose, on a surface that publishes not
 say("═".repeat(96));
 say();
 say("FIDELITY — read this before citing any row:");
-say(`  · guard      FOUR arguments (isRealAyah · hadith predicate · echo verses). NOT answer-run's two.`);
+say(`  · guard      FOUR arguments (isRealAyah · hadith predicate · echo verses).`);
 say(`  · loop       worker/src/answer-generation.ts, real repair, one ${MODEL_DEADLINE_MS} ms turn budget.`);
 say(`  · themes     live classifier via ${BASE}/api/* — the reader's themes, not [].`);
 say(`  · model      ${cfg.model} @ temp ${ANSWER_PARAMS.temperature}, pinned OpenRouter routing.`);
