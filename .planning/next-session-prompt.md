@@ -1,3 +1,110 @@
+# Next session — New-Quranku (checkpoint 2026-08-21 late)
+
+> Prepended by /wrap 2026-08-21 (late). Anchor `c1b163a`. **Supersedes the `1ff4948` anchor.**
+> That handoff's §1 (ID key), §4 (dalil-probe), §6 (letters), §7/§8 all SURVIVE UNCHANGED.
+> Its §2 (echo union) and §3 (`gen.rule`) survive. **§5's §8 ruling is DONE.**
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-21 (late)**).
+
+**Current state.** Gates green — `bun test` **1712/0** exit 0 · typecheck exit 0 · synthesis build
+exit 0 · `wrangler --dry-run` exit 0. **ISA 556 met / 13 open / 1 deferred = 570.** Clean tree except
+untracked `WARP.md` — **leave it, and never `git add -A`** (it has been swept in twice).
+
+**LIVE: worker `4339cb45`, from `c1b163a`.** The app now ALWAYS answers unless its own guard refuses.
+
+---
+
+## 1. THE ONE REMAINING GAP: 2–3 turns per run end `blocked` and repair cannot clean them
+
+This is now the ONLY thing between the app and Erik's "it has to be answered". It is **not a
+regression** — it was always there, hidden behind the deadlines that the provider pin removed.
+
+`worker/src/answer-repair.ts` excises violating SENTENCES. These failures look like **whole-prose
+violations** (`scriptureEchoShape` measures adjacency ACROSS the sentence split by design —
+`answer-guard.ts:606`), which sentence excision cannot reach. **A different fix, not a tuning of this
+one.** Read `gen.rule` on a blocked turn before designing anything; `own_wording` is pushed by TWO
+checks and the kind alone cannot say which fired.
+
+**DO NOT relax a guard rule to close this.** Erik kept every rule deliberately (2026-08-21): the
+change was to the CONSEQUENCE of a violation, never its definition.
+
+## 2. THE PROVIDER PIN IS A BET ON CIRCUMSTANTIAL EVIDENCE — re-measure before trusting it further
+
+`OPENROUTER_ROUTING` in `worker/src/providers.ts` pins `quantizations:["fp8"]` + an `order` of the
+four best-uptime endpoints. Measured paired: **unpinned 61% answered / 39% deadline → pinned 79% / 0%
+deadline** over 24 turns.
+
+**But OpenRouter's `uptime` measures ERRORS, and our failure was a silent timeout that may never
+register as downtime.** The theory fits every symptom; it is not proven. The evidence is the paired
+re-measure and nothing else. **Re-read the endpoints API before citing any uptime number** — it is a
+live feed and the numbers in `PROGRESS.md` are a 2026-08-21 snapshot.
+
+## 3. DO NOT switch model. The data no longer implicates it
+
+`qwen/qwen3.7-flash` (1 provider, 100% uptime, ~21% cheaper) was researched and is on the table, but
+the remaining 21% failure is OUR GUARD, not the provider. Switching now changes a variable the data
+has cleared. Cost is unchanged today — same model, same price.
+
+## 4. DO NOT BUILD THE ECHO-WALL UNION · 5. `gen.rule` IS READABLE · 6. `dalil-probe.ts` IS DEV-ONLY
+
+All unchanged from the previous handoff.
+
+## 7. THE ID-KEY HOLE STAYS BROKEN, DELIBERATELY
+
+Machine Indonesian never renders on the answer card, Hadits search, or Fikih search —
+`h.collection` is a display name, shards are keyed by slug. **Erik ruled: LEAVE IT.** Fixing it
+switches on three surfaces the ustadz has never permitted while question 3 is unanswered. Cite the
+fix by SYMBOL (`loadHadithIds(h.collection, h.book)`) — that line number rotted FOUR times.
+
+**Do NOT justify it as "the state the 2026-08-17 letter promised"** (absolute, already false, since
+retracted) **or as "widens a standing breach"** (the one live surface is the one he PERMITTED). Both
+were BLOCKed by `scholarly-gate`.
+
+## 8. TWO UNANSWERED LETTERS **TO** Ustadz Ahmad — and Erik ruled NO letter about this session
+
+`tanya-ai-request-2026-08-17.md` (blocks ISC-417) and `ustadz-followup-2026-08-18.md` (blocks
+ISC-464(b)). **Erik ruled 2026-08-21: the always-answer change gets NO letter** — recorded internally
+only. The ID-key correction is still owed in whatever is sent next, which would be the **THIRD**
+letter. Never write "Ustadz Ahmad's letter" — he has sent nothing.
+
+## 9. Every open ISC (13 open + 1 deferred = 570)
+
+`ISC-98` · `ISC-189` **`[DEFERRED-VERIFY]`** (uses a THIRD marker form, `- [DEFERRED-VERIFY]`; a
+`[ ]`/`[x]` parser silently reports 569) · `ISC-323` (TOMBSTONED) · `ISC-353.0` · `ISC-417` ·
+`ISC-419` · `ISC-420` · `ISC-440.6` · `ISC-454` · `ISC-464` · `ISC-486` · `ISC-487` · `ISC-533` ·
+`ISC-534`. **`ISC-418` is now `[~]` REVERSED** — not open work, not a live criterion.
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — when a fix does not move the number, the DIAGNOSIS is wrong, not the dose.** The retry
+  split was correct engineering and bought 8/12 → 7/12. A control arm (same questions, 20 s apart)
+  is what proved the cause was elsewhere. Build the control before building the second fix.
+- **NEW — read the provider's own API before recommending a model.** 18 upstreams, 3 degraded, and
+  fp4/fp8/unknown quantization on ONE model id — none of it guessable from training data.
+- **NEW — a derived bound composes, a hardcoded one fights.** `13_500` was right for the 25 s turn
+  and wrong for the 20 s one; a cap and a retry floor must sum to the turn.
+- **NEW — a fixture copied from the source under test cannot fail.** A fake guard counted distinct
+  poisons not occurrences; a routing suite asserted its own literal instead of `resolveProvider`'s.
+  Both passed. Force-red found both.
+- **NEW — never `git add -A` in this repo.** It swept `WARP.md` in twice.
+- **A correction is the least-scrutinised edit.** Re-run `scholarly-gate` AFTER applying one.
+- **A justification is a claim and gets audited like one.** Ask whether it is the flattering reading.
+- **Name WHO permitted a thing and WHICH SURFACE.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Ask what a probe would say if the feature were REVERTED, before citing its number.**
+- **Never record a declined gap as a PASSING test — a `- [x]` checkbox is the same artifact.**
+- **Verify a deploy by SERVED BYTES and a remote SHA**, rebuild at HEAD first, use a CONTROL.
+- **The first curl after a deploy reads the STALE `index.html`.**
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.** Verify the INLINED literal.
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.** `gen.rule` names the CHECK.
+- **Do NOT raise `MODEL_DEADLINE_MS`.** `MIN_RETRY_MS` is 11,500; the first attempt now reserves it.
+- **A bare `curl` to `/api/answer` posts no grounding** — use a probe that runs `gatherGrounding`.
+- **This ISA's `### Cycle` headings do not bound the criteria.** The TOTAL is right.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-21)
 
 > Prepended by /wrap 2026-08-21. Anchor `89f5720`. **Supersedes the `7660617` / `dd0982a` anchors.**

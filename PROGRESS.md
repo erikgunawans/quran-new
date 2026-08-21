@@ -2,6 +2,91 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-21 (late) — the app must always answer, and the provider was the lottery
+
+**ERIK'S RULING, and it reverses one of his own.** Shown a plain question — *"gimana cara menahan
+marah menurut Islam"* — returning Tematik index rows and *"Aku belum menemukan jalan dari
+pertanyaanmu ke ayat-ayatnya"*, he ruled: **it has to be answered.** Ayah first, then hadith, then
+what the model knows. Also his: do not route answer quality through the ustadz's approval machinery,
+and **no letter** — recorded internally only.
+
+**THE PROMPT WAS NEVER THE PROBLEM.** Rule 1 already said *"never say 'there is no verse for that'
+and stop."* The model was being **refused before it ran** and **deleted after**.
+
+**TWO GATES, NOT ONE.** `worker/src/index.ts` refused on `!hasGrounding`, and `web/src/answer.ts`
+bowed out **client-side before the network call**. Removing only the Worker's would have shipped
+invisibly — `three-walls-not-two` exactly. Both gone. ISC-418 marked `[~]` REVERSED, text intact.
+
+**REPAIR REPLACES REFUSAL** (`worker/src/answer-repair.ts`, new). No guard rule relaxed or deleted: a
+violation now costs the SENTENCE, not the answer. Sentences are the unit of EXCISION; **whole prose
+stays the unit of JUDGEMENT**, because these guards demonstrably differ at the two scopes. Repair
+returns only prose it has watched the CALLER'S OWN guard closure accept.
+
+**The 2026-08-13 motor-oil failure is RE-SITED, not dismissed** — prompt rule 9 redirects genuinely
+off-topic questions. Verified live: *"cara ganti oli motor beat"* → *"ini adalah urusan teknis…"*.
+
+---
+
+### THE PROVIDER WAS THE LOTTERY — and this is the session's real finding
+
+After the always-answer deploy: 0 guard refusals, but **~39% of turns died on `deadline`** with a
+single `{"ms":25000,"outcome":"threw"}` attempt.
+
+**Two defects found and fixed in the retry path** (neither touching `MODEL_DEADLINE_MS`):
+`nextAttemptBudget` handed attempt 1 the ENTIRE turn, so a hang spent all 25 s and no second draw was
+possible; and a thrown generation aborted the loop, so a DEADLINE was never redrawn. The cap is
+**derived from the turn, not hardcoded** — a literal `13_500` was written first and was WRONG: on the
+tests' 20 s turn it left 6,500 ms, under `MIN_RETRY_MS`, refusing the retry AND shortening the first
+attempt. A cap and a retry floor are two halves of one budget or they fight.
+
+**AND IT DID NOT MOVE THE NUMBER — 8/12 → 7/12.** The diagnosis was wrong: hangs are not independent
+per call. **A control arm caught it**: the same 12 questions re-run **20 s apart** gave **7/12,
+identical** to back-to-back. Not pacing, not the prompt.
+
+**THE ACTUAL CAUSE, read live from OpenRouter's own API.**
+`GET /api/v1/models/deepseek/deepseek-v4-flash/endpoints`: **18 upstream providers** serve this model
+id and OpenRouter silently load-balances across them. Uptime over 1 day — **Azure 87.98%**, **Phala
+92.57%** — and **three endpoints were flagged `status:-2`, degraded**, at the moment of reading.
+
+**AND IT WAS NEVER ONLY LATENCY.** Those providers serve the SAME model id at **fp4, fp8 and
+"unknown" quantization**. Which compression answered a reader's question about the Qur'an was a coin
+toss. For this app that is the more serious half.
+
+**FIX: pin the upstream** (`OPENROUTER_ROUTING`). `quantizations:["fp8"]` leads because it does most
+of the work — it admits only the ten fp8 endpoints and thereby excludes every fp4 and every "unknown"
+one, including both worst performers, without naming them. `order` prefers the four best by uptime;
+`allow_fallbacks` keeps the pool live so pinning cannot become a single point of failure; `ignore`
+names only SiliconFlow, the one degraded fp8 endpoint.
+
+**MEASURED, PAIRED:**
+
+| run | answered | deadline | blocked |
+|---|---|---|---|
+| baseline | 8/12 | 4 | 0 |
+| after retry fix, unpinned | 7/12 | 5 | 0 |
+| unpinned, 20 s-gap control | 7/12 | 5 | 0 |
+| **pinned, run 1** | **9/12** | **0** | 3 |
+| **pinned, run 2** | **10/12** | **0** | 2 |
+
+**Unpinned 22/36 = 61% answered, 14/36 = 39% deadline. Pinned 19/24 = 79%, 0/24 = 0% deadline.**
+Latencies collapsed from a third of turns at exactly 25,000 ms to a 6.4–21.9 s spread. **Cost
+unchanged — same model, same price. No model switch was needed.**
+
+**WHAT IS LEFT, AND IT WAS ALWAYS THERE.** 2–3 turns per run now end `blocked` — the guard refused
+both generations and repair could not clean the prose. Not a regression; it was hidden behind the
+deadlines. Repair IS working (2–3 rescues per run; one turn went from two blocked generations to a
+1,789-char answer). Those failures look like WHOLE-PROSE violations, which is a different fix from
+sentence excision.
+
+**Deploys:** `0dc644fb` (always-answer) → `98d1e4a8` (retry split) → **`4339cb45`** (provider pin,
+LIVE). **Commits:** `07d06af` · `8860ce8` · `c1b163a`, all pushed.
+
+**Gates throughout:** `bun test` **1712/0** exit 0 · typecheck exit 0 · synthesis build exit 0 ·
+`wrangler --dry-run` exit 0. Every new behaviour force-red by mutation — including two tests that
+initially could NOT have failed for the reason they named (a fake guard counting distinct poisons
+instead of occurrences; a routing suite asserting a hardcoded copy of the config instead of
+`resolveProvider`'s real one).
+
 ## 2026-08-21 — the leak is closed on prod, §8 is finally ruled, and the Indonesian never rendered
 
 **DEPLOYED, on Erik's word.** `7660617` → worker version **`ccb77595`** (was `b63b5300`, bundle
