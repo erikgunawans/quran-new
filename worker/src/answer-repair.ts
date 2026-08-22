@@ -251,7 +251,7 @@ const identify = (verdict: RepairVerdict): string =>
  *
  * Greedy, and NO LONGER GREEDY ON THE COUNT ALONE — this paragraph said it was until 2026-08-22 and
  * a `scholarly-gate` pass caught the docblock describing the opposite of the code beneath it. Each
- * round ranks every single-sentence deletion:
+ * round ranks every single-PARAGRAPH deletion:
  *
  *   RANK 0  the guard's violation count FELL. Unchanged from the original search, tie-break toward
  *           removing the LEAST text included. A rank-0 move always beats a rank-1 one.
@@ -265,12 +265,12 @@ const identify = (verdict: RepairVerdict): string =>
  *           from which a reader could wrongly infer a worsening deletion is rank-1 eligible.
  *
  * **RANK 1 IS EVIDENCE, NOT PROOF, AND THE DIFFERENCE IS REAL.** `wordingShape` reads a 160-character
- * window that CROSSES sentence boundaries (`answer-guard.ts:1016`, and see
- * `appositive-defeats-the-subject-verb-cap`), so removing a sentence that violated NOTHING can still
+ * window that CROSSES sentence AND paragraph boundaries (`answer-guard.ts:1016`, and see
+ * `appositive-defeats-the-subject-verb-cap`), so removing a paragraph that violated NOTHING can still
  * change which span is reported first. A rank-1 move therefore means "the deletion changed what the
  * guard says", not "the deletion removed an offender". The cost tie-break has favoured a real
  * offender in every case constructed against the real guard so far, and **that is a measured set, not
- * a guarantee** — nothing here proves an innocent sentence can never be the one dropped.
+ * a guarantee** — nothing here proves an innocent paragraph can never be the one dropped.
  *
  * When NO single deletion is observable at all, one bounded TWO-deletion expansion runs; see the
  * PLATEAU block in the body for what it costs and, more importantly, for what it does NOT fix.
@@ -346,7 +346,7 @@ export function repairAnswerProse(
     // A COUNT-LOWERING MOVE ALWAYS BEATS A LATERAL ONE, because `rank` leads the comparison. The
     // lateral move is a fallback for the round where no single deletion helps the count — it is not
     // a new preference, and on every input the original search could solve, this picks the same
-    // sentence in the same order.
+    // unit in the same order.
     if (best !== null) {
       keep[best.index] = false;
       continue;

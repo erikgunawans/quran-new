@@ -79,9 +79,10 @@ describe("repairAnswerProse", () => {
     //
     // NOTHING OF ERIK'S IS BEING AMENDED, and an earlier version of this comment said there was —
     // it called the sentence framing "ISC-560's promise in Erik's words". It is not his. His recorded
-    // ruling (`PROGRESS.md`, 2026-08-21) is **"it has to be answered"**; "a violation must cost the
-    // SENTENCE, not the answer" is OUR write-up of it, and ISC-550 already convicted that exact
-    // conflation once. `docs/review/rights-2026-08-21.md` states the standing rule: the ASSENT and
+    // ruling (`PROGRESS.md`, 2026-08-21) is **"it has to be answered"**, and no record shows him on
+    // granularity at all; "a violation must cost the
+    // SENTENCE, not the answer" is OUR write-up of it, and ISC-550 already RECORDED that
+    // distinction and named where the attribution lived — it did not call it unsupported. `docs/review/rights-2026-08-21.md` states the standing rule: the ASSENT and
     // the OUTCOME are his, the WORDS and the argument's construction are not.
     //
     // So the granularity was always ours to get wrong, and prod showed we had: excising one sentence
@@ -383,7 +384,13 @@ describe("the pair expansion is bounded to ONE per call", () => {
  * (`gen: {attempts:["blocked:bad_hadith","blocked:bad_hadith"], repaired:true, repairedDropped:1,
  * repairedRule:"hadith_unbacked", repairedAttempt:1}`).
  *
- * Paragraph 3 is the damage itself, verbatim: repair excised the sentence carrying the unbacked
+ * Paragraph 3 is the damage itself, verbatim — INCLUDING the `[H:bukhari:518]` receipt, which a
+ * first version of this fixture dropped. That omission mattered more than a stray token: the
+ * severity finding for this whole episode rests on that marker having SURVIVED in the shipped
+ * paragraph (which is why a real hadith card rendered and the damage was incoherent rather than
+ * false), so a `verbatim` fixture without it contradicted the record in the same commit. Second
+ * time in one change that this fixture was retyped instead of pasted — the honorific was the
+ * first. Repair excised the sentence carrying the unbacked
  * attribution — the model's rendering of Bukhari 518's *"…would any dirt remain?"* — and left
  * **"Tentu tidak."** standing as a reply to a question that no longer exists.
  *
@@ -395,7 +402,7 @@ describe("the pair expansion is bounded to ONE per call", () => {
  */
 describe("regression — a survivor cannot be stranded by its neighbour (prod, 2026-08-22)", () => {
   const P1 = "Pertanyaan yang sangat mendasar dan penting. Terima kasih sudah menanyakannya. Ini pertanyaan yang sering muncul di hati, apalagi saat kita merasa berat atau malas melaksanakan shalat. Mari kita renungkan bersama.";
-  const P3 = "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu. Tentu tidak. Itulah perumpamaan shalat lima waktu, yang dengannya Allah menghapus dosa-dosa. Shalat adalah pembersih jiwa kita setiap hari, seperti mandi membersihkan tubuh.";
+  const P3 = "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu. Tentu tidak. Itulah perumpamaan shalat lima waktu, yang dengannya Allah menghapus dosa-dosa [H:bukhari:518]. Shalat adalah pembersih jiwa kita setiap hari, seperti mandi membersihkan tubuh.";
   const P4 = "Selain itu, shalat juga menjadi ciri orang yang bertakwa. Shalat mengingatkan kita terus-menerus kepada Allah di tengah kesibukan dunia.";
   const PROSE = [P1, P3, P4].join("\n\n");
 

@@ -34,8 +34,9 @@ given the options; the fix-forward is written and green but NOT shipped.
 **THE BIGGER FINDING, unfixed:** `hadithShape` decides whether a prophetic attribution needs a receipt
 by matching a VERB LIST. `mengajarkan` was missing for two sessions. `memberikan perumpamaan` is
 missing now. On the observed turn the `[H:bukhari:518]` marker happened to survive and a real card
-rendered (verified: marker in the surviving paragraph, `hadith:[hadith-bukhari-518]` in the body, card
-read back off the DOM) — **but that was luck, not the wall.** Nothing in the code required it.
+rendered (verified: marker in the surviving paragraph, and the body's card fields verbatim —
+`collection: "Sahih al-Bukhari"`, `518`, `grade: "sahih"`, `sunnah.com/bukhari:518`, `arabic`
+beginning *حَدَّثَنَا إِبْرَاهِيمُ بْنُ حَمْزَةَ*) — **but that was luck, not the wall.** Nothing in the code required it.
 
 **FIVE `scholarly-gate` PASSES ACROSS TWO CHANGES, and the code was clean from the first one.**
 Everything that kept failing was the RECORD: a docblock stating the opposite of the code (twice, on
@@ -45,8 +46,9 @@ whose honorific I had RETYPED (`صلى الله عليه وسلم` for `ﷺ`), w
 so prod could not have shipped the bytes the docblock called verbatim.
 
 **ATTRIBUTION CORRECTED IN THREE PLACES.** Erik's recorded ruling is *"it has to be answered"*. *"A
-violation must cost the SENTENCE, not the answer"* is OUR write-up of it — ISC-550 had already
-convicted that conflation and named `worker/src/index.ts` as where it was attributed to him. That line
+violation must cost the SENTENCE, not the answer"* is OUR write-up of it — ISC-550 had already RECORDED
+that distinction and NAMED `worker/src/index.ts` as where it was attributed to him — it distinguished
+the two and located the attribution; it did not call the attribution unsupported. That line
 is fixed; so are the ISA's and the test's.
 
 **THE `diam` DRIFT MOVED TWICE TODAY.** `docs/review/tanya-ai-request-2026-08-17.md` (SENT, UNANSWERED)

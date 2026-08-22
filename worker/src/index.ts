@@ -837,8 +837,12 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       // ATTRIBUTION CORRECTED 2026-08-22. This line read "a violation must cost the SENTENCE, not
       // the answer. Erik, 2026-08-21" — which was false twice over by then: the unit is no longer
       // the sentence (prod stranded a reply; see `splitParagraphs`), and the sentence framing was
-      // never his. His recorded ruling is "it has to be answered"; the granularity was ours.
-      // ISC-550 convicted this same conflation, naming THIS FILE as where it was attributed to him.
+      // not his. NO RECORD SHOWS HIM SAYING IT — put that way rather than "never his", because an
+      // assertion of silence is what `docs/review/rights-2026-08-21.md` opens by convicting. His
+      // recorded ruling is "it has to be answered"; the granularity was ours.
+      // ISC-550 RECORDED this same distinction and named THIS FILE as where the sentence was
+      // attributed to him. It distinguished the two and located the attribution; it did not call
+      // the attribution unsupported, and saying it "convicted" it overstates what ISC-550 says.
       // `repairAnswerProse` is handed the very `guard` closure above, so the prose it returns has
       // been accepted by the same wall that judges egress; there is no second copy to drift.
       repair: repairAnswerProse,
