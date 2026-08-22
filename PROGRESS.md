@@ -2,6 +2,101 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (night) — ISC-565 deployed, and Erik withdraws the wait on the ustadz
+
+**THE ONE DECISION WORTH REMEMBERING: Erik withdrew the ustadz wait — *"no need for ustadz letter
+anymore"* — confirmed BY ERIK on a direct follow-up question to cover the WIDE reading, ISC-417 and
+ISC-464(b) as well as ISC-565's deploy. It changes the WAITING SCHEDULE, not the PROVENANCE and not
+one promise.** Ustadz Ahmad Isrofiel Mardlatillah **has sent nothing in reply to these two letters**
+— `docs/review/tanya-ai-request-2026-08-17.md` and `docs/review/ustadz-followup-2026-08-18.md` — and
+that is now a PERMANENT state rather than a pending one. **Nothing in them may ever be recorded as
+review, approval, clearance or an answer, and ISC-417 stays `[ ]` forever: withdrawing a criterion
+does not satisfy it.** ⚠️ **The scoping to "these two letters" is deliberate — a blanket "he has
+sent nothing" is FALSE** and would void three real permissions: F-1 = yes (2026-07-17), the
+co-display confirmation (2026-07-23), and the machine hadith Indonesian approved as-is (2026-08-12,
+**verbal and relayed — the hadith TEXT layer only, not chapter titles, and on our own narrow reading
+the Hadits page only, not the answer card**). Those stand, do not widen, and do not cover AI-composed
+answers. **Nor does ending the wait make a future reply unrecordable**: if he ever answers it is
+recorded per §*Setelah Ustadz menjawab*, form included — a first draft's "now or later" prohibition
+would have breached that promise. The claim gets WEAKER, not stronger — the app ships AI-authored religious answers with
+no scholarly sign-off, by Erik's knowing decision, indefinitely. The user-facing disclosures
+are consequently MORE load-bearing than before and must not be softened. Per surface: the ANSWER
+surface ships `AI_CHIP`/`AI_NOTE` (`web/src/answer-disclosure.ts`), the HADITH layer *"Terjemahan
+mesin · belum ditinjau"*, the KAJIAN artefacts *"belum diperiksa ulama"* — each pinned by tests, and
+alongside the answer guard rather than instead of it.
+
+**⚠️ WHAT THE RULING DOES NOT SETTLE — EVERY PROMISE IN EITHER LETTER, AND TWO DRAFTS OF THIS
+CHECKPOINT GOT THE SHAPE WRONG.** The first said "one thing survives"; the second replaced it with a
+CLOSED numbered list under a heading claiming totality. Both are exhaustive by construction, and
+`scholarly-gate` BLOCKED both — the second still omitted six promises, including
+*"Tidak mencatat teks hasil mesin sebagai teks yang sudah diperiksa"*, the permitted-vs-checked
+invariant this whole audit exists to protect. **The binding sets are each letter's
+§*Yang tidak kami lakukan* (four bullets and seven) plus every *"selama menunggu"* /
+*"sebelum surat ini dijawab"* clause in their bodies. No summary is the boundary; anything not
+explicitly released is HELD BY DEFAULT.** Choosing not to wait is Erik's call and is taken; a promise
+delivered to a third party cannot be retired by our own bookkeeping
+(`a-sent-letter-outranks-the-handoff`), and since the closing event was ours to bring about, those
+promises become PERMANENT rather than lapsed. Examples, not the boundary: the God/unseen filter
+(ISC-464(b)); the hukum-nikah and hukum-waris pinned lists; hadith ORDERING unchanged on technical
+grounds; and `MAX_DISPLAY = 2`, separately Erik's own ruling in `rights-2026-08-20.md` §4 and never
+reachable by a bookkeeping edit. **Two promises whose REMEDY needed an answer now hang open with no
+vehicle** — an exception for an already-shipped sentence, and corrections a *next letter* was bound
+to carry. A temporary exception must not become permanent by default. Nothing was installed or
+relaxed under cover of the wider ruling, and the ruling itself is now a record at
+`docs/review/erik-ruling-2026-08-22.md` rather than four pointers into a transcript.
+
+**A self-inflicted trap worth the line: the second draft cited four line numbers into the two
+letters, and its OWN edit had already shifted every one of them.** `ustadz-followup-2026-08-18.md`
+states the rule outright — *"Disebut lewat NAMA, bukan nomor baris"* — because the numbers had
+already moved three times, each time by a comment written alongside its own pointer. Cite by section
+name.
+
+**ISC-565 IS DEPLOYED AND VERIFIED LIVE — Worker `new-quranku-proxy` version
+`2b7707f2-0dbf-4f1c-83cf-7400a5d0ffce`, built from `4a144ad`.** Build `synthesis`, inlined literal
+``try{return`synthesis`}`` verified rather than word-grepped, and prod serves the exact bundle hash
+the build produced. The Worker imports the guard directly from `web/src/answer-guard.ts`, checked
+BEFORE building because of the three-walls trap.
+
+**The browser bundle hash did NOT change across the rebuild, and that is a provenance finding.** The
+pre-existing `web/dist` already contained `cc7f5df`'s guard while `.build-meta.json` recorded
+`2f23edd` — so that meta file was stale about its own contents. `.build-meta.json` is necessary
+evidence of what a build holds, and this shows it is not sufficient.
+
+**Live verification, read from the `/api/answer` BODY and not the DOM** (markers are stripped before
+display). Real Chrome, `localStorage['newquranku:thread']` cleared, one warm-up turn discarded, then
+the question that produced the original witness — *"kenapa kita harus salat lima waktu"*:
+
+```
+gen.attempts:     [1] blocked:bad_hadith   [2] blocked:own_wording
+gen.reason:       answered
+repaired: true    repairedRule: wording    repairedAttempt: 1    repairedDropped: 2
+answer:           NOT null — three coherent paragraphs shipped
+```
+
+Both generation attempts were blocked and the repair path salvaged the answer, so the hadith wall
+fires on prod and the reader still got a complete answer instead of silence — the specific risk of
+shipping a rule that only ADDS refusals. **ISC-564's cost (c) did not recur on this turn**: no
+dangling connective, the answer opening and closing self-contained despite `repairedDropped: 2`.
+One turn is evidence, not a class; the defect stays open.
+
+**ISC-561's widening is STILL unwitnessed — `repairedAttempt: 1` again, the third live repair.**
+`gen.repairedAttempt: 0` has not appeared in any of the three live repairs captured so far.
+
+**`scholarly-gate`: the THIRD and FOURTH passes on ISC-565, both landing entirely in the record; the
+code has been clean since the first.** The third returned BLOCK on three findings, and all four of
+the fourth pass's findings were defects introduced by the third pass's own fixes. Detail is in the
+`4a144ad` commit message. The measurement that survived both: within `web/public/surah`,
+`web/public/tafsir`, `data/`, `src/eval/reports/` and `docs/review/` the frame occurs 122 times
+across 44 files with 8 in window, six of them the `"translator": "Ustadz Muhammad Thalib"` metadata
+field with Allah or Kami as agent, two the ISC-565 witnesses themselves.
+
+**A tooling trap worth the line: `fd` is NOT on PATH in this shell and fails SILENTLY, returning
+empty.** A directory search reported "no kajian files" and was wrong; only cross-checking with `ls`
+caught it. Use `find`.
+
+Gates: `bun test` 1855/0 exit 0 · typecheck exit 0 · build exit 0 · Arabic codepoint scan of the
+diff clean (U+FDFA only).
+
 ## 2026-08-22 (late) — ISC-564 deployed, and the verb hole it declined turned out not to be a verb hole
 
 **THE ONE THING WORTH REMEMBERING: the prescribed fix was rejected on MEASURED COST, and a first

@@ -6,6 +6,61 @@
 > sebagai sudah disetujui.
 > Menyusul `tanya-ai-request-2026-08-17.md`, yang sudah dikirim 2026-08-17 dan **belum dijawab**.
 > Surat ini **tidak** menggantikan surat itu dan **tidak** mengurangi satu pun pertanyaannya.
+>
+> **PEMUTAKHIRAN STATUS — 2026-08-22. BUKAN bagian dari surat yang dikirim; surat di atas tidak
+> diubah satu huruf pun.** Erik memutuskan proyek **tidak lagi menunggu** jawaban: *"no need for
+> ustadz letter anymore"* (rekaman keputusannya: `docs/review/erik-ruling-2026-08-22.md`).
+> **Yang berubah hanya JADWAL MENUNGGU — bukan status surat ini, dan bukan satu pun janji di
+> dalamnya.** Sampai hari ini Ustadz Ahmad Isrofiel Mardlatillah **belum mengirim apa pun atas surat
+> ini maupun surat 2026-08-17**. **ISC-417 tetap NOT MET selamanya.**
+>
+> **Tidak satu pun butir boleh dicatat sebagai dijawab, disetujui, atau diperiksa ATAS DASAR
+> keputusan berhenti menunggu ini** — hanya artefak dari beliau sendiri yang dapat mengubah status
+> itu. **Bila kelak beliau menjawab, jawabannya TETAP dicatat** menurut §*Setelah Ustadz menjawab*,
+> lengkap dengan bentuknya. Berhenti menunggu tidak membuat jawaban yang nyata menjadi tidak boleh
+> dicatat.
+>
+> **Izin beliau yang SUDAH ADA tidak terhapus dan tidak meluas**, dan tidak satu pun mencakup
+> jawaban susunan AI: F-1 = ya (2026-07-17); co-display (2026-07-23); dan teks hadis Indonesia mesin
+> sebagaimana adanya (2026-08-12, **lisan, direlai**) — **lapisan TEKS hadis saja, BUKAN judul bab
+> (lih. §Bagian 1 surat ini), dan menurut pembacaan sempit kami sendiri: halaman Hadits saja, BUKAN
+> kartu jawaban** (lih. caveat 2026-08-21 pada `hadith-id-approval-2026-08-12.md`).
+>
+> ⚠️ **Yang TIDAK ikut gugur: SETIAP JANJI dalam surat ini.** Frasa *"selama menunggu jawaban
+> Ustadz"* kehilangan peristiwa penutupnya begitu penantian dicabut — maka janjinya **berlaku
+> tetap**, bukan bebas, sampai Erik mencabutnya satu per satu atau Ustadz benar-benar menjawab.
+>
+> **Daftar yang mengikat adalah §*Yang tidak kami lakukan* (TUJUH butir) beserta setiap klausa
+> *"selama menunggu"* / *"sebelum dijawab"* di badan surat — BUKAN ringkasan mana pun, termasuk
+> catatan ini.** Beberapa yang paling mudah terlanggar, sebagai contoh dan bukan sebagai batas:
+>
+> 1. *"Tidak mencatat teks hasil mesin sebagai teks yang sudah diperiksa."* — pembeda **diizinkan
+>    tayang** vs **sudah diperiksa**; `reviewed_id` tetap murni.
+> 2. *"Tidak menggeser batas dua hadis, dengan alasan apa pun dari surat ini."* — `MAX_DISPLAY = 2`
+>    tidak bergerak. Batas ini juga keputusan Erik sendiri (`rights-2026-08-20.md` §4), jadi ia tidak
+>    boleh tersentuh oleh perubahan catatan seperti ini.
+> 3. *"Selama menunggu jawaban Ustadz, kami tidak akan mengubah urutan ini atas pertimbangan teknis
+>    kami sendiri."* — urutan hadis tetap tidak diubah atas alasan teknis. (Ada klausa
+>    *"selama menunggu"* KEDUA di §Bagian 1 tentang daftar; ia berlaku sama.)
+> 4. *"Tidak memakai jawaban Ustadz atas surat ini untuk kumpulan mana pun selain Bukhari dan Muslim
+>    dari sunnah.com"* — khususnya bukan untuk pengantar surah dari Dorar.
+> 5. *"Tidak mengubah atau menerjemahkan ulang satu kalimat pun milik seorang ulama."*
+> 6. *"Tidak menganggap surat ini sebagai pengganti surat 17 Agustus."*
+>
+> ⚠️ **DUA JANJI YANG PERBAIKANNYA BERGANTUNG PADA JAWABAN — dan kini menggantung.** (a) §*Yang
+> tidak kami lakukan* butir *"Tidak menuliskan keputusan Erik sebagai keputusan Ustadz"* memuat
+> **pengecualian** untuk satu kalimat yang sudah terlanjur tayang, yang perbaikannya dijanjikan
+> *"menurut jawaban Ustadz atas nomor 2 dan nomor 4"*. (b) §*Catatan* menyatakan koreksi tertentu
+> **harus** dibawa oleh **surat berikutnya**. Keputusan berhenti menunggu menghapus kedua
+> kendaraannya. **Keduanya kini terbuka tanpa batas waktu dan HARUS diputuskan Erik secara terpisah**
+> — pengecualian yang tadinya sementara tidak boleh diam-diam menjadi permanen.
+>
+> **Apa pun yang tidak tersebut di catatan ini DITAHAN secara bawaan.** Pencabutan sebuah janji
+> hanya sah bila Erik memutuskannya secara tersurat, satu per satu.
+>
+> *(Disebut lewat NAMA bagian, bukan nomor baris — aturan surat ini sendiri.)*
+>
+> — akhir pemutakhiran 2026-08-22 —
 > Selama Ustadz belum menjawab, ISC-417 tetap **NOT MET**, dan tidak ada satu pun butir di sini yang
 > boleh dicatat sebagai sudah disetujui.
 

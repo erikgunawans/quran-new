@@ -6,6 +6,57 @@
 > boleh dicatat sebagai sudah dijawab, dan ISC-417 tetap **NOT MET**.
 > Menggantikan `hukum-pin-request-2026-08-12.md`, yang tidak boleh dikirim dalam bentuknya karena
 > memuat satu kalimat yang sudah tidak benar sejak 12 Agustus 2026.
+>
+> **PEMUTAKHIRAN STATUS — 2026-08-22. BUKAN bagian dari surat yang dikirim; surat di atas tidak
+> diubah satu huruf pun.** Erik memutuskan proyek **tidak lagi menunggu** jawaban: *"no need for
+> ustadz letter anymore"* (rekaman keputusannya: `docs/review/erik-ruling-2026-08-22.md`).
+> **Yang berubah hanya JADWAL MENUNGGU — bukan status surat ini, dan bukan satu pun janji di
+> dalamnya.** Sampai hari ini Ustadz Ahmad Isrofiel Mardlatillah **belum mengirim apa pun atas surat
+> ini**. **ISC-417 tetap NOT MET selamanya**, dan jawaban susunan AI berjalan **tanpa pemeriksaan
+> ulama**, atas keputusan Erik yang disadari.
+>
+> **Tidak satu pun butir di surat ini boleh dicatat sebagai dijawab, disetujui, atau diperiksa ATAS
+> DASAR keputusan berhenti menunggu ini.** Hanya artefak dari beliau sendiri yang dapat mengubah
+> status itu. **Bila kelak beliau benar-benar menjawab, jawabannya TETAP dicatat** menurut §*Setelah
+> Ustadz menjawab* — lengkap dengan tanggal, butir yang disetujui atau ditolak, dan **bentuknya**
+> (lisan/perantara dicatat sebagai lisan/perantara). Berhenti menunggu tidak membuat jawaban yang
+> nyata menjadi tidak boleh dicatat; menuliskan larangan seperti itu justru melanggar janji di surat
+> ini sendiri.
+>
+> **Izin beliau yang SUDAH ADA tidak terhapus dan juga tidak meluas** — dan tidak satu pun mencakup
+> jawaban susunan AI:
+> - **F-1 = ya** (2026-07-17) — menampilkan Indeks Tematik.
+> - **Co-display** (2026-07-23) — `codisplay-confirmation-2026-07-23.md`.
+> - **Teks hadis Indonesia mesin sebagaimana adanya** (2026-08-12, **lisan, direlai**) — **lapisan
+>   TEKS hadis saja, BUKAN judul bab, dan menurut pembacaan sempit kami sendiri: halaman Hadits
+>   saja, BUKAN kartu jawaban.** Lihat caveat 2026-08-21 pada `hadith-id-approval-2026-08-12.md`,
+>   yang ditulis justru untuk menutup lubang ini. Jangan pernah dikutip tanpa kedua penyempitan itu.
+>
+> ⚠️ **Yang TIDAK ikut gugur: SETIAP JANJI dalam surat ini.** Keputusan untuk tidak menunggu adalah
+> hak Erik; janji yang sudah disampaikan kepada pihak lain tidak bisa dibatalkan oleh catatan kami
+> sendiri (`a-sent-letter-outranks-the-handoff`). Karena kami tidak lagi menunggu, syarat penutup
+> setiap janji berbentuk *"sebelum surat ini dijawab"* tidak lagi punya peristiwa penutup yang ada
+> pada kami — maka janjinya **berlaku tetap**, sampai Erik mencabutnya satu per satu, atau sampai
+> Ustadz benar-benar menjawab.
+>
+> **Daftar yang mengikat adalah §*Yang tidak kami lakukan* (empat butir) beserta setiap klausa
+> *"sebelum surat ini dijawab"* / *"menunggu"* di dalam badan surat — BUKAN ringkasan mana pun,
+> termasuk catatan ini.** Contoh, bukan batas: penyaring soal Allah dan perkara gaib (pertanyaan 3,
+> **ISC-464(b)**) tetap DITAHAN; daftar pin **hukum nikah** dan **hukum waris** tetap DITAHAN
+> (§*Bagian 2* dan §*Yang tidak kami lakukan*). Satu butir di §*Yang tidak kami lakukan* — *"Tidak
+> menampilkan teks hadis bahasa Indonesia hasil mesin kepada pembaca"* — **sudah dicabut secara
+> tersurat** di `ustadz-followup-2026-08-18.md` §*Bagian 1*; itu satu-satunya yang tidak berdiri,
+> dan disebut di sini supaya ketiadaannya tidak terbaca sebagai pencabutan diam-diam.
+>
+> **Apa pun yang tidak tersebut di catatan ini DITAHAN secara bawaan.** Pencabutan sebuah janji
+> hanya sah bila Erik memutuskannya secara tersurat, satu per satu. Tidak ada janji yang boleh gugur
+> sebagai efek samping dari keputusan berhenti menunggu.
+>
+> *(Disebut lewat NAMA bagian, bukan nomor baris — sesuai aturan di `ustadz-followup-2026-08-18.md`:
+> nomor baris bergeser tiap kali catatan ditulis berdampingan dengan penunjuknya sendiri, dan
+> versi pertama catatan ini memang mengutip empat nomor baris yang semuanya sudah salah.)*
+>
+> — akhir pemutakhiran 2026-08-22 —
 
 ## Mengapa surat ini ditulis ulang
 
