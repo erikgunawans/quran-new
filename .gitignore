@@ -54,3 +54,13 @@ data/okf/
 .wrangler/
 worker/.wrangler/
 .build-meta.json
+
+# Kajian tool output — NOT a blanket .scratch/ ignore, because the issue tracker
+# deliberately lives there in tracked markdown (see CLAUDE.md).
+#
+# What lands here is a third party's transcript and an UNREVIEWED draft summary of
+# someone's religious teaching. A draft becomes postable only after a human checks
+# its flagged citations against the video (docs/adr/0005), and a committed draft is
+# one `git add` away from looking like something we stand behind. Regenerable in
+# seconds; keep it out of history.
+.scratch/kajian/
