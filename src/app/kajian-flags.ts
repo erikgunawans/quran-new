@@ -38,17 +38,46 @@ export interface FlaggedSpan {
 }
 
 /**
- * Words that mark a religious citation in Indonesian dakwah speech.
+ * Words marking a CITATION STRUCTURE — not religious vocabulary.
  *
- * Bounded with `\b` on the LEFT only via the alternation, and deliberately NOT right-bounded for the
- * stems that take Indonesian affixes. This repo's record: `\b`-bounded keywords under-fire on real
- * Indonesian because affixation is productive — `riwayat` also appears as `diriwayatkan`, and a
- * right boundary would miss every one of those.
+ * THIS DISTINCTION WAS LEARNED FROM A REAL TRANSCRIPT, AFTER THE FIRST VERSION FAILED. That version
+ * also listed `allah`, `nabi`, `rasulullah`, `imam`, `ustadz`, `syaikh`, `ulama`, `sunnah` and
+ * `fatwa`. Measured against a 2h04m dakwah lecture (2,586 snippets): `nabi` fired on 96 spans,
+ * `allah` on 74, `imam` on 21 — 191 hits out of 143 flagged spans, from three words that say
+ * nothing about whether a citation was spoken. They are simply how this genre talks. The result was
+ * a "scrub list" of 143 items for one lecture, which is not a list anybody reads.
+ *
+ * The words that carried real signal in the same transcript: `hadits` 11, `ayat` 6, `surat` 5,
+ * `riwayat` 4, a narrator name 1, a grading term 1 — roughly two dozen spans, which is a scrub plan
+ * a person actually completes.
+ *
+ * So the rule is: flag where a REFERENCE is being made, never where God or the Prophet is mentioned.
+ * A lecture mentions them continuously; that is not a citation event.
+ *
+ * Bounded with `\b` on the LEFT only, and deliberately NOT right-bounded for stems that take
+ * Indonesian affixes — `riwayat` also appears as `diriwayatkan`, and a right boundary misses every
+ * one of those.
+ *
+ * `firman` stays despite firing zero times in that transcript: it introduces a quotation of divine
+ * speech, which is a citation event by definition. Zero occurrences in ONE video is not evidence a
+ * cue is wrong — only high-frequency noise is.
  */
 const CITATION_CUES =
-  /\b(?:surah|surat|ayat|hadits?|hadis|riwayat|diriwayatkan|perawi|sanad|matan|h\.?\s?r\.?|bukhari|muslim|tirmidzi|tirmidhi|dawud|daud|nasa'?i|majah|ahmad|baihaqi|thabrani|shahih|sahih|dha'?if|dhoif|hasan|mutawatir|ijma'?|qiyas|ma[dz]hab|imam|syaikh|syekh|ustadz|ustadzah|ulama|fatwa|sunnah|nabi|rasulullah|allah\s+ta'?ala|firman)/i;
+  /\b(?:surah|surat|ayat|juz|hadits?|hadis|riwayat|diriwayatkan|perawi|sanad|matan|h\.?\s?r\.?|bukhari|muslim|tirmidzi|tirmidhi|dawud|daud|nasa'?i|majah|baihaqi|thabrani|shahih|sahih|dha'?if|dhoif|mutawatir|firman)/i;
 
-/** Any Arabic-script character. Auto-captions mangle these worst, or drop them entirely. */
+/**
+ * Any Arabic-script character.
+ *
+ * ⚠ THIS NEVER FIRES ON AUTO-CAPTIONS, and the first version of this file claimed the opposite —
+ * it called Arabic script "the thing auto-captions mangle worst". Measured: zero Arabic-script
+ * characters in 80,113 characters of auto-captioned Indonesian. YouTube's ASR transliterates into
+ * Latin (`bismillah`, not the Arabic), so on exactly the input this tool was built for, this
+ * pattern is inert.
+ *
+ * Kept anyway, because it does fire on human-written captions — where an Arabic phrase typed by a
+ * person is genuinely worth a glance. Documented rather than deleted so nobody reads it as coverage
+ * of the auto-caption case, which is what the previous docblock invited.
+ */
 const ARABIC = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/;
 
 /** A spoken surah/ayah reference: a citation word followed closely by a number. */

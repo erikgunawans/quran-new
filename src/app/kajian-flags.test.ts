@@ -79,6 +79,34 @@ describe("flagSpans", () => {
     expect(flagSpans(ordinary)).toHaveLength(0);
   });
 
+  it("does NOT flag devotional vocabulary — the finding that cut 143 spans to 32", () => {
+    // MEASURED, not imagined. Against a real 2h04m dakwah lecture (2,586 snippets) the first
+    // version of the cue list fired `nabi` on 96 spans, `allah` on 74 and `imam` on 21 — 191 hits
+    // that say nothing about whether a citation was spoken. A lecture mentions God and the Prophet
+    // continuously; that is the genre, not a citation event. The list flagged the vocabulary of the
+    // subject instead of the structure of a reference, and produced 143 items nobody would read.
+    //
+    // This test is what stops those words coming back. Each sentence below is shaped like real
+    // lecture speech and carries NO citation structure.
+    const devotional = [
+      snip("Allah memberikan kepada kita nikmat yang sangat banyak", 0),
+      snip("nabi kita adalah teladan yang paling baik", 30),
+      snip("beliau menjadi imam di masjid itu bertahun-tahun", 60),
+      snip("rasulullah adalah manusia yang paling pemalu", 90),
+      snip("para ulama sepakat tentang pentingnya ilmu", 120),
+      snip("ustadz akan menjelaskan setelah ini", 150),
+    ];
+    expect(flagSpans(devotional)).toEqual([]);
+  });
+
+  it("still flags a real citation sitting INSIDE devotional speech", () => {
+    // The exclusion must not become a hole: dropping `allah`/`nabi` cannot be allowed to suppress a
+    // span that also carries a reference. This is the case the exclusion could plausibly break.
+    const out = flagSpans([snip("Allah berfirman dalam surat Al-Hujurat ayat 13", 200)]);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.at).toBe("3:20");
+  });
+
   it("returns [] for an empty transcript instead of throwing", () => {
     expect(flagSpans([])).toEqual([]);
     expect(flagSpans([snip("   ", 5)])).toEqual([]);
