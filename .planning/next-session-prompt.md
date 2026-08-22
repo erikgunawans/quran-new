@@ -1,3 +1,118 @@
+# Next session — New-Quranku (checkpoint 2026-08-22)
+
+> Prepended by /wrap 2026-08-22. **Anchor `5a7e806`** (verified on origin/main via `git ls-remote`).
+> **Supersedes the `1b89497` anchor.** From that handoff: its §2 item 1 (**ISC-558**) is **DONE**.
+> Items 2 and 3 — **ISC-561 and ISC-562 — were NEVER STARTED** and are carried forward below
+> unchanged. Its §1 (refusal-capture exists, do not rebuild it), §3 (a scoped re-gate never re-reads
+> settled text) and §4 (open items) all **SURVIVE**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-22**).
+
+**Current state.** Gates green — `bun test` **1737/0** exit 0 · typecheck exit 0 (five passes).
+ISA **569 of 585 parsed** (16 open; the parser skips `[~]`-marked reversals, so treat this as ±2 —
+`### Cycle` headings do NOT bound the criteria, and there is no `.planning/STATUS.md` tracker in this
+repo). Clean tree except untracked `WARP.md` — **leave it, and never `git add -A`.**
+
+**PROD WAS DEPLOYED THIS SESSION** — worker `885945f5` replaced `4339cb45`, on Erik's explicit
+approval. The ISC-418 always-answer reversal and the ISC-560 repair pipeline are now in front of
+readers for the first time. Verified by rows only the change could emit (`repaired:true`,
+`repairedDropped:1`, `repairedRule:"wording"`). **Mechanics only — not one answer was checked for
+theological correctness, and no scholar has.**
+
+---
+
+## 1. TWO INDEPENDENT TRACKS. Ask Erik which, do not assume.
+
+**Track A — kajian pipeline. Steps 1-3 SHIPPED, steps 4-6 remain.** Local CLI, no auth, no Worker,
+nothing published. `bun run src/app/kajian.ts <url> [--lang id,en] [--no-brief] [--refresh]`.
+
+**Track B — auth/roles/review. DESIGN ONLY, zero code.** Ten decisions in ADRs 1-4 + `CONTEXT.md`.
+
+## 2. DO NEXT, IN ORDER
+
+1. **Kajian step 4 — slide + QR.** Self-contained HTML → `qrencode` SVG inline → system Chrome
+   `--headless --screenshot --window-size=1080,1350` → PNG. **Neutral design, built on CSS custom
+   properties** — Erik ships a firmed visual later and it must drop in as a token swap. This repo has
+   already had a retheme silently fail because hardcoded colour literals outlived the tokens.
+   `qrencode` IS installed (`/opt/homebrew/bin/qrencode`); an earlier note that it was missing was
+   wrong — it was unlinked, not absent.
+2. **Kajian steps 5-6 — narration.** Voice is **`id-ID-Chirp3-HD-Schedar`**, chosen by Erik and
+   recorded in ADR 6 as load-bearing. Spoken attribution FIRST, before any content. ffmpeg 8.1 is
+   installed; image+audio→mp4 is one command. **The long-form needs chunking AND a length assertion
+   against the source text** — Chirp3-HD caps input per request, and a dropped chunk plays cleanly
+   and exits zero.
+3. **ISC-561 — repair sees only the LAST refused candidate.** Untouched for two sessions now.
+   `answer-generation.ts:278` assigns `lastBlocked = candidate` on every refusal, so attempt 2
+   overwrites attempt 1, and `:294` hands repair only the survivor. **Write the failing test BEFORE
+   implementing** — this repo's record is that a prescribed fix can be byte-identical to the default.
+4. **ISC-562 — repair's progress signal is a count of RULES.** It hill-climbs on
+   `guard(text).violations.length`, but `guardAnswerProse` pushes at most one violation per rule, so
+   two independently-violating sentences score 1 and `bestIndex` stays `-1`. `AnswerViolation.detail`
+   holds what a fix needs; `RepairVerdict` does not expose it. **Widening it is guard-adjacent — gate
+   with `scholarly-gate` before committing.**
+5. **Track B step 1, if Erik picks it** — the `qk_auth` signed cookie + `roleFor()`. Unblocks
+   everything else in that track and is small.
+
+## 3. WIDEN THE CUE LIST ONLY FROM REAL TRANSCRIPTS
+
+`src/app/kajian-flags.ts` was falsified by the first real video: three devotional words produced 191
+hits, the Arabic detector fired zero times in 80,113 chars (ASR transliterates to Latin), and five
+carefully unit-tested cues had zero occurrences. **The suite was green on prose I wrote myself.**
+Every future widening comes from a transcript that actually came back, and the list only ever grows.
+
+## 4. Open items waiting on Erik
+
+- **Which track to build next.** Both are ready; they share nothing.
+- **Roster entries.** `docs/kajian/roster.yaml` ships EMPTY on purpose. Ustadz Syariful Mahya was
+  deliberately NOT pre-filled — the title's "L.C., M.A." is the uploader's wording and unverified.
+  Add the name with `credentials` omitted if he is unsure; a wrong gelar insults someone who earned
+  a different one.
+- **Firmed slide visual design** — he said neutral for now, real design later.
+- **Answer Record retention** — how long stored Q+A is kept. Blocks Track B's review queue.
+- **ISC-554's remaining half** — whether refused prose may ever be surfaced on the PUBLIC endpoint.
+- **ISC-417 / ISC-464(b) — WAITING ON THE USTADZ.** **Two letters SENT, both unanswered — never
+  write "Ustadz Ahmad's letter", he has sent nothing.** The ID-key correction is owed in the third.
+
+## 5. Unverified, do not claim it works
+
+The briefing prompt's `[rujukan tidak jelas dalam transkrip]` marker fired **zero** times on the one
+real run. Either nothing was ambiguous enough or the instruction is inert — one run cannot tell.
+
+---
+
+## Constraints to honor (carried forward — plus six new)
+
+- **NEW — a test's carrier sentence must contain NO second cue.** The first force-red did not go red:
+  "hadits ini diriwayatkan oleh Imam Bukhari" carries three other cues, so it passed with the feature
+  deleted. A guard that passes because ANOTHER guard caught it is not working.
+- **NEW — `.scratch/` is NOT gitignored** — the issue tracker deliberately lives there in tracked
+  markdown. Only `.scratch/kajian/` is ignored. Never blanket-ignore `.scratch/`.
+- **NEW — never copy credentials from a video title.** That is the uploader's wording. The roster
+  holds only what a human verified.
+- **NEW — the kajian tool never rewrites a transcript.** An LLM cleanup pass reads better and is
+  unverifiable; once a citation is "fixed", nothing downstream can tell a right correction from a
+  plausible wrong one.
+- **NEW — prod now AUTHORS and REPAIRS for readers.** Any change to `answer-generation.ts`,
+  `answer-repair.ts` or the guard now has a live blast radius it did not have before 2026-08-21.
+- **NEW — quote a rule to its END.** A rule-9 quote was cut one sentence short at exactly the clause
+  that supported the argument; the omitted sentence said the opposite.
+- **A correction is the least-scrutinised edit.** Re-run `scholarly-gate` AFTER applying one.
+- **A justification is a claim and gets audited like one.**
+- **Name WHO permitted a thing and WHICH SURFACE.**
+- **A whole-run bucket total is NOT evidence.** Only a PAIRED arm, or a row only the change could emit.
+- **Never record a declined gap as a PASSING test.**
+- **Verify a deploy by SERVED BYTES and a remote SHA**; the first curl after a deploy reads stale.
+- **Verify a push with `git ls-remote`, never the push's exit code, and never pipe `git push`.**
+- **Never pipe a gate command into head/tail** — the preflight hook blocks it, and it hides exit 2.
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.**
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.**
+- **Do NOT raise `MODEL_DEADLINE_MS`.** **Do NOT switch model.** **Do NOT build the echo union.**
+- **Never `git add -A` in this repo** — it swept `WARP.md` in twice.
+- **This ISA's `### Cycle` headings do not bound the criteria**, and there is no `### Phase` heading
+  at all — a per-phase table renders 0/0 and is not a signal.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-21 evening)
 
 > Prepended by /wrap 2026-08-21 (evening). **Anchor `1b89497`** — verified landed via

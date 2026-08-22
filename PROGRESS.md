@@ -2,6 +2,69 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 — two grilling tracks designed, kajian steps 1-3 built, and real content falsified the flagging
+
+**THE SESSION'S ONE MEASUREMENT WORTH REMEMBERING: 143 -> 32.** The kajian flagger was built,
+tested, force-red, committed — and then run against a real 2h04m auto-captioned dakwah lecture
+(2,586 snippets, 80,113 chars), which falsified it in four places at once. `nabi` fired on 96 spans,
+`allah` on 74, `imam` on 21: 191 hits from three words that say nothing about whether a citation was
+spoken. A lecture mentions God and the Prophet continuously — that is the genre, not a citation
+event. The Arabic-script detector, whose docblock called Arabic "the thing auto-captions mangle
+worst", fired **zero** times in 80,113 characters, because YouTube's Indonesian ASR transliterates to
+Latin. And `hadits`, `riwayat`, `bukhari`, `ulama`, `sunnah` — every one carefully unit-tested — had
+**zero occurrences**. The suite was green on prose I wrote myself. The rule is now: flag where a
+REFERENCE is made, never where God or the Prophet is mentioned.
+
+**Two grilling tracks were designed and documented; neither is half-built.**
+
+**Track 1 — auth/roles/review (design only, no code).** Ten decisions, four ADRs, `CONTEXT.md`
+created. The premise was falsified in the first five minutes: `identity.ts` already mints an
+anonymous id for every visitor and every memory write is keyed on it, so unregistered users could
+ALREADY bookmark. The ask was removing a working capability, not adding one. Registration is now a
+SYNC tier. Roles split into `reviewer` (the ustadz) and `admin`, because one flag would have handed
+a scholar the power to read strangers' private religious history. Two real defects found: 
+`canonical_user_id` has no UNIQUE and no index, and two accounts can permanently share one after a
+shared-device login — so resolving roles through it would leak privilege; and nothing stores answers
+at all, so the review queue has nothing to review until Answer Records exist.
+
+**Track 2 — kajian pipeline (steps 1-3 SHIPPED).** `src/app/kajian.ts` + `kajian-flags.ts` +
+`kajian-roster.ts`, 25 new tests. Local CLI, no auth, no Worker, nothing published — the framing as
+"an admin feature" was wrong, since neither `yt-dlp` nor headless Chrome runs on Cloudflare's edge.
+ADRs 5 and 6 record the attribution stance: summarise, never speak for a scholar. Field note that
+shaped the roster: the first real video's channel is "Masjid Darussalam Kota Wisata" — a MOSQUE —
+with the speaker named only in the title, so `channelId`-only matching would have credited a
+building. Ambiguity is treated as absence: two matching roster entries name nobody.
+
+**A false claim was found in our own output.** The briefing footer read "nama penceramah sengaja
+tidak dicantumkan di sini" while the H1 directly above it carried the speaker's full name and gelar,
+straight from the video title. The note was false about the document it sat in — and it was the line
+meant to ENFORCE the roster rule. Now it says what is true: the title is copied verbatim from
+YouTube, we identified nobody, and any gelar there is the uploader's wording, unverified.
+
+**Two failures of my own testing, both caught by forcing red rather than by reading.** The first
+force-red did not go red at all: the `diriwayatkan` case read "hadits ini diriwayatkan oleh Imam
+Bukhari", which also contains `hadits`, `imam` and `bukhari`, so it passed whether affix handling
+worked or not. A guard that passes because ANOTHER guard caught it is not working. Same flaw in the
+narrator-name test. Both rewritten so the carrier sentence holds no other cue.
+
+**ISC-558 closed, over three `scholarly-gate` passes and three BLOCKs.** `src/eval/answer-run.ts`
+claimed to "reproduce the Worker's answer path exactly" while diverging five ways — a stale bow-out
+skipping the model on 7 of 19 cases, a two-argument guard leaving the echo wall and hadith predicate
+inert, a second two-argument call in the report loop, `allowedRefsFrom` where prod passes
+`isRealAyah`, and no repair step. After the first pass, **not one gate finding touched the code under
+review** — every later one was a defect in my own corrections, including a rule-9 quote cut one
+sentence short at exactly the clause that supported me, two paragraphs after documenting that same
+failure about a different quote.
+
+**DEPLOYED, and verified by rows only the change could emit.** Worker `885945f5` replaced
+`4339cb45`; the ISC-418 always-answer reversal and the ISC-560 repair pipeline reached readers for
+the first time. 16 live zero-grounding turns: 14 answered, 2 null (both cold-round `deadline`).
+Repair observed firing on prod — `outcomes: ['blocked:own_wording','blocked:own_wording']` with
+`reason: "answered"`, `repaired: true`, `repairedDropped: 1`, `repairedRule: "wording"`. **Mechanics
+were verified; not one answer was checked for theological correctness, and no scholar has.**
+
+---
+
 ## 2026-08-21 (late evening) — DEPLOYED to readers, and three gate passes on one dev-only fix
 
 **PROD NOW ANSWERS EVERY QUESTION, AND REPAIRS INSTEAD OF REFUSING. Erik authorised the deploy;
