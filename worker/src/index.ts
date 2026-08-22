@@ -770,6 +770,10 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
     repaired: gen.repaired,
     repairedDropped: gen.repairedDropped,
     repairedRule: gen.repairedRule,
+    // WHICH attempt was repaired. The only row that can distinguish the ISC-561 widening from the
+    // behaviour it replaced — every other field here reads the same whether repair was handed one
+    // candidate or all of them.
+    repairedAttempt: gen.repairedAttempt,
   });
   try {
     const cfg = resolveProvider(providerOf(body.provider), env);

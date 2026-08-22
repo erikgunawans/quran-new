@@ -9,6 +9,7 @@
 import { describe, expect, it } from "bun:test";
 import type { AnswerViolationKind, AnswerViolationRule } from "../../web/src/answer-guard.ts";
 import { runGeneration, newGenTrace, classifyGenFailure } from "./answer-generation.ts";
+import { repairAnswerProse } from "./answer-repair.ts";
 import { verdictAfterFailure, MAX_ATTEMPTS, MIN_RETRY_MS } from "./answer-retry.ts";
 import { MODEL_DEADLINE_MS } from "./providers.ts";
 import { nextAttemptBudget } from "./answer-retry.ts";
@@ -46,8 +47,17 @@ const okVerdict = () => ({ ok: true, violations: [] as const });
  * loop reads them off ONE row and a fake that welds them together could not catch a drift where
  * `blockedRule` is read from a second lookup.
  */
-const blockedVerdict = (kind: AnswerViolationKind, rule: AnswerViolationRule = "fatwa") =>
-  ({ ok: false, violations: [{ kind, rule }] as const });
+const blockedVerdict = (
+  kind: AnswerViolationKind,
+  rule: AnswerViolationRule = "fatwa",
+  /**
+   * The offending SPAN. A third independent axis for the same reason `rule` is the second: repair
+   * reads it (ISC-562) and nothing in `GenTrace` does, so a fake that welded it to `rule` could not
+   * catch a loop that started reporting it. These tests do not exercise repair — every case here
+   * leaves `deps.repair` unset — so the value only has to be present and distinct from the rule.
+   */
+  detail = "span",
+) => ({ ok: false, violations: [{ kind, rule, detail }] as const });
 
 describe("a turn that answers", () => {
   /**
@@ -541,5 +551,134 @@ describe("the loop reports WHICH check refused, not only the reader's verdict", 
 
   it("a turn that never generated names no rule at all", () => {
     expect(newGenTrace().blockedRule).toBeNull();
+  });
+});
+
+/**
+ * ISC-561 — repair is offered EVERY refused candidate of the turn, not only the last.
+ *
+ * `lastBlocked = candidate` on every refusal means attempt 2 overwrites attempt 1, so the repair
+ * block at the foot of the loop is handed only the survivor. Demonstrated OFFLINE on 2026-08-21 —
+ * `src/eval/refusal-capture.ts`, not prod, and the word matters: `ISA.md` ISC-561 records that prod
+ * ANSWERED this very question that morning in 6.0–12.9 s, first attempt `ok`, verified three ways.
+ * No reader ever saw the block. In that offline capture, attempt 1's prose repaired in a SINGLE
+ * deletion and attempt 2's did not repair at all.
+ *
+ * The repair injected here is the REAL `repairAnswerProse`, judged by the very guard the loop uses,
+ * because what is under test is which CANDIDATES it is shown — not the search, which has its own
+ * suite.
+ *
+ * The two attempts are given DIFFERENT rules on purpose. `repairedRule` must name the rule that
+ * refused the candidate actually repaired; reading it off `trace.blockedRule` — which the loop sets
+ * from the LAST attempt — would report attempt 2's rule over attempt 1's prose. A fake that welded
+ * the two rules together could not catch that.
+ */
+describe("repair sees every refused candidate of the turn (ISC-561)", () => {
+  const REPAIRABLE = "Sabar itu indah. POISON di sini. Rezeki datang dari Allah.";
+  const UNREPAIRABLE = "VENOM satu. VENOM dua.";
+
+  /** Occurrence-counting, so the search can make progress where progress exists. */
+  const guard = (prose: string) => {
+    const poison = prose.split("POISON").length - 1;
+    const venom = prose.split("VENOM").length - 1;
+    const violations = [
+      ...Array.from({ length: poison }, () => ({
+        kind: "own_wording" as const,
+        rule: "wording" as const,
+        detail: "POISON",
+      })),
+      ...Array.from({ length: venom }, () => ({
+        kind: "fatwa" as const,
+        rule: "fatwa" as const,
+        detail: "VENOM",
+      })),
+    ];
+    return { ok: violations.length === 0, violations };
+  };
+
+  it("the control: attempt 1 repairs alone, attempt 2 does not", () => {
+    // Without this the test below could pass for the wrong reason — e.g. because BOTH candidates
+    // repair, which would say nothing about which one repair was shown.
+    expect(repairAnswerProse(REPAIRABLE, guard).prose).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(repairAnswerProse(UNREPAIRABLE, guard).prose).toBeNull();
+  });
+
+  it("answers from an earlier candidate when the LAST one cannot be repaired", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+    let n = 0;
+
+    await runGeneration(trace, {
+      turnDeadline: 40_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        n += 1;
+        return n === 1 ? REPAIRABLE : UNREPAIRABLE;
+      },
+      guard,
+      repair: repairAnswerProse,
+    });
+
+    expect(trace.attempts.length).toBe(MAX_ATTEMPTS);
+    expect(trace.answer).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(trace.reason).toBe("answered");
+    expect(trace.repaired).toBe(true);
+    expect(trace.repairedDropped).toBe(1);
+    // Attempt 1's rule, not attempt 2's.
+    expect(trace.repairedRule).toBe("wording");
+    // THE ROW ONLY THIS CHANGE CAN EMIT. Every other field above reads the same whether repair was
+    // handed one candidate or all of them, so without this the widening is unfalsifiable from
+    // telemetry — you could not answer "did it ever fire in production?" from a log.
+    expect(trace.repairedAttempt).toBe(0);
+    expect(trace.repairedAttempt).toBeLessThan(trace.attempts.length - 1);
+    expect(trace.blocked).toBeNull();
+    expect(trace.blockedRule).toBeNull();
+  });
+
+  it("still prefers the LAST candidate when it repairs — this is a widening, not a swap", async () => {
+    // Every turn that answers today must answer identically. Only turns that were SILENT change.
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+    let n = 0;
+
+    await runGeneration(trace, {
+      turnDeadline: 40_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        n += 1;
+        return n === 1 ? "VENOM awal. Kalimat bersih pertama." : REPAIRABLE;
+      },
+      guard,
+      repair: repairAnswerProse,
+    });
+
+    expect(trace.answer).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(trace.repairedRule).toBe("wording");
+    // The LAST attempt — the index this code could always have produced.
+    expect(trace.repairedAttempt).toBe(trace.attempts.length - 1);
+  });
+
+  it("stays blocked when NO candidate of the turn can be repaired", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(0);
+
+    await runGeneration(trace, {
+      turnDeadline: 40_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(5_000);
+        return UNREPAIRABLE;
+      },
+      guard,
+      repair: repairAnswerProse,
+    });
+
+    expect(trace.answer).toBeNull();
+    expect(trace.reason).toBe("blocked");
+    expect(trace.repaired).toBe(false);
+    expect(trace.repairedAttempt).toBeNull();
+    expect(trace.blockedRule).toBe("fatwa");
   });
 });

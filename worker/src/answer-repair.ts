@@ -51,10 +51,30 @@
  * Structural, not `AnswerGuardResult`, because the generation loop injects its own narrower
  * `GuardVerdict`. Repair must accept whatever the CALLER'S wall is, so it can never end up bound to
  * a different guard than the one deciding egress — which is the whole point of the header above.
+ *
+ * ── WHY `rule` AND `detail` ARE NOW REQUIRED (ISC-562, 2026-08-22) ──────────────────────────────
+ *
+ * `violations: readonly unknown[]` was enough while the search hill-climbed on the COUNT alone, and
+ * that is exactly what made it blind. `guardAnswerProse` pushes at most ONE violation per RULE
+ * (`web/src/answer-guard.ts:1237-1278`, each an `if (x) violations.push(...)`), and `wordingShape`
+ * returns only its FIRST matching span — so prose carrying TWO `Allah berfirman … "<verse wording>"`
+ * sentences scores 1, deleting either one alone still scores 1, and the two-step move that clears it
+ * is unreachable. Measured on the blocked turn of the OFFLINE capture of 2026-08-21
+ * (`src/eval/refusal-capture.ts` — not prod, which answered that question) at QS At-Tahrim 66:6 and
+ * QS Al-Baqarah 2:24.
+ *
+ * The count cannot distinguish "the offending span is gone" from "nothing happened". The IDENTITY of
+ * the reported violation can, and the verdict already carried it. `unknown` was hiding a field the
+ * search needed, not protecting a caller from one — the live closure at `worker/src/index.ts:824`
+ * returns the full `AnswerGuardResult` and always did.
+ *
+ * REQUIRED, NOT OPTIONAL. An optional `detail` would let a caller silently lose this fix while every
+ * test around it stayed green — the same shape as `isGroundedHadith = () => false`, which is on
+ * record in this repo as having made a whole class of hadith check inert at one call site.
  */
 export interface RepairVerdict {
   readonly ok: boolean;
-  readonly violations: readonly unknown[];
+  readonly violations: readonly { readonly rule: string; readonly detail: string }[];
 }
 
 export interface RepairResult {
@@ -114,15 +134,63 @@ export function splitSentences(prose: string): string[] {
 }
 
 /**
+ * WHICH violations a verdict is reporting, as one comparable string.
+ *
+ * Order-insensitive — sorted — because two verdicts naming the same offences in a different order
+ * are the same verdict, and treating that as progress would let the search take a move that removed
+ * nothing. `\u0000` separates the two fields and `\u0001` the entries, so a `detail` containing the
+ * other separator cannot forge a boundary; neither control character survives in model prose.
+ *
+ * This says nothing about how many SENTENCES violate — the guard does not report that, which is the
+ * defect this whole mechanism works around. It says only whether the guard is now complaining about
+ * something different, which is the weakest honest evidence that a deletion did something.
+ */
+const identify = (verdict: RepairVerdict): string =>
+  verdict.violations
+    .map((v) => `${v.rule}\u0000${v.detail}`)
+    .sort()
+    .join("\u0001");
+
+/**
  * Excise violating sentences until the WHOLE prose passes `guard`.
  *
- * Greedy by the guard's own violation count: each round drops the single sentence whose removal
- * most reduces violations, ties broken toward removing the LEAST text. A round that cannot improve
- * the count stops the search — dropping further sentences would be shortening the answer without
- * evidence that it helps, which is just silence arriving slowly.
+ * Greedy, and NO LONGER GREEDY ON THE COUNT ALONE — this paragraph said it was until 2026-08-22 and
+ * a `scholarly-gate` pass caught the docblock describing the opposite of the code beneath it. Each
+ * round ranks every single-sentence deletion:
+ *
+ *   RANK 0  the guard's violation count FELL. Unchanged from the original search, tie-break toward
+ *           removing the LEAST text included. A rank-0 move always beats a rank-1 one.
+ *   RANK 1  the count HELD but the guard is now reporting a DIFFERENT violation — so the span it was
+ *           complaining about is no longer in the text. This is the ISC-562 case: `guardAnswerProse`
+ *           pushes at most one violation per RULE, so two sentences tripping one rule both score 1
+ *           and neither single deletion looks like progress to a counter.
+ *   RANK 2  everything else — the count ROSE, or nothing the guard reports changed at all. Never
+ *           taken. Both belong here: a deletion that makes the verdict WORSE is not progress
+ *           either, and a first draft of this list described rank 2 as only the second case,
+ *           from which a reader could wrongly infer a worsening deletion is rank-1 eligible.
+ *
+ * **RANK 1 IS EVIDENCE, NOT PROOF, AND THE DIFFERENCE IS REAL.** `wordingShape` reads a 160-character
+ * window that CROSSES sentence boundaries (`answer-guard.ts:1016`, and see
+ * `appositive-defeats-the-subject-verb-cap`), so removing a sentence that violated NOTHING can still
+ * change which span is reported first. A rank-1 move therefore means "the deletion changed what the
+ * guard says", not "the deletion removed an offender". The cost tie-break has favoured a real
+ * offender in every case constructed against the real guard so far, and **that is a measured set, not
+ * a guarantee** — nothing here proves an innocent sentence can never be the one dropped.
+ *
+ * When NO single deletion is observable at all, one bounded TWO-deletion expansion runs; see the
+ * PLATEAU block in the body for what it costs and, more importantly, for what it does NOT fix.
+ *
+ * ── WHAT THIS FUNCTION STILL CANNOT DO, stated where a reader arrives rather than 90 lines down ──
+ *
+ * **Three or more offenders that all report the SAME `detail` end in silence.** Rank 1 cannot see
+ * them (the report never changes) and one pair expansion cannot clear them. Real, unfixed, and
+ * deliberately not pinned by a passing test — see `ISA.md` ISC-562.
  *
  * Returns `prose: null` when no clean state was reachable. The caller decides what that means; this
- * function never invents replacement text and never returns prose it has not seen the guard accept.
+ * function never invents replacement text and never returns prose it has not seen the guard accept —
+ * with one exactness caveat that predates this cycle: the returned string is `join(keep).trim()`
+ * while the verdict was earned on `join(keep)`, so the shipped bytes are the guarded bytes minus
+ * leading and trailing whitespace.
  */
 export function repairAnswerProse(
   candidate: string,
@@ -135,6 +203,8 @@ export function repairAnswerProse(
 
   const keep = parts.map(() => true);
   const join = (mask: readonly boolean[]): string => parts.filter((_, i) => mask[i]).join("");
+  /** One two-deletion expansion per call — see the PLATEAU block for why one and not more. */
+  let pairExpansionAvailable = true;
 
   for (let round = 0; round < parts.length; round++) {
     const current = guard(join(keep));
@@ -147,25 +217,111 @@ export function repairAnswerProse(
       return prose ? { prose, dropped: keep.filter((k) => !k).length } : { prose: null, dropped: 0 };
     }
 
-    let bestIndex = -1;
-    let bestViolations = current.violations.length;
-    let bestCost = Infinity;
+    const currentIdentity = identify(current);
+    let best: { index: number; rank: number; violations: number; cost: number } | null = null;
     for (let i = 0; i < parts.length; i++) {
       if (!keep[i]) continue;
       const trial = keep.slice();
       trial[i] = false;
       const text = join(trial);
       if (!text.trim()) continue;
-      const v = guard(text).violations.length;
+      const v = guard(text);
+      const n = v.violations.length;
+      // RANK 0 — the count fell. Unchanged from the original search, tie-break included.
+      // RANK 1 — the count held but the REPORTED VIOLATION CHANGED. That is progress the count cannot
+      //          express, and it is the whole of ISC-562. It is EVIDENCE, NOT PROOF that an offender
+      //          was removed: `wordingShape`'s 160-character window crosses sentence boundaries, so
+      //          removing a sentence that violated nothing can change which span is reported first.
+      //          The cost tie-break has picked a real offender in every case constructed against the
+      //          real guard — a measured set, not a guarantee. See the docblock.
+      // RANK 2 — everything else: the count ROSE, or nothing the guard reports changed at all. Never
+      //          taken. A deletion the guard cannot see is shortening the answer without evidence,
+      //          which is just silence arriving slowly; a deletion that makes the verdict worse is
+      //          not progress under any reading. The ternary below assigns 2 to BOTH cases.
+      const rank = n < current.violations.length ? 0 : n === current.violations.length && identify(v) !== currentIdentity ? 1 : 2;
+      if (rank === 2) continue;
       const cost = parts[i]!.length;
-      if (v < bestViolations || (v === bestViolations && v < current.violations.length && cost < bestCost)) {
-        bestIndex = i;
-        bestViolations = v;
-        bestCost = cost;
+      const better =
+        best === null ||
+        rank < best.rank ||
+        (rank === best.rank && (n < best.violations || (n === best.violations && cost < best.cost)));
+      if (better) best = { index: i, rank, violations: n, cost };
+    }
+    // A COUNT-LOWERING MOVE ALWAYS BEATS A LATERAL ONE, because `rank` leads the comparison. The
+    // lateral move is a fallback for the round where no single deletion helps the count — it is not
+    // a new preference, and on every input the original search could solve, this picks the same
+    // sentence in the same order.
+    if (best !== null) {
+      keep[best.index] = false;
+      continue;
+    }
+
+    // ── PLATEAU: NO SINGLE DELETION IS OBSERVABLE AT ALL ──────────────────────────────────────
+    //
+    // WHY THE IDENTITY SIGNAL ABOVE IS NOT ENOUGH, measured against the REAL `guardAnswerProse` on
+    // 2026-08-22 rather than against a fake:
+    //
+    //   two sentences citing DIFFERENT bad refs  → detail "9:129" then "8:77" → repairs, dropped 2
+    //   two sentences citing the SAME bad ref    → detail "9:129" throughout  → prose: null
+    //
+    // `bad_ref` reports `normRef(...)`, `arabic` reports a SINGLE CHARACTER, `hadith_marker` reports
+    // the marker text, and every push site truncates with `.slice(0, 80)`. Two offenders can
+    // therefore be genuinely distinct sentences that report the SAME detail, and to the rank above
+    // they are indistinguishable from a clean sentence. Ranking on identity is a strictly better
+    // count — it is not a solution.
+    //
+    // So when nothing single is observable, look at PAIRS once. A pair is taken only when removing
+    // BOTH lowers the count, which is the same evidence rank 0 demands; no lateral pair, no blind
+    // deletion. Ties go to the pair that removes the least text, as everywhere else here.
+    //
+    // BOUNDED TO ONE EXPANSION PER CALL, and that bound is a real limit, not a formality: three or
+    // more offenders that all report the SAME detail still end in silence. That case is NOT fixed
+    // and is not claimed to be — `measured-set-is-not-a-class` is this repo's record of what
+    // happens when a bound that held on the measured sample is written up as a closed class.
+    //
+    // WHAT ONE EXPANSION COSTS, MEASURED 2026-08-22 rather than reasoned about: at 59 sentences —
+    // one under `MAX_SENTENCES`, with the two offenders 30 sentences apart so nothing single is
+    // observable — **1,773 guard evaluations, 253 ms against the REAL `guardAnswerProse`** (6 ms
+    // against a trivial fake, which is why the real one was measured). That sits inside the ~3,600
+    // this module already budgets at `MAX_SENTENCES`. A real answer runs 5–15 sentences, where the
+    // expansion is ~105 evaluations.
+    //
+    // WHY ONE AND NOT TWO — and the first version of this sentence got the reason WRONG, which is
+    // worth leaving visible because it is the sentence a future reader will weigh when deciding to
+    // lift the bound. It said a second expansion "would make the bound cubic". It would not: two
+    // expansions is 2·n², still quadratic. Only an UNBOUNDED per-round expansion is cubic. The real
+    // reason for the cap is the TURN budget below, not the asymptotics.
+    //
+    // THE BUDGET IS PER CALL AND THE TURN NOW MAKES SEVERAL (ISC-561, landing in the same change).
+    // `runGeneration` offers repair EVERY refused candidate, so a turn can run `MAX_ATTEMPTS` searches
+    // — worst case ≈ 2 × (3,600 singles + 1,770 pairs) ≈ 10.7k guard evaluations inside a request that
+    // already has a deadline. A measured 60-sentence / 20-offender case ran 1,032 calls in 141 ms, so
+    // this is a bound worth NAMING rather than an observed problem — but the multiplication is real and
+    // no earlier comment mentioned it.
+    if (!pairExpansionAvailable) return { prose: null, dropped: 0 };
+    pairExpansionAvailable = false;
+
+    let bestPair: { a: number; b: number; violations: number; cost: number } | null = null;
+    for (let i = 0; i < parts.length; i++) {
+      if (!keep[i]) continue;
+      for (let j = i + 1; j < parts.length; j++) {
+        if (!keep[j]) continue;
+        const trial = keep.slice();
+        trial[i] = false;
+        trial[j] = false;
+        const text = join(trial);
+        if (!text.trim()) continue;
+        const n = guard(text).violations.length;
+        if (n >= current.violations.length) continue;
+        const cost = parts[i]!.length + parts[j]!.length;
+        if (bestPair === null || n < bestPair.violations || (n === bestPair.violations && cost < bestPair.cost)) {
+          bestPair = { a: i, b: j, violations: n, cost };
+        }
       }
     }
-    if (bestIndex === -1) return { prose: null, dropped: 0 };
-    keep[bestIndex] = false;
+    if (bestPair === null) return { prose: null, dropped: 0 };
+    keep[bestPair.a] = false;
+    keep[bestPair.b] = false;
   }
 
   return { prose: null, dropped: 0 };

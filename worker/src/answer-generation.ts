@@ -60,6 +60,20 @@ export interface GenTrace {
   /** How many sentences repair removed. 0 whenever `repaired` is false. */
   repairedDropped: number;
   /**
+   * WHICH attempt's prose was repaired, 0-based. `null` whenever `repaired` is false.
+   *
+   * ISC-561's fix is UNFALSIFIABLE FROM TELEMETRY WITHOUT THIS. Before it, repair only ever saw the
+   * last refused candidate; now it sees them all, most recent first. Every field above reports the
+   * same values whether the answer came from attempt 2 (which is what always happened) or attempt 1
+   * (which is the whole point of the change) — so "did the widening ever fire in production?" would
+   * have no row that only the widening could emit. That is the exact blindness `repaired` itself was
+   * added to fix, and the blindness `wall-live-probe` shipped when it dropped `gen`.
+   *
+   * A row with `repairedAttempt` less than `attempts.length - 1` is one this code could not have
+   * produced before 2026-08-22. Diagnostic only; nothing reader-facing branches on it.
+   */
+  repairedAttempt: number | null;
+  /**
    * The rule that CAUSED the excision, preserved after `blocked` is cleared.
    *
    * `blocked` goes null on a successful repair because the reader is not being refused — and this
@@ -71,7 +85,18 @@ export interface GenTrace {
 
 interface GuardVerdict {
   readonly ok: boolean;
-  readonly violations: readonly { readonly kind: AnswerViolationKind; readonly rule: AnswerViolationRule }[];
+  /**
+   * `detail` is here for REPAIR, not for the diagnostic — nothing in `GenTrace` reads it and nothing
+   * reader-facing ever will. `repairAnswerProse` needs to tell "the offending span is gone" from
+   * "nothing happened", and the count alone cannot (ISC-562); `RepairVerdict` documents why.
+   *
+   * Required, so a fake that omits it is a compile error rather than a silent loss of the fix.
+   */
+  readonly violations: readonly {
+    readonly kind: AnswerViolationKind;
+    readonly rule: AnswerViolationRule;
+    readonly detail: string;
+  }[];
 }
 
 export interface RunGenerationDeps {
@@ -100,6 +125,7 @@ export function newGenTrace(): GenTrace {
     repaired: false,
     repairedDropped: 0,
     repairedRule: null,
+    repairedAttempt: null,
   };
 }
 
@@ -165,9 +191,24 @@ function terminalGenReason(trace: GenTrace): GenReason {
  * exact budget `nextAttemptBudget` handed it, including calls that throw.
  */
 export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): Promise<void> {
-  // The most recent candidate the guard REFUSED. Repair works on prose the model actually wrote;
-  // it never invents text, so with nothing retained there is nothing to repair.
-  let lastBlocked: string | null = null;
+  // EVERY candidate the guard REFUSED, in the order the model produced them, each with the rule
+  // that refused IT. Repair works on prose the model actually wrote; it never invents text, so with
+  // nothing retained there is nothing to repair.
+  //
+  // ISC-561 — THIS WAS A SINGLE SLOT (`lastBlocked = candidate`) UNTIL 2026-08-22, so attempt 2
+  // overwrote attempt 1 and repair was handed only the survivor. Measured on the blocked turn of the
+  // OFFLINE capture of 2026-08-21 — `src/eval/refusal-capture.ts`, NOT prod, and the distinction is
+  // load-bearing: `PROGRESS.md`'s 2026-08-21 (morning) checkpoint records prod ANSWERING this very
+  // question (`apa yang al quran katakan tentang neraka`) in 6.0-12.9 s, first attempt `ok`, 216-234
+  // words, verified three ways. No reader ever saw the block. In that offline capture, attempt 1's
+  // prose repaired in a SINGLE deletion and attempt 2's did not repair at all. Two attempts' prose can differ in
+  // REPAIRABILITY, and one slot cannot express that.
+  //
+  // THE RULE TRAVELS WITH THE CANDIDATE, and that is not decoration. `trace.blockedRule` is set from
+  // the LAST attempt by design ("last attempt wins the diagnosis"), so reading `repairedRule` off it
+  // after repairing an EARLIER candidate would report attempt 2's rule over attempt 1's prose —
+  // exactly the stale-verdict shape this repo has already measured at ~10% of grounded turns.
+  const refused: { readonly prose: string; readonly rule: AnswerViolationRule | null }[] = [];
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     const budgetMs = nextAttemptBudget({
       attempt,
@@ -275,7 +316,7 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
       continue;
     }
     trace.attempts.push({ ms, budgetMs, outcome: `blocked:${trace.blocked}` });
-    lastBlocked = candidate;
+    refused.push({ prose: candidate, rule: trace.blockedRule });
   }
 
   // ── REPAIR — Erik's ruling of 2026-08-21: the app must always answer ───────────────────────────
@@ -291,13 +332,30 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
   // `blocked` is cleared on success because the reader is NOT being refused, and a stale `blocked`
   // beside a delivered answer is exactly the disagreement this repo has already lost a session to.
   // The rule survives in `repairedRule`, so clearing it costs no diagnosis.
-  if (trace.answer === null && lastBlocked !== null && deps.repair) {
-    const repaired = deps.repair(lastBlocked, deps.guard);
-    if (repaired.prose !== null) {
+  //
+  // ── ORDER: MOST RECENT FIRST (ISC-561) ────────────────────────────────────────────────────────
+  //
+  // A WIDENING, NOT A SWAP. Every turn that answers today answers with the same bytes: the last
+  // refused candidate is still tried first, so a turn where it repairs is untouched. Only turns
+  // that were SILENT change. This repo's record (`a-swap-is-not-a-widening`) is that replacing a
+  // crude rule with a smarter one DELETED six refusals while the suite stayed green; ordering the
+  // fallback behind the incumbent is what keeps that from happening here, and the third test in
+  // `answer-generation.test.ts` pins it.
+  //
+  // NO QUALITY CLAIM IS MADE BETWEEN CANDIDATES. There is no evidence that a later generation is
+  // better prose than an earlier one — only that trying just one of them loses answers that exist.
+  // The order is chosen to preserve today's behaviour, not because attempt 2 is believed superior.
+  if (trace.answer === null && deps.repair) {
+    for (let i = refused.length - 1; i >= 0; i -= 1) {
+      const attemptRefusal = refused[i]!;
+      const repaired = deps.repair(attemptRefusal.prose, deps.guard);
+      if (repaired.prose === null) continue;
       trace.answer = repaired.prose;
       trace.repaired = true;
       trace.repairedDropped = repaired.dropped;
-      trace.repairedRule = trace.blockedRule;
+      trace.repairedAttempt = i;
+      // The rule that refused THIS candidate — not `trace.blockedRule`, which names the last one.
+      trace.repairedRule = attemptRefusal.rule;
       trace.blocked = null;
       trace.blockedRule = null;
       trace.reason = "answered";
