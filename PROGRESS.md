@@ -39,9 +39,20 @@ delivered to a third party cannot be retired by our own bookkeeping
 promises become PERMANENT rather than lapsed. Examples, not the boundary: the God/unseen filter
 (ISC-464(b)); the hukum-nikah and hukum-waris pinned lists; hadith ORDERING unchanged on technical
 grounds; and `MAX_DISPLAY = 2`, separately Erik's own ruling in `rights-2026-08-20.md` §4 and never
-reachable by a bookkeeping edit. **Two promises whose REMEDY needed an answer now hang open with no
-vehicle** — an exception for an already-shipped sentence, and corrections a *next letter* was bound
-to carry. A temporary exception must not become permanent by default. Nothing was installed or
+reachable by a bookkeeping edit. **Of the two promises whose REMEDY needed an answer, Erik CLOSED one
+the same day and it was the right call.** The exception covered one already-shipped sentence — the
+Hadits page banner that named the ustadz as permission-giver above a page carrying TWO machine
+layers, crediting him for the bab titles nobody asked him about. That was corrected FIRST and
+independently, in `6d4d909` (2026-08-19), which scopes the claim to *"Terjemahan **teks hadis**-nya
+sudah diizinkan …"* and adds *"**Judul bab** … belum dimintakan izin"*. **Verified in the DEPLOYED
+bundle, not just the source**, and the exception is retired. **Retiring it makes the promise
+unconditional, and NOTHING pinned the string** — so `web/src/hadith-permission-notice.test.ts` was
+added and force-red proved: revert to the pre-`6d4d909` wording and 3 of 4 fail. Residual, outside
+the exception: the name still shows on a VERBAL relay while the written confirmation asked for will
+never come, and the letter's offer to replace or remove it stands open as Erik's. **The second one
+still hangs and is NOT an exception** — a note bound the *next letter* to carry specific corrections
+and Erik chose (2026-08-21) not to send a third letter; the vehicle is gone, so the correction has
+no delivery path. An undelivered correction must not quietly become one that never existed. Nothing was installed or
 relaxed under cover of the wider ruling, and the ruling itself is now a record at
 `docs/review/erik-ruling-2026-08-22.md` rather than four pointers into a transcript.
 

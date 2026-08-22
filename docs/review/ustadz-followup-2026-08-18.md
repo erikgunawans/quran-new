@@ -47,13 +47,21 @@
 > 5. *"Tidak mengubah atau menerjemahkan ulang satu kalimat pun milik seorang ulama."*
 > 6. *"Tidak menganggap surat ini sebagai pengganti surat 17 Agustus."*
 >
-> ⚠️ **DUA JANJI YANG PERBAIKANNYA BERGANTUNG PADA JAWABAN — dan kini menggantung.** (a) §*Yang
-> tidak kami lakukan* butir *"Tidak menuliskan keputusan Erik sebagai keputusan Ustadz"* memuat
-> **pengecualian** untuk satu kalimat yang sudah terlanjur tayang, yang perbaikannya dijanjikan
-> *"menurut jawaban Ustadz atas nomor 2 dan nomor 4"*. (b) §*Catatan* menyatakan koreksi tertentu
-> **harus** dibawa oleh **surat berikutnya**. Keputusan berhenti menunggu menghapus kedua
-> kendaraannya. **Keduanya kini terbuka tanpa batas waktu dan HARUS diputuskan Erik secara terpisah**
-> — pengecualian yang tadinya sementara tidak boleh diam-diam menjadi permanen.
+> **(a) SUDAH SELESAI — pengecualian itu GUGUR, 2026-08-22.** §*Yang tidak kami lakukan* butir
+> *"Tidak menuliskan keputusan Erik sebagai keputusan Ustadz"* memuat **pengecualian** untuk satu
+> kalimat yang sudah terlanjur tayang. Kalimat itu **sudah diperbaiki lebih dahulu** di `6d4d909`
+> (2026-08-19), tayang di produksi, dan kini dikunci oleh
+> `web/src/hadith-permission-notice.test.ts`. Erik memutuskan pengecualiannya tidak lagi diperlukan,
+> sebab hal yang menuntutnya sudah dikoreksi. **Janji itu kini berlaku tanpa pengecualian** — lihat
+> catatan di bawah butirnya. (Sisa yang bukan bagian dari pengecualian ini: nama beliau tetap tampil
+> atas dasar pesan lisan; tawaran mengganti/menghapusnya masih terbuka dan milik Erik.)
+>
+> ⚠️ **(b) MASIH MENGGANTUNG — dan ini BUKAN sebuah pengecualian.** §*Catatan* menyatakan koreksi
+> tertentu **harus** dibawa oleh **surat berikutnya**, dan Erik memutuskan (2026-08-21) untuk tidak
+> mengirim surat terpisah karena menambah satu surat kepada orang yang belum menjawab dua surat
+> dianggap lebih merugikan. Keputusan berhenti menunggu menghapus kendaraannya, sehingga koreksi itu
+> **kini tidak punya jalan penyampaian**. **Harus diputuskan Erik secara terpisah** — sebuah koreksi
+> yang tidak tersampaikan tidak boleh diam-diam menjadi koreksi yang tidak pernah ada.
 >
 > **Apa pun yang tidak tersebut di catatan ini DITAHAN secara bawaan.** Pencabutan sebuah janji
 > hanya sah bila Erik memutuskannya secara tersurat, satu per satu.
@@ -398,6 +406,19 @@ kami sendiri.
 - Tidak menuliskan keputusan Erik sebagai keputusan Ustadz — **kecuali satu kalimat yang sudah
   terlanjur tayang dan kami buka di Bagian 1; kalimat itu kami perbaiki menurut jawaban Ustadz atas
   nomor 2 dan nomor 4.**
+  **↳ PENGECUALIAN INI SUDAH GUGUR — 2026-08-22 (BUKAN bagian dari surat yang dikirim).** Kalimatnya
+  sudah diperbaiki lebih dahulu, tanpa menunggu jawaban: commit `6d4d909` (2026-08-19) memberi
+  batas lapisan pada kalimat itu, sehingga sekarang berbunyi *"Terjemahan **teks hadis**-nya sudah
+  diizinkan … ; **Judul bab** diterjemahkan mesin secara terpisah dan **belum dimintakan izin**."*
+  Nama Ustadz tidak lagi berdiri sebagai pemberi izin bagi lapisan judul bab — lapisan yang tidak
+  pernah ditanyakan kepada beliau — sehingga keputusan Erik tidak lagi tertulis sebagai keputusan
+  Ustadz. **Diverifikasi tayang di produksi** (berkas terpasang, Worker `2b7707f2`) dan **dikunci
+  oleh uji** `web/src/hadith-permission-notice.test.ts`, yang gagal 3 dari 4 bila kalimatnya
+  dikembalikan ke bentuk lamanya. **Maka janji ini kini berlaku TANPA pengecualian.**
+  ⚠️ Yang **tidak** ikut selesai: nama beliau tetap tampil atas dasar **pesan lisan yang
+  diteruskan**, sedangkan penegasan tertulis yang diminta di surat ini tidak akan datang. Tawaran di
+  §Bagian 1 — mengganti dengan kalimat tanpa nama, atau menghapusnya — **masih terbuka dan menjadi
+  keputusan Erik.**
 - Tidak menggeser batas dua hadis, dengan alasan apa pun dari surat ini.
 - Tidak memakai jawaban Ustadz atas surat ini untuk kumpulan mana pun selain Bukhari dan Muslim
   **dari sunnah.com** — khususnya tidak untuk pengantar surah yang kami ambil dari Dorar.

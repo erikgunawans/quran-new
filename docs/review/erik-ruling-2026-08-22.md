@@ -53,10 +53,18 @@ unrecordable, and a note saying otherwise would itself breach a promise in the l
 2. **The pinned hukum-nikah / hukum-waris lists.** Held.
 3. **Hadith ordering** unchanged on our own technical grounds, and **`MAX_DISPLAY = 2`** unmoved.
    The cap is separately his own ruling (`rights-2026-08-20.md` §4).
-4. **Two remedies that had no vehicle left.** One promise carried an exception for an already-shipped
-   sentence, to be corrected "according to the Ustadz's answer"; another required a *next letter* to
-   carry specific corrections. Both vehicles are gone, so both now hang open indefinitely. A
-   temporary exception must not become permanent by default.
+4. **~~An exception for an already-shipped sentence.~~ CLOSED 2026-08-22 by Erik**, on the correct
+   ground that the thing requiring it was already fixed: `6d4d909` (2026-08-19) scoped the Hadits
+   permission banner to the hadith TEXT layer and says the bab titles were never asked about, so
+   Erik's decision is no longer written as the Ustadz's. Verified live; pinned by
+   `web/src/hadith-permission-notice.test.ts`. The promise is now UNCONDITIONAL.
+   **Residual, separate from the exception:** the name still shows on a VERBAL relay basis, and the
+   written confirmation requested will never come. The letter's offer — replace with an unnamed
+   sentence, or remove — stands open and is Erik's.
+5. **A correction that has no delivery path.** A note bound the *next letter* to carry specific
+   corrections, and Erik decided (2026-08-21) not to send a separate third letter to someone who had
+   not answered two. Ending the wait removes the vehicle. Erik's to decide — an undelivered
+   correction must not quietly become one that never existed.
 
 ## Why the disclosures matter more now
 
