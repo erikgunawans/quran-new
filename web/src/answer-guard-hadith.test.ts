@@ -516,12 +516,24 @@ describe("audit corpus — leaks a second model found in the first grammar", () 
  * the tree (`web/public/tafsir/` is 117 MB against its 5 MB). A count needs a complete inventory;
  * the firing condition does not.
  *
- * This rule fires only when a Muhammad designation sits within CLAUSE_WINDOW of the frame. Across 42
- * files and 118 frame occurrences tree-wide — `web/public/surah`, `web/public/tafsir`, `data/`,
- * `src/eval/reports/`, `docs/review/`, tracked and gitignored alike — exactly 6 have one in window,
- * and all 6 are the JSON metadata field `"translator": "Ustadz Muhammad Thalib"`. None is prose.
- * Zero real occurrences can fire; in every prose occurrence the agent is Allah, Kami, Mereka or the
- * disbelievers ("Allah memberikan perumpamaan tentang orang-orang kafir").
+ * This rule fires only when a Muhammad designation sits within CLAUSE_WINDOW of the frame. Measured
+ * across `web/public/surah`, `web/public/tafsir`, `data/`, `src/eval/reports/` and `docs/review/`,
+ * tracked and gitignored — NOT the whole tree: 44 files, 122 frame occurrences, 8 with a designation
+ * in window. Six are the JSON metadata field `"translator": "Ustadz Muhammad Thalib"` (five in
+ * `data/canonical/translations.json`, one in `web/public/surah/13.json`), where the agent is Allah or
+ * Kami — no displayed corpus prose is newly refused. The other two are the witnesses below, in the
+ * capture committed with this change, which is what the rule is for.
+ *
+ * The `42 / 118 / 6 / "None is prose" / "tree-wide"` figures this replaces were the THIRD false
+ * quantifier in this criterion. The same scan with `docs/review/captures/` excluded gives 43/120/6,
+ * so the capture this commit adds accounts for the in-window move 6 -> 8 exactly; the remaining
+ * +1 file / +2 occurrences in the denominators are an unreconstructed scoping difference in the
+ * earlier scan. `tree-wide` was separately false — it named five directories while omitting
+ * `web/dist/`, `graphify-out/`, `.planning/graphs/`, `worker/src/` and this file's own directory.
+ * No tree-wide total is recorded on purpose: two scans of "the whole tree" returned 87/203/30 and
+ * 139/300/47 and neither is reproduced here. What IS established is that the enumerated scope is
+ * invariant on both identified axes — every matching file in it is .json/.md/.txt, and no worktree
+ * path falls inside it.
  *
  * Still a measured set and not a class (`measured-set-is-not-a-class`).
  */
@@ -549,7 +561,9 @@ describe("a nominalised speech act inside a giving-verb frame is an attribution"
     // Giving that is not saying. `beri` must never become a speech-act stem.
     "Allah memberikan rezeki dan pertolongan kepada Nabi ﷺ di saat tersulit.",
     // `per-…-an` generation over the existing stems would have minted `pertanyaan` as a speech act.
-    // This is the opening line of a live answer captured in the same session.
+    // COMPOSED, not prod bytes: turn-3 of the capture opens "Tentu, pertanyaan yang sangat baik." —
+    // the tail "dari Anda tentang sunnah Nabi ﷺ" is added here, because without a designation in
+    // window the control is vacuous.
     "Tentu, pertanyaan yang sangat baik dari Anda tentang sunnah Nabi ﷺ.",
   ])("still ships: %s", (prose) => {
     expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(true);

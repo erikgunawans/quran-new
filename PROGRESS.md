@@ -45,13 +45,20 @@ fixed, and deliberately not pinned by a passing test.
 `docs/review/captures/api-answer-9ab57d4b-2026-08-22.json`, all three turns, response bodies
 verbatim.** `scholarly-gate` asked for this: the string existed nowhere on disk outside the edited
 files, so *"pasted from the capture"* was unfalsifiable by a later reader — which is the exact
-position the fabricated-isnad incident arose from. The sentence below appears in TWO independent
-turns of that capture (`/api/answer`, version `9ab57d4b`, 2026-08-22, question *"kenapa kita harus
-salat lima waktu"*, `gen.attempts` = `blocked:bad_hadith` then `ok`):
+position the fabricated-isnad incident arose from. The sentence below is from **turn-1** of that
+capture (`/api/answer`, version `9ab57d4b`, 2026-08-22, question *"kenapa kita harus salat lima
+waktu"*, `gen.attempts` = `blocked:bad_hadith` then `ok`):
 
 > Rasulullah ﷺ memberikan gambaran yang sangat indah.
 
-On that turn the following sentence carried `[H:bukhari:518]` and the card rendered, so nothing
+**Turn-2, the same question, produced a SECOND SURFACE FORM of the same frame** — *"Rasulullah ﷺ
+memberikan gambaran yang indah tentang fungsi shalat."* — on a single `ok` attempt. Two turns, two
+different sentences, one frame. An earlier draft of this paragraph said the sentence above appeared
+in two turns and attached turn-1's `gen.attempts` to that claim; its exact-string count in the
+capture is **one**. That was a witness inflated by a correction, written in the paragraph that
+invokes the fabricated-isnad rule, about the artefact committed to make the claim falsifiable.
+
+On turn-1 the following sentence carried `[H:bukhari:518]` and the card rendered, so nothing
 unreceipted reached the reader — but as with the 2026-08-22 night turn, that was the model's choice
 and not the wall's doing. The second surface form of this hole appeared within HOURS of the first,
 exactly as `mengajarkan` and `diajarkan oleh` did.
@@ -67,11 +74,33 @@ another one, missing `web/public/tafsir` at 117 MB against surah's 5 MB.
 count is not.** Sentence extraction has no meaning inside raw JSON, so BOTH "0 refusals over 71"
 (the gate's) and "4 over 118" (mine) are artefacts of splitting corpus JSON on `.`. The rule fires
 only when a Muhammad designation sits within `CLAUSE_WINDOW` of the frame, and that question is
-answerable on any bytes: across **42 files and 118 frame occurrences** tree-wide — tracked and
-gitignored, `web/public/surah`, `web/public/tafsir`, `data/`, `src/eval/reports/`, `docs/review/` —
-**exactly 6 have a Muhammad designation in window, and all 6 are the JSON field
-`"translator": "Ustadz Muhammad Thalib"`. None is prose. Zero real occurrences can fire.** Stronger
-than the claim it replaces, and it does not depend on a corpus inventory being complete.
+answerable on any bytes. Measured across **`web/public/surah`, `web/public/tafsir`, `data/`,
+`src/eval/reports/` and `docs/review/`, tracked and gitignored — NOT the whole tree**: 44 files, 122
+frame occurrences, **8 with a designation in window. Six are the JSON metadata field
+`"translator": "Ustadz Muhammad Thalib"`** (five in `data/canonical/translations.json`, one in
+`web/public/surah/13.json`), **where the agent is Allah or Kami, not the Prophet ﷺ. None of the six
+is corpus prose.** (`web/dist/`, outside the scope below, was checked separately for this sentence:
+its single in-window occurrence is the same translator field in `web/dist/surah/13.json`.) **The other
+two are the ISC-565 witnesses themselves, in the capture committed with this change, which is exactly
+what the rule is for.**
+
+**The `42 / 118 / 6 / "None is prose" / "tree-wide"` figures this replaces were wrong on both the
+count and the scope.** Re-running the same scan with `docs/review/captures/` excluded gives
+**43 / 120 / 6** — so the capture this commit adds accounts for the in-window move 6 → 8 exactly, and
+that is the whole of the "None is prose" retraction. It does NOT account for the denominators: the
+remaining +1 file / +2 occurrences are a scoping difference in the earlier scan that I could not
+reconstruct, and saying so is the point of recording no total. `tree-wide` was separately false — it
+named five directories while omitting `web/dist/` (the built artefact actually served),
+`graphify-out/`, `.planning/graphs/`, `worker/src/` and `web/src/`. That is the THIRD false quantifier
+in this one criterion, after *"every real corpus on disk"* and *"the largest real corpus in the tree"*.
+**No tree-wide total is recorded here on purpose:** two scans of "the whole tree" returned 87/203/30
+and 139/300/47, and neither is reproduced here. What IS established is that the enumerated scope is
+invariant on both axes that were identified — every matching file in it is `.json`, `.md` or `.txt`,
+and no worktree path falls inside it. The firing CONDITION survives an incomplete inventory; a total
+does not. Still a measured set and not a class (`measured-set-is-not-a-class`).
+
+⚠️ **`cc7f5df`'s commit message carries the retracted `42 / 118 / "None is prose" / "tree-wide"`
+claim.** That text is immutable; this paragraph supersedes it.
 
 **The gate's own arithmetic was wrong in the other direction and I did not concede it** — it reported
 zero occurrences in `grounding-…577Z.md`, which contains two (*"Allah bahkan memberi perumpamaan yang
