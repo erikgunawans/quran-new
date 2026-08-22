@@ -1,3 +1,136 @@
+# Next session — New-Quranku (checkpoint 2026-08-22 late)
+
+> Prepended by /wrap 2026-08-22 (late). **Anchor `cc7f5df` on origin/main** (verified by `git fetch`,
+> not by a push pipe — `git push | tail` returns an EMPTY exit code here). **Supersedes the `2f23edd`
+> anchor.** From that handoff: item 1 (**deploy ISC-564**) is **DONE — DEPLOYED AND VERIFIED ON PROD**.
+> Item 2 (verify by driving the app) is **DONE, and it found a live defect — see §2**. Item 3
+> (`hadithShape`'s verb list) is **DONE as ISC-565, committed but NOT DEPLOYED**, and its diagnosis in
+> the old handoff was WRONG — see §1. Items 4 (measure ISC-561 in prod), 5 (Track B step 1) and 6
+> (kajian step 7) were NEVER STARTED and carry forward. Its §2 (open items), §3 (known weaknesses) and
+> §4 (kajian criteria live in a TASK ISA) all **SURVIVE**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-22 (late)**).
+
+## 0. STATE — prod is HEALTHY; the emergency from the last two handoffs is over
+
+`new-quranku.axiara.ai` runs Worker version **`9ab57d4b`** (`EDITION: "synthesis"`, 100% of traffic),
+built from `2f23edd`. **ISC-564 is live and the stranded-reply defect is gone.** There is no longer a
+known reader-facing defect shipping, so nothing in this handoff is an emergency.
+
+⚠️ **`web/dist` provenance is NOT what a handoff claims it is.** The last one said it held a synthesis
+build; `.build-meta.json` said `principled` and the preflight hook would have blocked the deploy.
+**Always read `.build-meta.json` before deploying — never trust the handoff's word for it.**
+
+Gates at the anchor: `bun test` **1855/0** exit 0 · typecheck exit 0 · build exit 0. ISA **574/589**
+(573 `[x]` + ISC-418 `[~]`; 14 open, 1 deferred). Clean tree except untracked `WARP.md` — **leave it,
+never `git add -A`.**
+
+## 1. DO NEXT, IN ORDER
+
+1. **Third `scholarly-gate` pass on ISC-565's CORRECTIONS — the one thing this session did not finish.**
+   Two passes ran; both returned **CONCERNS with the code clean**, and **two of the second pass's four
+   findings were defects the FIRST fix pass introduced**. Every finding is fixed in `cc7f5df`, but
+   **those fixes were never themselves gated**, which is exactly the shape that has now bitten three
+   times (`correction-is-the-least-scrutinised-edit`). Gate `git show cc7f5df` over `ISA.md`,
+   `PROGRESS.md`, `web/src/answer-guard.ts`, `web/src/answer-guard-hadith.test.ts`.
+2. **Then decide whether to DEPLOY ISC-565.** It is committed and pushed but **NOT deployed**; prod
+   runs ISC-564 only. It only ADDS refusals, so it is the safe direction — but it moves the `diam`
+   premise a **third** time (see §2), and Erik's stated preference at wrap was to put that in the
+   ustadz letter BEFORE shipping it, not after. **This is his call, not a default.** If deploying:
+   read `.build-meta.json`, then `VITE_ANSWER_MODE=synthesis bun run build`, verify the inlined literal
+   ``try{return`synthesis`}`` (not a grep for the word), then `cd worker && bunx wrangler deploy`.
+3. **ISC-564's cost (c) is no longer theoretical — cross-paragraph danglers SHIPPED TO A READER.**
+   On `9ab57d4b`, question *"apa keutamaan salat lima waktu menurut hadits"*, `repaired: true`,
+   `repairedRule: "wording"`, `repairedAttempt: 1`, the reader got a first paragraph opening
+   **"Selain itu,"** — referring to a paragraph that no longer exists — and a close of **"ingatlah
+   sungai rahmat yang mengalir itu"**, pointing at a parable the excision removed. Two danglers in one
+   answer. **The raw capture is committed at `docs/review/captures/api-answer-9ab57d4b-2026-08-22.json`**
+   (all three turns, bodies verbatim). Deliberately NOT pinned by a passing test
+   (`dont-pin-a-known-hole-with-a-green-test`). Fixing it is real work and nobody has scoped it.
+4. **ISC-561's widening is STILL unwitnessed in production.** `gen.repairedAttempt: 0` has never
+   appeared; both live repairs to date are `repairedAttempt: 1`, the incumbent path. A measurement job
+   needing many turns, not a fix.
+5. **`MEMORY.md` is 27.9 KB against a 24.4 KB limit — only PART OF IT LOADS.** It has been over since
+   before this session and grew by two entries in it. Index lines need shortening or old ones folding
+   into topic files. This is silent context loss on every session start.
+6. **Track B step 1, if Erik picks it** — the `qk_auth` signed cookie + `roleFor()`.
+7. **Kajian step 7, if Erik wants it** — nothing is specified; steps 1-6 are complete.
+
+## 2. Open items waiting on Erik
+
+- **THE THREE KAJIAN RULINGS, all still owed** — (a) the channel name on the slide vs refused in
+  narration, (b) model-relayed speaker names being spoken, (c) consensus claims unscreened in the
+  autoplay mp4.
+- **The `diam` drift, now moved THREE times.** `docs/review/tanya-ai-request-2026-08-17.md` is **SENT
+  and UNANSWERED** and tells the ustadz the app chooses silence when the answer is in a hadith.
+  Morning: excise-and-ship. Evening: excise MORE, and ship outright silence on a single-paragraph
+  answer. **Now ISC-565 adds refusals on a shape that previously passed**, so more silence again. The
+  direction is TOWARD the letter's description and never away from it — more receipts required, never
+  more display — so it needs no permission and is the safe error. But the next letter's tally must say
+  three, and **Erik said at wrap he would rather the letter go before ISC-565 ships.**
+- **Nobody has read a repaired answer for THEOLOGICAL correctness.** Three have now been read for
+  coherence only.
+- **ISC-417 / ISC-464(b) — WAITING ON THE USTADZ. Two letters SENT, both unanswered — never write
+  "Ustadz Ahmad's letter", he has sent nothing.**
+- **Answer Record retention**, **ISC-554's remaining half**, **firmed slide visual design**, **roster
+  entries** — all unchanged.
+
+## 3. Known weaknesses — recorded, NOT fixed
+
+- **Cross-paragraph danglers** — now WITNESSED live, twice in one answer. See §1 item 3.
+- **A single-paragraph answer that trips the wall ships SILENCE.** Unchanged, and ISC-565 makes the
+  wall fire on strictly more shapes, so this becomes strictly more likely.
+- **Three or more offenders reporting the SAME `detail` still end in silence** (ISC-562's bound).
+- **ISC-565's frame covers only the TWO WITNESSED nouns** (`perumpamaan`, `gambaran`). A giving verb
+  over an unobserved nominalisation still passes — and on this rule's own evidence the second surface
+  form appeared within HOURS of the first. Widen only from real transcripts.
+- **The `di-` arm of `LIGHT_VERB_SPEECH` is narrower than it looks.** It requires verb-then-noun order,
+  so it reaches the impersonal passive ("…sudah seringkali diberikan perumpamaan") where the Prophet
+  would be the RECIPIENT — NOT the passive attribution "gambaran yang diberikan Rasulullah ﷺ", which
+  the pattern returns null for. It is kept because widening only adds refusals, not because that shape
+  is covered.
+- `splitSentences` is **dead** except for its own tests. Kept deliberately.
+
+## 4. Where the kajian criteria live — STILL NOT IN `ISA.md`
+
+Step 4's 38 ISCs are in a TASK ISA at `~/.claude/PAI/MEMORY/WORK/kajian-slide-qr/ISA.md`. Steps 5-6
+have NO task ISA. **`quran-new/ISA.md` has zero kajian criteria — do not report 574/589 as kajian
+progress.**
+
+---
+
+## Constraints to honor (carried forward — plus four new)
+
+- **NEW — a blocked hook DISCARDS EVERY WRITE IN THAT BASH CALL.** `bash-preflight` rejected a command
+  that batched `cat >> <test file>` with a piped gate run; the append never happened, and the test run
+  that followed printed the UNTOUCHED BASELINE as if it were a green new suite. **Never batch a file
+  write with a gate command.** A pass count identical to the pre-change baseline is the tell.
+- **NEW — an impossibility claim is a quantifier.** Three false ones in this one change: *"could not
+  have worked"*, *"every real corpus on disk"*, *"the largest real corpus in the tree"*. None was
+  load-bearing; all three were caught by re-running rather than re-reading. Prefer stating a rule's
+  firing CONDITION over a corpus count — the condition survives an incomplete inventory.
+- **NEW — a sentence-level scan of corpus JSON is not an instrument.** Splitting JSON on `.` yields
+  "sentences" of scaffolding. Both this session's scans (the gate's "0 of 71", mine "4 of 118") were
+  artifacts of it.
+- **NEW — do not accept an auditing agent's measurement either.** `scholarly-gate` reported ZERO frame
+  occurrences in `grounding-…577Z.md`; the file contains two, and it withdrew on the second pass.
+  Re-measure both directions.
+- **`/api/answer` cannot be probed by curl** — no hash-verified grounding means it bails before
+  generation and returns no `gen` key. Drive the app with Interceptor, clear
+  `localStorage['newquranku:thread']`, and discard a warm-up turn.
+- **A `scholarly-gate` BLOCK is almost always the RECORD, not the code** — eight passes across three
+  changes now, code clean from the first every time. **Re-gate after applying its fixes.**
+- **A green wall is not a readable answer.** The guard is a RULES wall, not a coherence check.
+- **Arabic you type is not the Arabic that shipped.** Splice captured bytes. (A stray `۩` U+06E9 was
+  typed into a docblock this session and caught by a codepoint scan of the diff — run that scan.)
+- **The granularity was never Erik's.** His ruling is *"it has to be answered"*.
+- **Do not edit files while an auditing agent is auditing them.**
+- **The kajian tool never rewrites a transcript**, widens its cue list ONLY from real transcripts, and
+  never copies credentials from a video title.
+- **The narrator voice `id-ID-Chirp3-HD-Schedar` is LOAD-BEARING per ADR 6.** Do not change it.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-22 night)
 
 > Prepended by /wrap 2026-08-22 (night). **Supersedes the `359caab` anchor.** From that handoff:
