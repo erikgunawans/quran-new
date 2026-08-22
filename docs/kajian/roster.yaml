@@ -47,6 +47,72 @@
 #     titleContains: fulan bin fulan  # and/or:
 #     channelId: UCxxxxxxxxxxxxxxxxxx
 #
+# ── ORGANISATIONS THE NARRATOR MAY NAME OUT LOUD ────────────────────────────────────────────────
+#
+# The spoken narration (steps 5-6) opens by naming its source. For an unrostered video that used to
+# be the YouTube CHANNEL, taken verbatim — which is wrong far more often than it looks, because the
+# commonest naming convention on Indonesian dakwah YouTube is a BARE PERSONAL NAME: "Firanda
+# Andirja", "Hanan Attaki", "Khalid Basalamah Official". Saying "kajian di kanal Firanda Andirja"
+# credits a living scholar, out loud, for a machine summary he has never seen.
+#
+# A pattern cannot tell those from "Masjid Al-Ikhlas" — there is nothing in a bare name to match on,
+# and guessing is exactly what ADR 5 rules out. So this is an ALLOWLIST, like `speakers:` above it:
+# a channel is spoken only if its name appears here EXACTLY (case-insensitive).
+#
+# ⚠ ONLY PUT AN ORGANISATION HERE. A mosque, a foundation, a school, a media channel. If the channel
+# name is a person's name — with or without a gelar — leave it out.
+#
+# ⚠ BE CLEAR WHAT LEAVING THEM OUT ACTUALLY BUYS, because it is less than it sounds:
+#
+#   · the NARRATOR will not say the name — that is what this list controls, and all it controls;
+#   · the audio file's tags carry the source URL and NOT the channel, so the name is not in there
+#     either;
+#   · but THE SLIDE STILL PRINTS THE CHANNEL in its source block, on every video, rostered or not
+#     — and the short mp4 is that slide on screen for its whole duration.
+#
+# That last line is an OPEN QUESTION Erik has not ruled on, not a thing this list fixes. The slide's
+# source block carries TWO uploader-written strings: the video title, which has a label above it,
+# and the channel, which has none.
+#
+# ⚠ THE TWO HALVES WERE RECORDED SEPARATELY. `PROGRESS.md`'s 2026-08-22 AFTERNOON entry records the
+# TITLE question only; the CHANNEL half is in its 2026-08-22 EVENING entry, added with the narration.
+# Both are open and neither has been ruled on. If you are reading only the afternoon entry, you are
+# reading half of it.
+#
+# Do not read this list as making the slide safe.
+#
+# ⚠ THIS MATCHES ON THE DISPLAY NAME, WHICH IS NEITHER STABLE NOR UNIQUE — unlike `channelId` above.
+# That cuts two ways, and neither is announced anywhere but here:
+#
+#   · a channel RENAMED away from what you wrote stops matching, and the narration quietly goes
+#     back to saying nothing. Safe, but silent — if a channel you allowlisted stops being named,
+#     this is why.
+#   · ANY channel adopting an allowlisted display name gets spoken. A copycat "Yufid TV" would be
+#     narrated as the source. Only add names distinctive enough that this is not a real risk.
+#
+# The CLI prints one of three lines on every run, each carrying the parsed entry count:
+#
+#   kanal boleh disebut …      the channel is on this list and the narration may say it
+#   kanal TIDAK disebut …      it is not on this list, so the narration will not say it
+#   kanal tidak dipakai …      a ROSTERED speaker was matched and would be named instead; the
+#                              opening never gets as far as the channel
+#
+# Read ALL THREE as PERMISSION, not as a transcript. They print before narration runs, so they
+# still appear under `--no-audio` and `--no-brief`, and if narration later fails — in which case
+# nothing was said aloud at all.
+#
+# The count is the reliable part. If it reads 0 when you have filled this list in, it is one of two
+# things: a duplicate `organisations:` key (YAML silently keeps the LAST one), or a value that is
+# not a list — `organisations: Yufid TV` with no dash parses fine and is ignored. The second case
+# now prints its own warning; the first does not, because by then there is nothing left to see.
+#
+# REPLACE the `[]` below with a dashed list — do not add a second `organisations:` line, and do not
+# put dashes under `[]` (that is a YAML parse error and the run dies). A duplicate key is the
+# dangerous one: YAML keeps the LAST silently, so it reads as an empty allowlist and nothing is
+# ever spoken. The CLI prints the parsed count on every run so that state is visible.
+
+organisations: []
+
 # ── THE LIST ────────────────────────────────────────────────────────────────────────────────────
 #
 # Empty on purpose. The tool works with an empty roster: it produces the briefing and a slide with

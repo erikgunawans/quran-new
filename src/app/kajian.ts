@@ -47,14 +47,24 @@
  *   bun run src/app/kajian.ts <url> --no-slide       # skip the slide + QR render
  *   bun run src/app/kajian.ts <url> --bullets 4      # how many points reach the slide
  *   bun run src/app/kajian.ts <url> --deadline 900    # seconds to allow the briefing model
+ *   bun run src/app/kajian.ts <url> --no-audio       # skip narration entirely (no TTS spend)
+ *   bun run src/app/kajian.ts <url> --no-video       # narrate, but do not build the short mp4
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { flagSpans, formatTimestamp, type FlaggedSpan } from "./kajian-flags.ts";
-import { resolveSpeaker, validateRoster, type RosterEntry, type RosterOutcome } from "./kajian-roster.ts";
-import { buildSlideHtml, extractSlideBullets } from "./kajian-slide.ts";
+import {
+  resolveSpeaker,
+  checkOrganisations,
+  validateRoster,
+  type RosterEntry,
+  type RosterOutcome,
+} from "./kajian-roster.ts";
+import { DENIALS, buildSlideHtml, extractSlideBullets } from "./kajian-slide.ts";
 import { qrSvg, renderPng } from "./kajian-render.ts";
+import { buildNarrationScript, channelMayBeSpoken } from "./kajian-narration.ts";
+import { encodeM4a, narrateToWav, stillVideo } from "./kajian-audio.ts";
 import { resolveProvider, callChatModel } from "../../worker/src/providers.ts";
 import type { Env } from "../../worker/src/index.ts";
 
@@ -102,6 +112,8 @@ const NO_SLIDE = has("no-slide");
  * "The operation timed out", which reads as a provider fault and is not one.
  */
 const DEADLINE_S = Number(flag("deadline") ?? "600");
+const NO_AUDIO = has("no-audio");
+const NO_VIDEO = has("no-video");
 const BULLETS = Number(flag("bullets") ?? "5");
 if (!Number.isInteger(BULLETS) || BULLETS < 1) {
   console.error(`✗ --bullets must be a positive integer, got "${flag("bullets")}"`);
@@ -111,7 +123,8 @@ if (!Number.isInteger(BULLETS) || BULLETS < 1) {
 if (!URL_ARG) {
   console.error(
     "Usage: bun run src/app/kajian.ts <youtube-url-or-id> [--lang id,en] [--no-brief] [--refresh]\n" +
-      "                                 [--model <id>] [--no-slide] [--bullets N]",
+      "                                 [--model <id>] [--no-slide] [--bullets N] [--deadline S]\n" +
+      "                                 [--no-audio] [--no-video]",
   );
   process.exit(1);
 }
@@ -192,9 +205,25 @@ const flagged: FlaggedSpan[] = flagSpans(snippets);
  */
 const ROSTER_PATH = resolve("docs/kajian/roster.yaml");
 let speaker: RosterOutcome = { kind: "none" };
+let organisations: string[] = [];
 if (existsSync(ROSTER_PATH)) {
-  const parsed = (Bun.YAML.parse(readFileSync(ROSTER_PATH, "utf8")) ?? {}) as { speakers?: RosterEntry[] };
+  const parsed = (Bun.YAML.parse(readFileSync(ROSTER_PATH, "utf8")) ?? {}) as {
+    speakers?: RosterEntry[];
+    organisations?: string[];
+  };
   const entries = Array.isArray(parsed.speakers) ? parsed.speakers : [];
+  // Channels the narration may say out loud. An allowlist, not a pattern — see `roster.yaml`.
+  // A SCALAR IS NOT AN EMPTY LIST. `organisations: Yufid TV` (no dash) parses fine, fails
+  // `Array.isArray`, and used to become `[]` with nothing printed — so the count read 0 and
+  // roster.yaml sent the maintainer hunting for a duplicate key that was not there.
+  if (parsed.organisations !== undefined && !Array.isArray(parsed.organisations)) {
+    console.log(`  ⚠ roster: organisations: is not a list (got ${typeof parsed.organisations}) — ignored`);
+  }
+  const rawOrgs = Array.isArray(parsed.organisations) ? parsed.organisations : [];
+  const orgCheck = checkOrganisations(rawOrgs);
+  // The SURVIVORS, never the raw list — a printed problem that leaves the entry live is not a check.
+  organisations = [...orgCheck.valid];
+  for (const p of orgCheck.problems) console.log(`  ⚠ roster: ${p}`);
   const problems = validateRoster(entries);
   // Printed, never swallowed. An entry that can never match looks like coverage in the file and is
   // silence in the output — the exact shape of bug this repo keeps paying for.
@@ -208,6 +237,28 @@ const speakerLine =
       ? `TIDAK ADA — ${speaker.names.length} entri roster cocok sekaligus (${speaker.names.join(", ")}), jadi tidak ada yang dinamai`
       : `TIDAK ADA — tidak ada entri roster yang cocok`;
 console.log(`  penceramah: ${speakerLine}`);
+
+/**
+ * PRINTED, NEVER SWALLOWED — the standing rule in this file, and the allowlist had escaped it. A
+ * run whose narration says a channel name out loud must say so here, so that "did we credit
+ * anybody?" is answerable from the log rather than by listening to eight minutes of audio.
+ */
+// The COUNT is printed unconditionally. Printing only on a match made an allowlist that had been
+// silently emptied — by a duplicate YAML key, say, where the last one wins — indistinguishable from
+// one nobody had filled in yet. Neither speaks a channel; only one is what the maintainer intended.
+const orgCount = `(organisations: ${organisations.length} entri)`;
+if (speaker.kind === "match") {
+  // A rostered speaker is named INSTEAD; `openingLine` returns before the channel is consulted, so
+  // a channel PERMISSION here would over-report something that cannot happen on this run. The count
+  // still prints — that is the whole point of printing it unconditionally, and the first version of
+  // this branch dropped it, which put the silently-emptied-allowlist case back out of sight on
+  // exactly the runs where a name IS spoken.
+  console.log(`  kanal tidak dipakai: ada penceramah dari roster yang dipakai ${orgCount}`);
+} else if (channelMayBeSpoken(meta.channel, organisations)) {
+  console.log(`  kanal boleh disebut: "${meta.channel}" ada di daftar ${orgCount}`);
+} else {
+  console.log(`  kanal TIDAK disebut: "${meta.channel}" tidak ada di daftar ${orgCount}`);
+}
 
 const isDraft = meta.language.isGenerated && flagged.length > 0;
 if (meta.language.isGenerated) {
@@ -311,7 +362,7 @@ lines.push(
   `| Penceramah (roster) | ${speakerLine} |`,
   `| Dibuat | ${new Date().toISOString()} |`,
   ``,
-  `> Ringkasan otomatis. Bukan kutipan langsung, bukan fatwa, dan belum diperiksa oleh ulama.`,
+  `> Ringkasan otomatis. ${DENIALS}`,
   // THE JUDUL CARRIES THE SPEAKER'S NAME, and an earlier version of this note claimed the opposite
   // — "nama penceramah sengaja tidak dicantumkan di sini" — while the H1 above it read
   // "… | USTADZ SYARIFUL MAHYA, L.C., M.A.", straight out of the video title. The note was false
@@ -356,8 +407,12 @@ writeFileSync(join(outDir, "meta.json"), JSON.stringify(meta, null, 2));
  * difference between an empty summary and a filtered one.
  */
 let slidePath = "";
+let pngPath = "";
+/** Hoisted: the SHORT narration speaks these very bullets, never a second extraction. */
+let slideBullets: readonly string[] = [];
 if (!NO_SLIDE) {
   const extracted = extractSlideBullets(briefing, { max: BULLETS });
+  slideBullets = extracted.bullets;
 
   /**
    * SAFETY DROPS ARE NAMED ONE BY ONE; LAYOUT DROPS ARE COUNTED.
@@ -388,11 +443,93 @@ if (!NO_SLIDE) {
 
   slidePath = join(outDir, "slide.html");
   writeFileSync(slidePath, html);
-  const pngPath = join(outDir, "slide.png");
+  pngPath = join(outDir, "slide.png");
   renderPng(slidePath, pngPath);
   console.log(`  slide: ${extracted.bullets.length} poin, ${extracted.dropped.length} dibuang → ${pngPath}`);
 }
 
+// ── 6. the narration ───────────────────────────────────────────────────────────────────────────
+/**
+ * Steps 5-6 (`kajian-narration.ts` + `kajian-audio.ts`). Two artifacts, per ADR 6: a SHORT video —
+ * the slide, narrated with the very bullets it is showing — and a LONG-FORM audio of the briefing.
+ *
+ * Both open with the spoken attribution and close by pointing back at the source. Both are named
+ * `-DRAFT` on disk when the briefing came from unchecked auto-captions, because ADR 5's draft gate
+ * applies to audio too and a file that escapes a review folder carries no visible band.
+ *
+ * SKIPPED WHEN THERE IS NOTHING TO SAY. `--no-brief` leaves no script, and narrating a slide that
+ * was never rendered would produce a video of nothing.
+ */
+const audioPaths: string[] = [];
+if (!NO_AUDIO && briefing) {
+  const suffix = isDraft ? "-DRAFT" : "";
+  const speak = (kind: "short" | "long") =>
+    buildNarrationScript({
+      briefing,
+      speaker,
+      channel: meta.channel,
+      title: meta.title,
+      isDraft,
+      kind,
+      bullets: slideBullets,
+      organisations,
+    });
+
+  try {
+    // ── long form: the whole briefing ──
+    const longScript = speak("long");
+    // The narrator's refusals are DIFFERENT from the slide's and are printed on their own. A
+    // quotation the slide dropped for want of room is a layout fact; the same quotation dropped
+    // here is the refusal ADR 6 is built around, and the two must not be confused in a log.
+    for (const d of longScript.dropped) {
+      const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
+      console.log(`  · narasi menolak (${d.reason}): ${short}`);
+    }
+    console.log(`▸ narasi panjang — ${longScript.full.length.toLocaleString()} karakter`);
+
+    const longWav = join(outDir, `narasi${suffix}.wav`);
+    const longOut = await narrateToWav(longScript.full, longWav, {
+      onChunk: (i, n, chars) => console.log(`    chunk ${i}/${n} — ${chars} karakter`),
+    });
+    const longM4a = join(outDir, `narasi${suffix}.m4a`);
+    encodeM4a(longWav, longM4a, { sourceUrl: meta.url, isDraft });
+    rmSync(longWav, { force: true }); // the WAV is an intermediate; the m4a is the artifact
+    audioPaths.push(longM4a);
+    console.log(
+      `  narasi: ${longOut.chunks} chunk, ${Math.round(longOut.seconds)}s → ${longM4a}`,
+    );
+
+    // ── short form: the slide, spoken ──
+    if (!NO_VIDEO && pngPath && slideBullets.length) {
+      const shortScript = speak("short");
+      /**
+       * PRINTED, exactly like the long form's. The short path screens its bullets too, so a bullet
+       * can appear ON THE SLIDE and be absent from the VOICE. The person deciding whether to post
+       * has to be told that; a silent divergence between the picture and the narration is the same
+       * failure the slide path already refuses to ship.
+       */
+      for (const d of shortScript.dropped) {
+        const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
+        console.log(`  · narasi pendek menolak (${d.reason}), poin ini tetap ada di slide: ${short}`);
+      }
+      const shortWav = join(outDir, `short${suffix}.wav`);
+      const shortOut = await narrateToWav(shortScript.full, shortWav);
+      const shortMp4 = join(outDir, `short${suffix}.mp4`);
+      stillVideo(pngPath, shortWav, shortMp4);
+      rmSync(shortWav, { force: true });
+      audioPaths.push(shortMp4);
+      console.log(`  video: ${Math.round(shortOut.seconds)}s → ${shortMp4}`);
+    } else if (!NO_VIDEO) {
+      console.log(`  · video dilewati — tidak ada slide atau tidak ada poin untuk dibacakan`);
+    }
+  } catch (e) {
+    // NOT fatal. The briefing and the slide are already on disk and are useful without audio; a
+    // TTS quota error should not throw away a two-hour transcript and a model call.
+    console.error(`✗ narasi gagal: ${(e as Error).message}`);
+  }
+}
+
 console.log(`\n${isDraft ? "⚠ DRAFT" : "✓"} → ${briefPath}`);
 if (slidePath) console.log(`  → ${join(outDir, "slide.png")}`);
+for (const a of audioPaths) console.log(`  → ${a}`);
 if (isDraft) console.log(`  ${flagged.length} spans to check against the video before this is postable.`);

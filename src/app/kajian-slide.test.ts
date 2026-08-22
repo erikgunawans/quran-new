@@ -20,6 +20,8 @@
  */
 import { describe, expect, it } from "bun:test";
 import {
+  DENIALS,
+  carriesCredential,
   SLIDE_TOKENS,
   buildSlideHtml,
   escapeHtml,
@@ -68,6 +70,38 @@ function withoutTokens(html: string): string {
 }
 
 // ── the document ───────────────────────────────────────────────────────────────────────────────
+
+describe("the slide refuses a gelar too", () => {
+  it("drops a bullet carrying a post-nominal, and names the reason", () => {
+    const r = extractSlideBullets("- Ustadz Fulan, Lc. menjelaskan tiga perkara\n- Poin yang aman dan wajar\n");
+    expect(r.bullets).toEqual(["Poin yang aman dan wajar"]);
+    expect(r.dropped.map((d) => d.reason)).toContain("carries-a-credential");
+  });
+
+  it("KEEPS a sourced citation — `Prof.` and `Dr.` are pre-nominal, not credentials", () => {
+    /**
+     * This is the test the revert needed and did not have. `prof` and `dr` were added to the
+     * pattern once; the suite stayed green, and what they actually deleted was the briefing's
+     * SOURCED points — "menurut Dr. X in kitab Y" — while keeping its unsourced ones. A screen
+     * whose errors have a direction is worse than one with none, and nothing caught it.
+     */
+    const sourced = [
+      "Menurut Prof. Dr. M. Quraish Shihab dalam Tafsir Al-Mishbah, ayat ini tentang sabar",
+      "Dr. Yusuf al-Qaradawi menulis tentang fiqih prioritas",
+      "Materi ini dinukil dr. buku beliau",
+    ];
+    for (const line of sourced) {
+      expect(carriesCredential(line)).toBe(false);
+      expect(extractSlideBullets(`- ${line}\n`).bullets).toEqual([line]);
+    }
+  });
+
+  it("does not fire on ordinary prose — the screen only ever REMOVES", () => {
+    // The screen only ever REMOVES, and it must not fire on ordinary prose.
+    const r = extractSlideBullets("- Amar ma'ruf nahi munkar adalah kewajiban bersama\n");
+    expect(r.bullets).toEqual(["Amar ma'ruf nahi munkar adalah kewajiban bersama"]);
+  });
+});
 
 describe("buildSlideHtml — the document", () => {
   it("is one complete standalone HTML document", () => {
@@ -138,8 +172,12 @@ describe("buildSlideHtml — who may be named", () => {
 
   it("says on the artifact that it is a summary and not a quotation", () => {
     const html = buildSlideHtml(base());
-    expect(html).toContain("Bukan kutipan");
-    expect(html).toContain("belum diperiksa ulama");
+    // Asserted through the SHARED constant, not a copy of its text: the slide, the briefing, the
+    // spoken opening and the m4a panel all say this, and every one of them was typed separately
+    // until they drifted apart. `Bukan kutipan` — the flat claim about the CONTENT — was withdrawn
+    // because the screen behind it only detects paired quote marks.
+    expect(html).toContain(DENIALS);
+    expect(html).not.toContain("Bukan kutipan,");
   });
 
   it("styles no bullet as a quote — ADR 5", () => {

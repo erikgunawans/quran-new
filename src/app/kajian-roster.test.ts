@@ -4,7 +4,13 @@
  * it names NOBODY the moment it is unsure.
  */
 import { describe, expect, it } from "bun:test";
-import { matchesFor, resolveSpeaker, validateRoster, type RosterEntry } from "./kajian-roster.ts";
+import {
+  matchesFor,
+  resolveSpeaker,
+  checkOrganisations,
+  validateRoster,
+  type RosterEntry,
+} from "./kajian-roster.ts";
 
 const SYARIFUL: RosterEntry = {
   name: "Ustadz Syariful Mahya",
@@ -94,5 +100,31 @@ describe("resolveSpeaker", () => {
     // this test is where they find out it was a decision.
     const out = resolveSpeaker([{ name: "Masjid Darussalam Kota Wisata", titleContains: "darussalam" }], REAL_VIDEO);
     expect(out.kind).toBe("none");
+  });
+});
+
+describe("the organisations allowlist", () => {
+  it("returns the survivors, because printing a problem is not rejecting an entry", () => {
+    const r = checkOrganisations(["Masjid Darussalam Kota Wisata", "Yufid TV"]);
+    expect(r.problems).toEqual([]);
+    expect(r.valid).toEqual(["Masjid Darussalam Kota Wisata", "Yufid TV"]);
+  });
+
+  it("drops an empty entry AND says so", () => {
+    const r = checkOrganisations(["  ", "Yufid TV"]);
+    expect(r.valid).toEqual(["Yufid TV"]);
+    expect(r.problems.join(" ")).toContain("empty");
+  });
+
+  it("drops a duplicate and says so — inert for matching, but a maintainer should know", () => {
+    const r = checkOrganisations(["Yufid TV", "yufid tv"]);
+    expect(r.valid).toEqual(["Yufid TV"]);
+    expect(r.problems.join(" ")).toContain("duplicate");
+  });
+
+  it("keeps a SHORT organisation name — exact match makes a length floor meaningless", () => {
+    // The old min-4 floor was borrowed from `titleContains`, a SUBSTRING matcher. This one is
+    // equality: "TV" matches a channel named exactly "TV" and nothing else.
+    expect(checkOrganisations(["TV"]).valid).toEqual(["TV"]);
   });
 });

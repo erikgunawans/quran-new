@@ -158,6 +158,7 @@ export function sanitizeQrSvg(raw: string): string {
 export type BulletDropReason =
   | "unclear-reference"
   | "carries-a-quote"
+  | "carries-a-credential"
   | "too-long"
   | "over-budget"
   | "over-max";
@@ -254,10 +255,102 @@ function summaryScope(lines: readonly string[]): readonly string[] {
   return end === -1 ? after : after.slice(0, end);
 }
 
+/**
+ * ── THE THREE DENIALS, AS ONE STRING, FOR EVERY SURFACE ────────────────────────────────────────
+ *
+ * The slide, the briefing, the spoken narration and the audio file's description panel all have to
+ * say this, and each one of them was typed separately. Predictably they drifted: the m4a panel
+ * shipped carrying one denial of the three, and the slide kept asserting `Bukan kutipan` — a flat
+ * claim about the CONTENT — after the spoken copy had already withdrawn it.
+ *
+ * That withdrawal is the substance here, not the tidiness. The screen behind denial #1 detects
+ * PAIRED QUOTATION MARKS and nothing else, so a near-verbatim line the model wrote without quote
+ * marks ships underneath it. "Tidak dimaksudkan sebagai kutipan" is a claim about our INTENT,
+ * which this pipeline can always back; "bukan kutipan" is a claim about the text, which it cannot.
+ *
+ * `tidak` and not `bukan` on that first clause because `dimaksudkan` is a verb — `bukan` negates
+ * nouns. It is spoken aloud in every narrated file, so the grammar is not cosmetic.
+ */
+export const DENIALS =
+  "Tidak dimaksudkan sebagai kutipan, bukan fatwa, dan belum diperiksa ulama.";
+
 /** A pair of quotation marks of any flavour Indonesian editors actually type. */
 const QUOTE_PAIR = /["“”][^"“”]{2,}["“”]/;
 
-function stripInlineMarkdown(s: string): string {
+/**
+ * ── THE THREE SHARED REFUSALS ──────────────────────────────────────────────────────────────────
+ *
+ * Exported as PREDICATES, not as the regexes behind them, and used by `collect()` below rather
+ * than sitting beside a second copy of the same test. `kajian-narration.ts` applies the identical
+ * three to spoken prose, where a direct quotation is strictly more dangerous than it is on a slide.
+ *
+ * The seam is behavioural on purpose. This repo has already shipped a diagnostic that printed
+ * `eligible:false` beside `records:2` because a report duplicated a gate instead of importing it:
+ * both copies had tests, both passed, and they disagreed in production. One binding, two callers.
+ */
+
+/** The briefing carries a citation the model could not read off the transcript. */
+export function hasUnclearReference(s: string): boolean {
+  return s.toLowerCase().includes(UNCLEAR_MARKER);
+}
+
+/** The line reproduces someone's words. On a slide it is a publishing call; in audio it is worse. */
+export function carriesQuotation(s: string): boolean {
+  return QUOTE_PAIR.test(s);
+}
+
+/**
+ * Post-nominal credentials as they appear in UPLOADER-WRITTEN strings — `Lc.`, `M.A.`, `S.Ag.`.
+ *
+ * ⚠ THE TRAILING PERIOD IS LOAD-BEARING. Written first without it, this pattern matched the bare
+ * word "ma" — and `\bma\b` fires on "ma'ruf", because an apostrophe is a word boundary. Amar ma'ruf
+ * nahi munkar is about as common a phrase as Indonesian dakwah has.
+ *
+ * Deliberately NOT a list of honorifics. Screening "Ustadz" or "Imam" would delete the briefing's
+ * legitimate citations of classical authors ("kitab Raudhatul Uqala karya Imam Ibnu Hibban"), which
+ * name a SOURCE rather than claim who spoke.
+ */
+const CREDENTIAL_TOKEN =
+  /\b(?:l\.?c|m\.?a|s\.?ag|m\.?pd|s\.?pd|m\.?ud|k\.?h|s\.?h|m\.?si|m\.?hum|s\.?th|m\.?ag)\.(?!\p{L})/iu;
+
+/**
+ * The line carries a DOTTED POST-NOMINAL from the list above — `Lc.`, `M.A.`, `S.Ag.`, `M.Hum.`.
+ *
+ * ⚠ THIS SCREENS THE SLIDE TOO, and it did not at first. ADR 5 is not ambiguous — an unrostered
+ * video renders "with the source link and no identity: no name, no face, NO CREDENTIALS" — but
+ * `collect()` applied only the unclear-reference and quotation screens, so a briefing bullet
+ * reading "Ustadz Fulan, Lc. menjelaskan…" went straight onto a public graphic with a name and a
+ * gelar on it. That was already forbidden by the record; the code simply did not enforce it.
+ *
+ * ⚠ IT DOES NOT CLOSE ADR 5'S GAP, AND AN EARLIER COMMENT HERE SAID IT DID. What it catches is
+ * exactly the dotted forms enumerated above. **`Ustadz Fulan Lc` and `Ustadz Fulan MA` — the
+ * DOTLESS forms — are not caught**, and cannot be without matching the bare words "lc" and "ma",
+ * which fire on `ma'ruf` (an apostrophe is a word boundary) and would delete real content from
+ * every lecture that says amar ma'ruf nahi munkar. That trade is deliberate and the hole is real:
+ * under-firing is the safe direction, but it is still a hole, and it is recorded as one rather
+ * than pinned shut by a passing test.
+ *
+ * The honorific alone ("Ustadz Fulan") is likewise not screened here, because "Imam Ibnu Hibban"
+ * in a citation is the same shape and must survive. The roster is what actually closes this.
+ *
+ * ⚠ `Prof.` AND `Dr.` WERE ADDED HERE ONCE AND TAKEN BACK OUT. They are PRE-nominal honorifics,
+ * not post-nominal credentials, and adding them did exactly what the paragraph above says this
+ * screen refuses to do: it deleted the briefing's SOURCED points while keeping its unsourced ones.
+ * "Menurut Prof. Dr. M. Quraish Shihab dalam Tafsir Al-Mishbah…" and "Dr. Yusuf al-Qaradawi
+ * menulis…" are citations of a source, not claims about who spoke — and in auto-captions `dr.` is
+ * routinely just "dari". The bias had a direction, which is what made it worth reverting rather
+ * than tuning.
+ */
+export function carriesCredential(s: string): boolean {
+  return CREDENTIAL_TOKEN.test(s);
+}
+
+/** The heading after which everything is the unchecked check-list. Both surfaces stop here. */
+export function isCheckListHeading(line: string): boolean {
+  return STOP_HEADING.test(line.trim());
+}
+
+export function stripInlineMarkdown(s: string): string {
   return s
     .replace(/`([^`]*)`/g, "$1")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
@@ -311,7 +404,7 @@ function collect(lines: readonly string[], opts: ExtractOptions): ExtractedBulle
   let used = 0;
 
   for (const rawLine of lines) {
-    if (STOP_HEADING.test(rawLine.trim())) break;
+    if (isCheckListHeading(rawLine)) break;
 
     // The briefing's provenance notes are a blockquote, and some of them are bulleted inside it.
     if (/^\s{0,3}>/.test(rawLine)) continue;
@@ -322,12 +415,16 @@ function collect(lines: readonly string[], opts: ExtractOptions): ExtractedBulle
     const text = stripInlineMarkdown(m[1] ?? "");
     if (!text) continue;
 
-    if (text.toLowerCase().includes(UNCLEAR_MARKER)) {
+    if (hasUnclearReference(text)) {
       dropped.push({ reason: "unclear-reference", text });
       continue;
     }
-    if (QUOTE_PAIR.test(text)) {
+    if (carriesQuotation(text)) {
       dropped.push({ reason: "carries-a-quote", text });
+      continue;
+    }
+    if (carriesCredential(text)) {
+      dropped.push({ reason: "carries-a-credential", text });
       continue;
     }
     if (text.length > maxChars) {
@@ -369,11 +466,14 @@ export interface SlideInput {
 
 const HEADING = "Ringkasan Kajian";
 const KICKER = "Ringkasan otomatis";
-const DRAFT_COPY = "DRAFT — belum diperiksa, belum boleh diposting";
+/**
+ * The draft gate's wording, exported for the same reason `DENIALS` is: the gate now has four
+ * carriers — this band, the `-DRAFT` filename suffix, the spoken `DRAFT_WARNING`, and the m4a
+ * `title` tag — and the m4a's was a hand-typed byte-identical duplicate of this line.
+ */
+export const DRAFT_COPY = "DRAFT — belum diperiksa, belum boleh diposting";
 const SOURCE_LABEL = "Judul di YouTube, disalin apa adanya";
-const DISCLAIMER =
-  "Ringkasan otomatis dari video di atas. Bukan kutipan, bukan fatwa, dan belum diperiksa ulama. " +
-  "Pindai kode untuk menonton sumbernya.";
+const DISCLAIMER = `Ringkasan otomatis dari video di atas. ${DENIALS} Pindai kode untuk menonton sumbernya.`;
 /**
  * Printed only when nobody was named. It says what is true — we did not identify anyone — without
  * repeating the title's claim, and without implying the title is wrong either.

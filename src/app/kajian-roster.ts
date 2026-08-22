@@ -115,3 +115,50 @@ export function resolveSpeaker(entries: readonly RosterEntry[], video: VideoIden
   if (found.length > 1) return { kind: "ambiguous", names: found.map((m) => m.entry.name) };
   return { kind: "match", match: found[0]! };
 }
+
+export interface OrganisationsCheck {
+  readonly problems: readonly string[];
+  /** The entries that survived. Callers must use THIS, not the raw list. */
+  readonly valid: readonly string[];
+}
+
+/**
+ * Check the `organisations:` allowlist, and hand back the entries that may actually be used.
+ *
+ * ⚠ IT RETURNS THE SURVIVORS BECAUSE AN EARLIER VERSION ONLY PRINTED. It was called `validate…`,
+ * its tests were named "rejects an entry too short…", and the CLI printed the problems and then
+ * used the ORIGINAL array unchanged — so nothing was rejected by any of it. A function whose name,
+ * comment and tests all describe a rejection it does not perform is the shape this repo keeps
+ * paying for, so the survivors are now the return value and the caller cannot ignore them.
+ *
+ * ⚠ THERE IS NO MINIMUM LENGTH, AND THE FIRST VERSION HAD ONE. That floor was inherited from
+ * `titleContains`, which is a SUBSTRING match where a two-character fragment matches almost every
+ * title. `channelMayBeSpoken` is exact case-insensitive EQUALITY: an entry "TV" matches a channel
+ * named exactly "TV" and nothing else, which is not a hazard — it is a short organisation name.
+ * The floor only rejected legitimate entries, on reasoning that belonged to a different predicate.
+ */
+export function checkOrganisations(entries: readonly string[]): OrganisationsCheck {
+  const problems: string[] = [];
+  const valid: string[] = [];
+  const seen = new Set<string>();
+  entries.forEach((e, i) => {
+    const where = `organisations entry ${i + 1}`;
+    if (typeof e !== "string") {
+      problems.push(`${where}: not a string (${JSON.stringify(e)}), and dropped`);
+      return;
+    }
+    const v = e.trim();
+    if (!v) {
+      problems.push(`${where}: empty, and dropped`);
+      return;
+    }
+    const key = v.toLowerCase();
+    if (seen.has(key)) {
+      problems.push(`${where}: "${v}" is a duplicate, and dropped`);
+      return;
+    }
+    seen.add(key);
+    valid.push(v);
+  });
+  return { problems, valid };
+}

@@ -2,6 +2,76 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (evening) — kajian steps 5-6: the narration, and two holes that are Erik's to close
+
+**THE SESSION'S ONE DECISION WORTH REMEMBERING: a channel name cannot be screened, so it is
+allowlisted.** The narration opens by naming its source, and for an unrostered video that was
+`meta.channel`, verbatim. First fix was a pattern — `ustadz`, `syaikh`, `habib`, `Lc.`, `M.A.` It
+caught `Buya Yahya` and `Gus Baha` and passed `Firanda Andirja`, `Hanan Attaki`, `Felix Siauw`,
+`Khalid Basalamah Official`. **The dominant naming convention on Indonesian dakwah YouTube is a
+bare personal name, which has nothing to match on.** No list closes that, and ADR 5 already ruled
+guessing out — "Omission is the fallback; guessing is not available." So it is inverted: a channel
+is spoken only if a person wrote it into `organisations:` in `roster.yaml`, exactly as a speaker is
+named only from `speakers:`. It ships `[]`, so today no channel is spoken at all.
+
+**TWO OPEN HOLES, RECORDED HERE BECAUSE THE CODE SAYS THEY MUST BE. Both are Erik's to rule on.**
+
+1. **A speaker name the MODEL relays into its own prose is spoken.** `"Penceramah, Syariful Mahya,
+   menjelaskan tiga perkara"` clears the title-overlap threshold (2 of 5 tokens, under 0.6) and
+   carries no dotted gelar, so both screens pass and the narrator says it. The classical-author
+   citations the body must keep ("kitab Raudhatul Uqala karya Imam Ibnu Hibban") are the same shape
+   as the speaker name it must drop, and nothing in `kajian-narration.ts` can tell them apart. The
+   roster is what closes it, one video at a time. **Deliberately not pinned by a passing test.**
+
+2. **Consensus claims are not screened, and are now SPOKEN.** `speakableFrom` drops quotations,
+   unclear references, title echoes and dotted gelar. It does not touch "para ulama sepakat…" or
+   "tidak ada khilaf…", and `kajian-flags.test.ts` pins that non-flagging as intended. That was
+   defensible for a WRITTEN briefing under a labelled disclaimer; this step turns the same sentence
+   into our narrator's voice on an autoplaying mp4, where ADR 6's own argument applies. **Adding a
+   consensus screen is a policy change, not a bug fix.**
+
+**THE SLIDE'S SOURCE BLOCK IS TWO UPLOADER-WRITTEN STRINGS, NOT ONE.** The afternoon checkpoint
+recorded the video TITLE as the open ADR 5 question. The CHANNEL is the other one, and it has no
+label above it at all — `qs-where` renders `${channel} — ${url}` bare. This session established
+that a bare-name channel is a person as often as not, so the channel belongs in that ruling beside
+the title. The narration refuses to say it; the slide still prints it, and the short mp4 is that
+slide on screen for its whole duration.
+
+**A SHIPPED DENIAL CHANGED, AND IT SHOULD BE A DECISION.** The slide and briefing said "Bukan
+kutipan, bukan fatwa, dan belum diperiksa ulama." They now say "Tidak dimaksudkan sebagai kutipan,
+…". The screen behind the first clause detects PAIRED QUOTE MARKS only, so "bukan kutipan" claimed
+more about the content than the code can back; the new clause claims intent, which this pipeline
+can always make. `belum diperiksa ulama` and `bukan fatwa` are untouched. `carriesCredential` also
+moved onto the SLIDE path this session, on ADR 5's existing authority ("no name, no face, no
+credentials") — a step-4 behaviour change, reported per drop, made because the record already said
+it, not because a new policy was invented.
+
+**Eight scholarly-gate rounds. Rounds 1-5 found real defects in shipped behaviour; three of those
+were regressions introduced by the PREVIOUS round's own fix.** The lesson is the one already in
+this file in another form: a correction is the least-scrutinised edit, and it needs the same gate
+the original did. The other repeated failure was mine: three separate times I wrote a test whose
+fixture could not fail — a mosque channel asserted not to contain a person's name; then
+`"Ustadz Fulan Official"` tested against an honorific screen; then a grep for `DRAFT_WARNING` that
+stayed green when the gate was deleted, because the IMPORT LINE still mentioned the symbol.
+
+**Four defects the pipeline only gave up when RUN.** `-shortest` produced a 63.0s mp4 from 50.8s of
+narration — twelve seconds of silent slide on the end of a social post; a looped still has no
+length, so the audio duration is measured and passed as `-t` and the result measured again. A
+`short` script with no bullets, and a long one whose every line was refused, both narrated the frame
+talking about itself. And every disclaimer in the m4a — draft warning, all three denials, the
+`title=DRAFT` tag — sat nested inside `if (tags.sourceUrl)`, so a URL-less encode shipped carrying
+nothing but ffmpeg's own tags; `sourceUrl` is now required and `encodeM4a` throws without it.
+
+**Verified, not asserted.** 7,062-char script → 3 chunks reconstructing BYTE-IDENTICALLY to the
+source; no silence gap over 1.5s across 499.8s; −18 dB uniform across all three thirds and both
+seams; QR decoded out of an h264 VIDEO FRAME to the exact source URL; video duration == audio
+duration to the centisecond. Chirp3-HD's cap was MEASURED at 5,000 UTF-8 bytes (4,500 OK, 5,200
+rejected) and the 15.8 chars/sec rate from the same probe.
+
+Gates: `bun test` 1833/0 exit 0 · typecheck exit 0 (five passes) · build exit 0. Nothing deployed.
+`web/dist` holds a `principled` gate build — rebuild with the right `VITE_ANSWER_MODE` before any
+deploy.
+
 ## 2026-08-22 (afternoon) — the kajian slide, and four defects only the rendered PNG could show
 
 **THE SESSION'S ONE DECISION WORTH REMEMBERING: the roster's silence was leaking through the video
