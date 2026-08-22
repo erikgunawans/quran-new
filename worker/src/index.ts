@@ -832,7 +832,13 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
           isGroundedHadith,
           verses.map((v) => ({ ref: v.ref, texts: [v.text] })),
         ),
-      // ISC-560 — a violation must cost the SENTENCE, not the answer. Erik, 2026-08-21.
+      // ISC-560/ISC-564 — a violation costs the PARAGRAPH, not the answer.
+      //
+      // ATTRIBUTION CORRECTED 2026-08-22. This line read "a violation must cost the SENTENCE, not
+      // the answer. Erik, 2026-08-21" — which was false twice over by then: the unit is no longer
+      // the sentence (prod stranded a reply; see `splitParagraphs`), and the sentence framing was
+      // never his. His recorded ruling is "it has to be answered"; the granularity was ours.
+      // ISC-550 convicted this same conflation, naming THIS FILE as where it was attributed to him.
       // `repairAnswerProse` is handed the very `guard` closure above, so the prose it returns has
       // been accepted by the same wall that judges egress; there is no second copy to drift.
       repair: repairAnswerProse,

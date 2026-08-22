@@ -6,13 +6,20 @@
  * *"Aku belum menemukan jalan dari pertanyaanmu ke ayat-ayatnya"* — over an answer the model had
  * already written, most of which was fine. One bad sentence cost the other nine.
  *
- * The guard's RULES are unchanged and none is relaxed. What changes is the CONSEQUENCE: a violating
- * sentence is excised and the rest ships. The app still never invents scripture; it just no longer
- * throws away the paragraph that didn't.
+ * The guard's RULES are unchanged and none is relaxed. What changes is the CONSEQUENCE: the violating
+ * PARAGRAPH is excised and the rest ships. The app still never invents scripture; it just no longer
+ * throws away the answer that didn't.
  *
  * ── THE ONE DESIGN CONSTRAINT THAT MATTERS ──────────────────────────────────────────────────────
  *
- * **Sentences are the unit of EXCISION. Whole prose stays the unit of JUDGEMENT.**
+ * **Paragraphs are the unit of EXCISION. Whole prose stays the unit of JUDGEMENT.**
+ *
+ * THIS HEADER SAID "SENTENCES" UNTIL 2026-08-22, and it is being corrected here rather than only in
+ * the function below because a `scholarly-gate` pass had ALREADY convicted this file, one day
+ * earlier, of a docblock stating the opposite of the code beneath it (`ISA.md` Cycle 12, finding 2)
+ * — and the second pass found the identical defect had reappeared at the TOP of the same file. A
+ * reader who reads this header and stops must not be told the wrong unit. Why the unit changed:
+ * `splitParagraphs`, which carries the prod answer that forced it.
  *
  * This is not fastidiousness. It is on record in this repo (`scope-decides-the-discriminator`) that
  * these guards do NOT mean the same thing at the two scopes: rare-word overlap separates whole
@@ -37,7 +44,7 @@
  * So a repair that asked "is THIS sentence clean?" would be asking a question the guard does not
  * answer, and would ship prose the real wall rejects. Instead every decision here is made by running
  * the caller's own guard over the FULL candidate text, exactly as it will be judged on egress. A
- * sentence is dropped only because dropping it made the WHOLE prose better by the guard's own count.
+ * paragraph is dropped only because dropping it made the WHOLE prose better by the guard's own count.
  *
  * ── ONE BINDING ─────────────────────────────────────────────────────────────────────────────────
  *
@@ -80,22 +87,110 @@ export interface RepairVerdict {
 export interface RepairResult {
   /** Prose that PASSES the injected guard, or null when no excision could reach a clean state. */
   readonly prose: string | null;
-  /** How many sentences were removed. 0 means the input was already clean. */
+  /** How many PARAGRAPHS were removed. 0 means the input was already clean. */
   readonly dropped: number;
 }
 
 /**
- * Above this many sentences the O(n²) search is refused rather than run.
+ * Above this many UNITS the O(n²) search is refused rather than run.
  *
- * Not a quality judgement — a bound on work. A real answer runs 5–15 sentences; 60 means something
- * pathological (a model looping), and that turn is better served by the normal refusal path than by
- * ~3,600 guard evaluations inside a request that already has a deadline. Chosen well above the
- * observed maximum rather than close to it, because a bound set near the real maximum is how
- * `bundle-absence-needs-a-control` got written.
+ * Not a quality judgement — a bound on work. 60 means something pathological (a model looping), and
+ * that turn is better served by the normal refusal path than by ~3,600 guard evaluations inside a
+ * request that already has a deadline. Chosen well above the observed maximum rather than close to
+ * it, because a bound set near the real maximum is how `bundle-absence-needs-a-control` got written.
+ *
+ * THE UNIT CHANGED ON 2026-08-22 AND THE NUMBER DELIBERATELY DID NOT. It used to bound SENTENCES
+ * (a real answer runs 5–15); it now bounds PARAGRAPHS, and four real prod answers measured the same
+ * day ran 3–4. So the bound went from ~4× the observed maximum to ~15×, which is looser than it
+ * needs to be and is left that way on purpose: lowering it would be tuning a work bound against a
+ * FOUR-answer sample, and the cost it guards against — the quadratic search — is now far cheaper at
+ * this granularity than it was at the old one. If it is ever tightened, measure the paragraph-count
+ * distribution first on a real sample; do not divide the old number by anything.
  */
-const MAX_SENTENCES = 60;
+const MAX_UNITS = 60;
 
 /**
+ * Split into PARAGRAPHS that concatenate back to the input exactly.
+ *
+ * ── WHY THE UNIT OF EXCISION IS THE PARAGRAPH AND NO LONGER THE SENTENCE ────────────────────────
+ *
+ * MEASURED ON PROD, 2026-08-22, on the deploy of `e6791f0`. Asked *"kenapa kita harus salat lima
+ * waktu"*, both attempts were refused `bad_hadith`, repair excised ONE sentence, and the reader was
+ * shipped this:
+ *
+ *   "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu. **Tentu tidak.**
+ *    Itulah perumpamaan shalat lima waktu, yang dengannya Allah menghapus dosa-dosa."
+ *
+ * The model had written Bukhari 518 as its dialogue — *"…if he bathed in it five times a day, would
+ * any dirt remain?"* → *"Tentu tidak."* → *"That is the parable of the five prayers."* The wall
+ * objected to the sentence carrying the unbacked attribution, repair removed exactly that sentence,
+ * and the REPLY was left standing with nothing to reply to.
+ *
+ * A SENTENCE IS NOT A SELF-CONTAINED UNIT OF MEANING. Its neighbours can depend on it, and the guard
+ * cannot see that: the guard is a rules wall, not a coherence check, so prose that strands a survivor
+ * passes every rule it has. `bundle-absence-needs-a-control` in reverse — the wall returning `ok` is
+ * evidence about RULES, and was being read as evidence about READABILITY.
+ *
+ * The failure that made this urgent is not the one observed. A dangling reply is incoherent; deleting
+ * a NEGATION or a QUALIFIER is false. "Ini tidak berarti X. X adalah…" loses its first sentence and
+ * the answer now asserts X, under the same mechanism, decided by which sentence the wall happened to
+ * object to.
+ *
+ * A PARAGRAPH IS self-contained enough: excising a whole one cannot strand a sentence inside it,
+ * because there is no inside left. This is structural, not a heuristic — no connective word list, no
+ * dependency parse, nothing to tune, and no fixture to teach the suite what to expect.
+ *
+ * WHAT IT COSTS, and this is a real cost, not a rounding error: an answer loses a whole paragraph
+ * where it used to lose a sentence. Measured on FOUR real prod answers on 2026-08-22 — n=4, said
+ * plainly because a larger sample was attempted and the sampler's loop condition was broken, so the
+ * bigger number is one this comment does not have. All four ran 3–4 paragraphs of 8–19 sentences, so
+ * a paragraph is roughly a quarter to a third of the answer and at least two units remained in every
+ * one. FOUR ANSWERS CANNOT RULE OUT A SINGLE-PARAGRAPH ANSWER, which under this unit repairs to
+ * nothing and ships silence — that case is unmeasured, not absent. NOT free, and chosen anyway: a
+ * thinner coherent answer beats a fluent one with a hole in the middle, on a surface that speaks
+ * about the Prophet.
+ *
+ * WHAT IT DOES NOT FIX, stated because the same class survives across the boundary: a FOLLOWING
+ * paragraph can still open on a connective that refers to the one removed ("Selain itu, …"). That is
+ * narrower — additive openers survive a missing predecessor far better than a bare reply does — but
+ * it is the same defect and it is NOT closed.
+ *
+ * Same exactness contract as `splitSentences`: the pieces rejoin to the input byte for byte, so
+ * repair still removes whole pieces or does nothing, and never reflows what the model wrote.
+ */
+export function splitParagraphs(prose: string): string[] {
+  // Keep each separator with the piece BEFORE it, so rejoining is byte-exact and a surviving
+  // paragraph carries its own trailing break rather than inheriting the deleted one's.
+  const raw = prose.match(/[^\n]*(?:\n+|$)/g)?.filter((s) => s !== "") ?? [];
+  const out: string[] = [];
+  for (const piece of raw) {
+    // A run of blank lines belongs to the paragraph it closes; a piece that is only whitespace is
+    // therefore merged backwards rather than becoming a unit that could be "dropped" on its own.
+    const prev = out.length > 0 ? out[out.length - 1] : undefined;
+    if (prev !== undefined && piece.trim() === "") {
+      out[out.length - 1] = prev + piece;
+      continue;
+    }
+    out.push(piece);
+  }
+  return out;
+}
+
+/**
+ * NO LONGER THE UNIT OF EXCISION (2026-08-22) — `splitParagraphs` is. Kept, not deleted.
+ *
+ * `repairAnswerProse` stopped calling this when prod shipped a stranded reply; the reasoning is in
+ * `splitParagraphs`. It is retained rather than removed for two reasons and neither is sentiment:
+ * the paragraph unit is a YOUNG decision resting on a four-answer sample, and a single-paragraph
+ * measurement could reverse it. (A first draft gave a second reason — that the marker-merge rule
+ * below is "the only place in this repo" that knows a `[H:…]` receipt written after a full stop
+ * belongs to the sentence BEFORE it. That is false, and falsified twelve lines further down by this
+ * file's own prose: the guard does it too, at `web/src/answer-guard.ts:549`.)
+ * **Its only caller today is its own test.** If
+ * the paragraph unit outlives a real sample, delete this and its tests together — do not leave it
+ * exported and untested, and do not quietly re-point repair at it without re-reading the prod
+ * transcript in `splitParagraphs`.
+ *
  * Split into pieces that CONCATENATE BACK TO THE INPUT EXACTLY.
  *
  * That exactness is the point: repair must never reflow, retype or normalise the model's prose. It
@@ -152,7 +247,7 @@ const identify = (verdict: RepairVerdict): string =>
     .join("\u0001");
 
 /**
- * Excise violating sentences until the WHOLE prose passes `guard`.
+ * Excise violating PARAGRAPHS until the WHOLE prose passes `guard`.
  *
  * Greedy, and NO LONGER GREEDY ON THE COUNT ALONE — this paragraph said it was until 2026-08-22 and
  * a `scholarly-gate` pass caught the docblock describing the opposite of the code beneath it. Each
@@ -198,8 +293,9 @@ export function repairAnswerProse(
 ): RepairResult {
   if (guard(candidate).ok) return { prose: candidate, dropped: 0 };
 
-  const parts = splitSentences(candidate);
-  if (parts.length < 2 || parts.length > MAX_SENTENCES) return { prose: null, dropped: 0 };
+  // PARAGRAPHS, not sentences — see `splitParagraphs` for the prod answer that forced this.
+  const parts = splitParagraphs(candidate);
+  if (parts.length < 2 || parts.length > MAX_UNITS) return { prose: null, dropped: 0 };
 
   const keep = parts.map(() => true);
   const join = (mask: readonly boolean[]): string => parts.filter((_, i) => mask[i]).join("");
@@ -279,12 +375,18 @@ export function repairAnswerProse(
     // and is not claimed to be — `measured-set-is-not-a-class` is this repo's record of what
     // happens when a bound that held on the measured sample is written up as a closed class.
     //
-    // WHAT ONE EXPANSION COSTS, MEASURED 2026-08-22 rather than reasoned about: at 59 sentences —
-    // one under `MAX_SENTENCES`, with the two offenders 30 sentences apart so nothing single is
-    // observable — **1,773 guard evaluations, 253 ms against the REAL `guardAnswerProse`** (6 ms
-    // against a trivial fake, which is why the real one was measured). That sits inside the ~3,600
-    // this module already budgets at `MAX_SENTENCES`. A real answer runs 5–15 sentences, where the
-    // expansion is ~105 evaluations.
+    // WHAT ONE EXPANSION COSTS, MEASURED 2026-08-22 rather than reasoned about: at 59 units — one
+    // under `MAX_UNITS`, with the two offenders 30 apart so nothing single is observable —
+    // **1,773 guard evaluations, 253 ms against the REAL `guardAnswerProse`** (6 ms against a
+    // trivial fake, which is why the real one was measured). That sits inside the ~3,600 this
+    // module budgets at `MAX_UNITS`.
+    //
+    // THAT MEASUREMENT WAS TAKEN WHEN A UNIT WAS A SENTENCE, and it is kept because it still bounds
+    // the worst case the code admits. The REAL cost fell sharply when the unit became a PARAGRAPH:
+    // four prod answers on 2026-08-22 (n=4) ran 3-4 paragraphs, where the whole expansion is ~6
+    // evaluations and the greedy search ~16. The pathological figure above is now very far from
+    // anything observed - which is the safe direction for a bound, and the wrong direction to quote
+    // as a typical cost.
     //
     // WHY ONE AND NOT TWO — and the first version of this sentence got the reason WRONG, which is
     // worth leaving visible because it is the sentence a future reader will weigh when deciding to

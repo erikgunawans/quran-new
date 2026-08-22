@@ -574,8 +574,11 @@ describe("the loop reports WHICH check refused, not only the reader's verdict", 
  * the two rules together could not catch that.
  */
 describe("repair sees every refused candidate of the turn (ISC-561)", () => {
-  const REPAIRABLE = "Sabar itu indah. POISON di sini. Rezeki datang dari Allah.";
-  const UNREPAIRABLE = "VENOM satu. VENOM dua.";
+  // PARAGRAPH-separated: repair excises paragraphs, not sentences (2026-08-22 — see
+  // `splitParagraphs` for the prod answer that forced it). A single-paragraph candidate no longer
+  // repairs at all, so a fixture written with ". " separators would test the bail, not the search.
+  const REPAIRABLE = "Sabar itu indah.\n\nPOISON di sini.\n\nRezeki datang dari Allah.";
+  const UNREPAIRABLE = "VENOM satu.\n\nVENOM dua.";
 
   /** Occurrence-counting, so the search can make progress where progress exists. */
   const guard = (prose: string) => {
@@ -599,7 +602,7 @@ describe("repair sees every refused candidate of the turn (ISC-561)", () => {
   it("the control: attempt 1 repairs alone, attempt 2 does not", () => {
     // Without this the test below could pass for the wrong reason — e.g. because BOTH candidates
     // repair, which would say nothing about which one repair was shown.
-    expect(repairAnswerProse(REPAIRABLE, guard).prose).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(repairAnswerProse(REPAIRABLE, guard).prose).toBe("Sabar itu indah.\n\nRezeki datang dari Allah.");
     expect(repairAnswerProse(UNREPAIRABLE, guard).prose).toBeNull();
   });
 
@@ -621,7 +624,7 @@ describe("repair sees every refused candidate of the turn (ISC-561)", () => {
     });
 
     expect(trace.attempts.length).toBe(MAX_ATTEMPTS);
-    expect(trace.answer).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(trace.answer).toBe("Sabar itu indah.\n\nRezeki datang dari Allah.");
     expect(trace.reason).toBe("answered");
     expect(trace.repaired).toBe(true);
     expect(trace.repairedDropped).toBe(1);
@@ -648,13 +651,13 @@ describe("repair sees every refused candidate of the turn (ISC-561)", () => {
       generate: async () => {
         clock.advance(5_000);
         n += 1;
-        return n === 1 ? "VENOM awal. Kalimat bersih pertama." : REPAIRABLE;
+        return n === 1 ? "VENOM awal.\n\nKalimat bersih pertama." : REPAIRABLE;
       },
       guard,
       repair: repairAnswerProse,
     });
 
-    expect(trace.answer).toBe("Sabar itu indah. Rezeki datang dari Allah.");
+    expect(trace.answer).toBe("Sabar itu indah.\n\nRezeki datang dari Allah.");
     expect(trace.repairedRule).toBe("wording");
     // The LAST attempt — the index this code could always have produced.
     expect(trace.repairedAttempt).toBe(trace.attempts.length - 1);

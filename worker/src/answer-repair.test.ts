@@ -73,25 +73,49 @@ describe("repairAnswerProse", () => {
     expect(r.dropped).toBe(0);
   });
 
-  it("drops ONLY the offending sentence and keeps the rest of the answer", () => {
-    const prose = "Sabar itu indah. POISON kalimat buruk. Allah bersama orang sabar.";
+  it("drops ONLY the offending PARAGRAPH and keeps the rest of the answer", () => {
+    // THE UNIT CHANGED ON 2026-08-22 AND SO DID THIS TEST'S NAME. It read "drops ONLY the offending
+    // SENTENCE".
+    //
+    // NOTHING OF ERIK'S IS BEING AMENDED, and an earlier version of this comment said there was —
+    // it called the sentence framing "ISC-560's promise in Erik's words". It is not his. His recorded
+    // ruling (`PROGRESS.md`, 2026-08-21) is **"it has to be answered"**; "a violation must cost the
+    // SENTENCE, not the answer" is OUR write-up of it, and ISC-550 already convicted that exact
+    // conflation once. `docs/review/rights-2026-08-21.md` states the standing rule: the ASSENT and
+    // the OUTCOME are his, the WORDS and the argument's construction are not.
+    //
+    // So the granularity was always ours to get wrong, and prod showed we had: excising one sentence
+    // stranded the reply that answered it (`splitParagraphs` carries the shipped text). His ruling is
+    // untouched — the reader still gets an answer rather than silence.
+    const prose = "Sabar itu indah.\n\nPOISON paragraf buruk.\n\nAllah bersama orang sabar.";
     const r = repairAnswerProse(prose, guardRejecting("POISON"));
-    expect(r.prose).toBe("Sabar itu indah. Allah bersama orang sabar.");
+    expect(r.prose).toBe("Sabar itu indah.\n\nAllah bersama orang sabar.");
     expect(r.dropped).toBe(1);
   });
 
+  it("takes the WHOLE paragraph even when only one sentence in it offends", () => {
+    // The point of the new unit, and the counterfactual to the test above: a sibling sentence that
+    // is perfectly clean goes WITH its offending neighbour, because that is the only way a survivor
+    // cannot be stranded by it.
+    const prose = "Awal bersih.\n\nKalimat bersih. POISON di sini. Kalimat lain.\n\nAkhir bersih.";
+    const r = repairAnswerProse(prose, guardRejecting("POISON"));
+    expect(r.prose).toBe("Awal bersih.\n\nAkhir bersih.");
+    expect(r.dropped).toBe(1);
+    expect(r.prose).not.toContain("Kalimat bersih");
+  });
+
   it("removes several offenders when they are spread across the prose", () => {
-    const prose = "A baik. POISON satu. B baik. VENOM dua. C baik.";
+    const prose = "A baik.\n\nPOISON satu.\n\nB baik.\n\nVENOM dua.\n\nC baik.";
     const r = repairAnswerProse(prose, guardRejecting("POISON", "VENOM"));
-    expect(r.prose).toBe("A baik. B baik. C baik.");
+    expect(r.prose).toBe("A baik.\n\nB baik.\n\nC baik.");
     expect(r.dropped).toBe(2);
   });
 
   it("NEVER returns prose its own guard rejects — the invariant the whole module exists for", () => {
     const guard = guardRejecting("POISON");
     for (const prose of [
-      "A. POISON. B.",
-      "POISON satu. POISON dua. C bersih.",
+      "A.\n\nPOISON.\n\nB.",
+      "POISON satu.\n\nPOISON dua.\n\nC bersih.",
       "Bersih semua di sini.",
     ]) {
       const r = repairAnswerProse(prose, guard);
@@ -107,7 +131,7 @@ describe("repairAnswerProse", () => {
     // NOT — mutating that line away leaves this green, because the null actually comes from the
     // `return prose ? … : null` ternary further down. Two mechanisms, one outcome. The claim was
     // removed rather than left standing, and the case that DOES pin the `continue` is below.
-    const r = repairAnswerProse("POISON satu. POISON dua.", guardRejecting("POISON"));
+    const r = repairAnswerProse("POISON satu.\n\nPOISON dua.", guardRejecting("POISON"));
     expect(r.prose).toBeNull();
   });
 
@@ -116,7 +140,7 @@ describe("repairAnswerProse", () => {
     // outcome is identical with and without it, so only the guard's call log can tell them apart.
     // Force-red: removing that line makes `""` appear in `seen`.
     const seen: string[] = [];
-    repairAnswerProse("POISON satu. POISON dua.", (prose) => {
+    repairAnswerProse("POISON satu.\n\nPOISON dua.", (prose) => {
       seen.push(prose);
       return guardRejecting("POISON")(prose);
     });
@@ -128,7 +152,7 @@ describe("repairAnswerProse", () => {
     // A guard that rejects everything regardless — no excision can help, so the search must stop
     // rather than strip the answer to nothing sentence by sentence.
     let calls = 0;
-    const r = repairAnswerProse("A. B. C.", () => {
+    const r = repairAnswerProse("A.\n\nB.\n\nC.", () => {
       calls++;
       return bad(1);
     });
@@ -136,13 +160,20 @@ describe("repairAnswerProse", () => {
     expect(calls).toBeGreaterThan(0);
   });
 
-  it("does not attempt repair on a single-sentence candidate", () => {
+  it("does not attempt repair on a SINGLE-PARAGRAPH candidate", () => {
     // Nothing to excise but the whole answer, which is just the refusal by another name.
-    expect(repairAnswerProse("POISON.", guardRejecting("POISON")).prose).toBeNull();
+    //
+    // THIS IS THE COST OF THE PARAGRAPH UNIT AND IT IS NOT HYPOTHETICAL. A one-paragraph answer that
+    // trips the wall now ships SILENCE where the sentence unit would have repaired it. Four prod
+    // answers measured 2026-08-22 all ran 3-4 paragraphs, so none of them would land here — but n=4
+    // cannot show the case is absent, only that it did not occur. Recorded in ISA.md as the declined
+    // cost of the change, not hidden behind this test's green.
+    const prose = "POISON di sini. Kalimat kedua masih satu paragraf.";
+    expect(repairAnswerProse(prose, guardRejecting("POISON")).prose).toBeNull();
   });
 
   it("refuses the search on pathological input instead of running it", () => {
-    const many = Array.from({ length: 61 }, (_, i) => `Kalimat ${i}.`).join(" ");
+    const many = Array.from({ length: 61 }, (_, i) => `Paragraf ${i}.`).join("\n\n");
     let calls = 0;
     const r = repairAnswerProse(many, () => {
       calls++;
@@ -163,11 +194,11 @@ describe("repairAnswerProse", () => {
     // `bundle-absence-needs-a-control` shape.)
     const guard = (prose: string): AnswerGuardResult =>
       prose.includes("ALPHA") && prose.includes("BETA") ? bad(1) : ok;
-    const longSentence = " ALPHA yang panjang sekali dan penuh isi bermanfaat.";
-    const prose = `Awal bersih.${longSentence} BETA.`;
+    const longSentence = "ALPHA yang panjang sekali dan penuh isi bermanfaat.";
+    const prose = `Awal bersih.\n\n${longSentence}\n\nBETA.`;
     const r = repairAnswerProse(prose, guard);
     // The SHORT offender goes; the long, content-bearing sentence survives.
-    expect(r.prose).toBe(`Awal bersih.${longSentence}`.trim());
+    expect(r.prose).toBe(`Awal bersih.\n\n${longSentence}`);
     expect(r.dropped).toBe(1);
   });
 });
@@ -196,24 +227,24 @@ describe("repairAnswerProse — one rule, two violating sentences (ISC-562)", ()
       : { ok: false, violations: [{ kind: "own_wording", rule: "wording", detail: hit[0] }] };
   };
 
-  const PROSE = "Sabar itu indah. POISON-satu di sini. Rezeki dari Allah. POISON-dua di sana.";
+  const PROSE = "Sabar itu indah.\n\nPOISON-satu di sini.\n\nRezeki dari Allah.\n\nPOISON-dua di sana.";
 
   it("the control can tell the two cases apart", () => {
     // Without this, the test below could pass on a guard that reports a constant. One offender is
     // repairable in a single deletion; two are not, and BOTH report violations.length === 1.
-    const one = oneViolationPerRule("Sabar itu indah. POISON-satu di sini.");
+    const one = oneViolationPerRule("Sabar itu indah.\n\nPOISON-satu di sini.");
     const two = oneViolationPerRule(PROSE);
     expect(one.violations.length).toBe(1);
     expect(two.violations.length).toBe(1);
-    expect(oneViolationPerRule("Sabar itu indah. Rezeki dari Allah.").ok).toBe(true);
+    expect(oneViolationPerRule("Sabar itu indah.\n\nRezeki dari Allah.").ok).toBe(true);
     // And the single-offender case DOES repair today — so a failure below is about the pair.
-    expect(repairAnswerProse("Sabar itu indah. POISON-satu di sini.", oneViolationPerRule).prose)
+    expect(repairAnswerProse("Sabar itu indah.\n\nPOISON-satu di sini.", oneViolationPerRule).prose)
       .toBe("Sabar itu indah.");
   });
 
   it("repairs prose whose single rule is tripped by two sentences", () => {
     const r = repairAnswerProse(PROSE, oneViolationPerRule);
-    expect(r.prose).toBe("Sabar itu indah. Rezeki dari Allah.");
+    expect(r.prose).toBe("Sabar itu indah.\n\nRezeki dari Allah.");
     expect(r.dropped).toBe(2);
     // Never ship prose the injected guard rejects.
     expect(oneViolationPerRule(r.prose!).ok).toBe(true);
@@ -262,9 +293,9 @@ describe("repairAnswerProse — two offenders, identical detail, real guard (ISC
   const cite = (ref: string) => ref === "2:255";
   const guard = (prose: string) => guardAnswerProse(prose, cite);
 
-  const SAME = "Sabar itu indah. Lihat QS 9:129 untuk itu. Rezeki dari Allah. Juga QS 9:129 menerangkannya.";
-  const DIFF = "Sabar itu indah. Lihat QS 9:129 untuk itu. Rezeki dari Allah. Juga QS 8:77 menerangkannya.";
-  const ONE = "Sabar itu indah. Lihat QS 9:129 untuk itu. Rezeki dari Allah.";
+  const SAME = "Sabar itu indah.\n\nLihat QS 9:129 untuk itu.\n\nRezeki dari Allah.\n\nJuga QS 9:129 menerangkannya.";
+  const DIFF = "Sabar itu indah.\n\nLihat QS 9:129 untuk itu.\n\nRezeki dari Allah.\n\nJuga QS 8:77 menerangkannya.";
+  const ONE = "Sabar itu indah.\n\nLihat QS 9:129 untuk itu.\n\nRezeki dari Allah.";
 
   it("the real guard reports ONE violation for two bad refs, and the same detail when the ref repeats", () => {
     // The premise of the whole block. If this ever stops being true — because the guard's `break`
@@ -279,7 +310,7 @@ describe("repairAnswerProse — two offenders, identical detail, real guard (ISC
 
   it("repairs two sentences carrying the SAME bad ref", () => {
     const r = repairAnswerProse(SAME, guard);
-    expect(r.prose).toBe("Sabar itu indah. Rezeki dari Allah.");
+    expect(r.prose).toBe("Sabar itu indah.\n\nRezeki dari Allah.");
     expect(r.dropped).toBe(2);
     expect(guard(r.prose!).ok).toBe(true);
   });
@@ -287,18 +318,18 @@ describe("repairAnswerProse — two offenders, identical detail, real guard (ISC
   it("still repairs two sentences carrying DIFFERENT bad refs", () => {
     // The rank-1 path, which reaches this in two single deletions and never opens the pair search.
     const r = repairAnswerProse(DIFF, guard);
-    expect(r.prose).toBe("Sabar itu indah. Rezeki dari Allah.");
+    expect(r.prose).toBe("Sabar itu indah.\n\nRezeki dari Allah.");
     expect(r.dropped).toBe(2);
   });
 
   it("still repairs a single offender in one deletion", () => {
     const r = repairAnswerProse(ONE, guard);
-    expect(r.prose).toBe("Sabar itu indah. Rezeki dari Allah.");
+    expect(r.prose).toBe("Sabar itu indah.\n\nRezeki dari Allah.");
     expect(r.dropped).toBe(1);
   });
 
   it("returns null rather than deleting the whole answer when nothing clean is reachable", () => {
-    const r = repairAnswerProse("Lihat QS 9:129 di sana. Juga QS 9:129 di sini.", guard);
+    const r = repairAnswerProse("Lihat QS 9:129 di sana.\n\nJuga QS 9:129 di sini.", guard);
     expect(r.prose).toBeNull();
     expect(r.dropped).toBe(0);
   });
@@ -328,7 +359,7 @@ describe("the pair expansion is bounded to ONE per call", () => {
    */
   it("does not open a second pair search after the first lowers the count but leaves work", () => {
     const prose =
-      "Bersih satu. ALFA di sini. Bersih dua. ALFA di sana. Bersih tiga. BETA di sini. Bersih empat. BETA di sana.";
+      "Bersih satu.\n\nALFA di sini.\n\nBersih dua.\n\nALFA di sana.\n\nBersih tiga.\n\nBETA di sini.\n\nBersih empat.\n\nBETA di sana.";
     let calls = 0;
     const guard = (p: string) => {
       calls++;
@@ -339,5 +370,66 @@ describe("the pair expansion is bounded to ONE per call", () => {
     };
     repairAnswerProse(prose, guard);
     expect(calls).toBe(45);
+  });
+});
+
+/**
+ * REGRESSION — the prod answer that forced the paragraph unit, using the BYTES PROD SHIPPED.
+ *
+ * `guard-tests-need-production-prose` is this repo's record of a wall that stayed open for two
+ * sessions because every test case was prose we wrote ourselves. So the fixture below is not
+ * invented: it is paragraphs 1, 3 and 4 of the answer `new-quranku.axiara.ai` returned on
+ * 2026-08-22 for *"kenapa kita harus salat lima waktu"*, captured off the wire
+ * (`gen: {attempts:["blocked:bad_hadith","blocked:bad_hadith"], repaired:true, repairedDropped:1,
+ * repairedRule:"hadith_unbacked", repairedAttempt:1}`).
+ *
+ * Paragraph 3 is the damage itself, verbatim: repair excised the sentence carrying the unbacked
+ * attribution — the model's rendering of Bukhari 518's *"…would any dirt remain?"* — and left
+ * **"Tentu tidak."** standing as a reply to a question that no longer exists.
+ *
+ * The assertion is NOT that the answer survives. It is that the stranded remnant cannot ship: under
+ * the paragraph unit the offending sentence takes its whole paragraph with it, so there is no
+ * inside left for a survivor to be orphaned in. Deliberately asserted as an ABSENCE of the dangling
+ * fragment rather than as an exact output string — an exact string would pin today's paragraphing
+ * and fail the next time the model writes the same answer with different breaks.
+ */
+describe("regression — a survivor cannot be stranded by its neighbour (prod, 2026-08-22)", () => {
+  const P1 = "Pertanyaan yang sangat mendasar dan penting. Terima kasih sudah menanyakannya. Ini pertanyaan yang sering muncul di hati, apalagi saat kita merasa berat atau malas melaksanakan shalat. Mari kita renungkan bersama.";
+  const P3 = "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu. Tentu tidak. Itulah perumpamaan shalat lima waktu, yang dengannya Allah menghapus dosa-dosa. Shalat adalah pembersih jiwa kita setiap hari, seperti mandi membersihkan tubuh.";
+  const P4 = "Selain itu, shalat juga menjadi ciri orang yang bertakwa. Shalat mengingatkan kita terus-menerus kepada Allah di tengah kesibukan dunia.";
+  const PROSE = [P1, P3, P4].join("\n\n");
+
+  /** Rejects the sentence the live wall rejected: an attribution to the Prophet with no receipt. */
+  const wall = (prose: string) =>
+    /memberikan perumpamaan yang indah/.test(prose)
+      ? { ok: false, violations: [{ rule: "hadith_unbacked", detail: "Rasulullah" }] }
+      : { ok: true, violations: [] };
+
+  it("the fixture contains the stranded reply, and THIS FAKE fires on it", () => {
+    // Title narrowed after `scholarly-gate` 2026-08-22: the previous one said "the wall really does
+    // fire on it", which this fixture cannot show. The live refusal was `hadith_unbacked` on a
+    // DIFFERENT sentence; the fake below matches a literal. It is a control on the FIXTURE, not on
+    // the wall, and saying otherwise would be the shape `guard-verdict-names-no-actor` records.
+    // Without this the test below could pass because the fixture never had the problem.
+    expect(PROSE).toContain("Tentu tidak.");
+    expect(wall(PROSE).ok).toBe(false);
+    expect(wall([P1, P4].join("\n\n")).ok).toBe(true);
+  });
+
+  it("never ships the dangling reply once its question is excised", () => {
+    const r = repairAnswerProse(PROSE, wall);
+    expect(r.prose).not.toBeNull();
+    expect(r.prose).not.toContain("Tentu tidak.");
+    expect(r.prose).not.toContain("memberikan perumpamaan");
+    // P1 survives — the point is a coherent shorter answer, not silence. P1 is genuinely independent
+    // prose, which is why it is the one asserted.
+    expect(r.prose).toContain("Mari kita renungkan bersama.");
+    // P4 IS DELIBERATELY NOT ASSERTED. It opens on "Selain itu," and its antecedent P3 has just been
+    // deleted — so P4 surviving IS the cross-paragraph hole this change does NOT fix, disclosed in
+    // ISC-564's cost (c). A green `toContain` on it would assert the known hole as correct output,
+    // which is exactly `dont-pin-a-known-hole-with-a-green-test`. When that class is closed, this
+    // test must not have to change to allow the fix.
+    expect(r.dropped).toBe(1);
+    expect(wall(r.prose!).ok).toBe(true);
   });
 });

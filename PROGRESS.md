@@ -2,6 +2,60 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (night) — repair sees every candidate, then prod showed the excision unit was wrong
+
+**THE ONE THING WORTH REMEMBERING: a green wall is not a readable answer.** ISC-561/562 shipped, were
+deployed, and the SECOND repaired turn on prod sent a reader this:
+
+> "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu. **Tentu tidak.** Itulah
+> perumpamaan shalat lima waktu, yang dengannya Allah menghapus dosa-dosa [H:bukhari:518]."
+
+The model wrote Bukhari 518 as its dialogue — *"…would any dirt remain?"* → *"Tentu tidak."* → *"That
+is the parable."* The wall objected to the sentence carrying the unbacked attribution, repair excised
+exactly that sentence, and the REPLY was left answering nothing. **A sentence is not a self-contained
+unit of meaning and the guard cannot see that** — it is a rules wall, not a coherence check, so prose
+that strands a survivor passes every rule it has.
+
+**SHIPPED AND DEPLOYED (`e6791f0`, prod version `6dde5c32`, synthesis build):** ISC-561 — repair is
+offered EVERY refused candidate, most-recent-first (a widening: `scholarly-gate` measured 2,061/2,061
+previously-answered inputs byte-identical, 1,216 of 1,560 previously-silent now answering, SYNTHETIC
+corpus). ISC-562 — the progress signal was a count of RULES; now ranks on violation identity plus one
+bounded two-deletion pair expansion. `GenTrace.repairedAttempt` added so the widening is falsifiable
+from telemetry. Four live turns: zero silence, two repaired, `repairedAttempt` on the wire both times.
+
+**IN THE TREE, NOT DEPLOYED — ISC-564:** the unit of excision is now the PARAGRAPH
+(`splitParagraphs`). Structural, not a heuristic: an offending sentence takes its whole paragraph, so
+there is no inside left for a survivor to be orphaned in. Regression fixture is the ACTUAL prod bytes;
+force-red by reverting the unit reproduces the production damage.
+
+**PROD IS STILL SERVING THE DAMAGED BUILD.** Erik chose "leave up, fix forward today" after being
+given the options; the fix-forward is written and green but NOT shipped.
+
+**THE BIGGER FINDING, unfixed:** `hadithShape` decides whether a prophetic attribution needs a receipt
+by matching a VERB LIST. `mengajarkan` was missing for two sessions. `memberikan perumpamaan` is
+missing now. On the observed turn the `[H:bukhari:518]` marker happened to survive and a real card
+rendered (verified: marker in the surviving paragraph, `hadith:[hadith-bukhari-518]` in the body, card
+read back off the DOM) — **but that was luck, not the wall.** Nothing in the code required it.
+
+**FIVE `scholarly-gate` PASSES ACROSS TWO CHANGES, and the code was clean from the first one.**
+Everything that kept failing was the RECORD: a docblock stating the opposite of the code (twice, on
+the same file, one day apart), "Demonstrated **live**" over an offline capture, a bound test making 23
+guard calls with AND without its bound, and — caught only on the fourth pass — a regression fixture
+whose honorific I had RETYPED (`صلى الله عليه وسلم` for `ﷺ`), which trips the guard's `arabic` rule,
+so prod could not have shipped the bytes the docblock called verbatim.
+
+**ATTRIBUTION CORRECTED IN THREE PLACES.** Erik's recorded ruling is *"it has to be answered"*. *"A
+violation must cost the SENTENCE, not the answer"* is OUR write-up of it — ISC-550 had already
+convicted that conflation and named `worker/src/index.ts` as where it was attributed to him. That line
+is fixed; so are the ISA's and the test's.
+
+**THE `diam` DRIFT MOVED TWICE TODAY.** `docs/review/tanya-ai-request-2026-08-17.md` (SENT, UNANSWERED)
+tells the ustadz the app chooses silence when the answer is in a hadith. The morning change made it
+excise-and-ship; the evening change excises MORE on one path and ships OUTRIGHT SILENCE on
+single-paragraph answers on the other. Erik's call, owed to the next letter.
+
+**Gates:** `bun test` 1849/0 EXIT=0 · typecheck EXIT=0 (five passes) · build EXIT=0. ISA 573/588.
+
 ## 2026-08-22 (evening) — kajian steps 5-6: the narration, and two holes that are Erik's to close
 
 **THE SESSION'S ONE DECISION WORTH REMEMBERING: a channel name cannot be screened, so it is
