@@ -1,3 +1,146 @@
+# Next session — New-Quranku (checkpoint 2026-08-22 evening)
+
+> Prepended by /wrap 2026-08-22 (evening). **Anchor `43eee9e`** (verified on origin/main via
+> `git ls-remote`). **Supersedes the `efabda8` anchor.** From that handoff: its §2 item 1
+> (**kajian steps 5-6 — narration**) is **DONE and pushed**. Items 2-4 (ISC-561, ISC-562, Track B
+> step 1) were NEVER STARTED and carry forward unchanged. Its §1 (the ADR 5 ruling), §3 (kajian
+> criteria live in a TASK ISA, not `quran-new/ISA.md`), §4 (open items) and §5 (known weaknesses)
+> all **SURVIVE**, with §1 now WIDER — see §1 below.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-22 (evening)**).
+
+**Current state.** Gates green — `bun test` **1833/0** exit 0 · typecheck exit 0 (five passes) ·
+build exit 0. Project ISA **569 met / 16 open / 1 deferred = 586** (kajian is NOT in it — see §3).
+Clean tree except untracked `WARP.md` — **leave it, and never `git add -A`.** **Nothing was
+deployed.** ⚠️ `web/dist` holds a **`principled`** gate build — rebuild with the right
+`VITE_ANSWER_MODE` before ANY deploy.
+
+**Kajian steps 1-6 are SHIPPED** (`43eee9e`). `bun run src/app/kajian.ts <url>` writes
+`briefing.md`, `slide.html`, `slide.png`, `narasi[-DRAFT].m4a` and `short[-DRAFT].mp4` into the
+gitignored `.scratch/kajian/<videoId>/`. Flags: `[--lang id,en] [--no-brief] [--refresh]
+[--model <id>] [--no-slide] [--bullets N] [--deadline S] [--no-audio] [--no-video]`.
+
+---
+
+## 1. ERIK OWES THREE RULINGS — ONE IS WIDER THAN THE LAST HANDOFF SAID
+
+**(a) The slide's source block carries TWO uploader-written strings, not one.** The afternoon
+handoff recorded only the video TITLE. The **CHANNEL** is the other, and it has no label above it
+at all (`qs-where` renders `${channel} — ${url}` bare). This session established that a bare-name
+dakwah channel is a person as often as not — `Firanda Andirja`, `Hanan Attaki`, `Khalid Basalamah
+Official`. The narration now refuses to say it; **the slide still prints it, and the short mp4 is
+that slide on screen for its whole duration.** Options unchanged: keep, or drop to channel+URL only.
+
+**(b) A speaker name the MODEL relays into its own prose is SPOKEN.** `"Penceramah, Syariful Mahya,
+menjelaskan tiga perkara"` clears the title-overlap threshold (2 of 5 tokens, under 0.6) and carries
+no dotted gelar, so both screens pass. Could not be closed: the classical-author citations the body
+MUST keep ("kitab Raudhatul Uqala karya Imam Ibnu Hibban") are the same shape as the speaker name it
+must drop. The roster closes it one video at a time. **Deliberately NOT pinned by a passing test.**
+
+**(c) Consensus claims are unscreened and now SPOKEN.** `speakableFrom` drops quotations, unclear
+references, title echoes and dotted gelar. It does not touch `"para ulama sepakat…"` /
+`"tidak ada khilaf…"`, and `kajian-flags.test.ts` pins that non-flagging as INTENDED. Defensible for
+a written briefing under a labelled disclaimer; this step turns the same sentence into our
+narrator's voice on an autoplaying mp4. **Adding a consensus screen is a policy change, not a bug
+fix.**
+
+## 2. DO NEXT, IN ORDER
+
+1. **ISC-561 — repair sees only the LAST refused candidate.** Untouched for four sessions.
+   `worker/src/answer-generation.ts:278` assigns `lastBlocked = candidate` on every refusal, so
+   attempt 2 overwrites attempt 1, and `:294` hands repair only the survivor. **Write the failing
+   test BEFORE implementing** — this repo's record is that a prescribed fix can be byte-identical
+   to the default.
+2. **ISC-562 — repair's progress signal is a count of RULES.** It hill-climbs on
+   `guard(text).violations.length`, but `guardAnswerProse` pushes at most one violation per rule, so
+   two independently-violating sentences score 1 and `bestIndex` stays `-1`. `AnswerViolation.detail`
+   holds what a fix needs; `RepairVerdict` does not expose it. **Widening it is guard-adjacent —
+   gate with `scholarly-gate` before committing.**
+3. **Track B step 1, if Erik picks it** — the `qk_auth` signed cookie + `roleFor()`. Unblocks
+   everything else in that track and is small.
+4. **Kajian step 7, if Erik wants it** — nothing is specified. Steps 1-6 are complete and ADR 6 is
+   fully satisfied except the rulings in §1.
+
+## 3. WHERE THE KAJIAN CRITERIA LIVE — STILL NOT IN `ISA.md`
+
+Step 4's 38 ISCs are in a TASK ISA at `~/.claude/PAI/MEMORY/WORK/kajian-slide-qr/ISA.md`. **Steps
+5-6 have NO task ISA** — they were built against ADR 6 directly and verified by the scholarly-gate
+rounds recorded in `PROGRESS.md`. `quran-new/ISA.md` has **zero** kajian criteria. **Do not report
+the project ISA's 569/586 as the kajian track's progress.**
+
+## 4. Open items waiting on Erik
+
+- **§1(a), (b) and (c)** — three rulings. (a) blocks calling the slide closed; (b) and (c) are
+  live-behaviour policy calls on an artifact that gets posted.
+- **Which track next.** Both ready; they share nothing.
+- **Roster entries.** `docs/kajian/roster.yaml` ships `speakers: []` AND `organisations: []` on
+  purpose. Ustadz Syariful Mahya was deliberately NOT pre-filled — the title's "L.C., M.A." is the
+  uploader's wording and unverified. Add a name with `credentials` omitted if unsure.
+- **Firmed slide visual design** — still NEUTRAL. Every colour/size is a `--qs-*` property in one
+  `:root` block; `SLIDE_TOKENS` is exported so a new design can be diffed against this one.
+- **Answer Record retention** — blocks Track B's review queue.
+- **ISC-554's remaining half** — whether refused prose may ever be surfaced on the PUBLIC endpoint.
+- **ISC-417 / ISC-464(b) — WAITING ON THE USTADZ.** **Two letters SENT, both unanswered — never
+  write "Ustadz Ahmad's letter", he has sent nothing.** The ID-key correction is owed in the third.
+
+## 5. Known weaknesses — recorded, NOT fixed
+
+- **§1(b) and §1(c) above are the two live ones.** Both are in `PROGRESS.md` and in the
+  `kajian-narration.ts` docblock, and in no third place.
+- **The `[rujukan tidak jelas dalam transkrip]` marker has now fired ZERO times across THREE real
+  runs.** Still cannot distinguish "nothing was ambiguous" from "the instruction is inert" — but the
+  extractor's drop rule for it is unit-tested on both paths and would fire if it appeared.
+- **`DEFAULT_MAX_TOTAL_CHARS = 480` is a MEASUREMENT, not a preference.** Any change to a type or
+  spacing token invalidates it — re-render the real briefing and LOOK at the PNG. Clipping is silent.
+- **Three of the short path's four screens are unreachable from the CLI today** (`collect()` screens
+  them first); only `echoes-the-title` can fire there. They are kept because `buildNarrationScript`
+  does not get to assume its caller. Said so in the docblock.
+- **A prose Executive Summary yields WEAKER bullets.** Real, deliberately left alone: splitting
+  prose into slide bullets is authoring, and this pipeline does not author.
+
+---
+
+## Constraints to honor (carried forward — plus five new)
+
+- **NEW — a source grep greps the IMPORTS too.** Three tests asserted a safety property by grepping
+  a source file and all three were blind: `toContain("DRAFT_WARNING")` stayed green with the gate
+  DELETED because the import line still named the symbol. For anything a file EMITS, encode/render
+  and read it back (`kajian-audio.test.ts` calls `encodeM4a` + `ffprobe`). Strip comments first —
+  one grep fired on a comment explaining the very bug it checked for.
+- **NEW — force-red EACH branch separately.** A test named "runs ALL FOUR screens" pinned three; the
+  fourth was deletable with the suite green. And a fixture that trips two screens cannot pin either.
+- **NEW — a channel/personal NAME cannot be screened by pattern.** Allowlist it or omit it. The
+  honorific pattern caught `Buya Yahya` and passed `Firanda Andirja`.
+- **NEW — a disclaimer conditional on an unrelated field is not a disclaimer.** Every m4a denial sat
+  inside `if (tags.sourceUrl)`; a URL-less encode shipped carrying nothing.
+- **NEW — `-shortest` does not bound a looped still image.** Measure the audio, pass `-t`, and
+  measure the result. 50.8s of narration produced a 63.0s mp4.
+- **The kajian tool never rewrites a transcript**, and widens its cue list ONLY from real
+  transcripts, only ever growing. **Never copy credentials from a video title.**
+- **The narrator voice `id-ID-Chirp3-HD-Schedar` is LOAD-BEARING per ADR 6.** Do not change it.
+- **Google TTS caps `input.text` at 5,000 UTF-8 BYTES** (measured). ADC + `X-Goog-User-Project`; the
+  token expires mid-session and needs an interactive `gcloud auth application-default login`.
+- **Do NOT raise `MODEL_DEADLINE_MS` for a slow offline job.** `callChatModel` takes `deadlineMs`.
+- **`.scratch/` is NOT gitignored** — the issue tracker lives there. Only `.scratch/kajian/` is.
+- **prod AUTHORS and REPAIRS for readers.** Any change to `answer-generation.ts`, `answer-repair.ts`
+  or the guard has a live blast radius.
+- **Quote a rule to its END.** **A correction is the least-scrutinised edit** — re-run
+  `scholarly-gate` AFTER applying one. This session: 8 gate rounds, and THREE of the defects were
+  regressions introduced by the previous round's own fix.
+- **Name WHO permitted a thing and WHICH SURFACE.** **A whole-run bucket total is NOT evidence.**
+- **Never record a declined gap as a PASSING test.** Record it in `PROGRESS.md` instead.
+- **Verify a deploy by SERVED BYTES and a remote SHA**; the first curl after a deploy reads stale.
+- **Verify a push with `git ls-remote`, never the push's exit code, and never pipe `git push`.**
+- **Never pipe a gate command into head/tail** — the preflight hook blocks it, and it hides exit 2.
+- **The synthesis env var is `VITE_ANSWER_MODE`, NOT `EDITION`.**
+- **Read the terminal reason from `gen.reason`, never `blockedBy`.**
+- **Do NOT switch model. Do NOT build the echo union.**
+- **Never `git add -A` in this repo** — it swept `WARP.md` in twice.
+- **`quran-new/ISA.md` has no `### Phase` headings and there is no `.planning/STATUS.md`** — a
+  per-phase table renders 0/0 and a tracker table renders nothing. Neither absence is a signal.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-22 afternoon)
 
 > Prepended by /wrap 2026-08-22 (afternoon). **Anchor `efabda8`** (verified on origin/main via
