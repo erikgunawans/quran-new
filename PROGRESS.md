@@ -105,8 +105,18 @@ field with Allah or Kami as agent, two the ISC-565 witnesses themselves.
 empty.** A directory search reported "no kajian files" and was wrong; only cross-checking with `ls`
 caught it. Use `find`.
 
-Gates: `bun test` 1855/0 exit 0 · typecheck exit 0 · build exit 0 · Arabic codepoint scan of the
-diff clean (U+FDFA only).
+**SESSION CLOSE.** Three commits landed and pushed: `4a144ad` (the ISC-565 count and the
+corrections that broke it twice), `1298958` (Erik withdraws the wait on the ustadz), `874578d`
+(retire the spent exception, and pin the fix that spent it). **SEVEN `scholarly-gate` passes today,
+seven BLOCK/CONCERN verdicts, none repeated, and the CODE was clean in every one** — every finding
+landed in the record. **FOUR of them were defects introduced by my own previous fix**, twice in the
+same edit class: an exhaustive quantifier replaced by a smaller exhaustive quantifier. The general
+form worth carrying: a closed list under a heading claiming totality IS the same bug as "one thing";
+the fix is a POINTER to the authoritative set plus "anything unlisted is held by default".
+
+Gates at close: `bun test` **1859/0 exit 0** (+4, the new permission-banner pin) · typecheck exit 0
+· Arabic codepoint scan of every diff clean. ISA **574/589** (573 `[x]` + ISC-418 `[~]`; 14 open,
+1 deferred) — unchanged, because everything this session touched was record, deploy and one test.
 
 ## 2026-08-22 (late) — ISC-564 deployed, and the verb hole it declined turned out not to be a verb hole
 
