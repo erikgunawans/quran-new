@@ -155,6 +155,22 @@ const MAX_UNITS = 60;
  * narrower — additive openers survive a missing predecessor far better than a bare reply does — but
  * it is the same defect and it is NOT closed.
  *
+ * AND THE CLASS IS WIDER THAN AN OPENER, which this comment claimed until it was scoped. The SAME
+ * prod answer that supplied "Selain itu, …" also OPENS its final paragraph on "Jadi, setiap kali
+ * Anda merasa berat atau malas untuk shalat, ingatlah sungai rahmat yang mengalir itu." — a definite
+ * anaphora whose antecedent is nowhere in the shipped prose. (It does not CLOSE on it; two sentences
+ * follow. A first version of this note said "closed on", which is the same positional error the
+ * change carrying it was written to correct, one paragraph over.)
+ *
+ * The capture cannot show WHAT was removed — `gen.attempts` carries timings and outcomes, not prose,
+ * and the pre-repair text is on no disk here. That the antecedent left with the excision is an
+ * INFERENCE. It is a constrained one: `repairedDropped: 1` means exactly one boundary lost a
+ * paragraph, and only the boundary before "Selain itu, …" explains BOTH danglers at once. Under that
+ * reading the anaphora sits two paragraphs downstream of the removal, so a repair inspecting only the
+ * excised paragraph's immediate successor cannot reach it. Scoped, with the candidate fixes and why
+ * each is refused, in `ISA.md` ISC-566. Still OPEN, still unfixed, and deliberately not pinned by a
+ * passing test.
+ *
  * Same exactness contract as `splitSentences`: the pieces rejoin to the input byte for byte, so
  * repair still removes whole pieces or does nothing, and never reflows what the model wrote.
  */
