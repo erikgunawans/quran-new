@@ -27,9 +27,11 @@ edition) — that is correct for a prod deploy and the preflight hook enforces i
 
 ## 1. DO NEXT, IN ORDER
 
-1. **Read the pending `scholarly-gate` verdict, then deploy ISC-564.** A re-gate was IN FLIGHT when
-   the session ended; its previous verdict was **BLOCK** on six prose findings, all six applied. **Do
-   not deploy on the assumption it passed — re-run it.** `Agent(subagent_type="scholarly-gate")` over
+1. **DEPLOY ISC-564. The gate has PASSED it.** `scholarly-gate` pass 3 returned **CONCERNS, code
+   clean, "ship it"** — all four remaining findings were RECORD defects and all four are fixed in
+   `bfa2108` (including a FABRICATED ISNAD in the ISA's own witness: it quoted Bukhari 1260's chain
+   for Bukhari 518, cross-contaminated from another turn of the same capture). **No further gate is
+   required before deploying** — but if you touch the code again, re-gate.** `Agent(subagent_type="scholarly-gate")` over
    `git diff` on `worker/src/answer-repair.ts`, `worker/src/answer-repair.test.ts`,
    `worker/src/answer-generation.test.ts`, `worker/src/index.ts`, `ISA.md`. Then:
    `VITE_ANSWER_MODE=synthesis bun run build` (the preflight hook BLOCKS a principled dist), verify by
