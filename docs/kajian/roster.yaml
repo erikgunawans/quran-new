@@ -1,0 +1,55 @@
+# WHO WE ARE PREPARED TO NAME
+#
+# This file is the list of speakers the kajian tool may put on a public slide. It is maintained by
+# hand, on purpose. Nothing infers a name, nothing looks up credentials, and nothing fills a gap
+# here from a transcript or a channel title.
+#
+# A video with no entry below gets NO name, NO gelar and NO photo — just a link to the source.
+# That silence is the safety property, not a limitation to work around. See
+# `docs/adr/0005-the-kajian-tool-never-speaks-for-a-scholar.md`.
+#
+# ── BEFORE YOU ADD SOMEONE ──────────────────────────────────────────────────────────────────────
+#
+# Everything you type here is published under your name, about a real person who has a reputation
+# and may well see it. So:
+#
+#   · `credentials` must be what you KNOW, not what a video title claimed. A title reading
+#     "USTADZ FULAN, L.C., M.A." is the uploader's wording. It may be right. You have not checked it.
+#     If you have not checked it, leave the field out — a name with no gelar is honest; a wrong gelar
+#     is an insult to someone who earned a different one.
+#   · `photo` must be an image you are ENTITLED to use. A thumbnail grabbed off the video is not.
+#   · `name` should be how that person writes their own name, including the title they use for
+#     themselves — Ustadz, Ustadzah, Syaikh, Dr. Do not degender or "standardise" anyone.
+#
+# ── HOW MATCHING WORKS ──────────────────────────────────────────────────────────────────────────
+#
+# Two ways, because a channel is not always a person:
+#
+#   channelId:      matches when the video's channel id is EXACTLY this.
+#                   Use for a channel that belongs to one speaker.
+#
+#   titleContains:  matches when the video TITLE contains this text (case-insensitive, plain
+#                   substring, minimum 4 characters). Use for a mosque or organisation channel that
+#                   hosts many speakers — which is the common case. The first real video this tool
+#                   processed was on "Masjid Darussalam Kota Wisata", with the speaker named only in
+#                   the title, so channel-only matching would have credited a building.
+#
+# IF TWO ENTRIES MATCH ONE VIDEO, NOBODY IS NAMED. Ambiguity is treated exactly like absence — a
+# wrong name is worse than no name, and "pick the first" would make the ORDER of this file decide
+# who gets credited. Keep `titleContains` fragments specific enough not to collide.
+#
+# ── FORMAT ──────────────────────────────────────────────────────────────────────────────────────
+#
+# speakers:
+#   - name: Ustadz Fulan bin Fulan
+#     credentials: Lc., M.A.          # optional — omit unless you have verified it yourself
+#     photo: photos/fulan.jpg         # optional — relative to this file; must be licensed to you
+#     titleContains: fulan bin fulan  # and/or:
+#     channelId: UCxxxxxxxxxxxxxxxxxx
+#
+# ── THE LIST ────────────────────────────────────────────────────────────────────────────────────
+#
+# Empty on purpose. The tool works with an empty roster: it produces the briefing and a slide with
+# no identity on it. Add people as you decide you are ready to speak about them by name.
+
+speakers: []

@@ -43,6 +43,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { flagSpans, formatTimestamp, type FlaggedSpan } from "./kajian-flags.ts";
+import { resolveSpeaker, validateRoster, type RosterEntry, type RosterOutcome } from "./kajian-roster.ts";
 import { resolveProvider, callChatModel } from "../../worker/src/providers.ts";
 import type { Env } from "../../worker/src/index.ts";
 
@@ -151,6 +152,34 @@ console.log(`  channel: ${meta.channel} · ${hhmmss(meta.duration)} · captions:
  */
 const flagged: FlaggedSpan[] = flagSpans(snippets);
 
+// ── 2b. who, if anyone, we are prepared to name ────────────────────────────────────
+/**
+ * The roster decides whether a slide may carry a name. Resolved HERE rather than at slide time so
+ * the CLI can tell you now — before you invest in checking 32 timestamps — whether the artifact
+ * would be attributable at all.
+ *
+ * A missing or empty roster is a NORMAL state, not an error. The tool is designed to run with
+ * nobody in it and simply attribute nobody.
+ */
+const ROSTER_PATH = resolve("docs/kajian/roster.yaml");
+let speaker: RosterOutcome = { kind: "none" };
+if (existsSync(ROSTER_PATH)) {
+  const parsed = (Bun.YAML.parse(readFileSync(ROSTER_PATH, "utf8")) ?? {}) as { speakers?: RosterEntry[] };
+  const entries = Array.isArray(parsed.speakers) ? parsed.speakers : [];
+  const problems = validateRoster(entries);
+  // Printed, never swallowed. An entry that can never match looks like coverage in the file and is
+  // silence in the output — the exact shape of bug this repo keeps paying for.
+  for (const p of problems) console.log(`  ⚠ roster: ${p}`);
+  speaker = resolveSpeaker(entries, { title: meta.title, channelId: meta.channelId });
+}
+const speakerLine =
+  speaker.kind === "match"
+    ? `${speaker.match.entry.name}${speaker.match.entry.credentials ? `, ${speaker.match.entry.credentials}` : ""} (cocok lewat ${speaker.match.via})`
+    : speaker.kind === "ambiguous"
+      ? `TIDAK ADA — ${speaker.names.length} entri roster cocok sekaligus (${speaker.names.join(", ")}), jadi tidak ada yang dinamai`
+      : `TIDAK ADA — tidak ada entri roster yang cocok`;
+console.log(`  penceramah: ${speakerLine}`);
+
 const isDraft = meta.language.isGenerated && flagged.length > 0;
 if (meta.language.isGenerated) {
   console.log(`  ⚠ auto-captions — ${flagged.length} spans flagged for checking against the video`);
@@ -242,6 +271,7 @@ lines.push(
   `| Kanal | ${meta.channel} |`,
   `| Durasi | ${hhmmss(meta.duration)} |`,
   `| Transkrip | ${meta.language.name} — ${meta.language.isGenerated ? "**otomatis**" : "ditulis manusia"} |`,
+  `| Penceramah (roster) | ${speakerLine} |`,
   `| Dibuat | ${new Date().toISOString()} |`,
   ``,
   `> Ringkasan otomatis. Bukan kutipan langsung, bukan fatwa, dan belum diperiksa oleh ulama.`,

@@ -38,6 +38,26 @@ pointing back at the source.
 rather than at a page of ours. Interposing our own page between a viewer and
 the scholar's talk would weaken the attribution the QR exists to provide.
 
+## The voice
+
+`id-ID-Chirp3-HD-Schedar`, chosen by Erik on 2026-08-22 from eight rendered
+samples of the actual opening line.
+
+Google publishes twenty male Indonesian voices, sixteen of them current-
+generation Chirp3-HD. The shortlist was narrowed on register rather than
+timbre, because the register does a job here: the narrator has to sound like a
+BRIEFING, not like dakwah. A warm, preacherly voice would quietly undo the
+frame the spoken attribution sets up. Voices labelled upbeat, excitable, lively
+or casual were ruled out on that basis regardless of quality.
+
+`Charon` and `Puck` were additionally avoided because they are already the
+DA's voices in this user's PAI configuration; sharing one would make the
+assistant and the dakwah channel the same person.
+
+Per the decision above this is now load-bearing: viewers learn the voice as
+this channel's narrator, and changing it re-opens the inference the spoken
+attribution exists to close.
+
 ## Consequences
 
 The long-form carries a substitution risk the short form does not: a detailed
