@@ -15,8 +15,9 @@
  *
  *   · IT NEVER NAMES A SPEAKER IT WAS NOT TOLD ABOUT. The transcript skill returns `channel`, which
  *     is a CHANNEL and not a person — one channel hosts many speakers. Nothing here infers who
- *     spoke, and nothing here writes credentials. That comes from a roster a human maintains, and
- *     a video with no roster entry gets no name and no face (step 3, not yet built).
+ *     spoke, and nothing here writes credentials. That comes from a roster a human maintains
+ *     (`kajian-roster.ts`), and a video with no roster entry gets no name and no face — on the
+ *     briefing AND on the slide, where it matters most.
  *
  *   · IT DOES NOT REPRODUCE THE LECTURE. The briefing is our writing ABOUT a talk. A long verbatim
  *     retelling would be a different thing entirely, both legally and in what it does to the
@@ -32,18 +33,28 @@
  * A briefing built from auto-captions is written as a DRAFT and says so at the top. Per ADR 5 a
  * draft is not postable until its flagged citations have been checked.
  *
+ * THE SLIDE (step 4, `kajian-slide.ts` + `kajian-render.ts`). A 1080x1350 PNG with a QR to the
+ * source, composed from the briefing this run just wrote — never from a second model call. It is
+ * where the roster's silence actually has to hold, and where the uploader's title is kept OUT of
+ * the identity slot; see that module's docblock, which is the argument for the whole design.
+ *
  * USAGE.
  *   export OPENROUTER_API_KEY=...          # it is in ./.env — source it, never print it
  *   bun run src/app/kajian.ts <youtube-url>
  *   bun run src/app/kajian.ts <url> --lang id,en     # transcript language priority
  *   bun run src/app/kajian.ts <url> --no-brief       # transcript + flags only, no model call
  *   bun run src/app/kajian.ts <url> --refresh        # ignore the skill's cache
+ *   bun run src/app/kajian.ts <url> --no-slide       # skip the slide + QR render
+ *   bun run src/app/kajian.ts <url> --bullets 4      # how many points reach the slide
+ *   bun run src/app/kajian.ts <url> --deadline 900    # seconds to allow the briefing model
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { flagSpans, formatTimestamp, type FlaggedSpan } from "./kajian-flags.ts";
 import { resolveSpeaker, validateRoster, type RosterEntry, type RosterOutcome } from "./kajian-roster.ts";
+import { buildSlideHtml, extractSlideBullets } from "./kajian-slide.ts";
+import { qrSvg, renderPng } from "./kajian-render.ts";
 import { resolveProvider, callChatModel } from "../../worker/src/providers.ts";
 import type { Env } from "../../worker/src/index.ts";
 
@@ -62,7 +73,7 @@ const has = (name: string): boolean => argv.includes(`--${name}`);
  * `--refresh <url>` as the flag consuming the url, and drops it. Boolean flags take no value, so
  * the parser has to know which flags do.
  */
-const VALUE_FLAGS = new Set(["--lang", "--model"]);
+const VALUE_FLAGS = new Set(["--lang", "--model", "--bullets", "--deadline"]);
 function positional(): string | undefined {
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i]!;
@@ -79,10 +90,28 @@ const LANGS = flag("lang") ?? "id,en";
 const NO_BRIEF = has("no-brief");
 const REFRESH = has("refresh");
 const MODEL = flag("model");
+const NO_SLIDE = has("no-slide");
+/**
+ * How long the briefing model may take, in seconds.
+ *
+ * ⚠ THIS EXISTS SO `MODEL_DEADLINE_MS` NEVER HAS TO MOVE. That constant is 25 s because it guards
+ * a READER waiting on a page, and it is deliberately set below the browser's own backstop — raising
+ * it would make the client give up first, which is the expensive failure. But this CLI is nobody's
+ * page load: it hands a model 80,000 characters of a two-hour lecture and the answer legitimately
+ * takes minutes. Inheriting the reader's deadline made every real run die at 25 s with
+ * "The operation timed out", which reads as a provider fault and is not one.
+ */
+const DEADLINE_S = Number(flag("deadline") ?? "600");
+const BULLETS = Number(flag("bullets") ?? "5");
+if (!Number.isInteger(BULLETS) || BULLETS < 1) {
+  console.error(`✗ --bullets must be a positive integer, got "${flag("bullets")}"`);
+  process.exit(1);
+}
 
 if (!URL_ARG) {
   console.error(
-    "Usage: bun run src/app/kajian.ts <youtube-url-or-id> [--lang id,en] [--no-brief] [--refresh] [--model <id>]",
+    "Usage: bun run src/app/kajian.ts <youtube-url-or-id> [--lang id,en] [--no-brief] [--refresh]\n" +
+      "                                 [--model <id>] [--no-slide] [--bullets N]",
   );
   process.exit(1);
 }
@@ -230,14 +259,22 @@ if (!NO_BRIEF) {
     OPENROUTER_MODEL: process.env["OPENROUTER_MODEL"],
   } as unknown as Env;
   const cfg = resolveProvider("openrouter", env);
-  console.log(`▸ briefing — ${cfg.model} · ${transcript.length.toLocaleString()} chars of transcript`);
+  console.log(
+    `▸ briefing — ${cfg.model} · ${transcript.length.toLocaleString()} chars of transcript · deadline ${DEADLINE_S}s`,
+  );
   const user =
     `${BRIEF_PROMPT}\n\n` +
     `Sumber: transkrip ceramah "${meta.title}" (durasi ${hhmmss(meta.duration)}).\n` +
     `Teks otomatis: ${meta.language.isGenerated ? "YA — sebagian kata mungkin salah dengar" : "tidak"}\n\n` +
     `--- TRANSKRIP ---\n${transcript}\n--- AKHIR TRANSKRIP ---`;
   try {
-    briefing = (await callChatModel(cfg, SYSTEM, user, { temperature: 0.3, maxTokens: 4000 })).trim();
+    briefing = (
+      await callChatModel(cfg, SYSTEM, user, {
+        temperature: 0.3,
+        maxTokens: 4000,
+        deadlineMs: DEADLINE_S * 1000,
+      })
+    ).trim();
   } catch (e) {
     console.error(`✗ briefing failed: ${(e as Error).message}`);
     process.exit(1);
@@ -309,5 +346,53 @@ const briefPath = join(outDir, "briefing.md");
 writeFileSync(briefPath, lines.join("\n"));
 writeFileSync(join(outDir, "meta.json"), JSON.stringify(meta, null, 2));
 
+// ── 5. the slide ───────────────────────────────────────────────────────────────────────────────
+/**
+ * Composed from the briefing that was just written, never from a second model call — see
+ * `kajian-slide.ts` on why a regeneration here is a second chance to invent an attribution.
+ *
+ * Every bullet the extractor refuses is PRINTED with its reason. A silent drop would read as "the
+ * briefing had nothing to say", and the person deciding whether to post this needs to know the
+ * difference between an empty summary and a filtered one.
+ */
+let slidePath = "";
+if (!NO_SLIDE) {
+  const extracted = extractSlideBullets(briefing, { max: BULLETS });
+
+  /**
+   * SAFETY DROPS ARE NAMED ONE BY ONE; LAYOUT DROPS ARE COUNTED.
+   *
+   * They are different kinds of news. "This point carries a quotation" is a judgement about what
+   * may be published and the person deciding needs to see the sentence. "There was no room for
+   * eleven more points" is arithmetic, and printing eleven lines of it buries the three that
+   * matter — the briefing routinely has forty bullets and the slide holds three.
+   */
+  const LAYOUT: readonly string[] = ["over-max", "over-budget"];
+  const safety = extracted.dropped.filter((d) => !LAYOUT.includes(d.reason));
+  const layout = extracted.dropped.length - safety.length;
+  for (const d of safety) {
+    const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
+    console.log(`  · slide drops (${d.reason}): ${short}`);
+  }
+  if (layout) console.log(`  · slide drops ${layout} more point${layout === 1 ? "" : "s"} for lack of room`);
+
+  const html = buildSlideHtml({
+    title: meta.title,
+    channel: meta.channel,
+    url: meta.url,
+    qrSvg: qrSvg(meta.url),
+    speaker,
+    bullets: extracted.bullets,
+    isDraft,
+  });
+
+  slidePath = join(outDir, "slide.html");
+  writeFileSync(slidePath, html);
+  const pngPath = join(outDir, "slide.png");
+  renderPng(slidePath, pngPath);
+  console.log(`  slide: ${extracted.bullets.length} poin, ${extracted.dropped.length} dibuang → ${pngPath}`);
+}
+
 console.log(`\n${isDraft ? "⚠ DRAFT" : "✓"} → ${briefPath}`);
+if (slidePath) console.log(`  → ${join(outDir, "slide.png")}`);
 if (isDraft) console.log(`  ${flagged.length} spans to check against the video before this is postable.`);
