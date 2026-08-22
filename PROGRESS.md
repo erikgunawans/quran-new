@@ -2,6 +2,66 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (late night) — cost (c) scoped, ISC-561's measurement declined, and a retraction rule
+
+**THE CORRECTION THIS CHECKPOINT IS OBLIGED TO CARRY, verbatim, because ISC-566 supersedes two
+stale records by pointer and `scholarly-gate` accepted that only on this condition:** *"Selain itu,"*
+opens the surviving **SECOND** paragraph of `api-answer-9ab57d4b` turn-3 — the surviving first is the
+greeting *"Tentu, pertanyaan yang sangat baik…"* — and the sentence *"Jadi, setiap kali Anda merasa
+berat atau malas untuk shalat, ingatlah sungai rahmat yang mengalir itu."* **OPENS** the surviving
+**THIRD**, the `sungai` phrase itself ENDING that opening sentence, with two sentences after it. The
+checkpoint above and the handoff blocks below `cc7f5df` say *"a first paragraph opening"* and *"a
+close"/"a closing"*; both are wrong on both counts. Neither is edited in place — both files are
+append/prepend-only — so this checkpoint is the vehicle, and a further deferral was refused.
+
+**ISC-566 (new, OPEN, `5373f54`) scopes ISC-564's cost (c), and the scoping FALSIFIES its cheapest
+candidate fix.** The one witnessing answer carries TWO danglers on the SAME removed paragraph at
+DIFFERENT distances: an opening connective at distance 1, and a definite anaphora whose antecedent is
+absent from the shipped prose. Cascading the excision to a connective-opening successor — the obvious
+fix — drops the paragraph holding that answer's entire evidence (`[H:bukhari:4481]`, QS Al-Baqarah
+2:3 and 2:45), leaves a greeting and a closing, **and does not touch the second dangler.** Largest
+cost on offer, defect still open. Every ONE-STEP adjacency strategy misses it. **The distance is
+INFERRED, not recorded** — the capture cannot say what was excised (`gen.attempts` carries timings
+and outcomes, not prose) — and the entry shows the argument rather than asserting it. Four candidate
+fixes recorded with costs, all four declined, **recommendation: no code fix at this granularity.**
+Rate unmeasured at n=1 with one weaker-graded non-occurrence. Which cost to pay is Erik's.
+
+**ISC-561's live measurement is DECLINED rather than pending — Erik, this session (`10a7ac0`).** Asked
+whether to spend model calls hunting the witnessing row, he chose to skip and record why; the
+decision is his, the analysis was in the options put to him. Recorded: the MECHANISM is already
+unit-pinned, so only live OCCURRENCE is unwitnessed; `refusal-capture.ts` runs the real loop, guard
+and repair but **the hadith lane is absent on every turn**, so it can witness the shape and can never
+report a rate that is prod's; and ISC-564 moved the odds in BOTH directions at once, so no direction
+is claimed. Also corrected: the witnessing row is **NECESSARY but not SUFFICIENT** — `repairedAttempt`
+indexes the REFUSED candidates (`answer-generation.ts:319`) while `attempts` also collects `threw`,
+`empty` and `ok`, so a turn whose first attempt threw on the deadline or came back empty emits
+`repairedAttempt: 0` with `attempts.length: 2` having shown repair only ONE candidate. **Count the
+`blocked:` rows, not the attempts.**
+
+**`MEMORY.md` was over its 24.4 KB limit and only partially loading — fixed, 28.2 KB → 20.5 KB.**
+Carried across three handoffs. All 132 entries kept; verified no link dropped, none invented, every
+target present, every memory file still indexed.
+
+**THE PROCESS LESSON, and it cost most of the session.** ISC-566 took SIX `scholarly-gate` passes and
+the ISC-561 note two more. Pass 1 found real defects; **from pass 2 on, nearly every finding was a
+defect introduced by the previous pass's own corrections** — including a dangling modifier introduced
+into the sentence about dangling references, and a taxonomy fix that miscounted the memory note it
+cited. The cause was the entry's LENGTH: each correction added a *"a first version said X"* sentence,
+and each is a factual claim about a document's history that can be wrong. **The rule that ended it:
+record a retraction only where a reader can still encounter the false claim** — a commit message,
+`PROGRESS.md`, the handoff, a sent letter, deployed prose. If it was a draft inside the same
+uncommitted edit, CUT IT: it points at text in no git object that no future reader can verify, so it
+can only ever be wrong. Seven such sentences were cut from ISC-566 and **no fact was lost** — one of
+them had become false. Saved as memory `retraction-needs-a-reachable-reader`.
+
+**Gates at `10a7ac0`:** `bun test` 1859 pass / 0 fail exit 0 · typecheck exit 0 · build exit 0. ISA
+**574/590** (573 `[x]` + ISC-418 `[~]`; 15 open, 1 deferred). Tree clean except untracked `WARP.md` —
+left alone, never `git add -A`.
+
+**Next:** cross-paragraph danglers need Erik's cost decision before any code moves; Track B step 1
+(`qk_auth` + `roleFor()`) and kajian step 7 both await his pick. Nothing is on fire and prod is
+unchanged this session — no code shipped, both commits are records.
+
 ## 2026-08-22 (night) — ISC-565 deployed, and Erik withdraws the wait on the ustadz
 
 **THE ONE DECISION WORTH REMEMBERING: Erik withdrew the ustadz wait — *"no need for ustadz letter

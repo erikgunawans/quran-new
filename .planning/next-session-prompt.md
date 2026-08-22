@@ -1,3 +1,135 @@
+# Next session — New-Quranku (checkpoint 2026-08-22 late night)
+
+> Prepended by /wrap 2026-08-22 (late night). **Anchor `10a7ac0` on origin/main** (verified by
+> `git fetch`, not by a push pipe). **Supersedes the `874578d` anchor.** From that handoff: item 1
+> (`MEMORY.md` oversize) **DONE**. Item 2 (cross-paragraph danglers) **SCOPED, not fixed — and the
+> scoping falsified the obvious fix**. Item 3 (ISC-561's live measurement) **DECLINED BY ERIK, and
+> recorded as declined rather than pending**. Items 4 (Track B step 1) and 5 (kajian step 7) were not
+> started and carry forward; both need Erik's pick.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-22 (late night)**).
+
+## 0. CORRECTION THIS BLOCK IS OBLIGED TO CARRY — read before quoting any dangler evidence
+
+**Every handoff block below this one, and the `PROGRESS.md` checkpoint below the newest, describe the
+dangler witness WRONGLY.** They say the reader got *"a first paragraph opening"* on *"Selain itu,"*
+and *"a close"* / *"a closing"* on the `sungai` phrase. Against
+`docs/review/captures/api-answer-9ab57d4b-2026-08-22.json` turn-3, the truth is:
+
+- *"Selain itu,"* opens the surviving **SECOND** paragraph. The surviving **first** is the greeting
+  *"Tentu, pertanyaan yang sangat baik…"*. This is what LOCATES the excision.
+- The sentence *"Jadi, setiap kali Anda merasa berat atau malas untuk shalat, ingatlah sungai rahmat
+  yang mengalir itu."* **OPENS** the surviving **THIRD** paragraph — the `sungai` phrase itself ENDS
+  that opening sentence — and **two sentences follow it**. It does NOT close the answer.
+
+ISC-566 supersedes both stale records by pointer; neither is edited in place because both files are
+append/prepend-only. **This block IS the vehicle. Do not defer it again.**
+
+## 1. STATE — prod unchanged this session, both commits are records
+
+`new-quranku.axiara.ai` runs Worker **`2b7707f2`** (`EDITION: "synthesis"`), built from `4a144ad`.
+**No code shipped this session** — `5373f54` and `10a7ac0` are both ISA records; the only `.ts` change
+was inside a docblock. Nothing is on fire.
+
+Gates at the anchor: `bun test` **1859/0** exit 0 · typecheck exit 0 · build exit 0. ISA **574/590**
+(573 `[x]` + ISC-418 `[~]`; 15 open, 1 deferred). Clean tree except untracked `WARP.md` — **leave it,
+never `git add -A`.**
+
+**The ustadz position is UNCHANGED from the previous block and still governs.** Erik withdrew the
+WAIT (2026-08-22, `docs/review/erik-ruling-2026-08-22.md`) — schedule only, not provenance, and no
+promise released. **ISC-417 stays `[ ]` PERMANENTLY.** ⚠️ Never write a blanket *"the ustadz has
+approved nothing"* — it is FALSE and voids three real permissions (F-1 2026-07-17; co-display
+2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL and relayed, hadith TEXT layer only).
+Always scope to *"in reply to these two letters"*. Every promise in either letter is PERMANENT, and
+**anything not explicitly released is HELD BY DEFAULT** — the authoritative sets are each letter's
+§*Yang tidak kami lakukan* plus every *"selama menunggu"* clause; no summary is the boundary.
+
+## 2. DO NEXT, IN ORDER
+
+1. **Cross-paragraph danglers — ISC-566 is SCOPED and waiting on ERIK'S COST DECISION.** Do not write
+   code first. The entry records four candidate fixes and declines all four; the recommendation is no
+   code fix at this granularity. What Erik must choose: a thinner answer (connective list, or
+   prefix-only truncation), a real coherence component beside the rules wall, or the hole as it
+   stands. **The cheapest fix is already falsified** — cascading to the connective-opening successor
+   drops the paragraph holding that answer's whole evidence AND leaves the second dangler untouched.
+2. **If he wants evidence before deciding, build the DIAGNOSTIC, not a guard.** Over already-captured
+   repaired turns, flag any surviving paragraph that opens on a back-referring connective whose
+   predecessor was excised, or that carries a definite noun phrase occurring nowhere else in the
+   surviving prose. It ships nothing and only counts. It must SHARE the repair's binding, never copy
+   it (`diagnostic-outlives-its-gate`). Note its own limit: it cannot separate an antecedent-less
+   definite from an ordinary first mention, which is exactly why it counts and never guards.
+3. **Track B step 1, if Erik picks it** — the `qk_auth` signed cookie + `roleFor()`.
+4. **Kajian step 7, if Erik wants it** — steps 1-6 complete, step 7 still unspecified. Ask what it is
+   before starting; nothing in the repo defines it.
+
+## 3. Open items waiting on Erik (unchanged unless noted)
+
+- **NEW — which cost to pay for the dangler class** (item 1 above). Nothing moves until he says.
+- **THE THREE KAJIAN RULINGS, still owed** — (a) the channel name printed on the slide while the
+  narration refuses to speak it, (b) model-relayed speaker names being spoken, (c) consensus claims
+  unscreened in the autoplay mp4. **(a) and (b) land physically on the slide.**
+- **The Hadits banner still names the ustadz on a VERBAL relay basis**, and the written confirmation
+  asked for will never come. The letter's own offer — replace with an unnamed sentence, or remove it
+  — **stands open and is Erik's.**
+- **A correction with no delivery path.** A note bound the NEXT LETTER to carry specific corrections;
+  Erik decided (2026-08-21) not to send a third letter. An undelivered correction must not quietly
+  become one that never existed.
+- **The permanently-held promises** — each needs an explicit, item-by-item ruling to release.
+- **Nobody has read a repaired answer for THEOLOGICAL correctness.** Four read for coherence only.
+- **Kajian slide visual design was never firmed** — fixed-height body box leaves ~⅓ empty at four
+  bullets, URL breaks mid-string on `word-break: break-all`, DRAFT band wraps to two lines.
+- **Answer Record retention**, **ISC-554's remaining half**, **roster entries** — unchanged.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **Cross-paragraph danglers** — scoped in ISC-566, open. Two forms at two distances.
+- **A single-paragraph answer that trips the wall ships SILENCE** (ISC-564 cost (b)).
+- **Three or more offenders reporting the SAME `detail` still end in silence** (ISC-562's bound).
+- **ISC-565's frame covers only the TWO WITNESSED nouns.** Widen only from real transcripts.
+- **ISC-561's widening is unwitnessed LIVE and the measurement is declined, not pending.** The
+  mechanism is unit-pinned; do not re-open this as if it were untested. `refusal-capture.ts` cannot
+  settle it — the hadith lane is absent on EVERY turn there.
+- `splitSentences` is **dead** except for its own tests. Kept deliberately.
+
+## 5. Where the kajian criteria live — STILL NOT IN `ISA.md`
+
+Step 4's 38 ISCs are in a TASK ISA at `~/.claude/PAI/MEMORY/WORK/kajian-slide-qr/ISA.md`. Steps 5-6
+have NO task ISA. **`quran-new/ISA.md` has zero kajian criteria — never report 574/590 as kajian
+progress.**
+
+---
+
+## Constraints to honor (carried forward — plus two new)
+
+- **NEW — record a retraction ONLY where a reader can still encounter the false claim.** ISC-566 took
+  SIX gate passes and nearly every finding after the first was a defect the previous pass's own
+  corrections introduced. Each *"a first version said X"* sentence is a factual claim about document
+  history that can be wrong; inside a NEW entry it points at text in no git object, so it can only
+  ever be wrong. Seven were cut and no fact was lost — one had become false. Memory:
+  `retraction-needs-a-reachable-reader`.
+- **NEW — `repairedAttempt` indexes the REFUSED candidates, not `attempts`.** `attempts` also collects
+  `threw`, `empty` and `ok`, so `repairedAttempt: 0` with `attempts.length: 2` does NOT prove the
+  ISC-561 widening fired. **Count the `blocked:` rows.**
+- **A `scholarly-gate` BLOCK is almost always the RECORD, not the code** — the code was clean from the
+  first pass in every change so far. **ALWAYS re-gate after applying its fixes.**
+- **Do not accept an auditing agent's measurement either.** Re-measure in both directions.
+- **`/api/answer` cannot be probed by curl** — drive the app with Interceptor, clear
+  `localStorage['newquranku:thread']`, and discard a warm-up turn.
+- **Never batch a file write with a gate command** — a blocked hook DISCARDS EVERY WRITE in that Bash
+  call. Hit again this session: a trailing `| tail` blocked a whole command and nothing ran.
+- **Never pipe a gate command into `head`/`tail`** — `$?` becomes the pipe's status. Redirect, then
+  echo the exit code.
+- **A green wall is not a readable answer.** The guard is a RULES wall, not a coherence check.
+- **Arabic you type is not the Arabic that shipped.** Splice captured bytes; paste witnesses from the
+  capture, never retype them.
+- **The granularity was never Erik's.** His ruling is *"it has to be answered"*.
+- **Do not edit files while an auditing agent is auditing them.**
+- **The kajian tool never rewrites a transcript**, widens its cue list ONLY from real transcripts, and
+  never copies credentials from a video title.
+- **The narrator voice `id-ID-Chirp3-HD-Schedar` is LOAD-BEARING per ADR 6.** Do not change it.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-22 night)
 
 > Prepended by /wrap 2026-08-22 (night). **Anchor `874578d` on origin/main** (verified by
