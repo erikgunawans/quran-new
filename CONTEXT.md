@@ -76,3 +76,20 @@ position and question history.
 **Adoption** — moving an Anonymous Visitor's Memory into an Account. Always the
 result of an explicit choice by the person, never automatic, because a browser
 can be shared and Memory can be intimate.
+
+## Kajian tooling
+
+**Kajian Briefing** — a summary QuranKu's own tooling derives from a recorded
+lecture. Our writing about someone's talk; never their words, never a
+transcript, and never presented as a quotation.
+
+**Ustadz Roster** — the hand-maintained list of speakers we are prepared to
+name, each with the title that person actually uses, credentials we wrote, and
+a photo we are entitled to use. A speaker absent from the Roster is not named.
+
+**Unrostered** — a video whose speaker has no Roster entry. Its slide carries
+the source link and no identity at all.
+
+**Draft Slide** — a slide derived from auto-generated captions whose flagged
+citations have not yet been checked against the video. A Draft Slide is not
+postable.
