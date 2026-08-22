@@ -1,0 +1,168 @@
+[
+  {
+    "turn": "turn-1 (kenapa kita harus salat lima waktu)",
+    "url": "/api/answer",
+    "status": 200,
+    "timestamp": 1787393565389,
+    "body": {
+      "answer": "Pertanyaan yang sangat mendasar dan penting, Nak. Kadang kita menjalankan shalat karena terbiasa, tapi ketika kita bertanya \"kenapa harus?\" — di situlah iman mulai hidup. Mari kita lihat apa kata Al-Qur'an.\n\nAllah sendiri yang memerintahkan shalat lima waktu pada waktu-waktu yang tetap, sebagaimana firman-Nya dalam QS An-Nisa 4:103. Ini bukan sekadar rutinitas, melainkan ketetapan dari Allah yang Maha Mengetahui apa yang terbaik untuk hamba-Nya. Shalat adalah tiang agama, dan ia menjadi ciri orang-orang yang bertakwa (QS Al-Baqarah 2:3). Bayangkan, ketika kita shalat, kita sedang berdiri di hadapan Allah, berbicara dengan-Nya, memohon petunjuk dan pertolongan-Nya. Dalam QS Al-Baqarah 2:45, Allah mengajarkan kita untuk memohon pertolongan dengan sabar dan shalat. Jadi shalat bukan hanya kewajiban, tapi juga senjata dan kekuatan bagi jiwa.\n\nRasulullah ﷺ memberikan gambaran yang sangat indah. Beliau bersabda bahwa shalat lima waktu itu seperti sungai yang mengalir di depan pintu rumah kita, dan kita mandi di dalamnya lima kali sehari [H:bukhari:518]. Pasti tidak akan ada kotoran yang tersisa. Begitulah shalat — ia membersihkan dosa-dosa kecil kita, menyucikan hati, dan mendekatkan kita kepada Allah. Shalat adalah waktu kita \"check-in\" dengan Pencipta kita, mengingat siapa kita dan untuk apa kita hidup. Bukan beban, Nak, tapi justru rahmat yang luar biasa.",
+      "blocked": null,
+      "hadith": [
+        {
+          "id": "hadith-bukhari-518",
+          "arabic": "حَدَّثَنَا إِبْرَاهِيمُ بْنُ حَمْزَةَ، قَالَ حَدَّثَنِي ابْنُ أَبِي حَازِمٍ، وَالدَّرَاوَرْدِيُّ، عَنْ يَزِيدَ، عَنْ مُحَمَّدِ بْنِ إِبْرَاهِيمَ، عَنْ أَبِي سَلَمَةَ بْنِ عَبْدِ الرَّحْمَنِ، عَنْ أَبِي هُرَيْرَةَ، أَنَّهُ سَمِعَ رَسُولَ اللَّهِ صلى الله عليه وسلم يَقُولُ ‏\"‏ أَرَأَيْتُمْ لَوْ أَنَّ نَهَرًا بِبَابِ أَحَدِكُمْ، يَغْتَسِلُ فِيهِ كُلَّ يَوْمٍ خَمْسًا، مَا تَقُولُ ذَلِكَ يُبْقِي مِنْ دَرَنِهِ ‏\"‏‏.‏ قَالُوا لاَ يُبْقِي مِنْ دَرَنِهِ شَيْئًا‏.‏ قَالَ ‏\"‏ فَذَلِكَ مِثْلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهَا الْخَطَايَا ‏\"‏‏.‏",
+          "collection": "Sahih al-Bukhari",
+          "hadith_number": 518,
+          "grade": "sahih",
+          "source_url": "https://sunnah.com/bukhari:518",
+          "book": 9
+        }
+      ],
+      "dalil": {
+        "eligible": true,
+        "weak": false,
+        "bound": true,
+        "offered": 2,
+        "records": 2,
+        "failed": null,
+        "ms": {
+          "embed": 672,
+          "vectorize": 254,
+          "text_layer": 0,
+          "rerank": 384,
+          "display": 131,
+          "total": 1441
+        }
+      },
+      "gen": {
+        "attempts": [
+          {
+            "ms": 5259,
+            "budgetMs": 13500,
+            "outcome": "blocked:bad_hadith"
+          },
+          {
+            "ms": 3890,
+            "budgetMs": 19741,
+            "outcome": "ok"
+          }
+        ],
+        "reason": "answered",
+        "rule": null,
+        "repaired": false,
+        "repairedDropped": 0,
+        "repairedRule": null,
+        "repairedAttempt": null
+      }
+    }
+  },
+  {
+    "turn": "turn-2 (kenapa kita harus salat lima waktu)",
+    "url": "/api/answer",
+    "status": 200,
+    "timestamp": 1787393644981,
+    "body": {
+      "answer": "Pertanyaan yang sangat mendasar dan penting. Kadang kita menjalankan shalat karena kebiasaan atau karena takut dosa, tapi mungkin belum sepenuhnya merasakan kenapa Allah mewajibkan ini lima kali sehari. Mari kita renungkan bersama.\n\nAllah sendiri yang menetapkan shalat lima waktu pada waktu-waktu yang sudah ditentukan. Dalam QS An-Nisa 4:103, Allah menegaskan bahwa shalat itu memiliki waktu-waktu yang tetap. Ini bukan aturan sembarangan. Waktu subuh, dzuhur, ashar, maghrib, dan isya' dipilih karena setiap waktu itu punya makna tersendiri—mengingatkan kita kepada Allah di saat kita memulai hari, di tengah kesibukan, di sore hari, saat senja, dan ketika malam tiba. Shalat menjadi pengingat yang terus-menerus agar hati kita tidak lalai.\n\nLebih dari sekadar kewajiban, shalat adalah kebutuhan kita. Dalam QS Al-Baqarah 2:45, Allah mengajarkan kita untuk memohon pertolongan melalui sabar dan shalat. Artinya, ketika kita sedang berat, bingung, atau butuh kekuatan, shalat adalah tempat kita bersandar. Bukan Allah yang butuh shalat kita, tapi kita yang butuh shalat untuk menenangkan jiwa dan meminta petunjuk.\n\nRasulullah ﷺ memberikan gambaran yang indah tentang fungsi shalat. Beliau bersabda bahwa shalat lima waktu itu seperti sungai di depan pintu rumah seseorang yang mandi di dalamnya lima kali sehari—tidak akan ada kotoran yang tersisa [H:bukhari:518]. Ini menunjukkan bahwa shalat membersihkan kita dari dosa-dosa kecil, asalkan kita menjalankannya dengan sungguh-sungguh. Jadi shalat bukan hanya ritual, tapi pembersih hati setiap hari.\n\nJadi, kenapa kita harus shalat lima waktu? Karena Allah yang Maha Tahu menetapkannya sebagai cara terbaik untuk menjaga hubungan kita dengan-Nya, membersihkan jiwa kita, dan memberi kita kekuatan menjalani hidup. Bukan beban, tapi justru rahmat. Semoga kita bisa menjalankannya dengan penuh kesadaran dan keikhlasan.",
+      "blocked": null,
+      "hadith": [
+        {
+          "id": "hadith-bukhari-518",
+          "arabic": "حَدَّثَنَا إِبْرَاهِيمُ بْنُ حَمْزَةَ، قَالَ حَدَّثَنِي ابْنُ أَبِي حَازِمٍ، وَالدَّرَاوَرْدِيُّ، عَنْ يَزِيدَ، عَنْ مُحَمَّدِ بْنِ إِبْرَاهِيمَ، عَنْ أَبِي سَلَمَةَ بْنِ عَبْدِ الرَّحْمَنِ، عَنْ أَبِي هُرَيْرَةَ، أَنَّهُ سَمِعَ رَسُولَ اللَّهِ صلى الله عليه وسلم يَقُولُ ‏\"‏ أَرَأَيْتُمْ لَوْ أَنَّ نَهَرًا بِبَابِ أَحَدِكُمْ، يَغْتَسِلُ فِيهِ كُلَّ يَوْمٍ خَمْسًا، مَا تَقُولُ ذَلِكَ يُبْقِي مِنْ دَرَنِهِ ‏\"‏‏.‏ قَالُوا لاَ يُبْقِي مِنْ دَرَنِهِ شَيْئًا‏.‏ قَالَ ‏\"‏ فَذَلِكَ مِثْلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهَا الْخَطَايَا ‏\"‏‏.‏",
+          "collection": "Sahih al-Bukhari",
+          "hadith_number": 518,
+          "grade": "sahih",
+          "source_url": "https://sunnah.com/bukhari:518",
+          "book": 9
+        }
+      ],
+      "dalil": {
+        "eligible": true,
+        "weak": false,
+        "bound": true,
+        "offered": 2,
+        "records": 2,
+        "failed": null,
+        "ms": {
+          "embed": 263,
+          "vectorize": 255,
+          "text_layer": 0,
+          "rerank": 434,
+          "display": 117,
+          "total": 1069
+        }
+      },
+      "gen": {
+        "attempts": [
+          {
+            "ms": 4965,
+            "budgetMs": 13500,
+            "outcome": "ok"
+          }
+        ],
+        "reason": "answered",
+        "rule": null,
+        "repaired": false,
+        "repairedDropped": 0,
+        "repairedRule": null,
+        "repairedAttempt": null
+      }
+    }
+  },
+  {
+    "turn": "turn-3 (apa keutamaan salat lima waktu menurut hadits)",
+    "url": "/api/answer",
+    "status": 200,
+    "timestamp": 1787393691532,
+    "body": {
+      "answer": "Tentu, pertanyaan yang sangat baik. Saya bisa merasakan dari pertanyaan ini bahwa Anda sedang ingin memperkuat semangat dalam menjalankan shalat, atau mungkin sedang mencari pengingat tentang betapa besarnya karunia Allah melalui shalat lima waktu. Ini adalah tanda keimanan yang indah, karena orang yang mencintai shalat pasti ingin tahu lebih dalam tentang keutamaannya.\n\nSelain itu, shalat juga menjadi sarana pembersih langsung dari Allah. Dalam sebuah kisah, ada seorang sahabat yang melakukan kesalahan, lalu ia datang kepada Rasulullah ﷺ. Maka turunlah ayat yang mengajarkan bahwa shalat di dua ujung siang dan sebagian malam itu menghapus kesalahan-kesalahan. Rasulullah ﷺ pun menegaskan bahwa keutamaan ini berlaku untuk seluruh umatnya yang menghadapi situasi serupa [H:bukhari:4481]. Ini menunjukkan bahwa shalat bukan sekadar rutinitas, melainkan obat hati yang Allah sediakan setiap hari. Allah sendiri berfirman bahwa shalat adalah ciri orang bertakwa (QS Al-Baqarah 2:3) dan sarana untuk memohon pertolongan (QS Al-Baqarah 2:45).\n\nJadi, setiap kali Anda merasa berat atau malas untuk shalat, ingatlah sungai rahmat yang mengalir itu. Shalat lima waktu bukanlah beban, melainkan hadiah dari Allah yang membersihkan kita dan mendekatkan kita kepada-Nya. Teruslah jaga shalat Anda, karena di situlah ketenangan dan kekuatan hati seorang mukmin berada.",
+      "blocked": null,
+      "hadith": [
+        {
+          "id": "hadith-bukhari-4481",
+          "arabic": "حَدَّثَنَا مُسَدَّدٌ، حَدَّثَنَا يَزِيدُ ـ هُوَ ابْنُ زُرَيْعٍ ـ حَدَّثَنَا سُلَيْمَانُ التَّيْمِيُّ، عَنْ أَبِي عُثْمَانَ، عَنِ ابْنِ مَسْعُودٍ ـ رضى الله عنه ـ أَنَّ رَجُلاً، أَصَابَ مِنَ امْرَأَةٍ قُبْلَةً، فَأَتَى رَسُولَ اللَّهِ صلى الله عليه وسلم فَذَكَرَ ذَلِكَ لَهُ فَأُنْزِلَتْ عَلَيْهِ ‏{‏وَأَقِمِ الصَّلاَةَ طَرَفَىِ النَّهَارِ وَزُلَفًا مِنَ اللَّيْلِ إِنَّ الْحَسَنَاتِ يُذْهِبْنَ السَّيِّئَاتِ ذَلِكَ ذِكْرَى لِلذَّاكِرِينَ‏}‏‏.‏ قَالَ الرَّجُلُ أَلِيَ هَذِهِ قَالَ ‏\n\"‏ لِمَنْ عَمِلَ بِهَا مِنْ أُمَّتِي ‏\"‏‏.‏",
+          "collection": "Sahih al-Bukhari",
+          "hadith_number": 4481,
+          "grade": "sahih",
+          "source_url": "https://sunnah.com/bukhari:4481",
+          "book": 65
+        }
+      ],
+      "dalil": {
+        "eligible": true,
+        "weak": false,
+        "bound": true,
+        "offered": 2,
+        "records": 2,
+        "failed": null,
+        "ms": {
+          "embed": 390,
+          "vectorize": 257,
+          "text_layer": 0,
+          "rerank": 390,
+          "display": 127,
+          "total": 1164
+        }
+      },
+      "gen": {
+        "attempts": [
+          {
+            "ms": 6186,
+            "budgetMs": 13500,
+            "outcome": "blocked:bad_hadith"
+          },
+          {
+            "ms": 5558,
+            "budgetMs": 18814,
+            "outcome": "blocked:own_wording"
+          }
+        ],
+        "reason": "answered",
+        "rule": null,
+        "repaired": true,
+        "repairedDropped": 1,
+        "repairedRule": "wording",
+        "repairedAttempt": 1
+      }
+    }
+  }
+]

@@ -338,6 +338,58 @@ const WEAK_SPEECH_NOUN =
   // noun is not a speech act at all. Both were refused as attributions until they were excluded here.
   /\b(kata(?!\s+lain)|riwayat(?!\s+hidup)|perintah|ajaran|kabar|pesan|anjuran|larangan|petunjuk|arahan|peringatan|bimbingan)(nya)?\b/g;
 
+/**
+ * LIGHT-VERB ATTRIBUTIONS — the hole that `memberikan perumpamaan` walked through on prod.
+ *
+ * Every rule above asks the same question: is the Prophet ﷺ the agent of a SPEECH ACT? The verb axis
+ * is generated from speech-act stems, and that generator is sound — but it can only ever fire on a
+ * verb that IS the speech act. Indonesian also builds an attribution the other way round, with a
+ * semantically empty verb of GIVING and the speech act nominalised as its object:
+ *
+ *     Rasulullah ﷺ MEMBERIKAN PERUMPAMAAN yang indah tentang shalat lima waktu.
+ *     Rasulullah ﷺ MEMBERIKAN GAMBARAN yang sangat indah.
+ *
+ * `beri` is not a speech-act stem and MUST NOT become one — giving is not saying, and adding it would
+ * refuse "Allah memberikan rezeki kepada beliau ﷺ". So no widening of SPEECH_ACT_STEMS could ever
+ * have reached these two sentences; the frame is the missing instrument, not a missing word.
+ *
+ * BOTH SENTENCES ARE REAL PROD BYTES, not written for this rule. The first shipped to a reader on
+ * 2026-08-22 (recorded in PROGRESS.md's night checkpoint) carrying NO marker, in the same answer
+ * whose repair produced the stranded-reply defect. The second was captured live from
+ * `/api/answer` on version `9ab57d4b` on 2026-08-22 while verifying that repair. Per
+ * `guard-tests-need-production-prose`, nothing here was invented.
+ *
+ * WHY THE NOUNS ARE FRAMED AND NOT LISTED. `perumpamaan` and `gambaran` are too ambiguous to stand
+ * alone at either reach the file already has. "Beliau ﷺ adalah GAMBARAN akhlak terbaik" puts the noun
+ * 8 characters from the subject — inside `ADJACENT` — and is compliant prose about him, not an
+ * attribution to him. Requiring the noun to be the OBJECT OF A GIVING VERB is what disambiguates it:
+ * a parable one GIVES is a parable one SAID. Outside the frame the two nouns still do not fire.
+ *
+ * DELIBERATELY NOT GENERATED. `per-…-an` over the existing stems would have minted these two for
+ * free — and also `pertanyaan`, which opens a large share of the app's own compliant answers
+ * ("Pertanyaan yang sangat baik" is the first line of a live capture from the same session),
+ * `persamaan`, `perjanjian` and `ingatan`. That is precisely the failure this file already records
+ * for blanket `ber-`/`ter-` generation: an open axis is only safe where the derivation is
+ * semantically reliable, and nominalisation is not. So the nouns are a SMALL, CLOSED, transcript-
+ * sourced set.
+ *
+ * KNOWN AND UNCLOSED: only the two witnessed nouns are here. `memberikan nasihat`/`penjelasan` are
+ * already caught by SPEECH_NOUN, and `menyampaikan` by the stem `sampai` — but a light verb over a
+ * nominalisation nobody has yet observed still passes. Recorded as an open gap rather than pinned by
+ * a passing test written from invented prose (`dont-pin-a-known-hole-with-a-green-test`).
+ */
+const LIGHT_VERB_SPEECH = new RegExp(
+  // The `di-` arm is UNWITNESSED and NARROWER THAN IT LOOKS. A first version of this comment offered
+  // "gambaran yang DIBERIKAN Rasulullah ﷺ" as its example; `scholarly-gate` measured that and the
+  // pattern returns null for it, because the giving verb must precede the noun. What `di-` actually
+  // reaches is the impersonal passive in verb-then-noun order ("…sudah seringkali DIBERIKAN
+  // PERUMPAMAAN dalam Al-Qur'an"), where the Prophet ﷺ would be the RECIPIENT, not the agent. It is
+  // kept because widening only ever adds refusals (ISC-440) — not because the passive attribution is
+  // covered. It is not.
+  String.raw`\b(?:mem|di)beri(?:kan)?\b[^.!?]{0,24}?\b(?:perumpamaan|gambaran)\b`,
+  "g",
+);
+
 /** How close a WEAK noun must sit to the subject to count — one short function word, no more. */
 const ADJACENT = 12;
 
@@ -436,6 +488,10 @@ const muhammadSpeechAct = (s: string): boolean => {
     ...[...s.matchAll(SPEECH_NOUN)].map((m) => ({ m, reach: CLAUSE_WINDOW })),
     // Ambiguous nouns only count as part of the subject's own phrase — see WEAK_SPEECH_NOUN.
     ...[...s.matchAll(WEAK_SPEECH_NOUN)].map((m) => ({ m, reach: ADJACENT })),
+    // A nominalised speech act inside a giving-verb frame. Full reach: the frame is what makes the
+    // noun unambiguous, so it needs no help from proximity — see LIGHT_VERB_SPEECH. The match starts
+    // at the light verb, which is the end nearest the subject, so the gap measured is the real one.
+    ...[...s.matchAll(LIGHT_VERB_SPEECH)].map((m) => ({ m, reach: CLAUSE_WINDOW })),
   ];
   // Blank out the subject phrases before either agent test runs. Without this the possessive inside
   // "Nabi KITA menjanjikan…" reads as the agent of `menjanjikan` and the sentence ships — the same

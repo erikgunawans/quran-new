@@ -493,3 +493,65 @@ describe("audit corpus — leaks a second model found in the first grammar", () 
     expect(guardAnswerProse("Junjungan kita pernah menyampaikan hal itu.", allow(), grounded()).ok).toBe(false);
   });
 });
+
+/**
+ * LIGHT-VERB ATTRIBUTIONS — `memberikan perumpamaan`.
+ *
+ * EVERY REFUSING CASE HERE IS PROD BYTES. The first shipped to a reader on 2026-08-22 (recorded
+ * verbatim in PROGRESS.md's night checkpoint); the second was captured from `/api/answer` on Worker
+ * version `9ab57d4b` on 2026-08-22 while verifying the ISC-564 deploy. Neither was written for this
+ * rule, which is the whole requirement — the two previous leaks in this file were both found in
+ * production after tests written from the author's own vocabulary declared the wall closed
+ * (`guard-tests-need-production-prose`, `one-generator-is-one-vocabulary`).
+ *
+ * THE ASSERTIONS NAME `rule`, NOT JUST `ok`. `guardAnswerProse` runs five rules, so an `ok === false`
+ * assertion cannot say which one fired — a test that passes because ANOTHER guard caught the sentence
+ * is not testing this one (`indonesian-affix-guards`). Verified by force-red: with the
+ * `LIGHT_VERB_SPEECH` line deleted from `muhammadSpeechAct`, both refusing cases return
+ * `ok: true, violations: []` — no other rule sees them at all.
+ *
+ * MEASURED COST: ZERO. Stated as the rule's CONDITION rather than a corpus count, because two
+ * successive versions of this comment were counts and `scholarly-gate` falsified both — first FOUR
+ * across "every real corpus on disk", then 17 with `web/public/surah` called the largest corpus in
+ * the tree (`web/public/tafsir/` is 117 MB against its 5 MB). A count needs a complete inventory;
+ * the firing condition does not.
+ *
+ * This rule fires only when a Muhammad designation sits within CLAUSE_WINDOW of the frame. Across 42
+ * files and 118 frame occurrences tree-wide — `web/public/surah`, `web/public/tafsir`, `data/`,
+ * `src/eval/reports/`, `docs/review/`, tracked and gitignored alike — exactly 6 have one in window,
+ * and all 6 are the JSON metadata field `"translator": "Ustadz Muhammad Thalib"`. None is prose.
+ * Zero real occurrences can fire; in every prose occurrence the agent is Allah, Kami, Mereka or the
+ * disbelievers ("Allah memberikan perumpamaan tentang orang-orang kafir").
+ *
+ * Still a measured set and not a class (`measured-set-is-not-a-class`).
+ */
+describe("a nominalised speech act inside a giving-verb frame is an attribution", () => {
+  test.each([
+    // PROD, 2026-08-22 night — shipped to a reader with no marker in the sentence.
+    "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu.",
+    // PROD, 2026-08-22, live capture from Worker version 9ab57d4b.
+    "Rasulullah ﷺ memberikan gambaran yang sangat indah.",
+  ])("refuses as hadith_unbacked: %s", (prose) => {
+    const r = guardAnswerProse(prose, allow(), grounded());
+    expect(r.ok).toBe(false);
+    expect(r.violations.map((v) => v.rule)).toContain("hadith_unbacked");
+  });
+
+  test("the same sentence ships once a marker in it resolves", () => {
+    const prose = "Rasulullah ﷺ memberikan perumpamaan yang indah tentang shalat lima waktu [H:bukhari:518].";
+    expect(guardAnswerProse(prose, allow(), grounded("hadith-bukhari-518")).ok).toBe(true);
+  });
+
+  test.each([
+    // The noun OUTSIDE the frame. This sits 8 characters from the subject — inside ADJACENT — and is
+    // compliant prose ABOUT him, not an attribution TO him. It is why the nouns are framed, not listed.
+    "Beliau adalah gambaran akhlak terbaik bagi umat manusia.",
+    // Giving that is not saying. `beri` must never become a speech-act stem.
+    "Allah memberikan rezeki dan pertolongan kepada Nabi ﷺ di saat tersulit.",
+    // `per-…-an` generation over the existing stems would have minted `pertanyaan` as a speech act.
+    // This is the opening line of a live answer captured in the same session.
+    "Tentu, pertanyaan yang sangat baik dari Anda tentang sunnah Nabi ﷺ.",
+  ])("still ships: %s", (prose) => {
+    expect(guardAnswerProse(prose, allow(), grounded()).ok).toBe(true);
+  });
+});

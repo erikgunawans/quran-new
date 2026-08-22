@@ -2,6 +2,89 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (late) — ISC-564 deployed, and the verb hole it declined turned out not to be a verb hole
+
+**THE ONE THING WORTH REMEMBERING: the prescribed fix was rejected on MEASURED COST, and a first
+version of this checkpoint said it "could not have worked" — which `scholarly-gate` falsified by
+running it.** ISC-564 recorded `memberikan perumpamaan` as a missing VERB — *"that verb is not in
+`hadithShape`'s list, the same incomplete-verb-list hole `mengajarkan` cost two sessions"* — and the
+handoff carried that forward as item 3, "widen the verb list". I claimed there was no verb list to
+widen. **There is one:** `IRREGULAR_SPEECH_FORMS` is a hand-enumerated list of irregular surface
+forms, and adding `memberikan` to it DOES refuse both witnesses. I verified that myself rather than
+take the gate's word: with the shipped rule removed and `memberikan`/`memberi` added to that list,
+both witnesses return `hadith_unbacked`. **It is rejected because of what else it refuses** — the
+same probe returns `hadith_unbacked` for *"Allah memberikan rezeki kepada beliau ﷺ"*, ordinary
+compliant prose. What IS true, and is the part that survived: the GENERATED axis could never have
+reached these sentences. `umpama` and `gambar` were already stems, so `mengumpamakan` and
+`menggambarkan` already refused, and adding `beri` as a stem over-refuses identically. The speech act
+is not the verb — `memberikan` is semantically empty and the act is NOMINALISED as its object — so
+the frame is the instrument that costs nothing, not the only one that works.
+
+**The lesson is narrower than "check the claim": an impossibility claim is a quantifier, and this
+file has now produced three in one day** — *"could not have worked"*, *"every real corpus on disk"*,
+and *"the largest real corpus in the tree"*. All three were false, none was load-bearing for the
+conclusion, and all three were caught by someone re-running the thing rather than re-reading it.
+
+**DEPLOYED: ISC-564.** `new-quranku-proxy` version **`9ab57d4b`**, 100% of traffic, `EDITION:
+"synthesis"`, from `2f23edd`. ⚠️ **The handoff said `web/dist` held a synthesis build; it held a
+`principled` one from `d480850`** — the preflight hook would have blocked the deploy. Rebuilt and
+verified by the inlined literal, not a grep.
+
+**ISC-564 VERIFIED ON PROD BY DRIVING THE APP, four turns.** It does what it claims: no survivor is
+stranded INSIDE an excised paragraph. `gen.repairedAttempt: 0` still never appeared — ISC-561's
+widening remains unwitnessed in production.
+
+**AND THE FIRST REPAIRED TURN SHIPPED ISC-564's DECLINED COST (c), LIVE.** Question *"apa keutamaan
+salat lima waktu menurut hadits"*, `repaired: true`, `repairedRule: "wording"`, `repairedAttempt: 1`.
+The reader got a first paragraph opening **"Selain itu,"** — referring to a paragraph that no longer
+exists — and a closing **"ingatlah sungai rahmat yang mengalir itu"**, telling the reader to remember
+a parable the excision removed. Two cross-paragraph danglers in one answer. Recorded as observed, NOT
+fixed, and deliberately not pinned by a passing test.
+
+**WITNESS FOR ISC-565 — the raw capture is now COMMITTED at
+`docs/review/captures/api-answer-9ab57d4b-2026-08-22.json`, all three turns, response bodies
+verbatim.** `scholarly-gate` asked for this: the string existed nowhere on disk outside the edited
+files, so *"pasted from the capture"* was unfalsifiable by a later reader — which is the exact
+position the fabricated-isnad incident arose from. The sentence below appears in TWO independent
+turns of that capture (`/api/answer`, version `9ab57d4b`, 2026-08-22, question *"kenapa kita harus
+salat lima waktu"*, `gen.attempts` = `blocked:bad_hadith` then `ok`):
+
+> Rasulullah ﷺ memberikan gambaran yang sangat indah.
+
+On that turn the following sentence carried `[H:bukhari:518]` and the card rendered, so nothing
+unreceipted reached the reader — but as with the 2026-08-22 night turn, that was the model's choice
+and not the wall's doing. The second surface form of this hole appeared within HOURS of the first,
+exactly as `mengajarkan` and `diajarkan oleh` did.
+
+**`scholarly-gate`: TWO passes, CONCERNS both times, code clean both times — the seventh and eighth
+passes across three changes, and the code has been clean from the first every time. Two of the second
+pass's findings were defects the FIRST fix pass introduced.** The count went wrong twice in a row and
+in the same shape: *"every real corpus on disk"* (4 cited) was a quantifier over a search I had not
+run, and its correction — *"17, and `web/public/surah` is the largest real corpus in the tree"* — was
+another one, missing `web/public/tafsir` at 117 MB against surah's 5 MB.
+
+**The count is now retired in favour of the rule's actual condition, which is well defined where a
+count is not.** Sentence extraction has no meaning inside raw JSON, so BOTH "0 refusals over 71"
+(the gate's) and "4 over 118" (mine) are artefacts of splitting corpus JSON on `.`. The rule fires
+only when a Muhammad designation sits within `CLAUSE_WINDOW` of the frame, and that question is
+answerable on any bytes: across **42 files and 118 frame occurrences** tree-wide — tracked and
+gitignored, `web/public/surah`, `web/public/tafsir`, `data/`, `src/eval/reports/`, `docs/review/` —
+**exactly 6 have a Muhammad designation in window, and all 6 are the JSON field
+`"translator": "Ustadz Muhammad Thalib"`. None is prose. Zero real occurrences can fire.** Stronger
+than the claim it replaces, and it does not depend on a corpus inventory being complete.
+
+**The gate's own arithmetic was wrong in the other direction and I did not concede it** — it reported
+zero occurrences in `grounding-…577Z.md`, which contains two (*"Allah bahkan memberi perumpamaan yang
+sangat kuat"*, *"…dan memberi perumpamaan yang sangat gamblang"*). It agreed on the second pass.
+Re-measured directly rather than taken on either side's word.
+
+**A BLOCKED HOOK FAKED A GREEN SUITE.** The `cat >>` writing the new tests shared a command with a
+piped gate call; `bash-preflight` blocked the whole command, so the append never happened — and the
+"170 pass" that followed was the untouched baseline being read as a green NEW suite. The force-red
+caught it only because it compared against HEAD. A hook rejection kills the writes beside it.
+
+**Gates:** `bun test` 1855/0 EXIT=0 · typecheck EXIT=0 · build EXIT=0. ISA 574/589.
+
 ## 2026-08-22 (night) — repair sees every candidate, then prod showed the excision unit was wrong
 
 **THE ONE THING WORTH REMEMBERING: a green wall is not a readable answer.** ISC-561/562 shipped, were
