@@ -2,6 +2,80 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-22 (afternoon) — the kajian slide, and four defects only the rendered PNG could show
+
+**THE SESSION'S ONE DECISION WORTH REMEMBERING: the roster's silence was leaking through the video
+title.** Step 3 built a roster so an unmatched video carries no name, no gelar and no face. But
+`meta.title` runs verbatim through the whole pipeline, and the first real title is
+`15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.` — a name AND a credential, the
+uploader's wording, verified by nobody. Making that the slide's headline would have handed the
+roster's silence straight back on the one artifact that gets posted. So the heading is the fixed
+string `Ringkasan Kajian`, which asserts nothing about anyone, and the title appears exactly once,
+inside the source block beside the QR, under a label saying it is YouTube's own wording. `none` and
+`ambiguous` render identically — a wrong name is worse than no name, and picking one would make the
+roster file's ORDER decide who gets credited.
+
+**ADR 5 READ STRICTLY IS STILL NOT SATISFIED, AND ERIK HAS NOT RULED.** ADR 5 says an unrostered
+slide renders "with the source link and no identity: no name, no face, no credentials." The shipped
+slide does put a name and a gelar on the image — quoted and labelled, but on the image. The
+labelled-quotation reading was MY judgement, not something the ADR licenses: suppressing the title
+leaves the slide unable to say which lecture it summarises, and the QR leads to a page showing that
+title anyway. Recorded as an open ruling rather than closed by the code that assumes it.
+
+**Four defects, every one found by RUNNING it and none by reading it.**
+
+`sanitizeQrSvg` stripped `width`/`height` DOCUMENT-WIDE, which also took them off every module
+`<rect>`. A QR whose modules have no width is a clean blank square that renders fine and exits zero
+— nothing downstream could have noticed. Caught by a test asserting a module rect keeps its
+geometry, and the QR is now DECODED out of the rendered PNG
+(`cv2.QRCodeDetector().detectAndDecode` → `https://www.youtube.com/watch?v=brlqHxjIp9c`, byte-
+identical to `meta.url`). Reading the SVG could never have caught it.
+
+**A per-bullet character cap bounds one bullet and says nothing about four.** The first real render
+passed every per-bullet check and pushed its last point straight through the QR and the source
+block. Adding `overflow: hidden` fixed the overlap and introduced something worse: the bullet
+vanished cleanly at a line boundary, so the slide looked finished and was missing a point. The
+budget is now the SUM — `DEFAULT_MAX_TOTAL_CHARS = 480`, MEASURED against the real briefing at
+1080x1350 with the draft band present (438 chars fitted with two lines spare; 552 clipped). Clipping
+is the net beneath the budget, never the guarantee. A test pins the defaults so nobody moves them
+without re-rendering and looking.
+
+**The Executive Summary is an ORDERED list, which the bullet pattern did not match.** So the
+extractor skipped the summary entirely and fell through to nested detail under the section after
+it: the first slide opened with "Bukan diukur dari nilai akademis atau gelar" — a fragment of a
+definition, true in context and meaningless out of it. Nothing was wrong with the code; the pattern
+simply did not describe how the briefing is actually written.
+
+**Then the fix for that emptied the slide, and only a SECOND run of the same video found it.**
+Preferring the summary section is right. But the same prompt, the same transcript and the same
+temperature returned that section as a LIST on one run and as PROSE PARAGRAPHS on the next. On the
+prose run the scope matched, found no list items, and the slide rendered "Ringkasan tidak tersedia"
+with forty perfectly good bullets sitting directly below it. **A scope preference must never be able
+to produce silence.** It now falls back to the whole document, and both passes' safety refusals are
+still reported so a quote-bearing drop cannot be hidden by a later pass finding other content.
+
+**Bullets are dropped and named, never truncated.** An unresolved reference, a quotation, or more
+text than the layout holds — each is a drop with a reason, because an ellipsis can land past a
+negation and this repo has already paid for a quote cut one clause short. Safety drops print one by
+one; layout drops are counted, since a forty-bullet briefing would bury the three that matter.
+
+**Tokens are falsified, not read.** Every colour and size is a custom property in one `:root` block
+so Erik's firmed design drops in as a swap. The test STRIPS `:root` from the generated document and
+asserts nothing coloured survives — reading the source and seeing `var()` everywhere cannot
+distinguish a themed surface from a literal painted on top, which is exactly how a retheme silently
+failed here before. Force-red ran in six arms; each deleted the feature its test claims to guard,
+and each went red.
+
+**`MODEL_DEADLINE_MS` was NOT touched, and the CLI now passes its own deadline.** Every real kajian
+run was dying at 25 s with "The operation timed out", which reads as a provider fault and is not
+one: the CLI was inheriting the constant that guards a READER waiting on a page, deliberately set
+below the browser's own backstop. An 80,000-character offline briefing legitimately takes minutes.
+`--deadline` defaults to 600 s; the constant is unchanged at 25 s.
+
+**Gates: `bun test` 1775 pass / 0 fail exit 0 · `bun run typecheck` exit 0 (five passes).** Shipped
+`efabda8`, verified on origin/main by `git ls-remote`, not by the push's exit code. Nothing was
+published, deployed or posted — kajian is a local CLI writing to the gitignored `.scratch/kajian/`.
+
 ## 2026-08-22 — two grilling tracks designed, kajian steps 1-3 built, and real content falsified the flagging
 
 **THE SESSION'S ONE MEASUREMENT WORTH REMEMBERING: 143 -> 32.** The kajian flagger was built,
