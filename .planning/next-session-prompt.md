@@ -1,3 +1,142 @@
+# Next session — New-Quranku (checkpoint 2026-08-23 afternoon-close)
+
+> Prepended by /wrap 2026-08-23 (afternoon-close). **Anchor: `cb84b5b` on `origin/main`** — verify
+> with `git fetch` + `git ls-remote`, never a push pipe. **Supersedes the 2026-08-23 evening-close
+> block below.** From that handoff: item 1 (VPS runner + D1/Resend) **BUILT — see §0**; item 2
+> (ISC-624.8, the play button) **untouched and now item 1**; item 3 (the answer-wall cluster)
+> **untouched and still correct**; item 4 (kajian step 7) **CLOSED as no such thing**; item 5
+> (ISC-566, ISC-417) **still open by Erik's decision**. **Every "open item waiting on Erik" in that
+> block except one is now SETTLED — do not re-raise them.**
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-23 afternoon close**).
+
+## 0. WHAT CHANGED
+
+**ISC-617's consumer side is BUILT** (ISC-631..635): the runner protocol, the publish path, and the
+VPS runner process. `[~]` not `[x]` — the code exists, **nothing is deployed**, and the D1 database
+and R2 bucket **do not exist in the account**. `docs/runbooks/kajian-runner.md` is the one sequence
+that brings it up; it is Erik's to run, not the DA's.
+
+**Six standing items are SETTLED** (ISC-626, 630, 636..640). Details in §3.
+
+## 1. STATE
+
+Prod: `new-quranku.axiara.ai` → Worker **`641f8ae2` from `44ed447`** — unchanged since 2026-08-23
+morning. **Nothing from the last two sessions is deployed.**
+
+Gates at the anchor: `bun test` **2151/0** exit 0 · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run` exit 0 with bindings
+UNCHANGED (VECTORIZE, AUDIO, CORPUS only) — **run locally; this repo has no CI.**
+ISA **665/682** — 661 `[x]` + 4 `[~]`, **17 open**, counted by grep. **`ISA.md` has no `### Phase`
+headers, there is no `.planning/STATUS.md`, and there is no `sm-update` command** — so no phase
+table and no gap tracker exist to derive. **The 17 open ISCs ARE the open-item list.**
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL). The reviewed-aqidah
+credit in `main.ts:638/642` names him and **MUST**.
+
+## 2. DO NEXT, IN ORDER
+
+1. **ISC-624.8 — the play button.** `kajian.ts:532` nests the SHORT narration inside
+   `if (!NO_VIDEO && …)` and its WAV is consumed only by `stillVideo`, so turning the video off
+   destroyed the button's only audio producer. Decouple it, encode it as its own artefact, and store
+   it. **The upload and serve path already exists** — `short.m4a` is on the artefact allowlist
+   (`worker/src/kajian-artifacts.ts`), the runner uploads it when present
+   (`src/app/kajian-runner.ts` `UPLOADS`), and `audioUrl` is already nullable end to end. So this is
+   now a PIPELINE job only: make the pipeline produce the file.
+   ⚠️ **Shipping speechSynthesis-only is not a partial delivery — it is the option ADR 6 already
+   refused**, because the voice would vary per device. ADR 6's voice is LOAD-BEARING.
+
+2. **The answer-wall cluster**, the largest untouched group: ISC-533, ISC-534 (the `answer-blocked`
+   copy and its anti-downgrade pair), ISC-454 (live `bad_hadith` rate on prod), ISC-487 (the wall's
+   cost is latency — retrieval is only 1.2-2.7s of a 5.5-27.3s turn, and the 12s client abort is the
+   real defect), ISC-486, ISC-552. Read `ISA.md` for each before touching any.
+
+3. **The other open ISCs, none of them started:** ISC-98 (real-device visualViewport spot-check),
+   ISC-323 (live-Worker hadith-muslim-154 probe), ISC-419/420 (translation + scholar-receipt at the
+   ingestion point), ISC-440.6 (two pinned Qur'anic-narrative sentences), ISC-464 (two P0s from the
+   2026-08-15 critique), ISC-353.0 (superseded, kept for the trail), ISC-627.7 (what deliberately
+   remains).
+
+4. **ISC-566 and ISC-417 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik — ALMOST ALL NOW SETTLED
+
+**SETTLED 2026-08-23, do NOT re-raise:**
+- **ISC-630** — hold stands PERMANENTLY; the runner does not launch on their material; the capture is
+  DELETED (12,808 KB, inventoried first as ISC-626).
+- **Cost ceiling** — 5 jobs per rolling day (ISC-636), enforced at enqueue, 429 + `Retry-After`.
+- **Rights items 1 and 2** — CLOSED by a blanket rule (ISC-637): no third party's logo, wordmark,
+  channel art, thumbnail or branding on any summary, ever. No clause reading.
+- **Kajian step 7 and "Maruli"** — CLOSED as no such thing (ISC-638). Do not ask a sixth time.
+- **ISC-627.7d, the git-history rewrite** — DECLINED and recorded (ISC-639). Do not re-offer it.
+- **The cancelled letter file** — DELETED (ISC-640), along with ISC-627.7b's real dakwah names.
+
+**STILL OPEN, and only these two:**
+- 🔶 **Which source does the runner launch on?** It needs a first video whose rights are clear —
+  Erik's own recording, or a channel with an explicit licence. **Nothing can be published until this
+  is answered**, and it is the only thing blocking a real end-to-end run.
+- 🔶 **Nobody has read a repaired answer for THEOLOGICAL correctness.** Needs Ustadz Ahmad. Batch it
+  with whatever else is pending for him rather than asking one at a time.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **The hosted runner has never run.** Nothing writes `/kajian/index.json`, so `#/kajian` shows its
+  empty state. The LOCAL pipeline (`src/app/kajian.ts`) exists and has run. **Do not conflate them.**
+- **`kajian_jobs` is unmigrated on any real D1**, and `0004_kajian_results.sql` has never been
+  applied either. **Apply 0003 BEFORE 0004** — 0004 is `ALTER TABLE` and fails loudly otherwise,
+  which is correct.
+- **Logout does not REVOKE.** **The shared `canonical_user_id` defect is NOT fixed** (ADR 2 scopes it
+  out). **`splitSentences` is dead** except its own tests, kept deliberately.
+- **`.scratch/kajian/jNQXAC9IVRw/` ("Me at the zoo", 19s) is RETAINED** as the pipeline's only test
+  capture. It is third-party material too — recorded rather than glossed.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — "Darussalam" is TWO ENTITIES and a blanket scrub destroys a real attribution.** In
+  `hadith-card.test.ts`, `dalil.ts`, `doa.ts` and `index.ts` it is **Darussalam PUBLISHERS**, the
+  hadith translation house — a genuine translation credit. In `surah/6.json` and `10.json` it is
+  *dār as-salām*, Qur'anic. Neither is Masjid Darussalam Kota Wisata. **Read every hit before
+  replacing any.**
+- **NEW — a fake that hardcodes the guard it is testing makes the test vacuous.** The kajian fakes
+  now derive the status guard and the lease bound FROM the statement text. **And the first fix of
+  that fake inverted the mutation** — it read "no `claimed_at` bound" as "reclaim nothing" when SQL
+  semantics say "reclaim everything". Check the direction of a fake's model, not just its presence.
+- **NEW — the runner is a SECOND AUTH PRINCIPAL.** Never reach for `requireRole` on `/api/runner/*`:
+  an Administrator's 30-day `__Host-qk_auth` in a VPS env var undoes ISC-568 entirely. `isRunner`
+  fails closed and grants the kajian queue only — it deliberately cannot enqueue.
+- **NEW — count the ISA with grep, never from expectation.** A progress line written from memory was
+  wrong in the same edit that closed ISC-626, the criterion about exactly that.
+- **NEW — measure before you delete.** The capture inventory had to be taken first; after deletion
+  the count is unrecoverable. Prefer the LARGER reading, and check the RAW holding, not just the
+  derived file.
+- **The slide's stylesheet lives in a TEMPLATE LITERAL and is grepped whole by the force-red test.**
+  No backtick anywhere in it, and **no length or colour literal even inside a COMMENT** — `999px`
+  and `500px` in comments each turned the suite red. Spell numbers out.
+- **The slide budget is bound by the WRAPPED LINE COUNT, not the character count.** Bracket at
+  1920x1080: **497 chars fits with ~28px spare, 581 overflows by ~48px.** Re-render and LOOK; never
+  raise it by arithmetic.
+- **Headless Chrome clamps its window at about five hundred CSS pixels and then CROPS** to the width
+  you asked for. **The tell: the cut falls at the same x on unrelated elements.** Probe narrow
+  layouts at ≥520, or via CDP `emulate`.
+- **Renaming a fixture is a mutation test.** Derive expectations from the fixture, then PROVE the
+  derived version reddens.
+- **Deleting a string from the working tree does not remove it from a public repo.** Run
+  `git log -S"<string>" --all` before promising anything about removal. **A history rewrite is now
+  DECLINED (ISC-639) — do not re-offer it.**
+- **`bun run typecheck | tail` hides exit 2.** Redirect to a file, echo `$?`, then read. A pre-tool
+  hook blocks the pipe form, and **a blocked hook discards every write in that Bash call.**
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-23 evening-close)
 
 > Prepended by /wrap 2026-08-23 (evening-close). **Anchor: this wrap's commit on `origin/main`** —

@@ -4,6 +4,93 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (afternoon close) — the runner exists, and six standing items are settled
+
+Anchor: **`origin/main` `cb84b5b`**, verified with `git ls-remote`, never a push pipe. Session began
+at `82e7bda`. Five commits landed:
+
+| commit | what |
+|---|---|
+| `c1757ba` | ISC-631/632 — the runner protocol: a second auth principal, a guarded job state machine |
+| `6308cb1` | ISC-633/634 — the publish path; uploaded documents served with an opaque origin |
+| `3a2d811` | ISC-635 — the VPS runner and its runbook |
+| `60a0d54` | ISA: ISC-631..635, ISC-617 marked `[~]` |
+| `cb84b5b` | ISC-626/630/636..640 — six standing items settled on Erik's decisions |
+
+**Gates at close:** `bun test` **2151/0** exit 0 (up from 2048 at session start) · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run` exit 0 with bindings
+UNCHANGED. Run locally; **no CI.** ISA **665/682** — 661 `[x]` + 4 `[~]`, 17 open, counted by grep.
+
+**Nothing was deployed.** Prod still runs Worker `641f8ae2` from `44ed447`. The whole runner surface
+degrades correctly while `DB`, `KAJIAN` and `RUNNER_SECRET` are absent, which is prod's state.
+
+### What ISC-617 now is
+
+The queue had an enqueue side and no consumer. It now has all three parts: a runner-facing protocol
+(`worker/src/runner-auth.ts`, `/api/runner/kajian/{claim,complete,fail,upload}`), a publish path
+(`/kajian/index.json` from D1, artefacts from R2), and the process itself
+(`src/app/kajian-runner.ts`). `[~]` and not `[x]`: the code exists, the D1 database and R2 bucket do
+not exist in the account, and nothing is deployed. `docs/runbooks/kajian-runner.md` is the sequence.
+
+**The security decision it turned on:** the runner proves a MACHINE, not an account. Using
+`requireRole` would have put an Administrator's 30-day `__Host-qk_auth` in a VPS env var and undone
+ISC-568 entirely. It fails closed, and holding the secret permits claiming and reporting but NOT
+enqueuing — so a leak cannot make the app fetch arbitrary URLs.
+
+### The through-line: five records described the material smaller than it was
+
+ISC-626 asked for a recount of `briefing.md` before the capture was deleted. The off-by-one it was
+written for turned out to be the small half:
+
+> **The entire lecture was held verbatim — `transcript-raw.json`, 2,586 snippets, 77,528 characters.**
+
+Every previous record described the DERIVED briefing file — "four quotations", then "eleven", then
+"twelve" — and none of them mentioned the raw transcript at all. The difference between holding a
+dozen quotations and holding the whole thing is the entire rights question, and five records in a
+row described the smaller one. Measured into
+`docs/review/kajian-capture-inventory-2026-08-23.md` first, because after deletion it is
+unrecoverable; total **12,808 KB**, the first figure on this material that was not low. Then deleted.
+
+### Six items settled, five of them downstream of one
+
+**ISC-630** — the hold stands permanently, moot because the runner does not launch on their material.
+**My own earlier framing was wrong and is corrected in the ISA:** I said keeping the hold would
+invent a fresh justification. It would not. The justification was always the standing rights
+position; the letter was going to RESOLVE that question, not create it. Cancelling it removed the
+only route by which the answer could become yes.
+
+**ISC-636** five jobs per rolling day · **ISC-637** blanket no-third-party-branding (replaces rights
+items 1 and 2 rather than answering them) · **ISC-638** kajian step 7 and "Maruli" closed as no such
+thing · **ISC-639** git-history rewrite DECLINED and recorded · **ISC-640** the cancelled letter
+deleted, last real dakwah names out of the code.
+
+### Four times my own evidence was weaker than it looked
+
+Recorded because each was found by a control, not by re-reading:
+
+1. **The fake D1 hardcoded the guard it was meant to test** — three "cannot report twice" assertions
+   could never have failed. And the first fix of the fake INVERTED the mutation: it read "no lease
+   clause" as "reclaim nothing" when SQL says "reclaim everything".
+2. **A `Sandbox:` header** — not an HTTP header at all. The sandbox is a CSP directive.
+3. **The length bound in `parseArtifactPath` reddened NOTHING** under mutation until the one path it
+   actually catches (`/kajian/<id>/slide.html/extra`) was tested.
+4. **My first ISA progress line said 663/676, written from expectation instead of grep** — in the
+   same edit that closed ISC-626, which exists to stop exactly that. Real: 661 + 4 + 17 = 682.
+
+### The distinction I nearly got wrong
+
+"Darussalam" in `hadith-card.test.ts`, `dalil.ts`, `doa.ts` and `index.ts` is **Darussalam
+PUBLISHERS**, the hadith translation house — a real translation credit and a different entity from
+Masjid Darussalam Kota Wisata. NOT touched. Same for *dār as-salām* in `surah/6.json` and `10.json`,
+which is Qur'anic. A blanket scrub on the string would have destroyed a real attribution.
+
+### Next
+
+ISC-624.8 (the play button) is the top open item; shipping browser `speechSynthesis` alone is the
+option ADR 6 already refused. Then the answer-wall cluster (ISC-533, 534, 454, 487, 486, 552).
+
+---
+
 ## 2026-08-23 (session close) — three commits, one cancellation
 
 Anchor: **`origin/main`, this wrap's commit.** Session began at `f78f17a`. Three commits landed and
