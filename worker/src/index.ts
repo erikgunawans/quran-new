@@ -52,7 +52,16 @@ import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
 import { repairAnswerProse } from "./answer-repair.ts";
 import { runGeneration, newGenTrace } from "./answer-generation.ts";
 import { verdictAfterFailure } from "./answer-retry.ts";
-import { enqueueKajianJob, listKajianJobs, youTubeVideoId } from "./kajian-jobs.ts";
+import {
+  enqueueKajianJob,
+  listKajianJobs,
+  youTubeVideoId,
+  claimNextKajianJob,
+  completeKajianJob,
+  failKajianJob,
+  type KajianJobResult,
+} from "./kajian-jobs.ts";
+import { isRunner } from "./runner-auth.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -131,6 +140,13 @@ export interface Env {
   RESEND_API_KEY?: string;
   /** Plain var — the magic-link From address, on a Resend-verified domain (e.g. "QuranKu <no-reply@axiara.ai>"). */
   RESEND_FROM?: string;
+  /**
+   * Encrypted secret — `wrangler secret put RUNNER_SECRET`. The kajian runner's shared bearer
+   * credential, and a SECOND AUTH PRINCIPAL: it proves a machine, never an account. Absent, unset or
+   * shorter than the floor → the whole `/api/runner/*` surface answers 403 to everyone, which is the
+   * correct state for a deploy that has no runner. See `runner-auth.ts` for why this is not a role.
+   */
+  RUNNER_SECRET?: string;
 }
 
 /** Minimal ExecutionContext — inline (Worker keeps `types: []`). `waitUntil` defers memory writes so
@@ -239,6 +255,31 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
         return handleAdminKajianJobList(request, env.DB);
       }
       return noStore(json({ ok: false, error: "method_not_allowed" }, 405, request));
+    }
+
+    // ── THE RUNNER SURFACE ────────────────────────────────────────────────────────────────────────
+    //
+    // A DIFFERENT PRINCIPAL FROM EVERY ROUTE ABOVE. These three endpoints are spoken to by a machine
+    // on a VPS holding a shared bearer secret — no cookie, no email, no role. `isRunner` is used
+    // rather than `requireRole` on purpose; `runner-auth.ts` records why at length, and the short
+    // version is that putting an Administrator's 30-day session cookie in a VPS env var would undo
+    // the whole account layer.
+    //
+    // Gated BEFORE the method check, exactly like the admin route and for the same reason: an
+    // unauthenticated prober must not be able to map the surface by comparing 405 against 403.
+    if (url.pathname.startsWith("/api/runner/kajian/")) {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (!isRunner(request, env)) {
+        return noStore(json({ ok: false, error: "forbidden" }, 403, request));
+      }
+      if (request.method !== "POST") {
+        return noStore(json({ ok: false, error: "method_not_allowed" }, 405, request));
+      }
+      if (!env.DB) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
+      if (url.pathname === "/api/runner/kajian/claim") return handleRunnerClaim(request, env.DB);
+      if (url.pathname === "/api/runner/kajian/complete") return handleRunnerComplete(request, env.DB);
+      if (url.pathname === "/api/runner/kajian/fail") return handleRunnerFail(request, env.DB);
+      return noStore(json({ ok: false, error: "not_found" }, 404, request));
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
@@ -1165,6 +1206,122 @@ async function handleAdminKajianJobEnqueue(request: Request, env: Env, db: D1Dat
  */
 async function handleAdminKajianJobList(request: Request, db: D1Database): Promise<Response> {
   return noStore(json({ ok: true, jobs: await listKajianJobs(db) }, 200, request));
+}
+
+/**
+ * ── THE THREE RUNNER HANDLERS ───────────────────────────────────────────────────────────────────
+ *
+ * All three are POST even though `claim` reads like a GET, because claiming MUTATES: it moves a row
+ * from `queued` to `running` and stamps a lease. A GET that changes state is one a proxy or a
+ * prefetcher may repeat for free.
+ *
+ * None of them trusts its body. Everything arrives from a process outside this codebase, over the
+ * public internet, and a runner that has been tampered with is exactly the case the validation is
+ * for. Fields are read one at a time and refused on shape, never cast.
+ */
+
+/** Claim the next job, or say plainly that there is nothing to do. An empty queue is not an error —
+ *  it is what most polls find — so it answers 200 with `job: null`, not 404. */
+async function handleRunnerClaim(request: Request, db: D1Database): Promise<Response> {
+  const job = await claimNextKajianJob(db, Date.now());
+  return noStore(json({ ok: true, job }, 200, request));
+}
+
+/** A string field that must be present and non-blank. */
+function reqStr(v: unknown): string | null {
+  return typeof v === "string" && v.trim() !== "" ? v : null;
+}
+
+/**
+ * Validate the reported result.
+ *
+ * THE OMISSIONS ARE THE DESIGN. There is no `speaker` field and no `reviewed` field, and a runner
+ * that sends them is not obeyed — they are dropped here, not stored. The roster is empty so no
+ * summary names anyone (ADR 5), and nothing in this pipeline reviews anything, so `reviewed` must
+ * never be settable by the machine that generated the text it would be vouching for.
+ *
+ * `audioUrl` is the one nullable field, because the play button's pre-generated narration may not
+ * exist yet (ISC-624.8). Absent renders as absent; it is never filled with a guess.
+ */
+function parseRunnerResult(raw: unknown): KajianJobResult | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+
+  const title = reqStr(r.title);
+  const channel = reqStr(r.channel);
+  const thumbUrl = reqStr(r.thumbUrl);
+  const summaryUrl = reqStr(r.summaryUrl);
+  const generatedAt = reqStr(r.generatedAt);
+  if (title === null || channel === null) return null;
+  if (thumbUrl === null || summaryUrl === null || generatedAt === null) return null;
+
+  const durationSec =
+    typeof r.durationSec === "number" && Number.isFinite(r.durationSec) && r.durationSec >= 0
+      ? r.durationSec
+      : 0;
+
+  return {
+    title,
+    channel,
+    publishedAt: typeof r.publishedAt === "string" ? r.publishedAt : "",
+    durationSec,
+    thumbUrl,
+    summaryUrl,
+    audioUrl: reqStr(r.audioUrl),
+    generatedAt,
+  };
+}
+
+/**
+ * Record a finished summary.
+ *
+ * A `job: null` answer here is NOT a server fault — it means the row was not `running` when the
+ * report arrived: already finished, already failed, or reclaimed by another runner after this one's
+ * lease expired. 409 says that precisely, so a runner can log a lost race instead of retrying into
+ * a result that will never be accepted.
+ */
+async function handleRunnerComplete(request: Request, db: D1Database): Promise<Response> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return noStore(json({ ok: false, error: "invalid_body" }, 400, request));
+  }
+  const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+  const id = reqStr(record.id);
+  const result = parseRunnerResult(record.result);
+  if (id === null || result === null) {
+    return noStore(json({ ok: false, error: "invalid_body" }, 400, request));
+  }
+
+  const job = await completeKajianJob(db, id, result, Date.now());
+  if (job === null) return noStore(json({ ok: false, error: "not_running" }, 409, request));
+  return noStore(json({ ok: true, job }, 200, request));
+}
+
+/**
+ * Record a failure and its reason.
+ *
+ * THIS IS THE ENDPOINT THE PRD'S FOURTH CONSTRAINT NAMES. `yt-dlp` on a datacentre IP will be
+ * refused a transcript, and that must surface as a JOB STATE with a stated reason — never as a
+ * `complete` carrying an empty summary, which would publish silence as if it were a result. A
+ * missing reason is filled with a generic one downstream rather than stored blank.
+ */
+async function handleRunnerFail(request: Request, db: D1Database): Promise<Response> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return noStore(json({ ok: false, error: "invalid_body" }, 400, request));
+  }
+  const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+  const id = reqStr(record.id);
+  if (id === null) return noStore(json({ ok: false, error: "invalid_body" }, 400, request));
+
+  const reason = typeof record.reason === "string" ? record.reason : "";
+  const job = await failKajianJob(db, id, reason, Date.now());
+  if (job === null) return noStore(json({ ok: false, error: "not_running" }, 409, request));
+  return noStore(json({ ok: true, job }, 200, request));
 }
 
 /**

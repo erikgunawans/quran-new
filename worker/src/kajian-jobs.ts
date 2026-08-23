@@ -187,3 +187,148 @@ export async function listKajianJobs(db: D1Database, limit = 50): Promise<Kajian
   }
   return out;
 }
+
+/**
+ * ── THE RUNNER SIDE OF THE QUEUE ────────────────────────────────────────────────────────────────
+ *
+ * Everything above is the ADMIN's half: a person at a form asks for a video to be summarised.
+ * Everything below is the RUNNER's half: a machine on a VPS takes that work and reports what
+ * happened. They are different principals (see `runner-auth.ts`) and they touch different columns.
+ *
+ * EVERY TRANSITION NAMES THE STATUS IT COMES FROM, in the WHERE clause, not in an `if` above it.
+ * That is the whole concurrency design and it is not decoration:
+ *
+ *   - Two runners polling the same queue must not both get the same job. `claimNextKajianJob` moves
+ *     `queued -> running` in ONE `UPDATE … WHERE status = 'queued' … RETURNING`, so the database
+ *     decides the winner. A `SELECT` followed by an `UPDATE` would let both read the same row.
+ *   - A duplicate or late `complete`/`fail` must not resurrect a finished job. Both transitions
+ *     require `status = 'running'`, so the second call changes nothing and returns null. The caller
+ *     learns it lost the race instead of silently overwriting a result.
+ *
+ * A STALE CLAIM IS RECLAIMABLE, and that is why `claimed_at` exists. A runner that is killed mid-run
+ * leaves its row in `running` for ever; nothing else would ever pick it up, and the admin would see
+ * a job that is permanently "in progress" with no error to explain it. So a claim older than the
+ * lease is treated as abandoned and may be taken again. The lease is deliberately much longer than a
+ * lecture takes: reclaiming a job that is merely SLOW would run it twice.
+ */
+
+/** How long a claim is honoured before another runner may take the job. Two hours — a long lecture
+ *  plus transcription plus model time, with room to spare. Too short duplicates work; too long
+ *  strands a job after a crash. */
+export const CLAIM_LEASE_MS = 2 * 60 * 60 * 1000;
+
+/** What the runner reports back when the work succeeded. Every field is what the reader's card
+ *  needs; none of them is a speaker name, and that omission is the point (see migration 0004). */
+export interface KajianJobResult {
+  title: string;
+  channel: string;
+  publishedAt: string;
+  durationSec: number;
+  thumbUrl: string;
+  summaryUrl: string;
+  audioUrl: string | null;
+  generatedAt: string;
+}
+
+const SELECT_COLS =
+  "id, video_id AS videoId, url, status, requested_by AS requestedBy, " +
+  "created_at AS createdAt, updated_at AS updatedAt, error";
+
+/**
+ * Claim the oldest unclaimed job, or reclaim one whose lease expired.
+ *
+ * Returns null when there is nothing to do, which is the ordinary answer on a quiet queue and not an
+ * error. The runner polls; an empty queue is most polls.
+ */
+export async function claimNextKajianJob(db: D1Database, now: number): Promise<KajianJob | null> {
+  const row = await db
+    .prepare(
+      "UPDATE kajian_jobs SET status = 'running', claimed_at = ?, updated_at = ? " +
+        "WHERE id = (SELECT id FROM kajian_jobs " +
+        "WHERE status = 'queued' OR (status = 'running' AND claimed_at IS NOT NULL AND claimed_at < ?) " +
+        "ORDER BY created_at ASC LIMIT 1) " +
+        `RETURNING ${SELECT_COLS}`,
+    )
+    .bind(now, now, now - CLAIM_LEASE_MS)
+    .first<KajianJobRow>();
+
+  const parsed = parseKajianJobRow(row);
+  if (row !== null && parsed === null) {
+    throw new Error("kajian_jobs row failed validation after claim");
+  }
+  return parsed;
+}
+
+/**
+ * Record a finished summary. Returns null if the job was not `running` — i.e. it never existed, was
+ * already finished, or was reclaimed by another runner while this one worked.
+ */
+export async function completeKajianJob(
+  db: D1Database,
+  id: string,
+  result: KajianJobResult,
+  now: number,
+): Promise<KajianJob | null> {
+  const row = await db
+    .prepare(
+      "UPDATE kajian_jobs SET status = 'done', error = NULL, updated_at = ?, " +
+        "title = ?, channel = ?, published_at = ?, duration_sec = ?, " +
+        "thumb_url = ?, summary_url = ?, audio_url = ?, generated_at = ? " +
+        "WHERE id = ? AND status = 'running' " +
+        `RETURNING ${SELECT_COLS}`,
+    )
+    .bind(
+      now,
+      result.title,
+      result.channel,
+      result.publishedAt,
+      result.durationSec,
+      result.thumbUrl,
+      result.summaryUrl,
+      result.audioUrl,
+      result.generatedAt,
+      id,
+    )
+    .first<KajianJobRow>();
+
+  const parsed = parseKajianJobRow(row);
+  if (row !== null && parsed === null) {
+    throw new Error(`kajian_jobs row ${id} failed validation after complete`);
+  }
+  return parsed;
+}
+
+/** Cap the stored reason. It is operator-facing text from an outside process, not a log sink. */
+const MAX_ERROR_LEN = 500;
+
+/**
+ * Record a failure WITH ITS REASON. This is the criterion the PRD names: a transcript fetch that
+ * fails on a datacentre IP must surface as a job state, never as a silent empty summary. A runner
+ * that cannot get the audio calls this; it does not call `complete` with nothing in it.
+ */
+export async function failKajianJob(
+  db: D1Database,
+  id: string,
+  reason: string,
+  now: number,
+): Promise<KajianJob | null> {
+  const trimmed = reason.trim();
+  // An empty reason is worse than a generic one: the admin sees "failed" with a blank cause and has
+  // nothing to act on. So absence is filled here rather than stored as NULL.
+  const stored = (trimmed === "" ? "unspecified runner failure" : trimmed).slice(0, MAX_ERROR_LEN);
+
+  const row = await db
+    .prepare(
+      "UPDATE kajian_jobs SET status = 'failed', error = ?, updated_at = ? " +
+        "WHERE id = ? AND status = 'running' " +
+        `RETURNING ${SELECT_COLS}`,
+    )
+    .bind(stored, now, id)
+    .first<KajianJobRow>();
+
+  const parsed = parseKajianJobRow(row);
+  if (row !== null && parsed === null) {
+    throw new Error(`kajian_jobs row ${id} failed validation after fail`);
+  }
+  return parsed;
+}

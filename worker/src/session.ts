@@ -120,8 +120,14 @@ async function hmac(msg: string, secret: string): Promise<string> {
   return toB64Url(await crypto.subtle.sign("HMAC", key, enc.encode(msg)));
 }
 
-/** Compare without leaking position through timing. Length is not secret; content is. */
-function timingSafeEqual(a: string, b: string): boolean {
+/**
+ * Compare without leaking position through timing. Length is not secret; content is.
+ *
+ * EXPORTED so `runner-auth.ts` shares this exact binding rather than carrying its own copy. Two
+ * implementations of a constant-time compare is two things that can drift, and the copy is the one
+ * nobody re-reads — a test pointed at the copy would keep passing while the original rotted.
+ */
+export function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let out = 0;
   for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
