@@ -129,6 +129,22 @@ export function resultFrom(
   };
 }
 
+/**
+ * Which of an artefact's candidate filenames the pipeline actually wrote, or null for none.
+ *
+ * Pure, and up here with the other decisions, because it IS one: the draft-suffixed narration and
+ * the plain one publish under the same key, and "which file counts as this artefact" is exactly the
+ * kind of rule that rots into an untested `find` inside the upload loop. Order is significance —
+ * first match wins — so the caller's list expresses the preference rather than the filesystem's
+ * iteration order deciding it.
+ */
+export function resolveArtifactFile(
+  files: readonly string[],
+  exists: (file: string) => boolean,
+): string | null {
+  return files.find((f) => exists(f)) ?? null;
+}
+
 /** Longest tail of stderr worth reporting. The Worker caps the stored reason too; this keeps the
  *  request small and the cap from silently eating the useful end of a stack. */
 const STDERR_TAIL = 400;
@@ -160,14 +176,28 @@ import { join, resolve } from "node:path";
 
 const OUT_ROOT = resolve(".scratch/kajian");
 
-/** Which produced files are uploaded, and in which order. `slide.html` first, so a partial upload
- *  never leaves a thumbnail pointing at a summary that is not there. */
-const UPLOADS: { name: ArtifactName; file: string; required: boolean }[] = [
-  { name: "slide.html", file: "slide.html", required: true },
-  { name: "slide.png", file: "slide.png", required: true },
-  // The play button's narration (ISC-624.8). Not produced yet by the pipeline's current flags, so
-  // absence is expected and is NOT a failure — the card renders without an audio control.
-  { name: "short.m4a", file: "short.m4a", required: false },
+/**
+ * Which produced files are uploaded, and in which order. `slide.html` first, so a partial upload
+ * never leaves a thumbnail pointing at a summary that is not there.
+ *
+ * ⚠ `files` IS A LIST BECAUSE THE PIPELINE SUFFIXES DRAFTS AND THE ALLOWLIST DOES NOT. A run whose
+ * briefing came from unchecked auto-captions writes `short-DRAFT.m4a`, following the naming rule
+ * that keeps an audio file's draft state attached to it on disk (ADR 5). The Worker's allowlist has
+ * exactly one audio key, `short.m4a`, and widening it would put the draft state in a URL where a
+ * later reader has to notice it. So the draft file uploads under the plain key — and it is not
+ * unmarked when it does: `encodeM4a` writes the draft warning and the three denials into its TAGS,
+ * and `buildNarrationScript` makes the audio SPEAK the warning. Both carriers travel with the
+ * bytes, which a filename does not.
+ *
+ * First match wins, so the plain name is preferred when a directory somehow holds both.
+ */
+export const UPLOADS: { name: ArtifactName; files: readonly string[]; required: boolean }[] = [
+  { name: "slide.html", files: ["slide.html"], required: true },
+  { name: "slide.png", files: ["slide.png"], required: true },
+  // The play button's narration (ISC-624.8). The pipeline produces it by default now, but a run
+  // with `--no-slide` or `--no-narration` has no bullets to speak, so absence stays a non-failure:
+  // the card renders without an audio control rather than the whole job failing.
+  { name: "short.m4a", files: ["short.m4a", "short-DRAFT.m4a"], required: false },
 ];
 
 interface ClaimedJob {
@@ -219,9 +249,9 @@ async function upload(cfg: RunnerConfig, videoId: string, name: ArtifactName, pa
 /** Run the pipeline for one job. Returns null on success, or the reason it failed. */
 function runPipeline(cfg: RunnerConfig, job: ClaimedJob): string | null {
   // SHORT NARRATION ON, LONG FORM OFF, VIDEO OFF — the summarize pipeline's wanted default per the
-  // PRD. `--audio` currently also produces the long form; that flag split is ISC-624.8 and is not
-  // done, so this passes neither and the card ships without an audio control rather than shipping a
-  // standalone machine reading of somebody's whole lecture.
+  // PRD, and since ISC-624.8 that IS the pipeline's default, so no flags are passed. Deliberately
+  // no flags rather than explicit ones: the default is the reviewed answer, and a flag list here
+  // would be a second place for it to drift from the script's own docblock.
   const proc = Bun.spawnSync(["bun", "run", "src/app/kajian.ts", job.url], {
     stdout: "pipe",
     stderr: "pipe",
@@ -246,17 +276,19 @@ async function processJob(cfg: RunnerConfig, job: ClaimedJob): Promise<void> {
   const outDir = join(OUT_ROOT, job.videoId);
   const uploaded: Partial<Record<ArtifactName, string>> = {};
   for (const item of UPLOADS) {
-    const path = join(outDir, item.file);
-    if (!existsSync(path)) {
+    const file = resolveArtifactFile(item.files, (f) => existsSync(join(outDir, f)));
+    if (file === null) {
       if (item.required) {
-        const reason = `pipeline reported success but produced no ${item.file}`;
+        // Names every candidate, not just the first. An admin reading "produced no short.m4a" when
+        // the runner also looked for `short-DRAFT.m4a` would go looking for the wrong file.
+        const reason = `pipeline reported success but produced no ${item.files.join(" or ")}`;
         console.error(`  ✗ ${reason}`);
         await reportFailure(cfg, job.id, reason);
         return;
       }
       continue;
     }
-    uploaded[item.name] = await upload(cfg, job.videoId, item.name, path);
+    uploaded[item.name] = await upload(cfg, job.videoId, item.name, join(outDir, file));
   }
 
   const result = resultFrom(

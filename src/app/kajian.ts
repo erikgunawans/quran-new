@@ -49,13 +49,13 @@
  *   bun run src/app/kajian.ts <url> --no-slide       # skip the slide + QR render
  *   bun run src/app/kajian.ts <url> --bullets 4      # how many points reach the slide
  *   bun run src/app/kajian.ts <url> --deadline 900    # seconds to allow the briefing model
- *   bun run src/app/kajian.ts <url> --audio          # ALSO narrate (TTS spend; OFF by default)
- *   bun run src/app/kajian.ts <url> --audio --video  # ...and build the short mp4 from the slide
+ *   bun run src/app/kajian.ts <url> --no-narration   # skip the short narration (see below)
+ *   bun run src/app/kajian.ts <url> --long-audio     # ALSO read the whole briefing (TTS spend; OFF)
+ *   bun run src/app/kajian.ts <url> --video          # ...and wrap the narration in the slide mp4
  *
- * SOUND AND VIDEO ARE BOTH OFF BY DEFAULT SINCE 2026-08-23, on Erik's instruction: *"I prefer the
- * result to be like the HTML format ... I don't need the video for that"*, and, asked directly
- * about the narration, to drop that too. **The deliverable is the slide** — `slide.html` and the
- * PNG rendered from it.
+ * THE DELIVERABLE IS THE SLIDE — `slide.html` and the PNG rendered from it — on Erik's instruction
+ * of 2026-08-23: *"I prefer the result to be like the HTML format ... I don't need the video for
+ * that"*, and, asked directly about the narration, to drop that too.
  *
  * ⚠ THAT REASONING APPLIES TO THE LONG FORM, AND A FIRST VERSION OF THIS COMMENT OVERSTATED IT INTO
  * A BLANKET. There are TWO narrations here and they are not the same artefact:
@@ -64,29 +64,32 @@
  *              asked for. Dropped, and the reasoning above is about this one: it manufactures a
  *              second machine-voiced derivative of a real person's lecture, needing a permission we
  *              do not have. Producing less of someone else's material by default is the safer floor.
+ *              OFF by default; `--long-audio` (or its old spelling `--audio`) turns it on.
  *
- *   SHORT FORM (`speak("short")`, ~48 s) — the SLIDE'S OWN BULLETS spoken, i.e. our composed summary
+ *   SHORT FORM (`short*.m4a`, ~48 s) — the SLIDE'S OWN BULLETS spoken, i.e. our composed summary
  *              rather than their lecture. **Erik wants this and it is a PRODUCT FEATURE**, not
- *              spend: the published HTML carries a play button so someone who cannot see the page,
- *              or who is driving, can hear the summary (2026-08-23). It is an accessibility
+ *              spend: the published summary carries a play button so someone who cannot see the
+ *              page, or who is driving, can hear it (2026-08-23). It is an accessibility
  *              affordance, and the voice is ADR 6's `id-ID-Chirp3-HD-Schedar` so every kajian is
- *              narrated by the same non-scholar voice.
+ *              narrated by the same non-scholar voice. **ON by default** — the publish path runs
+ *              this script with no flags, so an opt-in short narration is a play button that is
+ *              dead in production.
  *
- * ⚠ AND THE CODE CANNOT EXPRESS THAT YET. The short narration lives INSIDE `if (!NO_VIDEO …)` below,
- * and its WAV is consumed ONLY by `stillVideo` — it is never kept as a file of its own. So turning
- * the video off also destroys the one thing that produces the play button's audio. Fixing that means
- * decoupling the short narration from the video branch and encoding it to its own audio artefact.
- * Specified in `.scratch/kajian-summarize/PRD.md`; NOT done here.
+ * ✅ ISC-624.8 — THE DECOUPLING IS DONE. It was not: the short narration sat inside
+ * `if (!NO_VIDEO …)` and its WAV was consumed only by `stillVideo`, so the flag change that turned
+ * the mp4 off destroyed the play button's only audio producer. The narration is now the primary
+ * artefact, written as `short*.m4a` with the same tags the long form carries, and the mp4 is one
+ * OPTIONAL consumer of its WAV rather than the reason the WAV exists.
+ *
+ * ⚠ WHAT IS STILL NOT BUILT IS THE CONTROL ITSELF. `resultFrom` carries `audioUrl` and the card
+ * renders an "Ada narasi" BADGE — a label, not a player. And `slide.html` is served under a CSP of
+ * `default-src 'none'` with `sandbox`, which denies `media-src` and `script-src` both, so neither an
+ * `<audio>` element nor a `speechSynthesis` fallback can run inside THAT document as it stands. See
+ * ISC-624.8's note in `ISA.md`; do not read "the pipeline produces the file" as "the button works".
  *
  * `--no-audio` and `--no-video` are STILL ACCEPTED as no-ops so older invocations, docs and scripts
- * do not start failing; they now describe the default instead of changing it. Nothing is removed:
- * `narrateToWav`, `encodeM4a` and `stillVideo` are untouched and their tests still run.
- *
- * ⚠ `--video` WITHOUT `--audio` IS SILENT — not skipped-with-a-notice. The video IS the slide plus
- * narration, so with no narration there is nothing to build, and the existing "video dilewati" line
- * cannot report it: that line lives INSIDE the `if (!NO_AUDIO …)` block and is never reached. Pass
- * `--audio --video` for an mp4. Written down because a first version of this docblock claimed a skip
- * line prints, and it does not.
+ * do not start failing; they name the default. `--video --no-narration` is REFUSED at parse time,
+ * because the mp4 is built from the narration's WAV and the old flag pair failed that case silently.
  *
  * The rights position on the mp4 and m4a ALREADY built on 2026-08-22 is a separate question and is
  * recorded in `docs/review/rights-darussalam-logo-2026-08-23.md`; changing a default does not
@@ -155,12 +158,35 @@ const NO_SLIDE = has("no-slide");
  */
 const DEADLINE_S = Number(flag("deadline") ?? "600");
 /**
- * Narration and the mp4 are both opt-IN since 2026-08-23. `--no-audio`/`--no-video` stay accepted
- * so older invocations keep working, but they are the default now and passing them changes nothing.
- * See the header for Erik's instruction and for why producing less by default is the safer floor.
+ * THREE ARTEFACTS, THREE ANSWERS — they were two flags meaning four things (ISC-624.8).
+ *
+ * `--audio` used to mean "the long form, and the short one too but only if `--video`". That is why
+ * turning the video off destroyed the play button's audio: the short narration had no switch of its
+ * own. Each artefact now has one, and each default is the answer that artefact actually got.
+ *
+ *   SHORT NARRATION — ON. Our composed summary spoken, ~48 s. Erik asked for it as the play button
+ *                     (PRD, 2026-08-23), so the pipeline that feeds the publish path has to produce
+ *                     it by default or the control is dead everywhere. `--no-narration` opts out.
+ *   LONG FORM       — OFF. The whole briefing aloud, ~474 s: a standalone machine-voiced derivative
+ *                     of a third party's lecture that nobody asked for. Erik dropped THIS one, and
+ *                     only this one. `--audio` keeps its old spelling; `--long-audio` says it plainly.
+ *   THE MP4         — OFF. `--video`, and it is built from the SHORT narration's WAV, so it needs
+ *                     that narration on. Passing `--video --no-narration` is refused below rather
+ *                     than silently producing nothing, which is what the old flag pair did.
+ *
+ * `--no-audio` and `--no-video` are still accepted and still no-ops: they name the default.
  */
-const NO_AUDIO = !has("audio");
-const NO_VIDEO = !has("video");
+const NARRATION = !has("no-narration");
+const LONG_AUDIO = has("audio") || has("long-audio");
+const VIDEO = has("video");
+if (VIDEO && !NARRATION) {
+  // Refused at PARSE time, not deep inside the narration block. The old code could not report this
+  // class of mistake at all — its "video dilewati" line lived inside a branch the flags had already
+  // closed, so `--video` with no narration was silent. A flag combination that cannot produce its
+  // artefact should say so before a two-hour transcript is fetched.
+  console.error("✗ --video needs the short narration it is built from; drop --no-narration");
+  process.exit(1);
+}
 const BULLETS = Number(flag("bullets") ?? "5");
 if (!Number.isInteger(BULLETS) || BULLETS < 1) {
   console.error(`✗ --bullets must be a positive integer, got "${flag("bullets")}"`);
@@ -171,7 +197,7 @@ if (!URL_ARG) {
   console.error(
     "Usage: bun run src/app/kajian.ts <youtube-url-or-id> [--lang id,en] [--no-brief] [--refresh]\n" +
       "                                 [--model <id>] [--no-slide] [--bullets N] [--deadline S]\n" +
-      "                                 [--audio] [--video]",
+      "                                 [--no-narration] [--long-audio] [--video]",
   );
   process.exit(1);
 }
@@ -523,7 +549,7 @@ if (!NO_SLIDE) {
  * was never rendered would produce a video of nothing.
  */
 const audioPaths: string[] = [];
-if (!NO_AUDIO && briefing) {
+if ((NARRATION || LONG_AUDIO) && briefing) {
   const suffix = isDraft ? "-DRAFT" : "";
   const speak = (kind: "short" | "long") =>
     buildNarrationScript({
@@ -538,31 +564,49 @@ if (!NO_AUDIO && briefing) {
     });
 
   try {
-    // ── long form: the whole briefing ──
-    const longScript = speak("long");
-    // The narrator's refusals are DIFFERENT from the slide's and are printed on their own. A
-    // quotation the slide dropped for want of room is a layout fact; the same quotation dropped
-    // here is the refusal ADR 6 is built around, and the two must not be confused in a log.
-    for (const d of longScript.dropped) {
-      const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
-      console.log(`  · narasi menolak (${d.reason}): ${short}`);
+    // ── long form: the whole briefing ── OPT-IN. See the flag block: this is the artefact Erik
+    // dropped, and it is a standalone reading of someone else's lecture rather than of our summary.
+    if (LONG_AUDIO) {
+      const longScript = speak("long");
+      // The narrator's refusals are DIFFERENT from the slide's and are printed on their own. A
+      // quotation the slide dropped for want of room is a layout fact; the same quotation dropped
+      // here is the refusal ADR 6 is built around, and the two must not be confused in a log.
+      for (const d of longScript.dropped) {
+        const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
+        console.log(`  · narasi menolak (${d.reason}): ${short}`);
+      }
+      console.log(`▸ narasi panjang — ${longScript.full.length.toLocaleString()} karakter`);
+
+      const longWav = join(outDir, `narasi${suffix}.wav`);
+      const longOut = await narrateToWav(longScript.full, longWav, {
+        onChunk: (i, n, chars) => console.log(`    chunk ${i}/${n} — ${chars} karakter`),
+      });
+      const longM4a = join(outDir, `narasi${suffix}.m4a`);
+      encodeM4a(longWav, longM4a, { sourceUrl: meta.url, isDraft });
+      rmSync(longWav, { force: true }); // the WAV is an intermediate; the m4a is the artifact
+      audioPaths.push(longM4a);
+      console.log(
+        `  narasi: ${longOut.chunks} chunk, ${Math.round(longOut.seconds)}s → ${longM4a}`,
+      );
     }
-    console.log(`▸ narasi panjang — ${longScript.full.length.toLocaleString()} karakter`);
 
-    const longWav = join(outDir, `narasi${suffix}.wav`);
-    const longOut = await narrateToWav(longScript.full, longWav, {
-      onChunk: (i, n, chars) => console.log(`    chunk ${i}/${n} — ${chars} karakter`),
-    });
-    const longM4a = join(outDir, `narasi${suffix}.m4a`);
-    encodeM4a(longWav, longM4a, { sourceUrl: meta.url, isDraft });
-    rmSync(longWav, { force: true }); // the WAV is an intermediate; the m4a is the artifact
-    audioPaths.push(longM4a);
-    console.log(
-      `  narasi: ${longOut.chunks} chunk, ${Math.round(longOut.seconds)}s → ${longM4a}`,
-    );
-
-    // ── short form: the slide, spoken ──
-    if (!NO_VIDEO && pngPath && slideBullets.length) {
+    /**
+     * ── short form: the slide, spoken — THE PLAY BUTTON'S FILE (ISC-624.8) ──────────────────────
+     *
+     * ⚠ THE WAV IS NO LONGER AN INTERMEDIATE OF THE VIDEO. It was: this block sat inside
+     * `if (!NO_VIDEO …)` and handed its WAV straight to `stillVideo`, then deleted it. So the m4a
+     * the published card wants had no producer at all, and turning the mp4 off turned the play
+     * button off with it. The narration is now the PRIMARY artefact and the mp4 is a consumer of
+     * it — which is also the honest order: the sound is our composed summary, the picture is a
+     * wrapper somebody may or may not want.
+     *
+     * ⚠ AND IT IS DELETED ONLY AFTER BOTH CONSUMERS HAVE RUN. One `rmSync`, at the end, so adding
+     * a third consumer later cannot land above a delete that used to be the last statement.
+     *
+     * The gate is `slideBullets.length`, NOT `pngPath`. The narration reads the BULLETS; the render
+     * is needed only by the mp4, and requiring it here is what tied the audio to the video.
+     */
+    if (NARRATION && slideBullets.length) {
       const shortScript = speak("short");
       /**
        * PRINTED, exactly like the long form's. The short path screens its bullets too, so a bullet
@@ -576,13 +620,36 @@ if (!NO_AUDIO && briefing) {
       }
       const shortWav = join(outDir, `short${suffix}.wav`);
       const shortOut = await narrateToWav(shortScript.full, shortWav);
-      const shortMp4 = join(outDir, `short${suffix}.mp4`);
-      stillVideo(pngPath, shortWav, shortMp4);
-      rmSync(shortWav, { force: true });
-      audioPaths.push(shortMp4);
-      console.log(`  video: ${Math.round(shortOut.seconds)}s → ${shortMp4}`);
-    } else if (!NO_VIDEO) {
-      console.log(`  · video dilewati — tidak ada slide atau tidak ada poin untuk dibacakan`);
+
+      /**
+       * Encoded with the SAME tags the long form gets. The play button's file travels further than
+       * the long form ever did — it is served from R2 to anyone opening the summary — so the source
+       * URL, the three denials and the draft state have to ride inside it, not beside it.
+       */
+      const shortM4a = join(outDir, `short${suffix}.m4a`);
+      encodeM4a(shortWav, shortM4a, { sourceUrl: meta.url, isDraft });
+      audioPaths.push(shortM4a);
+      console.log(`  narasi pendek: ${Math.round(shortOut.seconds)}s → ${shortM4a}`);
+
+      if (VIDEO) {
+        // `pngPath` is the mp4's own requirement, so its absence is reported HERE and skips only
+        // the mp4. The m4a above is already written and is not withdrawn by a missing render.
+        if (pngPath) {
+          const shortMp4 = join(outDir, `short${suffix}.mp4`);
+          stillVideo(pngPath, shortWav, shortMp4);
+          audioPaths.push(shortMp4);
+          console.log(`  video: ${Math.round(shortOut.seconds)}s → ${shortMp4}`);
+        } else {
+          console.log(`  · video dilewati — tidak ada slide.png untuk dijadikan gambarnya`);
+        }
+      }
+      rmSync(shortWav, { force: true }); // both consumers have had it; the m4a is the artifact
+    } else if (NARRATION) {
+      // Names the mp4 too when one was asked for. `--video --no-slide` leaves no bullets to speak,
+      // so BOTH artefacts are skipped, and a line mentioning only the narration would leave the
+      // caller waiting for a video that is never coming.
+      const also = VIDEO ? " (dan video, karena video dibuat dari narasi ini)" : "";
+      console.log(`  · narasi pendek dilewati — tidak ada poin slide untuk dibacakan${also}`);
     }
   } catch (e) {
     // NOT fatal. The briefing and the slide are already on disk and are useful without audio; a

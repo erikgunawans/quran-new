@@ -113,11 +113,18 @@ fails must surface as a job state and never as a silent empty summary.
 
 ## What is still not built
 
-- **The play button's audio** (ISC-624.8). `kajian.ts:532` nests the short narration inside
-  `if (!NO_VIDEO && …)` and its WAV is consumed only by `stillVideo`, so turning the video off
-  destroyed the button's only audio producer. The runner uploads `short.m4a` **when it exists** and
-  the card ships without an audio control when it does not. Shipping browser `speechSynthesis` alone
-  is not a partial delivery — it is the option ADR 6 already refused, because the voice would vary
-  per device.
+- **The play button itself** (ISC-624.8, partly closed). The FILE is now produced: the short
+  narration has its own flag, is ON by default, and is encoded to `short*.m4a` independently of the
+  mp4 — verified by running the pipeline at `HEAD` and on the fix with identical flags, where `HEAD`
+  never attempts narration and the fix reaches the TTS call. The runner uploads `short.m4a` or
+  `short-DRAFT.m4a` when one exists and the card ships without audio when neither does.
+  **Not yet verified end to end:** this machine has no Google TTS credentials
+  (`gcloud auth application-default login`), so no real `short.m4a` has ever been written.
+  **And the CONTROL does not exist.** The card renders an "Ada narasi" badge — a label, not a
+  player — and `slide.html` is served under `default-src 'none'` with `sandbox`, which denies both
+  `media-src` and `script-src`, so neither an `<audio>` element nor a `speechSynthesis` fallback can
+  run inside that document as it stands. Relaxing that CSP is a decision to argue, not to slip in.
+  Shipping browser `speechSynthesis` alone is not a partial delivery either — it is the option ADR 6
+  already refused, because the voice would vary per device.
 - **A cost ceiling.** See the decisions at the top.
 - **Kajian step 7.** Still undefined anywhere in the repo, and unanswered across prior sessions. Asked again this session.

@@ -124,22 +124,36 @@ both narrations, which was more than he asked for. There are two, and only one w
 - **Short form** (`speak("short")`, ~48 s) — the slide's own bullets, i.e. **our composed summary**,
   not their lecture. **This IS the play button.** It already exists in the code.
 
-### The code cannot express this yet
+### The code could not express this — 1, 2, 3 and 4 are now done (2026-08-24)
 
-`src/app/kajian.ts:532` nests the short narration inside `if (!NO_VIDEO && …)`, and its WAV is
-consumed **only** by `stillVideo` into an mp4 — it is never kept as a file of its own. So the flag
-change that turned the video off also destroyed the only producer of the play button's audio.
+`src/app/kajian.ts` nested the short narration inside `if (!NO_VIDEO && …)`, and its WAV was
+consumed **only** by `stillVideo` into an mp4 — never kept as a file of its own. So the flag change
+that turned the video off also destroyed the only producer of the play button's audio.
 
-Required, and **not done**:
+1. ✅ **Decouple the short narration from the video branch.** Its gate is now the slide's BULLETS,
+   which is what it reads; `pngPath` is the mp4's own requirement and was what tied the two together.
+2. ✅ **Encode it to its own artefact.** `short*.m4a`, via the same `encodeM4a` the long form uses, so
+   it carries the source URL, the three denials and the draft state in its tags.
+3. ✅ **Give the flags honest names.** `--no-narration`, `--long-audio` (old spelling `--audio`),
+   `--video`. Defaults are **short narration ON, long form OFF, video OFF**, as specified here.
+   `--video --no-narration` is refused at parse time instead of silently producing nothing.
+4. ✅ **Store and serve it.** Already existed and is now fed: `short.m4a` is on the Worker's artefact
+   allowlist, served from the `KAJIAN` R2 bucket at `/kajian/{videoId}/short.m4a`. The runner uploads
+   `short.m4a` **or** `short-DRAFT.m4a` under that one key — the draft suffix is the on-disk naming
+   rule, and without the second name the button would be dead for every auto-caption video.
+5. ❌ **Fallback path — NOT done, and item 5 is now the whole remaining job.** Two things block it:
+   - **There is no player at all.** `audioUrl` reaches the card, which renders an "Ada narasi"
+     BADGE — a label, not a control.
+   - **`slide.html` cannot host one as served.** Its CSP is `default-src 'none'` with `sandbox`, so
+     `media-src` and `script-src` are BOTH denied: an `<audio>` element and a `speechSynthesis`
+     fallback are equally blocked inside that document. Either the control lives on the first-party
+     card instead, or that CSP is deliberately relaxed — `kajian-artifacts.ts` says the latter must
+     be re-argued, not slipped in. **This is a decision, not an implementation detail.**
 
-1. **Decouple the short narration from the video branch.** Short audio must be producible with no mp4.
-2. **Encode it to its own artefact** (m4a/mp3) rather than only into `stillVideo`.
-3. **Give the flags honest names.** `--audio` currently means "long form, and short only if video".
-   The wanted default for the summarize pipeline is **short narration ON, long form OFF, video OFF**.
-4. **Store and serve it.** One short file per kajian. R2 is the obvious home (`AUDIO` bucket already
-   exists for recitation, keyed `{surah}/{ayah}.mp3` — kajian needs its own prefix or its own bucket).
-5. **Fallback path.** If the file is absent, the page falls back to browser `speechSynthesis` so the
-   button still works. Never render a dead control.
+⚠️ **And no real `short.m4a` has ever been written.** The pipeline change was verified by running
+`HEAD` and the fix with identical flags on the same video: `HEAD` never attempts narration, the fix
+reaches the Google TTS call and stops there, because this machine has no ADC
+(`gcloud auth application-default login`). The bytes are unproven until someone runs that.
 
 ### Guardrails on the spoken audio — already settled, do not relitigate
 

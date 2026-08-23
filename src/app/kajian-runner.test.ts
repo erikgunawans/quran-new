@@ -6,7 +6,7 @@
  * what it refuses to start with, what it refuses to publish, and what it says when the work fails.
  */
 import { describe, expect, test } from "bun:test";
-import { runnerConfig, resultFrom, failureReason } from "./kajian-runner.ts";
+import { runnerConfig, resultFrom, failureReason, resolveArtifactFile, UPLOADS } from "./kajian-runner.ts";
 
 const GOOD_ENV = {
   QK_BASE_URL: "https://new-quranku.axiara.ai",
@@ -129,5 +129,46 @@ describe("a failure says what an admin can act on", () => {
 
   test("a long stderr is capped, so the report cannot be an unbounded upload", () => {
     expect(failureReason(1, "x".repeat(10_000), false).length).toBeLessThan(500);
+  });
+});
+
+
+describe("a draft narration still reaches the play button (ISC-624.8)", () => {
+  /**
+   * Against the REAL `UPLOADS`, never a copy of it. The rule being tested is not "a find() prefers
+   * the first match" — that is arithmetic — it is "the runner looks for the draft-suffixed narration
+   * at all". A local table repeating the two names would stay green after somebody deleted
+   * `short-DRAFT.m4a` from the shipping one.
+   */
+  const short = UPLOADS.find((u) => u.name === "short.m4a");
+
+  test("the narration entry looks for the draft-suffixed file too", () => {
+    expect(short?.files).toEqual(["short.m4a", "short-DRAFT.m4a"]);
+  });
+
+  test("a draft-only directory publishes its narration rather than shipping a silent card", () => {
+    // The pipeline suffixes an audio file whose briefing came from unchecked auto-captions, which
+    // is the COMMON case for a lecture with no manual captions. Missing this name would mean the
+    // play button was dead for most real videos while every test still passed.
+    const onDisk = new Set(["slide.html", "slide.png", "short-DRAFT.m4a"]);
+    expect(resolveArtifactFile(short?.files ?? [], (f) => onDisk.has(f))).toBe("short-DRAFT.m4a");
+  });
+
+  test("the plain name wins when a directory somehow holds both", () => {
+    const onDisk = new Set(["short.m4a", "short-DRAFT.m4a"]);
+    expect(resolveArtifactFile(short?.files ?? [], (f) => onDisk.has(f))).toBe("short.m4a");
+  });
+
+  test("neither present resolves to null, which is what makes absence a non-failure", () => {
+    expect(resolveArtifactFile(short?.files ?? [], () => false)).toBeNull();
+  });
+
+  test("the two required artefacts are NOT draft-tolerant — the pipeline never suffixes them", () => {
+    // Stated as a test because the `files` list is now plural everywhere and a well-meaning later
+    // edit could add `slide-DRAFT.html` to match. The slide carries its draft state in a VISIBLE
+    // BAND inside the document, so its filename never moves; the audio's does.
+    for (const name of ["slide.html", "slide.png"] as const) {
+      expect(UPLOADS.find((u) => u.name === name)?.files).toEqual([name]);
+    }
   });
 });

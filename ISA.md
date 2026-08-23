@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 665/682  # 661 `[x]` + 4 `[~]` (ISC-418, ISC-617, ISC-624, ISC-627); 17 open `[ ]`. **Counted by grep, 2026-08-23 late afternoon** — `grep -c '^- \[x\] ISC-'` = 661, `'^- \[ \] ISC-'` = 17, `'^- \[~\] ISC-'` = 4, sum 682. **A first cut of THIS line said 663/676 with 13 open and 2 partial, written from expectation instead of measured — the exact failure ISC-626 exists to stop, committed in the same edit that closed it.** The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. **ISC-630 RESOLVED: the hold stands permanently and the capture is DELETED (12,808 KB, inventoried first as ISC-626). Rights items 1/2 closed by a blanket no-branding rule (ISC-637); kajian step 7 and "Maruli" closed as no such thing (ISC-638); the git-history rewrite DECLINED (ISC-639); the cancelled letter deleted (ISC-640). Cost ceiling: 5 jobs/rolling day (ISC-636).** Gates 2151/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
+progress: 666/682  # 661 `[x]` + 5 `[~]` (ISC-418, ISC-617, ISC-624, ISC-624.8, ISC-627); 16 open `[ ]`. **Counted by grep, 2026-08-24** — `grep -c '^- \[x\] ISC-'` = 661, `'^- \[ \] ISC-'` = 16, `'^- \[~\] ISC-'` = 5, sum 682. **ISC-624.8 moved `[ ]`→`[~]`: its FILE is produced and paired-probe verified, but no real `short.m4a` has been written (no TTS credentials) and the play CONTROL does not exist — the card shows a badge and `slide.html`'s CSP denies both `media-src` and `script-src`.** **A first cut of THIS line said 663/676 with 13 open and 2 partial, written from expectation instead of measured — the exact failure ISC-626 exists to stop, committed in the same edit that closed it.** The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. **ISC-630 RESOLVED: the hold stands permanently and the capture is DELETED (12,808 KB, inventoried first as ISC-626). Rights items 1/2 closed by a blanket no-branding rule (ISC-637); kajian step 7 and "Maruli" closed as no such thing (ISC-638); the git-history rewrite DECLINED (ISC-639); the cancelled letter deleted (ISC-640). Cost ceiling: 5 jobs/rolling day (ISC-636).** Gates 2156/0 exit 0, typecheck exit 0, build exit 0 (synthesis), `wrangler deploy --dry-run` exit 0 with bindings UNCHANGED (VECTORIZE, AUDIO, CORPUS), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1450,7 +1450,8 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       `stillVideo` and their tests are untouched. The deliverable is `slide.html` + its PNG.
 - [~] ISC-624: **the slide layout Erik asked for — BUILT 2026-08-23, except the play button.** He
       supplied a landscape two-panel reference and chose *layout only, keep the guardrails*. Split
-      below; the parent stays partial because ISC-624.8 is blocked on work that is not layout.
+      below; the parent stays partial because ISC-624.8's CONTROL is still unbuilt — the pipeline
+      side of it closed 2026-08-24, and what remains is a player and a CSP decision, not layout.
 - [x] ISC-624.1: **the canvas is landscape two-panel.** `--qs-w`/`--qs-h` are `1920px`/`1080px` and
       `kajian-render.ts`'s `SLIDE_WIDTH`/`SLIDE_HEIGHT` mirror them; a test asserts the pair matches,
       because the renderer's window size IS the responsive switch and one number out of step would
@@ -1482,12 +1483,34 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       **What binds is the wrapped LINE count, not the character count** — 395 and 497 render the same
       eight lines. `overflow: hidden` was REMOVED: the page grows, so an over-budget render leaves a
       card sliced by the fold instead of a bullet clipped into a finished-looking sentence.
-- [ ] ISC-624.8: **the play button is NOT built, and shipping it now would breach ADR 6.** The PRD
-      specifies pre-generated `id-ID-Chirp3-HD-Schedar` with browser `speechSynthesis` only as a
-      FALLBACK. ADR 6's one-voice rule is the reason browser-TTS-only was rejected, so a control
-      backed by nothing but `speechSynthesis` is not a partial delivery of this — it is the option
-      already refused. Blocked on decoupling the short narration from the video branch
-      (`kajian.ts:532`) and storing it as its own artefact.
+- [~] ISC-624.8: **the play button's FILE is produced; the CONTROL is not.** The PRD specifies
+      pre-generated `id-ID-Chirp3-HD-Schedar` with browser `speechSynthesis` only as a FALLBACK.
+      ADR 6's one-voice rule is the reason browser-TTS-only was rejected, so a control backed by
+      nothing but `speechSynthesis` is not a partial delivery of this — it is the option already
+      refused.
+      **DONE:** the short narration no longer lives inside `if (!NO_VIDEO …)`. Each of the three
+      artefacts has its own flag with the default it was actually given — short narration ON,
+      long form OFF (`--long-audio`, old spelling `--audio`), mp4 OFF (`--video`) — the narration is
+      encoded to `short*.m4a` carrying the same source URL, three denials and draft state the long
+      form carries, and the mp4 became one optional CONSUMER of its WAV rather than the reason the
+      WAV exists. `--video --no-narration` is refused at parse time; the old pair failed it silently.
+      The runner resolves `short.m4a` OR `short-DRAFT.m4a` — the draft suffix is the disk naming rule
+      (ADR 5) and the allowlist has one audio key, so without the second name the button would have
+      been dead for every auto-caption video, which is most of them.
+      **VERIFIED by a PAIRED probe, not by reading:** the pipeline run at `HEAD` and on the fix, same
+      flags, same video (`jNQXAC9IVRw`) — `HEAD` never attempts narration at all; the fix reaches the
+      Google TTS call. Plus a mutation: deleting `short-DRAFT.m4a` from `UPLOADS` reddens exactly the
+      two tests written for it.
+      **NOT DONE, and neither is guessed at:**
+      (a) **no real `short.m4a` has ever been written** — this machine has no Google TTS credentials,
+      so the probe stops at the auth boundary and the bytes are unproven. Needs
+      `gcloud auth application-default login`, which is Erik's to run.
+      (b) **there is no player.** `resultFrom` carries `audioUrl` and the card renders an
+      "Ada narasi" BADGE — a label, not a control.
+      (c) **`slide.html` cannot host one as served.** Its CSP is `default-src 'none'` with `sandbox`,
+      which denies `media-src` and `script-src` both, so an `<audio>` element and a
+      `speechSynthesis` fallback are BOTH blocked inside that document. `kajian-artifacts.ts` says
+      that policy should be re-argued rather than quietly relaxed; this is the argument arriving.
 - [x] ISC-624.9: **Anti: the rewrite added no new Darussalam material to this PUBLIC repo.** Two
       fixtures written during the build carried real strings from the lecture — its title fragment
       and one of its sub-headings — and were replaced with invented headings of the same SHAPE before
