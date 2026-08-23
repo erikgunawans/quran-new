@@ -20,6 +20,7 @@ import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections
 import { renderKajian } from "./kajian-summary.ts";
 import { loadKajianSummaries } from "./kajian-feed.ts";
 import { renderAdminKajian } from "./admin-kajian.ts";
+import { renderMasuk, currentSession, parseMasukRoute } from "./masuk.ts";
 import {
   dalilEmptyEl,
   fiqhDoorwayEl,
@@ -1105,6 +1106,24 @@ function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa" | "
   }
 }
 
+/**
+ * Put the signed-in address on the sidebar chip, or leave it saying "Masuk".
+ *
+ * ⚠ FAILS TO "Masuk", NEVER TO A BLANK OR A SPINNER. `currentSession` swallows a network error and
+ * returns an anonymous view, so an offline reader sees a working sign-in link rather than a chip
+ * that says nothing. The shell already ships that label in the HTML, so the common case — nobody
+ * signed in — writes nothing at all.
+ *
+ * The href is left pointing at `#/masuk` in BOTH states: signed in, that page is the account screen
+ * with the Keluar button, so the chip is the way to both.
+ */
+async function refreshUserChip(): Promise<void> {
+  const label = document.querySelector("#user-chip-label");
+  if (!(label instanceof HTMLElement)) return;
+  const session = await currentSession();
+  label.textContent = session.email ?? "Masuk";
+}
+
 async function route() {
   const hash = location.hash;
   // The cosmos runs a rAF loop. Every route that is not the Peta index must stop it, or it keeps
@@ -1216,6 +1235,24 @@ async function route() {
     markNav("kajian");
     showRead();
     renderKajian(readView, await loadKajianSummaries());
+    return;
+  }
+
+  /**
+   * Sign in, and the landing the emailed link points at.
+   *
+   * ⚠ MATCHED WITH `parseMasukRoute`, NOT WITH `===`. The token rides in the hash — the Worker
+   * builds `${origin}/#/masuk/${token}` — so this route has a variable tail, and an equality check
+   * would route the form and drop every real link from an email on the floor.
+   *
+   * No `markNav`: signing in is not one of the reader modes, and that parameter is a closed union
+   * that must not be widened to admit it.
+   */
+  if (parseMasukRoute(hash) !== null) {
+    showRead();
+    // The chip refresher is passed IN rather than called after: logging out re-renders in place
+    // without routing, so a call here alone would leave the sidebar naming an ended session.
+    await renderMasuk(readView, hash, fetch, () => void refreshUserChip());
     return;
   }
 
@@ -1831,6 +1868,9 @@ function initToTop(): void {
   void evictStaleCaches();
 
   void route();
+  // Not awaited and never blocking: the chip is a label, and a slow `/api/auth/role` must not hold
+  // up the first paint of scripture. It ships reading "Masuk" and is only overwritten on success.
+  void refreshUserChip();
   void bootCorpus().then(restoreThread);
 })();
 

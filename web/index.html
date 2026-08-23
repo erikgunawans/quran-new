@@ -114,9 +114,14 @@
 
     <!-- Settings sits BESIDE Masuk, not inside it. Signing in and configuring the app are unrelated
          actions, and nesting settings under an account row implies you must be signed in to reach
-         them — which is not true, and Masuk is still a stub. -->
+         them — which is not true.
+
+         Masuk is now a real LINK to #/masuk (it was a dead <div> until 2026-08-24). An <a>, not a
+         <button>: it navigates, so it must be middle-clickable, focusable and announced as a link.
+         The label is replaced with the signed-in address by `refreshUserChip` on boot; it ships
+         saying "Masuk" so the static shell is honest before any fetch resolves. -->
     <div class="qk-foot">
-      <div class="qk-user"><span class="avatar" aria-hidden="true"></span><span>Masuk</span></div>
+      <a class="qk-user" id="user-chip" href="#/masuk"><span class="avatar" aria-hidden="true"></span><span id="user-chip-label">Masuk</span></a>
       <button class="qk-iconbtn qk-settings-btn" id="settings-open" type="button" aria-label="Pengaturan" title="Pengaturan">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       </button>

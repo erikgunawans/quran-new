@@ -105,7 +105,13 @@
   font-size: 13px; line-height: 1.6; color: var(--ink-3); max-width: 24ch;
 }
 
-.qk-user { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 14px 15px 2px; border-top: 1px solid var(--line); }
+/* `.qk-user` became an <a> on 2026-08-24 (it was a dead <div>), so it needs the link resets an
+   anchor brings with it — otherwise the sidebar chip renders underlined and in link blue. */
+.qk-user { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 14px 15px 2px; border-top: 1px solid var(--line); color: inherit; text-decoration: none; }
+.qk-user:hover span { color: var(--primary); }
+/* The label is replaced with a signed-in email, which is longer than "Masuk" and arbitrary.
+   Without this it pushes the settings button out of the sidebar. */
+#user-chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .qk-user .avatar { width: 32px; height: 32px; border-radius: 999px; background: var(--forest-grad); flex: none; }
 .qk-user span { font-size: 15px; color: var(--ink); }
 
@@ -1896,3 +1902,20 @@
 .kajian-source:hover { text-decoration: underline; }
 
 .kajian-empty { color: var(--ink-3); padding: 24px 0; }
+
+/* ── Masuk (sign-in) ─────────────────────────────────────────────────────────────────────────── */
+.masuk-form { margin: 18px 0 0; }
+/* Wraps rather than shrinking the input: at a phone width an email field and a send button do not
+   both fit on one line, and a squeezed field is the one thing on this page a person must type into. */
+.masuk-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.masuk-row input {
+  flex: 1 1 16rem; min-width: 0; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit;
+}
+.masuk-row input:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.masuk-form button {
+  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: var(--surface-2); color: var(--ink); font: inherit; cursor: pointer;
+}
+.masuk-form button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.masuk-form button:disabled { opacity: .6; cursor: default; }
