@@ -70,6 +70,7 @@ import {
 } from "./store.ts";
 import { maybeDistill, readProfile, deleteProfile, type KVNamespace } from "./distill.ts";
 import { isValidEmail, normalizeEmail, signMagicToken, verifyMagicToken, sendMagicLink } from "./auth.ts";
+import { signSession, buildAuthCookie, clearAuthCookie, roleForRequest, type Role } from "./session.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -109,6 +110,15 @@ export interface Env {
   /** Encrypted secret — `wrangler secret put IDENTITY_HMAC_SECRET --env demo`. Keys the signed
    *  anonymous-identity cookie (issue 01). Absent → identity degrades off (no cookie), app unaffected. */
   IDENTITY_HMAC_SECRET?: string;
+  /**
+   * Role allowlists for `qk_auth` (Track B step 1). Comma-separated addresses, set with
+   * `wrangler secret put ADMIN_EMAILS`. DELIBERATELY NOT A DATABASE TABLE: nothing in the running
+   * app can grant privilege, so becoming an Administrator needs an operator and a redeploy. Unset
+   * means NOBODY holds the role — it fails closed. See `session.ts`.
+   */
+  ADMIN_EMAILS?: string;
+  /** Ships empty. The Reviewer role exists for the ustadz; no address is hardcoded — email is PII. */
+  REVIEWER_EMAILS?: string;
   /** D1 binding (wrangler.toml [[env.demo.d1_databases]]) — the personalized-memory raw truth layer
    *  (issue 02). Absent → memory writes degrade to no-ops, app unaffected. */
   DB?: D1Database;
@@ -201,6 +211,15 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (request.method === "OPTIONS") return preflight(request);
       if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
       return handleAuthVerify(request, env, identity);
+    }
+    if (url.pathname === "/api/auth/logout") {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "POST") return json({ error: "POST only" }, 405, request);
+      return handleAuthLogout(request);
+    }
+    if (url.pathname === "/api/auth/role") {
+      if (request.method === "OPTIONS") return preflight(request);
+      return handleAuthRole(request, env);
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
@@ -1047,7 +1066,70 @@ async function handleAuthVerify(request: Request, env: Env, identity: Identity):
   if (canonical !== identity.userId) {
     res.headers.append("Set-Cookie", await cookieFor(canonical, secret));
   }
+  // ADR 2: the ACCOUNT proves itself with its own cookie, never through `canonical_user_id`. That
+  // column has no UNIQUE constraint, and the line above re-points a shared device at the account's
+  // id — so resolving a role through it would hand a Reviewer's privilege to the next person who
+  // logged in on the same family tablet. This is the only place `qk_auth` is minted, and it is
+  // reached only after `verifyMagicToken` returned an email.
+  res.headers.append("Set-Cookie", buildAuthCookie(await signSession(email, secret, Date.now())));
   return res;
+}
+
+/**
+ * A real logout — which ADR 2 lists as something the app did not have.
+ *
+ * IT CLEARS THE COOKIE; IT DOES NOT REVOKE THE TOKEN. The signed value stays valid for the rest of
+ * its 30 days, so a value captured beforehand still verifies afterwards. That is ADR 2's own
+ * definition of the feature ("clear the auth cookie"), and it is said here — not only in
+ * `session.ts` — because this is the file a route reader opens first. The only revocation lever is
+ * bumping `SESSION_DOMAIN`, which invalidates every session at once.
+ *
+ * The Identity cookie is deliberately LEFT ALONE: it addresses Memory, and signing out is not the
+ * same act as forgetting a reader's bookmarks (that is `/api/forget`).
+ */
+async function handleAuthLogout(request: Request): Promise<Response> {
+  const res = noStore(json({ ok: true }, 200, request));
+  res.headers.append("Set-Cookie", clearAuthCookie());
+  return res;
+}
+
+/**
+ * Who am I, as far as ROLE is concerned. Anonymous Visitors get `{ role: "member" }` and a 200 —
+ * ADR 1 says reading capabilities never depend on an Account, so absence of a session is normal and
+ * not an error.
+ */
+async function handleAuthRole(request: Request, env: Env): Promise<Response> {
+  const info = await roleForRequest(request, env.IDENTITY_HMAC_SECRET ?? "", env, Date.now());
+  return noStore(json({ email: info.email, role: info.role }, 200, request));
+}
+
+/**
+ * Gate a request to a role. Returns null when allowed, or the 403 to return when not.
+ *
+ * ROLES ARE DISJOINT CAPABILITIES, NOT A LADDER — and a first cut of this function got that wrong.
+ * It ranked `member < reviewer < admin` and admitted anyone at or above the needed rank, which made
+ * an Administrator satisfy a Reviewer gate. ADR 4 forbids exactly that: *"An Administrator never
+ * sees content: no question text, no bookmark references, no notes"*, while a Reviewer's whole job
+ * is reading what the app said. A ladder would have walked an Administrator straight into the one
+ * surface that role is defined by not seeing. `CONTEXT.md` states the same separation from the other
+ * end — *"an Administrator needs to see users, and a Reviewer must not"*.
+ *
+ * So a privileged role is matched EXACTLY. Widening this to "admin can do anything" is a decision
+ * for a human with ADR 4 open, not a convenience.
+ *
+ * `needed: "member"` means SIGNED IN, which is not the same as `role === "member"`: an Anonymous
+ * Visitor also resolves to `member` (ADR 1's floor), so the check is on a proven email. A first cut
+ * of this branch gated nothing at all.
+ *
+ * It answers 403 rather than 404, and the body does not distinguish "no session" from "wrong role" —
+ * an endpoint that says "you are not an admin" to an anonymous caller confirms it exists and is
+ * worth attacking.
+ */
+export async function requireRole(request: Request, env: Env, needed: Role): Promise<Response | null> {
+  const info = await roleForRequest(request, env.IDENTITY_HMAC_SECRET ?? "", env, Date.now());
+  const forbidden = noStore(json({ ok: false, error: "forbidden" }, 403, request));
+  if (needed === "member") return info.email === null ? forbidden : null;
+  return info.role === needed ? null : forbidden;
 }
 
 /** Hard-purge every trace of a user — D1 rows and the KV profile (issue 08 "Forget me"). */

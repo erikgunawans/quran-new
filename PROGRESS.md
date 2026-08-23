@@ -2,6 +2,79 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+---
+
+## 2026-08-23 — Rangkuman Kajian section, Track B step 1, and the ISC-566 diagnostic
+
+**Anchor:** to be set by this wrap's commit. Prior: `acaa52c` (ISC-567 diagnostic), `fcb27c9` (Rangkuman Kajian).
+
+**Shipped nothing to prod.** Worker still `2b7707f2` from `4a144ad`. Deploy remains gated to Erik.
+
+### What landed
+
+1. **ISC-567 — the ISC-566 dangler DIAGNOSTIC** (`src/eval/dangler-scan.ts`, `bun run eval:danglers`).
+   Erik chose (2026-08-23) to leave the hole as it stands and measure first — the UNNUMBERED fourth
+   option in ISC-566's *OWED TO ERIK* sentence, **not** its enumerated cost (iv). Written up in
+   `docs/review/erik-decision-2026-08-23.md`, which records that it was a SELECTION FROM OPTIONS
+   AUTHORED BY THE DA, not Erik's own words, with no artefact of the wording committed. **ISC-566
+   stays `[ ]` OPEN.** The corpus is ONE repaired turn; the tool refuses to be quoted as a rate.
+
+2. **Rangkuman Kajian** (`#/kajian`) — a new reader-facing browse section listing machine-written
+   kajian summaries. Renders a manifest produced elsewhere; generates nothing. Empty state until a
+   runner exists. Verified in real Chrome via Interceptor.
+
+3. **ISC-568 — Track B step 1**: `__Host-qk_auth` + `roleFor()` (`worker/src/session.ts`), plus
+   `POST /api/auth/logout`, `GET /api/auth/role`, and `requireRole` (no caller yet).
+
+### Two ADR reversals, both Erik's, both on 2026-08-23
+
+He ruled the `darussalam-kajian-summary` SKILL.md wins where it conflicts with this repo:
+- **speaker named FROM VIDEO METADATA**, against ADR 5 and ISC-10 (roster-only naming; `roster.yaml`
+  ships empty);
+- **narration voice follows the skill** (`id-ID-ArdiNeural`) rather than ADR 6's
+  `id-ID-Chirp3-HD-Schedar`. That lives in the runner, which is not built.
+
+**HELD because not released:** the 2026-08-22 ruling that provenance labels *"must not be softened,
+made conditional, or removed"*. Naming the speaker is attribution to the video's SOURCE, not
+permission to present model prose as that scholar's words. `PROVENANCE_NOTE` says so on the surface.
+
+### Defects found by force-red, not by review
+
+- **`esc.ts`'s "theoretical" injection risk does not extend to kajian.** Neutering `esc` lands the
+  payload raw: `<p class="kajian-speaker"><img src=x onerror=alert(1)></p>`. YouTube metadata is
+  uploader-controlled, and the speaker field is newly attacker-reachable BECAUSE of the ruling above.
+- **`requireRole` shipped a privilege LADDER** (`member < reviewer < admin`), so an Administrator
+  satisfied a Reviewer gate — the one thing ADR 4 forbids. It landed green because `requireRole` had
+  ZERO tests. Now exact-match, 7 tests; restoring the ladder fails 3, including a forged cookie
+  passing a `member` gate.
+- **The requireRole tests themselves were vacuous**: signed at a fixed 2023 `NOW` while `requireRole`
+  calls the real `Date.now()`, so refusals passed on EXPIRY, not role separation. The positive
+  control arm is what exposed it.
+- **Domain separation was missing from ADR 2's instruction.** Reusing the magic-token primitive
+  literally makes a 15-minute magic link — DELIVERED BY EMAIL, so it traverses Resend and sits in a
+  mailbox — verify as a 30-day session, and vice versa. Force-red: removing the tag fails exactly the
+  two cross-domain tests.
+
+### `__Host-` hardening (Erik, in session, no artefact)
+
+`qk_auth` → `__Host-qk_auth`. Browser-enforced: only the exact host can set it, closing the
+`Domain=axiara.ai` shadow from a sibling surface. **The first write-up of that risk was wrong** — it
+is ACCOUNT CONFUSION (first-match wins in the header), not "a downgrade to member".
+
+### Gate record — five passes on ISC-567, three on ISC-568
+
+The code was clean from pass 1 every time; **every BLOCK was in the RECORD**, and most later findings
+were false sentences my own corrections introduced. Two I got wrong twice: the ISC-566 exposure
+channels, and the enumeration of which requireRole tests the clock bug affected. The second attempt
+at that enumeration cited `impossibility-is-a-quantifier` while committing it; it now states only the
+measured claim and tells the reader to re-derive.
+
+**Gates:** `bun test` 1941/0 exit 0 · typecheck exit 0 · build exit 0. Run locally — no CI.
+**ISA:** 576/592.
+
+**Next:** the runner has no home — that decision blocks the admin route. Track B step 1 is done but
+`requireRole` has no caller until it exists.
+
 ## 2026-08-22 (late night) — cost (c) scoped, ISC-561's measurement declined, and a retraction rule
 
 **THE CORRECTION THIS CHECKPOINT IS OBLIGED TO CARRY, verbatim, because ISC-566 supersedes two

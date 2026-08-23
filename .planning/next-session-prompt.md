@@ -1,3 +1,120 @@
+# Next session — New-Quranku (checkpoint 2026-08-23)
+
+> Prepended by /wrap 2026-08-23. **Anchor: this wrap's commit on origin/main** (verify with
+> `git fetch`, never a push pipe). **Supersedes the `10a7ac0` anchor.** From that handoff: item 1
+> (cross-paragraph danglers) **DECIDED by Erik and INSTRUMENTED, not fixed** — ISC-566 stays OPEN.
+> Item 3 (Track B step 1) **DONE**. Items 2 (the diagnostic) **DONE as ISC-567**. Item 4 (kajian
+> step 7) still unspecified and still needs Erik.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-23**).
+
+## 0. CORRECTION THIS BLOCK CARRIES FORWARD
+
+The **2026-08-22 late-night block's §0 dangler correction still stands** and is now also in ISC-566:
+*"Selain itu,"* opens the surviving **SECOND** paragraph; the `sungai` sentence **OPENS the THIRD**
+and two sentences follow it. It does NOT close the answer. Verified this session against the capture
+bytes through the real `splitParagraphs`.
+
+## 1. STATE
+
+Prod unchanged: `new-quranku.axiara.ai` runs Worker **`2b7707f2`** from `4a144ad`. **Nothing this
+session was deployed.** Deploy is gated to Erik.
+
+Gates at the anchor: `bun test` **1941/0** exit 0 · typecheck exit 0 · build exit 0 — **run locally;
+this repo has no CI, so no automated verifier attests them.** ISA **576/592**.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** Erik withdrew the WAIT (2026-08-22,
+`docs/review/erik-ruling-2026-08-22.md`) — schedule only, not provenance. **ISC-417 stays `[ ]`
+PERMANENTLY.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* — it is FALSE and voids
+three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith Indonesian as-is
+2026-08-12, VERBAL and relayed, hadith TEXT layer only). Scope to *"in reply to these two letters"*.
+Anything not explicitly released is **HELD BY DEFAULT**.
+
+## 2. DO NEXT, IN ORDER
+
+1. **THE RUNNER HAS NO HOME, AND IT BLOCKS EVERYTHING ELSE ON KAJIAN.** Erik picked a **gated admin
+   route on the live site** for the paste-a-URL field. That needs a job runner OUTSIDE the Worker —
+   a Worker cannot run `yt-dlp` or `edge-tts`, and YouTube blocks datacentre IPs. **Ask where it
+   lives** (his Mac / a VM / a container) before writing any of it; a full run is transcript + LLM
+   briefing + TTS, i.e. minutes, so it is a queued job and not a request-response.
+2. **Then the admin route.** `requireRole(request, env, "admin")` is built, tested and has **NO
+   caller** — this is its first one. `ADMIN_EMAILS` must be set as a secret before it can admit
+   anyone; unset means nobody, by design.
+3. **Kajian step 7 — still undefined anywhere in the repo.** Ask what it is before starting.
+4. **Cross-paragraph danglers (ISC-566) stay OPEN by Erik's decision.** Do not "fix" them. If more
+   repaired captures land, `bun run eval:danglers` counts them; the corpus is n=1 today and the tool
+   refuses to be quoted as a rate.
+
+## 3. Open items waiting on Erik
+
+- **NEW — where the kajian runner runs** (item 1). Nothing moves without it.
+- **NEW — a record is owed for two 2026-08-23 in-session instructions**: the *skill-wins* ruling
+  (which reverses **ADR 5 / ISC-10** on speaker naming and **ADR 6** on the narration voice) and the
+  `__Host-` hardening. Only the dangler decision got a `docs/review/` artefact. The skill-wins ruling
+  reverses two ADRs and **should not stay a relay**.
+- **THE THREE KAJIAN RULINGS, still owed** — (a) channel name on the slide while narration refuses to
+  speak it, (b) model-relayed speaker names being spoken, (c) unscreened consensus claims in the
+  autoplay mp4. **(a) and (b) land physically on the slide.** Note (b) is now PARTLY overtaken: the
+  skill-wins ruling admits the speaker name on the WEB CARD. It says nothing about the mp4.
+- **The Hadits banner still names the ustadz on a VERBAL relay basis**; the written confirmation will
+  never come. The letter's own offer — unnamed sentence, or remove it — stands open and is Erik's.
+- **A correction with no delivery path** — bound to a third letter Erik decided (2026-08-21) not to send.
+- **Nobody has read a repaired answer for THEOLOGICAL correctness.** Four read for coherence only.
+- **Answer Record retention**, **ISC-554's remaining half**, **roster entries** — unchanged.
+- **"Maruli"** — Erik asked to be shown "the trick kajian that is maruli". The string appears NOWHERE
+  in the repo or the kajian work; the one real video's speaker is **Ustadz Syariful Mahya**. Never
+  resolved. Ask before guessing.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **Cross-paragraph danglers** — ISC-566, OPEN by decision. Instrumented only, n=1.
+- **The kajian runner does not exist**, so `#/kajian` shows its empty state.
+- **`requireRole` has no caller.** Do not read it as load-bearing yet.
+- **Route wiring is UNPINNED** — no `index.test.ts`, no HTTP-level test of `/api/auth/verify`,
+  `/logout` or `/role`. `handleAuthVerify` can emit three `Set-Cookie` headers; survival through the
+  identity wrapper is ASSUMED, not demonstrated.
+- **Logout does not REVOKE.** It clears the cookie; the signed value stays valid its full 30 days.
+  The only revocation lever is bumping `SESSION_DOMAIN`, which kills every session at once.
+- **The shared-`canonical_user_id` defect is NOT fixed** — ADR 2 scopes it out. Roles no longer
+  travel that path; MEMORY still does.
+- **A single-paragraph answer that trips the wall ships SILENCE** (ISC-564 cost (b)).
+- **ISC-561's widening is unwitnessed LIVE**; measurement DECLINED, not pending.
+- `splitSentences` is **dead** except for its own tests. Kept deliberately.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a `scholarly-gate` BLOCK on a CORRECTION is the norm, not the exception.** Eight gate
+  passes this session; the code was clean from pass 1 EVERY time, and nearly every later finding was
+  a false sentence a previous correction introduced. **Re-gate after applying fixes, always.**
+- **NEW — do not enumerate which tests a defect affects unless you just measured it.** That exact
+  claim was wrong TWICE in one change, the second time while citing
+  `impossibility-is-a-quantifier`. State the measured result; tell the reader to re-derive.
+- **NEW — a test signed at a fixed clock against code that calls `Date.now()` passes VACUOUSLY.**
+  Refusal assertions then hold on expiry, not on the property under test. A positive control arm is
+  what catches it.
+- **NEW — record a retraction ONLY where a reader can encounter the false claim.** In a NEW,
+  uncommitted entry it points at text in no git object, so it can only ever be wrong.
+- **`/api/answer` cannot be probed by curl** — drive the app with Interceptor, clear
+  `localStorage['newquranku:thread']`, discard a warm-up turn.
+- **Never batch a file write with a gate command** — a blocked hook DISCARDS EVERY WRITE in that
+  Bash call. Hit again this session, twice.
+- **Never pipe a gate command into `head`/`tail`** — `$?` becomes the pipe's status. Redirect, then
+  echo the exit code. **Never pipe `git push`** — hit this session; verify with `git fetch` instead.
+- **A green wall is not a readable answer.** The guard is a RULES wall, not a coherence check.
+- **Arabic you type is not the Arabic that shipped.** Splice captured bytes.
+- **Do not edit files while an auditing agent is auditing them.**
+- **The kajian tool never rewrites a transcript**, widens its cue list ONLY from real transcripts,
+  and never copies credentials from a video title.
+- ⚠️ **ADR 6's narrator voice is NO LONGER load-bearing by default** — Erik's 2026-08-23 skill-wins
+  ruling replaces it with `id-ID-ArdiNeural` for the kajian summary runner. ADR 6 still governs
+  anything the ruling did not cover, and **the ruling has no `docs/review/` artefact yet.**
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-22 late night)
 
 > Prepended by /wrap 2026-08-22 (late night). **Anchor `10a7ac0` on origin/main** (verified by
