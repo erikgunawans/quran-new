@@ -263,3 +263,45 @@ describe("renderAdminKajian", () => {
     expect(seenBodies[0]).toContain(`"url":"https://www.youtube.com/watch?v=queued"`);
   });
 });
+
+describe("ISC-586 — the form renders for an admin and for NOBODY else", () => {
+  // The suite shipped with only the admin case, so "renders only when role is admin" was half
+  // asserted: nothing proved a non-admin sees a refusal rather than the form. The server is the
+  // real gate (worker/src/admin-route.test.ts), but a form drawn for a member invites them to paste
+  // a URL and collect a 403, and the failure would look like a bug rather than a boundary.
+  const roleOnly = (body: unknown, init?: ResponseInit): FetchLike =>
+    async (url) => {
+      if (url === "/api/auth/role") return jsonResponse(body, init);
+      // Reaching the jobs endpoint at all means the gate already let the caller through.
+      throw new Error(`refused role must not fetch ${String(url)}`);
+    };
+
+  const refused = [
+    { why: "a signed-in member", impl: roleOnly({ email: "member@example.com", role: "member" }) },
+    { why: "a reviewer — roles are DISJOINT, a reviewer is not a lesser admin", impl: roleOnly({ email: "ustadz@example.com", role: "reviewer" }) },
+    { why: "an anonymous visitor", impl: roleOnly({ email: null, role: "member" }) },
+    { why: "a 403 from the role endpoint", impl: roleOnly({ ok: false }, { status: 403 }) },
+    { why: "a role endpoint that throws", impl: (async () => { throw new Error("network down"); }) as FetchLike },
+    { why: "a role endpoint returning junk", impl: roleOnly({ unexpected: true }) },
+  ];
+
+  for (const c of refused) {
+    test(`no form, and no crash, for ${c.why}`, async () => {
+      const mount = mountNode();
+      await renderAdminKajian(mount, c.impl);
+      expect(mount.querySelector("form[data-admin-kajian-form]")).toBeNull();
+      expect(mount.querySelector("input[name=url]")).toBeNull();
+      // Refusal must be VISIBLE, not a blank div that reads as a broken page.
+      expect((mount.textContent ?? "").trim().length).toBeGreaterThan(0);
+    });
+  }
+
+  test("ISC-587 — Anti: the admin page renders no user content, whatever the role", async () => {
+    const mount = mountNode();
+    await renderAdminKajian(mount, roleOnly({ email: "member@example.com", role: "member" }));
+    const html = mount.innerHTML.toLowerCase();
+    for (const forbidden of ["bookmark", "catatan", "pertanyaan", "riwayat"]) {
+      expect(html).not.toContain(forbidden);
+    }
+  });
+});

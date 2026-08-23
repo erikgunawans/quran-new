@@ -1,3 +1,117 @@
+# Next session — New-Quranku (checkpoint 2026-08-23 late)
+
+> Prepended by /wrap 2026-08-23 (late). **Anchor: this wrap's commit on origin/main** — verify with
+> `git fetch` and `git ls-remote`, never a push pipe. **Supersedes the earlier 2026-08-23 block.**
+> From that handoff: item 1 (where the runner lives) **ANSWERED — a VPS**. Item 2 (the admin route)
+> **DONE**. Item 3 (kajian step 7) **still unspecified, still needs Erik**. Item 4 (ISC-566 danglers)
+> **still OPEN by Erik's decision — do not "fix" them.**
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-23 (late)**).
+
+## 0. THE ONE THING THAT MATTERS MOST
+
+**Two unnamings are committed and NOT DEPLOYED.** Until Erik deploys, `new-quranku.axiara.ai` still
+shows Ustadz Ahmad Isrofiel's name in two places the 2026-08-23 rulings removed it from — the Hadits
+permission banner and the surah preface. **This is the only work in the repo where "committed" and
+"fixed" genuinely differ.** Deploy is gated to Erik; do not deploy, and do not describe these as done.
+
+## 1. STATE
+
+Prod: `new-quranku.axiara.ai` runs Worker **`2b7707f2`** from `4a144ad`. **Nothing this session was
+deployed.**
+
+Gates at the anchor: `bun test` **2017/0** exit 0 · typecheck exit 0 · build exit 0 — **run locally;
+this repo has no CI**, so no automated verifier attests them. ISA **624/641**.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position:** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket *"the ustadz has
+approved nothing"* — it is FALSE and voids three real permissions (F-1 2026-07-17; co-display
+2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL and relayed, hadith TEXT layer only).
+Scope to *"in reply to these two letters"*. Anything not explicitly released is **HELD BY DEFAULT**.
+**The two unnamings do NOT withdraw the hadith permission** — the permission claim stays, only the
+name went.
+
+## 2. DO NEXT, IN ORDER
+
+1. **Ask Erik to deploy**, or confirm he is deliberately holding. The unnamings are the reason. Also
+   ask whether he wants the Darussalam letter sent, and whether to disclose in it that a derivative
+   mp4 already exists locally (his call, wording is in `docs/review/surat-darussalam-2026-08-23.md`).
+2. **The VPS runner.** Erik picked a VPS knowing it carries a datacentre IP, so `yt-dlp` will need
+   exported cookies or a residential proxy. **The runner-facing endpoints are a SECOND AUTH
+   PRINCIPAL** — a shared bearer secret, no email, no role, no cookie. Do NOT reach for `requireRole`:
+   putting an Administrator's 30-day `__Host-qk_auth` in a VPS env var undoes ISC-568 entirely.
+3. **Bind D1 + Resend on prod IN THE SAME CHANGE as the runner** (ISC-617, Erik's decision). Until
+   then the admin route's 403 to everyone — Erik included — is CORRECT and must not be "fixed". The
+   reason is ISC-592, not just an unset `ADMIN_EMAILS`.
+4. **Kajian step 7 — still undefined anywhere in the repo.** Ask what it is before starting.
+5. **ISC-566 cross-paragraph danglers stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- **Deploy** (item 1) — the unnamings are inert until then.
+- **Send the Darussalam letter?** Drafted and unsent; the DA never sends. Plus the one judgment left
+  to him inside it.
+- **Kajian step 7** — undefined.
+- **"Maruli"** — Erik asked to be shown "the trick kajian that is maruli". The string appears NOWHERE
+  in the repo; the one real video's speaker is **Ustadz Syariful Mahya**. Asked once, never answered.
+  Ask again before guessing.
+- **A correction with no delivery path** — bound to a third letter Erik decided (2026-08-21) not to send.
+- **Nobody has read a repaired answer for THEOLOGICAL correctness.** Four read for coherence only.
+- **Answer Record retention**, **ISC-554's remaining half**, **roster entries** — unchanged.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **The unnamings are undeployed** (§0).
+- **A derivative mp4 and slide from Darussalam's video sit in gitignored `.scratch/kajian/`**, built
+  2026-08-22. Unpublished, and unpublishable without their permission.
+- **The hosted runner does not exist** — nothing writes `/kajian/index.json`, so `#/kajian` shows its
+  empty state. The LOCAL runner (`src/app/kajian.ts`, 535 lines) does exist and has run; do not
+  conflate the two, a previous session did and put it in three documents.
+- **The queue has no consumer**, so its row shape is validated only by our own tests.
+- **`kajian_jobs` is unmigrated on any real D1.** Migration 0003 has never been applied anywhere.
+- **Logout does not REVOKE**; the only lever is bumping `SESSION_DOMAIN`.
+- **The shared-`canonical_user_id` defect is NOT fixed** — ADR 2 scopes it out.
+- **`splitSentences` is dead** except its own tests. Kept deliberately.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — never `str.replace` into a record without asserting the target exists.** Two ISA edits
+  silently no-oped in a multi-replace script that reported success; a gate found them. With asserts,
+  the next run ABORTED on a genuine miss and wrote nothing, which is the behaviour wanted.
+- **NEW — measure probe numbers LAST, and re-measure after every later edit.** Counts drifted
+  ×12/×8/×3 → ×16/×9/×5 → ×17/×9/×7 in one session; each was true when written, false when read.
+- **NEW — a correction can overshoot into a falsehood that RETIRES A REAL GUARD.** "That sentence
+  appears nowhere" would have told the next developer that a live, tested rule was invented.
+- **NEW — a green suite does not mark an ISA.** 17 criteria sat `[ ]` for hours after passing; the
+  wrap's per-cycle table found them, and one of them turned out not actually met.
+- **NEW — check the whole repo for a bad citation, not just the docs.** The worst carrier of the
+  ISC-10 error was a source docblock, and it was the most-read of the three.
+- **A scholarly-gate BLOCK on a CORRECTION is the norm.** Re-gate after applying fixes, always, and
+  give the re-gate a CHANGED FRAME — auditing the corrections, not re-reading the originals.
+- **Do not enumerate which tests a defect affects unless you just measured it.**
+- **A test signed at a fixed clock against code calling `Date.now()` passes VACUOUSLY.**
+- **`/api/answer` cannot be probed by curl** — drive the app with Interceptor, clear
+  `localStorage['newquranku:thread']`, discard a warm-up turn.
+- **Never batch a file write with a gate command** — a blocked hook DISCARDS EVERY WRITE in that call.
+  Hit again this session by a `grep | head` inside a gate call.
+- **Never pipe a gate command into `head`/`tail`**; never pipe `git push`. Verify with `git ls-remote`.
+- **Arabic you type is not the Arabic that shipped.** Splice captured bytes.
+- **Do not edit files while an auditing agent is auditing them.**
+- **The kajian tool never rewrites a transcript** and never copies credentials from a video title.
+- ⚠️ **ADR 6's voice IS load-bearing again** — Erik's 2026-08-23 four-questions ruling KEEPS
+  `id-ID-Chirp3-HD-Schedar` and reverses the voice half of his own skill-wins ruling. The
+  speaker-naming half of skill-wins STANDS.
+- ⚠️ **Kajian ruling (b) is REFUSED PERMANENTLY** — a metadata speaker name may be WRITTEN, never
+  SPOKEN. Pinned by tests in `src/app/kajian-speaker.test.ts`, including a runtime assertion that
+  survives a `RosterOutcome` widening tsc would allow.
+
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-23)
 
 > Prepended by /wrap 2026-08-23. **Anchor: this wrap's commit on origin/main** (verify with

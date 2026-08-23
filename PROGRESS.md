@@ -4,6 +4,53 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (late) — the kajian admin queue, and two names taken off live surfaces
+
+**Anchor:** to be set by this wrap's commit. Prior: `1a5b449` (unnamings + the four rulings), `c471f56` (admin queue), `c7cc3bc` (Track B step 1).
+
+**Shipped nothing to prod.** Worker still `2b7707f2` from `4a144ad`. **The two unnamings are LIVE-SURFACE changes that have NOT reached the live surface** — until Erik deploys, the Hadits banner and the surah preface still show the ustadz's name.
+
+### What landed
+
+1. **The kajian admin queue** — `POST/GET /api/admin/kajian/jobs`, `requireRole`'s first caller ever. Migration 0003, `worker/src/kajian-jobs.ts`, `#/admin/kajian`. **`worker/src/admin-route.test.ts` is this repo's first HTTP-level route test**, closing the "route wiring is UNPINNED" weakness carried since ISC-568.
+2. **The metadata speaker extractor** (`src/app/kajian-speaker.ts`) — description or title, **never `channel`**, omission still the fallback.
+3. **Two unnamings** — the Hadits banner (`sections.ts`) and the surah preface (`surah-intro.ts`).
+4. **Four `docs/review/` records** — the skill-wins ruling, the Darussalam rights finding, the four-questions ruling, and an unsent letter to the mosque.
+
+### Erik's decisions this session, and their exact form
+
+- **The runner lives on a VPS** — chosen knowing the option carried its own objection (a datacentre IP, which YouTube blocks).
+- **Speaker name from description or title, never `channel`** — the question as first put to him was WRONG (it said the name came from `channel`; that was the DA's inference, not his ruling's text).
+- **The four kajian questions**, answered with **"i follow your recommendation"** — his only words. Every argument in the record is the DA's; what is his is the assent and therefore the outcome. **ISC-600 allowed, ruling (b) refused permanently, ISC-608 keeps Schedar (reversing the voice half of his own skill-wins ruling), Darussalam not published.**
+- **The surah preface clause dropped** — put to him separately when found.
+
+### The pattern this session confirms, again
+
+**Three scholarly-gate passes: 3 BLOCKs and 16 CONCERNs, and all but ONE were in the RECORD, not the code.** Most second-pass findings were false sentences the FIRST pass's corrections had introduced.
+
+The single code defect was the DA's own: **`resolveSpeaker` collided with `kajian-roster.ts`'s export** — sibling modules, same directory, different signatures. Renamed `resolveSpeakerWithProvenance`. No force-red could have caught it; both functions work in isolation.
+
+### Four false things the DA wrote and a gate caught
+
+- **"The runner is unbuilt"**, in three documents — **false, and the evidence had been on screen in the same session.** `src/app/kajian.ts` is a 535-line runner and it has RUN: `slide.png`, `slide.html`, `narasi-DRAFT.m4a` and `short-DRAFT.mp4` from the Darussalam video, dated **2026-08-22**, gitignored. What does not exist is a HOSTED runner publishing a manifest. **This changes the Darussalam decision** — a derivative mp4 already exists.
+- **An invented quotation shipped in `fcb27c9`** — `ISC-10 ("the video title never appears inside the identity slot")`. ISC-10 never said that. But the first retraction OVERSHOT to "that sentence appears nowhere", which would have told the next developer that a live, tested guard (`kajian-slide.ts:10`) was imaginary.
+- **`matchRoster`** — a function name the DA invented; it exists nowhere.
+- **Probe numbers measured before the file finished changing** — ×12/×8/×3 → ×16/×9/×5 → ×17/×9/×7, and "147 lines" for a file now 244.
+
+### Two tests changed, neither relaxed to make an edit pass
+
+- `hadith-permission-notice.test.ts` would have gone **vacuously green** — it hunts for a construct the unnaming deletes. Replaced with: the name is not displayed at all, AND the permission is still claimed. Force-red fails both.
+- `surah-intro.test.ts` asserted `toContain("Ustadz Ahmad Isrofiel")`. Dropped **only because the principal withdrew the requirement**, which is the sole acceptable ground.
+
+### ISC-586 was not met, and the wrap is what found it
+
+Seventeen criteria (ISC-575..591) sat `[]` for hours after the code passed its gates. The per-cycle table (31/49) surfaced them — and marking them honestly exposed that **ISC-586 was only half-asserted**: the suite tested that an admin sees the form and nothing tested that a non-admin does not. Six refusal cases added before marking. **A green suite does not mark an ISA.**
+
+**Gates:** `bun test` 2017/0 exit 0 · typecheck exit 0 · build exit 0. Run locally — this repo has no CI. **ISA:** 624/641 (623 `[x]` + 1 `[~]` + 16 `[ ]` + 1 deferred, counted line-by-line).
+
+**Next:** deploy is the only thing that makes the unnamings real. Then the VPS runner, and bind D1 in that same change.
+
+
 ## 2026-08-23 — Rangkuman Kajian section, Track B step 1, and the ISC-566 diagnostic
 
 **Anchor:** to be set by this wrap's commit. Prior: `acaa52c` (ISC-567 diagnostic), `fcb27c9` (Rangkuman Kajian).

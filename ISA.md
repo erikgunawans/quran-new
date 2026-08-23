@@ -2,8 +2,8 @@
 project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
-phase: verify
-progress: 607/641  # 606 [x] + ISC-418 [~]; 33 open [ ], 1 deferred (ISC-189). Counted line-by-line 2026-08-23 AFTER closing ISC-600 and ISC-608: 606+1+33+1 = 641. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated in this file, pre-existing. Cycle 9 = ISC-569..617: the kajian admin queue (`requireRole`'s first caller), the metadata speaker extractor, **Erik's answers to the four kajian questions**, and **two unnamings on LIVE surfaces** (the Hadits banner and the surah preface). **Three scholarly-gate passes across the cycle; all findings but ONE were in the RECORD, not the code.** Gates 2010/0 exit 0, typecheck exit 0, build exit 0 — run locally, this repo has no CI. **NOT DEPLOYED: both unnamings are live-surface changes that have not reached the live surface.** ISC-566, ISC-600→ANSWERED, ISC-608→ANSWERED; ISC-617 open by design.
+phase: learn
+progress: 624/641  # 623 [x] + ISC-418 [~]; 16 open [ ], 1 deferred (ISC-189). Counted line-by-line at the 2026-08-23 wrap: 623+1+16+1 = 641. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **ISC-575..591 were marked AT THE WRAP, hours after the code passed its gates**; the per-cycle table (31/49) is what surfaced them, and ISC-586 turned out NOT met — six refusal cases were missing and were added before marking. Cycle 9 = ISC-569..617. Gates 2017/0 exit 0, typecheck exit 0, build exit 0, run locally. **NOT DEPLOYED — the two unnamings have not reached the live surface.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1159,46 +1159,46 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       → the only ustadz mentions must be the three real permissions, scoped.
 - [x] ISC-574: the record covers the **`__Host-` hardening** as the second unrecorded 2026-08-23
       instruction and says it **authorises nothing** — the prefix only removes capability. Probe: `grep`.
-- [ ] ISC-575: `worker/migrations/0003_kajian_jobs.sql` creates `kajian_jobs` with a UNIQUE `video_id`,
+- [x] ISC-575: `worker/migrations/0003_kajian_jobs.sql` creates `kajian_jobs` with a UNIQUE `video_id`,
       a `status`, and the enqueueing admin's email. Probe: `Read` the file.
-- [ ] ISC-576: `POST /api/admin/kajian/jobs` answers **403 to an anonymous caller**. Probe: HTTP-level
+- [x] ISC-576: `POST /api/admin/kajian/jobs` answers **403 to an anonymous caller**. Probe: HTTP-level
       test against the Worker's exported `fetch`.
-- [ ] ISC-577: it answers **403 to a signed-in Member**. Probe: same, with a validly signed cookie for
+- [x] ISC-577: it answers **403 to a signed-in Member**. Probe: same, with a validly signed cookie for
       an address on no allowlist.
-- [ ] ISC-578: it answers **403 to a REVIEWER**. This is the disjointness case, not a formality — the
+- [x] ISC-578: it answers **403 to a REVIEWER**. This is the disjointness case, not a formality — the
       ladder bug ISC-568 killed would have admitted the wrong role here, and this is the first place a
       real route could feel it. Probe: same, with the address on `REVIEWER_EMAILS` only.
-- [ ] ISC-579: it answers **201 to an Administrator** on `ADMIN_EMAILS`. **This is the positive control
+- [x] ISC-579: it answers **201 to an Administrator** on `ADMIN_EMAILS`. **This is the positive control
       arm** — without it every refusal above could pass for the wrong reason, which is exactly how
       ISC-568's vacuous-clock defect survived (`control-arm-or-no-claim`). Probe: same, asserting the
       created row.
-- [ ] ISC-580: a URL that is not a YouTube watch/short link is refused **400 and writes NO row**.
+- [x] ISC-580: a URL that is not a YouTube watch/short link is refused **400 and writes NO row**.
       Probe: a DB stub counting writes; the count must be 0, not merely "no error".
-- [ ] ISC-581: enqueueing the same video twice yields **one row**, and the second call reports the
+- [x] ISC-581: enqueueing the same video twice yields **one row**, and the second call reports the
       existing job rather than erroring. Probe: two calls against one stub, row count asserted.
-- [ ] ISC-582: `GET /api/admin/kajian/jobs` is gated identically and lists the queue. Probe: HTTP test
+- [x] ISC-582: `GET /api/admin/kajian/jobs` is gated identically and lists the queue. Probe: HTTP test
       at all four principals.
-- [ ] ISC-583: with `env.DB` **absent** the route answers 503 and does not throw — the same designed
+- [x] ISC-583: with `env.DB` **absent** the route answers 503 and does not throw — the same designed
       degradation `AUDIO`, `VECTORIZE` and `CORPUS` already have. Probe: HTTP test with no binding.
-- [ ] ISC-584: **Anti:** no admin response is cacheable. Every one carries `private, no-store`, because
+- [x] ISC-584: **Anti:** no admin response is cacheable. Every one carries `private, no-store`, because
       a shared edge cache holding one admin's queue is the same class of bug `noStore` already exists to
       prevent. Probe: header assertion on each.
-- [ ] ISC-585: **Anti:** the 403 body does not distinguish *no session* from *wrong role*. Probe: compare
+- [x] ISC-585: **Anti:** the 403 body does not distinguish *no session* from *wrong role*. Probe: compare
       the anonymous and the reviewer bodies **byte-for-byte** — equality is the assertion, not a shape check.
-- [ ] ISC-586: `#/admin/kajian` renders the paste-a-URL form **only** when `GET /api/auth/role` returns
+- [x] ISC-586: `#/admin/kajian` renders the paste-a-URL form **only** when `GET /api/auth/role` returns
       `role:"admin"`; every other answer renders a refusal. Probe: DOM test at each role.
-- [ ] ISC-587: **Anti:** the admin page renders **no user content** — no question text, no bookmark
+- [x] ISC-587: **Anti:** the admin page renders **no user content** — no question text, no bookmark
       reference, no note. ADR 4 defines the Administrator by not seeing those. Probe: `grep` the module
       for those symbols → 0.
-- [ ] ISC-588: the page's Indonesian copy claims nothing about who reviewed a summary, and does not
+- [x] ISC-588: the page's Indonesian copy claims nothing about who reviewed a summary, and does not
       imply a queued job is a published one. Probe: `scholarly-gate` verdict on the diff.
-- [ ] ISC-589: **Force-red.** Replacing the route's `requireRole(request, env, "admin")` with `null`
+- [x] ISC-589: **Force-red.** Replacing the route's `requireRole(request, env, "admin")` with `null`
       fails ISC-576..579 and no others. Without this the gate tests could be green because the route is
       unreachable rather than because it refuses. Probe: apply, run, count, revert.
-- [ ] ISC-590: `bun test` exit 0 · typecheck exit 0 · build exit 0, **run locally and with the exit code
+- [x] ISC-590: `bun test` exit 0 · typecheck exit 0 · build exit 0, **run locally and with the exit code
       echoed, never piped** (`$?` becomes the pipe's status). This repo has no CI; nothing automated
       attests these.
-- [ ] ISC-591: **Antecedent:** `ADMIN_EMAILS` is documented — in the route's own docblock and in the
+- [x] ISC-591: **Antecedent:** `ADMIN_EMAILS` is documented — in the route's own docblock and in the
       handoff — as the secret an operator must set **before the route admits anyone**. Unset means
       nobody, by design, and without this sentence the first person to open the page reads a correct
       fail-closed as a broken feature. Probe: `grep` both surfaces.
@@ -2528,6 +2528,24 @@ articulation.
   not pinned by a passing test (`dont-pin-a-known-hole-with-a-green-test`).
 
 ## Verification
+
+**ISC-575..591 — the kajian admin queue**, marked at the wrap, not when the code landed. The delay is
+itself the finding: the work was built, gate-tested and force-redded hours earlier while seventeen
+criteria sat `[ ]`, and only the wrap's per-cycle table (31/49) surfaced it. A green suite does not
+mark an ISA.
+
+- ISC-575: `worker/migrations/0003_kajian_jobs.sql` — UNIQUE `video_id`, `CHECK` on `status`, `NOT NULL` throughout, index on `status`.
+- ISC-576..579, 582: eight HTTP-level tests against the Worker's exported `fetch` at four principals × two verbs, cookies signed at the REAL clock. **`worker/src/admin-route.test.ts` is the first HTTP-level route test this repo has ever had.**
+- ISC-580, 581: *"a bad URL returns 400 and records no write"* and *"a second POST … still records one write"*, asserted on a write COUNTER, not on the absence of an error. Plus *"malformed JSON takes the same invalid_url path"*.
+- ISC-583: *"no DB returns 503 and does not throw"*, both verbs.
+- ISC-584, 585: `private, no-store` on every response, and the anonymous and reviewer 403 bodies compared BYTE-FOR-BYTE.
+- **ISC-586 was NOT met when first reviewed and is not marked on the strength of the code.** The suite shipped with only *"renders the form for an admin session"* — nothing proved a non-admin gets a refusal instead of a form, so "renders only when role is admin" was half-asserted. Six cases added at the wrap: member, reviewer, anonymous, a 403, a throwing fetch, and a junk payload. Each asserts no form, no url input, and non-empty visible text (a blank div reads as a broken page, not a refusal). The stub THROWS if the jobs endpoint is touched, so a component that fetched anyway fails rather than passing quietly. Control arm: the admin case still renders a form, so the six negatives cannot be green because rendering is broken.
+- ISC-587: asserted at the wrap alongside 586 — no `bookmark`, `catatan`, `pertanyaan`, `riwayat` in the rendered HTML, per ADR 4's Administrator-never-sees-content boundary.
+- ISC-588: `scholarly-gate`, second pass, on the Indonesian copy — *"Clean. Every string is about queue processing only … Nothing implies published, reviewed, or scholar-checked."* It also checked `shell.css` for `::before{content}` on the reused `.kajian-unreviewed` class, per `css-generated-text-is-probe-invisible`, and found colour/padding only.
+- ISC-589: force-red, twice. Removing the route gate fails 4 (all GET-side + the PUT probe); removing the handler's second gate as well fails all 8. Reverted, `grep -c FORCE-RED` → 0.
+- ISC-590: `bun test` 2017/0 exit 0 (2010 when first run; 7 more added at the wrap for ISC-586/587) · typecheck exit 0 · build exit 0, each run unpiped with the code echoed. **No CI attests them.**
+- ISC-591: `ADMIN_EMAILS` documented in `worker/src/index.ts` (×2) and carried into the handoff — unset means nobody, by design, and ISC-592 records the larger reason the route admits no one on prod.
+
 
 **ISC-569..574 — the 2026-08-23 skill-wins record** (`docs/review/erik-ruling-2026-08-23-skill-wins.md`, **244 lines** after two correction passes; it was 147 when this line was first written), probed by `grep -c` on the file:
 - ISC-569: `RELAY, NOT A RECORD OF HIS WORDS` ×1 in the blockquote header, plus *"Nothing in his own words was captured"* ×1.
