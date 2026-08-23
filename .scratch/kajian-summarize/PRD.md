@@ -80,3 +80,67 @@ it lifts when Darussalam answers, or if Erik withdraws the sentence before sendi
 - **Kajian step 7** — still undefined anywhere in the repo. Asked three times.
 - **"Maruli"** — appears nowhere in the repo. The one real video's speaker is Ustadz Syariful Mahya.
 - **Rights items 1 and 2** — does the logo clause reach a summary at all; carry their logo or not.
+
+---
+
+## The play button — clarified by Erik, 2026-08-23
+
+> **FORM: his own description, plus two selections from DA-authored options.** The shape is his, in
+> his words: *"in the HTML version there is a play button whereas when you play that button there
+> would be a text-to-speech using the voice that we choose to explain the summary to people who have
+> a limitation to see the UI ... or maybe he is driving."* The two options below are DA-authored.
+
+**The published artifact is the HTML, not the PNG.** Erik's call, and it is the accessibility-critical
+one: an image of text is invisible to assistive tech. Publishing the HTML makes the summary real,
+selectable, screen-reader-readable text; the play button is an ADDITION to that, never a substitute.
+
+| Decision | Answer |
+|---|---|
+| How the play button makes sound | **Pre-generate in `id-ID-Chirp3-HD-Schedar`; browser speech synthesis as fallback** so the control is never dead. |
+| Does the Darussalam hold cover audio | **Yes — hold the whole thing** until they reply. His letter's own sentence names audio: *"tidak ada satu pun ringkasan, gambar, video, atau audio … yang saya terbitkan."* |
+
+### A correction this file must carry
+
+The DA asked *"keep the narration audio?"* and described it as *"a 6.6 MB machine-voiced reading of
+their content"*. Erik said drop it. **He was answering about the LONG FORM.** The DA then turned off
+both narrations, which was more than he asked for. There are two, and only one was unwanted:
+
+- **Long form** (`narasi*.m4a`, ~474 s) — the whole briefing aloud. **Correctly dropped.** It is a
+  standalone derivative of their lecture that nobody asked for.
+- **Short form** (`speak("short")`, ~48 s) — the slide's own bullets, i.e. **our composed summary**,
+  not their lecture. **This IS the play button.** It already exists in the code.
+
+### The code cannot express this yet
+
+`src/app/kajian.ts:532` nests the short narration inside `if (!NO_VIDEO && …)`, and its WAV is
+consumed **only** by `stillVideo` into an mp4 — it is never kept as a file of its own. So the flag
+change that turned the video off also destroyed the only producer of the play button's audio.
+
+Required, and **not done**:
+
+1. **Decouple the short narration from the video branch.** Short audio must be producible with no mp4.
+2. **Encode it to its own artefact** (m4a/mp3) rather than only into `stillVideo`.
+3. **Give the flags honest names.** `--audio` currently means "long form, and short only if video".
+   The wanted default for the summarize pipeline is **short narration ON, long form OFF, video OFF**.
+4. **Store and serve it.** One short file per kajian. R2 is the obvious home (`AUDIO` bucket already
+   exists for recitation, keyed `{surah}/{ayah}.mp3` — kajian needs its own prefix or its own bucket).
+5. **Fallback path.** If the file is absent, the page falls back to browser `speechSynthesis` so the
+   button still works. Never render a dead control.
+
+### Guardrails on the spoken audio — already settled, do not relitigate
+
+- **It must never SPEAK the speaker's name.** Kajian ruling (b), REFUSED PERMANENTLY; a metadata name
+  may be WRITTEN, never SPOKEN. Pinned by `src/app/kajian-speaker.test.ts`.
+- **One narrator voice across every kajian** (ADR 6), chosen so a listener never hears the summary as
+  the scholar speaking. This is why browser-TTS-only was rejected: the voice would vary per device.
+- ⚠️ **ADR 6's voice is LOAD-BEARING again.** A previous handoff called it dormant because narration
+  had been switched off. That is now wrong.
+
+### Accessibility is a requirement here, not a nice-to-have
+
+Erik named two people: someone who cannot see the UI, and someone driving. They need different things
+and the play button only serves the second well — a screen-reader user is served by **markup**.
+
+The current `slide.html` is a fixed 1080x1350 surface built to be PHOTOGRAPHED, not read. Making it a
+real page — semantic headings, reflow on a phone, sane focus order, a properly labelled audio control
+with a text alternative — is **part of ISC-624**, not a coat of paint on it.

@@ -55,10 +55,26 @@
  * about the narration, to drop that too. **The deliverable is the slide** — `slide.html` and the
  * PNG rendered from it.
  *
- * Two reasons this is the right default rather than a preference. It stops paying for TTS nobody
- * asked for, and — the one that matters — every narration run manufactures a second machine-voiced
- * derivative of a real person's lecture, which is one more artefact needing a permission we do not
- * have. Producing less of someone else's material by default is the safer floor.
+ * ⚠ THAT REASONING APPLIES TO THE LONG FORM, AND A FIRST VERSION OF THIS COMMENT OVERSTATED IT INTO
+ * A BLANKET. There are TWO narrations here and they are not the same artefact:
+ *
+ *   LONG FORM  (`narasi*.m4a`, ~474 s) — the WHOLE BRIEFING read aloud, a standalone file nobody
+ *              asked for. Dropped, and the reasoning above is about this one: it manufactures a
+ *              second machine-voiced derivative of a real person's lecture, needing a permission we
+ *              do not have. Producing less of someone else's material by default is the safer floor.
+ *
+ *   SHORT FORM (`speak("short")`, ~48 s) — the SLIDE'S OWN BULLETS spoken, i.e. our composed summary
+ *              rather than their lecture. **Erik wants this and it is a PRODUCT FEATURE**, not
+ *              spend: the published HTML carries a play button so someone who cannot see the page,
+ *              or who is driving, can hear the summary (2026-08-23). It is an accessibility
+ *              affordance, and the voice is ADR 6's `id-ID-Chirp3-HD-Schedar` so every kajian is
+ *              narrated by the same non-scholar voice.
+ *
+ * ⚠ AND THE CODE CANNOT EXPRESS THAT YET. The short narration lives INSIDE `if (!NO_VIDEO …)` below,
+ * and its WAV is consumed ONLY by `stillVideo` — it is never kept as a file of its own. So turning
+ * the video off also destroys the one thing that produces the play button's audio. Fixing that means
+ * decoupling the short narration from the video branch and encoding it to its own audio artefact.
+ * Specified in `.scratch/kajian-summarize/PRD.md`; NOT done here.
  *
  * `--no-audio` and `--no-video` are STILL ACCEPTED as no-ops so older invocations, docs and scripts
  * do not start failing; they now describe the default instead of changing it. Nothing is removed:

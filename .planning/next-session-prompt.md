@@ -134,9 +134,12 @@ The reviewed-aqidah credit in `main.ts:638/642` still names him and **MUST** —
 - **Arabic you type is not the Arabic that shipped.** Splice captured bytes.
 - **Do not edit files while an auditing agent is auditing them.**
 - **The kajian tool never rewrites a transcript** and never copies credentials from a video title.
-- ⚠️ **ADR 6's voice IS load-bearing again** — Erik's 2026-08-23 four-questions ruling KEEPS
-  `id-ID-Chirp3-HD-Schedar`. **But narration is now OFF by default**, so the voice setting is dormant
-  rather than gone. The speaker-naming half of skill-wins STANDS.
+- ⚠️ **ADR 6's voice IS load-bearing — and the "dormant" note above it in an earlier draft was WRONG.**
+  `id-ID-Chirp3-HD-Schedar` is what the published HTML's **play button** speaks with (Erik,
+  2026-08-23). Narration is not dead: the LONG form (whole briefing, ~474 s) is dropped, the SHORT
+  form (the slide's own bullets, ~48 s) IS the play button and is wanted. See
+  `.scratch/kajian-summarize/PRD.md` — the code cannot express that split yet. The speaker-naming half
+  of skill-wins STANDS: a name may be WRITTEN, never SPOKEN.
 - ⚠️ **Kajian ruling (b) is REFUSED PERMANENTLY** — a metadata speaker name may be WRITTEN, never
   SPOKEN. Pinned by `src/app/kajian-speaker.test.ts`.
 
