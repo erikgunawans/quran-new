@@ -29,10 +29,12 @@
  *
  *     Erik's follow-up ruling the same day settled WHERE in the metadata: the DESCRIPTION or the
  *     TITLE, never `channel` (it is a mosque on the one real capture). `src/app/kajian-speaker.ts`.
- *   · THE NARRATION VOICE is RULED to follow the skill (`id-ID-ArdiNeural` via `edge-tts`) rather
- *     than ADR 6's `id-ID-Chirp3-HD-Schedar`. STATED AS A RULING, NOT AS THE STATE OF THE TREE: the
- *     tree still uses ADR 6's voice (`kajian-narration.ts:110`), and the m4a built on 2026-08-22 was
- *     narrated with it. This is a decision not yet implemented. That choice lives in the runner, not here; noted so a reader of
+ *   · THE NARRATION VOICE stays ADR 6's `id-ID-Chirp3-HD-Schedar`. A first cut of this docblock said
+ *     the skill's `id-ID-ArdiNeural` had won; **Erik REVERSED that half of his own skill-wins ruling
+ *     on 2026-08-23** (`docs/review/erik-ruling-2026-08-23-kajian-four.md` §3) — the skill wins on
+ *     pipeline mechanics, not over a voice he picked himself from eight rendered samples for a stated
+ *     safety reason. The tree at `kajian-narration.ts:110` never changed; what changed is that the
+ *     record now agrees with it. The speaker-naming half of the skill-wins ruling STANDS. That choice lives in the runner, not here; noted so a reader of
  *     this file is not surprised by the audio.
  *
  * ── WHAT WAS *NOT* RELEASED, AND IS THEREFORE HELD ──────────────────────────────────────────────

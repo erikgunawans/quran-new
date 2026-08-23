@@ -171,10 +171,23 @@ function bodyEl(sections: readonly IntroSection[], refs: readonly string[], rtl:
  */
 function noticeText(ed: IntroEdition): { head: string; body: string } {
   const how = ed.translation === "ai" ? "Terjemahan mesin (AI)" : `Terjemahan (${ed.translation})`;
-  const reviewer = ed.reviewerNeeded ? ` Menunggu tinjauan ${ed.reviewerNeeded}.` : "";
+  // THE REVIEWER CLAUSE IS GONE, 2026-08-23, on Erik's instruction. It rendered
+  // "Menunggu tinjauan Ustadz Ahmad Isrofiel." and TWO things were wrong with it.
+  //
+  // The name: printing a real scholar's name as the awaited reviewer of prose he never agreed to
+  // review is a claim on him we have no artefact for. Same act as unnaming the hadith banner in
+  // `sections.ts` the same day.
+  //
+  // And the WAITING, which is the worse half and is false on its own: Erik ended the wait on
+  // 2026-08-22 (`docs/review/erik-ruling-2026-08-22.md` — "no need for ustadz letter anymore",
+  // confirmed wide). The app was still telling readers a review was pending. It was not.
+  //
+  // NOTHING TRUE IS LOST: `head` already reads "... — belum ditinjau.", so the unreviewed fact is
+  // still stated, by the line that renders first. `reviewerNeeded` stays on the type and in the
+  // data; it is simply not rendered. Restoring it needs a written artefact AND a live wait.
   return {
     head: `${how} — belum ditinjau.`,
-    body: `Ini terjemahan turunan dari teks Arab Dorar — bukan karya Dorar sendiri, bukan edisi resmi.${reviewer} Untuk rujukan, baca versi Arabnya.`,
+    body: `Ini terjemahan turunan dari teks Arab Dorar — bukan karya Dorar sendiri, bukan edisi resmi. Untuk rujukan, baca versi Arabnya.`,
   };
 }
 

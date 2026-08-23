@@ -267,9 +267,22 @@ export async function renderHadisBook(mount: HTMLElement, collectionId: string, 
               // layer nobody asked him about — and it is the bab layer that carries the one measured
               // meaning-alteration defect. Naming the layer is the whole fix; the permission claim
               // itself is unchanged and still true of what it now names.
+              //
+              // UNNAMED 2026-08-23, on Erik's instruction. The layer scoping above was right and is
+              // KEPT; what goes is the NAME. The permission is real but VERBAL — relayed 2026-08-12,
+              // never confirmed in writing, and the written confirmation requested in
+              // `docs/review/ustadz-followup-2026-08-18.md` will never arrive, because Erik ended the
+              // wait on 2026-08-22. That letter made him an offer IN OUR OWN WORDS: replace the
+              // sentence with an unnamed one, or remove it. Taking our own offer is the only way that
+              // promise closes, so the sentence stays and the name goes.
+              //
+              // `reviewerNeeded` still GATES this suffix — it marks which records the permission
+              // covers — but is no longer DISPLAYED. Do not restore the name without a written
+              // artefact from him in `docs/review/`: a verbal relay is not enough to print a real
+              // person's name on screen as the giver of a permission.
               return `<p class="hadith-note ai-note" role="note">${esc(String(m?.notice ?? ""))}${
                 m?.reviewerNeeded
-                  ? ` Terjemahan <b>teks hadis</b>-nya sudah diizinkan ${esc(String(m.reviewerNeeded))} untuk ditampilkan; tinjauan per hadits belum dilakukan. <b>Judul bab</b> diterjemahkan mesin secara terpisah dan belum dimintakan izin.`
+                  ? ` Terjemahan <b>teks hadis</b>-nya sudah diizinkan untuk ditampilkan; tinjauan per hadits belum dilakukan. <b>Judul bab</b> diterjemahkan mesin secara terpisah dan belum dimintakan izin.`
                   : ""
               }</p>`;
             })()

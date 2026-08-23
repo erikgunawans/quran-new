@@ -42,11 +42,24 @@ describe("the hadith permission banner scopes the ustadz's name to the layer he 
     expect(banner).toContain("tinjauan per hadits belum dilakukan");
   });
 
-  test("the name is never introduced by an UNSCOPED permission claim", () => {
-    // The exact defect the letter disclosed: "sudah diizinkan <nama>" with no layer in front of it.
-    const unscoped = /(?<!teks hadis<\/b>-nya\s)sudah diizinkan \$\{esc\(String\(m\.reviewerNeeded\)\)\}/;
-    const naked = /(^|[.!?]\s|>\s)sudah diizinkan \$\{esc/;
-    expect(naked.test(banner)).toBe(false);
-    expect(unscoped.test(banner)).toBe(false);
+  // SUPERSEDED 2026-08-23 and REPLACED BY A STRONGER TEST, not deleted.
+  //
+  // The old test asserted the name was never introduced by an UNSCOPED permission claim — it looked
+  // for `sudah diizinkan ${esc(String(m.reviewerNeeded))}` and required no unscoped match. Erik's
+  // 2026-08-23 instruction removed the name entirely, which would have made that test pass because
+  // the string it hunts for no longer EXISTS anywhere — green for the absence of the whole
+  // construct rather than for its scoping. A test that survives the thing it guards by having
+  // nothing left to check is vacuous, so it is replaced by the stronger claim.
+  test("the reviewer's name is not displayed in the banner AT ALL", () => {
+    // `reviewerNeeded` may still GATE the sentence; it must never be INTERPOLATED into it.
+    expect(banner).not.toContain("esc(String(m.reviewerNeeded))");
+    expect(banner).not.toContain("Isrofiel");
+    expect(banner).not.toContain("Ustadz");
+  });
+
+  test("the permission is still CLAIMED — unnaming must not become unclaiming", () => {
+    // The other half, and the reason this is not simply a deletion: the permission is real. Dropping
+    // the sentence as well as the name would understate what was actually granted on 2026-08-12.
+    expect(banner).toContain("sudah diizinkan untuk ditampilkan");
   });
 });

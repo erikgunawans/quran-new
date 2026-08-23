@@ -53,6 +53,29 @@ const pick = (i: SurahIntro, lang: string): HTMLElement => {
   return host;
 };
 
+describe("the awaited-reviewer clause is gone, and stays gone", () => {
+  // Erik, 2026-08-23. The body used to render "Menunggu tinjauan Ustadz Ahmad Isrofiel." — a real
+  // scholar named as the awaited reviewer of prose he never agreed to review, AND a waiting claim
+  // Erik had already ended on 2026-08-22. The fixture above still carries `reviewerNeeded`, so
+  // these tests fail the moment anything renders it again; they are not green by its absence.
+  const withReviewer = intro({ editions: { id: edition() } });
+  const rendered = (): HTMLElement => {
+    const h = document.createElement("div");
+    h.innerHTML = introEl(withReviewer);
+    return h;
+  };
+
+  test("the reviewer's name is not rendered anywhere in the intro", () => {
+    const html = rendered().innerHTML;
+    expect(html).not.toContain("Isrofiel");
+    expect(html).not.toContain("Menunggu tinjauan");
+  });
+
+  test("but the content is STILL declared unreviewed — dropping the clause must not drop the fact", () => {
+    expect(rendered().querySelector(".si-tip")?.textContent ?? "").toContain("belum ditinjau");
+  });
+});
+
 describe("introEl — the credit ships with the content", () => {
   test("renders the source title, link and supervisor", () => {
     const html = introEl(intro());
@@ -152,11 +175,18 @@ describe("provenance — an unofficial edition can never be shown unlabelled", (
     expect(host(withId).querySelector(".si-langopt .si-infobtn")).not.toBeNull();
   });
 
-  test("the tooltip names what the edition is and who must review it", () => {
+  // RENAMED AND NARROWED 2026-08-23 on Erik's instruction. This test used to be
+  // "the tooltip names what the edition is and who must review it" and asserted
+  // `toContain("Ustadz Ahmad Isrofiel")`. That third assertion pinned the very thing he removed: a
+  // real scholar named as the awaited reviewer of prose he never agreed to review, alongside a
+  // waiting claim he had already ended on 2026-08-22. **The assertion was not relaxed to make an
+  // edit pass — the requirement it encoded was withdrawn by the principal**, and the negative that
+  // replaces it lives in "the awaited-reviewer clause is gone, and stays gone" above. The other two
+  // assertions are the disclosure itself and are UNCHANGED.
+  test("the tooltip says what the edition is, without naming a reviewer", () => {
     const tip = host(withId).querySelector(".si-tip")!.textContent!;
     expect(tip).toContain("belum ditinjau");
     expect(tip).toContain("bukan edisi resmi");
-    expect(tip).toContain("Ustadz Ahmad Isrofiel");
   });
 
   test("the full sentence is in the accessible name, so it survives with no hover at all", () => {

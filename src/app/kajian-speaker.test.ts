@@ -144,3 +144,40 @@ describe("speakerFromMetadata — `channel` is unreachable, proved with a NAME-S
     expect(got?.name).not.toContain("Isrofiel");
   });
 });
+
+describe("kajian ruling (b) — a metadata name may be WRITTEN, never SPOKEN", () => {
+  // Erik REFUSED (b) permanently on 2026-08-23
+  // (`docs/review/erik-ruling-2026-08-23-kajian-four.md` §2), on ADR 6's unrefuted ground: a caption
+  // disclaimer does not reach an autoplaying feed, so a name heard over a briefing is heard as that
+  // scholar speaking.
+  //
+  // He asked for it as a RULE, in the shape of the hadith wall — not as a habit. Before this, the
+  // refusal was held by two accidents: `openingLine` takes `RosterOutcome`, so `{kind:"metadata"}`
+  // is not assignable, and nothing called the extractor. Both are true and neither is a rule; a type
+  // widens the day someone widens it, and "no caller" ends the day there is one.
+  it("openingLine names NOBODY when the only name available came from uploader metadata", async () => {
+    const { openingLine } = await import("./kajian-narration.ts");
+    const fromMetadata = resolveSpeakerWithProvenance(
+      { kind: "none" },
+      { description: "\u{1F464} Ustadz Syariful Mahya, L.c., M.A." },
+    );
+    expect(fromMetadata.kind).toBe("metadata");
+
+    // The narration path is reached with the ROSTER outcome, which for this video is `none`. The
+    // assertion is that the spoken line is the unnamed one even though a name was obtainable.
+    const spoken = openingLine({ kind: "none" }, "Masjid Darussalam Kota Wisata", []);
+    expect(spoken).not.toContain("Syariful");
+    expect(spoken).not.toContain("Mahya");
+    expect(spoken).toContain("sebuah kajian");
+  });
+
+  it("a metadata outcome is structurally not a roster outcome, so it cannot be passed as one", () => {
+    const fromMetadata = resolveSpeakerWithProvenance(
+      { kind: "none" },
+      { description: "\u{1F464} Ustadz Syariful Mahya, L.c., M.A." },
+    );
+    // `RosterOutcome` is match | none | ambiguous. "metadata" is none of them — this is the type
+    // boundary, asserted at runtime so it survives a `RosterOutcome` widening that tsc would allow.
+    expect(["match", "none", "ambiguous"]).not.toContain(fromMetadata.kind);
+  });
+});
