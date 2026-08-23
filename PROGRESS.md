@@ -98,6 +98,55 @@ Two more false claims in the letter body, both caught after the commit:
 Also corrected: `656 KB` → **661,411 B** (the same undercount habit, in the sentence warning about
 it), a docblock claiming a skip line that never prints, and a note bullet the same commit falsified.
 
+### Then Erik said what he actually wants, and it reframed three open items
+
+**The Kajian page gets a URL field and a Summarize button.** Paste a kajian link, click, get the HTML
+summary. "Darussalam Kajian Skills" is **our own tooling** (`src/app/kajian.ts`), not a Claude skill —
+checked repo and PAI. Three answers: **admin-only**, results **published to the public list**, built
+against **the VPS runner**. Spec at `.scratch/kajian-summarize/PRD.md`. **No code written.**
+
+This is not a small wiring job. The page exists and the pipeline exists; **the entire middle does
+not** — no field, no endpoint, `kajian_jobs` never applied to any real D1, nothing that runs a job,
+nothing that writes results back. And it cannot be request/response: a two-hour lecture outruns any
+HTTP deadline. ISC-624's slide is not a separate job — it is what the button SHOWS.
+
+**One constraint rides on his publish answer without reversing it:** Darussalam-sourced summaries stay
+HELD until they reply, because his own unsent letter promises exactly that. Every other source
+publishes normally. His commitment, not a DA veto.
+
+### The play button — and an overreach of mine it exposed
+
+Erik: the published HTML carries a **play button** that speaks the summary in the chosen voice, for
+someone who cannot see the page or who is driving.
+
+**This corrected something I got wrong earlier the same day.** Asked *"keep the narration audio?"* —
+which I described as *"a 6.6 MB machine-voiced reading of their content"* — he said drop it. **He was
+answering about the LONG form.** I then switched off both narrations, which was more than he asked:
+
+- **Long form** (~474 s) — the whole briefing aloud, a standalone derivative nobody asked for.
+  Correctly dropped.
+- **Short form** (~48 s) — the slide's own bullets, i.e. **our composed summary**. **This IS the play
+  button**, and it already existed in the code.
+
+The `kajian.ts` docblock had argued a blanket rights case against narration. True of the long form,
+overstated into a blanket; corrected in place before it told the next session the play button was a
+rights problem.
+
+**And the code cannot do it yet.** `kajian.ts:532` nests the short narration inside `if (!NO_VIDEO …)`
+and its WAV is consumed ONLY by `stillVideo` — never kept as a file. **Turning the video off destroyed
+the only producer of the play button's audio.** Decoupling it, encoding it as its own artefact,
+storing it, and a browser-`speechSynthesis` fallback: specified, none done.
+
+Decided: **pre-generate in `id-ID-Chirp3-HD-Schedar`, browser TTS as fallback** so the control is never
+dead; **the Darussalam hold covers audio too** (his letter names audio explicitly). ⚠️ **ADR 6's voice
+is LOAD-BEARING again** — an earlier handoff line calling it dormant was wrong and is fixed.
+
+**HTML-not-PNG is the accessibility-critical call and Erik got it right:** an image of text is
+invisible to assistive tech. But `slide.html` is a fixed 1080×1350 surface built to be PHOTOGRAPHED.
+Making it a genuinely readable page — semantic headings, reflow, focus order, a labelled audio control
+— is **part of ISC-624**, not paint on it. His two named users differ: the driver needs the button; the
+person who cannot see it needs the markup.
+
 **Gates:** `bun test` **2028/0** exit 0 · typecheck exit 0 · build exit 0 — run locally, no CI.
 **ISA 632/651**, counted by grep; the previous wrap's 624/641 was off by one against its own grep and
 was not carried forward.

@@ -21,12 +21,15 @@ has not yet read the letter's text** — approving sending is not approving the 
 
 ## 1. STATE
 
-Prod: `new-quranku.axiara.ai` → Worker `641f8ae2` from `44ed447`. **This wrap's commit is NOT
-deployed** (docs + build tooling + a CLI default; nothing reader-facing).
+Prod: `new-quranku.axiara.ai` → Worker `641f8ae2` from `44ed447`. **Nothing after that commit is
+deployed** — everything since is docs, build tooling, a CLI default and specs; nothing reader-facing.
 
 Gates at the anchor: `bun test` **2028/0** exit 0 · typecheck exit 0 · build exit 0 — **run locally;
-this repo has no CI.** ISA **631/649**, counted by grep. (The previous wrap's 624/641 was off by one
-against its own grep; the measured figure replaced it rather than being carried forward.)
+this repo has no CI**, so no automated verifier attests them. ISA **632/651**, counted by grep:
+631 `[x]` + 1 `[~]` + 19 `[ ]`. (The 2026-08-23 *late* wrap's 624/641 was off by one against its own
+grep; the measured figure replaced it rather than being carried forward. **`ISA.md` has no
+`### Phase` headers and there is no `.planning/STATUS.md`**, so no phase table or gap tracker exists
+to derive — the 19 open ISCs ARE the open-item list.)
 
 Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
 
