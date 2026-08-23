@@ -100,21 +100,33 @@ bucket_name = "okf-corpus"
 # `reading_position`, `accounts`, `kajian_jobs`, and all nine of 0004's ALTER TABLE columns.
 # The real id is recorded below so uncommenting is a one-step action with nothing to look up.
 #
-# IT IS STILL COMMENTED OUT, AND THAT IS THE DECISION ABOVE, NOT AN OVERSIGHT. Creating a database
-# changes nothing about prod; BINDING it does. Binding `DB` alone — without `KAJIAN` and
-# `RUNNER_SECRET` — produces exactly the state ISC-617 was written to avoid: a working admin queue
-# that accepts jobs while `/api/runner/*` still answers 403 to everyone, so nothing can ever drain
-# it. It also switches on magic-link sign-in, which is the OTHER reason someone may want it bound.
-# That trade is Erik's to make, not this file's.
+# ── `DB` IS BOUND; `KAJIAN` IS NOT. Erik chose this split on 2026-08-24. ─────────────────────────
 #
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "new-quranku-memory"
-# database_id = "caa07809-f6d4-4d8e-92bb-98400f3e08de"
+# It is a DEPARTURE from the ISC-617 decision above ("bind these in the SAME change that brings the
+# runner up"), made deliberately and with its cost known: the admin queue at `#/admin/kajian` now
+# accepts jobs that NOTHING CAN DRAIN, because `/api/runner/*` still needs `RUNNER_SECRET` (unset →
+# 403 to everyone) and `KAJIAN` (unbound → the upload route 503s). A queued job will sit `queued`
+# indefinitely. That is the state ISC-617 wanted to avoid, and it is accepted here because the
+# reason to bind is the OTHER surface: magic-link sign-in, which cannot work without `DB` at all —
+# `handleAuthVerify` returns `{ok:false}` before it even reads the token.
 #
+# ⚠️ WHAT THIS BINDING DOES *NOT* SWITCH ON, AND WHAT DOES. Binding `DB` alone changes nothing a
+# reader can observe. Every memory path — including `recordEvent(… "question" …)` at index.ts:671,
+# which PERSISTS THE TEXT OF EVERY QUESTION ASKED — is gated on `identity.userId`, and
+# `ensureIdentity` returns `{ userId: null }` whenever `IDENTITY_HMAC_SECRET` is unset. So the
+# SECRET, not this binding, is the switch that starts storing readers' questions. Both are needed
+# for sign-in, so setting it is not optional — but the consequence belongs next to the cause.
+#
+# The runner half stays commented and the bucket does not exist yet:
 # [[r2_buckets]]
 # binding = "KAJIAN"
 # bucket_name = "new-quranku-kajian"          # does NOT exist yet
+
+[[d1_databases]]
+binding = "DB"
+database_name = "new-quranku-memory"
+database_id = "caa07809-f6d4-4d8e-92bb-98400f3e08de"
+migrations_dir = "migrations"
 #
 # Secrets (never listed in this file):
 #   wrangler secret put RUNNER_SECRET      # 32+ chars; under that length it admits nobody
