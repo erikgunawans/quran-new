@@ -62,6 +62,12 @@ The reviewed-aqidah credit in `main.ts:638/642` still names him and **MUST** —
 
 - **Read and send the letter.** Decided-to-send ≠ sent. He must read the text, fill
   `_[kontak — diisi Erik]_`, and pick one of their **six** channels (none tried).
+- 🚨 **ISC-627 — the PUBLIC repo publishes a line of the Darussalam lecture and the speaker's name.**
+  `src/app/kajian-narration.test.ts` carries a truncated verbatim lecture line, the briefing's opening
+  sentence, and `{ name: "Syariful Mahya", credentials: "Lc., M.A." }`. The letter now discloses this
+  and **promises removal** — so this is a promise made to a third party that is not yet kept. It is
+  Erik's call because scrubbing is not free: a guard test fed invented prose is a weaker guard
+  ([[guard-tests-need-production-prose]]). **Raise this first.**
 - **Kajian step 7** — undefined.
 - **"Maruli"** — Erik asked to be shown "the trick kajian that is maruli". The string appears NOWHERE
   in the repo; the one real video's speaker is **Ustadz Syariful Mahya**. Asked twice, never answered.

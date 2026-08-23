@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 631/649  # 630 [x] + ISC-418 [~]; 18 open [ ]. **Counted by grep at the 2026-08-23 late wrap** — `grep -c '^- \[x\] ISC-'` = 630, `'^- \[ \] ISC-'` = 18, `'^- \[~\] ISC-'` = 1, sum 649. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **The previous wrap's 624/641 arithmetic was off by one against its own grep** (it counted deferred ISC-189 as an extra line on top of the `[ ]` block that already contains it); the measured figure is used here instead of carrying that forward. Cycle 9 = ISC-569..626. Gates 2028/0 exit 0, typecheck exit 0, build exit 0, run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; both unnamings are live and were verified in real Chrome.**
+progress: 632/651  # 631 [x] + ISC-418 [~]; 19 open [ ]. **Counted by grep at the 2026-08-23 late wrap** — `grep -c '^- \[x\] ISC-'` = 630, `'^- \[ \] ISC-'` = 18, `'^- \[~\] ISC-'` = 1, sum 649. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **The previous wrap's 624/641 arithmetic was off by one against its own grep** (it counted deferred ISC-189 as an extra line on top of the `[ ]` block that already contains it); the measured figure is used here instead of carrying that forward. Cycle 9 = ISC-569..626. Gates 2028/0 exit 0, typecheck exit 0, build exit 0, run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; both unnamings are live and were verified in real Chrome.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1463,6 +1463,25 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       transcript excerpts.** Kept OPEN as a standing instruction: recount from the directories, prefer
       the larger reading, and never copy another record's list. Every error on this file ran the same
       direction — making the material we hold of theirs look smaller than it is.
+
+- [ ] ISC-627: **the PUBLIC repo publishes a sentence of the Darussalam lecture and the speaker's
+      name.** `quran-new` is a PUBLIC GitHub repo, and the tracked fixture
+      `src/app/kajian-narration.test.ts` carries a truncated verbatim line of the lecture (`:87`,
+      matching `briefing.md:50`), the briefing's opening summary sentence (`:77`), and
+      `{ name: "Syariful Mahya", credentials: "Lc., M.A." }` (`:69`). His name and the lecture title
+      are also public in `ISA.md`, `PROGRESS.md` and `docs/review/erik-ruling-2026-08-23-skill-wins.md`.
+      **This made the letter's *"tidak ada satu pun materi … yang saya terbitkan"* FALSE**; the letter
+      now discloses it and promises removal. **OPEN because removing it is not free:** a guard test
+      fed invented prose instead of production prose is a weaker guard (see
+      `guard-tests-need-production-prose`). **Erik's call, not the DA's.**
+- [x] ISC-628: **three false claims were caught in the letter body by a fourth gate pass, after the
+      commit.** (1) The disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — a
+      474 s standalone machine reading of the whole briefing, NOT the 48.5 s mp4's soundtrack;
+      the file was named in the notes the whole time. (2) *"tidak ada satu pun materi … yang saya
+      terbitkan"* — falsified by ISC-627. (3) *"materi itu memakai identitas visual saya sendiri"* —
+      false and **against us**: `kajian-slide.ts:56` says "no brand", the built slide has zero
+      `data:image`, and the ONLY identity printed on it is **theirs**, which reads more like a
+      Darussalam publication, not less. All three corrected; the letter is still unsent.
 
 ## Test Strategy
 

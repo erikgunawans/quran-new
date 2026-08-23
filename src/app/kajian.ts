@@ -62,9 +62,13 @@
  *
  * `--no-audio` and `--no-video` are STILL ACCEPTED as no-ops so older invocations, docs and scripts
  * do not start failing; they now describe the default instead of changing it. Nothing is removed:
- * `narrateToWav`, `encodeM4a` and `stillVideo` are untouched and their tests still run. `--video`
- * without `--audio` cannot build an mp4 — the video IS the slide plus narration — so it prints a
- * skip line rather than failing.
+ * `narrateToWav`, `encodeM4a` and `stillVideo` are untouched and their tests still run.
+ *
+ * ⚠ `--video` WITHOUT `--audio` IS SILENT — not skipped-with-a-notice. The video IS the slide plus
+ * narration, so with no narration there is nothing to build, and the existing "video dilewati" line
+ * cannot report it: that line lives INSIDE the `if (!NO_AUDIO …)` block and is never reached. Pass
+ * `--audio --video` for an mp4. Written down because a first version of this docblock claimed a skip
+ * line prints, and it does not.
  *
  * The rights position on the mp4 and m4a ALREADY built on 2026-08-22 is a separate question and is
  * recorded in `docs/review/rights-darussalam-logo-2026-08-23.md`; changing a default does not

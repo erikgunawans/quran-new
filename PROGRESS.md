@@ -73,8 +73,33 @@ of the reference are refused by design: its **Darussalam logo** (rights item 2, 
 to use) and its **speaker name** (`speakers: []` — ADR 5 gives an unrostered video no identity). The
 reference also carries no "automatic summary, not a quotation" line; ADR 5 requires one.
 
+### A fourth gate pass, after the commit — and the worst finding of the day
+
+**The repo is PUBLIC, and a tracked test fixture publishes the lecture.**
+`src/app/kajian-narration.test.ts` carries a truncated verbatim line of the Darussalam lecture, the
+briefing's opening summary sentence, and `{ name: "Syariful Mahya", credentials: "Lc., M.A." }`.
+So the letter's *"tidak ada satu pun materi … yang saya terbitkan"* was **false** — a false statement
+about to be sent to the rights holder. The letter now discloses it and promises removal.
+**ISC-627 is OPEN and Erik's:** scrubbing the fixture is not free, because a guard test fed invented
+prose instead of production prose is a weaker guard.
+
+Two more false claims in the letter body, both caught after the commit:
+
+- The widened disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — **474 s of
+  standalone machine narration of the whole briefing, not the 48.5 s mp4's soundtrack.** The file was
+  named in the notes the whole time. A completeness word over an incomplete list is worse than the
+  phrase that was cut for claiming completeness.
+- *"materi itu memakai identitas visual saya sendiri, bukan logo Darussalam TV"* — false, and
+  **against us**. `kajian-slide.ts:56` says "no brand"; the built slide has zero `data:image`; the
+  ONLY identity printed on it is **theirs**. An unbranded slide carrying their channel name reads
+  MORE like a Darussalam publication, which is the exact inference ADR 5 exists to prevent. This is
+  the letter's hinge — "Poin terakhir inilah alasan surat ini."
+
+Also corrected: `656 KB` → **661,411 B** (the same undercount habit, in the sentence warning about
+it), a docblock claiming a skip line that never prints, and a note bullet the same commit falsified.
+
 **Gates:** `bun test` **2028/0** exit 0 · typecheck exit 0 · build exit 0 — run locally, no CI.
-**ISA 631/649**, counted by grep; the previous wrap's 624/641 was off by one against its own grep and
+**ISA 632/651**, counted by grep; the previous wrap's 624/641 was off by one against its own grep and
 was not carried forward.
 
 ---

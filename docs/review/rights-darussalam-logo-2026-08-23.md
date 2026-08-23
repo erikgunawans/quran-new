@@ -76,7 +76,8 @@ prefer the larger reading — undercounting it understates how much of their mat
 2026-08-23: `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` holds `transcript.md`
 (88,364 B — the **full verbatim transcript**), `transcript-raw.json` (253,975 B),
 `transcript-sentences.json` (184,208 B), `meta.json`, and `imgs/cover.jpg` (132,797 B — **their cover
-image**). ~656 KB. Any question phrased as "what do we hold of theirs" must cover BOTH directories.
+image**). **661,411 B**, plus `_transcripts/.index.json` (142 B) — not the "~656 KB" a first pass
+wrote, which is the same undercount habit this file warns about two paragraphs up. Any question phrased as "what do we hold of theirs" must cover BOTH directories.
 
 The four-file version had already been copied into `docs/review/surat-darussalam-2026-08-23.md`
 before a gate caught it, which is why the instruction here is blunt: **count the directories

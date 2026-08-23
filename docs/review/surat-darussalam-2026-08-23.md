@@ -63,18 +63,24 @@ Dari satu video kajian, sistem saya menghasilkan dua hal:
   materi, dan tidak saya perhalus.
 - Setiap materi memuat **tautan dan kode QR ke video aslinya**, supaya siapa pun bisa langsung
   memeriksa sumbernya.
-- Tetapi materi itu memakai **identitas visual saya sendiri**, bukan logo Darussalam TV.
+- Materi itu **tidak memuat logo Darussalam TV** maupun identitas visual lainnya. Perlu saya
+  sampaikan apa adanya: materi itu juga **tidak memuat logo atau merek saya sendiri** — satu-satunya
+  identitas yang tercetak di sana justru **nama Masjid Darussalam Kota Wisata beserta tautan video
+  Bapak/Ibu**, sebagai penyebutan sumber. Saya sadar susunan seperti itu bisa keliru terbaca seolah
+  ringkasan ini terbitan Bapak/Ibu sendiri, padahal bukan — dan itu salah satu hal yang ingin saya
+  perbaiki sesuai arahan Bapak/Ibu.
 - Sebagai uji coba, **kedua materi di atas sudah pernah saya buat** dari video Bapak/Ibu pada 22
   Agustus 2026 — **halaman ringkasannya maupun video pendek yang bernarasi suara mesin itu.**
   Keduanya tersimpan di komputer saya sendiri, **tidak pernah diterbitkan**, dan tidak akan
   diterbitkan tanpa izin Bapak/Ibu. Saya sebutkan supaya keberadaannya tidak Bapak/Ibu ketahui
   belakangan, bukan supaya izin ini terkesan sudah saya anggap ada.
-- Sekalian saya sebutkan seluruhnya: selain kedua materi tadi, di komputer saya juga tersimpan
-  **transkrip mesin lengkap** dari rekaman Bapak/Ibu, berkas-berkas kerja yang menyertainya, dan
-  **gambar sampul video Bapak/Ibu** yang ikut terunduh saat pengambilan transkrip. Semuanya dipakai
-  hanya sebagai bahan menyusun ringkasan di atas, **tidak ada yang pernah diterbitkan**, dan tidak
-  akan diterbitkan. Saya lebih suka Bapak/Ibu mengetahui seluruhnya sekarang daripada menemukannya
-  sendiri nanti.
+- Selain kedua materi tadi, di komputer saya juga tersimpan — dan saya sebutkan satu per satu:
+  **transkrip mesin lengkap** dari rekaman Bapak/Ibu; **satu berkas audio berdurasi sekitar delapan
+  menit** berisi pembacaan ringkasan itu oleh suara mesin, terpisah dari video pendek tadi;
+  berkas-berkas kerja yang menyertainya; dan **gambar sampul video Bapak/Ibu**, yang ikut terunduh
+  saat pengambilan transkrip dan tidak dipakai untuk apa pun. Tidak satu pun dari berkas-berkas itu
+  saya terbitkan, dan tidak akan saya terbitkan. Saya sebutkan sedetail ini supaya tidak ada yang
+  Bapak/Ibu temukan sendiri belakangan.
 
 Poin terakhir inilah alasan surat ini. Pada keterangan video Bapak/Ibu tertulis bahwa video boleh
 dibagikan selama logo Darussalam TV dan identitas lainnya tidak dihilangkan. Ringkasan yang saya buat
@@ -90,8 +96,14 @@ Mana pun yang Bapak/Ibu kehendaki dari tiga ini:
    kredit lain yang Bapak/Ibu tentukan;
 3. tidak mengizinkan sama sekali — dan itu pun saya terima dengan lapang dada.
 
-Selama belum ada jawaban, tidak ada satu pun materi dari kajian Masjid Darussalam Kota Wisata yang
-saya terbitkan.
+Selama belum ada jawaban, tidak ada satu pun ringkasan, gambar, video, atau audio dari kajian Masjid
+Darussalam Kota Wisata yang saya terbitkan.
+
+Satu hal lagi yang harus saya sampaikan supaya kalimat di atas tidak terdengar lebih bersih daripada
+keadaan sebenarnya. Kode program aplikasi saya bersifat terbuka di GitHub, dan di dalam salah satu
+berkas pengujiannya **terlanjur ikut tersalin satu kalimat dari ceramah tersebut beserta nama dan
+gelar penceramahnya**. Itu bagian dari kode, bukan materi yang saya sebarkan, tetapi tetap saja
+dapat dibaca siapa pun — jadi saya sampaikan, bukan saya diamkan. Saya akan menghapusnya.
 
 Terima kasih atas perhatiannya, dan atas kajian-kajian yang selama ini dibagikan secara terbuka.
 
@@ -139,17 +151,21 @@ _[kontak — diisi Erik]_
   `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` — berisi `transcript.md` (88 KB,
   **transkrip lengkap verbatim**), `transcript-raw.json` (254 KB), `transcript-sentences.json`
   (184 KB), `meta.json`, dan `imgs/cover.jpg` (133 KB, **gambar sampul milik mereka**). Totalnya
-  656 KB. Jadi materi Darussalam di disk **bukan enam berkas di satu direktori**, melainkan dua
-  direktori, ±12,7 MB. **Yang disebut di dalam surat hanya dua berkas** — lihat pertanyaan terbuka
-  di bawah.
+  **661.411 B (±661 KB)** — bukan "656 KB" seperti tertulis di draf pertama, kebiasaan mengecilkan
+  yang sama — ditambah `_transcripts/.index.json` (142 B). Jadi materi Darussalam di disk **bukan
+  enam berkas di satu direktori**, melainkan dua direktori, ±12,7 MB. **Surat sekarang menyebut
+  kedua direktori itu** (lihat butir ✅ di bawah); sebelum 2026-08-23 ia hanya menyebut dua berkas.
 - Semua berkas itu — di kedua direktori — tetap **tidak diterbitkan** dan tetap berada di bawah
   `.scratch/kajian/` yang gitignored (`.gitignore` baris 66). Menyebutnya di surat tidak mengubah
   statusnya sedikit pun.
 - ✅ **DIJAWAB ERIK, 2026-08-23: UNGKAPKAN SEMUANYA.** Draf sebelumnya hanya menyebut **dua** materi
   (halaman ringkasan + video pendek), padahal yang ada di disk jauh lebih banyak — `briefing.md`,
   seluruh berkas kerja, **transkrip lengkap verbatim** 88 KB, dan `cover.jpg` milik mereka. Ditanya
-  langsung, Erik memilih mengungkapkan seluruhnya, jadi satu butir tambahan sekarang menyebut
-  transkrip, berkas kerja, dan gambar sampul itu. Kalimat *"supaya Bapak/Ibu tahu persis
+  langsung, Erik memilih mengungkapkan seluruhnya. **Yang beliau putuskan adalah BAHWA seluruhnya
+  disebut; DAFTAR ISINYA disusun DA, bukan beliau** — dan daftar draf pertama sudah terbukti kurang:
+  **audio narasi ±8 menit tidak tercantum** sampai sebuah gate menemukannya, padahal berkasnya sudah
+  tertulis namanya di catatan ini. Kalau ditemukan lagi yang belum tersebut, TAMBAHKAN — itu butir
+  baru, bukan alasan menyempitkan butir ini. Kalimat *"supaya Bapak/Ibu tahu persis
   keadaannya"* tetap DICABUT — yang menggantikannya tidak mengklaim kelengkapan, ia menyebutkan
   isinya. **BENTUK keputusan ini sama dengan yang lain: pilihan atas opsi yang DA susun, di dalam
   sesi, tanpa artefak. Baca blok "BENTUK" di kepala berkas ini.** Kalau kelak ditemukan lagi materi
