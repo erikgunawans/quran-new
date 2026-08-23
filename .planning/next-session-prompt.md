@@ -1,3 +1,147 @@
+# Next session — New-Quranku (checkpoint 2026-08-24)
+
+> Prepended by /wrap 2026-08-24. **Anchor: `acdde8b` on `origin/main`** — verify with `git fetch` +
+> `git ls-remote`, never a push pipe. **Supersedes the 2026-08-23 afternoon-close block below.**
+> From that handoff: item 1 (ISC-624.8, the play button) **PIPELINE + PLAYER BUILT — see §0**;
+> item 2 (the answer-wall cluster) **untouched and now item 1**; item 3 (the other open ISCs)
+> **untouched**; item 4 (ISC-566, ISC-417) **still open by Erik's decision**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24**).
+
+## 0. WHAT CHANGED
+
+**ISC-624.8 is `[~]`, not `[x]`.** The pipeline produces `short*.m4a` (decoupled from the video
+branch) and the **player is built on the CARD** — Erik's call, so `slide.html`'s CSP was never
+touched. What remains is in §4.
+
+**ISC-641 is NEW and CLOSED: the sign-in surface exists.** `#/masuk` and `#/masuk/<token>`. The
+Worker had been minting links to a route that did not exist. **No sign-up page — that is the design,
+not a gap.**
+
+**ISC-568's stated gap is closed by measurement:** two distinct `Set-Cookie` headers survive the
+identity wrapper. Driven against real workerd, not a Bun fake.
+
+## 1. STATE
+
+Prod: `new-quranku.axiara.ai` → Worker **`641f8ae2` from `44ed447`**. **Nothing from the last three
+sessions is deployed.**
+
+Gates at the anchor: `bun test` **2213/0** exit 0 · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run` exit 0 with bindings
+UNCHANGED (VECTORIZE, AUDIO, CORPUS) — **run locally; this repo has no CI.**
+ISA **667/683** — 662 `[x]` + 5 `[~]`, **16 open**, counted by grep. **`ISA.md` still has no
+`### Phase` headers, there is no `.planning/STATUS.md`, and there is no `sm-update` command** — no
+phase table and no gap tracker exist to derive. **The 16 open ISCs ARE the open-item list:**
+ISC-98, 323, 353.0, 417, 419, 420, 440.6, 454, 464, 486, 487, 533, 534, 552, 566, 627.7.
+The 5 partial: ISC-418, 617, 624, 624.8, 627.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **The answer-wall cluster** — the largest untouched group, and now the top item: ISC-533, ISC-534
+   (the `answer-blocked` copy and its anti-downgrade pair), ISC-454 (live `bad_hadith` rate on
+   prod), ISC-487 (the wall's cost is latency — retrieval is only 1.2-2.7s of a 5.5-27.3s turn, and
+   the 12s client abort is the real defect), ISC-486, ISC-552. Read `ISA.md` for each first.
+
+2. **The other open ISCs, none started:** ISC-98 (real-device visualViewport spot-check), ISC-323
+   (live-Worker hadith-muslim-154 probe), ISC-419/420 (translation + scholar-receipt at ingestion),
+   ISC-440.6 (two pinned Qur'anic-narrative sentences), ISC-464 (two P0s from the 2026-08-15
+   critique), ISC-353.0 (superseded, kept for the trail), ISC-627.7 (what deliberately remains).
+
+3. **ISC-566 and ISC-417 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **Which source does the runner launch on?** Needs a first video with clear rights — Erik's own
+  recording, or a channel with an explicit licence. **Nothing can be published until this is
+  answered**, and it is the only thing blocking a real end-to-end run. *(Raised again 2026-08-24.)*
+- 🔶 **Nobody has read a repaired answer for THEOLOGICAL correctness.** Needs Ustadz Ahmad. Batch it
+  with whatever else is pending for him.
+- 🔶 **NEW — sign-in cannot work on prod: four separate operator gaps.** All four are Erik's, and
+  the D1 one is real work, not a secret:
+  `IDENTITY_HMAC_SECRET` unset · `RESEND_API_KEY` unset · `ADMIN_EMAILS` unset (so **nobody** is an
+  admin — it fails closed) · **NO D1 BINDING AT ALL** on the top-level Worker — `[[d1_databases]]`
+  is COMMENTED OUT in `worker/wrangler.toml` and the database does not exist in the account, so
+  `handleAuthVerify` returns `{ok:false}` before reading the token. Only `env.demo` has a `DB`.
+  Sequence: `d1 create` → uncomment with the real id → `d1 migrations apply DB` (0001..0004, **0003
+  BEFORE 0004**) → three `wrangler secret put`. **Secrets only via the hidden prompt.**
+- 🔶 **NEW — no real `short.m4a` has ever been written.** This machine has no ADC
+  (`gcloud auth application-default print-access-token` exits 1, re-checked 2026-08-24). Needs
+  `gcloud auth application-default login`, which is interactive and Erik's to run.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **ISC-624.8's remainder:** (a) no real `short.m4a` exists; (b) **no `speechSynthesis` fallback**,
+  because a feed record carries **no summary TEXT** — `KajianSummary` is title, channel, speaker,
+  urls, so a browser voice could only read the TITLE. That needs the bullets carried in
+  `index.json`: a DATA decision, not a UI one. (c) **No ground-truth pixel of the native audio
+  control** was obtainable — the DOM render does not paint UA shadow content and the OS capture
+  grabs Chrome's front window. Geometry, label, src, preload and load ARE measured.
+- **The hosted runner has never run.** Nothing writes `/kajian/index.json`, so `#/kajian` shows its
+  empty state. The LOCAL pipeline (`src/app/kajian.ts`) exists and has run. **Do not conflate them.**
+- **`kajian_jobs` is unmigrated on any real D1.** **Apply 0003 BEFORE 0004** — 0004 is `ALTER TABLE`
+  and fails loudly otherwise, which is correct.
+- **Logout does not REVOKE** — `Max-Age=0`, the signed value stays valid for its remaining 30 days.
+  The copy says "perangkat ini" and a "semua perangkat" claim is pinned as an ABSENCE. The shared
+  `canonical_user_id` defect is **NOT fixed** (ADR 2 scopes it out). `splitSentences` is dead except
+  its own tests, kept deliberately.
+- **`.scratch/kajian/jNQXAC9IVRw/` ("Me at the zoo", 19s) is RETAINED** as the pipeline's only test
+  capture. It is third-party material too — recorded rather than glossed.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a fixture in the wrong SHAPE is worse than no fixture.** Every kajian fixture used an
+  absolute `https://` url while the Worker returns `/kajian/{id}/{name}`, so the suite was green
+  while **every published card rendered as `""`**. When a value comes from another module, copy it
+  from THAT module's producer, never invent a plausible one.
+- **NEW — a guard line that can never fire looks exactly like one that works.** `safeArtifactUrl`'s
+  first cut compared `u.origin` as well as the path; a mutation swapping the real check for a naive
+  prefix guard **passed the entire suite** with it present. Mutate to find out which line is
+  load-bearing — reading cannot tell you.
+- **NEW — verify the page runs the build on disk BEFORE believing any browser measurement.**
+  `interceptor eval --main "[...document.querySelectorAll('script[src]')].map(s=>s.src.split('/').pop())"`
+  against `ls -t web/dist/assets/*.js | head -1`. A stale bundle made a correct fix read as broken.
+- **NEW — do not invent a CSS dimension for a UA control.** `height: 34px` on `<audio>` is below its
+  54px intrinsic height. Measure the intrinsic value, or set nothing.
+- **NEW — `interceptor screenshot` cannot paint UA shadow DOM** (native media controls), and the OS
+  capture grabs Chrome's FRONT window, which `tab switch` cannot move across windows. Substitute
+  computed-style probes and **state the pixel gap** rather than implying visual coverage.
+- **"Darussalam" is TWO ENTITIES and a blanket scrub destroys a real attribution.** In
+  `hadith-card.test.ts`, `dalil.ts`, `doa.ts` and `index.ts` it is **Darussalam PUBLISHERS**, a
+  genuine translation credit. In `surah/6.json` and `10.json` it is *dār as-salām*, Qur'anic.
+  **Read every hit before replacing any.**
+- **A fake that hardcodes the guard it is testing makes the test vacuous** — and check the DIRECTION
+  of the fake's model, not just its presence.
+- **The runner is a SECOND AUTH PRINCIPAL.** Never reach for `requireRole` on `/api/runner/*`.
+- **`admin` and `reviewer` are DISJOINT, not a ladder.** `requireRole` matches EXACTLY; a first cut
+  ranked them and walked an Administrator into a Reviewer gate (ADR 4).
+- **Count the ISA with grep, never from expectation.**
+- **Measure before you delete** — the inventory must be committed BEFORE the `rm`.
+- **The slide's stylesheet lives in a TEMPLATE LITERAL and is grepped whole by the force-red test.**
+  No backtick anywhere in it, and **no length or colour literal even inside a COMMENT**.
+- **The slide budget is bound by the WRAPPED LINE COUNT, not the character count.** At 1920x1080:
+  **497 chars fits with ~28px spare, 581 overflows by ~48px.** Re-render and LOOK.
+- **Headless Chrome clamps its window at about five hundred CSS pixels and then CROPS.** Probe
+  narrow layouts at ≥520, or via CDP `emulate`.
+- **Renaming a fixture is a mutation test.** Derive expectations, then PROVE the derived version
+  reddens.
+- **Deleting a string from the working tree does not remove it from a public repo.** A history
+  rewrite is DECLINED (ISC-639) — do not re-offer it.
+- **`bun run typecheck | tail` hides exit 2.** Redirect to a file, echo `$?`, then read. A pre-tool
+  hook blocks the pipe form, and **a blocked hook discards every write in that Bash call.**
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-23 afternoon-close)
 
 > Prepended by /wrap 2026-08-23 (afternoon-close). **Anchor: `cb84b5b` on `origin/main`** — verify

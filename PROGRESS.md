@@ -4,6 +4,79 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 — the play button, and the sign-in that was never built
+
+Anchor: **`origin/main` `acdde8b`**, verified with `git ls-remote`, never a push pipe. Session began
+at `68953ed`. Three commits landed:
+
+| commit | what |
+|---|---|
+| `6c99d13` | ISC-624.8 — decouple the short narration from the video branch |
+| `ee30022` | ISC-624.8 — the play button lives on the CARD (Erik's call) |
+| `acdde8b` | ISC-641 — the sign-in surface |
+
+ISA **667/683** — 662 `[x]` + 5 `[~]`, **16 open**, counted by grep. Gates at the anchor:
+`bun test` **2213/0** exit 0 · typecheck exit 0 · synthesis build exit 0 · `wrangler deploy
+--dry-run` exit 0 with bindings **UNCHANGED** (VECTORIZE, AUDIO, CORPUS). Run locally — no CI.
+
+**Nothing was deployed.** Prod is still Worker `641f8ae2` from `44ed447`.
+
+### The play button (ISC-624.8, now `[~]`)
+
+The short narration sat inside `if (!NO_VIDEO …)` and its WAV went straight to `stillVideo` and was
+deleted — so turning the mp4 off destroyed the play button's only audio producer. Three artefacts
+now have three flags with the defaults they were actually given: **short narration ON**, long form
+OFF (`--long-audio`, old spelling `--audio`), mp4 OFF (`--video`). The narration is the primary
+artefact, encoded to `short*.m4a` with the same source URL, three denials and draft state the long
+form carries; the mp4 is one optional consumer of its WAV. `--video --no-narration` is refused at
+parse time. The runner resolves `short.m4a` **or** `short-DRAFT.m4a` — auto-caption briefings are
+the common case, so without the second name the button was dead for most real videos.
+
+Verified by a **paired probe**: the pipeline run at `HEAD` and on the fix, identical flags, same
+video — `HEAD` never attempts narration, the fix reaches the Google TTS call.
+
+**Erik ruled the player lives on the CARD**, so `slide.html`'s CSP was never touched (it denies
+`media-src` and `script-src` both). Native `<audio controls preload="none">`, labelled, outside the
+card's link, with the machine-voice line beside it.
+
+### The bug the player uncovered
+
+`kajianCard` validated artefact urls with `safeHttpUrl`, whose `new URL(raw)` **throws on a relative
+path** — and the upload endpoint returns `/kajian/{id}/{name}`. So `summaryHref` was null for every
+real record and **every published card rendered as `""`**. Measured, not inferred. Every fixture
+used an absolute `https://` url, so the suite was green against a shape the runner never produces.
+
+### Sign-in (ISC-641)
+
+`index.html` carried a dead `<div>` saying "Masuk" — and `handleAuthRequest` had been building
+`${origin}/#/masuk/${token}` all along, pointing at **a route that did not exist**. Built it; route
+shape copied from the Worker, not chosen. **No sign-up page, by design** — magic-link has nothing to
+register.
+
+Driven end to end in **real Chrome against real workerd**: form → the honest not-sent message →
+landing on a real token → signed in → `Peran: admin` → `#/admin/kajian` → a YouTube URL enqueued and
+attributed to the account → Keluar → gate closed. That run **closed ISC-568's stated gap**: two
+distinct `Set-Cookie` headers survive the identity wrapper, not comma-collapsed.
+
+### What bit, and is worth not repeating
+
+- **A guard line that could never fire.** My first `safeArtifactUrl` compared `u.origin` as well as
+  the path; a mutation swapping the real check for a naive prefix guard **passed the whole suite**
+  with it there. Removed.
+- **A stale bundle faked a broken fix.** The page ran `index-ChQfEX9g.js` while disk held
+  `index-Dj73OB6I.js`, so the logout-chip fix read as still broken. Caught only by diffing the
+  served script against `ls -t`.
+- **An invented CSS number.** `height: 34px` on the audio control, below its 54px intrinsic height.
+- **No ground-truth pixel of the native control** was obtainable: the DOM render does not paint UA
+  shadow content, and the OS capture grabs Chrome's front window.
+
+### Next
+
+ISC-624.8's remainder (no real `short.m4a` — no ADC; no `speechSynthesis` fallback — the feed
+carries no summary text), then the answer-wall cluster (ISC-533/534/454/487/486/552), then the rest.
+
+---
+
 ## 2026-08-23 (afternoon close) — the runner exists, and six standing items are settled
 
 Anchor: **`origin/main` `cb84b5b`**, verified with `git ls-remote`, never a push pipe. Session began
