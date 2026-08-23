@@ -94,14 +94,27 @@ bucket_name = "okf-corpus"
 # from Darussalam's material may publish — not whether any of this may be deployed. Deploying this
 # publishes nothing by itself: the queue is empty and the runner is not running.
 #
+# ⚠️ THE DATABASE NOW EXISTS AND IS MIGRATED — created 2026-08-24 on Erik's instruction, region
+# APAC, all four migrations applied to REMOTE and verified by reading `sqlite_master` and
+# `pragma_table_info` rather than by trusting the ✅: tables `events`, `bookmarks`, `notes`,
+# `reading_position`, `accounts`, `kajian_jobs`, and all nine of 0004's ALTER TABLE columns.
+# The real id is recorded below so uncommenting is a one-step action with nothing to look up.
+#
+# IT IS STILL COMMENTED OUT, AND THAT IS THE DECISION ABOVE, NOT AN OVERSIGHT. Creating a database
+# changes nothing about prod; BINDING it does. Binding `DB` alone — without `KAJIAN` and
+# `RUNNER_SECRET` — produces exactly the state ISC-617 was written to avoid: a working admin queue
+# that accepts jobs while `/api/runner/*` still answers 403 to everyone, so nothing can ever drain
+# it. It also switches on magic-link sign-in, which is the OTHER reason someone may want it bound.
+# That trade is Erik's to make, not this file's.
+#
 # [[d1_databases]]
 # binding = "DB"
 # database_name = "new-quranku-memory"
-# database_id = "<from `wrangler d1 create new-quranku-memory`>"
+# database_id = "caa07809-f6d4-4d8e-92bb-98400f3e08de"
 #
 # [[r2_buckets]]
 # binding = "KAJIAN"
-# bucket_name = "new-quranku-kajian"
+# bucket_name = "new-quranku-kajian"          # does NOT exist yet
 #
 # Secrets (never listed in this file):
 #   wrangler secret put RUNNER_SECRET      # 32+ chars; under that length it admits nobody
