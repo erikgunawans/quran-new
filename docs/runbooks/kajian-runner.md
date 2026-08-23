@@ -1,0 +1,123 @@
+# Bringing the kajian runner up
+
+One sequence, in order. Every step says what it costs and what it makes reachable. Nothing here has
+been run — the resources do not exist in the account yet, and prod runs Worker `641f8ae2` from
+`44ed447` with `DB`, `KAJIAN` and `RUNNER_SECRET` all absent.
+
+## Before you start: two decisions that are not the DA's
+
+1. **ISC-630 — may a summary derived from Darussalam's material publish?** This gates what the
+   runner is pointed *at*, not whether it may be built or deployed. The rights position is
+   unchanged: ~12.7 MB of their material in two `.scratch/` directories, no permission, and that
+   never depended on the letter that was cancelled. Deploying the steps below publishes nothing by
+   itself — the queue is empty and no runner is running.
+2. **A per-day cost ceiling.** Each Summarize click spends model tokens on roughly 80,000
+   characters of transcript. Admin-only is a bound on *who*, not on *how much*. There is no cap in
+   the code today; that is recorded here rather than assumed away.
+
+## The sequence
+
+### 1. Create the two resources
+
+```
+cd worker
+bunx wrangler d1 create new-quranku-memory     # prints a database_id
+bunx wrangler r2 bucket create new-quranku-kajian
+```
+
+Both are new. The demo D1 (`new-quranku-demo-memory`) is **not** reused: it holds demo readers'
+memory rows, and prod's queue does not belong in it.
+
+### 2. Uncomment the bindings
+
+In `worker/wrangler.toml`, uncomment the `[[d1_databases]]` and `[[r2_buckets]]` blocks under
+"THE KAJIAN RUNNER SURFACE" and paste the `database_id` from step 1. They go at the **top level**,
+not in an `[env]` block — env blocks do not inherit top-level bindings, and `--env demo` must keep
+behaving exactly as it does today.
+
+### 3. Apply the schema
+
+```
+cd worker
+bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0001_init.sql
+bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0002_accounts.sql
+bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0003_kajian_jobs.sql
+bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0004_kajian_results.sql
+```
+
+**In that order, and 0004 after 0003.** 0003 is `CREATE TABLE IF NOT EXISTS`; 0004 is `ALTER TABLE`
+and will fail loudly if 0003 has not run. That failure is correct — it means the table is missing,
+not that the file is broken. Re-running 0004 also fails ("duplicate column name"); these are applied
+once, by hand, the way 0001 and 0002 were.
+
+`--remote` needs a repo-root wrangler 4.x — see the `okf-shard-and-wrangler-gotchas` note.
+
+### 4. Set the secrets
+
+```
+cd worker
+bunx wrangler secret put RUNNER_SECRET      # 32+ chars. Under that length it admits NOBODY.
+bunx wrangler secret put ADMIN_EMAILS       # comma-separated. Unset means nobody — it fails closed.
+bunx wrangler secret put RESEND_API_KEY     # magic-link delivery
+```
+
+Generate the runner secret with `openssl rand -base64 48`. **Paste it into the hidden prompt only** —
+never onto a command line, never into a file, never into a chat message.
+
+For Resend, verify a domain on `axiara.ai` first, then set `RESEND_FROM` in `[vars]`. Until then
+`/api/auth/request` answers `{sent:false}` and nobody can log in, so nobody can be an admin, so the
+Summarize form stays behind its 403.
+
+### 5. Deploy
+
+```
+bun run build && cd worker && bunx wrangler deploy
+```
+
+`wrangler deploy` uploads the **directory** and has never read `.gitignore` — `sweepPublishable` in
+`src/app/build-meta.ts` is what removes `.DS_Store`. Do not skip the build.
+
+### 6. Verify before pointing a runner at it
+
+Curl, cold, from outside:
+
+```
+curl -si https://new-quranku.axiara.ai/api/runner/kajian/claim -X POST                 # expect 403
+curl -si https://new-quranku.axiara.ai/api/runner/kajian/claim -X POST \
+     -H "Authorization: Bearer $RUNNER_SECRET"                                          # expect 200 {"job":null}
+curl -si https://new-quranku.axiara.ai/kajian/index.json                                # expect 200 {"items":[]}
+```
+
+⚠️ **A 200 proves nothing on this origin by itself.** A missing asset returns `index.html` at 200
+(the SPA fallback), so check the `content-type` and the body, not the status. And never judge the
+first request after a deploy — propagation.
+
+### 7. Run the runner
+
+On the VPS:
+
+```
+export QK_BASE_URL=https://new-quranku.axiara.ai
+export QK_RUNNER_SECRET=<the same secret>
+bun run src/app/kajian-runner.ts
+```
+
+It refuses to start on a missing secret, a missing base URL, or a plain-`http` one — a runner that
+polls forever against a 403 looks exactly like a queue that is always empty, which is the worst
+failure available because it is silent.
+
+**`yt-dlp` on a datacentre IP will be refused a transcript.** Erik chose the VPS knowing this. Fix it
+with exported cookies (`--cookies-from-browser`) or a residential proxy. Until then, every job fails
+with a reason that names both options — which is the designed behaviour, not a bug: a fetch that
+fails must surface as a job state and never as a silent empty summary.
+
+## What is still not built
+
+- **The play button's audio** (ISC-624.8). `kajian.ts:532` nests the short narration inside
+  `if (!NO_VIDEO && …)` and its WAV is consumed only by `stillVideo`, so turning the video off
+  destroyed the button's only audio producer. The runner uploads `short.m4a` **when it exists** and
+  the card ships without an audio control when it does not. Shipping browser `speechSynthesis` alone
+  is not a partial delivery — it is the option ADR 6 already refused, because the voice would vary
+  per device.
+- **A cost ceiling.** See the decisions at the top.
+- **Kajian step 7.** Still undefined anywhere in the repo, and unanswered across prior sessions. Asked again this session.
