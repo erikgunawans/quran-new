@@ -19,6 +19,7 @@ import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
 import { renderKajian } from "./kajian-summary.ts";
 import { loadKajianSummaries } from "./kajian-feed.ts";
+import { renderAdminKajian } from "./admin-kajian.ts";
 import {
   dalilEmptyEl,
   fiqhDoorwayEl,
@@ -1215,6 +1216,17 @@ async function route() {
     markNav("kajian");
     showRead();
     renderKajian(readView, await loadKajianSummaries());
+    return;
+  }
+
+  // The admin kajian queue. Deliberately marks NO nav item and has no link anywhere in the shell:
+  // it is an operating surface, not a reader one, and `markNav`'s parameter is a closed union of
+  // reader modes that must not be widened to admit it. Reachable only by typing the hash. The gate
+  // is the Worker's — `renderAdminKajian` refuses by default and only draws the form once
+  // `/api/auth/role` proves an admin, so an unauthorised visit renders a refusal, not a broken page.
+  if (hash === "#/admin/kajian") {
+    showRead();
+    await renderAdminKajian(readView);
     return;
   }
 

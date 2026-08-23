@@ -52,6 +52,7 @@ import { fiqhAreaOf, fiqhKitabOf } from "../../web/src/fikih-route.ts";
 import { repairAnswerProse } from "./answer-repair.ts";
 import { runGeneration, newGenTrace } from "./answer-generation.ts";
 import { verdictAfterFailure } from "./answer-retry.ts";
+import { enqueueKajianJob, listKajianJobs, youTubeVideoId } from "./kajian-jobs.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -220,6 +221,24 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
     if (url.pathname === "/api/auth/role") {
       if (request.method === "OPTIONS") return preflight(request);
       return handleAuthRole(request, env);
+    }
+
+    // The gate runs BEFORE the method check. A non-admin is not entitled to learn this surface
+    // exists by probing it and comparing 405 against 403; a first cut checked the method first,
+    // which would have leaked exactly that. ADR 4 makes these admin routes operational only.
+    if (url.pathname === "/api/admin/kajian/jobs") {
+      if (request.method === "OPTIONS") return preflight(request);
+      const gate = await requireRole(request, env, "admin");
+      if (gate) return gate;
+      if (request.method === "POST") {
+        if (!env.DB) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
+        return handleAdminKajianJobEnqueue(request, env, env.DB);
+      }
+      if (request.method === "GET") {
+        if (!env.DB) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
+        return handleAdminKajianJobList(request, env.DB);
+      }
+      return noStore(json({ ok: false, error: "method_not_allowed" }, 405, request));
     }
 
     // Memory writes (issue 02): the SPA logs reads/bookmarks/notes/positions here. Client-driven, so it
@@ -1025,6 +1044,9 @@ interface AuthRequestBody {
 interface AuthVerifyBody {
   token?: unknown;
 }
+interface AdminKajianJobBody {
+  url?: unknown;
+}
 
 /** Step 1: email a magic link. Returns { sent } — the SPA reports honestly whether email is configured. */
 async function handleAuthRequest(request: Request, env: Env, url: URL): Promise<Response> {
@@ -1101,6 +1123,48 @@ async function handleAuthLogout(request: Request): Promise<Response> {
 async function handleAuthRole(request: Request, env: Env): Promise<Response> {
   const info = await roleForRequest(request, env.IDENTITY_HMAC_SECRET ?? "", env, Date.now());
   return noStore(json({ email: info.email, role: info.role }, 200, request));
+}
+
+/**
+ * Enqueue one recorded-kajian video for the OUTSIDE-THE-WORKER runner.
+ *
+ * The queue row needs the admin's real email in `requested_by`, and `requireRole` quite rightly
+ * does not widen itself into an identity carrier just because one caller wants attribution. So this
+ * handler re-resolves the already-gated request through `roleForRequest` and refuses if the session
+ * no longer proves an admin by the time attribution is read.
+ */
+async function handleAdminKajianJobEnqueue(request: Request, env: Env, db: D1Database): Promise<Response> {
+  let body: AdminKajianJobBody;
+  try {
+    body = (await request.json()) as AdminKajianJobBody;
+  } catch {
+    // Malformed JSON is the same caller fault as omitting `url`: the queue got no parsable YouTube
+    // URL, so the right answer is `invalid_url` and no write.
+    return noStore(json({ ok: false, error: "invalid_url" }, 400, request));
+  }
+
+  const url = typeof body.url === "string" ? body.url : "";
+  const videoId = youTubeVideoId(url);
+  if (videoId === null) return noStore(json({ ok: false, error: "invalid_url" }, 400, request));
+
+  const info = await roleForRequest(request, env.IDENTITY_HMAC_SECRET ?? "", env, Date.now());
+  if (info.email === null || info.role !== "admin") {
+    return noStore(json({ ok: false, error: "forbidden" }, 403, request));
+  }
+
+  const { job, created } = await enqueueKajianJob(db, videoId, url, info.email, Date.now());
+  return noStore(json({ ok: true, job, created }, 201, request));
+}
+
+/**
+ * List the kajian queue as operational metadata only.
+ *
+ * ADR 4 forbids an Administrator from reading anyone's content; this surface stays on the allowed
+ * side of that line because it returns queue state, source URLs and the requesting account, not the
+ * transcript, notes or authored output that a Reviewer would read.
+ */
+async function handleAdminKajianJobList(request: Request, db: D1Database): Promise<Response> {
+  return noStore(json({ ok: true, jobs: await listKajianJobs(db) }, 200, request));
 }
 
 /**

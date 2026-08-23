@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: verify
-progress: 576/592  # 575 [x] + ISC-418 [~]; 15 open, 1 deferred (ISC-189). Recounted from the file 2026-08-23 after ISC-568 (Track B step 1 — `qk_auth` + `roleFor()`; `bun test` 1941/0, typecheck and build all exit 0, run locally — **this repo has no CI**, so no automated verifier attests them). ISC-566 stays OPEN — instrumented, not measured and not fixed.
+progress: 597/632  # 596 [x] + ISC-418 [~]; 34 open [ ], 1 deferred (ISC-189). Counted line-by-line 2026-08-23: 596+1+34+1 = 632. **The denominator counts checkbox LINES, not unique criteria** — 10 ids are duplicated in this file (ISC-52, ISC-99, ISC-354 among them), pre-existing and not introduced by Cycle 9; ~601 ids are unique. Cycle 9 = ISC-569..608 (the kajian admin route, `requireRole`'s first caller, the metadata speaker extractor, and the records for three unrecorded 2026-08-23 instructions). **TWO scholarly-gate passes: the first returned 1 BLOCK + 8 CONCERNs, the second 2 BLOCKs + 8 CONCERNs — and every finding across both was in the RECORD except ONE, a name collision the DA introduced (ISC-603). Most second-pass findings were false sentences the FIRST pass's corrections had added.** ISC-566 and ISC-600 and ISC-608 stay OPEN.
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1123,6 +1123,240 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
 - [x] ISC-567: The cross-paragraph dangler class is INSTRUMENTED — `src/eval/dangler-scan.ts`, `bun run eval:danglers`. **This measures; it does not fix.** ISC-566 stays OPEN and no repair behaviour changed. Erik decided on **2026-08-23** to leave **the hole as it stands** — the **UNNUMBERED** fourth option in ISC-566's *OWED TO ERIK* sentence. **It is NOT that criterion's enumerated cost (iv)**, which is a change to `repairAnswerProse`'s tie-break; citing (iv) here would attribute to him a code change he was never shown. **AND THE FORM OF THAT DECISION IS ITSELF RECORDED, because ISC-566 states *“OWED TO ERIK AND NOT DECIDABLE HERE”* in its penultimate sentence (it CLOSES on the `diam`-premise sentence, which is a different claim) and an owed item must not be closed by a sentence in another criterion citing a chat turn:** `docs/review/erik-decision-2026-08-23.md`, written in the same form as `erik-ruling-2026-08-22.md` — **and it records the difference between them.** That ruling could quote him verbatim; this one cannot, because he was shown four options authored here and **SELECTED** one. A picked option written up as a stated ruling is the checked-vs-relayed collapse this project treats as its worst failure, one actor over. No chat transcript is committed anywhere in this repo. The tool is read-only, runs on committed captures, ships in no bundle and is wired into no route or build step. It SHARES the repair's own `splitParagraphs` by import rather than copying it (`diagnostic-outlives-its-gate`); the connective list it adds lives only here, because repair deliberately has none and moving it there would be ISC-566 cost (i), which Erik PASSED OVER on 2026-08-23 by selecting the hole as it stands — **not a standing bar**, since `docs/review/erik-decision-2026-08-23.md` is explicit that his decision neither closes ISC-566 nor rules on the granularity; the injunction rests on ISC-564's own stated property, not on him. ISC-566 itself declines nothing: it RECOMMENDS, and marks the choice owed. **TWO SIGNALS, AND WHAT EACH CAN ESTABLISH.** *A — a surviving paragraph opening on a back-referring connective.* ISC-566 words the condition as *“whose predecessor was excised”*, and **that is not derivable from an `/api/answer` RESPONSE capture** — stated as a firing condition, not an impossibility, because the broader claim is false (`impossibility-is-a-quantifier`): `refusal-capture.ts` output DOES carry pre-repair prose, and a diff of it against the shipped answer would locate the excision. A response capture's `gen` carries `attempts`/`reason`/`rule`/`repaired`/`repairedDropped`/`repairedRule`/`repairedAttempt` and none of those localises the drop, so against that corpus the tool reports a tier rather than a verdict — `necessary` only at paragraph index 0, where no surviving predecessor exists at all, and `candidate` everywhere else. **On the witness BOTH known danglers are `candidate` and neither is `necessary`**, (c1) sitting at index 1 behind the surviving greeting and (c2) at index 2; an instrument reading only `necessary` would report ZERO on the answer that motivated it. *B — a definite phrase none of whose content words recur in the surviving prose.* It flags (c2) exactly as ISC-566 predicted it would. **WHAT THE RUN ACTUALLY SAYS, n=1.** The whole committed corpus is ONE file, three turns, **one repaired** — `rg -l repairedDropped` finds no other CORPUS — it matches other files, but all of them are source, tests or records rather than captures. So the tool prints a refusal to be quoted as a rate on every run, and this entry does not quote one (`measured-set-is-not-a-class`). **THE CONTROL ARM ESTABLISHES THAT THE INSTRUMENT IS NOT TRIVIALLY ALWAYS-FIRING, AND NOTHING MORE** (`control-arm-or-no-claim`): turns 1 and 2 were NEVER repaired, so every hit there is a false positive by construction. **It does NOT make the hit counts mean anything** — same file, same session, same deploy, and turns 1-2 answer a DIFFERENT question from turn 3 (`run-to-run-confound`). Turn 1 is silent on both signals; turn 2 yields **one signal-A false positive** — a coherent fifth paragraph that merely opens on *“Jadi,”* — and zero on B. **AND SIGNAL B FIRES TWICE ON THE WITNESS, ONE OF WHICH CORRESPONDS TO THE DANGLER ISC-566 INFERS.** That is **not a measured precision**: ISC-566 is explicit that the distance is *“INFERRED, NOT RECORDED”*, so 1-of-2 inherits that inference, and if (c2)'s antecedent was never in the excised paragraph it is 0-of-2. **Both ratios are stated only to show the inference they rest on** — neither is a rate, and neither survives being lifted out of this sentence. The second hit is Indonesian TOPIC-MARKING `itu` — *“shalat di dua ujung siang dan sebagian malam itu menghapus kesalahan-kesalahan”*, **the model's own paraphrase of a verse, UNREVIEWED, carrying no verse reference and no translator; label it so wherever it is repeated** — whose referent sits in its own clause and never left. **It is left unsuppressed deliberately**: a discriminator fitted to this single answer would be the fixture teaching the suite to expect the witness (`a-fixture-can-teach-the-suite-to-expect-the-bug`). Widen or tighten only from real transcripts, and only once several exist. **DECLARED LIMITS, both of which are why it counts and never guards.** It cannot separate an antecedent-less definite from an ORDINARY FIRST MENTION, and `candidate` is noisy by construction because Indonesian prose opens paragraphs on connectives constantly. Seeing (c2) RELIABLY needs the removed text compared against the survivors, which is a coherence component — ISC-566 cost (iii) — which Erik PASSED OVER by selecting option 1, and which NEITHER he nor ISC-566 declined; the one act that record attests cannot be a standing bar on (i) and a decline of (iii) at once — and against this module's founding line that the wall is a rules wall and never a coherence check (`green-wall-is-not-a-readable-answer`). **Neither total it prints is a defect count, and the caveats ride in the `--json` PAYLOAD as well as the prose footer** — the first cut returned from the `--json` branch before every caveat, which is the mode whose output gets pasted into a report stripped of prose, and the n=1 warning was gated so a second capture would silently retire it. **CONTAINMENT.** It prints excerpts of its INPUT. Pointed at `docs/review/captures/` those are SHIPPED answers, already public; pointed at `refusal-capture.ts` output they would be REFUSED model prose, which stays on the dev surface — the output inherits its input's containment and this tool does not relax it (`--no-excerpts` prints counts only). **A THIRD RECORD CARRIES THE SUPERSEDED “DECLINES ALL FOUR” CLAIM AND THIS ENTRY SUPERSEDES IT, NAMED RATHER THAN SILENTLY LEFT** — `.planning/next-session-prompt.md`'s TOP (live) block says *“The entry records four candidate fixes and declines all four”*. ISC-566 declines none: it says **“RECOMMENDED: no code fix at this granularity”** and marks the choice **“OWED TO ERIK AND NOT DECIDABLE HERE”**. That file is prepend-only and is **the file a cold session ACTS on**, so the correction rides forward in the next handoff block rather than being edited in place — the same treatment ISC-566 gave the two records carrying its retracted positional claim. **PINNED BY 12 TESTS IN `src/eval/dangler-scan.test.ts`, WHICH PIN THE INSTRUMENT AND NOT THE HOLE** (`dont-pin-a-known-hole-with-a-green-test`) — witness prose is spliced from the capture at run time, never retyped (`arabic-normalization-hazard`), and the control arm and the two-hit signal-B count are both asserted so that a future improvement turns them RED rather than passing silently. The suite is not green-by-construction: it went red twice while being written — once on the `sungai` recurrence control, once on the hit count — and each red was a real defect in the tool (a punctuation-blind span walk that swallowed a recurring noun across a comma, and a rule that fired on any rare word in the phrase rather than on the phrase having no antecedent at all). Gates at commit: `bun test` 1871/0 exit 0 · typecheck exit 0 · build exit 0, and the two new files are confirmed present in `tsc --listFiles` so the typecheck pass is not vacuous (`bundle-absence-needs-a-control`). **This moves the `diam` premise of `docs/review/tanya-ai-request-2026-08-17.md` NOT AT ALL** — nothing here adds a refusal, a silence or a reader-facing surface, so the tally stays where ISC-565 left it.
 - [x] ISC-568: **Track B step 1 — the `qk_auth` account cookie and `roleFor()`** (`worker/src/session.ts`). ADR 2 is implemented WITH ONE DELIBERATE DEPARTURE FROM ITS WORDING, recorded below: on successful magic-link verify the Worker mints a SECOND HMAC-signed cookie carrying the authenticated email and an expiry, and role resolution reads that email and **never `canonical_user_id`**. ADR 2's reasoning is load-bearing and reproduced so a later reader does not “simplify” it away: that column carries no UNIQUE constraint and no index, and `handleAuthVerify` re-points a device cookie at the account's canonical id on login — so two Accounts that signed in on one family tablet share an id permanently, and a role resolved through it would hand a Reviewer's privilege to whoever else used that browser. **THE DEFECT ADR 2 DOES NOT MENTION, AND THE REASON THIS IS NOT A LITERAL COPY OF `auth.ts`.** ADR 2 says to use “the same primitive `auth.ts` already uses for magic tokens”. Taken literally — same layout, same secret, same MAC — the two token types become INTERCHANGEABLE: a 15-minute magic-link token would verify as a 30-day session cookie. **The exposure claim is scoped to what this app actually does:** the link is built as `${url.origin}/#/masuk/${token}` (`worker/src/index.ts`), so the token rides in the **FRAGMENT** — it therefore reaches **browser history**, but NOT server or CDN access logs and not `Referer`, both of which strip fragments. **AND THE LARGEST CHANNEL IS THE ONE THAT ARGUMENT DISTRACTS FROM: the link is DELIVERED BY EMAIL**, traversing Resend and the recipient's mail provider before sitting in a mailbox indefinitely — the strongest reason a 15-minute credential must not double as a 30-day session. And a session cookie would verify as a magic-link token, i.e. as a login credential. Same primitive, DIFFERENT DOMAIN: every session signature covers a versioned constant tag (`qk_auth:v1`) that the magic-token signer does not use. **Pinned by a paired test against the REAL `auth.ts` signer, not an imitation of it, plus a both-still-valid-in-their-own-domain arm so the pair cannot pass by signing simply being broken** (`fake-differs-by-construction`, `control-arm-or-no-claim`). **Force-red run:** deleting the tag fails EXACTLY those two tests and no others — which also demonstrates the hazard was real rather than theoretical. **WHERE ROLES LIVE IS DECIDED HERE, BECAUSE NO ADR SETTLES IT.** Environment allowlists (`ADMIN_EMAILS`, `REVIEWER_EMAILS`), not a table: the property worth having is that **nothing in the running app can grant privilege** — becoming an Administrator needs an operator editing a secret and redeploying, so privilege is never one SQL injection or one careless admin route away. It **FAILS CLOSED** — unset or empty grants NOBODY, never everybody — and an unmatched address is a Member, which is the correct floor because ADR 1 makes Member a SYNC tier and not a privilege. `REVIEWER_EMAILS` **ships empty and no address is hardcoded**: the role exists for the ustadz (`CONTEXT.md`) but an email is PII and belongs in an operator-typed secret. Admin outranks Reviewer **in `roleFor` only** — i.e. when one address sits on both allowlists, which is a configuration mistake. **THE REASON IS CONTENT EXPOSURE, AND THE MISTAKE IS NOT MADE VISIBLE — it is not.** With `requireRole` matching exactly, a double-listed address resolves to `admin` and is then REFUSED every Reviewer gate behind an uninformative 403, which IS silent withholding. What justifies the ordering is that `admin` is the role ADR 4 defines by NOT seeing content, so a misconfiguration resolves AWAY from question text and notes — **stated with its other half, because the exchange is not free:** it resolves TOWARD what ADR 4 does grant an Administrator, namely seeing that an Account exists, how much it holds, and the power to delete it. Content exposure down, user-directory and deletion up. **THAT ORDERING MUST NOT BE READ AS A PRIVILEGE LADDER, AND A FIRST CUT OF `requireRole` MADE EXACTLY THAT MISTAKE.** It ranked `member < reviewer < admin` and admitted anyone at or above the needed rank, so an **Administrator satisfied a Reviewer gate** — walking that role into the one surface it is defined by NOT seeing: ADR 4 says *“An Administrator never sees content: no question text, no bookmark references, no notes”*, while a Reviewer's whole job is reading what the app said. `CONTEXT.md` states the separation from the other end — *“an Administrator needs to see users, and a Reviewer must not”* — **and the disjointness sentence is `CONTEXT.md`'s, NOT ADR 4's, which never uses the word “Reviewer” at all.** The gate is now an EXACT match on a privileged role. The ladder LANDED GREEN IN THIS CHANGE — it never reached a deploy, which is gated to Erik — because `requireRole` had NO tests; it now has seven, and restoring the ladder fails exactly three of them — the Administrator-at-a-Reviewer-gate case, the signed-in case, and, less obviously, **a FORGED cookie passing a `member` gate**, because a forgery degrades to `member` and `member >= member`. **ALSO LANDED (nothing here is deployed):** a real logout (`POST /api/auth/logout`) and a real session expiry, both of which ADR 2 lists as things the app did not have. **LOGOUT DOES NOT REVOKE THE TOKEN** — it sets `Max-Age=0`, and the signed value stays cryptographically valid for the rest of its 30 days, so a cookie captured beforehand still works afterwards. That matches ADR 2's own definition (*“a real logout (clear the auth cookie)”*), and it is recorded rather than left for a reader to discover; **the only revocation lever in the design is bumping `SESSION_DOMAIN`, which invalidates EVERY session at once.** Logout clears `qk_auth` ONLY and deliberately leaves the Identity cookie alone, because signing out is not the act of forgetting a reader's bookmarks (that is `/api/forget`). `GET /api/auth/role` answers 200 with `role:"member"` for an Anonymous Visitor rather than an error, per ADR 1. `requireRole` answers **403 without distinguishing “no session” from “wrong role”**, since a body that says “you are not an admin” confirms to an anonymous caller that the endpoint exists and is worth attacking. The cookie is named **`__Host-qk_auth`** — the prefix adopted 2026-08-23 on Erik's instruction in session (**no artefact in `docs/review/` attests it, and it authorises nothing — the hardening only REMOVES capability**), and enforced by the BROWSER: a `__Host-` cookie is accepted only with `Secure`, `Path=/` and **no `Domain`**, so only the exact host serving it can set it. `axiara.ai` runs several surfaces, and without the prefix any of them could set `Domain=axiara.ai; qk_auth=…`. **WHAT THAT SHADOW COULD DO, precisely:** it could not escalate — a forged value never passes `verifySession`, and `roleFor` only ever sees a verified email — but it could cause **ACCOUNT CONFUSION**, since `readAuthCookie` returns the FIRST match, so the victim's browser would present someone else's proof — not a demotion. Only the prefixed name is read; accepting a bare `qk_auth` as a fallback would hand the shadow back the position the prefix removes. The cookie is also `HttpOnly; Secure; SameSite=Lax` — `HttpOnly` is the load-bearing one, because this cookie PROVES AN ACCOUNT and script must never read it. An **empty secret is refused on both sides, differently on purpose**: signing throws by name (an operator fault worth surfacing, where WebCrypto would emit a bare `DOMException`), verifying returns null (a verifier refuses, it does not crash on input). **WHAT THIS DOES NOT DO.** It does not fix the shared-`canonical_user_id` defect, which ADR 2 explicitly scopes out — that still entangles the MEMORY of two people who log in on one browser, predates this work, and needs its own fix. **`requireRole` is exported and has NO caller yet**; it is the gate the Rangkuman Kajian admin route will use, and it is recorded as unused rather than left to look load-bearing. 37 tests, `worker/src/session.test.ts`. **THE ROUTE WIRING IS UNPINNED:** every test here exercises `session.ts` (plus the real `auth.ts` signer and `requireRole`); there is **no `index.test.ts` and no test that issues an HTTP request to `/api/auth/verify`, `/logout` or `/role`**, so the claims about what those endpoints emit rest on source reading. Untested in particular: `handleAuthVerify` now appends a second or third `Set-Cookie` on one response, and multi-`Set-Cookie` survival through the identity wrapper is ASSUMED, not demonstrated. Gates: `bun test` 1941/0 exit 0 · typecheck exit 0 · build exit 0, run locally — this repo has no CI.
 
+### Cycle 9 — the kajian runner has a home, and `requireRole` gets its first caller (ISC-569..608)
+
+> Erik picked the runner's host on 2026-08-23: **a VPS**, not his Mac and not a container on it. He
+> picked it knowing the cost the option carried on its face — **a datacentre IP, which YouTube
+> blocks** — so `yt-dlp` on that host will need exported cookies or a residential proxy. That is the
+> runner's problem, and the runner is NOT built here. What is built here is the half that lives in
+> the Worker: the gated admin route that ENQUEUES a job. **A queue with no consumer is what ships
+> today**, and it is recorded as that rather than described as a working pipeline.
+
+- [x] ISC-569: `docs/review/erik-ruling-2026-08-23-skill-wins.md` exists and its FIRST section states
+      that the ruling reached the repo as a **relay** — Erik's verbal in-session instruction, written
+      up by the DA — and that **no artefact in Erik's own words attests it**. Probe: `grep -c` for the
+      relay sentence.
+- [x] ISC-570: **REPHRASED AT BUILD, because writing the record falsified the criterion.** It asked for
+      the record to name *"ADR 5, ISC-10, ADR 6"* as the three things reversed. **`ISC-10` is the wrong
+      identifier** — `ISA.md` line 116 is `Anti: no shard, and not index.json, contains any tafsir
+      passage text`, which has nothing to do with speaker naming, and **no ISC covers roster-only
+      naming at all**: the rule lives only in ADR 5's Decision section, implemented in
+      `src/app/kajian-roster.ts`. The bad citation was the DA's, and it is in TWO committed documents
+      (`PROGRESS.md`'s 2026-08-23 checkpoint and the current handoff block), so a reader can encounter
+      it — which is what makes the retraction reachable and therefore worth writing
+      (`retraction-needs-a-reachable-reader`). The criterion now reads: the record names **ADR 5** and
+      **ADR 6** as the two things reversed, and **corrects the `ISC-10` citation in a section of its
+      own**. Probe, **re-measured after the record was finished** (`grep -o … | wc -l`): **ADR 5 ×17, ADR 6 ×9, ISC-10 ×7**, measured after the SECOND correction pass. Two earlier values are recorded because the drift is the lesson: ×12/×8/×3 (before §*Answered* existed) and ×16/×9/×5 (before the BLOCK-2 and CONCERN-3 corrections were applied). A number written about a file you are still editing is false by the time it is read. `correction-pass-writes-the-record-wrong`: measure last, and re-measure after every later edit.
+- [x] ISC-571: the record scopes the speaker-naming permission to the **web card** and says in terms
+      that the ruling is **SILENT on the mp4**, which is where kajian ruling (b) still sits unanswered.
+      Probe: `grep`.
+- [x] ISC-572: the record states the 2026-08-22 provenance-label ruling is **UNCHANGED** — labels must
+      not be softened, made conditional, or removed — so a reader cannot take the reversal as general
+      permission to loosen provenance. Probe: `grep`.
+- [x] ISC-573: **Anti:** the record contains no blanket *"the ustadz has approved nothing"* and no
+      sentence attributing the skill-wins ruling to the ustadz. It is **Erik's** ruling; the ustadz was
+      not consulted on it. Probe: `grep -ci` for the blanket phrasing and for `ustadz.*(approv|ruled)`
+      → the only ustadz mentions must be the three real permissions, scoped.
+- [x] ISC-574: the record covers the **`__Host-` hardening** as the second unrecorded 2026-08-23
+      instruction and says it **authorises nothing** — the prefix only removes capability. Probe: `grep`.
+- [ ] ISC-575: `worker/migrations/0003_kajian_jobs.sql` creates `kajian_jobs` with a UNIQUE `video_id`,
+      a `status`, and the enqueueing admin's email. Probe: `Read` the file.
+- [ ] ISC-576: `POST /api/admin/kajian/jobs` answers **403 to an anonymous caller**. Probe: HTTP-level
+      test against the Worker's exported `fetch`.
+- [ ] ISC-577: it answers **403 to a signed-in Member**. Probe: same, with a validly signed cookie for
+      an address on no allowlist.
+- [ ] ISC-578: it answers **403 to a REVIEWER**. This is the disjointness case, not a formality — the
+      ladder bug ISC-568 killed would have admitted the wrong role here, and this is the first place a
+      real route could feel it. Probe: same, with the address on `REVIEWER_EMAILS` only.
+- [ ] ISC-579: it answers **201 to an Administrator** on `ADMIN_EMAILS`. **This is the positive control
+      arm** — without it every refusal above could pass for the wrong reason, which is exactly how
+      ISC-568's vacuous-clock defect survived (`control-arm-or-no-claim`). Probe: same, asserting the
+      created row.
+- [ ] ISC-580: a URL that is not a YouTube watch/short link is refused **400 and writes NO row**.
+      Probe: a DB stub counting writes; the count must be 0, not merely "no error".
+- [ ] ISC-581: enqueueing the same video twice yields **one row**, and the second call reports the
+      existing job rather than erroring. Probe: two calls against one stub, row count asserted.
+- [ ] ISC-582: `GET /api/admin/kajian/jobs` is gated identically and lists the queue. Probe: HTTP test
+      at all four principals.
+- [ ] ISC-583: with `env.DB` **absent** the route answers 503 and does not throw — the same designed
+      degradation `AUDIO`, `VECTORIZE` and `CORPUS` already have. Probe: HTTP test with no binding.
+- [ ] ISC-584: **Anti:** no admin response is cacheable. Every one carries `private, no-store`, because
+      a shared edge cache holding one admin's queue is the same class of bug `noStore` already exists to
+      prevent. Probe: header assertion on each.
+- [ ] ISC-585: **Anti:** the 403 body does not distinguish *no session* from *wrong role*. Probe: compare
+      the anonymous and the reviewer bodies **byte-for-byte** — equality is the assertion, not a shape check.
+- [ ] ISC-586: `#/admin/kajian` renders the paste-a-URL form **only** when `GET /api/auth/role` returns
+      `role:"admin"`; every other answer renders a refusal. Probe: DOM test at each role.
+- [ ] ISC-587: **Anti:** the admin page renders **no user content** — no question text, no bookmark
+      reference, no note. ADR 4 defines the Administrator by not seeing those. Probe: `grep` the module
+      for those symbols → 0.
+- [ ] ISC-588: the page's Indonesian copy claims nothing about who reviewed a summary, and does not
+      imply a queued job is a published one. Probe: `scholarly-gate` verdict on the diff.
+- [ ] ISC-589: **Force-red.** Replacing the route's `requireRole(request, env, "admin")` with `null`
+      fails ISC-576..579 and no others. Without this the gate tests could be green because the route is
+      unreachable rather than because it refuses. Probe: apply, run, count, revert.
+- [ ] ISC-590: `bun test` exit 0 · typecheck exit 0 · build exit 0, **run locally and with the exit code
+      echoed, never piped** (`$?` becomes the pipe's status). This repo has no CI; nothing automated
+      attests these.
+- [ ] ISC-591: **Antecedent:** `ADMIN_EMAILS` is documented — in the route's own docblock and in the
+      handoff — as the secret an operator must set **before the route admits anyone**. Unset means
+      nobody, by design, and without this sentence the first person to open the page reads a correct
+      fail-closed as a broken feature. Probe: `grep` both surfaces.
+- [x] ISC-592: **the handoff's reason the admin route admits nobody is TRUE BUT THE SMALLER OF TWO, and
+      "unreachable" is replaced here by the firing condition.** The handoff says *"`ADMIN_EMAILS` must be
+      set as a secret before it can admit anyone"*. Also true, and not the binding constraint.
+      **Which config governs prod was CHECKED, not assumed** — memory `quran-new-deploy-path` warns of an
+      untracked root `wrangler.jsonc` shadowing `worker/`; `ls` and `find -maxdepth 2` confirm **no root
+      wrangler file exists today**, so `worker/wrangler.toml` is the only config for `new-quranku-proxy`.
+      **The chain, each link named so a reader can re-derive it rather than trust it:**
+      (i) `worker/wrangler.toml` has **no top-level `d1_databases`** — the only one is `[[env.demo.d1_databases]]`
+      at line 183 — and **no top-level `RESEND_FROM`**; the only one is `[env.demo.vars]` at line 179.
+      (ii) `sendMagicLink` returns `false` when `from` is undefined (`worker/src/auth.ts:93`), so prod
+      `/api/auth/request` answers `{sent:false}` and **no email is ever sent**.
+      (iii) even given a token by other means, `handleAuthVerify` returns `{ok:false}` when `!env.DB`
+      (`worker/src/index.ts:1073`), so **`__Host-qk_auth` is never minted on prod.**
+      (iv) therefore `roleForRequest` always resolves `{email:null, role:"member"}` there.
+      **WHAT A PROD CALLER ACTUALLY GETS IS A 403** — the route IS registered and the gate DOES answer.
+      It is **not** a 500 (no binding is dereferenced before the gate) and **not** the SPA's 200
+      `index.html` fallback (the path matches before `env.ASSETS`). Those are three different postures and
+      naming the wrong one would mislead the next reader (`spa-fallback-defeats-status-tests`).
+      **So `ADMIN_EMAILS` alone would open nothing: Erik himself would get 403.** Opening it needs a
+      top-level D1 binding plus Resend on prod — infrastructure on the LIVE Worker, deploy-gated to Erik.
+      **Nothing here binds anything.** Probe: `grep -c d1_databases worker/wrangler.toml` → 1, at `env.demo`.
+- [x] ISC-601: **the queue persists NO attribution, checked rather than assumed.** `kajian_jobs` is
+      `id, video_id, url, status, requested_by, created_at, updated_at, error` — there is **no speaker
+      column**, so no unreviewed scholar name is written to a durable store and no `extracted`-vs-`reviewed`
+      provenance column is owed before the first row exists. Raised by the advisor as the highest-cost
+      retrofit in this change; it does not apply, and that is recorded so the question is not re-opened
+      from memory. `status` already carries a `CHECK` and every non-nullable column is `NOT NULL`.
+      Probe: `grep -ci speaker worker/migrations/0003_kajian_jobs.sql` → 0.
+- [x] ISC-602: **the GET gate was force-redded, and it is the SAME call site as POST's — one binding, not
+      two.** The advisor's instruction was to neuter GET's gate separately, on the premise that "GET has
+      only one gate" was an unproven negative from an instrument that had already missed one.
+      **The premise does not hold here and the work was already done:** route dispatch reaches
+      `requireRole` exactly once for both verbs (`worker/src/index.ts:231`), so force-red run (i) — which
+      removed that single shared call — IS GET's force-red, and it failed all three GET refusals plus the
+      non-admin PUT probe. Sharing one binding is what the advisor asked for and what the code already
+      does (`diagnostic-outlives-its-gate`). The asymmetry is therefore **not** two authz call sites: POST
+      additionally re-resolves the role INSIDE `handleAdminKajianJobEnqueue` (`index.ts:1151`) because the
+      row needs the admin's email for `requested_by`, which `requireRole` deliberately does not return.
+      **Recorded as a fact, not closed as a defect.** Probe: `grep -c "requireRole(request, env" worker/src/index.ts` → 1.
+
+- [x] ISC-593: **Erik's answer to question 2 of the skill-wins record, 2026-08-23 — and the question
+      as put was WRONG.** The record asked *"the speaker name comes from `channel` … is naming a
+      possibly-wrong scholar better than naming nobody?"* **`channel` was the DA's inference, not the
+      ruling's text**, and checking the capture instead of arguing from ADR 5's prose falsified it.
+      `.scratch/kajian/brlqHxjIp9c/meta.json` carries `channel: "Masjid Darussalam Kota Wisata"` — a
+      MOSQUE — while the speaker's name sits in the description as a deliberate `👤Ustadz Syariful
+      Mahya, L.c., M.A.` line and again in the title after a `|`. So ADR 5's warning is confirmed
+      EMPIRICALLY, not quoted: `channel` is certainly wrong on the only real input, not possibly wrong.
+      Erik ruled: **description or title, never `channel`, omission still the fallback.** Probe: the
+      record's §*Answered* section, `grep -c "ANSWERED 2026-08-23"` → 1.
+- [x] ISC-594: `src/app/kajian-speaker.ts` reads the speaker from the description's `👤`/`Pemateri:`/
+      `Pembicara:`/`Narasumber:`/`Penceramah:`/`Bersama` line first, else a title segment AFTER a
+      separator carrying an honorific, else returns null. Probe: `bun test src/app/kajian-speaker.test.ts`
+      → **17 pass / 0 fail, exit 0**, run against the REAL capture bytes read from disk with a verbatim
+      splice as the offline fallback (`guard-tests-need-production-prose`).
+- [x] ISC-595: **Anti:** `channel` is never consulted as a speaker. Probe: a test asserts the returned
+      name is neither `meta.channel` nor contains `Masjid`, on the real capture.
+- [x] ISC-596: **Anti:** the whole title is never taken as a name. Without the after-the-separator rule,
+      `15 INDIKASI KEBODOHAN | USTADZ …` names a lecture as a scholar. Probe: a test asserts the result
+      contains neither `INDIKASI` nor `15`.
+- [x] ISC-597: **provenance is preserved, not flattened.** `SpeakerOutcome` is `roster` | `metadata` |
+      `none`; a roster entry WINS over a description, and an AMBIGUOUS roster falls through to metadata
+      (we cannot say which of OURS it was; that says nothing about whether the uploader named someone).
+      **This is the criterion that keeps kajian ruling (b) open**: `kajian-narration.ts` refuses a
+      `metadata` outcome, so nothing here makes a model-relayed name SPOKEN. Probe: four `resolveSpeaker` tests asserting `.kind`. **The narration half is NOT held by that probe** —
+      it is held by the TYPE (`kajian-narration.ts` takes `RosterOutcome`, which is `match|none|ambiguous`,
+      so a `{kind:"metadata"}` value is not assignable and `tsc` exits 0 across all five projects) and by
+      `resolveSpeaker` having no production caller. Stated because a criterion whose named probe does not
+      reach half its claim is `a-source-grep-greps-the-imports-too`.
+- [x] ISC-598: **Force-red, twice, because 17/17 on the first run is a reason to falsify.**
+      (i) replacing `return hasHonorific(s)` with `return true` fails **exactly 2** tests — *no honorific
+      anywhere* and *label with nothing after it*. The other omission cases stayed green and that is
+      CORRECT, not a gap: they are held by **five** guards, and a first cut of this line
+      named three while claiming the enumeration was the point — the same failure it cites. In full, from
+      `looksLikeName`: the after-a-separator rule (whole-title cases), the URL/`@`/angle-bracket filter
+      (url and email lines), `MIN_NAME` (`👤 Ust`), **`MAX_NAME`** (the 200-character case), and **the
+      `/[!?]/` rejection** — the only thing holding *a sentence, not a name*, since
+      `👤 Siapa ustadz yang mengisi?` carries the honorific and passes both length bounds.
+      `impossibility-is-a-quantifier`.
+      (ii) disabling the roster-wins branch fails **exactly 1** — *a roster entry WINS*. Both reverted;
+      `grep -c FORCE-RED src/app/kajian-speaker.ts` → 0 and the suite returns 17/17 exit 0.
+- [x] ISC-599: **A rights condition was found in metadata this project already stored, and it is
+      recorded rather than acted on** (`docs/review/rights-darussalam-logo-2026-08-23.md`, Erik's
+      disposition 2026-08-23). The Darussalam description states: *"Kami mempersilahkan … membagikan/share
+      video kami **tanpa menghilangkan Logo Darussalam TV dan Identitas lainnya** … kami akan meminta pihak
+      Youtube … untuk menghapus video tersebut. Sertakan juga link asli."* **The QR half is MET IN FACT** — ADR 6's
+      QR encodes the canonical URL, and the `slide.html` actually built on 2026-08-22 contains
+      `youtube.com/watch?v=brlqHxjIp9c`. **The logo half is met by nothing.** **THE SCOPING TO THE
+      mp4/slide TRACK AND AWAY FROM THE `#/kajian` WEB CARD IS THE DA'S READING, NOT ERIK'S RULING** — a
+      first cut of this criterion stated it flat, as settled, while the record it summarises marks it
+      contested. Erik's recorded disposition is *"record it, do not act"* and nothing more. **Nothing is in breach because nothing has
+      been published**, and the file says so rather than implying jeopardy. The tension worth carrying: a
+      slide bearing Darussalam TV's mark could read as Darussalam's OWN summary, which is the exact
+      inference ADR 5 and ADR 6 exist to prevent — so the two requirements pull against each other and
+      that is Erik's to resolve. Probe: `grep -c "tanpa menghilangkan Logo" docs/review/rights-darussalam-logo-2026-08-23.md` → **2** (the verbatim quote and the table row). A first cut said 1 — that is the count against `meta.json`, which the criterion does not name.
+- [ ] ISC-600: **the slide PNG is a THIRD surface and nobody has ruled on it.** Erik's ruling was recorded
+      as scoping to the WEB CARD; `kajian-slide.ts` is written rather than spoken, so ADR 6's
+      text-versus-audio distinction does not settle it either way. **OPEN — do not print a `metadata` name
+      on a slide until Erik says one word.** Recorded as open rather than resolved by inference, which is
+      what `a-question-never-put-stays-open` costs when it is not.
+- [x] ISC-603: **THE ONLY CODE DEFECT THIS SESSION PRODUCED, and it was the DA's: a name collision.**
+      `src/app/kajian-speaker.ts` originally exported `resolveSpeaker` — a name **already exported by
+      `src/app/kajian-roster.ts:112`**, a sibling module in the same directory, with a different
+      signature (`(entries, video)` vs `(roster, meta)`) and a different return type (`RosterOutcome` vs
+      `SpeakerOutcome`). `src/app/kajian.ts:58` imports the ROSTER one. An import of the wrong module
+      would have compiled and meant something else. Renamed **`resolveSpeakerWithProvenance`**, which
+      also names the thing that distinguishes it. Two scholarly-gate passes found this; neither of my own
+      force-reds could have, because both functions work correctly in isolation. Probe:
+      `grep -rn "export function resolveSpeaker" src/app/` → exactly one `resolveSpeaker`
+      (kajian-roster) and one `resolveSpeakerWithProvenance` (kajian-speaker).
+- [x] ISC-604: **"the runner is unbuilt" was FALSE in three documents, and the evidence had already been
+      on screen.** `src/app/kajian.ts` is a **535-line runner** that renders the slide (`:446`) and builds
+      the mp4 (`:518` `stillVideo`). It has RUN: `.scratch/kajian/brlqHxjIp9c/` holds `slide.png`
+      (2160×2700), `slide.html`, `narasi-DRAFT.m4a` (6.6 MB) and `short-DRAFT.mp4` (5.4 MB), **dated
+      2026-08-22 — the day before the records claiming they did not exist were written** — plus a second
+      complete run at `jNQXAC9IVRw/`. **The DA listed that very directory earlier in the same session and
+      wrote "unbuilt" anyway.** What genuinely does not exist is a **HOSTED job runner** that claims a
+      queued job and publishes a manifest; nothing writes `/kajian/index.json`. Conflating "no hosted
+      runner" with "no runner" is what produced the error. **This is not bookkeeping: a derivative mp4
+      made from a third party's recording already sits on this disk**, unpublished only because
+      `.gitignore:66` excludes `.scratch/kajian/`, and Erik's open question on the Darussalam logo clause
+      reads differently in that light. Probe: `ls .scratch/kajian/brlqHxjIp9c/` and `wc -l src/app/kajian.ts`.
+- [x] ISC-605: **a correction that would have retired a live guard, caught before it shipped.** The
+      ISC-10 retraction overshot into *"BOTH HALVES WERE WRONG … that sentence appears nowhere."* **The
+      RULE is real:** `src/app/kajian-slide.ts:10` carries *"THE VIDEO TITLE NEVER OCCUPIES THE IDENTITY
+      SLOT."* as that file's headline decision, pinned by `kajian-slide.test.ts:13` and echoed in
+      `kajian.ts:39` and `kajian-narration.ts:26`. Only the **identifier** was wrong and only the
+      **attribution to ISC-10** was invented; the rule is ADR 5's. Telling the next developer a live,
+      tested guard was imaginary is how a real protection gets deleted by a correction. Both the record
+      and the source docblock now say identifier-wrong / rule-real. Probe: `sed -n '10p' src/app/kajian-slide.ts`.
+- [x] ISC-606: **two ISA edits I believed I had made were ABSENT from the working tree** — the
+      `index.ts:1051`→`1073` citation and the three-guards→five-guards enumeration. Both were written in a
+      multi-replace script **without an assert**, so a non-matching pattern no-oped in silence while the
+      script reported success. The second pass re-applied them with `assert old in s` on **every** replace,
+      and the first run of that script aborted on a genuine miss and wrote NOTHING — which is the
+      behaviour wanted. Related to `blocked-hook-kills-neighbours` in effect, different in cause: not a
+      rejected hook but an unasserted string match. **Rule: never `str.replace` into a record without
+      asserting the target exists.** Probe: `grep -n "worker/src/index.ts:1073" ISA.md` → the corrected citation in ISC-592. **Not**
+      `grep -c "index.ts:1051"` → 0, which a first cut wrote and which this very criterion falsifies:
+      the old line number survives twice, both inside this retraction describing it. A probe must not
+      be blind to the text that states it.
+- [x] ISC-607: **Anti:** no probe number in this cycle is quoted from a measurement taken before the last
+      edit to the file it measures. ISC-570's counts drifted ×12/×8/×3 → ×16/×9/×5 → ×17/×9/×7 across two
+      correction passes, and the Verification block separately claimed 147 lines (now 244) and "ustadz
+      twice" (actually 6 on 5 lines). Each was true when written and false when read. All are re-measured
+      and the drift is recorded rather than overwritten, because the drift is the finding.
+      Probe: `wc -l docs/review/erik-ruling-2026-08-23-skill-wins.md` → 244.
+- [ ] ISC-608: **the tree still narrates in ADR 6's voice, and one docblock said otherwise in the present
+      tense.** `kajian-narration.ts:110` is `NARRATION_VOICE = "id-ID-Chirp3-HD-Schedar"` — Erik's own pick
+      from eight samples — and the m4a built 2026-08-22 used it. Erik's skill-wins ruling replaces it with
+      `id-ID-ArdiNeural`, but **nothing implements that yet**; `web/src/kajian-summary.ts` stated the
+      ruling as the state of the tree and now marks it as a ruling not yet implemented. **OPEN: the voice
+      change is unimplemented, deliberately** — it lives in the runner path and Erik has an unanswered
+      question (kajian ruling (b)) about that whole surface. Do not implement it as a side effect.
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -1211,6 +1445,12 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
 | hadith-card | `web/src/hadith-card.ts` — the only surface allowed to show hadith text: Arabic + English verbatim, collection, number, grade, source_url, translator; cap re-applied; no Indonesian without a per-record ustadz approval | ISC-345..352 | bad-hadith-guard | yes |
 
 ## Decisions
+
+**2026-08-23 — the runner has a host: a VPS, chosen by Erik knowing the cost printed on the option.** Handoff item 1 was a question, not work, and it was put in this session's first exchange. He picked **a VPS** over his Mac (polling) and over a container on his Mac. The option he selected carried its own objection on its face — **a datacentre IP, which YouTube blocks**, so `yt-dlp` on that host will need exported cookies or a residential proxy. That is the runner's cost and the runner is NOT built here; it is recorded so nobody later reads the block as a surprise.
+
+**What that decision settles, and what it does not.** It unblocks the admin route (ISC-575..592) because the enqueue side is Worker work regardless of where the consumer runs. It does NOT settle the runner-facing protocol, and `FirstPrinciples/Deconstruct` is the reason that is a separate change rather than a scope cut: **there are two principals here, not one.** A human at a form proves an ACCOUNT — `requireRole`, exact match, disjoint roles. A machine on a VPS proves ITSELF — a shared bearer secret, no email, no role, no cookie. Serving both with `requireRole` would mean putting an Administrator's 30-day `__Host-qk_auth` into a VPS environment variable, which undoes ISC-568 entirely: it re-domiciles a browser-scoped, `HttpOnly`, person-bound credential onto a shared host as a static admin token that logout cannot revoke (and logout does not revoke anyway — ISC-568). **The runner is not a low-privilege admin; it is not an account at all, and the moment it needs one the design is wrong.**
+
+**2026-08-23 — `SystemsThinking/FindArchetype` says Shifting the Burden, and its verdict is declined on a false premise while two of its findings are kept.** Its recommendation was *"do not write the queue — the question has never been put"*, and it named its own discriminator: put the question; answered in one exchange → the archetype is confirmed and the constraint was never hard. **The question WAS put, at the top of this session, and answered in one exchange.** So the diagnosis of the PAST pattern is confirmed and the block it describes is lifted; the recommendation built on the premise is not followed. **Kept, because they survive that correction:** (1) *an unconsumed contract can only be tested against the interface its author imagined* — the enqueue row shape is validated by nothing but my own tests, and that is recorded in **this cycle's preamble above ISC-569** (*"A queue with no consumer is what ships today"*) rather than hidden. **Not in ISC-575**, which a first cut of this entry cited and which says only that the migration creates the table — `a-slug-is-not-an-answer`: a pointer that does not land is not a record; (2) the supply-side blindness of every instrument here — 1,941 tests and an ISA count cannot see that **nothing in this repo writes `/kajian/index.json`**, verified by grep across `src/app/kajian*.ts`. That single fact is the honest version of its "components with no caller" counter, and it is written down instead of tooled, because a counter script would itself be one more component with no consumer.
 
 **2026-08-17 — ISC-472's `dari bab` tags are shipped, correct, and shown to the reader for about FOUR SECONDS before being wiped.** The handoff asked whether the knowledge card is the settled view. Measured on prod (`new-quranku.axiara.ai`, bundle `index-DZQQeRQP.js`, `EDITION: synthesis`) across 8 questions driven through the real composer with a cleared thread, a discarded warm-up, and turn counts asserted before and after every ask: **7 of 8 settled on the AI lane (`p.ai-said`), 1 settled on the zero-entry pointer, 0 settled on the knowledge card.** `knowcat` was 0 in every one of the 7 AI turns, so the two lanes are exclusive, not stacked.
 
@@ -2235,6 +2475,15 @@ articulation.
   not pinned by a passing test (`dont-pin-a-known-hole-with-a-green-test`).
 
 ## Verification
+
+**ISC-569..574 — the 2026-08-23 skill-wins record** (`docs/review/erik-ruling-2026-08-23-skill-wins.md`, **244 lines** after two correction passes; it was 147 when this line was first written), probed by `grep -c` on the file:
+- ISC-569: `RELAY, NOT A RECORD OF HIS WORDS` ×1 in the blockquote header, plus *"Nothing in his own words was captured"* ×1.
+- ISC-570: **REPHRASED — see the criterion.** Re-measured after the SECOND correction pass: `ADR 5` ×17, `ADR 6` ×9, `ISC-10` ×7. Earlier values ×12/×8/×3 and ×16/×9/×5 were each true when written and false when read.
+- ISC-571: `WEB CARD only` ×1 and `SILENT on the mp4` ×1, with kajian ruling (b) named as still open and still Erik's.
+- ISC-572: `provenance labels are UNCHANGED` ×1, quoting the 2026-08-22 ruling's *"must not be softened, made conditional, or removed"* verbatim ×1.
+- ISC-573: the blanket phrasing greps **0** — that is the criterion, and it holds. The count beside it did not: a first cut said the word `ustadz` "appears twice"; it is **6 occurrences on 5 lines**. Two name Ustadz Ahmad Isrofiel inside §*Who the "scholar" is here* (which states he was not consulted and scopes his three permissions); the other four name **Ustadz Syariful Mahya, the third-party video speaker**, in §*Answered*, which did not exist when the count was taken. No sentence attributes the ruling to any ustadz, which is what ISC-573 actually forbids.
+- ISC-574: `__Host-` ×3 and *"It authorises nothing"* ×1, with the ACCOUNT-CONFUSION correction of the first write-up carried into the record.
+
 
 **2026-08-17 — ISC-472 settled-view measurement (handoff item 1).** Prod `https://new-quranku.axiara.ai`, worker bundle `index-DZQQeRQP.js` / `index-sBZ5Brsy.css`, `EDITION: synthesis`. Thread cleared (`localStorage.removeItem('newquranku:thread')`), reload asserted `#thread` at 1 child (hello only), one warm-up question discarded, `#thread` child count asserted before and after every ask (+2 per turn, 1 -> 19 with no gaps), settle read at T+44 s.
 

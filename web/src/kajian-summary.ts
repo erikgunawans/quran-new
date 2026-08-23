@@ -14,12 +14,25 @@
  * this repo. Recorded rather than silently coded, because each reverses a documented decision:
  *
  *   · THE SPEAKER IS NAMED FROM VIDEO METADATA. ADR 5 ("the kajian tool never speaks for a
- *     scholar") and ISC-10 ("the video title never appears inside the identity slot") say a name
- *     appears ONLY from a hand-typed roster entry, and `roster.yaml` ships empty. The skill requires
- *     `speaker` in the UI. Erik chose the skill. So `speaker` here is whatever the pipeline read
- *     from the video, and it is NOT roster-backed.
- *   · THE NARRATION VOICE follows the skill (`id-ID-ArdiNeural` via `edge-tts`) rather than ADR 6's
- *     `id-ID-Chirp3-HD-Schedar`. That choice lives in the runner, not here; noted so a reader of
+ *     scholar") says a name appears ONLY from a hand-typed roster entry, and `roster.yaml` ships
+ *     empty. The skill requires `speaker` in the UI. Erik chose the skill. So `speaker` here is
+ *     whatever the pipeline read from the video, and it is NOT roster-backed.
+ *
+ *     CORRECTION 2026-08-23: this paragraph used to cite ISC-10 ("the video title never appears
+ *     inside the identity slot") alongside ADR 5. THE CITATION WAS WRONG; THE RULE IT STATES IS NOT.
+ *     ISC-10 (`ISA.md`) is `Anti: no shard, and not index.json, contains any tafsir passage text` —
+ *     nothing to do with naming — and ISC-10 never contained that sentence; the DA attached it and
+ *     shipped it in `fcb27c9`. But the rule is LIVE and enforced: `kajian-slide.ts:10` states it as
+ *     that file's headline decision and `kajian-slide.test.ts:13` pins it. It is ADR 5's rule. There
+ *     is no ISC for roster-only naming at all. Full retraction:
+ *     `docs/review/erik-ruling-2026-08-23-skill-wins.md` §NOT "ISC-10".
+ *
+ *     Erik's follow-up ruling the same day settled WHERE in the metadata: the DESCRIPTION or the
+ *     TITLE, never `channel` (it is a mosque on the one real capture). `src/app/kajian-speaker.ts`.
+ *   · THE NARRATION VOICE is RULED to follow the skill (`id-ID-ArdiNeural` via `edge-tts`) rather
+ *     than ADR 6's `id-ID-Chirp3-HD-Schedar`. STATED AS A RULING, NOT AS THE STATE OF THE TREE: the
+ *     tree still uses ADR 6's voice (`kajian-narration.ts:110`), and the m4a built on 2026-08-22 was
+ *     narrated with it. This is a decision not yet implemented. That choice lives in the runner, not here; noted so a reader of
  *     this file is not surprised by the audio.
  *
  * ── WHAT WAS *NOT* RELEASED, AND IS THEREFORE HELD ──────────────────────────────────────────────
