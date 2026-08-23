@@ -26,10 +26,12 @@ import {
   buildSlideHtml,
   escapeHtml,
   extractSlideBullets,
+  extractSlideTopics,
   sanitizeQrSvg,
   type SlideInput,
 } from "./kajian-slide.ts";
 import type { RosterOutcome } from "./kajian-roster.ts";
+import { SLIDE_WIDTH, SLIDE_HEIGHT } from "./kajian-render.ts";
 
 const NONE: RosterOutcome = { kind: "none" };
 const MATCH: RosterOutcome = {
@@ -200,7 +202,7 @@ describe("buildSlideHtml — draft state", () => {
   it("carries no band when it is not", () => {
     const html = buildSlideHtml(base({ isDraft: false }));
     expect(html).not.toContain("belum boleh diposting");
-    expect(html).not.toMatch(/<div class="qs-draft">/);
+    expect(html).not.toMatch(/<p class="qs-draft">/);
   });
 });
 
@@ -248,7 +250,8 @@ describe("tokens — a literal painted on top would survive a retheme", () => {
 
   it("exports the tokens so a future design can be diffed against this one", () => {
     expect(Object.keys(SLIDE_TOKENS).length).toBeGreaterThan(20);
-    expect(SLIDE_TOKENS["--qs-w"]).toBe("1080px");
+    expect(SLIDE_TOKENS["--qs-w"]).toBe("1920px");
+    expect(SLIDE_TOKENS["--qs-h"]).toBe("1080px");
   });
 
   it("is actually wired — overriding one token changes the document", () => {
@@ -477,5 +480,172 @@ describe("extractSlideBullets", () => {
     const out = extractSlideBullets(md);
     expect(out.bullets).toEqual([]);
     expect(out.dropped).toEqual([]);
+  });
+});
+
+// ── the category strip ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * A chip is an UNMARKED FRAGMENT sitting above the cards, so it is exactly as dangerous as a
+ * bullet and runs exactly the same screens. The cases below are written so each one trips only the
+ * rule under test — the repo's last force-red failed to go red because its carrier tripped three.
+ *
+ * ⚠ EVERY HEADING BELOW IS INVENTED, and must stay that way. This repo is PUBLIC, and a tracked
+ * fixture already carries a line of a real lecture (ISC-627) — a promise of removal is outstanding
+ * to its rights holder, so adding more is not a neutral act. The screens under test key on SHAPE
+ * (a paired quote mark, a post-nominal, the unclear-reference marker), and an invented heading of
+ * the same shape exercises them exactly as well as a real one would.
+ */
+describe("extractSlideTopics — the category strip", () => {
+  it("takes the briefing's level-3 headings, without their numbering", () => {
+    const r = extractSlideTopics("## PEMBAHASAN UTAMA\n### 1. Doa Harian\n### (2) Sabar\n### 3) Syukur\n");
+    expect(r.topics).toEqual(["Doa Harian", "Sabar", "Syukur"]);
+  });
+
+  /**
+   * THE LOAD-BEARING EXCLUSION. `#` is the document title, and the briefing writes the uploader's
+   * YouTube title there verbatim — gelar and all. Reading level 1 would put a name we never
+   * verified into a slot a reader takes as ours, which is the one thing ADR 5 exists to prevent.
+   */
+  it("never reads the document title or the section heading — only level three", () => {
+    const r = extractSlideTopics("# TIGA TANDA SYUKUR | USTADZ FULAN, L.C.\n## PEMBAHASAN UTAMA\n### Sabar\n");
+    expect(r.topics).toEqual(["Sabar"]);
+  });
+
+  it("drops a heading carrying a credential, and names the reason", () => {
+    const r = extractSlideTopics("### Nasihat Ustadz Fulan, Lc.\n");
+    expect(r.topics).toEqual([]);
+    expect(r.dropped[0]?.reason).toBe("carries-a-credential");
+  });
+
+  it("drops a heading carrying a quotation — an unmarked quote on a chip has nowhere to be caveated", () => {
+    const r = extractSlideTopics('### Makna Kata "Sabar" dalam Al-Qur\'an\n');
+    expect(r.topics).toEqual([]);
+    expect(r.dropped[0]?.reason).toBe("carries-a-quote");
+  });
+
+  it("drops a heading whose reference the transcript could not resolve", () => {
+    const r = extractSlideTopics("### Dalil rujukan tidak jelas\n");
+    expect(r.topics).toEqual([]);
+    expect(r.dropped[0]?.reason).toBe("unclear-reference");
+  });
+
+  /** Same rule as the bullets: an ellipsis can cut past a negation, so half a topic never ships. */
+  it("DROPS an over-long heading rather than truncating it", () => {
+    const long = "A".repeat(120);
+    const r = extractSlideTopics(`### ${long}\n`);
+    expect(r.topics).toEqual([]);
+    expect(r.dropped[0]).toEqual({ reason: "too-long", text: long });
+  });
+
+  it("stops dead at the check-list heading, exactly as the bullets do", () => {
+    const r = extractSlideTopics("### Sabar\n## Perlu dicek terhadap video (32)\n### Menit 12:03\n");
+    expect(r.topics).toEqual(["Sabar"]);
+  });
+
+  it("does not repeat a topic the briefing repeated", () => {
+    expect(extractSlideTopics("### Sabar\n### sabar\n").topics).toEqual(["Sabar"]);
+  });
+
+  it("reports what it left behind rather than showing a shorter strip in silence", () => {
+    const r = extractSlideTopics("### A\n### B\n### C\n### D\n### E\n### F\n### G\n", { max: 2 });
+    expect(r.topics).toEqual(["A", "B"]);
+    expect(r.dropped.map((d) => d.reason)).toEqual(["over-max", "over-max", "over-max", "over-max", "over-max"]);
+  });
+
+  it("bounds the SUM, not just each chip — the strip is one row and steals height from the cards", () => {
+    const r = extractSlideTopics("### AAAAAAAAAA\n### BBBBBBBBBB\n", { maxChars: 20, maxTotalChars: 15 });
+    expect(r.topics).toEqual(["AAAAAAAAAA"]);
+    expect(r.dropped[0]?.reason).toBe("over-budget");
+  });
+});
+
+describe("buildSlideHtml — the strip on the document", () => {
+  it("renders a chip per topic", () => {
+    const body = bodyOf(buildSlideHtml(base({ topics: ["Doa Harian", "Sabar"] })));
+    expect(body).toContain("Doa Harian");
+    expect(body).toContain("Sabar");
+    expect(body.match(/class="qs-chip"/g)?.length).toBe(2);
+  });
+
+  /** An empty strip is a frame around a claim we could not make — and it steals card height. */
+  it("omits the strip entirely when nothing survived the screens", () => {
+    const body = bodyOf(buildSlideHtml(base({ topics: [] })));
+    expect(body).not.toContain("qs-topics");
+    expect(body).not.toContain('class="qs-chip"');
+  });
+
+  it("escapes a chip — a heading is model output, not a literal", () => {
+    const body = bodyOf(buildSlideHtml(base({ topics: ["<script>alert(1)</script>"] })));
+    expect(body).not.toContain("<script>");
+    expect(body).toContain("&lt;script&gt;");
+  });
+
+  /**
+   * The strip sits OUTSIDE `<header>`, so the header-slice test above cannot see it. Without this
+   * case a topic naming the speaker would reach the slide through a door that guard does not watch.
+   */
+  it("keeps the uploader's title out of the strip as well as out of the header", () => {
+    const html = buildSlideHtml(base({ title: HAZARD_TITLE, topics: ["Sabar"] }));
+    const strip = html.slice(html.indexOf('class="qs-topics"'), html.indexOf("</nav>"));
+    expect(strip).not.toContain("SYARIFUL MAHYA");
+  });
+});
+
+// ── the landscape rewrite: what must survive it ────────────────────────────────────────────────
+
+/**
+ * ISC-624 changed the canvas, the panels and every card. These cases pin the three things Erik's
+ * reference carries that we REFUSE — a borrowed logo, a scraped video thumbnail, a name the roster
+ * never made — plus the one thing it does NOT carry that ADR 5 requires. All four are properties of
+ * the document rather than of any one element, so none of them is covered by a class-name check.
+ */
+describe("buildSlideHtml — the landscape layout keeps the guardrails", () => {
+  it("carries no image of any kind — no logo, no thumbnail, no embedded bytes", () => {
+    const html = buildSlideHtml(base({ qrSvg: sanitizeQrSvg(FAKE_QR), topics: ["Sabar"] }));
+    expect(html).not.toMatch(/<img\b/i);
+    expect(html).not.toMatch(/<picture\b/i);
+    expect(html).not.toContain("data:image");
+    expect(html).not.toMatch(/background-image\s*:/i);
+  });
+
+  /** The reference shows no such line. ADR 5 requires one, so the redesign may not lose it. */
+  it("still says it is an automatic summary and not a quotation, after the rewrite", () => {
+    expect(buildSlideHtml(base({ topics: ["Sabar"] }))).toContain(DENIALS);
+  });
+
+  it("numbers the cards SEMANTICALLY, so the order survives without the painted digit", () => {
+    const html = buildSlideHtml(base({ bullets: ["Satu.", "Dua."] }));
+    const main = html.slice(html.indexOf('class="qs-body"'), html.indexOf("</main>"));
+    expect(main).toContain("<ol class=\"qs-cards\">");
+    expect(main.match(/<li class="qs-card">/g)?.length).toBe(2);
+    expect(main).toContain('class="qs-num" aria-hidden="true"');
+  });
+
+  /**
+   * FALSIFICATION, not an assertion. A media query condition cannot take a `var()`, so a breakpoint
+   * would put a length literal outside `:root` — and the honest fix was to build the reflow out of
+   * `clamp()` and a wrapping flex row rather than to relax the force-red test to fit the layout.
+   */
+  it("reflows with no media query at all — every responsive step lives in the token block", () => {
+    const html = buildSlideHtml(base());
+    expect(html).not.toContain("@media");
+    expect(html).not.toContain("@container");
+    expect(html).toContain('name="viewport"');
+  });
+
+  /**
+   * The portrait version clipped overflow as a net under the character budget, and the net hid what
+   * it caught: a bullet cut at a line boundary reads as a finished sentence. The page grows now.
+   */
+  it("never clips its own body — an over-budget render must break VISIBLY", () => {
+    const html = buildSlideHtml(base());
+    expect(html).not.toMatch(/overflow\s*:\s*hidden/);
+    expect(html).toContain("min-height: min(var(--qs-h), 100dvh)");
+  });
+
+  it("mirrors the canvas the renderer hands Chrome — one number out of step captures the phone layout", () => {
+    expect(SLIDE_TOKENS["--qs-w"]).toBe(`${SLIDE_WIDTH}px`);
+    expect(SLIDE_TOKENS["--qs-h"]).toBe(`${SLIDE_HEIGHT}px`);
   });
 });

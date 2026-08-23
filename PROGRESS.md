@@ -4,6 +4,80 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (evening) — ISC-624: the landscape slide is built
+
+**Item 1 of the handoff is done, bar the play button.** `kajian-slide.ts` and `kajian-render.ts` were
+rewritten from a portrait 1080x1350 single column to Erik's **landscape 1920x1080 two-panel** layout:
+header, a category strip of pill chips, then numbered cards on the left and a source rail with the QR
+on the right. Gates: `bun test` **2048/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun
+run build` exit 0. **Nothing deployed** — the slide is a build-time CLI artefact, not a route.
+
+### The three refusals held, and are now tested as properties
+
+Erik chose *layout only, keep the guardrails*. His reference's **Darussalam logo** (rights item 2,
+still his), **video thumbnail** (`roster.yaml`) and **speaker name** (`speakers: []`) are all absent,
+and ISC-624.4 asserts it as a document property — no `<img>`, no `<picture>`, no `data:image`, no
+`background-image` — rather than by checking any one element. The reference carries no "automatic
+summary, not a quotation" line; ADR 5 requires one, and it survived the rewrite (ISC-624.5).
+
+### The category strip has an honest source
+
+Chips come from the briefing's own `###` sub-headings, never invented and never inferred. **Level
+three only:** `#` is where the briefing writes the uploader's YouTube title verbatim, gelar and all,
+so reading it would have put an unverified name in a slot the reader takes as ours. Chips run the
+same three screens the bullets run, and drop rather than truncate. On the real briefing 6 topics
+survive, and the one carrying a quotation was correctly dropped.
+
+### One document, two presentations — and why there is no media query
+
+The published artifact is the HTML, so the same markup reflows to one column on a phone (verified by
+rendering at 520 wide). Every responsive step is a `clamp()` **inside `:root`**, because a media
+query's condition cannot take a `var()` — its `px` literal would have lived outside the token block,
+and the honest options were to build the reflow differently or to relax the force-red guard to fit
+the layout. The guard was left alone. A control arm confirms it still fires: injecting a hex colour
+and a px size into the new card region reddens both arms, and removing them greens.
+
+### The budget was re-measured, and the old number was a stale record
+
+`DEFAULT_MAX_TOTAL_CHARS = 480` was carried over from a **portrait** measurement (438 fits / 552 clips
+at 1080x1350) that does not transfer. Re-measured at 1920x1080 with the draft band and a full
+six-chip strip: **497 chars → page ≈1052 tall, fits with ≈28px spare; 581 → ≈1128, overflows by ≈48px.**
+480 sits inside the verified-fit region. **What actually binds is the wrapped LINE count, not the
+character count** — 395 and 497 render the same eight lines and the same height.
+
+`overflow: hidden` was **removed**. It was a net under the budget that hid what it caught: a bullet
+cut at a line boundary reads as a finished sentence. The page grows now, so an over-budget render
+leaves a card sliced by the fold — obviously broken instead of quietly wrong.
+
+### Two things the render caught that no test could
+
+- **The ADR 5 disclaimer was cut at the fold** on the first landscape render. The binding element was
+  the *source rail*, not the cards — the QR and its metadata were taller than the card column. Fixed
+  by tightening the rail, not by cutting text.
+- **A 412px-wide screenshot showed every card cut on the right, and that was an artifact.** Headless
+  Chrome clamps its own window to about five hundred CSS pixels and then crops the screenshot to the
+  width asked for. The tell was that the cut fell at the same x on every unrelated element — a crop,
+  not per-element overflow. At 520 there is no overflow at all. A comment written to explain the
+  "bug" was corrected before commit; the `min-width` hardening it introduced was kept, because a flex
+  item's `min-width: auto` is a real latent hazard even though it was not this one.
+
+### Two of my own fixtures carried Darussalam material into a PUBLIC repo
+
+Written during the build: the lecture's title fragment and one of its real sub-headings. **ISC-627 has
+an outstanding promise of removal to that rights holder**, so adding more is not neutral. Both were
+replaced with invented headings of the same SHAPE before commit — the screens key on shape (a paired
+quote, a post-nominal, the unclear marker), so the guard is not weakened. The docblock says why, so
+the next session does not "improve" them back into real prose.
+
+### The play button was NOT built, deliberately (ISC-624.8)
+
+The PRD specifies pre-generated `id-ID-Chirp3-HD-Schedar` with browser `speechSynthesis` **only as a
+fallback**. ADR 6's one-voice rule is precisely why browser-TTS-only was rejected, so shipping a
+control backed by nothing else is not a partial delivery — it is the option already refused. It stays
+blocked on decoupling the short narration from the video branch (`kajian.ts:532`).
+
+---
+
 ## 2026-08-23 (night) — DEPLOYED, a public `.DS_Store`, and four gate passes on one letter
 
 **The unnamings are live.** Worker `2b7707f2` → `641f8ae2`, deployed from `44ed447` after Erik

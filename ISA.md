@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 632/651  # 631 [x] + ISC-418 [~]; 19 open [ ]. **Counted by grep at the 2026-08-23 late wrap** — `grep -c '^- \[x\] ISC-'` = 630, `'^- \[ \] ISC-'` = 18, `'^- \[~\] ISC-'` = 1, sum 649. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **The previous wrap's 624/641 arithmetic was off by one against its own grep** (it counted deferred ISC-189 as an extra line on top of the `[ ]` block that already contains it); the measured figure is used here instead of carrying that forward. Cycle 9 = ISC-569..626. Gates 2028/0 exit 0, typecheck exit 0, build exit 0, run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; both unnamings are live and were verified in real Chrome.**
+progress: 641/660  # 639 `[x]` + 2 `[~]` (ISC-418, ISC-624); 19 open `[ ]`. **Counted by grep at the 2026-08-23 evening session** — `grep -c '^- \[x\] ISC-'` = 639, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 2, sum 660. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..628; ISC-624 split into `.1`-`.9` under the ID-stability rule (parent kept, never renumbered). Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`. The landscape slide is NOT deployed — it is a build-time CLI artefact, not a reader-facing route.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1444,13 +1444,51 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       narration too. `--audio`/`--video` opt in; `--no-audio`/`--no-video` kept as accepted no-ops so
       older invocations do not start failing. **Nothing removed** — `narrateToWav`, `encodeM4a` and
       `stillVideo` and their tests are untouched. The deliverable is `slide.html` + its PNG.
-- [ ] ISC-624: **the slide layout Erik asked for is NOT built, and three of its elements are refused
-      by design.** He supplied a landscape two-panel reference and chose *layout only, keep the
-      guardrails*. So the LAYOUT is the work; the reference's **Darussalam logo** (rights item 2,
-      still open), **video thumbnail** (`roster.yaml` says outright a thumbnail grabbed off the video
-      is not an image we are entitled to use) and **speaker name** (`speakers: []` — ADR 5 gives an
-      unrostered video no identity) are NOT to be adopted. The reference also shows no
-      "automatic summary, not a quotation" line; ADR 5 requires one. **Item 1 next session.**
+- [~] ISC-624: **the slide layout Erik asked for — BUILT 2026-08-23, except the play button.** He
+      supplied a landscape two-panel reference and chose *layout only, keep the guardrails*. Split
+      below; the parent stays partial because ISC-624.8 is blocked on work that is not layout.
+- [x] ISC-624.1: **the canvas is landscape two-panel.** `--qs-w`/`--qs-h` are `1920px`/`1080px` and
+      `kajian-render.ts`'s `SLIDE_WIDTH`/`SLIDE_HEIGHT` mirror them; a test asserts the pair matches,
+      because the renderer's window size IS the responsive switch and one number out of step would
+      silently screenshot the phone layout instead of the canvas.
+- [x] ISC-624.2: **the points are numbered cards, and the numbering is SEMANTIC.** An `<ol
+      class="qs-cards">` of `<li class="qs-card">`, each with an `aria-hidden` painted digit, so a
+      screen reader announces the order without reading the decoration. Still no blockquote and no
+      left bar — ADR 5's "no bullet styled as a quote" is unchanged and still tested.
+- [x] ISC-624.3: **the category strip is built from the briefing's own `###` sub-headings**
+      (`extractSlideTopics`), never invented and never inferred. Level THREE only: `#` carries the
+      uploader's YouTube title verbatim, gelar and all, so reading it would put an unverified name in
+      a slot the reader takes as ours. Chips run the SAME three screens the bullets run — credential,
+      quotation, unclear-reference — plus a drop-not-truncate length cap, and drops are reported.
+- [x] ISC-624.4: **Anti: the three refused elements are absent, and their absence is tested as a
+      property of the document.** No `<img>`, no `<picture>`, no `data:image`, no `background-image`
+      — so no Darussalam logo (rights item 2, still Erik's), no scraped video thumbnail
+      (`roster.yaml`), and `speakers: []` still means no slide names anyone.
+- [x] ISC-624.5: **the "automatic summary, not a quotation" line survived the rewrite.** Erik's
+      reference carries no such line and ADR 5 requires one; asserted through the shared `DENIALS`
+      constant rather than a copy of its text.
+- [x] ISC-624.6: **the slide is a readable page as well as a canvas, with NO media query.** The
+      published artifact is the HTML — an image of text is invisible to assistive tech — so the same
+      markup reflows to one column on a phone. Every responsive step is a `clamp()` inside `:root`,
+      because a media-query condition cannot take a `var()` and its `px` literal would have forced
+      relaxing the force-red guard to fit the layout. Verified by rendering at 520 wide.
+- [x] ISC-624.7: **the character budget was RE-MEASURED for the landscape canvas, with a bracket.**
+      497 chars → page ≈1052 tall, fits 1080 with ≈28px spare; 581 chars → ≈1128, overflows by ≈48px.
+      The portrait figure (438 fits / 552 clips at 1080x1350) did not transfer and no longer appears.
+      **What binds is the wrapped LINE count, not the character count** — 395 and 497 render the same
+      eight lines. `overflow: hidden` was REMOVED: the page grows, so an over-budget render leaves a
+      card sliced by the fold instead of a bullet clipped into a finished-looking sentence.
+- [ ] ISC-624.8: **the play button is NOT built, and shipping it now would breach ADR 6.** The PRD
+      specifies pre-generated `id-ID-Chirp3-HD-Schedar` with browser `speechSynthesis` only as a
+      FALLBACK. ADR 6's one-voice rule is the reason browser-TTS-only was rejected, so a control
+      backed by nothing but `speechSynthesis` is not a partial delivery of this — it is the option
+      already refused. Blocked on decoupling the short narration from the video branch
+      (`kajian.ts:532`) and storing it as its own artefact.
+- [x] ISC-624.9: **Anti: the rewrite added no new Darussalam material to this PUBLIC repo.** Two
+      fixtures written during the build carried real strings from the lecture — its title fragment
+      and one of its sub-headings — and were replaced with invented headings of the same SHAPE before
+      commit. The screens key on shape (a paired quote, a post-nominal, the unclear marker), so the
+      guard is not weakened. ISC-627's outstanding promise of removal made this not a neutral act.
 - [x] ISC-625: **the letter discloses everything we hold, on Erik's decision.** It named two
       artefacts while we hold ~12.7 MB across TWO directories — `.scratch/kajian/brlqHxjIp9c/` (six
       files) and `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` (656 KB, including

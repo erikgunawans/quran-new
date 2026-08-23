@@ -56,12 +56,28 @@ import type { RosterOutcome } from "./kajian-roster.ts";
  * neutral: greys, one restrained accent, no brand. Erik firms this later.
  */
 export const SLIDE_TOKENS: Readonly<Record<string, string>> = {
-  // canvas
-  "--qs-w": "1080px",
-  "--qs-h": "1350px",
-  "--qs-pad": "84px",
+  // ── canvas ───────────────────────────────────────────────────────────────────────────────────
+  // LANDSCAPE, two-panel — Erik's reference, 2026-08-23. The portrait 1080x1350 it replaces was a
+  // single column; two panels need width, and 16:9 is the one landscape ratio that is already the
+  // native frame of the thing being summarised.
+  //
+  // ⚠ `--qs-h` is a FLOOR, not a fixed height. `.qs-slide` takes `min(var(--qs-h), 100dvh)`, so at
+  // the render window it is exactly the canvas and on a phone it is the viewport. There is NO media
+  // query anywhere in this document — every responsive step is a `clamp()` INSIDE this block, which
+  // is what keeps the force-red test ("no px survives outside :root") honest rather than relaxed.
+  "--qs-w": "1920px",
+  "--qs-h": "1080px",
+  "--qs-pad": "clamp(24px, 3.35vw, 64px)",
 
-  // ink + ground
+  // panel geometry. The two panels are one wrapping flex row: at canvas width both bases fit, and
+  // below roughly 1000px the side rail wraps under the cards on its own. No breakpoint declares it.
+  "--qs-main-basis": "1120px",
+  "--qs-main-min": "min(100%, 520px)",
+  "--qs-side-basis": "420px",
+  "--qs-side-min": "min(100%, 320px)",
+  "--qs-col-gap": "clamp(20px, 2.5vw, 48px)",
+
+  // ── ink + ground ─────────────────────────────────────────────────────────────────────────────
   "--qs-ground": "#f6f5f2",
   "--qs-ink": "#1b1c1e",
   "--qs-ink-soft": "#5d6166",
@@ -70,6 +86,20 @@ export const SLIDE_TOKENS: Readonly<Record<string, string>> = {
   "--qs-accent": "#2f6f57",
   "--qs-panel": "#ffffff",
 
+  // numbered cards
+  "--qs-card-ground": "#ffffff",
+  "--qs-card-rule": "#e7e5df",
+  "--qs-num-ground": "#2f6f57",
+  "--qs-num-ink": "#ffffff",
+
+  // category strip. A chip is single-line by construction (topics over the cap are DROPPED, never
+  // wrapped), so the stadium shape is intended here — but the radius is still a fixed token, not
+  // `999px`, because a `999px` corner clamps to half the box height and silently becomes a
+  // different shape on any row that does wrap. See memory: pill-radius-clamps-to-height.
+  "--qs-chip-ground": "#e9efe9",
+  "--qs-chip-ink": "#2c5c4a",
+  "--qs-chip-radius": "20px",
+
   // draft band
   "--qs-draft-ground": "#8a1c1c",
   "--qs-draft-ink": "#ffffff",
@@ -77,34 +107,40 @@ export const SLIDE_TOKENS: Readonly<Record<string, string>> = {
   // qr — its own pair, because contrast here is functional rather than aesthetic
   "--qs-qr-ink": "#000000",
   "--qs-qr-paper": "#ffffff",
-  "--qs-qr-size": "190px",
+  "--qs-qr-size": "clamp(132px, 9.2vw, 176px)",
   "--qs-qr-pad": "16px",
 
-  // type
+  // ── type ─────────────────────────────────────────────────────────────────────────────────────
   "--qs-font": "'Helvetica Neue', Helvetica, Arial, sans-serif",
-  "--qs-kicker-size": "26px",
+  "--qs-kicker-size": "clamp(13px, 1.25vw, 24px)",
   "--qs-kicker-track": "0.22em",
-  "--qs-head-size": "52px",
+  "--qs-head-size": "clamp(30px, 3.15vw, 60px)",
   "--qs-head-track": "-0.01em",
-  "--qs-speaker-size": "34px",
-  "--qs-cred-size": "25px",
-  "--qs-bullet-size": "34px",
-  "--qs-bullet-leading": "1.42",
-  "--qs-source-size": "23px",
-  "--qs-label-size": "19px",
-  "--qs-draft-size": "24px",
+  "--qs-speaker-size": "clamp(19px, 1.8vw, 34px)",
+  "--qs-cred-size": "clamp(15px, 1.35vw, 26px)",
+  "--qs-bullet-size": "clamp(17px, 1.62vw, 31px)",
+  "--qs-bullet-leading": "1.4",
+  "--qs-num-size": "clamp(14px, 1.3vw, 25px)",
+  "--qs-chip-size": "clamp(13px, 1.15vw, 22px)",
+  "--qs-source-size": "clamp(14px, 1.1vw, 21px)",
+  "--qs-label-size": "clamp(12px, 0.9vw, 17px)",
+  "--qs-draft-size": "clamp(14px, 1.25vw, 24px)",
 
-  // spacing
+  // ── spacing ──────────────────────────────────────────────────────────────────────────────────
   "--qs-gap-xs": "8px",
   "--qs-gap-sm": "16px",
-  "--qs-gap-md": "28px",
-  "--qs-gap-lg": "46px",
-  "--qs-bullet-gap": "26px",
-  "--qs-marker-size": "11px",
-  "--qs-marker-offset": "17px",
+  "--qs-gap-md": "clamp(16px, 1.5vw, 28px)",
+  "--qs-gap-lg": "clamp(20px, 1.8vw, 34px)",
+  "--qs-card-gap": "clamp(10px, 0.85vw, 16px)",
+  "--qs-card-pad": "clamp(13px, 1.05vw, 20px)",
+  "--qs-chip-gap": "clamp(7px, 0.6vw, 12px)",
+  "--qs-chip-pad-x": "clamp(10px, 0.85vw, 16px)",
+  "--qs-chip-pad-y": "clamp(5px, 0.45vw, 9px)",
+  "--qs-num-box": "clamp(28px, 2.4vw, 46px)",
   "--qs-rule-weight": "2px",
   "--qs-radius": "10px",
-  "--qs-draft-pad-y": "18px",
+  "--qs-card-radius": "14px",
+  "--qs-draft-pad-y": "clamp(10px, 0.95vw, 18px)",
 };
 
 // ── escaping ───────────────────────────────────────────────────────────────────────────────────
@@ -194,15 +230,31 @@ const DEFAULT_MAX_CHARS = 200;
 /**
  * MEASURED, NOT GUESSED — and the measurement is the only thing that makes this number honest.
  *
- * Rendered against the first real briefing at 1080x1350 WITH the draft band present (the tighter
- * of the two cases, and the common one for auto-captioned video). The body area holds twelve
- * wrapped lines at the default type scale. 438 characters over three bullets rendered with two
- * lines to spare; 552 over four clipped the last line of the last bullet.
+ * RE-MEASURED 2026-08-23 for the LANDSCAPE canvas (ISC-624). The portrait figure it replaces was
+ * taken at 1080x1350 in a single column and does not transfer: the card column here is wider but
+ * the page is 270px shorter, and each card adds its own padding, border and gap on top of its text.
  *
- * ⚠ CLIPPING IS SILENT. The overflow rule contains the damage but does not announce it — a bullet
- * cut at a line boundary reads as a finished sentence. So this budget is the guarantee and the
- * clip is only the net beneath it. ANY change to the type or spacing tokens invalidates this
- * number: re-render the real briefing and look at the PNG. Do not raise it by arithmetic.
+ * ⚠ WHAT BINDS IS THE WRAPPED LINE COUNT, NOT THE CHARACTER COUNT. 395 characters and 497 both
+ * render as eight wrapped lines across four cards and occupy the same height; the budget is stated
+ * in characters only because that is what the extractor can count before layout exists.
+ *
+ * The bracket, rendered at 1920x1080 with the draft band present and a full six-chip strip — the
+ * tightest case, and the common one for auto-captioned video:
+ *
+ *   · 497 characters over four bullets — content ends at y≈988, and with the 64px bottom padding
+ *     the page is ≈1052 tall. FITS the 1080 canvas with roughly 28px to spare.
+ *   · 581 characters over four bullets — ten wrapped lines, content ends at y≈1064, page ≈1128.
+ *     OVERFLOWS by ≈48px.
+ *
+ * 480 therefore sits inside the verified-fit region rather than at its edge.
+ *
+ * ⚠ NOTHING CLIPS ANY MORE, and that is the point. The portrait version put `overflow: hidden` on
+ * the body as a net under this budget, and the net hid what it caught — a bullet cut at a line
+ * boundary reads as a finished sentence. The page grows instead, so an over-budget render leaves a
+ * card sliced by the fold: obviously broken rather than quietly wrong.
+ *
+ * ANY change to the type, card or spacing tokens invalidates this number. Re-render the real
+ * briefing AND a ceiling case, and look at the PNG. Do not raise it by arithmetic.
  */
 const DEFAULT_MAX_TOTAL_CHARS = 480;
 
@@ -446,7 +498,126 @@ function collect(lines: readonly string[], opts: ExtractOptions): ExtractedBulle
   return { bullets, dropped };
 }
 
+// ── topics ─────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * THE CATEGORY STRIP — what the lecture covered, as chips, above the cards.
+ *
+ * Erik's reference carries a strip of category pills. The briefing already has the only honest
+ * source for them: its own `###` sub-headings, which the model wrote while summarising. Nothing is
+ * invented here and nothing is inferred — a topic that is not a heading in the briefing does not
+ * appear on the slide.
+ *
+ * ⚠ A CHIP IS AN UNMARKED FRAGMENT, so it runs the SAME three screens a bullet runs. A heading like
+ * `### 4. Tujuan Penggunaan Istilah "Bodoh"` carries a quotation and does not travel; a heading
+ * naming a person with a gelar would be an attribution the roster never made. The screens are
+ * shared with the bullets deliberately — a second copy of them is a second thing to drift.
+ *
+ * ⚠ LEVEL THREE ONLY. `#` is the document title (which carries the uploader's title verbatim) and
+ * `##` is the structural section (`PEMBAHASAN UTAMA`, `EXECUTIVE SUMMARY`) — neither is a topic.
+ * Taking `#` would put the YouTube title, gelar and all, into a slot the reader reads as ours.
+ */
+
+/** Level-3 headings only — see the note above on why `#` and `##` are excluded. */
+const TOPIC_HEADING = /^\s{0,3}###\s+(.*)$/;
+
+/** `1. `, `1) `, `(1) ` — the briefing numbers its sub-headings and the chip should not repeat it. */
+const TOPIC_ORDINAL = /^\s*(?:\(\d{1,2}\)|\d{1,2}[.)])\s*/;
+
+const DEFAULT_MAX_TOPICS = 6;
+/**
+ * A chip never wraps and never truncates. An over-long heading is DROPPED, for the same reason an
+ * over-long bullet is: an ellipsis can cut past a negation, and half a topic is a claim about the
+ * lecture that the lecture did not make.
+ */
+const DEFAULT_MAX_TOPIC_CHARS = 48;
+/**
+ * MEASURED, NOT GUESSED — the same rule as `DEFAULT_MAX_TOTAL_CHARS`. The strip is a wrapping row
+ * above the cards, so its SUM is what steals height from them, and a third chip row would cost the
+ * cards a wrapped line each.
+ *
+ * The real briefing yields exactly six surviving topics totalling 190 characters, which renders as
+ * TWO chip rows at 1920 wide and is the case the 480-character bullet bracket above was measured
+ * against. Anything larger pushes a third row. Re-render and look at the PNG after any change to
+ * the `--qs-chip-*` tokens; do not raise it by arithmetic.
+ */
+const DEFAULT_MAX_TOPIC_TOTAL_CHARS = 190;
+
+export interface ExtractedTopics {
+  readonly topics: readonly string[];
+  readonly dropped: readonly DroppedBullet[];
+}
+
+export interface TopicOptions {
+  readonly max?: number;
+  readonly maxChars?: number;
+  readonly maxTotalChars?: number;
+}
+
+/**
+ * The briefing's `###` sub-headings, screened, deduped and budgeted.
+ *
+ * Stops dead at the check-list heading exactly as `extractSlideBullets` does — the section after it
+ * is what we are least sure about, and a chip carries no caveat.
+ */
+export function extractSlideTopics(markdown: string, opts: TopicOptions = {}): ExtractedTopics {
+  const max = opts.max ?? DEFAULT_MAX_TOPICS;
+  const maxChars = opts.maxChars ?? DEFAULT_MAX_TOPIC_CHARS;
+  const maxTotal = opts.maxTotalChars ?? DEFAULT_MAX_TOPIC_TOTAL_CHARS;
+
+  const topics: string[] = [];
+  const dropped: DroppedBullet[] = [];
+  const seen = new Set<string>();
+  let total = 0;
+
+  for (const raw of markdown.split("\n")) {
+    const line = raw.trim();
+    if (isCheckListHeading(line)) break;
+
+    const m = TOPIC_HEADING.exec(line);
+    if (!m) continue;
+
+    const text = stripInlineMarkdown(m[1] ?? "").replace(TOPIC_ORDINAL, "").trim();
+    if (!text) continue;
+
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    if (hasUnclearReference(text)) {
+      dropped.push({ reason: "unclear-reference", text });
+      continue;
+    }
+    if (carriesQuotation(text)) {
+      dropped.push({ reason: "carries-a-quote", text });
+      continue;
+    }
+    if (carriesCredential(text)) {
+      dropped.push({ reason: "carries-a-credential", text });
+      continue;
+    }
+    if (text.length > maxChars) {
+      dropped.push({ reason: "too-long", text });
+      continue;
+    }
+    if (topics.length >= max) {
+      dropped.push({ reason: "over-max", text });
+      continue;
+    }
+    if (total + text.length > maxTotal) {
+      dropped.push({ reason: "over-budget", text });
+      continue;
+    }
+
+    topics.push(text);
+    total += text.length;
+  }
+
+  return { topics, dropped };
+}
+
 // ── the document ───────────────────────────────────────────────────────────────────────────────
+
 
 export interface SlideInput {
   /** YouTube's own title, verbatim. Rendered ONLY in the source block, never as identity. */
@@ -458,6 +629,8 @@ export interface SlideInput {
   readonly qrSvg?: string;
   readonly speaker: RosterOutcome;
   readonly bullets: readonly string[];
+  /** The briefing's screened `###` sub-headings, from `extractSlideTopics`. Omit for no strip. */
+  readonly topics?: readonly string[];
   /** The briefing was built from auto-captions with unchecked spans. */
   readonly isDraft: boolean;
   /** Per-run token overrides. Merged over `SLIDE_TOKENS`. */
@@ -473,6 +646,7 @@ const KICKER = "Ringkasan otomatis";
  */
 export const DRAFT_COPY = "DRAFT — belum diperiksa, belum boleh diposting";
 const SOURCE_LABEL = "Judul di YouTube, disalin apa adanya";
+const TOPICS_LABEL = "Yang dibahas";
 const DISCLAIMER = `Ringkasan otomatis dari video di atas. ${DENIALS} Pindai kode untuk menonton sumbernya.`;
 /**
  * Printed only when nobody was named. It says what is true — we did not identify anyone — without
@@ -495,45 +669,94 @@ function tokenBlock(tokens: Readonly<Record<string, string>>): string {
  */
 function speakerBlock(speaker: RosterOutcome): string {
   if (speaker.kind !== "match") {
-    return `      <p class="qs-nospeaker">${escapeHtml(NO_SPEAKER_NOTE)}</p>`;
+    return `        <p class="qs-nospeaker">${escapeHtml(NO_SPEAKER_NOTE)}</p>`;
   }
   const { name, credentials } = speaker.match.entry;
   const cred = credentials?.trim()
-    ? `\n        <span class="qs-cred">${escapeHtml(credentials.trim())}</span>`
+    ? `\n          <span class="qs-cred">${escapeHtml(credentials.trim())}</span>`
     : "";
   return (
-    `      <div class="qs-speaker">\n` +
-    `        <span class="qs-name">${escapeHtml(name)}</span>${cred}\n` +
-    `      </div>`
+    `        <div class="qs-speaker">\n` +
+    `          <span class="qs-name">${escapeHtml(name)}</span>${cred}\n` +
+    `        </div>`
   );
 }
 
 /**
- * One self-contained HTML document, 1080x1350, with no external reference of any kind — Chrome is
- * pointed at a `file://` URL with no network, so a webfont or a CDN stylesheet would render as a
- * silent fallback rather than an error.
+ * The category strip. Omitted entirely when nothing survived the screens — an empty strip is a
+ * frame around a claim we could not make, and it steals height from the cards for nothing.
+ */
+function topicStrip(topics: readonly string[]): string {
+  if (!topics.length) return "";
+  const chips = topics
+    .map((t) => `          <li class="qs-chip">${escapeHtml(t)}</li>`)
+    .join("\n");
+  return (
+    `      <nav class="qs-topics" aria-label="${escapeHtml(TOPICS_LABEL)}">\n` +
+    `        <ul class="qs-chips">\n${chips}\n        </ul>\n` +
+    `      </nav>\n`
+  );
+}
+
+/**
+ * ONE DOCUMENT, TWO PRESENTATIONS — and the second one is why there is not a single media query.
+ *
+ * At the render window (`--qs-w` x `--qs-h`, mirrored by `kajian-render.ts`) this is the landscape
+ * canvas Erik asked for: header, category strip, then two panels — numbered cards on the left, the
+ * source rail with the QR on the right. Pointed at a phone it is the same markup reflowing into one
+ * column, which is the form that actually matters: the published artifact is the HTML, and an image
+ * of text is invisible to assistive technology.
+ *
+ * ⚠ EVERY RESPONSIVE STEP IS A `clamp()` INSIDE `:root`, never a breakpoint. A media query cannot
+ * take a `var()`, so its condition would be a `px` literal living outside the token block — which
+ * the force-red test forbids for a good reason, and relaxing that test to fit a layout would have
+ * traded a real guard for a convenience. The wrapping flex row does the same job with no literal:
+ * both panels declare a basis and a `min()` floor, and the rail wraps under the cards on its own.
+ *
+ * ⚠ NOTHING CLIPS ANY MORE. The portrait version put `overflow: hidden` on the body as a net under
+ * the character budget, and that net hid the thing it caught: a bullet cut at a line boundary reads
+ * as a finished sentence. Here the page GROWS instead — `min-height`, not `height` — so an
+ * over-budget render leaves a card sliced by the fold in the PNG, which is obviously broken rather
+ * than quietly wrong. The budget is still the guarantee; the visible break is only the alarm.
+ *
+ * ⚠ THREE THINGS IN ERIK'S REFERENCE ARE REFUSED BY DESIGN, and their absence is the feature:
+ * the Darussalam logo (rights item 2, unresolved and his call), the video thumbnail (`roster.yaml`
+ * states a frame grabbed off the video is not an image we are entitled to use) and the speaker name
+ * (`speakers: []` — ADR 5 gives an unrostered video no identity). The reference also carries no
+ * "automatic summary, not a quotation" line; ADR 5 requires one, so `DISCLAIMER` survives the
+ * redesign. That is why this document still has zero `<img>` and zero `data:` URIs.
  */
 export function buildSlideHtml(input: SlideInput): string {
   const tokens = { ...SLIDE_TOKENS, ...(input.tokens ?? {}) };
 
   const draftBand = input.isDraft
-    ? `    <div class="qs-draft">${escapeHtml(DRAFT_COPY)}</div>\n`
+    ? `      <p class="qs-draft">${escapeHtml(DRAFT_COPY)}</p>\n`
     : "";
 
-  const bullets = input.bullets.length
-    ? `      <ul class="qs-points">\n` +
-      input.bullets.map((b) => `        <li>${escapeHtml(b)}</li>`).join("\n") +
-      `\n      </ul>`
-    : `      <p class="qs-nopoints">Ringkasan tidak tersedia untuk slide ini.</p>`;
+  // An <ol> so the numbering is SEMANTIC — a screen reader announces "1 of 3" without reading the
+  // painted digit, which is why the digit itself is aria-hidden rather than merely decorative.
+  const cards = input.bullets.length
+    ? `        <ol class="qs-cards">\n` +
+      input.bullets
+        .map(
+          (b, i) =>
+            `          <li class="qs-card">` +
+            `<span class="qs-num" aria-hidden="true">${i + 1}</span>` +
+            `<p class="qs-point">${escapeHtml(b)}</p></li>`,
+        )
+        .join("\n") +
+      `\n        </ol>`
+    : `        <p class="qs-nopoints">Ringkasan tidak tersedia untuk slide ini.</p>`;
 
   const qr = input.qrSvg
-    ? `      <div class="qs-qr">${input.qrSvg}</div>`
-    : `      <div class="qs-qr qs-qr-empty"></div>`;
+    ? `        <div class="qs-qr">${input.qrSvg}</div>`
+    : `        <div class="qs-qr qs-qr-empty"></div>`;
 
   return `<!doctype html>
 <html lang="id">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(HEADING)}</title>
   <style>
     :root {
@@ -542,26 +765,39 @@ ${tokenBlock(tokens)}
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    html, body {
-      width: var(--qs-w);
-      height: var(--qs-h);
+    html { background: var(--qs-ground); }
+
+    /* NOT a flex container, deliberately. Making it one turns the slide into a flex item, and a flex
+       item's default min-width is auto — its MIN-CONTENT width — which a long unwrapped chip could
+       hold open wider than a narrow viewport. Centring by auto inline margin cannot do that. This is
+       a hazard closed by construction, NOT a bug observed: the sideways cut it was first written to
+       explain turned out to be headless Chrome clamping its own window to a minimum of about five
+       hundred CSS pixels and cropping the screenshot to the requested width. Probe narrow layouts at
+       that minimum or wider, or through CDP emulation. (Two things this stylesheet may not contain,
+       both enforced by tests: a backtick, because it lives in a template literal, and a length
+       literal, because the force-red test greps the whole document — comments included.) */
+    body {
       background: var(--qs-ground);
       color: var(--qs-ink);
       font-family: var(--qs-font);
       -webkit-font-smoothing: antialiased;
     }
 
+    /* width is the canvas and max-width is the phone; min-height is a FLOOR, so the page grows
+       rather than clipping. See the note on buildSlideHtml. */
     .qs-slide {
       width: var(--qs-w);
-      height: var(--qs-h);
+      max-width: 100%;
+      margin-inline: auto;
+      min-height: min(var(--qs-h), 100dvh);
       padding: var(--qs-pad);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      gap: var(--qs-gap-lg);
     }
 
     .qs-draft {
-      margin: calc(var(--qs-pad) * -1) calc(var(--qs-pad) * -1) var(--qs-gap-lg);
+      margin: calc(var(--qs-pad) * -1) calc(var(--qs-pad) * -1) 0;
       padding: var(--qs-draft-pad-y) var(--qs-pad);
       background: var(--qs-draft-ground);
       color: var(--qs-draft-ink);
@@ -584,6 +820,7 @@ ${tokenBlock(tokens)}
       font-size: var(--qs-head-size);
       font-weight: 700;
       letter-spacing: var(--qs-head-track);
+      line-height: 1.08;
     }
 
     .qs-speaker {
@@ -601,47 +838,98 @@ ${tokenBlock(tokens)}
       color: var(--qs-ink-faint);
     }
 
-    /* Clipping is a SECOND line of defence behind the character budget, not the primary one. If a
-       budget is ever set too high, an overflowing body must clip inside its own box — the first
-       real render pushed a bullet straight through the QR and the source block, which reads as a
-       broken image rather than as too much text. */
-    .qs-body {
-      flex: 1 1 auto;
-      margin-top: var(--qs-gap-lg);
-      min-height: 0;
-      overflow: hidden;
+    /* the category strip */
+    .qs-chips {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--qs-chip-gap);
+      min-width: 0;
+    }
+    .qs-topics { min-width: 0; }
+    /* A FIXED radius, never an oversized one. A radius bigger than half the box is CLAMPED to half
+       the box height, so a single declaration renders a different shape on every row whose height
+       differs — one value rendered three corners in this repo before. Chips are single-line here by
+       construction (an over-long topic is dropped, not wrapped), but the token keeps that true even
+       if a future type scale makes one wrap. NOTE: this comment carries no length literal on
+       purpose — the force-red test greps the whole document, comments included. */
+    .qs-chip {
+      padding: var(--qs-chip-pad-y) var(--qs-chip-pad-x);
+      border-radius: var(--qs-chip-radius);
+      background: var(--qs-chip-ground);
+      color: var(--qs-chip-ink);
+      font-size: var(--qs-chip-size);
+      font-weight: 600;
+      max-width: 100%;
+      overflow-wrap: anywhere;
     }
 
-    .qs-points { list-style: none; }
-    .qs-points li {
-      position: relative;
-      padding-left: calc(var(--qs-marker-size) * 3);
-      margin-bottom: var(--qs-bullet-gap);
+    /* the two panels — one wrapping row, no breakpoint */
+    .qs-panels {
+      flex: 1 1 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: var(--qs-col-gap);
+      min-height: 0;
+    }
+
+    .qs-body {
+      flex: 1 1 var(--qs-main-basis);
+      min-width: var(--qs-main-min);
+      min-height: 0;
+    }
+
+    .qs-cards {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--qs-card-gap);
+    }
+    /* A card with a numbered chip, never a left bar and never a quotation mark: ADR 5 says bullets
+       are not styled as quotes, and a rule down the left edge reads as a pull-quote at a glance. */
+    .qs-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--qs-gap-md);
+      padding: var(--qs-card-pad);
+      background: var(--qs-card-ground);
+      border: var(--qs-rule-weight) solid var(--qs-card-rule);
+      border-radius: var(--qs-card-radius);
+    }
+    .qs-num {
+      flex: none;
+      width: var(--qs-num-box);
+      height: var(--qs-num-box);
+      border-radius: var(--qs-radius);
+      background: var(--qs-num-ground);
+      color: var(--qs-num-ink);
+      font-size: var(--qs-num-size);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qs-point {
+      min-width: 0;
       font-size: var(--qs-bullet-size);
       line-height: var(--qs-bullet-leading);
-    }
-    /* A round marker, never a quotation mark or a rule: ADR 5 says bullets are not styled as
-       quotes, and a left bar reads as a pull-quote at a glance. */
-    .qs-points li::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: var(--qs-marker-offset);
-      width: var(--qs-marker-size);
-      height: var(--qs-marker-size);
-      border-radius: var(--qs-marker-size);
-      background: var(--qs-accent);
+      overflow-wrap: anywhere;
     }
 
     .qs-nopoints { font-size: var(--qs-bullet-size); color: var(--qs-ink-faint); }
 
+    /* the source rail */
     .qs-source {
-      flex: none;
+      flex: 1 1 var(--qs-side-basis);
+      min-width: var(--qs-side-min);
       display: flex;
+      flex-direction: column;
       gap: var(--qs-gap-md);
-      align-items: flex-start;
-      border-top: var(--qs-rule-weight) solid var(--qs-rule);
-      padding-top: var(--qs-gap-md);
+      padding: var(--qs-card-pad);
+      background: var(--qs-panel);
+      border: var(--qs-rule-weight) solid var(--qs-card-rule);
+      border-radius: var(--qs-card-radius);
     }
 
     .qs-qr {
@@ -675,10 +963,12 @@ ${tokenBlock(tokens)}
       margin-top: var(--qs-gap-xs);
       font-size: var(--qs-source-size);
       color: var(--qs-ink-soft);
-      word-break: break-all;
+      word-break: break-word;
     }
     .qs-disclaimer {
       margin-top: var(--qs-gap-sm);
+      padding-top: var(--qs-gap-sm);
+      border-top: var(--qs-rule-weight) solid var(--qs-rule);
       font-size: var(--qs-label-size);
       line-height: var(--qs-bullet-leading);
       color: var(--qs-ink-faint);
@@ -686,27 +976,29 @@ ${tokenBlock(tokens)}
   </style>
 </head>
 <body>
-  <div class="qs-slide">
+  <article class="qs-slide">
 ${draftBand}    <header>
       <p class="qs-kicker">${escapeHtml(KICKER)}</p>
       <h1 class="qs-head">${escapeHtml(HEADING)}</h1>
 ${speakerBlock(input.speaker)}
     </header>
 
-    <main class="qs-body">
-${bullets}
-    </main>
+${topicStrip(input.topics ?? [])}    <div class="qs-panels">
+      <main class="qs-body">
+${cards}
+      </main>
 
-    <footer class="qs-source">
+      <aside class="qs-source">
 ${qr}
-      <div class="qs-meta">
-        <p class="qs-label">${escapeHtml(SOURCE_LABEL)}</p>
-        <p class="qs-title">${escapeHtml(input.title)}</p>
-        <p class="qs-where">${escapeHtml(input.channel)} — ${escapeHtml(input.url)}</p>
-        <p class="qs-disclaimer">${escapeHtml(DISCLAIMER)}</p>
-      </div>
-    </footer>
-  </div>
+        <div class="qs-meta">
+          <p class="qs-label">${escapeHtml(SOURCE_LABEL)}</p>
+          <p class="qs-title">${escapeHtml(input.title)}</p>
+          <p class="qs-where">${escapeHtml(input.channel)} — ${escapeHtml(input.url)}</p>
+          <p class="qs-disclaimer">${escapeHtml(DISCLAIMER)}</p>
+        </div>
+      </aside>
+    </div>
+  </article>
 </body>
 </html>
 `;

@@ -33,10 +33,12 @@
  * A briefing built from auto-captions is written as a DRAFT and says so at the top. Per ADR 5 a
  * draft is not postable until its flagged citations have been checked.
  *
- * THE SLIDE (step 4, `kajian-slide.ts` + `kajian-render.ts`). A 1080x1350 PNG with a QR to the
- * source, composed from the briefing this run just wrote — never from a second model call. It is
- * where the roster's silence actually has to hold, and where the uploader's title is kept OUT of
- * the identity slot; see that module's docblock, which is the argument for the whole design.
+ * THE SLIDE (step 4, `kajian-slide.ts` + `kajian-render.ts`). A LANDSCAPE 1920x1080 page — cards
+ * on the left, a source rail with a QR on the right — composed from the briefing this run just
+ * wrote, never from a second model call. It reflows to one column on a phone with no media query,
+ * because the published artifact is the HTML and an image of text is invisible to a screen reader.
+ * It is where the roster's silence actually has to hold, and where the uploader's title is kept OUT
+ * of the identity slot; see that module's docblock, which is the argument for the whole design.
  *
  * USAGE.
  *   export OPENROUTER_API_KEY=...          # it is in ./.env — source it, never print it
@@ -101,7 +103,7 @@ import {
   type RosterEntry,
   type RosterOutcome,
 } from "./kajian-roster.ts";
-import { DENIALS, buildSlideHtml, extractSlideBullets } from "./kajian-slide.ts";
+import { DENIALS, buildSlideHtml, extractSlideBullets, extractSlideTopics } from "./kajian-slide.ts";
 import { qrSvg, renderPng } from "./kajian-render.ts";
 import { buildNarrationScript, channelMayBeSpoken } from "./kajian-narration.ts";
 import { encodeM4a, narrateToWav, stillVideo } from "./kajian-audio.ts";
@@ -476,6 +478,17 @@ if (!NO_SLIDE) {
   }
   if (layout) console.log(`  · slide drops ${layout} more point${layout === 1 ? "" : "s"} for lack of room`);
 
+  /**
+   * The category strip runs the SAME safety screens the bullets run, so its safety drops are
+   * reported the same way — a chip is an unmarked fragment and a silently dropped one reads as
+   * "the lecture did not cover that".
+   */
+  const topics = extractSlideTopics(briefing);
+  for (const d of topics.dropped.filter((d) => !LAYOUT.includes(d.reason))) {
+    const short = d.text.length > 72 ? `${d.text.slice(0, 72)}…` : d.text;
+    console.log(`  · slide drops topic (${d.reason}): ${short}`);
+  }
+
   const html = buildSlideHtml({
     title: meta.title,
     channel: meta.channel,
@@ -483,6 +496,7 @@ if (!NO_SLIDE) {
     qrSvg: qrSvg(meta.url),
     speaker,
     bullets: extracted.bullets,
+    topics: topics.topics,
     isDraft,
   });
 
@@ -490,7 +504,10 @@ if (!NO_SLIDE) {
   writeFileSync(slidePath, html);
   pngPath = join(outDir, "slide.png");
   renderPng(slidePath, pngPath);
-  console.log(`  slide: ${extracted.bullets.length} poin, ${extracted.dropped.length} dibuang → ${pngPath}`);
+  console.log(
+    `  slide: ${extracted.bullets.length} poin, ${extracted.dropped.length} dibuang, ` +
+      `${topics.topics.length} topik → ${pngPath}`,
+  );
 }
 
 // ── 6. the narration ───────────────────────────────────────────────────────────────────────────

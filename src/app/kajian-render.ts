@@ -27,9 +27,20 @@ import { sanitizeQrSvg } from "./kajian-slide.ts";
 const QRENCODE = "qrencode";
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
-/** Slide canvas, in CSS pixels. Must match `--qs-w` / `--qs-h`. */
-export const SLIDE_WIDTH = 1080;
-export const SLIDE_HEIGHT = 1350;
+/**
+ * Slide canvas, in CSS pixels. Must match `--qs-w` / `--qs-h`.
+ *
+ * LANDSCAPE since 2026-08-23 (ISC-624). The portrait 1080x1350 it replaces was a single column;
+ * Erik's reference is two panels, and panels need width.
+ *
+ * ⚠ THIS IS ALSO THE RESPONSIVE SWITCH, which is why it has to stay in step with the tokens.
+ * `kajian-slide.ts` carries no media query at all — `.qs-slide` takes `min(var(--qs-h), 100dvh)`
+ * and a wrapping flex row — so the document is the fixed canvas ONLY because Chrome is handed a
+ * window exactly this size. Change one of these four numbers without the other three and the
+ * screenshot silently captures the phone layout instead.
+ */
+export const SLIDE_WIDTH = 1920;
+export const SLIDE_HEIGHT = 1080;
 
 /**
  * A QR for `url`, ready to inline.
@@ -53,7 +64,7 @@ export function qrSvg(url: string): string {
 }
 
 export interface RenderOptions {
-  /** Device pixel ratio. 2 gives a 2160x2700 PNG, which is what a feed actually wants. */
+  /** Device pixel ratio. 2 gives a 3840x2160 PNG, which is what a feed actually wants. */
   readonly scale?: number;
   readonly timeoutMs?: number;
 }
