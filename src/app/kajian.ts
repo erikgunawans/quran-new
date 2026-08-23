@@ -47,8 +47,28 @@
  *   bun run src/app/kajian.ts <url> --no-slide       # skip the slide + QR render
  *   bun run src/app/kajian.ts <url> --bullets 4      # how many points reach the slide
  *   bun run src/app/kajian.ts <url> --deadline 900    # seconds to allow the briefing model
- *   bun run src/app/kajian.ts <url> --no-audio       # skip narration entirely (no TTS spend)
- *   bun run src/app/kajian.ts <url> --no-video       # narrate, but do not build the short mp4
+ *   bun run src/app/kajian.ts <url> --audio          # ALSO narrate (TTS spend; OFF by default)
+ *   bun run src/app/kajian.ts <url> --audio --video  # ...and build the short mp4 from the slide
+ *
+ * SOUND AND VIDEO ARE BOTH OFF BY DEFAULT SINCE 2026-08-23, on Erik's instruction: *"I prefer the
+ * result to be like the HTML format ... I don't need the video for that"*, and, asked directly
+ * about the narration, to drop that too. **The deliverable is the slide** — `slide.html` and the
+ * PNG rendered from it.
+ *
+ * Two reasons this is the right default rather than a preference. It stops paying for TTS nobody
+ * asked for, and — the one that matters — every narration run manufactures a second machine-voiced
+ * derivative of a real person's lecture, which is one more artefact needing a permission we do not
+ * have. Producing less of someone else's material by default is the safer floor.
+ *
+ * `--no-audio` and `--no-video` are STILL ACCEPTED as no-ops so older invocations, docs and scripts
+ * do not start failing; they now describe the default instead of changing it. Nothing is removed:
+ * `narrateToWav`, `encodeM4a` and `stillVideo` are untouched and their tests still run. `--video`
+ * without `--audio` cannot build an mp4 — the video IS the slide plus narration — so it prints a
+ * skip line rather than failing.
+ *
+ * The rights position on the mp4 and m4a ALREADY built on 2026-08-22 is a separate question and is
+ * recorded in `docs/review/rights-darussalam-logo-2026-08-23.md`; changing a default does not
+ * unbuild them.
  */
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -112,8 +132,13 @@ const NO_SLIDE = has("no-slide");
  * "The operation timed out", which reads as a provider fault and is not one.
  */
 const DEADLINE_S = Number(flag("deadline") ?? "600");
-const NO_AUDIO = has("no-audio");
-const NO_VIDEO = has("no-video");
+/**
+ * Narration and the mp4 are both opt-IN since 2026-08-23. `--no-audio`/`--no-video` stay accepted
+ * so older invocations keep working, but they are the default now and passing them changes nothing.
+ * See the header for Erik's instruction and for why producing less by default is the safer floor.
+ */
+const NO_AUDIO = !has("audio");
+const NO_VIDEO = !has("video");
 const BULLETS = Number(flag("bullets") ?? "5");
 if (!Number.isInteger(BULLETS) || BULLETS < 1) {
   console.error(`✗ --bullets must be a positive integer, got "${flag("bullets")}"`);
@@ -124,7 +149,7 @@ if (!URL_ARG) {
   console.error(
     "Usage: bun run src/app/kajian.ts <youtube-url-or-id> [--lang id,en] [--no-brief] [--refresh]\n" +
       "                                 [--model <id>] [--no-slide] [--bullets N] [--deadline S]\n" +
-      "                                 [--no-audio] [--no-video]",
+      "                                 [--audio] [--video]",
   );
   process.exit(1);
 }

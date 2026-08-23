@@ -4,6 +4,81 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (night) — DEPLOYED, a public `.DS_Store`, and four gate passes on one letter
+
+**The unnamings are live.** Worker `2b7707f2` → `641f8ae2`, deployed from `44ed447` after Erik
+authorised it. Verified in real Chrome, not by grep: the Hadits kitab banner renders the permission
+sentence with **no name**, and the surah preface's Indonesian edition renders 6,659 chars with no
+`Isrofiel` and no `Menunggu tinjauan`, its tooltip reading *"Terjemahan mesin (AI) — belum ditinjau."*
+The reviewed-aqidah credit still names him and **must** — his own prose, never in scope.
+
+**The deploy carried more than the unnamings, and nobody had said so.** Prod was on `4a144ad`; the
+range `4a144ad..44ed447` includes the whole Track B auth layer and the kajian admin route. Probed
+live and all correct: admin route 403 to everyone, `auth/role` anonymous `member`, `auth/request`
+`{"ok":false,"sent":false}`. The one `answer-repair.ts` change in range is comment-only.
+
+### The defect this session introduced, and closed
+
+**The first deploy published `web/dist/.DS_Store` — 6,148 bytes of local file names, HTTP 200 to
+anyone.** `wrangler deploy` uploads the directory and has never read `.gitignore`. Deleted and
+redeployed within minutes. **The only sound test on this origin is the byte count, not the status:**
+`/.DS_Store` now returns the 24,835-byte SPA fallback, and so does `/.assetsignore` — which is also
+the evidence wrangler consumed the ignore file rather than serving it.
+
+Durable guard in `src/app/build-meta.ts` (`sweepPublishable`, `ASSET_DIRS`, 11 tests). It sweeps
+**both** dists: `demo:build` writes `web/dist-demo` through the same `app:build-meta` call, so a
+prod-only sweep would have left demo open to the identical defect. demo was probed clean first —
+this keeps it clean, it did not fix a live leak. Force-red twice: a non-recursive walk fails **only**
+the nesting test; a bogus dir fails **both** wiring tests. And the real build swept a `.DS_Store`
+Finder had recreated during the session, which is the proof it recurs.
+
+### Four gate passes on the Darussalam letter, and every BLOCK was on a correction
+
+Erik decided to **send** the letter and to **disclose** the already-built derivatives. Then, asked
+again, to **disclose everything we hold**. The letter is still unsent — the DA never sends, and he
+has not yet read its text.
+
+Passes 2, 3 and 4 each blocked the DA's own corrections, never the original. What they caught:
+
+- *"satu ringkasan"* against a letter defining its output as **dua hal** read as the image only,
+  hiding the 5.4 MB machine-narrated mp4 — the artefact closest to a derivative.
+- A status block asserting Erik's decision with **none** of the FORM caveat every sibling record
+  carries, and claiming parity with `erik-ruling-2026-08-23-kajian-four.md` — which is **not** the
+  same form: that one rests on his verbatim *"i follow your recommendation"*, this one on no
+  sentence at all.
+- The file list said **four**; the directory holds **six**.
+- **A whole second directory no rights record had ever mentioned:**
+  `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/`, 656 KB including `transcript.md`
+  (88,364 B, the **full verbatim transcript**) and their `cover.jpg`. True footprint ~12.7 MB.
+- The letter claimed *"supaya Bapak/Ibu tahu persis keadaannya"* while disclosing two of six. Cut —
+  and the widening put to Erik rather than made by the DA.
+
+**The `briefing.md` quotation count was published wrong twice, both times low:** four (blockquoted
+lines only), then eleven (straight-quoted spans only, missing the entire
+`## Perlu dicek terhadap video (32)` section). Correct: **12 quoted passages + 32 verbatim transcript
+excerpts.** Every error on this file ran the same direction — making the material we hold of theirs
+look smaller than it is. ISC-626 stays OPEN as a standing instruction to recount and prefer the
+larger reading.
+
+### Erik's slide decision
+
+He supplied a landscape two-panel reference and said he wants the **HTML/slide result, not the mp4**.
+Narration dropped too, asked directly. `--audio`/`--video` are now opt-in; `--no-audio`/`--no-video`
+kept as accepted no-ops. **Nothing removed** — `narrateToWav`, `encodeM4a`, `stillVideo` and their
+tests are untouched, and changing a default does not unbuild the 2026-08-22 artefacts.
+
+He chose **layout only, keep the guardrails**. So ISC-624 is item 1 next session, and three elements
+of the reference are refused by design: its **Darussalam logo** (rights item 2, still open), its
+**video thumbnail** (`roster.yaml`: a thumbnail grabbed off the video is not an image we are entitled
+to use) and its **speaker name** (`speakers: []` — ADR 5 gives an unrostered video no identity). The
+reference also carries no "automatic summary, not a quotation" line; ADR 5 requires one.
+
+**Gates:** `bun test` **2028/0** exit 0 · typecheck exit 0 · build exit 0 — run locally, no CI.
+**ISA 631/649**, counted by grep; the previous wrap's 624/641 was off by one against its own grep and
+was not carried forward.
+
+---
+
 ## 2026-08-23 (late) — the kajian admin queue, and two names taken off live surfaces
 
 **Anchor:** to be set by this wrap's commit. Prior: `1a5b449` (unnamings + the four rulings), `c471f56` (admin queue), `c7cc3bc` (Track B step 1).

@@ -5,9 +5,38 @@
 > Dasar: `docs/review/rights-darussalam-logo-2026-08-23.md` dan
 > `docs/review/erik-ruling-2026-08-23-kajian-four.md` §4.
 >
-> Kontak yang mereka cantumkan sendiri di deskripsi video: `darussalam.id`, Instagram
-> `@darussalamid`, Telegram `t.me/darussalamkotawisata`, YouTube `@DarussalamKotaWisata`.
-> Belum diverifikasi mana yang paling cepat dibalas.
+> **Status, 2026-08-23:** Erik memutuskan surat ini **UNTUK DIKIRIM**, dan memutuskan bahwa
+> keberadaan slide dan mp4 yang sudah terlanjur dibuat **DISEBUTKAN** di dalamnya. Keputusan kedua
+> sudah menghasilkan perubahan di bawah; keputusan pertama **belum dan memang belum boleh** —
+> judul berkas ini masih `DRAF, BELUM DIKIRIM`, dan tetap begitu sampai Erik sendiri mengirimnya.
+>
+> **BENTUK: PILIHAN ATAS OPSI YANG DISUSUN DA, DI DALAM SESI. BUKAN KATA-KATA ERIK SENDIRI.** Erik
+> ditanya langsung lalu memilih dari daftar pendek yang DA susun sendiri; tidak ada satu kalimat pun
+> darinya yang terekam verbatim, dan tidak ada artefak dalam kata-katanya sendiri.
+> **Jangan naikkan catatan ini menjadi "konfirmasi tertulis" tanpa artefak dari Erik.**
+>
+> Bentuk yang sama persis **hanya** ada pada `rights-darussalam-logo-2026-08-23.md` — sama-sama
+> pilihan atas opsi yang DA susun sendiri. **`erik-ruling-2026-08-23-kajian-four.md` BUKAN bentuk
+> yang sama:** catatan itu berdiri di atas satu kalimat Erik sendiri — *"i follow your
+> recommendation"* — sedangkan catatan ini tidak berdiri di atas kalimat mana pun. **Jangan bawa
+> bobot catatan itu ke sini.** Rujukan ke kajian-four di atas hanya untuk isi §4-nya, bukan untuk
+> bentuknya.
+>
+> Satu batas lagi, mengikuti `rights-darussalam-logo-2026-08-23.md`: **rumusan opsinya sendiri pun
+> tidak terekam.** Kalimat "memilih dari daftar pendek yang DA susun" di atas adalah ingatan DA,
+> bukan arsip — prompt-nya tidak pernah di-commit. Jadi pilihan Erik **dan** bentuk pilihan yang
+> disodorkan kepadanya sama-sama tanpa artefak.
+>
+> **"Diputuskan untuk dikirim" bukan "sudah dikirim"** — jangan catat di mana pun bahwa surat ini
+> terkirim sebelum Erik mengatakannya. Yang masih tersisa ada tiga: **teks surat ini belum Erik baca
+> dan ubah sendiri**, **`_[kontak — diisi Erik]_`** masih kosong, dan **saluran pengirimannya belum
+> dipilih.** Yang beliau putuskan adalah *mengirim* dan *menyebutkan*, bukan menyetujui kata per kata
+> surat ini.
+>
+> Kontak yang mereka cantumkan sendiri di deskripsi video ada **enam saluran** — YouTube, TikTok,
+> Facebook, Instagram (`@darussalamid`), Telegram (`t.me/darussalamkotawisata`) dan X — **plus**
+> situs `darussalam.id`. Belum satu pun dicoba, jadi mana yang paling cepat dibalas tidak diketahui.
+> *(Daftar empat saluran yang tertulis di sini sebelumnya kurang tiga: TikTok, Facebook, X.)*
 
 ---
 
@@ -35,6 +64,17 @@ Dari satu video kajian, sistem saya menghasilkan dua hal:
 - Setiap materi memuat **tautan dan kode QR ke video aslinya**, supaya siapa pun bisa langsung
   memeriksa sumbernya.
 - Tetapi materi itu memakai **identitas visual saya sendiri**, bukan logo Darussalam TV.
+- Sebagai uji coba, **kedua materi di atas sudah pernah saya buat** dari video Bapak/Ibu pada 22
+  Agustus 2026 — **halaman ringkasannya maupun video pendek yang bernarasi suara mesin itu.**
+  Keduanya tersimpan di komputer saya sendiri, **tidak pernah diterbitkan**, dan tidak akan
+  diterbitkan tanpa izin Bapak/Ibu. Saya sebutkan supaya keberadaannya tidak Bapak/Ibu ketahui
+  belakangan, bukan supaya izin ini terkesan sudah saya anggap ada.
+- Sekalian saya sebutkan seluruhnya: selain kedua materi tadi, di komputer saya juga tersimpan
+  **transkrip mesin lengkap** dari rekaman Bapak/Ibu, berkas-berkas kerja yang menyertainya, dan
+  **gambar sampul video Bapak/Ibu** yang ikut terunduh saat pengambilan transkrip. Semuanya dipakai
+  hanya sebagai bahan menyusun ringkasan di atas, **tidak ada yang pernah diterbitkan**, dan tidak
+  akan diterbitkan. Saya lebih suka Bapak/Ibu mengetahui seluruhnya sekarang daripada menemukannya
+  sendiri nanti.
 
 Poin terakhir inilah alasan surat ini. Pada keterangan video Bapak/Ibu tertulis bahwa video boleh
 dibagikan selama logo Darussalam TV dan identitas lainnya tidak dihilangkan. Ringkasan yang saya buat
@@ -68,8 +108,49 @@ _[kontak — diisi Erik]_
   kajian `brlqHxjIp9c`. Menyebut namanya berarti menarik beliau ke dalam urusan izin yang bukan
   urusan beliau.
 - **Tidak ada klaim bahwa ada yang sudah meninjau.** Justru sebaliknya yang ditulis.
-- **Yang tidak ditulis, dan sengaja:** bahwa slide dan mp4 dari video mereka **sudah terlanjur
-  dibuat** pada 2026-08-22 dan tersimpan lokal. Menurut saya itu tidak perlu disebut karena tidak
-  pernah diterbitkan dan tidak akan diterbitkan tanpa izin — tetapi ini keputusanmu, bukan keputusanku.
-  Kalau kamu ingin menyebutkannya, kalimatnya bisa: *"Sebagai uji coba, satu ringkasan sudah pernah
-  saya buat dari video Bapak/Ibu, tersimpan lokal dan tidak pernah diterbitkan."*
+- **Slide dan mp4 yang sudah terlanjur dibuat pada 2026-08-22 SEKARANG DISEBUT DI DALAM SURAT** —
+  keputusan Erik, 2026-08-23, ketika ditanya langsung. **Bentuk keputusan itu ada batasnya — baca
+  blok "BENTUK" di kepala berkas ini sebelum mengutip kalimat ini di tempat lain.** Bukan artefak
+  tertulis dari Erik. Draf sebelumnya sengaja tidak menyebutnya dan
+  menyerahkan keputusannya kepada Erik; pertanyaan itu sudah dijawab, jadi kalimatnya dipindahkan ke
+  bagian **"Yang perlu saya sampaikan apa adanya"**, bukan lagi catatan pribadi.
+  **Jangan hapus kalimat itu tanpa keputusan Erik yang baru.** Alasannya: meminta izin sambil
+  menyembunyikan bahwa karya turunannya sudah ada akan membuat permintaan ini terbaca sebagai izin
+  susulan kalau mereka mengetahuinya belakangan.
+- **Kalimatnya menyebut KEDUA jenis materinya — halaman ringkasan DAN video pendek bernarasi mesin.**
+  Draf pertama hanya menulis "satu ringkasan", padahal surat ini sendiri mendefinisikan keluarannya
+  sebagai *dua hal*; terhadap definisi itu, "satu ringkasan" terbaca sebagai gambarnya saja, dan
+  mp4-nya — bagian yang paling dekat ke karya turunan — jadi tidak tersampaikan.
+  **Jangan persempit lagi kalimat itu.** *(Ini temuan gate dan perbaikan DA, **bukan** instruksi
+  Erik. Yang Erik putuskan hanya BAHWA keberadaannya disebut, bukan rumusannya.)*
+- **Yang ada di disk `.scratch/kajian/brlqHxjIp9c/` ada ENAM berkas**, semuanya bertanggal
+  2026-08-22: `briefing.md` (12,9 KB), `meta.json` (2,1 KB), `slide.html`, `slide.png` (333 KB),
+  `narasi-DRAFT.m4a` (6,6 MB), dan `short-DRAFT.mp4` (5,4 MB).
+  **Daftar empat berkas di `rights-darussalam-logo-2026-08-23.md` kurang dua**, dan yang hilang
+  justru `briefing.md` — berkas yang memuat **12 petikan kalimat** dari isi kajian itu (sebagian
+  kata-kata penceramahnya sendiri, sebagian ayat dan hadis yang beliau bawakan) **DITAMBAH 32 kutipan
+  transkrip verbatim** di bagian `## Perlu dicek terhadap video (32)`, lengkap dengan menitnya.
+  Hitung dari direktorinya, jangan menyalin daftar itu lagi.
+  *(Angka ini SUDAH SALAH DUA KALI: ditulis "empat" karena hanya menghitung petikan blockquote, lalu
+  "sebelas" karena hanya menghitung petikan bertanda kutip dan melewatkan seluruh bagian transkrip.
+  Dua-duanya salah ke arah yang sama — mengecilkan. Kalau ragu, hitung lagi dan hitung yang lebih
+  besar.)*
+- ⚠ **DAN ADA DIREKTORI KEDUA YANG TIDAK PERNAH DISEBUT CATATAN MANA PUN:**
+  `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` — berisi `transcript.md` (88 KB,
+  **transkrip lengkap verbatim**), `transcript-raw.json` (254 KB), `transcript-sentences.json`
+  (184 KB), `meta.json`, dan `imgs/cover.jpg` (133 KB, **gambar sampul milik mereka**). Totalnya
+  656 KB. Jadi materi Darussalam di disk **bukan enam berkas di satu direktori**, melainkan dua
+  direktori, ±12,7 MB. **Yang disebut di dalam surat hanya dua berkas** — lihat pertanyaan terbuka
+  di bawah.
+- Semua berkas itu — di kedua direktori — tetap **tidak diterbitkan** dan tetap berada di bawah
+  `.scratch/kajian/` yang gitignored (`.gitignore` baris 66). Menyebutnya di surat tidak mengubah
+  statusnya sedikit pun.
+- ✅ **DIJAWAB ERIK, 2026-08-23: UNGKAPKAN SEMUANYA.** Draf sebelumnya hanya menyebut **dua** materi
+  (halaman ringkasan + video pendek), padahal yang ada di disk jauh lebih banyak — `briefing.md`,
+  seluruh berkas kerja, **transkrip lengkap verbatim** 88 KB, dan `cover.jpg` milik mereka. Ditanya
+  langsung, Erik memilih mengungkapkan seluruhnya, jadi satu butir tambahan sekarang menyebut
+  transkrip, berkas kerja, dan gambar sampul itu. Kalimat *"supaya Bapak/Ibu tahu persis
+  keadaannya"* tetap DICABUT — yang menggantikannya tidak mengklaim kelengkapan, ia menyebutkan
+  isinya. **BENTUK keputusan ini sama dengan yang lain: pilihan atas opsi yang DA susun, di dalam
+  sesi, tanpa artefak. Baca blok "BENTUK" di kepala berkas ini.** Kalau kelak ditemukan lagi materi
+  mereka yang belum tersebut, itu butir baru — bukan alasan menyempitkan butir ini.

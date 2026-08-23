@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 624/641  # 623 [x] + ISC-418 [~]; 16 open [ ], 1 deferred (ISC-189). Counted line-by-line at the 2026-08-23 wrap: 623+1+16+1 = 641. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **ISC-575..591 were marked AT THE WRAP, hours after the code passed its gates**; the per-cycle table (31/49) is what surfaced them, and ISC-586 turned out NOT met — six refusal cases were missing and were added before marking. Cycle 9 = ISC-569..617. Gates 2017/0 exit 0, typecheck exit 0, build exit 0, run locally. **NOT DEPLOYED — the two unnamings have not reached the live surface.**
+progress: 631/649  # 630 [x] + ISC-418 [~]; 18 open [ ]. **Counted by grep at the 2026-08-23 late wrap** — `grep -c '^- \[x\] ISC-'` = 630, `'^- \[ \] ISC-'` = 18, `'^- \[~\] ISC-'` = 1, sum 649. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. **The previous wrap's 624/641 arithmetic was off by one against its own grep** (it counted deferred ISC-189 as an extra line on top of the `[ ]` block that already contains it); the measured figure is used here instead of carrying that forward. Cycle 9 = ISC-569..626. Gates 2028/0 exit 0, typecheck exit 0, build exit 0, run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; both unnamings are live and were verified in real Chrome.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1409,6 +1409,60 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       (ISC-592). Erik's decision: bind them in the SAME change that brings the VPS runner up, so the app
       never carries a working admin page whose jobs nothing consumes. Until then the 403 is correct
       behaviour and must not be "fixed".
+
+- [x] ISC-618: **the two unnamings reached the live surface.** Deployed 2026-08-23 from `44ed447`;
+      Worker `2b7707f2` → `641f8ae2`. Verified in real Chrome, not by grep: the Hadits kitab banner
+      renders `"Terjemahan teks hadis-nya sudah diizinkan untuk ditampilkan; tinjauan per hadits belum
+      dilakukan."` with no name, and the surah preface's Indonesian edition renders 6,659 chars with
+      `hasIsrofiel:false`, `hasMenunggu:false` and a provenance tooltip reading `"Terjemahan mesin
+      (AI) — belum ditinjau."` **The reviewed-aqidah credit in `main.ts:638/642` still names him and
+      MUST — that is his own prose, a different attribution, and was never in scope.**
+- [x] ISC-619: **the deploy shipped more than the unnamings, and the record must say so.** Prod ran
+      `4a144ad`; the deploy carried `4a144ad..44ed447`, i.e. the whole Track B auth layer
+      (`session.ts`, `__Host-qk_auth`, `roleFor()`) and the kajian admin route. Probed live:
+      `/api/admin/kajian/jobs` 403 both verbs, `/api/auth/role` `{"email":null,"role":"member"}`,
+      `/api/auth/request` `{"ok":false,"sent":false}`. All as designed (ISC-592/617). The only
+      `answer-repair.ts` change in that range is comment-only.
+- [x] ISC-620: **a deploy published `web/dist/.DS_Store` — 6,148 bytes of local file names, HTTP 200.**
+      `wrangler deploy` uploads the DIRECTORY and has never read `.gitignore`; nothing in the build
+      removed it. Closed by redeploy the same session — both `/.DS_Store` and `/.assetsignore` now
+      return the 24,835-byte SPA fallback, **which is the only sound test here: a 200 proves nothing
+      on this origin.** Guard is `sweepPublishable` in `src/app/build-meta.ts`, 11 tests.
+- [x] ISC-621: **the sweep covers BOTH deployed dists, not just prod's.** `demo:build` writes
+      `web/dist-demo` and ends in the same `app:build-meta` call, so a `web/dist`-only sweep would
+      have left `demo-quranku.axiara.ai` open to the identical defect. `ASSET_DIRS` names both, and
+      a test asserts each one matches a `directory = "../<dir>"` in `worker/wrangler.toml`.
+      demo was probed clean on 2026-08-23 — this keeps it clean, it did not fix a live leak.
+      Force-red twice: a non-recursive walk fails ONLY the nesting test; a bogus dir fails both
+      wiring tests.
+- [x] ISC-622: **`.assetsignore` alone is not a guard.** Wrangler does honour it (evidence: the file
+      came back as the SPA fallback rather than its own bytes, i.e. wrangler consumed it), but it
+      lives inside `web/dist`, which vite empties every build. Deterministic deletion is the guard;
+      the ignore file is the belt.
+- [x] ISC-623: **narration and the mp4 are opt-in.** Erik, 2026-08-23: *"I prefer the result to be
+      like the HTML format ... I don't need the video for that"*, and, asked directly, drop the
+      narration too. `--audio`/`--video` opt in; `--no-audio`/`--no-video` kept as accepted no-ops so
+      older invocations do not start failing. **Nothing removed** — `narrateToWav`, `encodeM4a` and
+      `stillVideo` and their tests are untouched. The deliverable is `slide.html` + its PNG.
+- [ ] ISC-624: **the slide layout Erik asked for is NOT built, and three of its elements are refused
+      by design.** He supplied a landscape two-panel reference and chose *layout only, keep the
+      guardrails*. So the LAYOUT is the work; the reference's **Darussalam logo** (rights item 2,
+      still open), **video thumbnail** (`roster.yaml` says outright a thumbnail grabbed off the video
+      is not an image we are entitled to use) and **speaker name** (`speakers: []` — ADR 5 gives an
+      unrostered video no identity) are NOT to be adopted. The reference also shows no
+      "automatic summary, not a quotation" line; ADR 5 requires one. **Item 1 next session.**
+- [x] ISC-625: **the letter discloses everything we hold, on Erik's decision.** It named two
+      artefacts while we hold ~12.7 MB across TWO directories — `.scratch/kajian/brlqHxjIp9c/` (six
+      files) and `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` (656 KB, including
+      `transcript.md` 88,364 B verbatim and their `cover.jpg`), **the second of which no rights
+      record mentioned until 2026-08-23.** The completeness phrase *"supaya Bapak/Ibu tahu persis
+      keadaannya"* was cut before the widening, because two-of-six does not deliver it.
+- [ ] ISC-626: **the `briefing.md` quotation count was published wrong TWICE, both times low** — four
+      (blockquoted lines only), then eleven (straight-quoted spans only, missing the whole
+      `## Perlu dicek terhadap video (32)` section). Correct: **12 quoted passages + 32 verbatim
+      transcript excerpts.** Kept OPEN as a standing instruction: recount from the directories, prefer
+      the larger reading, and never copy another record's list. Every error on this file ran the same
+      direction — making the material we hold of theirs look smaller than it is.
 
 ## Test Strategy
 

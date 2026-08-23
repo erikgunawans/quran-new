@@ -6,6 +6,13 @@
 > message sent. This file exists so the condition is an explicit open item rather than something
 > discovered after publishing.
 >
+> ⚠️ **SUPERSEDED IN PART, LATER THE SAME DAY (2026-08-23).** Erik was asked again and decided the
+> letter **is to be sent**, and that the already-built derivatives **are to be disclosed in it**.
+> So "DO NOT ACT YET" above no longer describes open item 3 below, and item 3 is **CLOSED — the
+> answer is yes, ask them.** Items 1 and 2 are untouched and still open. The letter itself, and the
+> limits on the form of that decision, are in `docs/review/surat-darussalam-2026-08-23.md`.
+> **Still nothing sent** — the DA never sends, and Erik has not yet read the letter's text.
+>
 > **FORM: A SELECTION FROM OPTIONS THE DA AUTHORED, IN SESSION. NOT ERIK'S OWN WORDS.** He was shown
 > a short list of dispositions and picked one; nothing he wrote or said verbatim was captured, and no
 > artefact in his words exists. **Unattested here are both the option wording AND the claim that
@@ -48,10 +55,32 @@ in ADR 5, not in ADR 6, and not in the built artifact.
 **A CORRECTION THIS FILE MUST CARRY, because a first draft got it backwards.** That draft said the
 slide and the mp4 *"do not exist yet"* and that the runner was unbuilt. **Both are false, and the
 evidence was on screen when it was written.** `src/app/kajian.ts` is a 535-line runner that renders
-the slide (`:446`) and builds the mp4 (`:518`), and it has RUN: `.scratch/kajian/brlqHxjIp9c/` holds
-`slide.png` (2160x2700), `slide.html`, `narasi-DRAFT.m4a` (6.6 MB) and `short-DRAFT.mp4` (5.4 MB), all
-dated **2026-08-22 — the day before this file was written**. A second complete run sits at
-`.scratch/kajian/jNQXAC9IVRw/`.
+the slide (`:446`) and builds the mp4 (`:518`), and it has RUN: `.scratch/kajian/brlqHxjIp9c/` holds **six files**, all
+dated **2026-08-22 — the day before this file was written**: `briefing.md` (12,889 B),
+`meta.json` (2,067 B), `slide.html`, `slide.png` (2160x2700, 333,165 B), `narasi-DRAFT.m4a`
+(6.6 MB) and `short-DRAFT.mp4` (5.4 MB). A second complete run sits at
+`.scratch/kajian/jNQXAC9IVRw/` — that one is *"Me at the zoo"* / `jawed`, **not** Darussalam, so no
+clause on this page reaches it.
+
+**COUNTED 2026-08-23 (second pass), because this list said FOUR and the directory holds SIX.**
+The two it omitted were `briefing.md` and `meta.json`, and the omission mattered: `briefing.md`
+carries **12 quoted passages from the lecture's content** — some the speaker's own phrasing, some
+scripture and hadith he cited — **plus 32 verbatim transcript excerpts** in its own
+`## Perlu dicek terhadap video (32)` section, each stamped with a timestamp. That makes it the most
+sensitive artefact here, not the least.
+(**This number has been wrong twice, both times low:** *four* counted only blockquoted lines, then
+*eleven* counted only straight-quoted spans and missed the transcript section entirely. Recount, and
+prefer the larger reading — undercounting it understates how much of their material we hold.)
+
+**AND THE FOOTPRINT IS TWO DIRECTORIES, NOT ONE.** No rights record mentioned the second until
+2026-08-23: `.scratch/kajian/_transcripts/masjid-darussalam-kota-wisata/…/` holds `transcript.md`
+(88,364 B — the **full verbatim transcript**), `transcript-raw.json` (253,975 B),
+`transcript-sentences.json` (184,208 B), `meta.json`, and `imgs/cover.jpg` (132,797 B — **their cover
+image**). ~656 KB. Any question phrased as "what do we hold of theirs" must cover BOTH directories.
+
+The four-file version had already been copied into `docs/review/surat-darussalam-2026-08-23.md`
+before a gate caught it, which is why the instruction here is blunt: **count the directories
+yourself; do not copy this list.**
 
 **What is genuinely absent is a different thing: a HOSTED job runner** — something that claims a
 queued job and publishes a manifest. Nothing in the repo writes `/kajian/index.json`. That is what
@@ -88,8 +117,9 @@ and it may be a question for the mosque.
   the condition is about, and **both have been built locally and neither has been published.**
 - **The `#/kajian` web card** — **NOT in scope, and that scoping is the DA's, not Erik's.** The
   reasoning: it is a listing that links out, carries no logo of ours over their content, and shows a
-  YouTube-hosted thumbnail. **Erik's recorded disposition is "record it, do not act" and nothing
-  more.** The option he selected is RECALLED as carrying the words *"scope: mp4/slide only, not
+  YouTube-hosted thumbnail. **Erik has recorded no disposition on the web card at all.**
+  (His "record it, do not act" of 2026-08-23 was superseded for the LETTER later the same day — see
+  the head of this file — but it was never about the web card, and nothing since has been.) The option he selected is RECALLED as carrying the words *"scope: mp4/slide only, not
   the web card"* in its preview text — **recalled, not quoted: the prompt was never committed, so that
   wording is unattested** — and in any case it was written by the DA for him to pick, so at best it is
   a DA scoping he did not object to, NOT a ruling of his about where a third party's condition reaches.
@@ -114,5 +144,9 @@ and it may be a question for the mosque.
    *"the artifact says what it is"*: a slide bearing Darussalam TV's mark could read as Darussalam's
    own summary, which is the exact inference ADR 5 and ADR 6 exist to prevent. **These two
    requirements pull against each other** and that tension is the substance of the decision.
-3. **Ask the mosque?** They publish six contact channels plus `darussalam.id`. Erik would send it;
-   the DA never sends.
+3. ~~**Ask the mosque?**~~ **CLOSED 2026-08-23 — yes.** They publish **six contact channels**
+   (YouTube, TikTok, Facebook, Instagram, Telegram, X) plus `darussalam.id`, per `meta.json` for
+   `brlqHxjIp9c`; none has been tried, so which one actually gets a reply is unknown.
+   Erik decided to send, and to disclose the already-built derivatives in the letter. Drafted at `docs/review/surat-darussalam-2026-08-23.md`;
+   **not yet sent** — Erik sends, the DA never does, and he has not yet read the text. See the
+   supersession note at the head of this file for the limits on the form of that decision.
