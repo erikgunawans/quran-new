@@ -120,11 +120,10 @@ fails must surface as a job state and never as a silent empty summary.
   `short-DRAFT.m4a` when one exists and the card ships without audio when neither does.
   **Not yet verified end to end:** this machine has no Google TTS credentials
   (`gcloud auth application-default login`), so no real `short.m4a` has ever been written.
-  **And the CONTROL does not exist.** The card renders an "Ada narasi" badge — a label, not a
-  player — and `slide.html` is served under `default-src 'none'` with `sandbox`, which denies both
-  `media-src` and `script-src`, so neither an `<audio>` element nor a `speechSynthesis` fallback can
-  run inside that document as it stands. Relaxing that CSP is a decision to argue, not to slip in.
-  Shipping browser `speechSynthesis` alone is not a partial delivery either — it is the option ADR 6
-  already refused, because the voice would vary per device.
+  **The CONTROL is built and lives on the CARD** (Erik, 2026-08-24), so `slide.html`'s CSP is
+  untouched — it denies `media-src` and `script-src` both, and a player there would have needed it
+  relaxed. **No `speechSynthesis` fallback:** a feed record carries no summary text, so a browser
+  voice could only read the TITLE, which is not the summary. Shipping `speechSynthesis` alone was
+  never an option anyway — ADR 6 refused it because the voice would vary per device.
 - **A cost ceiling.** See the decisions at the top.
 - **Kajian step 7.** Still undefined anywhere in the repo, and unanswered across prior sessions. Asked again this session.

@@ -13,6 +13,8 @@ import {
   kajianCard,
   formatDuration,
   safeHttpUrl,
+  safeArtifactUrl,
+  AUDIO_NOTE,
   PROVENANCE_NOTE,
   type KajianSummary,
 } from "./kajian-summary.ts";
@@ -116,5 +118,116 @@ describe("formatDuration", () => {
   test("refuses nonsense rather than printing NaN", () => {
     expect(formatDuration(Number.NaN)).toBe("");
     expect(formatDuration(-5)).toBe("");
+  });
+});
+
+
+describe("the card survives the urls the WORKER ACTUALLY RETURNS", () => {
+  /**
+   * ⚠ `BASE` ABOVE IS NOT THIS SHAPE, AND THAT IS WHY THIS BUG SHIPPED. Every fixture in this file
+   * and in `kajian-feed.test.ts` uses an absolute `https://…` url. The upload endpoint answers with
+   * `artifactPath()` — `/kajian/{videoId}/{name}` — so the suite was green against a shape the
+   * runner never produces, while `safeHttpUrl` rejected every real one and `kajianCard` returned
+   * "" for every published card. These values are copied from `artifactPath`, not invented.
+   */
+  const SERVED: KajianSummary = {
+    ...BASE,
+    thumbUrl: "/kajian/aaaaaaaaaaa/slide.png",
+    summaryUrl: "/kajian/aaaaaaaaaaa/slide.html",
+    audioUrl: "/kajian/aaaaaaaaaaa/short.m4a",
+  };
+
+  test("a card built from served paths is rendered at all", () => {
+    // The assertion that would have caught it: not "the badge is present" but "the card exists".
+    expect(kajianCard(SERVED)).not.toBe("");
+  });
+
+  test("the summary link and the thumbnail point at the served paths", () => {
+    const html = kajianCard(SERVED);
+    expect(html).toContain(`href="/kajian/aaaaaaaaaaa/slide.html"`);
+    expect(html).toContain(`src="/kajian/aaaaaaaaaaa/slide.png"`);
+  });
+
+  test("the path is rendered RELATIVE — no deployment hostname is baked into the markup", () => {
+    expect(kajianCard(SERVED)).not.toContain("artifact.invalid");
+  });
+
+  test("an absolute url still works, so a bucket-hosted future is not broken", () => {
+    expect(kajianCard(BASE)).not.toBe("");
+  });
+});
+
+describe("safeArtifactUrl accepts our own paths and nothing that leaves this origin", () => {
+  test("a served artefact path is accepted and returned unchanged", () => {
+    expect(safeArtifactUrl("/kajian/aaaaaaaaaaa/short.m4a")).toBe("/kajian/aaaaaaaaaaa/short.m4a");
+  });
+
+  test("absolute http(s) is still accepted", () => {
+    expect(safeArtifactUrl("https://cdn.example/x.m4a")).not.toBeNull();
+  });
+
+  test.each([
+    ["protocol-relative", "//evil.example/x.m4a"],
+    // MEASURED, not assumed: WHATWG treats the backslash as a slash, so this resolves to origin
+    // `https://evil.example`. A `startsWith("/") && !startsWith("//")` guard passes it.
+    ["the backslash form of protocol-relative", "/\\evil.example/x.m4a"],
+    ["javascript:", "javascript:alert(1)"],
+    ["a data: url", "data:audio/mp4;base64,AAA"],
+    ["path traversal that normalises away", "/kajian/../../etc/passwd"],
+    ["the bare root", "/"],
+    ["the empty string", ""],
+    ["a bare relative name with no leading slash", "short.m4a"],
+  ])("%s is refused", (_case, raw) => {
+    expect(safeArtifactUrl(raw)).toBeNull();
+  });
+});
+
+describe("the play button (ISC-624.8) — Erik ruled 2026-08-24 that it lives on the CARD", () => {
+  const WITH_AUDIO: KajianSummary = { ...BASE, audioUrl: "/kajian/aaaaaaaaaaa/short.m4a" };
+
+  test("a real control is rendered, not a badge saying one exists", () => {
+    const html = kajianCard(WITH_AUDIO);
+    expect(html).toContain("<audio");
+    expect(html).toContain(`src="/kajian/aaaaaaaaaaa/short.m4a"`);
+    expect(html).toContain("controls");
+  });
+
+  test("it is labelled, because a bare native control announces only its role", () => {
+    expect(kajianCard(WITH_AUDIO)).toContain("aria-label=");
+  });
+
+  test("it does not preload — a grid of cards must not fetch every narration on load", () => {
+    expect(kajianCard(WITH_AUDIO)).toContain(`preload="none"`);
+  });
+
+  test("the machine-voice line rides WITH the control, not only at the top of the page", () => {
+    // ADR 6's reason for one fixed voice is that a listener must never hear the summary as the
+    // scholar speaking — and this control sits directly under a line naming him. The page-level
+    // PROVENANCE_NOTE is already scrolled past by someone who came to press play.
+    const html = kajianCard(WITH_AUDIO);
+    expect(html).toContain(AUDIO_NOTE);
+    expect(AUDIO_NOTE).toContain("bukan suara penceramah");
+  });
+
+  test("no audio means NO control at all — never a dead player", () => {
+    const html = kajianCard({ ...BASE, audioUrl: null });
+    expect(html).not.toContain("<audio");
+    expect(html).not.toContain(AUDIO_NOTE);
+    expect(html).not.toBe("");
+  });
+
+  test("an unusable audio url drops the control but keeps the card", () => {
+    const html = kajianCard({ ...BASE, audioUrl: "javascript:alert(1)" });
+    expect(html).not.toContain("<audio");
+    expect(html).not.toContain("javascript:");
+    expect(html).not.toBe("");
+  });
+
+  test("the audio element is OUTSIDE the card's link — a control nested in an anchor is a trap", () => {
+    const html = kajianCard(WITH_AUDIO);
+    const linkEnd = html.indexOf("</a>");
+    const audioAt = html.indexOf("<audio");
+    expect(linkEnd).toBeGreaterThan(-1);
+    expect(audioAt).toBeGreaterThan(linkEnd);
   });
 });

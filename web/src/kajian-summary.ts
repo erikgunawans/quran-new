@@ -97,6 +97,59 @@ export function safeHttpUrl(raw: string): string | null {
   }
 }
 
+/**
+ * The origin an artefact path is TEST-resolved against. Never fetched, never rendered — `.invalid`
+ * is reserved by RFC 2606 precisely so it can never be a real host.
+ */
+const PROBE_ORIGIN = "https://artifact.invalid";
+
+/**
+ * The URL of an artefact the runner uploaded — the slide, its PNG, the narration.
+ *
+ * ⚠ THIS EXISTS BECAUSE `safeHttpUrl` REJECTED EVERY REAL ONE. The upload endpoint answers with
+ * `artifactPath()`, i.e. `/kajian/{videoId}/{name}` — a same-origin PATH, which is the right shape
+ * for a file this app serves itself. But `new URL(path)` with no base THROWS, so `safeHttpUrl`
+ * returned null for it, and `kajianCard` drops a card whose summary link is null. Every published
+ * card would have rendered as an empty string, and the "Ada narasi" badge could never appear.
+ * Nothing caught it: every fixture in `kajian-summary.test.ts` and `kajian-feed.test.ts` uses an
+ * ABSOLUTE `https://…` url, so the suite was green against a shape production does not produce.
+ *
+ * ⚠ AND A PREFIX CHECK IS NOT ENOUGH. `startsWith("/") && !startsWith("//")` looks sufficient and
+ * is not: `/\evil.example/x` resolves, per WHATWG, to origin `https://evil.example` — the parser
+ * treats the backslash as a slash. Measured, not assumed.
+ *
+ * SO THE WHOLE GUARD IS ONE EQUALITY: the parser must hand back a path IDENTICAL to what went in.
+ * That is a rule about what is VALID rather than a list of forms known to be dangerous, and it is
+ * why the hostile cases fail — `//evil.example/x` parses to `/x`, the backslash form to `/x`,
+ * `javascript:alert(1)` to `alert(1)`, `/kajian/../../etc/passwd` to `/etc/passwd`. None survive
+ * the round trip. A first cut ALSO compared `u.origin`; that line COULD NEVER FIRE, because a
+ * pathname equal to a raw string beginning with `/` is same-origin by construction — and a
+ * mutation swapping the real check for the naive prefix guard passed the entire suite while it
+ * sat there. Removed, rather than left as a comment claiming work it was not doing.
+ *
+ * NOT claimed: percent-encoded traversal (`/kajian/%2e%2e/x`) survives the equality, because the
+ * parser does not decode it. Stated rather than papered over — such a URL still cannot leave this
+ * origin, and the Worker's own `artifactKey` refuses the key, so the worst case is a link that 404s.
+ *
+ * Absolute http(s) is still accepted first: it was the existing contract and stays valid if these
+ * files are ever served from a bucket's own hostname.
+ */
+export function safeArtifactUrl(raw: string): string | null {
+  const absolute = safeHttpUrl(raw);
+  if (absolute !== null) return absolute;
+  let u: URL;
+  try {
+    u = new URL(raw, PROBE_ORIGIN);
+  } catch {
+    return null;
+  }
+  if (u.pathname !== raw) return null;
+  // Returned RELATIVE, deliberately. Resolving it against the live origin would bake this
+  // deployment's hostname into the markup, and the whole point of the path is that it does not
+  // care which environment serves it.
+  return raw === "/" ? null : raw;
+}
+
 export function formatDuration(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "";
   const s = Math.floor(totalSeconds);
@@ -107,10 +160,24 @@ export function formatDuration(totalSeconds: number): string {
   return h > 0 ? `${h}:${two(m)}:${two(sec)}` : `${m}:${two(sec)}`;
 }
 
+/**
+ * The line that rides WITH the player, not merely on the page.
+ *
+ * ⚠ NOT DECORATION, AND NOT A SOFTER COPY OF `PROVENANCE_NOTE`. ADR 6 fixes one narrator voice for
+ * a single reason: a listener must never hear the summary as the SCHOLAR speaking. This card puts a
+ * play control directly beneath a line naming that scholar, which is exactly the confusion the ADR
+ * is built around — and the page-level provenance note sits far above, already scrolled past by
+ * someone who came to press play. So the disclaimer is attached to the control itself.
+ */
+export const AUDIO_NOTE = "Narasi suara mesin — bukan suara penceramah.";
+
 export function kajianCard(item: KajianSummary): string {
-  const summaryHref = safeHttpUrl(item.summaryUrl);
+  // `safeArtifactUrl` for the three files WE serve, `safeHttpUrl` for the one link that leaves this
+  // origin. Not interchangeable: the artefact rule accepts a same-origin path, and a path is not a
+  // valid destination for a third-party video link.
+  const summaryHref = safeArtifactUrl(item.summaryUrl);
   const videoHref = safeHttpUrl(item.url);
-  const thumb = safeHttpUrl(item.thumbUrl);
+  const thumb = safeArtifactUrl(item.thumbUrl);
   const duration = formatDuration(item.durationSec);
 
   // A card whose summary link is unusable is not shown at all — a card that looks clickable and
@@ -124,6 +191,34 @@ export function kajianCard(item: KajianSummary): string {
 
   const meta = [duration, item.publishedAt].filter((s) => s !== "").map(esc).join(" · ");
 
+  /**
+   * The play button Erik asked for, on the CARD rather than inside `slide.html` — his call,
+   * 2026-08-24. The slide is served under `default-src 'none'` with `sandbox`, which denies
+   * `media-src` and `script-src` both, so a control there would have needed that policy relaxed;
+   * the card is first-party markup and needs nothing loosened.
+   *
+   * `preload="none"` because a grid of cards must not fetch a megabyte of audio each on load; the
+   * file is fetched when somebody presses play. `controls` rather than a custom button: the native
+   * control is keyboard-operable, labelled, and exposes seek and volume without this file owning a
+   * single line of player state.
+   *
+   * NO `speechSynthesis` FALLBACK, and its absence is a finding rather than an omission. The PRD
+   * asks for one so the control is never dead — but a feed record carries no summary TEXT (see
+   * `KajianSummary`: title, channel, speaker, urls), so the only string on this card a browser
+   * voice could read aloud is the TITLE, which is not the summary. A control that reads the title
+   * while claiming to read the summary is worse than an absent one. Making it possible means
+   * carrying the bullets in `index.json`; recorded in `ISA.md` under ISC-624.8.
+   */
+  const audioHref = item.audioUrl === null ? null : safeArtifactUrl(item.audioUrl);
+  const audioBlock =
+    audioHref === null
+      ? ""
+      : `<div class="kajian-audio-wrap">
+        <audio class="kajian-audio" controls preload="none" src="${esc(audioHref)}"
+               aria-label="Putar narasi ringkasan — suara mesin, bukan suara penceramah"></audio>
+        <p class="kajian-audio-note">${esc(AUDIO_NOTE)}</p>
+      </div>`;
+
   return `
     <article class="kajian-card">
       <a class="kajian-card-link" href="${esc(summaryHref)}">
@@ -135,8 +230,8 @@ export function kajianCard(item: KajianSummary): string {
           ${meta !== "" ? `<p class="kajian-meta">${meta}</p>` : ""}
         </div>
       </a>
+      ${audioBlock}
       <footer class="kajian-card-foot">
-        ${item.audioUrl !== null && safeHttpUrl(item.audioUrl) !== null ? `<span class="kajian-has-audio">Ada narasi</span>` : ""}
         ${item.reviewed ? "" : `<span class="kajian-unreviewed">Belum diperiksa</span>`}
         ${videoHref !== null ? `<a class="kajian-source" href="${esc(videoHref)}" rel="noopener noreferrer" target="_blank">Video asli</a>` : ""}
       </footer>

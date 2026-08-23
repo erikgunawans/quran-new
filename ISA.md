@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 666/682  # 661 `[x]` + 5 `[~]` (ISC-418, ISC-617, ISC-624, ISC-624.8, ISC-627); 16 open `[ ]`. **Counted by grep, 2026-08-24** — `grep -c '^- \[x\] ISC-'` = 661, `'^- \[ \] ISC-'` = 16, `'^- \[~\] ISC-'` = 5, sum 682. **ISC-624.8 moved `[ ]`→`[~]`: its FILE is produced and paired-probe verified, but no real `short.m4a` has been written (no TTS credentials) and the play CONTROL does not exist — the card shows a badge and `slide.html`'s CSP denies both `media-src` and `script-src`.** **A first cut of THIS line said 663/676 with 13 open and 2 partial, written from expectation instead of measured — the exact failure ISC-626 exists to stop, committed in the same edit that closed it.** The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. **ISC-630 RESOLVED: the hold stands permanently and the capture is DELETED (12,808 KB, inventoried first as ISC-626). Rights items 1/2 closed by a blanket no-branding rule (ISC-637); kajian step 7 and "Maruli" closed as no such thing (ISC-638); the git-history rewrite DECLINED (ISC-639); the cancelled letter deleted (ISC-640). Cost ceiling: 5 jobs/rolling day (ISC-636).** Gates 2156/0 exit 0, typecheck exit 0, build exit 0 (synthesis), `wrangler deploy --dry-run` exit 0 with bindings UNCHANGED (VECTORIZE, AUDIO, CORPUS), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
+progress: 666/682  # 661 `[x]` + 5 `[~]` (ISC-418, ISC-617, ISC-624, ISC-624.8, ISC-627); 16 open `[ ]`. **Counted by grep, 2026-08-24** — `grep -c '^- \[x\] ISC-'` = 661, `'^- \[ \] ISC-'` = 16, `'^- \[~\] ISC-'` = 5, sum 682. **ISC-624.8 stays `[~]`: the file is produced (paired-probe verified) and the PLAYER is built on the card per Erik 2026-08-24 — but no real `short.m4a` has been written (no TTS credentials, re-checked), there is no `speechSynthesis` fallback (the feed carries no summary text to speak), and no ground-truth pixel of the native control was obtainable. Building it exposed that EVERY published card rendered as `""`, because `safeHttpUrl` throws on the relative paths the upload endpoint returns.** **A first cut of THIS line said 663/676 with 13 open and 2 partial, written from expectation instead of measured — the exact failure ISC-626 exists to stop, committed in the same edit that closed it.** The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. **ISC-630 RESOLVED: the hold stands permanently and the capture is DELETED (12,808 KB, inventoried first as ISC-626). Rights items 1/2 closed by a blanket no-branding rule (ISC-637); kajian step 7 and "Maruli" closed as no such thing (ISC-638); the git-history rewrite DECLINED (ISC-639); the cancelled letter deleted (ISC-640). Cost ceiling: 5 jobs/rolling day (ISC-636).** Gates 2177/0 exit 0, typecheck exit 0, build exit 0 (synthesis), `wrangler deploy --dry-run` exit 0 with bindings UNCHANGED (VECTORIZE, AUDIO, CORPUS), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1501,16 +1501,45 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       flags, same video (`jNQXAC9IVRw`) — `HEAD` never attempts narration at all; the fix reaches the
       Google TTS call. Plus a mutation: deleting `short-DRAFT.m4a` from `UPLOADS` reddens exactly the
       two tests written for it.
+      **THE PLAYER IS BUILT — Erik ruled 2026-08-24 that it lives on the CARD**, so `slide.html`'s
+      CSP (`default-src 'none'` + `sandbox`, denying `media-src` and `script-src` both) is NOT
+      relaxed and was never touched. A native `<audio controls preload="none">` sits in its own row
+      above the card footer, labelled, outside the card's link, with `AUDIO_NOTE` beside it — that
+      line is load-bearing, not decoration: the control sits directly under a line naming the
+      scholar, which is the exact confusion ADR 6's one-voice rule exists to prevent, and the
+      page-level `PROVENANCE_NOTE` is already scrolled past by someone who came to press play.
+      **AND IT UNCOVERED A BUG THAT MADE THE WHOLE SURFACE DEAD.** `kajianCard` validated
+      `summaryUrl`/`thumbUrl`/`audioUrl` with `safeHttpUrl`, which calls `new URL(raw)` with no base
+      — that THROWS for a relative path, and the upload endpoint returns `artifactPath()`, i.e.
+      `/kajian/{videoId}/{name}`. So `summaryHref` was null for every real record and every published
+      card rendered as `""`. Measured, not inferred: `kajianCard` on the served shape returned a
+      zero-length string. Nothing caught it because every fixture in `kajian-summary.test.ts` and
+      `kajian-feed.test.ts` uses an absolute `https://…` URL — the suite was green against a shape
+      the runner never produces. New `safeArtifactUrl` accepts a same-origin path, and a
+      production-shaped fixture set now pins it.
+      ⚠ **A first cut of that guard compared `u.origin` as well, and that line COULD NEVER FIRE** —
+      a pathname equal to a raw string starting with `/` is same-origin by construction. Found by
+      mutation, not by review: swapping the real check for the naive prefix guard passed the entire
+      suite. The dead line is gone and the surviving equality is mutation-proven.
       **NOT DONE, and neither is guessed at:**
-      (a) **no real `short.m4a` has ever been written** — this machine has no Google TTS credentials,
-      so the probe stops at the auth boundary and the bytes are unproven. Needs
-      `gcloud auth application-default login`, which is Erik's to run.
-      (b) **there is no player.** `resultFrom` carries `audioUrl` and the card renders an
-      "Ada narasi" BADGE — a label, not a control.
-      (c) **`slide.html` cannot host one as served.** Its CSP is `default-src 'none'` with `sandbox`,
-      which denies `media-src` and `script-src` both, so an `<audio>` element and a
-      `speechSynthesis` fallback are BOTH blocked inside that document. `kajian-artifacts.ts` says
-      that policy should be re-argued rather than quietly relaxed; this is the argument arriving.
+      (a) **no real `short.m4a` has ever been written** — this machine has no Google TTS credentials
+      (`gcloud auth application-default print-access-token` exits 1, re-checked 2026-08-24), so the
+      pipeline probe stops at the auth boundary and the bytes are unproven. Erik's to run.
+      (b) **no `speechSynthesis` fallback, and its absence is a finding rather than an omission.**
+      The PRD asks for one so the control is never dead. A feed record carries NO summary TEXT — see
+      `KajianSummary`: title, channel, speaker, urls — so the only string on the card a browser voice
+      could read is the TITLE, which is not the summary. A control that reads the title while
+      claiming to read the summary is worse than an absent one. Making it possible means carrying
+      the bullets in `index.json`; that is a data decision, not a UI one.
+      (c) **NO GROUND-TRUTH PIXEL of the native control was obtained, and it is not claimed.** Its
+      geometry, label, source, preload and load are all measured in real Chrome on a clean tab
+      running the shipped stylesheet (271x49 rendered, 54px intrinsic, `readyState` 4, duration 48 s
+      off a real m4a over HTTP), and `color-scheme` computes `dark` on the element so it paints in
+      the dark register. But the DOM-render screenshot does not paint UA shadow content — it showed
+      a light pill with no play button while `color-scheme` measured dark, so the RENDER is the
+      unreliable party — and the OS capture grabs Chrome's front window, which `tab switch` could not
+      move. A first cut of the CSS also set `height: 34px`, an invented number BELOW the control's
+      54px intrinsic height; removed rather than tuned.
 - [x] ISC-624.9: **Anti: the rewrite added no new Darussalam material to this PUBLIC repo.** Two
       fixtures written during the build carried real strings from the lecture — its title fragment
       and one of its sub-headings — and were replaced with invented headings of the same SHAPE before

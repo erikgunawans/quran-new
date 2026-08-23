@@ -1870,6 +1870,19 @@
 .kajian-channel { margin: 0; font-size: .85rem; color: var(--ink-3); }
 .kajian-meta { margin: 6px 0 0; font-size: .8rem; color: var(--ink-3); }
 
+/* The narration player. Its own row above the footer: a native audio control has a wide intrinsic
+   width and would push the badges onto a second line inside the footer's flex row. */
+.kajian-audio-wrap { padding: 10px 16px 0; }
+/* NO `height`. A first cut set 34px, which is BELOW the height Chrome gives its native audio
+   control (54px, measured) — the UA squashes the control rather than scaling it, and there is
+   no reason to pick a number here at all. The element is left at its intrinsic height and only
+   stretched to the card. `color-scheme` is already dark on this page (measured), so the control
+   paints in the dark register without this file saying anything. */
+.kajian-audio { display: block; width: 100%; }
+/* Rides with the control, never smaller than the badges beside it — the one line that stops a
+   listener hearing a machine summary as the named scholar's own voice. */
+.kajian-audio-note { margin: 6px 0 0; font-size: .78rem; color: var(--ink-3); }
+
 .kajian-card-foot {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 10px 16px 14px; border-top: 1px solid var(--line);

@@ -141,14 +141,25 @@ that turned the video off also destroyed the only producer of the play button's 
    allowlist, served from the `KAJIAN` R2 bucket at `/kajian/{videoId}/short.m4a`. The runner uploads
    `short.m4a` **or** `short-DRAFT.m4a` under that one key — the draft suffix is the on-disk naming
    rule, and without the second name the button would be dead for every auto-caption video.
-5. ❌ **Fallback path — NOT done, and item 5 is now the whole remaining job.** Two things block it:
-   - **There is no player at all.** `audioUrl` reaches the card, which renders an "Ada narasi"
-     BADGE — a label, not a control.
-   - **`slide.html` cannot host one as served.** Its CSP is `default-src 'none'` with `sandbox`, so
-     `media-src` and `script-src` are BOTH denied: an `<audio>` element and a `speechSynthesis`
-     fallback are equally blocked inside that document. Either the control lives on the first-party
-     card instead, or that CSP is deliberately relaxed — `kajian-artifacts.ts` says the latter must
-     be re-argued, not slipped in. **This is a decision, not an implementation detail.**
+5. ⚠️ **Fallback path — the PLAYER is built, the FALLBACK is not.**
+   **Erik ruled 2026-08-24: the player lives on the CARD.** So `slide.html`'s CSP is untouched —
+   the control is first-party markup and needed nothing loosened. A native
+   `<audio controls preload="none">` in its own row above the card footer, labelled, outside the
+   card's link, with a machine-voice line beside it (ADR 6: the control sits under a line naming the
+   scholar, and the page-level provenance note is already scrolled past by then).
+   ❌ **No `speechSynthesis` fallback, and this is a finding rather than an omission.** A feed record
+   carries no summary TEXT — `KajianSummary` is title, channel, speaker and urls — so the only
+   string on the card a browser voice could read is the TITLE, which is not the summary. A control
+   that reads the title while claiming to read the summary is worse than an absent one. Making it
+   possible means carrying the bullets in `index.json`: a data decision, not a UI one.
+
+### And building it uncovered a bug that made the whole surface dead
+
+`kajianCard` validated the artefact urls with `safeHttpUrl`, whose `new URL(raw)` THROWS on a
+relative path — and the upload endpoint returns `/kajian/{videoId}/{name}`. So `summaryHref` was
+null for every real record and **every published card rendered as an empty string.** Nothing caught
+it: every fixture in `kajian-summary.test.ts` and `kajian-feed.test.ts` uses an absolute `https://…`
+url, so the suite was green against a shape the runner never produces.
 
 ⚠️ **And no real `short.m4a` has ever been written.** The pipeline change was verified by running
 `HEAD` and the fix with identical flags on the same video: `HEAD` never attempts narration, the fix
