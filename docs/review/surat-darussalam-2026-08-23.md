@@ -1,4 +1,32 @@
-# Surat izin ke Masjid Darussalam Kota Wisata — DRAF, BELUM DIKIRIM
+# Surat izin ke Masjid Darussalam Kota Wisata — DIBATALKAN, TIDAK AKAN DIKIRIM
+
+> # ⛔ DIBATALKAN OLEH ERIK, 2026-08-23
+>
+> Kata-katanya: *"let's forget about any letter. i hereby cancel all requirements to send letter
+> whatsoever."* Tidak ada surat yang akan dikirim ke Masjid Darussalam Kota Wisata. Berkas ini
+> disimpan sebagai CATATAN saja — jangan dikirim, jangan dipakai sebagai dasar janji apa pun, dan
+> jangan dihidupkan kembali tanpa keputusan Erik yang baru.
+>
+> **Yang ikut batal bersamanya: setiap janji di dalam berkas ini.** Termasuk janji menghapus materi
+> mereka dari kode, dan kalimat *"tidak ada satu pun ringkasan, gambar, video, atau audio … yang
+> saya terbitkan"*. Janji hanya mengikat kalau sudah disampaikan; surat ini tidak pernah sampai ke
+> siapa pun, jadi tidak ada pihak lain yang pernah menerimanya.
+>
+> **Yang TIDAK ikut batal:**
+> 1. **Pembersihan kode (ISC-627) tetap berlaku dan tetap benar.** Materi mereka sudah keluar dari
+>    kode bukan karena surat ini menjanjikannya, tetapi karena repositori ini publik.
+> 2. **ADR 5 tetap berlaku** — tidak ada slide yang menyebut nama siapa pun, `roster.yaml` tetap
+>    kosong, dan setiap slide tetap menyatakan dirinya ringkasan otomatis, bukan kutipan.
+> 3. **Posisi hak cipta atas ~12,7 MB materi mereka di `.scratch/` tidak berubah**, dan tidak
+>    pernah bergantung pada surat ini. Itu pertanyaan terbuka untuk Erik, bukan sesuatu yang
+>    selesai karena suratnya dibatalkan.
+>
+> Isi asli di bawah ini sengaja tidak dihapus, supaya jelas apa yang pernah disusun dan dibatalkan.
+
+---
+
+## Isi draf (BATAL — arsip)
+
 
 > **Ditulis oleh DA, 2026-08-23, atas keputusan Erik.** **BELUM DIKIRIM DAN TIDAK AKAN DIKIRIM OLEH
 > DA.** Erik yang mengirim, setelah dia periksa dan ubah seperlunya.

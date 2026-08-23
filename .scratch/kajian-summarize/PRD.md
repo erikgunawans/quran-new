@@ -26,18 +26,23 @@ slide / render modules. There is no Claude skill by that name; checked the repo 
 | Where does the result go? | **Published to the public Kajian list.** |
 | Which runner first? | **The VPS runner, as already decided.** Not a local-runner shim. |
 
-### One constraint that rides on decision 2, and is NOT a reversal of it
+### The constraint that used to ride on decision 2 — NOW AN OPEN QUESTION (ISC-630)
 
-Erik's own unsent letter promises Darussalam, in the text he is sending:
+**SUPERSEDED 2026-08-23.** This section previously held Darussalam-sourced summaries back, and its
+whole justification was a sentence in Erik's unsent letter. **Erik cancelled the letter** — *"let's
+forget about any letter. i hereby cancel all requirements to send letter whatsoever"* — so no promise
+was ever delivered to anyone, and the stated basis for the hold is gone.
 
-> *"Selama belum ada jawaban, tidak ada satu pun ringkasan, gambar, video, atau audio dari kajian
-> Masjid Darussalam Kota Wisata yang saya terbitkan."*
+**What did NOT change with it:** we still hold ~12.7 MB of Darussalam's material across two
+`.scratch/` directories with no permission, and that was never a consequence of the letter. So
+whether their summaries publish is a live rights question, not a settled one.
 
-So the publish path is built as he asked, **and Darussalam-sourced summaries are held until they
-reply.** Publishing them would falsify a written promise to a third party — the same class of defect
-as the *"tidak ada satu pun materi … yang saya terbitkan"* line that a gate caught on 2026-08-23
-(ISC-628). Every other source publishes normally. **This hold is Erik's commitment, not a DA veto;
-it lifts when Darussalam answers, or if Erik withdraws the sentence before sending.**
+**The DA does not decide this in either direction.** Keeping the hold would mean inventing a fresh
+justification for a rule whose old one was just deleted; dropping it would mean authorising
+publication of a third party's material. It is Erik's call, recorded as **ISC-630**.
+
+**It blocks nothing today** — the publish path does not exist (no runner, no endpoint, `kajian_jobs`
+unapplied). It needs an answer **before the runner ships**, not before the next commit.
 
 ## What exists, and what does not
 
@@ -97,7 +102,7 @@ selectable, screen-reader-readable text; the play button is an ADDITION to that,
 | Decision | Answer |
 |---|---|
 | How the play button makes sound | **Pre-generate in `id-ID-Chirp3-HD-Schedar`; browser speech synthesis as fallback** so the control is never dead. |
-| Does the Darussalam hold cover audio | **Yes — hold the whole thing** until they reply. His letter's own sentence names audio: *"tidak ada satu pun ringkasan, gambar, video, atau audio … yang saya terbitkan."* |
+| Does the Darussalam hold cover audio | **Moot as stated — see ISC-630.** The answer was *"hold the whole thing"*, and its reason was the letter's own sentence naming audio. The letter is cancelled, so this inherits the open question above rather than standing on its own. |
 
 ### A correction this file must carry
 

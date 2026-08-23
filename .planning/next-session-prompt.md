@@ -72,8 +72,10 @@ The reviewed-aqidah credit in `main.ts:638/642` still names him and **MUST** —
 
 ## 3. Open items waiting on Erik
 
-- **Read and send the letter.** Decided-to-send ≠ sent. He must read the text, fill
-  `_[kontak — diisi Erik]_`, and pick one of their **six** channels (none tried).
+- ~~Read and send the letter.~~ **CANCELLED by Erik 2026-08-23** — *"i hereby cancel all requirements
+  to send letter whatsoever."* Not an open item any more; see ISC-629. **Do not reinstate it.** One
+  thing rode on it and is now open in its own right: **ISC-630, the publish hold** on
+  Darussalam-sourced summaries, whose only stated basis was a sentence in that letter.
 - 🚨 **ISC-627 — the PUBLIC repo publishes a line of the Darussalam lecture and the speaker's name.**
   `src/app/kajian-narration.test.ts` carries a truncated verbatim lecture line, the briefing's opening
   sentence, and `{ name: "Syariful Mahya", credentials: "Lc., M.A." }`. The letter now discloses this

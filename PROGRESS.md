@@ -4,6 +4,50 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (evening, III) — the Darussalam letter is CANCELLED
+
+**Erik, verbatim:** *"let's forget about any letter. i hereby cancel all requirements to send letter
+whatsoever."* No letter goes to Masjid Darussalam Kota Wisata.
+
+Checked for other outstanding send-requirements: **none.** The only other letter in `docs/review/` is
+`ustadz-followup-2026-08-18.md`, sent 2026-08-19 (ISC-541). So this cancels exactly one thing.
+
+`docs/review/surat-darussalam-2026-08-23.md` is kept as an **archive with a cancellation banner**
+rather than deleted — the record should show what was drafted and why it stopped, and the ISA entries
+that cite it would otherwise dangle. Say the word if you want the file gone instead.
+
+### Every promise inside it is void — because a promise binds only once it is delivered
+
+Nothing was ever sent, so no third party ever received one. That retires the removal promise ISC-627.5
+was written to satisfy, and the *"tidak ada satu pun ringkasan, gambar, video, atau audio … yang saya
+terbitkan"* sentence.
+
+### What the cancellation does NOT touch
+
+- **The ISC-627 scrub stands, and its justification was never the letter.** Their material is out of
+  the code because `quran-new` is a PUBLIC repo. That reason is independent of whether anyone was ever
+  written to, so nothing gets unwound.
+- **ADR 5 stands** — no slide names anyone, `roster.yaml` stays empty, every slide still declares
+  itself an automatic summary and not a quotation.
+- **Git history is still untouched** ([[delete-is-not-removal]]).
+
+### One thing DID ride on it, and I did not resolve it (ISC-630)
+
+The publish HOLD on Darussalam-sourced summaries was written into `.scratch/kajian-summarize/PRD.md`
+as a constraint riding on the letter's own sentence. That sentence is void, so **the hold has lost its
+stated basis.**
+
+I left it OPEN rather than deciding either way, deliberately. Keeping it would mean inventing a fresh
+justification for a rule whose old one was just deleted; dropping it would mean authorising
+publication of a third party's material. Neither is the DA's call.
+
+**The underlying rights position is unchanged and never depended on the letter:** ~12.7 MB of their
+material sits in two `.scratch/` directories with no permission. **It blocks nothing today** — there is
+no runner, no endpoint, and `kajian_jobs` is unapplied — so it needs an answer before the runner ships,
+not before the next commit.
+
+---
+
 ## 2026-08-23 (evening, II) — ISC-627: their material is out of the code
 
 **Erik's decision, asked and answered:** replace what is theirs, keep what is ours, and make the

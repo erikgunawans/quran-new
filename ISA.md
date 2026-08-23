@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 648/667  # 645 `[x]` + 3 `[~]` (ISC-418, ISC-624, ISC-627); 19 open `[ ]`. **Counted by grep, 2026-08-23 evening** — `grep -c '^- \[x\] ISC-'` = 645, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 3, sum 667. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..628; ISC-624 split into `.1`-`.9` and ISC-627 into `.1`-`.7` under the ID-stability rule (parents kept, never renumbered). Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`. Neither the landscape slide nor the ISC-627 scrub is deployed — both are build-time/test surfaces, not reader-facing routes.**
+progress: 651/671  # 648 `[x]` + 3 `[~]` (ISC-418, ISC-624, ISC-627); 20 open `[ ]`. **Counted by grep, 2026-08-23 evening** — `grep -c '^- \[x\] ISC-'` = 648, `'^- \[ \] ISC-'` = 20, `'^- \[~\] ISC-'` = 3, sum 671. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..630. **The Darussalam letter is CANCELLED (ISC-629, Erik 2026-08-23); the publish hold it carried is now OPEN as ISC-630 and is Erik's, not the DA's.** Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1546,6 +1546,31 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       are usually named after a person — that is the argument for the design, not attributed
       content. (c) The video id survives in `kajian-speaker.test.ts` as the PATH to the gitignored
       capture; removing it would delete the real-bytes test path. (d) **Git history is untouched.**
+- [x] ISC-629: **the Darussalam letter is CANCELLED. Erik, 2026-08-23:** *"let's forget about any
+      letter. i hereby cancel all requirements to send letter whatsoever."* No letter goes to Masjid
+      Darussalam Kota Wisata. `docs/review/surat-darussalam-2026-08-23.md` is retained as an ARCHIVE
+      with a cancellation banner rather than deleted, so the record shows what was drafted and why it
+      stopped. Checked for other outstanding send-requirements: there are none — the only other letter
+      in `docs/review/` is `ustadz-followup-2026-08-18.md`, **SENT 2026-08-19** (ISC-541).
+- [x] ISC-629.1: **every promise inside that letter is void, because a promise binds only once it is
+      delivered.** Nothing was ever sent, so no third party ever received one. This retires: the
+      removal promise that ISC-627.5 was written to satisfy, and the *"tidak ada satu pun ringkasan,
+      gambar, video, atau audio … yang saya terbitkan"* sentence that the publish HOLD rode on.
+- [x] ISC-629.2: **Anti: the ISC-627 scrub is NOT unwound by this, and its justification is not the
+      letter.** Their material is out of the code because `quran-new` is a PUBLIC repo — that reason
+      is independent of whether anyone was ever written to. The scrub stands, ISC-627.7's list of what
+      deliberately remains stands, and git history is still untouched ([[delete-is-not-removal]]).
+- [ ] ISC-630: **the publish HOLD on Darussalam-sourced summaries has lost its stated basis and is now
+      an OPEN question for Erik.** It was written into `.scratch/kajian-summarize/PRD.md` as a
+      constraint riding on the letter's own sentence, and that sentence is void. Two things follow and
+      neither is the DA's to decide: (a) the underlying rights position is UNCHANGED — we hold ~12.7 MB
+      of their material across two `.scratch/` directories with no permission, and that was never a
+      consequence of the letter; (b) **nothing is blocked today**, because the publish path does not
+      exist — no VPS runner, no endpoint, `kajian_jobs` unapplied — so this needs an answer before the
+      runner ships, not before the next commit. **The DA does not resolve this in either direction:**
+      keeping the hold would be inventing a new justification for a rule whose old one was just
+      deleted, and dropping it would be authorising publication of a third party's material.
+
 - [x] ISC-628: **three false claims were caught in the letter body by a fourth gate pass, after the
       commit.** (1) The disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — a
       474 s standalone machine reading of the whole briefing, NOT the 48.5 s mp4's soundtrack;
