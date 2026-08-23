@@ -4,6 +4,42 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (session close) — three commits, one cancellation
+
+Anchor: **`origin/main`, this wrap's commit.** Session began at `f78f17a`. Three commits landed and
+were each verified against the remote with `git ls-remote`, never a push pipe:
+
+| commit | what |
+|---|---|
+| `ce317bb` | ISC-624.1..7, .9 — the landscape two-panel slide |
+| `1fab9b0` | ISC-627.1..6 — Darussalam's material out of the code |
+| `39d9ce5` | ISC-629 / ISC-630 — the letter cancelled, the hold left open |
+
+**Gates at close:** `bun test` **2048/0** exit 0 (25,926 assertions, up from 25,917 at session start)
+· typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. Run locally; **no CI**.
+**ISA 651/671** — 648 `[x]` + 3 `[~]`, 20 open, counted by grep.
+
+**Nothing was deployed.** Prod still runs Worker `641f8ae2` from `44ed447`. Everything this session
+is build-time, test or record surface — the slide is a CLI artefact, not a route.
+
+### The through-line, if you read only one paragraph
+
+Every substantive finding this session came from **running the thing rather than reading it**. The
+render caught a cut ADR 5 disclaimer and a stale budget that no test could see. The scrub caught
+three assertions that could never fail — and the fix for one of those was *itself* trivially true
+until a mutation control was pointed at it. The git pickaxe caught a promise that could not be kept.
+Reading the code would have produced none of those.
+
+### What is open and mine to know, not to decide
+
+**ISC-630** is the one that matters: the publish hold on Darussalam summaries lost its stated basis
+when the letter was cancelled, and I deliberately did not resolve it in either direction. The
+underlying rights position never depended on the letter — ~12.7 MB of their material in two
+`.scratch/` directories, no permission. It blocks nothing today because the publish path does not
+exist, so it needs an answer **before the runner ships**, not before the next commit.
+
+---
+
 ## 2026-08-23 (evening, III) — the Darussalam letter is CANCELLED
 
 **Erik, verbatim:** *"let's forget about any letter. i hereby cancel all requirements to send letter

@@ -1,3 +1,154 @@
+# Next session — New-Quranku (checkpoint 2026-08-23 evening-close)
+
+> Prepended by /wrap 2026-08-23 (evening-close). **Anchor: this wrap's commit on `origin/main`** —
+> verify with `git fetch` + `git ls-remote`, never a push pipe. **Supersedes the 2026-08-23 (night)
+> block below.** From that handoff: item 0/1 (the PRD + ISC-624 slide) **BUILT — see §0**; item 2
+> (VPS runner) **untouched**; item 3 (D1+Resend) **untouched and still correct**; item 4 (kajian step
+> 7) **still unspecified, still needs Erik**; item 5 (ISC-566) **still open by Erik's decision**.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-23 session close**).
+
+## 0. WHAT CHANGED, SO YOU DO NOT REPEAT THE LAST HANDOFF'S §0
+
+**THE LETTER IS CANCELLED. Erik, 2026-08-23:** *"let's forget about any letter. i hereby cancel all
+requirements to send letter whatsoever."* The previous handoff's first open item — *"Read and send
+the letter"* — **is dead. Do not reinstate it, do not draft a replacement, do not treat any sentence
+in it as a live promise.** `docs/review/surat-darussalam-2026-08-23.md` is retained as an ARCHIVE
+with a cancellation banner; the body is kept only so the record shows what stopped.
+
+**The landscape slide is BUILT** (ISC-624.1..7, .9). **Darussalam's material is out of the code**
+(ISC-627.1..6). Neither is deployed and neither is reader-facing.
+
+## 1. STATE
+
+Prod: `new-quranku.axiara.ai` → Worker **`641f8ae2` from `44ed447`** — unchanged since 2026-08-23
+morning. **Nothing in this session is deployed**; the slide is a build-time CLI artefact, not a route.
+
+Gates at the anchor: `bun test` **2048/0** exit 0 (25,926 assertions) · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 — **run locally; this repo has no CI.**
+ISA **651/671** (648 `[x]` + 3 `[~]`, 20 open), counted by grep. **`ISA.md` has no `### Phase`
+headers and there is no `.planning/STATUS.md`** — so no phase table and no gap tracker exist to
+derive. **The 20 open ISCs ARE the open-item list.**
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL). The reviewed-aqidah
+credit in `main.ts:638/642` names him and **MUST**.
+
+## 2. DO NEXT, IN ORDER
+
+0. **READ `.scratch/kajian-summarize/PRD.md` FIRST**, and note its hold section is **SUPERSEDED** —
+   it now points at ISC-630 instead of at the letter. Erik's feature: the Kajian page gets a **URL
+   field and a Summarize button**, admin-only, results published to the public list, built against
+   the **VPS runner**. Items 1-2 below are the parts of that one job.
+
+1. **The VPS runner + D1/Resend in the SAME change (ISC-617).** Erik picked a VPS knowing it carries
+   a datacentre IP, so `yt-dlp` needs exported cookies or a residential proxy, and a fetch failure
+   must surface as a JOB STATE, not a silent empty summary. **The runner-facing endpoints are a
+   SECOND AUTH PRINCIPAL** — a shared bearer secret, no email, no role, no cookie. Do NOT reach for
+   `requireRole`: an Administrator's 30-day `__Host-qk_auth` in a VPS env var undoes ISC-568 entirely.
+   Until this lands, the admin route's 403 to everyone — Erik included — is CORRECT (ISC-592). Apply
+   migration `0003_kajian_jobs.sql`; it has never touched a real D1.
+   ⚠️ **ISC-630 gates what this may PUBLISH, not whether it may be built.** Build it; ask Erik before
+   the first Darussalam-sourced summary goes public.
+
+2. **ISC-624.8 — the play button.** `kajian.ts:532` nests the SHORT narration inside
+   `if (!NO_VIDEO && …)` and its WAV is consumed only by `stillVideo`, so turning the video off
+   destroyed the button's only audio producer. Decouple it, encode it as its own artefact, store it
+   (R2 — the `AUDIO` bucket exists for recitation, keyed `{surah}/{ayah}.mp3`, so kajian needs its own
+   prefix), and fall back to browser `speechSynthesis` only BEHIND a pre-generated file.
+   ⚠️ **Shipping speechSynthesis-only is not a partial delivery — it is the option ADR 6 already
+   refused**, because the voice would vary per device. ADR 6's voice is LOAD-BEARING.
+
+3. **The answer-wall cluster**, the largest untouched group: ISC-533, ISC-534 (the `answer-blocked`
+   copy and its anti-downgrade pair), ISC-454 (live `bad_hadith` rate on prod), ISC-487 (the wall's
+   cost is latency, and the 12s client abort is the real defect — retrieval is only 1.2-2.7s of a
+   5.5-27.3s turn), ISC-486, ISC-552. Read `ISA.md` for each before touching any.
+
+4. **Kajian step 7 — still undefined anywhere in the repo.** Asked four times. Ask before starting.
+
+5. **ISC-566 cross-paragraph danglers and ISC-417 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🚨 **ISC-630 — the publish hold on Darussalam-sourced summaries has no stated basis any more.**
+  Its only justification was a sentence in the cancelled letter. **The DA must not resolve this in
+  either direction:** keeping it invents a fresh justification for a rule whose old one was deleted;
+  dropping it authorises publishing a third party's material. Facts he needs: the rights position is
+  UNCHANGED (~12.7 MB across two `.scratch/` directories, no permission) and never depended on the
+  letter; and **nothing is blocked today** because the publish path does not exist. **Needed before
+  the runner ships, not before the next commit.** Raise this first.
+- **The cancelled letter file** — kept as an archive. He may want it deleted outright; offered, unanswered.
+- **ISC-627.7b** — `docs/kajian/roster.yaml` and `kajian-narration.ts` still name real dakwah
+  channels in PROSE (as the naming-convention argument, not as fixtures). He answered about the
+  FIXTURE; the comments were left deliberately. Offered, unanswered.
+- **ISC-627.7d** — git history still holds every scrubbed string (13 pushed commits, earliest
+  `43eee9e`). A rewrite is **offered, not assumed** — it changes every SHA, including ones the deploy
+  records cite.
+- **Kajian step 7** — undefined. **"Maruli"** — the string appears NOWHERE in the repo; asked twice,
+  never answered; do not guess.
+- **Rights items 1 and 2** (does the logo clause reach a summary; carry their logo or not) — his
+  alone. Item 3 ("ask the mosque?") is now MOOT, since no letter is going.
+- **ISC-626** — recount the `briefing.md` quotations from the directories, prefer the larger reading.
+- Unchanged and older: a correction with no delivery path · nobody has read a repaired answer for
+  THEOLOGICAL correctness · Answer Record retention · ISC-554's remaining half · roster entries.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **`docs/kajian/roster.yaml` is EMPTY** (`speakers: []`). Deliberate: no slide names anyone.
+- **~12.7 MB of Darussalam material in gitignored `.scratch/kajian/`, across TWO directories.**
+  Unpublished, unpublishable without permission, and now governed by ISC-630 rather than by a letter.
+- **The hosted runner does not exist**; nothing writes `/kajian/index.json`, so `#/kajian` shows its
+  empty state. The LOCAL runner (`src/app/kajian.ts`) exists and has run. **Do not conflate them.**
+- **`kajian_jobs` is unmigrated on any real D1.** **Logout does not REVOKE.** **The shared
+  `canonical_user_id` defect is NOT fixed** (ADR 2 scopes it out). **`splitSentences` is dead** except
+  its own tests, kept deliberately.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — the slide's stylesheet lives in a TEMPLATE LITERAL and is grepped whole by the force-red
+  test.** No backtick anywhere in it (it ends the string, and tsc then points at the prose), and **no
+  length or colour literal even inside a COMMENT** — `999px` and `500px` in comments each turned the
+  suite red. Spell numbers out. See `token-guard-reads-comments`.
+- **NEW — the slide budget is bound by the WRAPPED LINE COUNT, not the character count.** 395 and 497
+  chars render the same eight lines. Bracket, measured at 1920x1080: **497 fits with ~28px spare, 581
+  overflows by ~48px.** Re-render the real briefing AND a ceiling case and LOOK; never raise it by
+  arithmetic. `overflow: hidden` was removed on purpose — the page grows so a break is visible.
+- **NEW — headless Chrome clamps its own window at about five hundred CSS pixels and then CROPS the
+  screenshot to the width you asked for.** A 412-wide shot showed every card cut and it was an
+  artifact. **The tell: the cut falls at the same x on unrelated elements.** Probe narrow layouts at
+  ≥520, or via CDP `emulate`.
+- **NEW — renaming a fixture is a mutation test.** Scrubbing the kajian fixtures exposed three
+  assertions that could never fail, and the first fix for one was *itself* trivially true. Derive
+  expectations from the fixture, then PROVE the derived version reddens.
+- **NEW — deleting a string from the working tree does not remove it from a public repo.** Run
+  `git log -S"<string>" --all` before promising anything about removal.
+- **NEVER batch a file write with a gate command in one Bash call** — a blocked hook DISCARDS EVERY
+  WRITE in that call. Hit TWICE this session, both times by a `| head`/`| tail` inside the same call.
+- **Never pipe a gate command into `head`/`tail`** (the hook blocks it); never pipe `git push`.
+  Verify a push with `git ls-remote`, which is the only arbiter.
+- **Always `VITE_ANSWER_MODE=synthesis bun run build`** — a bare `bun run build` produces a
+  `principled` dist and deploying it silently un-authors prod. Check `.build-meta.json` first.
+- **A deploy ships the whole range, not your change.** `git log <deployed>..HEAD -- worker/` before
+  deploying, and say what else is going out. **`wrangler deploy` uploads the DIRECTORY** and has never
+  read `.gitignore`; on this origin a 200 proves nothing (SPA fallback) — compare BYTE COUNT and type.
+- **Re-gate after applying fixes, with a CHANGED FRAME** — audit the corrections, not the originals.
+- **Do not enumerate which tests a defect affects unless you just measured it.**
+- **`/api/answer` cannot be probed by curl** — drive the app with Interceptor, clear
+  `localStorage['newquranku:thread']`, discard a warm-up turn.
+- **Never `str.replace` into a record without asserting the target exists** (an assert fired this
+  session and correctly aborted). **Arabic you type is not the Arabic that shipped** — splice bytes.
+- **The kajian tool never rewrites a transcript** and never copies credentials from a video title.
+- ⚠️ **ADR 6's voice IS load-bearing.** ⚠️ **ADR 5 survives every redesign** — every slide says it is
+  an automatic summary and not a quotation, and `roster.yaml` is empty so no slide names anyone.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-23 night)
 
 > Prepended by /wrap 2026-08-23 (night). **Anchor: this wrap's commit on origin/main** — verify with
