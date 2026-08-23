@@ -14,6 +14,7 @@ import { describe, expect, test } from "bun:test";
 import worker, { type Env } from "./index.ts";
 import { buildAuthCookie, signSession } from "./session.ts";
 import type { D1Database, D1PreparedStatement, D1Result } from "./store.ts";
+import { MAX_JOBS_PER_DAY } from "./kajian-jobs.ts";
 
 interface ExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
@@ -81,6 +82,13 @@ class CountingStmt implements D1PreparedStatement {
   }
 
   async first<T = unknown>(): Promise<T | null> {
+    // The rolling-day count behind MAX_JOBS_PER_DAY (Erik, 2026-08-23). Applied from the SQL's own
+    // predicate, not hardcoded, so this fake cannot report a ceiling the statement does not ask for.
+    if (this.sql.includes("SELECT COUNT(*) AS n FROM kajian_jobs WHERE created_at >= ?")) {
+      const since = this.vals[0];
+      if (typeof since !== "number") throw new Error("fake D1 expected a numeric since");
+      return { n: [...this.db.rows.values()].filter((r) => r.createdAt >= since).length } as T;
+    }
     if (this.sql.includes("FROM kajian_jobs WHERE video_id = ?")) {
       const videoId = this.vals[0];
       if (typeof videoId !== "string") throw new Error("fake D1 expected a string videoId");
@@ -204,6 +212,46 @@ describe("POST /api/admin/kajian/jobs", () => {
       },
     });
     expect(db.writeCount).toBe(1);
+  });
+
+  /**
+   * THE COST CEILING AT THE SURFACE AN ADMIN ACTUALLY TOUCHES (Erik, 2026-08-23: five per day).
+   *
+   * `kajian-jobs.test.ts` proves the counting. What it cannot show is what the CALLER learns, and
+   * that is the half that matters here: this endpoint spends model tokens on ~80,000 characters per
+   * click, admin-only bounds WHO and never HOW MUCH, and without a stated status a client retry loop
+   * would keep pressing.
+   */
+  test("the day's allowance spent answers 429 with a Retry-After, not a silent failure", async () => {
+    const db = new CountingDb();
+    const env = makeEnv(db);
+    const cookie = await authCookie(ADMIN_EMAIL);
+
+    for (let i = 0; i < MAX_JOBS_PER_DAY; i++) {
+      const ok = await fetchRoute({
+        method: "POST",
+        env,
+        cookie,
+        json: { url: `https://youtu.be/vid${String(i).padStart(8, "0")}` },
+      });
+      expect(ok.status).toBe(201);
+    }
+
+    const refused = await fetchRoute({
+      method: "POST",
+      env,
+      cookie,
+      json: { url: "https://youtu.be/vidOVERFLOW" },
+    });
+
+    // 429 and not 403: the caller is a legitimate admin doing nothing wrong — the budget is spent.
+    // A 403 would say "you may not", which is false and sends an admin looking at their role.
+    expect(refused.status).toBe(429);
+    expect(await refused.json()).toMatchObject({ ok: false, error: "rate_limited" });
+    // Without this header a client cannot tell a momentary refusal from a permanent one.
+    expect(refused.headers.get("Retry-After")).toBe(String(24 * 60 * 60));
+    // Counted from the constant, so raising the ceiling cannot leave this asserting a stale number.
+    expect(db.writeCount).toBe(MAX_JOBS_PER_DAY);
   });
 
   test("a bad URL returns 400 and records no write", async () => {

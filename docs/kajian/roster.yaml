@@ -31,8 +31,8 @@
 #   titleContains:  matches when the video TITLE contains this text (case-insensitive, plain
 #                   substring, minimum 4 characters). Use for a mosque or organisation channel that
 #                   hosts many speakers — which is the common case. The first real video this tool
-#                   processed was on "Masjid Darussalam Kota Wisata", with the speaker named only in
-#                   the title, so channel-only matching would have credited a building.
+#                   processed was on a MOSQUE channel, with the speaker named only in the title,
+#                   so channel-only matching would have credited a building.
 #
 # IF TWO ENTRIES MATCH ONE VIDEO, NOBODY IS NAMED. Ambiguity is treated exactly like absence — a
 # wrong name is worse than no name, and "pick the first" would make the ORDER of this file decide
@@ -51,8 +51,8 @@
 #
 # The spoken narration (steps 5-6) opens by naming its source. For an unrostered video that used to
 # be the YouTube CHANNEL, taken verbatim — which is wrong far more often than it looks, because the
-# commonest naming convention on Indonesian dakwah YouTube is a BARE PERSONAL NAME: "Firanda
-# Andirja", "Hanan Attaki", "Khalid Basalamah Official". Saying "kajian di kanal Firanda Andirja"
+# commonest naming convention on Indonesian dakwah YouTube is a BARE PERSONAL NAME — the channel is
+# simply the preacher's own name, sometimes with "Official" after it. Saying "kajian di kanal <that>"
 # credits a living scholar, out loud, for a machine summary he has never seen.
 #
 # A pattern cannot tell those from "Masjid Al-Ikhlas" — there is nothing in a bare name to match on,
@@ -87,7 +87,8 @@
 #   · a channel RENAMED away from what you wrote stops matching, and the narration quietly goes
 #     back to saying nothing. Safe, but silent — if a channel you allowlisted stops being named,
 #     this is why.
-#   · ANY channel adopting an allowlisted display name gets spoken. A copycat "Yufid TV" would be
+#   · ANY channel adopting an allowlisted display name gets spoken. A copycat of an allowlisted
+#     organisation name would be
 #     narrated as the source. Only add names distinctive enough that this is not a real risk.
 #
 # The CLI prints one of three lines on every run, each carrying the parsed entry count:
@@ -103,7 +104,7 @@
 #
 # The count is the reliable part. If it reads 0 when you have filled this list in, it is one of two
 # things: a duplicate `organisations:` key (YAML silently keeps the LAST one), or a value that is
-# not a list — `organisations: Yufid TV` with no dash parses fine and is ignored. The second case
+# not a list — `organisations: Contoh TV` with no dash parses fine and is ignored. The second case
 # now prints its own warning; the first does not, because by then there is nothing left to see.
 #
 # REPLACE the `[]` below with a dashed list — do not add a second `organisations:` line, and do not

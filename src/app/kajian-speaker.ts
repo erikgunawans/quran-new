@@ -35,7 +35,7 @@
  * makes narration speak one of these names, it has answered Erik's open question on his behalf.
  */
 
-/** The bust-in-silhouette the Darussalam channel prefixes its speaker line with. */
+/** The bust-in-silhouette glyph a channel prefixes its speaker line with. */
 const PERSON_GLYPH = "\u{1F464}";
 
 /**
@@ -117,7 +117,7 @@ function looksLikeName(s: string): boolean {
 /**
  * Strip a leading glyph or label, then the punctuation that separated it from the name.
  *
- * Order matters: the glyph goes first because Darussalam writes `👤Ustadz …` with no space, so a
+ * Order matters: the glyph goes first because the sampled channel writes `👤Ustadz …` with no space, so a
  * label test against the raw line would see `👤ustadz` and miss.
  */
 function stripLead(line: string): string {
@@ -139,7 +139,7 @@ function stripLead(line: string): string {
  *
  * `USTADZ FULAN HAMID, L.C., M.A.` is how a title shouts; it is not how the person writes their
  * name. Dotted abbreviations are LEFT uppercase because lowercasing them would invent a house style
- * (`L.C.` → `L.c.` is what Darussalam actually writes, but we would be guessing that, and guessing
+ * (`L.C.` → `L.c.` is what the sampled uploader actually writes, but we would be guessing that, and guessing
  * is the thing ADR 5 removed). So the title path can differ in casing from the person's own
  * spelling. That is a known, bounded inaccuracy and it is why `description` wins when both exist.
  */

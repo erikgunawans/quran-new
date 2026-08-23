@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { enqueueKajianJob, listKajianJobs, youTubeVideoId } from "./kajian-jobs.ts";
+import { enqueueKajianJob, listKajianJobs, youTubeVideoId, MAX_JOBS_PER_DAY } from "./kajian-jobs.ts";
 import type { D1Database, D1PreparedStatement, D1Result } from "./store.ts";
 
 interface KajianJobRow {
@@ -64,6 +64,14 @@ class CountingStmt implements D1PreparedStatement {
   }
 
   async first<T = unknown>(): Promise<T | null> {
+    // The rolling-day count behind MAX_JOBS_PER_DAY. Applied from the SQL's own predicate, so
+    // changing the window reddens the cap tests rather than passing on the fake's own memory.
+    if (this.sql.includes("SELECT COUNT(*) AS n FROM kajian_jobs WHERE created_at >= ?")) {
+      const since = this.vals[0];
+      if (typeof since !== "number") throw new Error("fake D1 expected a numeric since");
+      if (this.db.breakCount) return { n: null } as T;
+      return { n: [...this.db.rows.values()].filter((r) => r.createdAt >= since).length } as T;
+    }
     if (this.sql.includes("FROM kajian_jobs WHERE video_id = ?")) {
       const videoId = this.vals[0];
       if (typeof videoId !== "string") throw new Error("fake D1 expected a string videoId");
@@ -77,6 +85,8 @@ class CountingStmt implements D1PreparedStatement {
 class CountingDb implements D1Database {
   readonly rows = new Map<string, KajianJobRow>();
   writeCount = 0;
+  /** Make the rolling-day count come back as something that is not a number. */
+  breakCount = false;
   lastListLimit: number | null = null;
 
   prepare(sql: string): D1PreparedStatement {
@@ -150,6 +160,10 @@ describe("enqueueKajianJob", () => {
       "other@example.com",
       2000,
     );
+
+    // Narrowed rather than asserted away: a rate-limited outcome here would be a real failure, not
+    // a typing inconvenience, so the test says so before reading the fields.
+    if ("error" in first || "error" in second) throw new Error("unexpected rate limit in the conflict test");
 
     expect(db.writeCount).toBe(1);
     expect(first.created).toBe(true);
@@ -252,5 +266,83 @@ describe("listKajianJobs", () => {
     const jobs = await listKajianJobs(db, 10);
 
     expect(jobs.map((job) => job.id)).toEqual(["job-1"]);
+  });
+});
+
+/**
+ * ── THE COST CEILING (Erik, 2026-08-23: five jobs per rolling day) ──────────────────────────────
+ *
+ * This is the only open item on this endpoint that can cost real money, so the tests are about the
+ * two ways a cap goes wrong: it fails OPEN when it should refuse, or it charges for work that never
+ * happened. Every id below is a distinct valid video id, because a repeat would be deduplicated and
+ * would prove the wrong thing.
+ */
+const ids = (n: number): string[] =>
+  Array.from({ length: n }, (_, i) => `vid${String(i).padStart(8, "0")}`);
+
+async function enqueueAt(db: CountingDb, videoId: string, at: number) {
+  return enqueueKajianJob(db, videoId, `https://youtu.be/${videoId}`, "admin@example.com", at);
+}
+
+describe("the per-day job cap", () => {
+  test("admits exactly MAX_JOBS_PER_DAY and refuses the next", async () => {
+    const db = new CountingDb();
+    const list = ids(MAX_JOBS_PER_DAY + 1);
+
+    for (const id of list.slice(0, MAX_JOBS_PER_DAY)) {
+      expect("error" in (await enqueueAt(db, id, 1_000))).toBe(false);
+    }
+    const overflow = await enqueueAt(db, list[MAX_JOBS_PER_DAY]!, 1_000);
+
+    // Asserted from the exported constant, so changing the ceiling cannot leave this passing while
+    // testing a number nobody ships.
+    expect("error" in overflow && overflow.error).toBe("rate_limited");
+    expect(db.writeCount).toBe(MAX_JOBS_PER_DAY);
+  });
+
+  test("a REPEAT of an already-queued video does not consume the allowance", async () => {
+    const db = new CountingDb();
+    const list = ids(MAX_JOBS_PER_DAY);
+    for (const id of list) await enqueueAt(db, id, 1_000);
+
+    // The same video again: deduplicated, does no work, and must not be charged for. If it were,
+    // an admin clicking twice would burn a day's budget on one lecture.
+    const again = await enqueueAt(db, list[0]!, 2_000);
+
+    expect("error" in again).toBe(false);
+    expect("error" in again ? null : again.created).toBe(false);
+    expect(db.writeCount).toBe(MAX_JOBS_PER_DAY);
+  });
+
+  test("the window ROLLS — a job just over 24h old no longer counts", async () => {
+    const db = new CountingDb();
+    const day = 24 * 60 * 60 * 1000;
+    const list = ids(MAX_JOBS_PER_DAY + 1);
+    for (const id of list.slice(0, MAX_JOBS_PER_DAY)) await enqueueAt(db, id, 1_000);
+
+    // One millisecond past the window. A calendar day would let the ceiling be doubled either side
+    // of local midnight; a rolling one cannot.
+    const later = await enqueueAt(db, list[MAX_JOBS_PER_DAY]!, 1_000 + day + 1);
+
+    expect("error" in later).toBe(false);
+  });
+
+  test("a job exactly AT the window edge still counts", async () => {
+    const db = new CountingDb();
+    const day = 24 * 60 * 60 * 1000;
+    const list = ids(MAX_JOBS_PER_DAY + 1);
+    for (const id of list.slice(0, MAX_JOBS_PER_DAY)) await enqueueAt(db, id, 1_000);
+
+    const atEdge = await enqueueAt(db, list[MAX_JOBS_PER_DAY]!, 1_000 + day);
+
+    expect("error" in atEdge && atEdge.error).toBe("rate_limited");
+  });
+
+  test("a count D1 cannot answer THROWS rather than reading as zero", async () => {
+    // Zero would open the gate on exactly the reading that failed. For a spending limit that is the
+    // wrong direction to fail in, so the refusal is loud.
+    const db = new CountingDb();
+    db.breakCount = true;
+    await expect(enqueueAt(db, "vid00000000", 1_000)).rejects.toThrow();
   });
 });

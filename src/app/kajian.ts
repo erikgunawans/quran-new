@@ -260,7 +260,7 @@ if (existsSync(ROSTER_PATH)) {
   };
   const entries = Array.isArray(parsed.speakers) ? parsed.speakers : [];
   // Channels the narration may say out loud. An allowlist, not a pattern — see `roster.yaml`.
-  // A SCALAR IS NOT AN EMPTY LIST. `organisations: Yufid TV` (no dash) parses fine, fails
+  // A SCALAR IS NOT AN EMPTY LIST. `organisations: Contoh TV` (no dash) parses fine, fails
   // `Array.isArray`, and used to become `[]` with nothing printed — so the count read 0 and
   // roster.yaml sent the maintainer hunting for a duplicate key that was not there.
   if (parsed.organisations !== undefined && !Array.isArray(parsed.organisations)) {

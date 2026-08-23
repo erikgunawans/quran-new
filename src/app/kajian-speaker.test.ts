@@ -21,14 +21,22 @@
  * is never a person — rather than one recorded output of it.
  */
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { resolveSpeakerWithProvenance, speakerFromMetadata } from "./kajian-speaker.ts";
 
-const CAPTURE = join(import.meta.dir, "../../.scratch/kajian/brlqHxjIp9c/meta.json");
-
-/** Verbatim splice of the capture, used only if `.scratch/` is absent (it is gitignored). */
-const FALLBACK = {
+/**
+ * THE INVENTED CAPTURE, and it is now the only one.
+ *
+ * This used to read the real capture off `.scratch/` when it was present and fall back to these
+ * invented bytes when it was not. The real capture was DELETED on 2026-08-23 with the decision not
+ * to launch on that material, so the disk branch could never fire again — and worse, it would have
+ * silently re-read a third party's metadata into a test the moment anyone re-downloaded the video.
+ *
+ * The SHAPE is spliced from what was measured there: a title that names a lecture and a person, a
+ * MOSQUE as the channel, and a description whose person line is prefixed by a bust glyph with no
+ * space after it. Every expectation below is still DERIVED from this object rather than written
+ * out, so the test asserts the extractor's rule and not one recorded output of it.
+ */
+const CAPTURE_SHAPE = {
   title: "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.",
   channel: "Masjid Al-Amanah Kota Harapan",
   description:
@@ -38,17 +46,10 @@ const FALLBACK = {
 };
 
 function capture(): { title: string; channel: string; description: string } {
-  try {
-    const raw = JSON.parse(readFileSync(CAPTURE, "utf8")) as Record<string, string>;
-    // Only trust the file if it actually carries the fields under test.
-    if (raw.title && raw.description) return raw as never;
-  } catch {
-    /* fall through */
-  }
-  return FALLBACK;
+  return CAPTURE_SHAPE;
 }
 
-describe("speakerFromMetadata — the real capture when it is on disk, the fallback when it is not", () => {
+describe("speakerFromMetadata — against a capture-shaped fixture, expectations derived not written", () => {
   it("reads the speaker from the description's person line, with the uploader's own casing", () => {
     const meta = capture();
     // Derived from whichever capture we got, so this asserts "the person line, verbatim" rather
@@ -99,7 +100,7 @@ describe("speakerFromMetadata — omission is still the fallback", () => {
     { why: "title with no separator", title: "Ustadz Fulan Hamid bicara", description: "" },
     { why: "empty everything", title: "", description: "" },
     { why: "person line is a URL", title: "", description: "\u{1F464} https://youtube.com/@x" },
-    { why: "person line is an email", title: "", description: "Pemateri: kontak@darussalam.id" },
+    { why: "person line is an email", title: "", description: "Pemateri: kontak@contohmasjid.id" },
     { why: "label with nothing after it", title: "", description: "Pemateri:" },
     { why: "too short to be a name", title: "", description: "\u{1F464} Ust" },
     { why: "a sentence, not a name", title: "", description: "\u{1F464} Siapa ustadz yang mengisi?" },

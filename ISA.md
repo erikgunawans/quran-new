@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 657/676  # 653 `[x]` + 4 `[~]` (ISC-418, ISC-624, ISC-627, ISC-617); 19 open `[ ]`. **Counted by grep, 2026-08-23 afternoon** — `grep -c '^- \[x\] ISC-'` = 653, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 4, sum 676. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..635. **ISC-617's consumer side is BUILT (ISC-631..635): the runner protocol, the publish path and the VPS runner all exist and are green; NOTHING IS DEPLOYED and the D1/R2 resources do not exist in the account.** The Darussalam letter is CANCELLED (ISC-629); the publish hold is OPEN as ISC-630 and is Erik's, not the DA's. Gates 2145/0 exit 0, typecheck exit 0, build exit 0 (synthesis), `wrangler --dry-run` exit 0, run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
+progress: 665/682  # 661 `[x]` + 4 `[~]` (ISC-418, ISC-617, ISC-624, ISC-627); 17 open `[ ]`. **Counted by grep, 2026-08-23 late afternoon** — `grep -c '^- \[x\] ISC-'` = 661, `'^- \[ \] ISC-'` = 17, `'^- \[~\] ISC-'` = 4, sum 682. **A first cut of THIS line said 663/676 with 13 open and 2 partial, written from expectation instead of measured — the exact failure ISC-626 exists to stop, committed in the same edit that closed it.** The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. **ISC-630 RESOLVED: the hold stands permanently and the capture is DELETED (12,808 KB, inventoried first as ISC-626). Rights items 1/2 closed by a blanket no-branding rule (ISC-637); kajian step 7 and "Maruli" closed as no such thing (ISC-638); the git-history rewrite DECLINED (ISC-639); the cancelled letter deleted (ISC-640). Cost ceiling: 5 jobs/rolling day (ISC-636).** Gates 2151/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1398,7 +1398,8 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
 - [x] ISC-615: **Anti:** neither unnaming removed a disclosure. `belum ditinjau` survives on both
       surfaces, and the hadith permission is still claimed. An unnaming narrows a claim; it must never
       be allowed to quietly delete one. Probe: the two "still claimed / still unreviewed" tests.
-- [x] ISC-616: **the Darussalam letter is DRAFTED and UNSENT** (`docs/review/surat-darussalam-2026-08-23.md`).
+- [x] ISC-616: **the Darussalam letter was DRAFTED and UNSENT** (`docs/review/surat-darussalam-2026-08-23.md` —
+      **cancelled by ISC-629, then DELETED by ISC-640; the path no longer resolves**).
       It names no ustadz — pulling Ustadz Syariful Mahya into a permissions question that is not his
       would repeat the error this project keeps making — states plainly that the summaries are machine
       written and unreviewed, and offers three outcomes including refusal. **The DA does not send.**
@@ -1498,12 +1499,21 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       `transcript.md` 88,364 B verbatim and their `cover.jpg`), **the second of which no rights
       record mentioned until 2026-08-23.** The completeness phrase *"supaya Bapak/Ibu tahu persis
       keadaannya"* was cut before the widening, because two-of-six does not deliver it.
-- [ ] ISC-626: **the `briefing.md` quotation count was published wrong TWICE, both times low** — four
-      (blockquoted lines only), then eleven (straight-quoted spans only, missing the whole
-      `## Perlu dicek terhadap video (32)` section). Correct: **12 quoted passages + 32 verbatim
-      transcript excerpts.** Kept OPEN as a standing instruction: recount from the directories, prefer
-      the larger reading, and never copy another record's list. Every error on this file ran the same
-      direction — making the material we hold of theirs look smaller than it is.
+- [x] ISC-626: **recounted from the directories at deletion, and the count was low a FOURTH time —
+      but the real miss was of a different order.** MET 2026-08-23; the measurement is
+      `docs/review/kajian-capture-inventory-2026-08-23.md`, taken immediately before the directories
+      were deleted, because after deletion the count is unrecoverable. `briefing.md`: **13 quoted
+      passages under the preferred larger reading** (4 blockquote blocks + 9 straight-quoted spans,
+      the ninth being the lecture title at L184) **+ 32 verbatim transcript excerpts = 45**, against
+      the published 12 + 32 = 44. Two further blockquote blocks are OURS — the draft banner and the
+      ADR 5 disclaimer — and are excluded, because this counts THEIR material, not blockquotes.
+      **THE FINDING THAT MATTERS IS NOT THE OFF-BY-ONE.** Every previous count described the DERIVED
+      `briefing.md` and none of them mentioned `transcript-raw.json`: **the entire lecture was held
+      verbatim, 2,586 snippets, 77,528 characters.** The difference between holding a dozen
+      quotations and holding the whole thing is the whole question, and five records in a row
+      described the smaller one. Total holding measured at **12,808 KB** across the two directories,
+      which is the first figure on this material that was not low. **DELETED the same day** with
+      ISC-630's resolution.
 
 - [~] ISC-627: **the PUBLIC repo published Darussalam material — SCRUBBED FROM THE CODE 2026-08-23,
       still present in the records and in git history.** Erik's decision, asked and answered: replace
@@ -1551,9 +1561,10 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       capture; removing it would delete the real-bytes test path. (d) **Git history is untouched.**
 - [x] ISC-629: **the Darussalam letter is CANCELLED. Erik, 2026-08-23:** *"let's forget about any
       letter. i hereby cancel all requirements to send letter whatsoever."* No letter goes to Masjid
-      Darussalam Kota Wisata. `docs/review/surat-darussalam-2026-08-23.md` is retained as an ARCHIVE
-      with a cancellation banner rather than deleted, so the record shows what was drafted and why it
-      stopped. Checked for other outstanding send-requirements: there are none — the only other letter
+      Darussalam Kota Wisata. **SUPERSEDED THE SAME DAY: this said the letter file "is retained as an
+      ARCHIVE with a cancellation banner rather than deleted". It was DELETED by ISC-640 — the ISA
+      already carries what was drafted and why it stopped, and a public repo did not need a document
+      naming a mosque whose only content was a void promise. The path does not resolve.** Checked for other outstanding send-requirements: there are none — the only other letter
       in `docs/review/` is `ustadz-followup-2026-08-18.md`, **SENT 2026-08-19** (ISC-541).
 - [x] ISC-629.1: **every promise inside that letter is void, because a promise binds only once it is
       delivered.** Nothing was ever sent, so no third party ever received one. This retires: the
@@ -1563,8 +1574,26 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       letter.** Their material is out of the code because `quran-new` is a PUBLIC repo — that reason
       is independent of whether anyone was ever written to. The scrub stands, ISC-627.7's list of what
       deliberately remains stands, and git history is still untouched ([[delete-is-not-removal]]).
-- [ ] ISC-630: **the publish HOLD on Darussalam-sourced summaries has lost its stated basis and is now
-      an OPEN question for Erik.** It was written into `.scratch/kajian-summarize/PRD.md` as a
+- [x] ISC-630: **RESOLVED by Erik 2026-08-23 — the hold stands PERMANENTLY, and is made moot by not
+      launching on their material at all.** The DA's recommendation, accepted. **The reasoning in the
+      DA's own earlier framing was wrong and is corrected here:** it said keeping the hold would
+      "invent a fresh justification for a rule whose old one was deleted". It would not. The
+      justification was always the standing rights position — their material held with no permission
+      — and the letter was going to RESOLVE that question, not create it. Cancelling the letter did
+      not remove the reason for the hold; **it removed the only route by which the answer could ever
+      become yes**, because nobody will now ask them. **What was done:** the capture was DELETED
+      (12,808 KB, two directories, inventoried first as ISC-626), and the runner launches on a source
+      whose rights are clear instead. Nothing derived from it was ever published — prod ran Worker
+      `641f8ae2` from `44ed447` throughout, with no kajian route, no D1 and no runner. **Stated so a
+      later reader does not mistake this for a legal finding:** a summary that links to its source is
+      arguably transformative, and publishing on that basis would have been a coherent position. It
+      was not taken, because there is no path to permission and Erik's standing principle is no
+      shortcuts. **`.scratch/kajian/jNQXAC9IVRw/` — "Me at the zoo", 19 seconds — was NOT deleted**
+      and is retained as the pipeline's only working test capture; it is third-party material too,
+      recorded rather than glossed.
+- [x] ISC-630.1: **the ORIGINAL text of this criterion, kept because the record must show what was
+      open before it was closed.** It read: the publish hold has lost its stated basis and is now
+      an OPEN question for Erik. It was written into `.scratch/kajian-summarize/PRD.md` as a
       constraint riding on the letter's own sentence, and that sentence is void. Two things follow and
       neither is the DA's to decide: (a) the underlying rights position is UNCHANGED — we hold ~12.7 MB
       of their material across two `.scratch/` directories with no permission, and that was never a
@@ -1648,6 +1677,67 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       to do with kajian. Verified by `wrangler deploy --dry-run` exit 0 with bindings unchanged.
       **ISC-630 gates what the runner may be pointed AT, not whether it may be built** — and a per-day
       cost ceiling still does not exist in the code, recorded in the runbook rather than assumed away.
+
+- [x] ISC-636: **five jobs per rolling day, enforced at the door.** Erik, 2026-08-23, on the DA's
+      recommendation, and the DA proposed the NUMBER rather than asking for one. **A job count, not a
+      token budget**: a token cap depends on transcript length, model and retries, can only be
+      enforced after the money is gone, and no human can hold it in their head. Five is roughly one
+      lecture per weekday — far above realistic use. It is not rationing; it bounds the two ways this
+      endpoint spends money nobody intended, a client retry loop and an admin session in the wrong
+      hands, because **admin-only bounds WHO and never HOW MUCH**. **ROLLING 24 hours**, so the
+      ceiling cannot be doubled either side of local midnight. **A deduplicated request does not
+      count**, because it does no work — otherwise an admin clicking twice burns a day's budget on
+      one lecture; the existence check therefore runs BEFORE the ceiling check. **A count D1 cannot
+      answer THROWS rather than reading as zero**: zero would open the gate on exactly the reading
+      that failed, which is the wrong direction for a spending limit to fail in. The route answers
+      **429 with `Retry-After`, not 403** — the caller is a legitimate admin doing nothing wrong, and
+      a 403 would send them to look at their role. Five mutations, each killing the intended tests:
+      `>=`→`>`, charging deduplicated requests, a broken count read as zero, a 100× window, and
+      dropping the 429 branch. `MAX_JOBS_PER_DAY` is exported and every test asserts from it, so
+      raising the ceiling cannot leave a test pinning a number nobody ships.
+- [x] ISC-637: **rights items 1 and 2 are CLOSED by a blanket rule, which replaces both questions
+      rather than answering them.** Erik, 2026-08-23:
+      `docs/review/erik-ruling-2026-08-23-no-third-party-branding.md`. **No summary carries any third
+      party's logo, wordmark, channel art, thumbnail or other branding — not the source's, not
+      anyone's, no case-by-case clause reading.** A blanket rule cannot be got wrong by a future
+      reader who reads the licence differently, and there is no upside: a borrowed logo on a
+      machine-written unreviewed religious summary implies an endorsement nobody gave, which is the
+      same failure ADR 5 prevents for NAMES. Item 3 of that set ("ask the mosque?") was already moot
+      with ISC-629. **It does not settle attribution** — a summary still links to its source and
+      still says it is an automatic summary, not a quotation. Refusing someone's logo is not refusing
+      to credit them; it is refusing to wear their identity.
+- [x] ISC-638: **kajian step 7 and "Maruli" are CLOSED as no such thing.** Erik, 2026-08-23. Step 7
+      was asked across five sessions and never defined anywhere in the repo; "Maruli" greps to zero
+      occurrences and was asked three times. **An item nobody can describe after five asks is not a
+      requirement — it is a note somebody made once**, and leaving both open made every handoff carry
+      two permanent question marks that blocked nothing. Reopen if the memory returns; do not carry
+      them forward as pending.
+- [x] ISC-639: **the git-history rewrite (ISC-627.7d) is DECLINED, and the decline is recorded so it
+      stops resurfacing.** Erik, 2026-08-23, on the DA's recommendation. A rewrite changes every SHA,
+      **including ones the ISA and the deploy records cite** — `44ed447`, `641f8ae2`, `43eee9e`. What
+      remains in the 13 pushed commits is a transcript excerpt and a speaker's name: not a credential,
+      and nothing that gets worse with time. Permanent cost across every record, marginal benefit. **If
+      it ever does matter, making the repo private is the cheaper lever**, and that is the fallback
+      rather than a rewrite. [[delete-is-not-removal]] still holds and is not contradicted by this: a
+      working-tree scrub was never claimed to be removal, and this criterion is why the claim was never
+      made.
+- [x] ISC-640: **the cancelled letter file is DELETED, and the last real-channel names left the code.**
+      `docs/review/surat-darussalam-2026-08-23.md` is gone: a public repo, naming a mosque, whose only
+      content was a promise now void, sitting beside a record that we held their material without
+      permission. The ISA carries both the letter and its cancellation (ISC-616, ISC-629), which is the
+      durable record. **ISC-627.7b is closed with it** — `docs/kajian/roster.yaml`,
+      `src/app/kajian-narration.ts`, `src/app/kajian-speaker.ts`, `src/app/kajian-audio.ts`,
+      `src/app/kajian.ts` and two test files named real dakwah channels and preachers in PROSE, as the
+      naming-convention argument; the argument survives with the names generalised, and every fixture
+      moved to invented equivalents of the same SHAPE. **A distinction that had to be got right and
+      nearly was not: "Darussalam" in `hadith-card.test.ts`, `dalil.ts`, `doa.ts` and `index.ts` is
+      Darussalam PUBLISHERS, the hadith translation house — a different entity from Masjid Darussalam
+      Kota Wisata, and a real translation credit. Those were NOT touched.** Likewise `surah/6.json` and
+      `10.json`, where *dār as-salām* is Qur'anic. **`kajian-speaker.test.ts` lost its real-capture
+      branch**: it read `.scratch/` when present and fell back to an invented fixture otherwise, so
+      after the deletion the disk branch could never fire — and would have silently re-read a third
+      party's metadata the moment anyone re-downloaded the video. Expectations are still DERIVED from
+      the fixture, and mutating the extractor reddens 15 of 21.
 
 - [x] ISC-628: **three false claims were caught in the letter body by a fourth gate pass, after the
       commit.** (1) The disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — a

@@ -145,13 +145,64 @@ export function youTubeVideoId(raw: string): string | null {
   }
 }
 
+/**
+ * ── THE COST CEILING ────────────────────────────────────────────────────────────────────────────
+ *
+ * Erik, 2026-08-23: five jobs per rolling day.
+ *
+ * A JOB COUNT, NOT A TOKEN BUDGET, and the choice is deliberate. A token cap is hard to reason about
+ * before the fact — the spend depends on transcript length, model and retries — and it can only be
+ * enforced AFTER the money is gone. A job count is enforceable at the door, cheap to check, and a
+ * human can hold it in their head.
+ *
+ * FIVE IS FAR ABOVE REALISTIC USE — roughly one lecture per weekday. It is not a rationing device;
+ * it is a bound on the two ways this endpoint could spend money nobody intended: a client retry loop,
+ * and an admin session in the wrong hands. Admin-only bounds WHO, never HOW MUCH, so without this
+ * the only limit on the bill is how fast a button can be pressed.
+ *
+ * ROLLING 24 HOURS, not a calendar day, so the ceiling cannot be doubled by enqueuing either side of
+ * local midnight.
+ *
+ * A DEDUPLICATED REQUEST DOES NOT COUNT, because it does no work: asking twice for a video already
+ * queued returns the existing row and spends nothing. The check therefore runs only when a row would
+ * actually be created — see `enqueueKajianJob`.
+ */
+export const MAX_JOBS_PER_DAY = 5;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** How many jobs were created in the last rolling day. */
+export async function jobsCreatedSince(db: D1Database, since: number): Promise<number> {
+  const row = await db
+    .prepare("SELECT COUNT(*) AS n FROM kajian_jobs WHERE created_at >= ?")
+    .bind(since)
+    .first<{ n: unknown }>();
+  const n = row?.n;
+  // A count that did not come back as a number is NOT read as zero. Zero would open the gate on
+  // exactly the reading that failed, which is the wrong direction for a spending limit to fail in.
+  if (typeof n !== "number" || !Number.isFinite(n)) {
+    throw new Error("kajian_jobs count did not return a number");
+  }
+  return n;
+}
+
 export async function enqueueKajianJob(
   db: D1Database,
   videoId: string,
   url: string,
   email: string,
   now: number,
-): Promise<{ job: KajianJob; created: boolean }> {
+): Promise<{ job: KajianJob; created: boolean } | { error: "rate_limited"; retryAfterMs: number }> {
+  // Checked BEFORE the insert, and re-checked against what the insert actually did below: a request
+  // for a video already queued is deduplicated and costs nothing, so it must not consume the day's
+  // allowance. Ordering it this way means the only requests that count are the ones that create work.
+  const existing = await getKajianJobByVideoId(db, videoId);
+  if (existing === null) {
+    const recent = await jobsCreatedSince(db, now - DAY_MS);
+    if (recent >= MAX_JOBS_PER_DAY) {
+      return { error: "rate_limited", retryAfterMs: DAY_MS };
+    }
+  }
+
   const attemptedId = crypto.randomUUID();
   await db
     .prepare(

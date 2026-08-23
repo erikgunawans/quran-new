@@ -188,12 +188,12 @@ export interface NarrationScript {
  *
  * The channel was screened first by a honorific-and-gelar pattern: `ustadz`, `syaikh`, `habib`,
  * `Lc.`, `M.A.` and so on. Run against real Indonesian dakwah channels it caught `Buya Yahya` and
- * `Gus Baha` — and passed `Firanda Andirja`, `Hanan Attaki`, `Felix Siauw`, `Khalid Basalamah
- * Official`, `Adi Hidayat Official`, `Oemar Mita`, `Erwandi Tarmizi`. The dominant naming
+ * an honorific-prefixed name — and passed every channel named after the preacher alone, with or
+ * without a trailing `Official`, which is SEVEN of the nine sampled. The dominant naming
  * convention is a BARE PERSONAL NAME, which carries no screenable token at all — so the pattern
  * caught the minority shape of the hazard and looked like coverage while doing it.
  *
- * No list can fix that: there is nothing in "Firanda Andirja" to match on. Any predicate over a
+ * No list can fix that: a bare personal name has nothing in it to match on. Any predicate over a
  * channel string is a GUESS about whether it names a person, and ADR 5 already ruled that out —
  * "Omission is the fallback; guessing is not available."
  *

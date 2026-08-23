@@ -105,20 +105,20 @@ describe("resolveSpeaker", () => {
 
 describe("the organisations allowlist", () => {
   it("returns the survivors, because printing a problem is not rejecting an entry", () => {
-    const r = checkOrganisations(["Masjid Al-Amanah Kota Harapan", "Yufid TV"]);
+    const r = checkOrganisations(["Masjid Al-Amanah Kota Harapan", "Contoh TV"]);
     expect(r.problems).toEqual([]);
-    expect(r.valid).toEqual(["Masjid Al-Amanah Kota Harapan", "Yufid TV"]);
+    expect(r.valid).toEqual(["Masjid Al-Amanah Kota Harapan", "Contoh TV"]);
   });
 
   it("drops an empty entry AND says so", () => {
-    const r = checkOrganisations(["  ", "Yufid TV"]);
-    expect(r.valid).toEqual(["Yufid TV"]);
+    const r = checkOrganisations(["  ", "Contoh TV"]);
+    expect(r.valid).toEqual(["Contoh TV"]);
     expect(r.problems.join(" ")).toContain("empty");
   });
 
   it("drops a duplicate and says so — inert for matching, but a maintainer should know", () => {
-    const r = checkOrganisations(["Yufid TV", "yufid tv"]);
-    expect(r.valid).toEqual(["Yufid TV"]);
+    const r = checkOrganisations(["Contoh TV", "contoh tv"]);
+    expect(r.valid).toEqual(["Contoh TV"]);
     expect(r.problems.join(" ")).toContain("duplicate");
   });
 

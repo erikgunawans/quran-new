@@ -281,7 +281,7 @@ export function encodeM4a(wavPath: string, outPath: string, tags: M4aTags): void
    * ⚠ THIS TAG IS A SURFACE, AND IT TOOK TWO TRIES TO TREAT IT AS ONE.
    *
    * The first cut wrote `album=${channel}`, which a media player renders as a bare unlabelled line
-   * — so a file whose narration deliberately REFUSES to say "Firanda Andirja" shipped displaying
+   * — so a file whose narration deliberately REFUSES to say the preacher's name shipped displaying
    * it. The second cut moved the channel into a labelled sentence and still wrote it, which
    * contradicted `roster.yaml`'s promise to a maintainer that leaving a person off the allowlist
    * keeps their name out. The channel is now absent entirely: the URL identifies the source, and

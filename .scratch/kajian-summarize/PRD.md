@@ -26,7 +26,14 @@ slide / render modules. There is no Claude skill by that name; checked the repo 
 | Where does the result go? | **Published to the public Kajian list.** |
 | Which runner first? | **The VPS runner, as already decided.** Not a local-runner shim. |
 
-### The constraint that used to ride on decision 2 — NOW AN OPEN QUESTION (ISC-630)
+### The constraint that used to ride on decision 2 — RESOLVED (ISC-630)
+
+**RESOLVED 2026-08-23 by Erik: the hold STANDS PERMANENTLY, and is moot because the runner does not
+launch on their material. The capture was DELETED (12,808 KB; inventory in
+`docs/review/kajian-capture-inventory-2026-08-23.md`). Cancelling the letter did not remove the
+reason for the hold — it removed the only route by which the answer could ever become yes, since
+nobody will now ask them. The paragraphs below are the state BEFORE that decision, kept as the
+record.**
 
 **SUPERSEDED 2026-08-23.** This section previously held Darussalam-sourced summaries back, and its
 whole justification was a sentence in Erik's unsent letter. **Erik cancelled the letter** — *"let's
@@ -82,9 +89,11 @@ unapplied). It needs an answer **before the runner ships**, not before the next 
 - **ISC-627** — the PUBLIC repo publishes a line of the Darussalam lecture and the speaker's name in
   `src/app/kajian-narration.test.ts`. The letter now promises removal. Scrubbing is not free: a guard
   test fed invented prose is a weaker guard.
-- **Kajian step 7** — still undefined anywhere in the repo. Asked three times.
-- **"Maruli"** — appears nowhere in the repo. The one real video's speaker is Ustadz Syariful Mahya.
-- **Rights items 1 and 2** — does the logo clause reach a summary at all; carry their logo or not.
+- ~~**Kajian step 7**~~ — **CLOSED 2026-08-23 as no such thing** (ISC-638). Asked across five
+  sessions, never defined anywhere in the repo.
+- ~~**"Maruli"**~~ — **CLOSED with it.** Greps to zero occurrences; asked three times.
+- ~~**Rights items 1 and 2**~~ — **CLOSED 2026-08-23 by a blanket rule** (ISC-637): no third party's
+  logo, wordmark, channel art, thumbnail or other branding on any summary, ever. No clause reading.
 
 ---
 
@@ -102,7 +111,7 @@ selectable, screen-reader-readable text; the play button is an ADDITION to that,
 | Decision | Answer |
 |---|---|
 | How the play button makes sound | **Pre-generate in `id-ID-Chirp3-HD-Schedar`; browser speech synthesis as fallback** so the control is never dead. |
-| Does the Darussalam hold cover audio | **Moot as stated — see ISC-630.** The answer was *"hold the whole thing"*, and its reason was the letter's own sentence naming audio. The letter is cancelled, so this inherits the open question above rather than standing on its own. |
+| Does the Darussalam hold cover audio | **Moot, and now doubly so — ISC-630 resolved and the material is deleted.** The answer was *"hold the whole thing"*, and its reason was the letter's own sentence naming audio. The letter is cancelled, so this inherits the open question above rather than standing on its own. |
 
 ### A correction this file must carry
 

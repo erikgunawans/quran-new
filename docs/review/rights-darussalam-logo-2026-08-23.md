@@ -1,5 +1,14 @@
 # A rights condition the source states in its own description — Darussalam's logo clause
 
+> ⚠️ **STALE PATHS, 2026-08-23.** This record cites `docs/review/surat-darussalam-2026-08-23.md`
+> three times. That letter was CANCELLED (ISC-629) and the file DELETED (ISC-640); the path does not
+> resolve. The citations are left in place because rewriting a record to hide what it once pointed at
+> is worse than a dead link — but nothing here should be read as describing a live document.
+>
+> ⚠️ **RIGHTS ITEMS 1 AND 2 ARE CLOSED**, not by the clause-reading this record sets up, but by a
+> blanket rule: no third party's branding on any summary, ever. See
+> `docs/review/erik-ruling-2026-08-23-no-third-party-branding.md`.
+
 > **Found 2026-08-23** while answering Erik's question 2 on the speaker-naming ruling. Not looked
 > for; it was sitting in metadata this project already fetched and stored.
 > **Erik's disposition, 2026-08-23: RECORD IT, DO NOT ACT YET.** No code changed, no gate added, no

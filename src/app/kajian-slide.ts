@@ -720,7 +720,8 @@ function topicStrip(topics: readonly string[]): string {
  * than quietly wrong. The budget is still the guarantee; the visible break is only the alarm.
  *
  * ⚠ THREE THINGS IN ERIK'S REFERENCE ARE REFUSED BY DESIGN, and their absence is the feature:
- * the Darussalam logo (rights item 2, unresolved and his call), the video thumbnail (`roster.yaml`
+ * the source channel's logo (SETTLED 2026-08-23 — no third party's branding on any summary, ever;
+ * `docs/review/erik-ruling-2026-08-23-no-third-party-branding.md`), the video thumbnail (`roster.yaml`
  * states a frame grabbed off the video is not an image we are entitled to use) and the speaker name
  * (`speakers: []` — ADR 5 gives an unrostered video no identity). The reference also carries no
  * "automatic summary, not a quotation" line; ADR 5 requires one, so `DISCLAIMER` survives the

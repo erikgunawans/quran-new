@@ -1248,8 +1248,15 @@ async function handleAdminKajianJobEnqueue(request: Request, env: Env, db: D1Dat
     return noStore(json({ ok: false, error: "forbidden" }, 403, request));
   }
 
-  const { job, created } = await enqueueKajianJob(db, videoId, url, info.email, Date.now());
-  return noStore(json({ ok: true, job, created }, 201, request));
+  const outcome = await enqueueKajianJob(db, videoId, url, info.email, Date.now());
+  if ("error" in outcome) {
+    // 429 with Retry-After, because the caller is not doing anything WRONG — the day's allowance is
+    // simply spent (MAX_JOBS_PER_DAY, Erik 2026-08-23). The admin UI can say when to come back.
+    const res = noStore(json({ ok: false, error: outcome.error }, 429, request));
+    res.headers.set("Retry-After", String(Math.ceil(outcome.retryAfterMs / 1000)));
+    return res;
+  }
+  return noStore(json({ ok: true, job: outcome.job, created: outcome.created }, 201, request));
 }
 
 /**
