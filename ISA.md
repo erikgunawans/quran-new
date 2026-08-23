@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 651/671  # 648 `[x]` + 3 `[~]` (ISC-418, ISC-624, ISC-627); 20 open `[ ]`. **Counted by grep, 2026-08-23 evening** — `grep -c '^- \[x\] ISC-'` = 648, `'^- \[ \] ISC-'` = 20, `'^- \[~\] ISC-'` = 3, sum 671. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..630. **The Darussalam letter is CANCELLED (ISC-629, Erik 2026-08-23); the publish hold it carried is now OPEN as ISC-630 and is Erik's, not the DA's.** Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
+progress: 657/676  # 653 `[x]` + 4 `[~]` (ISC-418, ISC-624, ISC-627, ISC-617); 19 open `[ ]`. **Counted by grep, 2026-08-23 afternoon** — `grep -c '^- \[x\] ISC-'` = 653, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 4, sum 676. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..635. **ISC-617's consumer side is BUILT (ISC-631..635): the runner protocol, the publish path and the VPS runner all exist and are green; NOTHING IS DEPLOYED and the D1/R2 resources do not exist in the account.** The Darussalam letter is CANCELLED (ISC-629); the publish hold is OPEN as ISC-630 and is Erik's, not the DA's. Gates 2145/0 exit 0, typecheck exit 0, build exit 0 (synthesis), `wrangler --dry-run` exit 0, run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`; nothing since is reader-facing.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1404,11 +1404,14 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       written and unreviewed, and offers three outcomes including refusal. **The DA does not send.**
       One judgment is left to Erik in a note that is not part of the letter: whether to disclose that a
       slide and mp4 from their video already exist locally. Suggested wording is provided; the choice is his.
-- [ ] ISC-617: **prod bindings stay UNBOUND, deliberately, and this stays OPEN as a reminder not a task.**
+- [~] ISC-617: **prod bindings stay UNBOUND, and the runner they were waiting for is now BUILT.**
       D1 and Resend remain `[env.demo]` only, so the admin route answers 403 to everyone including Erik
       (ISC-592). Erik's decision: bind them in the SAME change that brings the VPS runner up, so the app
       never carries a working admin page whose jobs nothing consumes. Until then the 403 is correct
-      behaviour and must not be "fixed".
+      behaviour and must not be "fixed". **The consumer side landed 2026-08-23 as ISC-631..634 below;
+      the bindings are written into `worker/wrangler.toml` COMMENTED, with `docs/runbooks/kajian-runner.md`
+      as the one sequence that binds all three. `[~]` not `[x]`: the code exists, nothing is deployed,
+      and the resources do not exist in the account.**
 
 - [x] ISC-618: **the two unnamings reached the live surface.** Deployed 2026-08-23 from `44ed447`;
       Worker `2b7707f2` → `641f8ae2`. Verified in real Chrome, not by grep: the Hadits kitab banner
@@ -1570,6 +1573,81 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       runner ships, not before the next commit. **The DA does not resolve this in either direction:**
       keeping the hold would be inventing a new justification for a rule whose old one was just
       deleted, and dropping it would be authorising publication of a third party's material.
+
+- [x] ISC-631: **the runner is a SECOND AUTH PRINCIPAL, and `runner-auth.ts` exists so that it cannot
+      quietly become an account.** A human at a form proves an ACCOUNT (`__Host-qk_auth`, an email, an
+      exact-match role); a machine on a VPS proves ITSELF (a shared bearer secret, no email, no role, no
+      cookie). Serving the runner with `requireRole` would put an Administrator's 30-day session cookie
+      in a VPS environment variable, which undoes ISC-568 entirely — a browser-scoped, `HttpOnly`,
+      person-bound credential re-domiciled onto a shared host as a static admin token that logout cannot
+      revoke (and logout does not revoke anyway). **It FAILS CLOSED**: unset, empty, or under a 32-char
+      floor admits NOBODY, and the floor is checked BEFORE the comparison so a weak configuration cannot
+      be matched at all. **THE BLAST RADIUS IS BOUNDED ON PURPOSE**: holding the secret permits claiming
+      and reporting, NOT enqueuing — which stays behind `requireRole(…, "admin")` — so a leak cannot make
+      the app fetch arbitrary URLs, and it reads no account, question or note. 403 undistinguished, same
+      reason as `requireRole`. `timingSafeEqual` is EXPORTED from `session.ts` and shared rather than
+      copied ([[diagnostic-outlives-its-gate]]). **One test I wrote FAILED and was wrong, not the code:**
+      "a trailing space in the header is refused" — RFC 9110 §5.5 strips OWS before this code runs, so it
+      is asserted as the transport property it is, lest someone add a `.trim()` to `readBearer` to fix a
+      case that never arrives ([[fake-differs-by-construction]]).
+- [x] ISC-632: **every job transition names the status it comes from, IN THE SQL.** Claiming is one
+      `UPDATE … WHERE status = 'queued' … RETURNING`, so D1 picks the single winner — a `SELECT` then an
+      `UPDATE` would let two runners take one job. `complete` and `fail` both require `running`, so a
+      late or duplicate report cannot resurrect a finished job and the caller learns it lost the race
+      (409) instead of silently overwriting. A claim carries a **two-hour lease**, so a runner killed
+      mid-run does not strand its row in `running` for ever — but a merely SLOW one is left alone,
+      because reclaiming it would run the work twice. **THE FAKE D1 FIRST HARDCODED THE GUARD, which made
+      three "cannot report twice" assertions vacuous** — it refused the second call whether or not the
+      statement carried the clause ([[evidence-that-could-never-have-failed]]). It now derives both the
+      status guard and the lease bound FROM the statement text. **And a first fix of THAT was itself
+      wrong**: it read "no `claimed_at` bound" as "reclaim nothing" when SQL semantics say "reclaim
+      everything", which inverted the mutation — the lease test passed under a query with no lease
+      ([[correction-is-the-least-scrutinised-edit]]). Nine mutations run across the surface, each killing
+      the intended tests and enumerated in the test header. Migration `0004_kajian_results.sql` is
+      SEPARATE from 0003 because 0003 is `CREATE TABLE IF NOT EXISTS` and amending it would silently
+      no-op against a D1 that had run it; an `ALTER` against a missing table fails loudly instead.
+- [x] ISC-633: **the two guardrails are enforced at the PUBLISH boundary, and asserted against rows that
+      carry violations.** `speaker` is pinned null — no column exists to read one from (0004 says why in
+      the file) and no field carries one — because `docs/kajian/roster.yaml` is EMPTY and that silence is
+      ADR 5's safety property, not an unfinished feature. `reviewed` is pinned false — nothing in this
+      pipeline reviews anything, and the generator must never vouch for its own text
+      ([[permitted-is-not-reviewed]]). Both are tested against a row carrying `speaker: "Ustadz Fulan"`
+      and `reviewed: true`, so the claim is about what the pipeline STRIPS rather than about a clean
+      fixture. `/kajian/index.json` stops being a static asset when D1 is bound, because `web/dist` is
+      **baked at build time** ([[disk-dist-live]]) and a static file could only show what was true at the
+      last build; `WHERE status = 'done'` is the whole publication rule, so there is no second flag to
+      fall out of step. **Unbound, the route does not exist and the feed renders its empty state — which
+      is the honest answer**: an empty JSON array would claim the list IS empty rather than not yet
+      published. The Worker record is round-tripped through the READER'S OWN validator
+      (`web/src/kajian-feed.ts`), asserted from the WEB tranche because that import drags `HTMLElement`
+      into the Worker's `types: []` project ([[typecheck-chain-hides-tranches]]).
+- [x] ISC-634: **an uploaded document is served with an OPAQUE ORIGIN, because the runner uploads HTML a
+      model wrote after reading a third party's transcript, on a host that also runs `yt-dlp` against the
+      open internet.** Served from this origin it would be same-origin with the reader's session: script
+      in it could not READ `__Host-qk_auth` (HttpOnly) but could RIDE it. So `Content-Security-Policy`
+      leads with `sandbox` — no `allow-same-origin`, no `allow-scripts` — plus `default-src 'none'`,
+      `script-src 'none'`, `nosniff`, and a content type decided from an allowlist of whole FILE NAMES
+      rather than extensions. The uploader chooses neither the key nor the type. **A first cut set a
+      `Sandbox:` header, which is not an HTTP header at all** — recorded in the file, because a header
+      that does nothing looks exactly like one that works. **And the length bound in `parseArtifactPath`
+      was untested and reddened NOTHING under mutation** — every other case was caught by the id or name
+      pattern. The one path it actually catches is `/kajian/<id>/slide.html/extra`, where the third
+      segment IS allowlisted; now tested, and the mutation now kills it
+      ([[evidence-that-could-never-have-failed]]).
+- [x] ISC-635: **the runner refuses to start on a bad configuration rather than defaulting**, because a
+      runner polling forever against a 403 looks exactly like a queue that is always empty — the worst
+      failure available, since it is silent. No secret, no base URL, and no plain-`http` base URL (the
+      bearer credential would travel in the clear). **It will not borrow a thumbnail**: the card's
+      `thumbUrl` is OUR OWN rendered `slide.png`, and with no render of our own the job FAILS rather than
+      falling back to `meta.thumbnailUrl`, which is the uploader's image — tested against a meta that
+      CARRIES one. It uploads neither `briefing.md` nor `meta.json`, which hold the third party's
+      material at length. Every path that cannot produce a real summary calls `/fail` with a sentence an
+      admin can act on, and `yt-dlp`'s datacentre-IP refusal names both fixes explicitly, because
+      "HTTP Error 403" alone says nothing about what to do next. **The bindings are written COMMENTED**:
+      a `[[d1_databases]]` with a placeholder id would fail EVERY prod deploy, including one with nothing
+      to do with kajian. Verified by `wrangler deploy --dry-run` exit 0 with bindings unchanged.
+      **ISC-630 gates what the runner may be pointed AT, not whether it may be built** — and a per-day
+      cost ceiling still does not exist in the code, recorded in the runbook rather than assumed away.
 
 - [x] ISC-628: **three false claims were caught in the letter body by a fourth gate pass, after the
       commit.** (1) The disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — a
