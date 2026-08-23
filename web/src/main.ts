@@ -17,6 +17,8 @@ import { destroyCosmos, filterTema, renderPetaCategory, renderPetaIndex, soleTem
 import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
+import { renderKajian } from "./kajian-summary.ts";
+import { loadKajianSummaries } from "./kajian-feed.ts";
 import {
   dalilEmptyEl,
   fiqhDoorwayEl,
@@ -1086,7 +1088,7 @@ function showRead() {
 }
 
 /** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa") {
+function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa" | "kajian") {
   const links = {
     tanya: $<HTMLAnchorElement>("#nav-tanya"),
     baca: $<HTMLAnchorElement>("#nav-baca"),
@@ -1094,6 +1096,7 @@ function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa") {
     hadis: $<HTMLAnchorElement>("#nav-hadis"),
     fikih: $<HTMLAnchorElement>("#nav-fikih"),
     doa: $<HTMLAnchorElement>("#nav-doa"),
+    kajian: $<HTMLAnchorElement>("#nav-kajian"),
   };
   for (const [key, el] of Object.entries(links)) {
     if (key === mode) el.setAttribute("aria-current", "page");
@@ -1112,7 +1115,13 @@ async function route() {
   // Idempotent on every route pass.
   document.documentElement.toggleAttribute(
     "data-wide",
-    hash === "#/baca" || hash === "#/peta" || hash === "#/hadis" || hash === "#/fikih" || hash === "#/doa",
+    hash === "#/baca" ||
+      hash === "#/peta" ||
+      hash === "#/hadis" ||
+      hash === "#/fikih" ||
+      hash === "#/doa" ||
+      // Rangkuman Kajian is a card grid like the other browse indexes, not reading prose.
+      hash === "#/kajian",
   );
   // The Al-Qur'an wheel page keeps its docked composer small + translucent until hovered/focused
   // (Erik) — a browse surface, not a chat one. This marker scopes that treatment in shell.css.
@@ -1196,6 +1205,16 @@ async function route() {
     markNav("fikih");
     showRead();
     await renderFikih(readView);
+    return;
+  }
+
+  // Rangkuman Kajian. The summaries are produced OUTSIDE the Worker and served as static records;
+  // this route only lists them. A fetch failure renders the empty state rather than throwing, so a
+  // missing feed looks like "nothing here yet" and never a broken page.
+  if (hash === "#/kajian") {
+    markNav("kajian");
+    showRead();
+    renderKajian(readView, await loadKajianSummaries());
     return;
   }
 

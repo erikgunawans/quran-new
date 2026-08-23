@@ -1842,3 +1842,44 @@
 .dalil-ref-cite { font-family: var(--f-ui); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
 .dalil-ref-grade { font-family: var(--f-ui); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); }
 /* `.dalil-ref-bab` removed 2026-08-20 (late) along with the field it painted. */
+
+/* ── Rangkuman Kajian ──────────────────────────────────────────────────────────
+   Card grid for machine-written kajian summaries. Every colour is a token: this
+   surface is retheme-able only if nothing here is a literal, and a hardcoded value
+   fails silently under a :root swap rather than loudly.
+   `.kajian-unreviewed` uses the caution tokens deliberately — the provenance state
+   is not decoration, and it must stay legible in both themes. */
+.kajian-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+.kajian-card {
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--sh-sm);
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+}
+.kajian-card:hover { transform: translateY(-2px); box-shadow: var(--sh); border-color: var(--line-strong); }
+
+.kajian-card-link { display: block; color: inherit; text-decoration: none; flex: 1; }
+
+/* A 16:9 box so a missing or slow thumbnail does not reflow the grid. */
+.kajian-thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--surface-2); }
+
+.kajian-card-body { padding: 14px 16px 12px; }
+.kajian-title { font-family: var(--f-display); font-size: 1.05rem; line-height: 1.3; margin: 0 0 6px; color: var(--ink); }
+.kajian-speaker { margin: 0 0 2px; font-size: .9rem; color: var(--ink-2); }
+.kajian-channel { margin: 0; font-size: .85rem; color: var(--ink-3); }
+.kajian-meta { margin: 6px 0 0; font-size: .8rem; color: var(--ink-3); }
+
+.kajian-card-foot {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 16px 14px; border-top: 1px solid var(--line);
+}
+.kajian-has-audio { font-size: .78rem; color: var(--ink-3); }
+.kajian-unreviewed {
+  font-size: .78rem; padding: 2px 8px; border-radius: 999px;
+  color: var(--caution); background: var(--caution-wash);
+}
+.kajian-source { margin-inline-start: auto; font-size: .82rem; color: var(--primary); text-decoration: none; }
+.kajian-source:hover { text-decoration: underline; }
+
+.kajian-empty { color: var(--ink-3); padding: 24px 0; }
