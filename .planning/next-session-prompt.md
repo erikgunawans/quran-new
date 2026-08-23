@@ -38,6 +38,15 @@ The reviewed-aqidah credit in `main.ts:638/642` still names him and **MUST** —
 
 ## 2. DO NEXT, IN ORDER
 
+0. **READ `.scratch/kajian-summarize/PRD.md` FIRST.** Erik described the feature he actually wants on
+   2026-08-23 and answered three scoping questions: **the Kajian page gets a URL field and a
+   Summarize button**, admin-only, results **published to the public list**, built against **the VPS
+   runner**. That PRD reframes items 1-3 below — they are not three separate jobs, they are the parts
+   of this one. Item 1 (the slide) is what the button SHOWS; items 2-3 are what makes it RUN.
+   ⚠️ One constraint rides on it: **Darussalam-sourced summaries stay HELD until they reply**, because
+   Erik's own unsent letter promises exactly that. Every other source publishes normally. That hold is
+   his commitment, not a DA veto.
+
 1. **ISC-624 — build the slide layout Erik asked for.** He supplied a landscape two-panel reference
    and chose **layout only, keep the guardrails**. Build: the two-panel layout, numbered cards, pill
    chips, category strip, QR. **REFUSED BY DESIGN, do not adopt from the reference:** its
