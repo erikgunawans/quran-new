@@ -10,8 +10,8 @@
  * ── WHY `channel` IS EXCLUDED, AND WHY THAT IS MEASURED RATHER THAN ARGUED ──────────────────────
  *
  * The one real capture (`.scratch/kajian/brlqHxjIp9c/meta.json`) has
- * `channel: "Masjid Darussalam Kota Wisata"` — a MOSQUE — while the speaker is
- * `Ustadz Syariful Mahya, L.c., M.A.`. Using `channel` would not be "possibly wrong" on that video;
+ * `channel: "Masjid Al-Amanah Kota Harapan"` — a MOSQUE — while the speaker is
+ * `Ustadz Fulan Hamid, L.c., M.A.`. Using `channel` would not be "possibly wrong" on that video;
  * it would be certainly wrong, and it would render a building as a person. ADR 5 predicted this
  * ("a channel can host many"); the capture confirms it fires on the first real input we have.
  *
@@ -50,7 +50,7 @@ const SPEAKER_LABELS = ["pemateri", "pembicara", "narasumber", "penceramah", "us
  * Honorifics and academic titles that mark a fragment as naming a PERSON.
  *
  * This list is the whole safety mechanism on the title path: a title segment is accepted only when
- * it carries one of these. Without that test, `15 INDIKASI KEBODOHAN | KAJIAN MUSLIMAH` would name a
+ * it carries one of these. Without that test, `TUJUH TANDA KEBODOHAN | KAJIAN MUSLIMAH` would name a
  * lecture series as a scholar. Matched as a whole word, case-insensitively, so `dr` does not fire
  * inside `Ahmadr`.
  */
@@ -137,7 +137,7 @@ function stripLead(line: string): string {
 /**
  * ALL-CAPS titles, normalised — the title path only, and it is the reason description is preferred.
  *
- * `USTADZ SYARIFUL MAHYA, L.C., M.A.` is how a title shouts; it is not how the person writes their
+ * `USTADZ FULAN HAMID, L.C., M.A.` is how a title shouts; it is not how the person writes their
  * name. Dotted abbreviations are LEFT uppercase because lowercasing them would invent a house style
  * (`L.C.` → `L.c.` is what Darussalam actually writes, but we would be guessing that, and guessing
  * is the thing ADR 5 removed). So the title path can differ in casing from the person's own
@@ -176,7 +176,7 @@ export function speakerFromMetadata(meta: {
   }
 
   // Title fallback: only a segment AFTER a separator, and only if it carries an honorific. The
-  // segment rule matters — without it `15 INDIKASI KEBODOHAN | USTADZ …` would be taken whole.
+  // segment rule matters — without it `TUJUH TANDA KEBODOHAN | USTADZ …` would be taken whole.
   const title = meta.title ?? "";
   const segments = title.split(/[|–—]/).map((s) => s.trim());
   if (segments.length > 1) {

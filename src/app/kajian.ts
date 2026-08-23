@@ -412,7 +412,7 @@ lines.push(
   `> Ringkasan otomatis. ${DENIALS}`,
   // THE JUDUL CARRIES THE SPEAKER'S NAME, and an earlier version of this note claimed the opposite
   // — "nama penceramah sengaja tidak dicantumkan di sini" — while the H1 above it read
-  // "… | USTADZ SYARIFUL MAHYA, L.C., M.A.", straight out of the video title. The note was false
+  // "… | USTADZ FULAN HAMID, L.C., M.A.", straight out of the video title. The note was false
   // about the document it sat in. What is actually true is narrower and worth stating precisely:
   // we reproduce YouTube's title verbatim, we did not identify anybody, and any gelar in that title
   // is the uploader's wording rather than something we checked.

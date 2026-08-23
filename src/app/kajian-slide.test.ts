@@ -45,11 +45,11 @@ const MATCH_NO_CRED: RosterOutcome = {
 const AMBIGUOUS: RosterOutcome = { kind: "ambiguous", names: ["Ustadz A", "Ustadz B"] };
 
 /** The real shape of the hazard: a name AND a gelar, written by the uploader, verified by nobody. */
-const HAZARD_TITLE = "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.";
+const HAZARD_TITLE = "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.";
 
 const base = (over: Partial<SlideInput> = {}): SlideInput => ({
   title: "Sabar Menghadapi Ujian",
-  channel: "Masjid Darussalam Kota Wisata",
+  channel: "Masjid Al-Amanah Kota Harapan",
   url: "https://www.youtube.com/watch?v=abc123",
   speaker: NONE,
   bullets: ["Sabar bukan sikap pasif.", "Ujian datang bertingkat."],
@@ -164,11 +164,11 @@ describe("buildSlideHtml — who may be named", () => {
     const html = buildSlideHtml(base({ title: HAZARD_TITLE, speaker: NONE }));
 
     const header = html.slice(html.indexOf("<header>"), html.indexOf("</header>"));
-    expect(header).not.toContain("SYARIFUL MAHYA");
+    expect(header).not.toContain("FULAN HAMID");
     expect(header).not.toContain("L.C., M.A.");
 
     const source = html.slice(html.indexOf('class="qs-source"'));
-    expect(source).toContain("SYARIFUL MAHYA");
+    expect(source).toContain("FULAN HAMID");
     expect(source).toContain("Judul di YouTube, disalin apa adanya");
   });
 
@@ -588,7 +588,7 @@ describe("buildSlideHtml — the strip on the document", () => {
   it("keeps the uploader's title out of the strip as well as out of the header", () => {
     const html = buildSlideHtml(base({ title: HAZARD_TITLE, topics: ["Sabar"] }));
     const strip = html.slice(html.indexOf('class="qs-topics"'), html.indexOf("</nav>"));
-    expect(strip).not.toContain("SYARIFUL MAHYA");
+    expect(strip).not.toContain("FULAN HAMID");
   });
 });
 

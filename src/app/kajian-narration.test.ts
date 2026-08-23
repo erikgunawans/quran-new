@@ -1,11 +1,28 @@
 /**
  * The narration module's assertions.
  *
- * The fixture below is COPIED FROM THE FIRST REAL BRIEFING, not invented — its blockquoted
- * quotation, its markdown table, its ordered Executive Summary and its `**bold**` bullets are the
- * shapes the model actually produces. A hand-written fixture is how a suite learns to expect the
- * bug: this repo already shipped an 8-word floor whose own test fixture contained the very prose it
- * was supposed to reject.
+ * ── WHY EVERY NAME AND TITLE BELOW IS INVENTED, AND MUST STAY THAT WAY ──────────────────────────
+ *
+ * This fixture WAS copied from the first real briefing, and that was the wrong trade. `quran-new`
+ * is a PUBLIC repository: the copy carried one verbatim sentence of a real lecture, the speaker's
+ * real name and gelar, his mosque and the video's title — and the disclosure letter to that rights
+ * holder promises their removal (ISC-627). Erik's call, 2026-08-23: replace what is theirs, keep
+ * what is ours.
+ *
+ * WHAT WAS ACTUALLY LOAD-BEARING WAS THE SHAPE, NOT THE SOURCE. The blockquoted quotation, the
+ * markdown table, the ordered Executive Summary and the `**bold**` bullets are the shapes the model
+ * produces, and an invented fixture of the same shape exercises the screens identically — they key
+ * on a paired quote mark, a dotted post-nominal, the unclear-reference marker and title overlap,
+ * none of which can tell whose sentence it is. The summary prose, the table and the bullets are the
+ * model's own composition and were kept, so the vocabulary the `speakableFrom` overlap test draws
+ * on is unchanged.
+ *
+ * ⚠ WHAT WOULD BREAK IF SOMEBODY "IMPROVED" THIS BACK: nothing about the guard. The risk runs the
+ * other way — a hand-written fixture is how a suite learns to expect the bug, and this repo already
+ * shipped an 8-word floor whose own test fixture contained the very prose it was supposed to
+ * reject. So invent freely, but never SIMPLIFY: keep the awkward shapes, keep the ratios (see the
+ * title-overlap case, whose negative fixture shares exactly three words with the title), and never
+ * reach for a real lecture to get them.
  */
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
@@ -43,34 +60,37 @@ import {
 } from "./kajian-narration.ts";
 import type { RosterOutcome } from "./kajian-roster.ts";
 
-const TITLE = "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.";
-const CHANNEL = "Masjid Darussalam Kota Wisata";
+const TITLE = "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.";
+const CHANNEL = "Masjid Al-Amanah Kota Harapan";
 /**
  * ⚠ THE FIXTURE THAT MATTERS, AND ITS TWO FAILED ANCESTORS.
  *
  * v1 tested the unrostered opening against CHANNEL alone — a MOSQUE — asserting
- * `not.toContain("Syariful")`. It could never have failed.
+ * `not.toContain("Fulan")`. It could never have failed.
  *
  * v2 replaced it with "Ustadz Fulan Official" and was ALSO tautological: the screen at the time
  * keyed on honorifics, and that fixture leads with one, so it could only exercise the case already
  * handled.
  *
- * v3 is a BARE PERSONAL NAME — no honorific, no gelar, nothing whatever to pattern-match on. It is
+ * v3 is a BARE PERSONAL NAME — no honorific, no gelar, nothing whatever to pattern-match on. That
+ * property is what the case tests, and it is indifferent to whether the person exists: v3 named a
+ * real and prominent ustadz until 2026-08-23, and swapping him for an invented name of the same
+ * shape cost the test nothing while taking a real person out of a public repo. It is
  * the commonest shape on Indonesian dakwah YouTube and the shape both earlier screens passed
  * straight through. If this test can pass with a name-matching heuristic in place, the heuristic
  * is the bug.
  */
-const PERSON_CHANNEL = "Firanda Andirja";
+const PERSON_CHANNEL = "Fulan Abdillah";
 
 const NONE: RosterOutcome = { kind: "none" };
 const AMBIGUOUS: RosterOutcome = { kind: "ambiguous", names: ["A Rahman", "B Hakim"] };
 const MATCH: RosterOutcome = {
   kind: "match",
-  match: { entry: { name: "Syariful Mahya", credentials: "Lc., M.A." }, via: "titleContains" },
+  match: { entry: { name: "Fulan Hamid", credentials: "Lc., M.A." }, via: "titleContains" },
 };
 
 /** Real shapes: ordered summary, bold bullets, a blockquoted quotation, a table, a check list. */
-const BRIEFING = `# BRIEFING DOKUMEN: 15 INDIKASI KEBODOHAN
+const BRIEFING = `# BRIEFING DOKUMEN: TUJUH TANDA KEBODOHAN
 
 ## EXECUTIVE SUMMARY
 
@@ -84,7 +104,7 @@ Penceramah membedakan dua jenis kecerdasan:
 - **Kecerdasan akademis**: mengacu pada nilai ujian dan prestasi sekolah
 - **Kecerdasan versi Islam**: kemampuan mengenali kebaikan lalu mencintainya
 
-> "Bodoh dalam bahasa agama kita lebih dititikberatkan pada perilaku."
+> "Ilmu itu diukur dari perubahan perilaku, bukan dari banyaknya catatan."
 
 | Penyakit | Penjelasan |
 |----------|------------|
@@ -103,7 +123,7 @@ Penceramah membedakan dua jenis kecerdasan:
 describe("the spoken frame", () => {
   test("a rostered speaker is named, with the credentials a person typed", () => {
     expect(openingLine(MATCH, CHANNEL)).toBe(
-      "Ini ringkasan otomatis dari kajian oleh Syariful Mahya, Lc., M.A. Suara ini bukan suara beliau. " +
+      "Ini ringkasan otomatis dari kajian oleh Fulan Hamid, Lc., M.A. Suara ini bukan suara beliau. " +
         "Isinya tidak dimaksudkan sebagai kutipan, bukan fatwa, dan belum diperiksa ulama.",
     );
   });
@@ -111,14 +131,14 @@ describe("the spoken frame", () => {
   test("a channel is spoken ONLY when a person allowlisted it", () => {
     expect(openingLine(NONE, CHANNEL, [CHANNEL])).toContain(CHANNEL);
     expect(openingLine(NONE, CHANNEL, [])).not.toContain(CHANNEL);
-    expect(openingLine(NONE, CHANNEL, ["  masjid darussalam kota wisata "])).toContain(CHANNEL);
-    expect(openingLine(NONE, CHANNEL, ["Masjid Darussalam"])).not.toContain(CHANNEL);
+    expect(openingLine(NONE, CHANNEL, ["  masjid al-amanah kota harapan "])).toContain(CHANNEL);
+    expect(openingLine(NONE, CHANNEL, ["Masjid Al-Amanah"])).not.toContain(CHANNEL);
   });
 
   test("a BARE personal-name channel is not spoken — the shape both heuristics passed", () => {
     for (const c of [
-      "Firanda Andirja", "Hanan Attaki", "Felix Siauw", "Khalid Basalamah Official",
-      "Adi Hidayat Official", "Oemar Mita", "Erwandi Tarmizi", "Muhammad Nuzul Dzikri",
+      "Fulan Abdillah", "Fulan Hakim", "Zaid Prasetya", "Umar Nugroho Official",
+      "Bakri Santosa Official", "Latif Kusnadi", "Nabil Wibowo", "Muhammad Faiz Anggara",
     ]) {
       expect(channelMayBeSpoken(c, [])).toBe(false);
       const line = openingLine(NONE, c, []);
@@ -128,7 +148,7 @@ describe("the spoken frame", () => {
   });
 
   test("the default is omission — an allowlist nobody filled speaks no channel at all", () => {
-    expect(channelMayBeSpoken("Masjid Darussalam Kota Wisata", [])).toBe(false);
+    expect(channelMayBeSpoken("Masjid Al-Amanah Kota Harapan", [])).toBe(false);
     expect(channelMayBeSpoken("", [""])).toBe(false);
   });
 
@@ -185,7 +205,7 @@ describe("what the narrator refuses to say", () => {
   const reasons = spoken.dropped.map((d) => d.reason);
 
   test("a blockquoted direct quotation never reaches the microphone", () => {
-    expect(spoken.text).not.toContain("Bodoh dalam bahasa agama");
+    expect(spoken.text).not.toContain("Ilmu itu diukur dari perubahan");
   });
 
   test("an inline quotation is dropped and NAMED, not silently skipped", () => {
@@ -218,13 +238,13 @@ describe("what the narrator refuses to say", () => {
     const echoed = `# ${TITLE}\n\nIsi ringkasan yang wajar dan panjang secukupnya.\n`;
     const r = speakableFrom(echoed, TITLE);
     expect(r.dropped.map((d) => d.reason)).toContain("echoes-the-title");
-    expect(r.text).not.toContain("SYARIFUL");
+    expect(r.text).not.toContain("FULAN");
     expect(r.text).toContain("Isi ringkasan yang wajar");
   });
 
   test("a title echo needs MOST of the title — a body line sharing two words is kept", () => {
-    expect(echoesTitle("Penceramah menyebut 15 indikasi kebodohan dari kitab klasik", TITLE)).toBe(false);
-    expect(echoesTitle("15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.", TITLE)).toBe(true);
+    expect(echoesTitle("Penceramah menyebut tujuh tanda kebodohan dari kitab klasik", TITLE)).toBe(false);
+    expect(echoesTitle("TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.", TITLE)).toBe(true);
   });
 
   test("a post-nominal gelar is dropped wherever it appears in prose", () => {
@@ -289,7 +309,7 @@ describe("what the narrator refuses to say", () => {
   /**
    * ⚠ SCOPED TO WHAT THIS FIXTURE MEASURES, deliberately. The earlier name — "speaks no name and
    * no gelar — on BOTH paths" — asserted a CLASS, and the module docblock records that the class
-   * does not hold: "Penceramah, Syariful Mahya, menjelaskan tiga perkara" clears the title-overlap
+   * does not hold: "Penceramah, Fulan Hamid, menjelaskan tiga perkara" clears the title-overlap
    * threshold and carries no dotted gelar, so it is spoken. That hole is deliberately not pinned
    * by a passing test, and a test NAMED as the guarantee is that pin by another route.
    */
@@ -299,12 +319,14 @@ describe("what the narrator refuses to say", () => {
     });
     const short = buildNarrationScript({
       briefing: BRIEFING, speaker: NONE, channel: PERSON_CHANNEL, title: TITLE, isDraft: true,
-      kind: "short", bullets: ["Ustadz Syariful Mahya, L.C. berkata", "Poin yang aman dan wajar"],
+      kind: "short", bullets: ["Ustadz Fulan Hamid, L.C. berkata", "Poin yang aman dan wajar"],
     });
     for (const s of [long, short]) {
-      expect(s.full.toLowerCase()).not.toContain("syariful");
-      expect(s.full.toLowerCase()).not.toContain("firanda");
-      expect(s.full.toLowerCase()).not.toContain("andirja");
+      // The speaker's surname, the channel's surname, and the given name BOTH fixtures share —
+      // so a leak from either path fails here, not only a leak from the one being narrated.
+      expect(s.full.toLowerCase()).not.toContain("hamid");
+      expect(s.full.toLowerCase()).not.toContain("abdillah");
+      expect(s.full.toLowerCase()).not.toContain("fulan");
       expect(carriesCredential(s.full)).toBe(false);
     }
   });
@@ -348,14 +370,14 @@ describe("what the narrator refuses to say", () => {
     /**
      * The fourth screen was DELETABLE WITH THE SUITE GREEN. The test above is named "ALL FOUR" and
      * pinned three: removing `echoesTitle` from the short path changed nothing any assertion could
-     * see. The obvious fixture — "Ustadz Syariful Mahya, L.C. berkata" — cannot serve as the pin,
+     * see. The obvious fixture — "Ustadz Fulan Hamid, L.C. berkata" — cannot serve as the pin,
      * because it trips `carriesCredential` too and would stay red for the wrong reason. This bullet
      * is the title with the gelar stripped: 3 of 5 tokens, exactly the 0.6 threshold, no dotted
      * post-nominal anywhere in it.
      */
     const s = buildNarrationScript({
       briefing: BRIEFING, speaker: NONE, channel: CHANNEL, title: TITLE, isDraft: false, kind: "short",
-      bullets: ["15 INDIKASI KEBODOHAN USTADZ SYARIFUL MAHYA", "Poin yang aman dan wajar"],
+      bullets: ["TUJUH TANDA KEBODOHAN USTADZ FULAN HAMID", "Poin yang aman dan wajar"],
     });
     expect(s.dropped.map((d) => d.reason)).toEqual(["echoes-the-title"]);
     expect(s.body).toBe("Poin yang aman dan wajar.");

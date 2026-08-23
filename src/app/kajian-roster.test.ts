@@ -12,10 +12,10 @@ import {
   type RosterEntry,
 } from "./kajian-roster.ts";
 
-const SYARIFUL: RosterEntry = {
-  name: "Ustadz Syariful Mahya",
+const FULAN: RosterEntry = {
+  name: "Ustadz Fulan Hamid",
   credentials: "Lc., M.A.",
-  titleContains: "syariful mahya",
+  titleContains: "fulan hamid",
 };
 const CHANNEL_OWNER: RosterEntry = {
   name: "Ustadz Contoh",
@@ -24,8 +24,8 @@ const CHANNEL_OWNER: RosterEntry = {
 
 /** The real video this tool was first run against — a MOSQUE channel, speaker only in the title. */
 const REAL_VIDEO = {
-  title: "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.",
-  channelId: "UC_masjid_darussalam",
+  title: "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.",
+  channelId: "UC_masjid_al_amanah",
 };
 
 describe("validateRoster", () => {
@@ -45,17 +45,17 @@ describe("validateRoster", () => {
   });
 
   it("passes a well-formed roster", () => {
-    expect(validateRoster([SYARIFUL, CHANNEL_OWNER])).toEqual([]);
+    expect(validateRoster([FULAN, CHANNEL_OWNER])).toEqual([]);
   });
 });
 
 describe("resolveSpeaker", () => {
   it("matches on the TITLE when the channel is a venue, not a person", () => {
     // The case that shaped the design: matching on channelId alone would have credited a mosque.
-    const out = resolveSpeaker([SYARIFUL], REAL_VIDEO);
+    const out = resolveSpeaker([FULAN], REAL_VIDEO);
     expect(out.kind).toBe("match");
     if (out.kind !== "match") throw new Error("unreachable");
-    expect(out.match.entry.name).toBe("Ustadz Syariful Mahya");
+    expect(out.match.entry.name).toBe("Ustadz Fulan Hamid");
     expect(out.match.via).toBe("titleContains");
   });
 
@@ -73,11 +73,11 @@ describe("resolveSpeaker", () => {
 
   it("names NOBODY when two entries match — ambiguity is treated as absence", () => {
     // "pick the first" would make roster ORDER silently decide who gets credited.
-    const alsoMatches: RosterEntry = { name: "Ustadz Lain", titleContains: "indikasi kebodohan" };
-    const out = resolveSpeaker([SYARIFUL, alsoMatches], REAL_VIDEO);
+    const alsoMatches: RosterEntry = { name: "Ustadz Lain", titleContains: "tanda kebodohan" };
+    const out = resolveSpeaker([FULAN, alsoMatches], REAL_VIDEO);
     expect(out.kind).toBe("ambiguous");
     if (out.kind !== "ambiguous") throw new Error("unreachable");
-    expect(out.names).toEqual(["Ustadz Syariful Mahya", "Ustadz Lain"]);
+    expect(out.names).toEqual(["Ustadz Fulan Hamid", "Ustadz Lain"]);
   });
 
   it("names nobody from an empty roster rather than throwing", () => {
@@ -85,7 +85,7 @@ describe("resolveSpeaker", () => {
   });
 
   it("is case-insensitive on the title, because titles are often SHOUTED", () => {
-    const out = resolveSpeaker([SYARIFUL], REAL_VIDEO);
+    const out = resolveSpeaker([FULAN], REAL_VIDEO);
     expect(out.kind).toBe("match");
   });
 
@@ -98,16 +98,16 @@ describe("resolveSpeaker", () => {
   it("does not infer a speaker from the channel NAME, only from an explicit channelId", () => {
     // There is no channel-name matching anywhere in this module, on purpose. If someone adds it,
     // this test is where they find out it was a decision.
-    const out = resolveSpeaker([{ name: "Masjid Darussalam Kota Wisata", titleContains: "darussalam" }], REAL_VIDEO);
+    const out = resolveSpeaker([{ name: "Masjid Al-Amanah Kota Harapan", titleContains: "al-amanah" }], REAL_VIDEO);
     expect(out.kind).toBe("none");
   });
 });
 
 describe("the organisations allowlist", () => {
   it("returns the survivors, because printing a problem is not rejecting an entry", () => {
-    const r = checkOrganisations(["Masjid Darussalam Kota Wisata", "Yufid TV"]);
+    const r = checkOrganisations(["Masjid Al-Amanah Kota Harapan", "Yufid TV"]);
     expect(r.problems).toEqual([]);
-    expect(r.valid).toEqual(["Masjid Darussalam Kota Wisata", "Yufid TV"]);
+    expect(r.valid).toEqual(["Masjid Al-Amanah Kota Harapan", "Yufid TV"]);
   });
 
   it("drops an empty entry AND says so", () => {

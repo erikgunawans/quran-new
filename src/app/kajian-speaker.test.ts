@@ -1,10 +1,24 @@
 /**
- * The extractor is tested against the REAL capture bytes, not against a description I wrote.
+ * The extractor is tested against the REAL capture bytes when they are on disk.
  *
  * `guard-tests-need-production-prose` is the reason: a hand-written fixture teaches the suite to
  * expect whatever shape the author imagined, and the hadith wall stayed open for two sessions
- * because every case was prose we authored. So the Darussalam description is READ FROM DISK when it
- * is there, and the inlined copy below is a verbatim splice of those bytes for when it is not.
+ * because every case was prose we authored. So the real description is READ FROM DISK whenever
+ * `.scratch/` is present (it is gitignored, so it never leaves the machine that captured it).
+ *
+ * ⚠ THE INLINED FALLBACK IS NO LONGER A SPLICE OF THOSE BYTES. It was, and that put a real lecture
+ * title, a real mosque, a real speaker's name and gelar, and the real video id into a PUBLIC repo
+ * — the thing ISC-627 is about, and the thing the disclosure letter promises to undo. It is now
+ * INVENTED, and shaped byte-for-byte like the capture: the same emoji-prefixed lines, the same
+ * `👤` person line with the uploader's mixed-case gelar, the same `|` separator in the title.
+ *
+ * ⚠ AND THE ASSERTIONS BELOW ARE NOW CAPTURE-RELATIVE, which is why the two paths cannot drift.
+ * They used to name the expected string, so scrubbing the fallback made them pass on a clean clone
+ * and fail on the machine holding the real capture — and a hardcoded negative
+ * (`not.toContain("INDIKASI")`) was worse than that: against the OTHER path it could never fail.
+ * Each case now derives what it expects from whichever capture it was handed, so it tests the
+ * extractor's RULE — the person line wins, casing is normalised but not invented, the lecture name
+ * is never a person — rather than one recorded output of it.
  */
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
@@ -15,12 +29,12 @@ const CAPTURE = join(import.meta.dir, "../../.scratch/kajian/brlqHxjIp9c/meta.js
 
 /** Verbatim splice of the capture, used only if `.scratch/` is absent (it is gitignored). */
 const FALLBACK = {
-  title: "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A.",
-  channel: "Masjid Darussalam Kota Wisata",
+  title: "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A.",
+  channel: "Masjid Al-Amanah Kota Harapan",
   description:
-    "KAJIAN MUSLIMAH KAMIS\n\u{1F54C} MASJID DARUSSALAM KOTA WISATA\n==========================\n" +
-    "\u{1F5D3}\u{FE0F} 23 Juli 2026 / 9 Safar 1448 H\n\u{1F464}Ustadz Syariful Mahya, L.c., M.A.\n" +
-    "\u{1F4CB} 15 Indikasi Kebodohan\n\u{1F310} Live Streaming Youtube: https://youtube.com/live/brlqHxjIp9c?feature=share\n",
+    "KAJIAN MUSLIMAH KAMIS\n\u{1F54C} MASJID AL-AMANAH KOTA HARAPAN\n==========================\n" +
+    "\u{1F5D3}\u{FE0F} 23 Juli 2026 / 9 Safar 1448 H\n\u{1F464}Ustadz Fulan Hamid, L.c., M.A.\n" +
+    "\u{1F4CB} Tujuh Tanda Kebodohan\n\u{1F310} Live Streaming Youtube: https://youtube.com/live/vIdEoIdXxYz?feature=share\n",
 };
 
 function capture(): { title: string; channel: string; description: string } {
@@ -34,11 +48,17 @@ function capture(): { title: string; channel: string; description: string } {
   return FALLBACK;
 }
 
-describe("speakerFromMetadata — the real Darussalam capture", () => {
+describe("speakerFromMetadata — the real capture when it is on disk, the fallback when it is not", () => {
   it("reads the speaker from the description's person line, with the uploader's own casing", () => {
-    const got = speakerFromMetadata(capture());
+    const meta = capture();
+    // Derived from whichever capture we got, so this asserts "the person line, verbatim" rather
+    // than one recorded name — and it holds on the real bytes and the fallback alike.
+    const personLine = meta.description.split("\n").find((l) => l.includes("\u{1F464}"));
+    expect(personLine).toBeDefined();
+    const expected = personLine!.replace(/^[^\p{L}]+/u, "").trim();
+    const got = speakerFromMetadata(meta);
     expect(got).not.toBeNull();
-    expect(got?.name).toBe("Ustadz Syariful Mahya, L.c., M.A.");
+    expect(got?.name).toBe(expected);
     expect(got?.via).toBe("description");
   });
 
@@ -50,24 +70,33 @@ describe("speakerFromMetadata — the real Darussalam capture", () => {
   });
 
   it("falls back to the title segment after the separator when the description says nothing", () => {
+    const raw = capture().title.split("|")[1]?.trim();
+    expect(raw).toBeTruthy();
     const got = speakerFromMetadata({ title: capture().title, description: "no person line here" });
     expect(got?.via).toBe("title");
     // ALL-CAPS is normalised; dotted abbreviations stay uppercase because lowercasing them would
-    // invent a house style. This is why `description` is preferred when both exist.
-    expect(got?.name).toBe("Ustadz Syariful Mahya, L.C., M.A.");
+    // invent a house style. This is why `description` is preferred when both exist. Asserted as
+    // the RULE — same words, different casing — so it cannot be satisfied by dropping a word.
+    expect(got?.name).not.toBe(raw);
+    expect(got?.name?.toUpperCase()).toBe(raw!.toUpperCase());
+    expect(got?.name).toMatch(/^Ustadz /);
+    expect(got?.name).toMatch(/\bL\.C\./);
   });
 
   it("does not take the whole title — the lecture name is not a person", () => {
+    // Every word BEFORE the separator is the lecture's name. Derived, because the hardcoded
+    // version named the words of one capture and so could never fail against the other.
+    const lecture = capture().title.split("|")[0]!.trim().split(/\s+/).filter(Boolean);
+    expect(lecture.length).toBeGreaterThan(1);
     const got = speakerFromMetadata({ title: capture().title, description: "" });
-    expect(got?.name).not.toContain("INDIKASI");
-    expect(got?.name).not.toContain("15");
+    for (const word of lecture) expect(got?.name).not.toContain(word);
   });
 });
 
 describe("speakerFromMetadata — omission is still the fallback", () => {
   const nothing = [
-    { why: "no honorific anywhere", title: "15 Indikasi Kebodohan | Kajian Muslimah", description: "" },
-    { why: "title with no separator", title: "Ustadz Syariful Mahya bicara", description: "" },
+    { why: "no honorific anywhere", title: "Tujuh Tanda Kebodohan | Kajian Muslimah", description: "" },
+    { why: "title with no separator", title: "Ustadz Fulan Hamid bicara", description: "" },
     { why: "empty everything", title: "", description: "" },
     { why: "person line is a URL", title: "", description: "\u{1F464} https://youtube.com/@x" },
     { why: "person line is an email", title: "", description: "Pemateri: kontak@darussalam.id" },
@@ -112,7 +141,7 @@ describe("resolveSpeakerWithProvenance — provenance is preserved, not flattene
 });
 
 describe("speakerFromMetadata — `channel` is unreachable, proved with a NAME-SHAPED channel", () => {
-  // The capture's channel is "Masjid Darussalam Kota Wisata", which carries no honorific — so the
+  // The capture's channel is "Masjid Al-Amanah Kota Harapan", which carries no honorific — so the
   // earlier "never returns the channel" test passes even if `channel` WERE read, because the
   // honorific guard would reject it anyway. It proves the guard, not the exclusion. These fixtures
   // are name-shaped and would sail through every guard, so only the exclusion can stop them.
@@ -137,13 +166,21 @@ describe("speakerFromMetadata — `channel` is unreachable, proved with a NAME-S
       withChannel({
         channel: "Ustadz Ahmad Isrofiel Mardlatillah",
         title: "Kajian Rutin Pekanan",
-        description: "\u{1F464} Ustadz Syariful Mahya, L.c., M.A.",
+        description: "\u{1F464} Ustadz Fulan Hamid, L.c., M.A.",
       }),
     );
-    expect(got?.name).toBe("Ustadz Syariful Mahya, L.c., M.A.");
+    expect(got?.name).toBe("Ustadz Fulan Hamid, L.c., M.A.");
     expect(got?.name).not.toContain("Isrofiel");
   });
 });
+
+/**
+ * ONE literal, three uses. Each case used to type the description out for itself, which is how the
+ * ISC-627 scrub left a negative assertion naming a surname the fixture no longer contained — an
+ * assertion that could not fail. Deriving the forbidden words from this constant means renaming the
+ * fixture renames what the assertions look for, in step.
+ */
+const METADATA_DESCRIPTION = "\u{1F464} Ustadz Fulan Hamid, L.c., M.A.";
 
 describe("kajian ruling (b) — a metadata name may be WRITTEN, never SPOKEN", () => {
   // Erik REFUSED (b) permanently on 2026-08-23
@@ -159,22 +196,29 @@ describe("kajian ruling (b) — a metadata name may be WRITTEN, never SPOKEN", (
     const { openingLine } = await import("./kajian-narration.ts");
     const fromMetadata = resolveSpeakerWithProvenance(
       { kind: "none" },
-      { description: "\u{1F464} Ustadz Syariful Mahya, L.c., M.A." },
+      { description: METADATA_DESCRIPTION },
     );
     expect(fromMetadata.kind).toBe("metadata");
 
     // The narration path is reached with the ROSTER outcome, which for this video is `none`. The
     // assertion is that the spoken line is the unnamed one even though a name was obtainable.
-    const spoken = openingLine({ kind: "none" }, "Masjid Darussalam Kota Wisata", []);
-    expect(spoken).not.toContain("Syariful");
-    expect(spoken).not.toContain("Mahya");
+    const spoken = openingLine({ kind: "none" }, "Masjid Al-Amanah Kota Harapan", []);
+    // Derived from the fixture, not typed out: one surname here was a leftover from the fixture's
+    // PREVIOUS occupant after the ISC-627 scrub, so it could no longer ever fail.
+    // Length-filtered because a dotted gelar splits into single letters, and "L", "c", "M" and "A"
+    // are all substrings of the standard opening — a derived assertion can be trivially true too.
+    const nameWords: string[] = METADATA_DESCRIPTION.replace(/[^\p{L}\s]/gu, " ")
+      .split(/\s+/)
+      .filter((w: string) => w.length >= 3);
+    expect(nameWords.length).toBeGreaterThanOrEqual(3);
+    for (const word of nameWords) expect(spoken).not.toContain(word);
     expect(spoken).toContain("sebuah kajian");
   });
 
   it("a metadata outcome is structurally not a roster outcome, so it cannot be passed as one", () => {
     const fromMetadata = resolveSpeakerWithProvenance(
       { kind: "none" },
-      { description: "\u{1F464} Ustadz Syariful Mahya, L.c., M.A." },
+      { description: METADATA_DESCRIPTION },
     );
     // `RosterOutcome` is match | none | ambiguous. "metadata" is none of them — this is the type
     // boundary, asserted at runtime so it survives a `RosterOutcome` widening that tsc would allow.

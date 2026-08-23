@@ -7,7 +7,7 @@
  * source. Omission is the fallback, and it is the whole safety property.
  *
  * WHY MATCHING ON `channelId` ALONE WOULD NOT WORK, learned from the first real video rather than
- * guessed. That lecture's channel is "Masjid Darussalam Kota Wisata" — a MOSQUE. The speaker is
+ * guessed. That lecture's channel is "Masjid Al-Amanah Kota Harapan" — a MOSQUE. The speaker is
  * named only in the video title. A channel-only match would have credited a building, and a
  * mosque channel hosts many different speakers, so channel identity does not determine who spoke.
  * Hence two match modes, and hence `titlePattern`.

@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 641/660  # 639 `[x]` + 2 `[~]` (ISC-418, ISC-624); 19 open `[ ]`. **Counted by grep at the 2026-08-23 evening session** — `grep -c '^- \[x\] ISC-'` = 639, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 2, sum 660. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..628; ISC-624 split into `.1`-`.9` under the ID-stability rule (parent kept, never renumbered). Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — this repo has no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`. The landscape slide is NOT deployed — it is a build-time CLI artefact, not a reader-facing route.**
+progress: 648/667  # 645 `[x]` + 3 `[~]` (ISC-418, ISC-624, ISC-627); 19 open `[ ]`. **Counted by grep, 2026-08-23 evening** — `grep -c '^- \[x\] ISC-'` = 645, `'^- \[ \] ISC-'` = 19, `'^- \[~\] ISC-'` = 3, sum 667. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..628; ISC-624 split into `.1`-`.9` and ISC-627 into `.1`-`.7` under the ID-stability rule (parents kept, never renumbered). Gates 2048/0 exit 0, typecheck exit 0, build exit 0 (synthesis), run locally — no CI. **DEPLOYED 2026-08-23: Worker `641f8ae2` from `44ed447`. Neither the landscape slide nor the ISC-627 scrub is deployed — both are build-time/test surfaces, not reader-facing routes.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-23
@@ -1502,16 +1502,50 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       the larger reading, and never copy another record's list. Every error on this file ran the same
       direction — making the material we hold of theirs look smaller than it is.
 
-- [ ] ISC-627: **the PUBLIC repo publishes a sentence of the Darussalam lecture and the speaker's
-      name.** `quran-new` is a PUBLIC GitHub repo, and the tracked fixture
-      `src/app/kajian-narration.test.ts` carries a truncated verbatim line of the lecture (`:87`,
-      matching `briefing.md:50`), the briefing's opening summary sentence (`:77`), and
-      `{ name: "Syariful Mahya", credentials: "Lc., M.A." }` (`:69`). His name and the lecture title
-      are also public in `ISA.md`, `PROGRESS.md` and `docs/review/erik-ruling-2026-08-23-skill-wins.md`.
-      **This made the letter's *"tidak ada satu pun materi … yang saya terbitkan"* FALSE**; the letter
-      now discloses it and promises removal. **OPEN because removing it is not free:** a guard test
-      fed invented prose instead of production prose is a weaker guard (see
-      `guard-tests-need-production-prose`). **Erik's call, not the DA's.**
+- [~] ISC-627: **the PUBLIC repo published Darussalam material — SCRUBBED FROM THE CODE 2026-08-23,
+      still present in the records and in git history.** Erik's decision, asked and answered: replace
+      what is theirs, keep what is ours, and make the letter say what is actually true. Split below.
+- [x] ISC-627.1: **the inventory was wrong, and wrong LOW for the third time on this file.** This
+      criterion said "the tracked fixture `src/app/kajian-narration.test.ts`" — ONE file, three
+      lines. The measured footprint was **41 occurrences of his name across 9 files**, the lecture
+      title across 8, and the mosque across 7 — plus a real video id, and a second real ustadz
+      (`PERSON_CHANNEL`) and seven more named in a channel list. Same direction as ISC-626: every
+      error on this material has made it look smaller than it is. **Count, never inherit a count.**
+- [x] ISC-627.2: **their material is out of the code.** 70 replacements across 10 files: the
+      speaker's name and gelar, the lecture title, the mosque, and the one verbatim blockquoted
+      sentence of the lecture, all replaced with invented equivalents of the same SHAPE. The model's
+      own summary prose, the table and the bullets were KEPT — they are ours, and keeping them is
+      what preserves the vocabulary the `speakableFrom` overlap test draws on.
+- [x] ISC-627.3: **the guard did not weaken, and that was verified by mutation, not by reading.**
+      The screens key on shape — a paired quote mark, a dotted post-nominal, the unclear-reference
+      marker, title overlap — none of which can tell whose sentence it is. Control: disabling
+      `normaliseCaps` in `kajian-speaker.ts` reddens the capture-relative case; restoring it greens.
+      Suite went 2048/0 → 2048/0 with **25,924 assertions, up from 25,917**.
+- [x] ISC-627.4: **two `kajian-speaker.test.ts` cases were hardcoded to one capture's output, and
+      scrubbing exposed it.** They named the expected string, so they passed on a clean clone and
+      FAILED on the machine holding the real capture — and one hardcoded negative
+      (`not.toContain("INDIKASI")`) could never have failed against the other path. All four are now
+      capture-relative: they derive what they expect from whichever capture they were handed, so the
+      disk path (real bytes, gitignored) and the published fallback (invented) cannot drift.
+      `guard-tests-need-production-prose` still holds where it matters — the REAL bytes are still
+      read from disk whenever `.scratch/` is present.
+- [x] ISC-627.5: **the letter now says what is true.** It claimed "salah satu berkas pengujian" —
+      one file — and promised "Saya akan menghapusnya". Both corrected: the true spread, what was
+      replaced, and the two things that are NOT done — the project records still name them, and
+      **git history keeps every old version readable on the public remote** (the line is in 13
+      pushed commits; earliest `43eee9e`). A history rewrite is offered, not assumed.
+- [x] ISC-627.6: **a real, prominent, unrelated ustadz was a fixture and is not any more.** Erik's
+      call. `PERSON_CHANNEL` and a list of eight real dakwah channels were invented equivalents of
+      the same shape; the load-bearing property is that the name is BARE — no honorific, no gelar —
+      and that property is indifferent to whether the person exists.
+- [ ] ISC-627.7: **what deliberately REMAINS, so nobody records this as finished.** (a) `ISA.md`,
+      `PROGRESS.md`, `docs/review/` and `.planning/` still name the mosque, the ustadz, the lecture
+      and the video id — Erik declined the tree-wide scrub so the project's own record of WHY these
+      decisions were made stays readable. (b) `docs/kajian/roster.yaml` and `kajian-narration.ts`
+      still name real dakwah channels in PROSE, as a neutral observation that Indonesian channels
+      are usually named after a person — that is the argument for the design, not attributed
+      content. (c) The video id survives in `kajian-speaker.test.ts` as the PATH to the gitignored
+      capture; removing it would delete the real-bytes test path. (d) **Git history is untouched.**
 - [x] ISC-628: **three false claims were caught in the letter body by a fourth gate pass, after the
       commit.** (1) The disclosure said *"seluruhnya"* twice while omitting `narasi-DRAFT.m4a` — a
       474 s standalone machine reading of the whole briefing, NOT the 48.5 s mp4's soundtrack;

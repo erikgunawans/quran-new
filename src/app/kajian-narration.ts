@@ -30,11 +30,11 @@
  *
  *     THE CHANNEL WAS THE HOLE, and it was the only path that runs today. The first cut screened
  *     the title and passed `meta.channel` verbatim into the attribution sentence, on the reasoning
- *     that a channel is provenance rather than identity — which is true of "Masjid Darussalam Kota
+ *     that a channel is provenance rather than identity — which is true of "Masjid Al-Amanah Kota
  *     Wisata" and false of half of Indonesian dakwah YouTube, where the channel IS a person and a
  *     gelar. `roster.yaml` ships EMPTY on purpose, so every narration produced today takes the
  *     unrostered branch: that was not the edge case, it was the only case. Worse, the test that
- *     was supposed to catch it asserted `not.toContain("Syariful")` against a MOSQUE fixture and
+ *     was supposed to catch it asserted `not.toContain("Fulan")` against a MOSQUE fixture and
  *     could never have failed.
  *
  *     ⚠ THE HONEST SCOPE OF THE CLAIM, at its fourth attempt — the three before it each asserted a
@@ -46,7 +46,7 @@
  *       — a name the model relayed ANYWAY is screened by title-token overlap and by dotted
  *         post-nominal gelar, and NEITHER SCREEN IS COMPLETE.
  *
- *     The last line is the one that matters. "Penceramah, Syariful Mahya, menjelaskan tiga
+ *     The last line is the one that matters. "Penceramah, Fulan Hamid, menjelaskan tiga
  *     perkara" passes both screens — two of five title tokens is under the overlap threshold, and
  *     there is no gelar in it — and is spoken. That is a known, OPEN HOLE: the classical-author
  *     citations the body must keep are the same shape as the speaker name it must drop, and
@@ -299,8 +299,8 @@ function titleTokens(title: string): string[] {
  * Does this line reproduce the video's title?
  *
  * The model is told not to name the speaker, and on the briefings seen so far it obeys — its H1 came
- * back as "BRIEFING DOKUMEN: 15 INDIKASI KEBODOHAN" from a title reading
- * "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A." But "so far" is not a property, and
+ * back as "BRIEFING DOKUMEN: TUJUH TANDA KEBODOHAN" from a title reading
+ * "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A." But "so far" is not a property, and
  * the H1 is the one line in a briefing that is expected to echo the title. So it is screened rather
  * than trusted, on token overlap: a line carrying most of the title's substantial words is the
  * title, however it was punctuated.

@@ -100,10 +100,19 @@ Selama belum ada jawaban, tidak ada satu pun ringkasan, gambar, video, atau audi
 Darussalam Kota Wisata yang saya terbitkan.
 
 Satu hal lagi yang harus saya sampaikan supaya kalimat di atas tidak terdengar lebih bersih daripada
-keadaan sebenarnya. Kode program aplikasi saya bersifat terbuka di GitHub, dan di dalam salah satu
-berkas pengujiannya **terlanjur ikut tersalin satu kalimat dari ceramah tersebut beserta nama dan
-gelar penceramahnya**. Itu bagian dari kode, bukan materi yang saya sebarkan, tetapi tetap saja
-dapat dibaca siapa pun — jadi saya sampaikan, bukan saya diamkan. Saya akan menghapusnya.
+keadaan sebenarnya. Kode program aplikasi saya bersifat terbuka di GitHub, dan di dalamnya
+**terlanjur ikut tersalin satu kalimat dari ceramah tersebut, nama dan gelar penceramah, nama
+masjid, serta judul videonya**. Semula saya kira hanya ada di satu berkas pengujian. Setelah saya
+telusuri lagi, ternyata tersebar di sepuluh berkas. Itu bagian dari kode, bukan materi yang saya
+sebarkan, tetapi tetap saja dapat dibaca siapa pun — jadi saya sampaikan, bukan saya diamkan.
+
+Di dalam kode programnya, semuanya sudah saya ganti dengan nama rekaan. Dua hal yang belum tuntas,
+dan lebih baik saya sebutkan sekarang daripada Bapak/Ibu temukan sendiri. Pertama, catatan
+pengembangan proyek — bukan kodenya — masih menyebut nama masjid, nama penceramah, dan judul
+kajiannya; itu catatan kerja saya sendiri, dan akan saya rapikan juga bila Bapak/Ibu menghendaki.
+Kedua, GitHub menyimpan seluruh riwayat perubahan, jadi versi lamanya masih bisa dibaca siapa pun
+yang menelusurinya. Menghapusnya sampai ke riwayat berarti menulis ulang seluruh catatan perubahan
+proyek — itu bisa saya lakukan, dan akan saya lakukan bila Bapak/Ibu memintanya.
 
 Terima kasih atas perhatiannya, dan atas kajian-kajian yang selama ini dibagikan secara terbuka.
 

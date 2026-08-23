@@ -18,12 +18,12 @@ import {
 } from "./kajian-summary.ts";
 
 const BASE: KajianSummary = {
-  id: "15-indikasi-kebodohan",
+  id: "tujuh-tanda-kebodohan",
   videoId: "abc123",
   url: "https://www.youtube.com/watch?v=abc123",
-  title: "15 INDIKASI KEBODOHAN",
-  channel: "Masjid Darussalam Kota Wisata",
-  speaker: "Ustadz Syariful Mahya, L.C., M.A.",
+  title: "TUJUH TANDA KEBODOHAN",
+  channel: "Masjid Al-Amanah Kota Harapan",
+  speaker: "Ustadz Fulan Hamid, L.C., M.A.",
   publishedAt: "2026-08-01",
   durationSec: 3725,
   thumbUrl: "https://i.ytimg.com/vi/abc123/hq.jpg",

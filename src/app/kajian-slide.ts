@@ -10,7 +10,7 @@
  * THE VIDEO TITLE NEVER OCCUPIES THE IDENTITY SLOT. The roster (`kajian-roster.ts`) was built so an
  * unmatched video carries no name, no gelar and no face. But `meta.title` is carried verbatim
  * through the whole pipeline, and the first real title this tool processed was
- * "15 INDIKASI KEBODOHAN | USTADZ SYARIFUL MAHYA, L.C., M.A." — a name AND a credential, written by
+ * "TUJUH TANDA KEBODOHAN | USTADZ FULAN HAMID, L.C., M.A." — a name AND a credential, written by
  * the uploader, checked by nobody. Render that as the slide's headline and the roster bought
  * nothing: a public graphic, under our name, asserting a gelar we never verified about a real
  * person who may well have earned a different one.

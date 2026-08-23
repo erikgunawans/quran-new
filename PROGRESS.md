@@ -4,6 +4,67 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-23 (evening, II) — ISC-627: their material is out of the code
+
+**Erik's decision, asked and answered:** replace what is theirs, keep what is ours, and make the
+letter say what is actually true. Also: replace the real unrelated ustadz used as a fixture.
+Gates: `bun test` **2048/0** exit 0 (25,926 assertions, up from 25,917) · typecheck exit 0 · build
+exit 0 (synthesis). **Nothing deployed** — this is test and build surface only.
+
+### The inventory was wrong, and wrong LOW for the third time on this file
+
+ISC-627 said *"the tracked fixture `src/app/kajian-narration.test.ts`"* — one file, three lines.
+Measured: **41 occurrences of his name across 9 files**, the lecture title across 8, the mosque
+across 7, a real video id, and **eight** real dakwah channels named in fixtures rather than the one
+I asked about. Same direction as ISC-626: every error on this material has made it look smaller than
+it is. The letter had inherited the wrong number too — it said *"salah satu berkas pengujian"*.
+
+### What changed
+
+**70 replacements across 10 files.** The speaker's name and gelar, the lecture title, the mosque, and
+the one verbatim blockquoted sentence of the lecture — all replaced with invented equivalents of the
+same SHAPE. The model's own summary prose, the table and the bullets were KEPT: they are ours, and
+keeping them is what preserves the vocabulary the `speakableFrom` overlap test draws on.
+
+The guard did not weaken, and that was checked by **mutation, not by reading**. Disabling
+`normaliseCaps` reddens the capture-relative case; injecting a name leak into `openingLine` reddens
+the ruling-(b) case; both green on restore.
+
+### Scrubbing exposed three tests that could not fail
+
+- **Two `kajian-speaker.test.ts` cases were hardcoded to one capture's output.** They named the
+  expected string, so after the scrub they passed on a clean clone and **failed on this machine**,
+  which holds the real capture. Worse, a hardcoded negative — `not.toContain("INDIKASI")` — could
+  never have failed against the other path. All four cases are now **capture-relative**: they derive
+  what they expect from whichever capture they were handed, so the disk path (real bytes, gitignored)
+  and the published fallback (invented) cannot drift. `guard-tests-need-production-prose` still holds
+  where it matters: the REAL bytes are still read from disk whenever `.scratch/` is present.
+- **`not.toContain("Mahya")` survived the scrub as a blind assertion** — the fixture no longer
+  contained that surname, so the line could not fail. Now derived from a single `METADATA_DESCRIPTION`
+  constant. My first derivation was *also* trivially true: a dotted gelar splits into `L`, `c`, `M`,
+  `A`, every one of them a substring of the standard opening. Length-filtered, and the filter is
+  commented so it does not read as arbitrary.
+
+### The letter now says what is true, including what is NOT done
+
+It promised *"Saya akan menghapusnya"*. That was only half-possible, and the half that is not
+possible is the part that matters: **the lecture line and the name are in 13 pushed commits on the
+public remote** (earliest `43eee9e`). Deleting them from the working tree does not remove them from
+GitHub. The letter now states the true spread, what was replaced, and the two open items — the
+project records still name them, and git history keeps every old version readable. A history rewrite
+is **offered, not assumed**, because it rewrites every SHA including the ones the deploy records cite.
+
+### What deliberately remains (ISC-627.7)
+
+`ISA.md`, `PROGRESS.md`, `docs/review/` and `.planning/` still name the mosque, the ustadz, the
+lecture and the video id — Erik declined the tree-wide scrub so the record of WHY these decisions
+were made stays readable. `roster.yaml` and `kajian-narration.ts` still name real dakwah channels in
+PROSE, as the neutral observation that Indonesian channels are usually named after a person — that is
+the argument for the design, not attributed content. The video id survives as the PATH to the
+gitignored capture; removing it would delete the real-bytes test path.
+
+---
+
 ## 2026-08-23 (evening) — ISC-624: the landscape slide is built
 
 **Item 1 of the handoff is done, bar the play button.** `kajian-slide.ts` and `kajian-render.ts` were
