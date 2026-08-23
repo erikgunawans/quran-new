@@ -59,9 +59,19 @@ import {
   claimNextKajianJob,
   completeKajianJob,
   failKajianJob,
+  listPublishedKajian,
   type KajianJobResult,
 } from "./kajian-jobs.ts";
 import { isRunner } from "./runner-auth.ts";
+import {
+  artifactContentType,
+  artifactKey,
+  artifactPath,
+  parseArtifactPath,
+  serveArtifact,
+  MAX_ARTIFACT_BYTES,
+  type KajianArtifactEnv,
+} from "./kajian-artifacts.ts";
 import { callChatModel, MODEL_DEADLINE_MS, resolveProvider, type ProviderName } from "./providers.ts";
 import { ensureIdentity, withIdentityCookie, cookieFor, type Identity } from "./identity.ts";
 import {
@@ -147,6 +157,13 @@ export interface Env {
    * correct state for a deploy that has no runner. See `runner-auth.ts` for why this is not a role.
    */
   RUNNER_SECRET?: string;
+  /**
+   * R2 binding — the finished summaries' FILES, keys `{videoId}/{slide.html|slide.png|short.m4a}`.
+   * Optional like `AUDIO`: absent → the upload route answers 503 and `/kajian/{id}/{name}` 404s,
+   * which is exactly prod's state today. See `kajian-artifacts.ts` for why an uploaded document is
+   * served with an opaque origin.
+   */
+  KAJIAN?: KajianArtifactEnv["KAJIAN"];
 }
 
 /** Minimal ExecutionContext — inline (Worker keeps `types: []`). `waitUntil` defers memory writes so
@@ -257,6 +274,39 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       return noStore(json({ ok: false, error: "method_not_allowed" }, 405, request));
     }
 
+    // One finished summary's files. `/kajian/index.json` cannot match here — `parseArtifactPath`
+    // requires three segments and an allowlisted name — and that separation is asserted in tests
+    // rather than left to a reader to notice.
+    {
+      const artifact = parseArtifactPath(url.pathname);
+      if (artifact !== null) {
+        if (request.method === "OPTIONS") return preflight(request);
+        if (request.method !== "GET") return json({ ok: false, error: "method_not_allowed" }, 405, request);
+        const served = await serveArtifact(env, artifact.videoId, artifact.name);
+        // Falls through to the SPA when the bucket is unbound or the object is missing, which is
+        // today's behaviour for every unknown path on this origin.
+        if (served !== null) return served;
+      }
+    }
+
+    // The published summary list.
+    //
+    // `/kajian/index.json` LOOKS like a static asset and used to be one — `kajian-feed.ts` fetches
+    // it as a manifest "published beside its artifacts". It cannot stay one: the runner writes its
+    // results into D1 at run time, and `web/dist` is BAKED AT BUILD TIME, so a static file could
+    // only ever show what was true when the app was last built.
+    //
+    // FALLS THROUGH WHEN D1 IS UNBOUND, which is prod today. That is not a degraded mode to fix —
+    // it is exactly the behaviour the feed already handles: the asset is absent, this host answers
+    // the SPA fallback at 200, and `loadKajianSummaries` refuses it on content-type and renders the
+    // empty state. Serving an empty JSON array here instead would be a claim that the list is
+    // empty, rather than that it is not published yet.
+    if (url.pathname === "/kajian/index.json" && env.DB) {
+      if (request.method === "OPTIONS") return preflight(request);
+      if (request.method !== "GET") return json({ ok: false, error: "method_not_allowed" }, 405, request);
+      return handleKajianIndex(request, env.DB);
+    }
+
     // ── THE RUNNER SURFACE ────────────────────────────────────────────────────────────────────────
     //
     // A DIFFERENT PRINCIPAL FROM EVERY ROUTE ABOVE. These three endpoints are spoken to by a machine
@@ -275,6 +325,11 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (request.method !== "POST") {
         return noStore(json({ ok: false, error: "method_not_allowed" }, 405, request));
       }
+      // Upload is answered BEFORE the D1 check, because it needs the BUCKET and never touches the
+      // database. Ordering the other way round would 503 an upload on a deploy that has R2 but no
+      // D1 — a confusing answer that names the wrong missing thing.
+      if (url.pathname === "/api/runner/kajian/upload") return handleRunnerUpload(request, env);
+
       if (!env.DB) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
       if (url.pathname === "/api/runner/kajian/claim") return handleRunnerClaim(request, env.DB);
       if (url.pathname === "/api/runner/kajian/complete") return handleRunnerComplete(request, env.DB);
@@ -1219,6 +1274,62 @@ async function handleAdminKajianJobList(request: Request, db: D1Database): Promi
  * public internet, and a runner that has been tampered with is exactly the case the validation is
  * for. Fields are read one at a time and refused on shape, never cast.
  */
+
+/**
+ * Serve the published summary list.
+ *
+ * PUBLIC AND IDENTICAL FOR EVERYONE, so unlike every /api/* route above it is not `noStore` — a
+ * shared edge cache holding this is correct, it carries no one's memory. The window is short
+ * because a summary appearing a minute late is fine and a stale list for an hour is not.
+ */
+async function handleKajianIndex(request: Request, db: D1Database): Promise<Response> {
+  const items = await listPublishedKajian(db);
+  const res = json({ items }, 200, request);
+  res.headers.set("Cache-Control", "public, max-age=60");
+  return res;
+}
+
+/**
+ * Store one artefact for a finished summary and answer with the URL it is now reachable at.
+ *
+ * THE UPLOADER DOES NOT CHOOSE THE KEY AND DOES NOT DECLARE THE TYPE. `artifactKey` matches the
+ * video id and the file name against exact patterns — a name that is not on the allowlist is
+ * refused, not stored — and the served content type is decided from that allowlisted name, never
+ * read from this request's `Content-Type`, which is a claim the uploader makes about its own bytes.
+ *
+ * The size cap is enforced against the DECLARED length AND against what actually arrived, because a
+ * `Content-Length` is another such claim.
+ */
+async function handleRunnerUpload(request: Request, env: Env): Promise<Response> {
+  const bucket = env.KAJIAN;
+  if (!bucket) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
+
+  const params = new URL(request.url).searchParams;
+  const videoId = params.get("videoId") ?? "";
+  const name = params.get("name") ?? "";
+  const key = artifactKey(videoId, name);
+  if (key === null || artifactContentType(name) === null) {
+    return noStore(json({ ok: false, error: "invalid_artifact" }, 400, request));
+  }
+
+  const declared = Number(request.headers.get("Content-Length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_ARTIFACT_BYTES) {
+    return noStore(json({ ok: false, error: "too_large" }, 413, request));
+  }
+
+  const bytes = await request.arrayBuffer();
+  if (bytes.byteLength > MAX_ARTIFACT_BYTES) {
+    return noStore(json({ ok: false, error: "too_large" }, 413, request));
+  }
+  if (bytes.byteLength === 0) {
+    // An empty artefact is the file equivalent of a summary with nothing in it — refused here so it
+    // cannot become a `done` job pointing at a blank page.
+    return noStore(json({ ok: false, error: "empty" }, 400, request));
+  }
+
+  await bucket.put(key, bytes);
+  return noStore(json({ ok: true, url: artifactPath(videoId, name) }, 201, request));
+}
 
 /** Claim the next job, or say plainly that there is nothing to do. An empty queue is not an error —
  *  it is what most polls find — so it answers 200 with `job: null`, not 404. */

@@ -332,3 +332,107 @@ export async function failKajianJob(
   }
   return parsed;
 }
+
+/**
+ * ── WHAT THE READER SEES ────────────────────────────────────────────────────────────────────────
+ *
+ * The published record, as `web/src/kajian-feed.ts` validates it. This is the ONE place a job row
+ * becomes reader-facing, so it is also the last place the guardrails can be enforced.
+ *
+ * `speaker` IS ALWAYS NULL AND IS NOT READ FROM ANYWHERE. There is no column to read it from
+ * (migration 0004) and no field on `KajianJobResult` to carry it. The roster
+ * (`docs/kajian/roster.yaml`) is empty, so no summary names anyone, and that silence is a safety
+ * property rather than an unfinished feature — a name that reached here would be attribution the
+ * app has no permission to make.
+ *
+ * `reviewed` IS ALWAYS FALSE for the same reason: a record has to SAY it was reviewed, nothing in
+ * this pipeline reviews anything, and the generator must never be able to vouch for its own text.
+ */
+export interface PublishedKajian {
+  id: string;
+  videoId: string;
+  url: string;
+  title: string;
+  channel: string;
+  speaker: null;
+  publishedAt: string;
+  durationSec: number;
+  thumbUrl: string;
+  summaryUrl: string;
+  audioUrl: string | null;
+  generatedAt: string;
+  reviewed: false;
+}
+
+interface PublishedRow {
+  videoId: unknown;
+  url: unknown;
+  title: unknown;
+  channel: unknown;
+  publishedAt: unknown;
+  durationSec: unknown;
+  thumbUrl: unknown;
+  summaryUrl: unknown;
+  audioUrl: unknown;
+  generatedAt: unknown;
+  id: unknown;
+}
+
+const nonEmpty = (v: unknown): v is string => typeof v === "string" && v.trim() !== "";
+
+/**
+ * Turn one finished row into a published record, or drop it.
+ *
+ * A `done` row whose result columns are missing is NOT rendered with blanks. It is dropped, exactly
+ * as `kajian-feed.ts` drops a malformed manifest record — a short list is better than a broken card,
+ * and a half-written row means the runner did not finish what it claimed to.
+ */
+export function toPublishedKajian(raw: unknown): PublishedKajian | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as PublishedRow;
+  if (!nonEmpty(r.id) || typeof r.videoId !== "string" || !YOUTUBE_ID.test(r.videoId)) return null;
+  if (!nonEmpty(r.url) || !nonEmpty(r.title) || !nonEmpty(r.channel)) return null;
+  if (!nonEmpty(r.thumbUrl) || !nonEmpty(r.summaryUrl) || !nonEmpty(r.generatedAt)) return null;
+
+  return {
+    id: r.id,
+    videoId: r.videoId,
+    url: r.url,
+    title: r.title,
+    channel: r.channel,
+    speaker: null,
+    publishedAt: typeof r.publishedAt === "string" ? r.publishedAt : "",
+    durationSec: isFiniteNumber(r.durationSec) ? r.durationSec : 0,
+    thumbUrl: r.thumbUrl,
+    summaryUrl: r.summaryUrl,
+    audioUrl: nonEmpty(r.audioUrl) ? r.audioUrl : null,
+    generatedAt: r.generatedAt,
+    reviewed: false,
+  };
+}
+
+/**
+ * Every finished summary, newest first.
+ *
+ * `WHERE status = 'done'` is the whole publication rule: a queued, running or failed job is not a
+ * summary and never reaches a reader. There is no separate "published" flag to fall out of step
+ * with the job's own state.
+ */
+export async function listPublishedKajian(db: D1Database, limit = 100): Promise<PublishedKajian[]> {
+  const res = await db
+    .prepare(
+      "SELECT id, video_id AS videoId, url, title, channel, published_at AS publishedAt, " +
+        "duration_sec AS durationSec, thumb_url AS thumbUrl, summary_url AS summaryUrl, " +
+        "audio_url AS audioUrl, generated_at AS generatedAt " +
+        "FROM kajian_jobs WHERE status = 'done' ORDER BY updated_at DESC LIMIT ?",
+    )
+    .bind(limit)
+    .all<PublishedRow>();
+
+  const out: PublishedKajian[] = [];
+  for (const row of res.results) {
+    const parsed = toPublishedKajian(row);
+    if (parsed !== null) out.push(parsed);
+  }
+  return out;
+}

@@ -104,3 +104,64 @@ describe("loading degrades softly", () => {
     ).toEqual([]);
   });
 });
+
+/**
+ * ── THE WORKER'S RECORD MEETS THE READER'S VALIDATOR ────────────────────────────────────────────
+ *
+ * Both halves of this contract live in this repo, and a restatement of one inside the other would
+ * be a second thing to drift. The Worker builds the published record (`toPublishedKajian` in
+ * `worker/src/kajian-jobs.ts`); this file's `toKajianSummary` is what decides whether a reader ever
+ * sees it. A Worker record the validator silently DROPS renders as an empty list and looks exactly
+ * like "no summaries yet" — so this is the only place that failure would ever be visible.
+ *
+ * It is asserted from the WEB side deliberately: the same import in the Worker's test tranche pulls
+ * `HTMLElement` into a `types: []` project through a type-only edge and fails the typecheck.
+ */
+const { toPublishedKajian } = await import("../../worker/src/kajian-jobs.ts");
+
+describe("a record the Worker publishes is one the reader accepts", () => {
+  const ROW = {
+    id: "j1",
+    videoId: "aaaaaaaaaaa",
+    url: "https://youtu.be/aaaaaaaaaaa",
+    title: "Kajian tentang sabar",
+    channel: "Contoh Kanal",
+    publishedAt: "2026-08-01",
+    durationSec: 3_600,
+    thumbUrl: "https://example.test/own-render.png",
+    summaryUrl: "https://example.test/kajian/aaaaaaaaaaa/slide.html",
+    audioUrl: null,
+    generatedAt: "2026-08-23T00:00:00Z",
+  };
+
+  test("survives the round trip through JSON with every field intact", () => {
+    const published = toPublishedKajian(ROW);
+    expect(published).not.toBeNull();
+
+    // Through JSON, because that is the wire: the Worker serialises, the browser parses.
+    const seen = toKajianSummary(JSON.parse(JSON.stringify(published)));
+
+    expect(seen).not.toBeNull();
+    expect(seen?.summaryUrl).toBe(ROW.summaryUrl);
+    expect(seen?.title).toBe(ROW.title);
+    expect(seen?.durationSec).toBe(ROW.durationSec);
+  });
+
+  test("the two guardrails survive it too — unnamed and unreviewed", () => {
+    // Asserted on a row that CARRIES both, so the claim is about what the pipeline strips rather
+    // than about what a clean fixture happened not to contain.
+    const published = toPublishedKajian({ ...ROW, speaker: "Ustadz Fulan", reviewed: true });
+    const seen = toKajianSummary(JSON.parse(JSON.stringify(published)));
+
+    expect(seen?.speaker).toBeNull();
+    expect(seen?.reviewed).toBe(false);
+  });
+
+  test("a whole published list parses as an index payload", () => {
+    const published = toPublishedKajian(ROW);
+    // The Worker answers `{ items: [...] }`; `parseKajianIndex` accepts that shape or a bare array,
+    // and this pins the one the Worker actually sends.
+    const parsed = parseKajianIndex(JSON.parse(JSON.stringify({ items: [published] })));
+    expect(parsed).toHaveLength(1);
+  });
+});

@@ -28,6 +28,7 @@ import {
   claimNextKajianJob,
   completeKajianJob,
   failKajianJob,
+  listPublishedKajian,
   type KajianJobResult,
   type KajianJobStatus,
 } from "./kajian-jobs.ts";
@@ -442,4 +443,121 @@ describe("the runner proves a MACHINE, and proves it or is refused", () => {
     expect(readBearer("Bearer")).toBeNull();
     expect(readBearer(null)).toBeNull();
   });
+});
+
+/**
+ * ── THE PUBLISHED LIST ──────────────────────────────────────────────────────────────────────────
+ *
+ * The last block asserts the Worker's record against the CLIENT'S OWN validator
+ * (`web/src/kajian-feed.ts`), not against a copy of its rules. Both halves live in this repo and a
+ * restatement here would be a second thing to drift: a Worker record that the reader's validator
+ * silently drops renders as an empty list, and no test that checked only field names would see it.
+ */
+class ListStmt implements D1PreparedStatement {
+  private vals: unknown[] = [];
+
+  constructor(
+    private readonly rows: Record<string, unknown>[],
+    private readonly sql: string,
+  ) {}
+
+  bind(...values: unknown[]): D1PreparedStatement {
+    this.vals = values;
+    return this;
+  }
+
+  async run(): Promise<unknown> {
+    throw new Error("fake D1 does not implement run()");
+  }
+
+  async first<T = unknown>(): Promise<T | null> {
+    throw new Error("fake D1 does not implement first()");
+  }
+
+  async all<T = unknown>(): Promise<D1Result<T>> {
+    if (!this.sql.includes("FROM kajian_jobs WHERE status = 'done'")) {
+      throw new Error(`fake D1 does not implement all() for SQL: ${this.sql}`);
+    }
+    const limit = this.vals[0];
+    if (typeof limit !== "number") throw new Error("fake D1 expected a numeric limit");
+    // The status filter is the real statement's, applied here from the SQL rather than assumed, so
+    // removing `WHERE status = 'done'` reddens the "only finished jobs publish" test.
+    const keep = this.rows.filter((r) => r.status === undefined || r.status === "done");
+    return { results: keep.slice(0, limit) as T[], success: true };
+  }
+}
+
+function listDb(...rows: Record<string, unknown>[]): D1Database {
+  return {
+    prepare: (sql: string) => new ListStmt(rows, sql),
+    batch: async () => {
+      throw new Error("fake D1 does not implement batch()");
+    },
+  };
+}
+
+/** One source for the value, so the assertion below cannot drift from the fixture it reads. */
+const DONE_SUMMARY_URL = "https://example.test/kajian/aaaaaaaaaaa/slide.html";
+
+const DONE: Record<string, unknown> = {
+  id: "j1",
+  videoId: "aaaaaaaaaaa",
+  url: "https://youtu.be/aaaaaaaaaaa",
+  title: "Kajian tentang sabar",
+  channel: "Contoh Kanal",
+  publishedAt: "2026-08-01",
+  durationSec: 3_600,
+  thumbUrl: "https://example.test/own-render.png",
+  summaryUrl: DONE_SUMMARY_URL,
+  audioUrl: null,
+  generatedAt: "2026-08-23T00:00:00Z",
+};
+
+describe("the published list carries the guardrails, not just the data", () => {
+  test("a finished job becomes one record", async () => {
+    const items = await listPublishedKajian(listDb(DONE));
+    expect(items).toHaveLength(1);
+    expect(items[0]?.summaryUrl).toBe(DONE_SUMMARY_URL);
+  });
+
+  test("only finished jobs publish — a queued, running or failed row is not a summary", async () => {
+    const items = await listPublishedKajian(
+      listDb(
+        { ...DONE, status: "queued" },
+        { ...DONE, id: "j2", status: "running" },
+        { ...DONE, id: "j3", status: "failed" },
+      ),
+    );
+    expect(items).toHaveLength(0);
+  });
+
+  test("a speaker name on the row NEVER reaches the reader — the roster's silence is the safety property", async () => {
+    // There is no `speaker` column (migration 0004) and no field to carry one, but a row is data
+    // from outside this function's control, so the claim is asserted against a row that carries one.
+    const items = await listPublishedKajian(listDb({ ...DONE, speaker: "Ustadz Fulan" }));
+    expect(items[0]?.speaker).toBeNull();
+  });
+
+  test("a row claiming `reviewed: true` still publishes as unreviewed", async () => {
+    // Nothing in this pipeline reviews anything; the generator must not vouch for its own text.
+    const items = await listPublishedKajian(listDb({ ...DONE, reviewed: true }));
+    expect(items[0]?.reviewed).toBe(false);
+  });
+
+  test.each([
+    ["no summaryUrl", "summaryUrl"],
+    ["no title", "title"],
+    ["no channel", "channel"],
+    ["no thumbUrl", "thumbUrl"],
+    ["no generatedAt", "generatedAt"],
+  ])("a done row with %s is DROPPED, never rendered with a blank", async (_name, field) => {
+    const broken: Record<string, unknown> = { ...DONE };
+    delete broken[field];
+    expect(await listPublishedKajian(listDb(broken))).toHaveLength(0);
+  });
+
+  // THE ROUND-TRIP AGAINST THE READER'S OWN VALIDATOR LIVES IN `web/src/kajian-feed.test.ts`, not
+  // here. Importing `kajian-feed.ts` into this file dragged `HTMLElement` into the Worker's
+  // `types: []` tranche through a type-only import and broke the typecheck — the DOM side of that
+  // contract has to be asserted from the DOM side.
 });
