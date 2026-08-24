@@ -64,8 +64,15 @@ bunx wrangler secret put RESEND_API_KEY     # magic-link delivery
 Generate the runner secret with `openssl rand -base64 48`. **Paste it into the hidden prompt only** —
 never onto a command line, never into a file, never into a chat message.
 
-For Resend, verify a domain on `axiara.ai` first, then set `RESEND_FROM` in `[vars]`. Until then
-`/api/auth/request` answers `{sent:false}` and nobody can log in, so nobody can be an admin, so the
+**DONE 2026-08-24 — `axiara.ai` is verified in Resend and `RESEND_FROM` is set to
+`QuranKu <no-reply@axiara.ai>`.** ⚠ It is a **SECRET** (`wrangler secret put RESEND_FROM`), NOT a
+`[vars]` entry — this line used to say `[vars]`, and that is worse than merely wrong: a var of the
+same name is rewritten on every `wrangler deploy`, so following it would have reverted the verified
+sender to test mode with no error and no symptom until a real user failed to get a link.
+
+Proved with a paired arm on the live surface rather than assumed: the same
+`POST /api/auth/request` for a NON-owner address returned `{"sent":false}` before the change and
+`{"sent":true}` after. Before that, `/api/auth/request` answered `{sent:false}` and nobody could log in, so nobody could be an admin, so the
 Summarize form stays behind its 403.
 
 ### 5. Deploy

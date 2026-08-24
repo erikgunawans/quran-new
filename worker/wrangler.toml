@@ -132,8 +132,18 @@ migrations_dir = "migrations"
 #   wrangler secret put RUNNER_SECRET      # 32+ chars; under that length it admits nobody
 #   wrangler secret put RESEND_API_KEY     # magic-link delivery, issue 07
 #   wrangler secret put ADMIN_EMAILS       # unset means nobody holds the role — it fails closed
-# And in [vars] below, once a domain is verified in Resend:
-#   RESEND_FROM = "QuranKu <no-reply@axiara.ai>"
+#   wrangler secret put RESEND_FROM        # the magic-link From, e.g. "QuranKu <no-reply@axiara.ai>"
+#
+# ⚠ RESEND_FROM IS A SECRET IN PRODUCTION, NOT A [vars] ENTRY, and this comment used to say the
+# opposite. It matters: a [vars] entry of the same name is written on every `wrangler deploy`, so
+# following the old advice would have silently reverted the verified sender back to test mode at the
+# next deploy — with no error and no symptom until a real user failed to receive a link. Confirmed by
+# `wrangler secret list`, which lists RESEND_FROM among the five secrets. (`[env.demo.vars]` below
+# does set it as a var; the demo surface deliberately stays on Resend test mode.)
+#
+# SET 2026-08-24 to "QuranKu <no-reply@axiara.ai>" after axiara.ai was verified in Resend, and proved
+# with a paired arm on the live surface: POST /api/auth/request for a NON-owner address returned
+# {"sent":false} before and {"sent":true} after, same request both times.
 
 [vars]
 # Retained for the (now-unused) proxy path, so reverting to Cloud Run is a one-line change.
