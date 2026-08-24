@@ -19,6 +19,9 @@ been run — the resources do not exist in the account yet, and prod runs Worker
 
 ### 1. Create the two resources
 
+**BOTH DONE.** `new-quranku-memory` (D1) was created and all four migrations applied on 2026-08-23;
+`new-quranku-kajian` (R2) was created 2026-08-24 and appears in `wrangler r2 bucket list`.
+
 ```
 cd worker
 bunx wrangler d1 create new-quranku-memory     # prints a database_id
@@ -63,6 +66,24 @@ bunx wrangler secret put RESEND_API_KEY     # magic-link delivery
 
 Generate the runner secret with `openssl rand -base64 48`. **Paste it into the hidden prompt only** —
 never onto a command line, never into a file, never into a chat message.
+
+**DONE 2026-08-24 — `RUNNER_SECRET` is set (64 characters, twice the 32-character floor).** It was
+generated and piped straight into `wrangler secret put` in one shell pipeline, so the value was never
+rendered to a terminal, a log, or this repo. The runner's copy lives in `.env.runner` — mode `0600`,
+gitignored — because the runner needs the SAME string and a value nobody holds cannot be given to it.
+That file is the one place it exists outside Cloudflare; treat it as a credential.
+
+Proved live with THREE arms against prod, and with **no deploy in between** — secrets take effect on
+the next request:
+
+| Arm | `POST /api/runner/kajian/claim` |
+|---|---|
+| no `Authorization` header | **403** `{"ok":false,"error":"forbidden"}` |
+| correct bearer | **200**, returned the real queued job |
+| wrong bearer, same 64-character length | **403** |
+
+The third arm is the one that matters: without it, a 200 on the correct bearer is equally consistent
+with a route that checks nothing but length.
 
 **DONE 2026-08-24 — `axiara.ai` is verified in Resend and `RESEND_FROM` is set to
 `QuranKu <no-reply@axiara.ai>`.** ⚠ It is a **SECRET** (`wrangler secret put RESEND_FROM`), NOT a
@@ -117,6 +138,36 @@ failure available because it is silent.
 with exported cookies (`--cookies-from-browser`) or a residential proxy. Until then, every job fails
 with a reason that names both options — which is the designed behaviour, not a bug: a fetch that
 fails must surface as a job state and never as a silent empty summary.
+
+#### MEASURED 2026-08-24, and it is worse than "yt-dlp will be refused"
+
+The warning above was written about `yt-dlp`. The transcript skill's PRIMARY path is not `yt-dlp` at
+all — it is a pure-HTTP InnerTube call, with `yt-dlp` only as a fallback — so it was worth asking
+whether the primary path survives a datacentre IP. **It does not, and it fails earlier and harder.**
+
+A paired probe, same video (`J5x-9tHxeJA`), same two requests, minutes apart:
+
+| Arm | `GET /watch` | Body | Bot wall | InnerTube |
+|---|---|---|---|---|
+| **Cloudflare edge** (`wrangler dev --remote`) | **429** | 1,947 bytes | **yes** | never reached — no API key to extract |
+| **Erik's residential IP** (control) | 200 | 1,259,600 bytes | no | 200, title returned |
+
+The datacentre arm never gets far enough to read `INNERTUBE_API_KEY` out of the watch page, so the
+whole skill — primary path AND fallback — is dead there. **This rules out running the fetch inside
+the Worker**, which would otherwise have been the simplest possible host: no VPS, no container, no
+proxy. It was tested rather than assumed, and the control arm is what makes the 429 mean "YouTube
+refuses this IP" rather than "the request was malformed".
+
+So a hosted runner needs residential egress — a proxy or exported cookies — **whatever cloud it runs
+in**. Cloudflare, Cloud Run and a datacentre VPS are all the same arm of that table.
+
+#### The consequence: the recommended first host is Erik's own machine
+
+`src/app/kajian-runner.ts` polls a HOSTED queue. Running it locally still makes the pipeline work
+"over the internet" in every way that matters: any admin queues a video from any device, and the
+results publish to the public site. Only the transcript fetch stays on an IP YouTube will talk to.
+The cost is that the machine has to be awake. A cloud host plus a residential proxy buys unattended
+operation and is the upgrade, not the starting point.
 
 ## What is still not built
 

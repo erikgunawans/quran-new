@@ -72,3 +72,4 @@ worker/.wrangler/
 # seconds; keep it out of history.
 .scratch/kajian/
 .kajian-tts-ledger.json
+.env.runner

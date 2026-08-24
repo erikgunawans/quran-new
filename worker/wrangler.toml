@@ -117,10 +117,17 @@ bucket_name = "okf-corpus"
 # SECRET, not this binding, is the switch that starts storing readers' questions. Both are needed
 # for sign-in, so setting it is not optional — but the consequence belongs next to the cause.
 #
-# The runner half stays commented and the bucket does not exist yet:
-# [[r2_buckets]]
-# binding = "KAJIAN"
-# bucket_name = "new-quranku-kajian"          # does NOT exist yet
+# ── THE RUNNER HALF IS NOW BOUND — 2026-08-24, on Erik's instruction to make the pipeline work
+# ── over the internet. The bucket EXISTS (`wrangler r2 bucket list` shows it).
+#
+# ⚠️ BINDING THIS DOES NOT MAKE THE QUEUE DRAIN. `/api/runner/*` is gated on `RUNNER_SECRET`, which
+# is a separate switch: unset or under 32 characters and the whole surface answers 403 to everyone
+# (`runner-auth.ts:73`). What the binding alone changes is that the upload route stops answering 503
+# once a runner is authorised. Both are needed, and neither is a runner — a PROCESS still has to
+# poll, and there is none until `src/app/kajian-runner.ts` is started somewhere.
+[[r2_buckets]]
+binding = "KAJIAN"
+bucket_name = "new-quranku-kajian"
 
 [[d1_databases]]
 binding = "DB"
