@@ -131,10 +131,16 @@ type TurnBody =
  * into storage and re-renders on a restored thread, instead of being a node that a later turn's
  * `innerHTML` silently deletes.
  *
- * `true` ONLY when the Worker's `gen.reason` was literally `"blocked"`. A deadline, a throw, an
- * absent report and an unrecognised token all leave it unset — see `AnswerBlockedError.terminal`.
+ * WHICH WALL, because the two owe the reader different things. `"wall"` is a plain refusal — our own
+ * check stopped the prose and there is nothing further to point at. `"hadith"` is the ONE refusal this
+ * app considers TRUE: the honest answer lives in a hadith collection and we hold one, so the note
+ * carries the Hadis pointer that `hadith-defer` would have carried had it replaced the turn.
+ *
+ * Set ONLY when the Worker's `gen.reason` was literally `"blocked"` (for `"wall"`) or the wall named
+ * `bad_hadith` (for `"hadith"`). A deadline, a throw, an absent report and an unrecognised token all
+ * leave it unset — see `AnswerBlockedError.terminal`.
  */
-export type Turn = TurnBody & { withheld?: true };
+export type Turn = TurnBody & { withheld?: "wall" | "hadith" };
 
 interface Stored {
   v: 1;

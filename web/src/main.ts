@@ -40,7 +40,7 @@ import { liveFramingModel } from "./compose-live.ts";
 import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
 import type { GenTerminalReason } from "./answer-live.ts";
-import { annotateWithheld } from "./withheld-turn.ts";
+import { lateOutcome } from "./withheld-turn.ts";
 import { markersInProse, stripMarkers, type AnswerViolationKind } from "./answer-guard.ts";
 import { mdEmphasis } from "./prose-format.ts";
 import { hadithCardsEl, type HadithCard } from "./hadith-card.ts";
@@ -240,10 +240,21 @@ const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — ba
  * what the corpus holds — the same three prohibitions the `answer-blocked` copy carries, because it
  * reaches the same reader about the same event by a different road.
  */
-const WITHHELD_NOTE = `
+const WITHHELD_NOTE: Record<"wall" | "hadith", string> = {
+  wall: `
         <p class="withheld">Tadi aku sempat menyusun jawaban yang lebih panjang untuk pertanyaan ini,
         tapi jawaban itu tidak lolos pemeriksaanku sendiri, jadi tidak aku tampilkan. Yang di atas tetap
-        utuh.</p>`;
+        utuh.</p>`,
+  // THE HADIS POINTER, DEMOTED FROM HEADLINE TO ASIDE — Erik's ISC-642 call. It used to arrive as a
+  // whole `hadith-defer` turn that REPLACED the answer the reader was holding. Everything it said that
+  // was true of the reader's question is kept, including the machine-translation disclosure: the note
+  // sends them to the Hadis tab, and a pointer that omits what they will find there is a worse pointer.
+  hadith: `
+        <p class="withheld">Pertanyaan seperti ini biasanya juga dijawab dari <b>hadits</b>, bukan hanya
+        dari ayat, dan aku memilih tidak menyimpulkan sendiri dari hadits. Tab <a href="#/hadis">Hadits</a>
+        memuat kitab-kitab utamanya — teks Arabnya kanonik, <b>terjemahan Indonesianya hasil mesin dan
+        belum ditinjau</b>. Untuk kepastian sebuah hadits, sebaiknya tanyakan ke <b>ustadz</b>.</p>`,
+};
 
 /**
  * Render a turn, plus its annotation if it carries one.
@@ -255,7 +266,7 @@ const WITHHELD_NOTE = `
  */
 async function renderTurn(t: Turn, animate = true): Promise<string> {
   const body = await renderTurnBody(t, animate);
-  return t.withheld ? body + WITHHELD_NOTE : body;
+  return t.withheld ? body + WITHHELD_NOTE[t.withheld] : body;
 }
 
 async function renderTurnBody(t: Turn, animate = true): Promise<string> {
@@ -743,7 +754,10 @@ function announceTurn(t: Turn): void {
   // ANNOUNCED, not left to the visual layer. A screen-reader user hearing only the fast answer would
   // have no way to tell this turn apart from one where nothing was ever withheld — the same
   // conflation `hadith-defer` and `answer-blocked` are announced to undo, one modality over.
-  if (t.withheld) say("Tadi ada jawaban yang lebih panjang, tapi tidak lolos pemeriksaan dan tidak ditampilkan. Jawaban di atas tetap utuh.");
+  if (t.withheld === "wall")
+    say("Tadi ada jawaban yang lebih panjang, tapi tidak lolos pemeriksaan dan tidak ditampilkan. Jawaban di atas tetap utuh.");
+  if (t.withheld === "hadith")
+    say("Pertanyaan seperti ini juga dijawab dari hadits. New-Quranku tidak mengutip sabda Nabi tanpa rujukan. Jawaban di atas tetap utuh.");
   switch (t.kind) {
     case "ayah":
       say(`${displayName(t.surah)} ${t.surah}:${t.ayah} ditampilkan.`);
@@ -1077,7 +1091,19 @@ async function ask(question: string) {
           // now would resurrect a conversation somebody deleted.
           if (!answer.isConnected) return;
           const composed = applyAi(v, fast);
-          if (!composed) {
+          // THE ONE THING THAT MAY TAKE THE FAST ANSWER OFF THE SCREEN: a better answer. `applyAi`
+          // returns `ai` only when the model produced prose the wall passed, so this is a real upgrade
+          // and `pinQuestion` is right — the content changed under the reader and they need the top of
+          // it. Every OTHER return is a refusal, and a refusal is now an annotation (ISC-642), which is
+          // deliberately NOT pinned: scrolling somebody who is mid-read to reveal an aside is hostile.
+          if (composed?.kind === "ai") {
+            answer.innerHTML = await renderTurn(composed);
+            announceTurn(composed);
+            replaceTurn(fast, composed);
+            pinQuestion(me);
+            return;
+          }
+          {
             // ── ISC-533: the late refusal finally has somewhere to go ────────────────────────────
             //
             // This `return` used to be the whole story, and it is why `answer-blocked` was dead on
@@ -1096,17 +1122,12 @@ async function ask(question: string) {
             //
             // The decision itself is in `withheld-turn.ts`, not here, because nothing inside this file
             // can be reached by a test. Returning null means the reader keeps exactly what they have.
-            const annotated = annotateWithheld(fast, blockedTerminal);
-            if (!annotated) return;
-            answer.innerHTML = await renderTurn(annotated);
-            announceTurn(annotated);
-            replaceTurn(fast, annotated);
-            return;
+            const settled = lateOutcome(fast, composed, blockedTerminal);
+            if (!settled) return;
+            answer.innerHTML = await renderTurn(settled);
+            announceTurn(settled);
+            replaceTurn(fast, settled);
           }
-          answer.innerHTML = await renderTurn(composed);
-          announceTurn(composed);
-          replaceTurn(fast, composed);
-          pinQuestion(me);
         })
         .catch(() => {
           // The request died or hit the 30 s backstop. The fast answer is already on screen and is a

@@ -15,9 +15,29 @@ import type { GenTerminalReason } from "./answer-live.ts";
  * Returns `null` for "change nothing" — the fast answer stands exactly as the reader has it.
  *
  * @param fast     the turn already on screen, painted at `FAST_ANSWER_MS`
+ * @param refusal  the turn `applyAi` produced for a refusal that HAS its own copy — today only
+ *                 `hadith-defer` — or null when the refusal had none. Never the `ai` upgrade: that is
+ *                 a real answer and the caller renders it directly, so it never reaches this function.
  * @param terminal the Worker's own `gen.reason` for how the turn ENDED
  */
-export function annotateWithheld(fast: Turn, terminal: GenTerminalReason | null): Turn | null {
+export function lateOutcome(fast: Turn, refusal: Turn | null, terminal: GenTerminalReason | null): Turn | null {
+  // THE HADITH REFUSAL, and Erik's call on it (2026-08-24, ISC-642).
+  //
+  // `applyAi` turns a `bad_hadith` block into a `hadith-defer` turn, and the late path used to RENDER
+  // it — taking a cited, grounded answer off the screen at ~25 s and putting an apology in its place,
+  // on a reader who had been reading it for sixteen seconds. That is the same downgrade ISC-534
+  // forbids, arriving by the one door the anti-criterion did not cover, and it was live long before
+  // the annotation channel existed.
+  //
+  // Erik ruled the answer outranks the pointer: the answer is real and its grounding never depended
+  // on the model's separate attempt, and the pointer loses nothing by being a note instead of a
+  // headline. So the pointer becomes an ANNOTATION and the reader keeps what they were reading.
+  //
+  // `silence` is the exception here for the same reason it is everywhere else in this function: it is
+  // not an answer, so the pointer is strictly better and replaces it outright — which is exactly what
+  // the fast path already does when the race is won early.
+  if (refusal) return fast.kind === "silence" ? refusal : { ...fast, withheld: "hadith" };
+
   // THE LOAD-BEARING NEGATIVE, and the reason this criterion was deferred for six days instead of
   // being shipped half-built.
   //
@@ -40,5 +60,5 @@ export function annotateWithheld(fast: Turn, terminal: GenTerminalReason | null)
   // false statement about the mushaf. Trading a false claim for copy that claims nothing is the fix
   // `answer-blocked` was written for, not a downgrade.
   if (fast.kind === "silence") return { q: fast.q, kind: "answer-blocked" };
-  return { ...fast, withheld: true };
+  return { ...fast, withheld: "wall" };
 }
