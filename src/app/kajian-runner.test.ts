@@ -6,7 +6,14 @@
  * what it refuses to start with, what it refuses to publish, and what it says when the work fails.
  */
 import { describe, expect, test } from "bun:test";
-import { runnerConfig, resultFrom, failureReason, resolveArtifactFile, UPLOADS } from "./kajian-runner.ts";
+import {
+  runnerConfig,
+  resultFrom,
+  failureReason,
+  resolveArtifactFile,
+  UPLOADS,
+  type PipelineExit,
+} from "./kajian-runner.ts";
 
 const GOOD_ENV = {
   QK_BASE_URL: "https://new-quranku.axiara.ai",
@@ -102,8 +109,62 @@ describe("what the runner will and will not publish", () => {
 });
 
 describe("a failure says what an admin can act on", () => {
-  test("a timeout is named as one, not as an exit code", () => {
-    expect(failureReason(-1, "whatever", true)).toContain("time limit");
+  /**
+   * THE SHAPES ARE REAL, MEASURED FROM `Bun.spawnSync` ON 2026-08-25 — and measuring them is the
+   * whole point of this block. `failureReason` used to take a `timedOut` BOOLEAN that the loop
+   * computed as `proc.signalCode !== null`. Bun leaves `signalCode` **undefined** on an ordinary
+   * exit, not null, so that expression was true for every failure there is, and the first real job
+   * ever run reported a URL the skill could not parse as *"pipeline exceeded its time limit and was
+   * killed"* — a verdict naming a clock that was never involved.
+   *
+   *   ordinary failure  → { exitCode: 1,    signalCode: undefined }
+   *   the timeout       → { exitCode: null, signalCode: "SIGTERM" }
+   *   a crash by signal → { exitCode: null, signalCode: "SIGTRAP" }
+   *
+   * So the function now takes the spawn result itself. A caller cannot pass the wrong boolean if
+   * there is no boolean to pass, which retires the CLASS of defect rather than this instance.
+   */
+  const LIMIT = 45 * 60 * 1000;
+  const exit = (over: Partial<PipelineExit>): PipelineExit => ({
+    exitCode: 1,
+    signalCode: undefined,
+    stderr: "",
+    elapsedMs: 1_000,
+    timeoutMs: LIMIT,
+    ...over,
+  });
+
+  test("the timeout is named as one", () => {
+    const reason = failureReason(exit({ exitCode: null, signalCode: "SIGTERM", elapsedMs: LIMIT }));
+    expect(reason).toContain("time limit");
+  });
+
+  /**
+   * THE REGRESSION, stated as the real spawn shape rather than as a boolean. This is the exact
+   * result Bun handed the runner for the `/live/` URL failure, and it must not mention a clock.
+   */
+  test("an ordinary non-zero exit is NOT reported as a timeout", () => {
+    const reason = failureReason(exit({ exitCode: 1, stderr: "✗ not a YouTube video URL or id" }));
+    expect(reason).not.toContain("time limit");
+    expect(reason).toContain("not a YouTube video URL");
+  });
+
+  /**
+   * SIGTERM ALONE IS NOT THE TIMEOUT. An operator `kill`, a laptop suspending, or a supervisor
+   * stopping the runner all send SIGTERM too. Blaming the limit for a job that died three seconds
+   * in sends the admin looking at durations and proxies — the same wrong hunt as before, just
+   * narrower. So the verdict is checked against the clock it names.
+   */
+  test("a SIGTERM far short of the limit does not blame the limit", () => {
+    const reason = failureReason(exit({ exitCode: null, signalCode: "SIGTERM", elapsedMs: 3_000 }));
+    expect(reason).not.toContain("time limit");
+    expect(reason).toContain("SIGTERM");
+  });
+
+  test("a crash by another signal names that signal", () => {
+    const reason = failureReason(exit({ exitCode: null, signalCode: "SIGTRAP", elapsedMs: 9_000 }));
+    expect(reason).toContain("SIGTRAP");
+    expect(reason).not.toContain("time limit");
   });
 
   test.each([
@@ -111,24 +172,24 @@ describe("a failure says what an admin can act on", () => {
     ["the bot challenge", "Sign in to confirm you're not a bot"],
     ["a cookies hint", "Use --cookies-from-browser or --cookies"],
   ])("%s names the datacentre-IP cause and the two fixes", (_case, stderr) => {
-    const reason = failureReason(1, stderr, false);
     // "HTTP Error 403" alone tells an admin nothing about what to do next. The PRD's fourth
     // constraint is the reason this branch exists at all.
+    const reason = failureReason(exit({ stderr }));
     expect(reason).toContain("cookies");
     expect(reason).toContain("proxy");
   });
 
   test("an ordinary crash reports the TAIL of stderr, where the cause is", () => {
     const stderr = `${"startup noise ".repeat(200)}TypeError: cannot read x`;
-    expect(failureReason(1, stderr, false)).toContain("TypeError: cannot read x");
+    expect(failureReason(exit({ stderr }))).toContain("TypeError: cannot read x");
   });
 
   test("a silent crash still says something", () => {
-    expect(failureReason(137, "   ", false)).toContain("exited 137");
+    expect(failureReason(exit({ exitCode: 137, stderr: "   " }))).toContain("exited 137");
   });
 
   test("a long stderr is capped, so the report cannot be an unbounded upload", () => {
-    expect(failureReason(1, "x".repeat(10_000), false).length).toBeLessThan(500);
+    expect(failureReason(exit({ stderr: "x".repeat(10_000) })).length).toBeLessThan(500);
   });
 });
 

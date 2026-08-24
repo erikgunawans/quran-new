@@ -111,6 +111,7 @@ import { qrSvg, renderPng } from "./kajian-render.ts";
 import { buildNarrationScript, channelMayBeSpoken } from "./kajian-narration.ts";
 import { encodeM4a, narrateToWav, stillVideo } from "./kajian-audio.ts";
 import { resolveProvider, callChatModel } from "../../worker/src/providers.ts";
+import { skillTarget } from "./kajian-source.ts";
 import type { Env } from "../../worker/src/index.ts";
 
 // ── flags ──────────────────────────────────────────────────────────────────────────
@@ -212,8 +213,20 @@ const OUT_ROOT = resolve(".scratch/kajian");
 const CACHE_ROOT = join(OUT_ROOT, "_transcripts");
 
 // ── 1. transcript, via the skill (never reimplemented here) ────────────────────────
+//
+// THE SKILL IS GIVEN A BARE ID, NEVER THE RAW ARGUMENT. It understands `watch?v=` and ids and
+// nothing else, so the `youtube.com/live/<id>` form the queue exists to accept — a kajian is
+// streamed before it is a recording — died here with *"Invalid video ID: pass the ID, not the
+// URL"*. See `kajian-source.ts`; the reduction reuses the queue's own parser so the two cannot
+// disagree about which URLs are admissible.
+const TARGET = skillTarget(URL_ARG);
+if (typeof TARGET !== "string") {
+  console.error(`✗ ${TARGET.error}`);
+  process.exit(1);
+}
+
 console.log(`▸ fetching transcript — ${URL_ARG}`);
-const args = [SKILL, URL_ARG, "--languages", LANGS, "--output-dir", CACHE_ROOT];
+const args = [SKILL, TARGET, "--languages", LANGS, "--output-dir", CACHE_ROOT];
 if (REFRESH) args.push("--refresh");
 
 const proc = Bun.spawnSync(["bun", ...args], { stdout: "pipe", stderr: "pipe" });

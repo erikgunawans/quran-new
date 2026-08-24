@@ -150,20 +150,74 @@ export function resolveArtifactFile(
 const STDERR_TAIL = 400;
 
 /**
+ * How the pipeline subprocess ended, exactly as `Bun.spawnSync` reports it.
+ *
+ * ⚠ `signalCode` IS `undefined` ON AN ORDINARY EXIT, NOT `null`, and that one fact is why this
+ * interface exists. `failureReason` used to take a `timedOut` boolean, and the loop computed it as
+ * `proc.signalCode !== null` — true for every failure there is. The first real job ever run died in
+ * about a second on a URL the transcript skill could not parse, and the admin was told *"pipeline
+ * exceeded its time limit and was killed"*: a verdict naming a clock that had nothing to do with it,
+ * with the actual stderr thrown away. Measured shapes (2026-08-25, bun 1.3.11):
+ *
+ *   ordinary failure  → { exitCode: 1,    signalCode: undefined }
+ *   the timeout       → { exitCode: null, signalCode: "SIGTERM" }
+ *   a crash by signal → { exitCode: null, signalCode: "SIGTRAP" }
+ *
+ * Passing the result itself rather than a derived boolean is the actual repair: there is no longer
+ * a boolean for a caller to get wrong.
+ */
+export interface PipelineExit {
+  exitCode: number | null | undefined;
+  signalCode: string | null | undefined;
+  stderr: string;
+  /** Wall time the subprocess actually ran, used to check the timeout verdict against its clock. */
+  elapsedMs: number;
+  /** The limit that was in force, i.e. `RunnerConfig.jobTimeoutMs`. */
+  timeoutMs: number;
+}
+
+/**
+ * A run is blamed on the limit only if it got near the limit.
+ *
+ * SIGTERM IS NOT PROOF OF A TIMEOUT. An operator `kill`, a supervisor stopping the runner, or a
+ * laptop suspending all send the same signal. Blaming the limit for a job that died three seconds in
+ * sends the admin hunting durations and proxies — the same wrong hunt the old boolean caused, just
+ * narrower. The margin is generous because the point is to catch the ORDER-OF-MAGNITUDE lie, not to
+ * time the kill precisely.
+ */
+const TIMEOUT_MARGIN = 0.9;
+
+/**
  * Turn a dead subprocess into a sentence for the admin reading the queue.
  *
  * The TAIL of stderr, not the head: a pipeline that fails does so at the end of a long run, and the
  * first four hundred characters are startup noise. `yt-dlp`'s refusal is named explicitly because it
  * is the failure this deployment is most likely to hit, and "HTTP Error 403" on its own tells an
  * admin nothing about what to do next.
+ *
+ * Every branch below names WHAT ENDED THE RUN — a limit, a signal, or an exit code — because the
+ * defect this replaced named the wrong actor and cost a day of looking at the wrong thing.
  */
-export function failureReason(exitCode: number, stderr: string, timedOut: boolean): string {
-  if (timedOut) return "pipeline exceeded its time limit and was killed";
-  const tail = stderr.trim().slice(-STDERR_TAIL);
-  if (/HTTP Error 403|Sign in to confirm|not a bot|cookies/i.test(stderr)) {
+export function failureReason(exit: PipelineExit): string {
+  const tail = exit.stderr.trim().slice(-STDERR_TAIL);
+  const suffix = tail === "" ? "" : `: ${tail}`;
+
+  if (typeof exit.signalCode === "string") {
+    if (exit.signalCode === "SIGTERM" && exit.elapsedMs >= exit.timeoutMs * TIMEOUT_MARGIN) {
+      return "pipeline exceeded its time limit and was killed";
+    }
+    const secs = Math.round(exit.elapsedMs / 1000);
+    return `pipeline was killed by ${exit.signalCode} after ${secs}s${suffix}`;
+  }
+
+  // Checked AFTER the signal branch: a killed process has no stderr worth classifying, and the
+  // refusal below is about what yt-dlp said, not about how the process ended.
+  if (/HTTP Error 403|Sign in to confirm|not a bot|cookies/i.test(exit.stderr)) {
     return `transcript fetch was refused — this host needs exported cookies or a residential proxy: ${tail}`;
   }
-  return tail === "" ? `pipeline exited ${exitCode} with no output` : `pipeline exited ${exitCode}: ${tail}`;
+  return tail === ""
+    ? `pipeline exited ${exit.exitCode} with no output`
+    : `pipeline exited ${exit.exitCode}${suffix}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -252,15 +306,22 @@ function runPipeline(cfg: RunnerConfig, job: ClaimedJob): string | null {
   // PRD, and since ISC-624.8 that IS the pipeline's default, so no flags are passed. Deliberately
   // no flags rather than explicit ones: the default is the reviewed answer, and a flag list here
   // would be a second place for it to drift from the script's own docblock.
+  const startedAt = Date.now();
   const proc = Bun.spawnSync(["bun", "run", "src/app/kajian.ts", job.url], {
     stdout: "pipe",
     stderr: "pipe",
     timeout: cfg.jobTimeoutMs,
   });
   if (proc.exitCode === 0) return null;
-  // `killed` distinguishes the timeout from an ordinary non-zero exit; without it a killed process
-  // reports whatever signal-derived code it happened to carry, which reads as a pipeline bug.
-  return failureReason(proc.exitCode ?? -1, proc.stderr.toString(), proc.signalCode !== null);
+  // The whole spawn result is handed over, never a boolean derived from it here. See `PipelineExit`:
+  // the derivation that used to live on this line was wrong for every failure the runner can have.
+  return failureReason({
+    exitCode: proc.exitCode,
+    signalCode: proc.signalCode,
+    stderr: proc.stderr.toString(),
+    elapsedMs: Date.now() - startedAt,
+    timeoutMs: cfg.jobTimeoutMs,
+  });
 }
 
 async function processJob(cfg: RunnerConfig, job: ClaimedJob): Promise<void> {
