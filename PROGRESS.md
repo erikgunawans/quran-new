@@ -4,6 +4,90 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (evening) — Cycle 11: the late refusal reaches the reader, and the kajian queue accepts a kajian
+
+**Anchor `431b2c1` on `origin/main`. PROD DEPLOYED: Worker `7b337a20-d716-491f-9627-c5ddf5cf97ed`,
+superseding `8634ed83`, shipping 5 commits / 893 insertions across 19 files.** The range was read
+before shipping: no scripture, hadith-content or review-record file was touched.
+
+### What shipped
+
+**The answer wall's honesty half (ISC-533/534/642/643/644/645/646).** The `answer-blocked` copy was
+dead on every turn slower than `FAST_ANSWER_MS` — ISC-487 puts refusals at 24.8 s mean, so
+effectively all of them. `blockedBy` was written in `applyAi` and read only inside
+`resolvePrincipled`, which the fast path already ran (at 9 s, before the model settled, so it was
+necessarily null) and the late path never called again. The Worker preserved the verdict; the browser
+dropped it.
+
+**ISC-533's stated gate had been dischargeable for six days and nobody re-read it.** It deferred to
+ISC-532, which was MET 2026-08-18 — the same day the deferral was written — and reached prod on
+2026-08-23. The discriminator (`gen.reason`) was on every response and `answer-live.ts` typed the
+body as `{answer, blocked, hadith}`, dropping it at the parse. One field, one boundary.
+
+Now: `asTerminal` narrows `gen.reason` against a closed five-token set (null = CANNOT TELL, never NOT
+BLOCKED); `lateOutcome` in its own module decides the late turn. A real refusal annotates the fast
+answer, a turn that ran out of clock says nothing, and `silence` — not an answer but a false claim
+about the corpus — is traded for copy that claims nothing.
+
+**ISC-642, opened and closed in one exchange.** The late-path `hadith-defer` substitution was taking
+a cited answer off the screen at ~25 s and replacing it with the Hadis pointer — a live ISC-534
+violation that escaped the anti-criterion by arriving as a truthy `composed`. Erik ruled the same
+session: the answer outranks the pointer. The pointer became `withheld: "hadith"`, keeping its
+substance including the machine-translation disclosure.
+
+**The kajian queue (ISC-648/649/650/651, ISC-652 recorded).** Erik pasted a URL and it failed.
+`youTubeVideoId` knew `?v=`, `youtu.be/` and `/shorts/` — and NOT `youtube.com/live/<id>`, which is
+what YouTube hands out for a streamed lecture, i.e. what most kajian are. The one shape the queue
+exists for was the one shape it refused. Also: 429 had no branch at all and read as an outage; the
+form borrowed `.kajian-card-foot` (a CARD FOOTER) so its input and button were raw UA defaults; and
+`masuk.ts` was the only user-facing file speaking formal `Anda` while eleven others use `kamu` —
+caught by Erik from a screenshot, invisible to a suite that only checks behaviour.
+
+**Operations.** All five secrets now set on prod (`IDENTITY_HMAC_SECRET`, `RESEND_API_KEY`,
+`RESEND_FROM`, `ADMIN_EMAILS`, `OPENROUTER_API_KEY`). Sign-in works end to end — Erik is `admin`,
+magic link delivered, `/api/auth/role` returns his account. **Question logging is ON**; `events` was
+empty when baselined, so anything in it now is real reader traffic. `worker/` pinned to wrangler
+4.125.0 to match the root, npm lockfile deleted and gitignored.
+
+### Verified live, not assumed
+
+Served bundle hash matches disk (`index-D4X8aDyL.js`) · `/`, `/#/surah/1`, `/api/identity`,
+`/kajian/index.json` all 200 · a real reader question answered 1,347 chars in 7.0 s with
+`blocked: null`, `gen.reason: "answered"` · the `/live/` URL driven through the real admin form in
+Erik's own Chrome produced a `queued` row read back from D1 (`489e4518…`), then deleted at his
+request with `changes: 1` and `COUNT(*)` → 0 on read-back.
+
+### Three traps this session, all recorded
+
+1. **A live probe that looked decisive and was blind.** Testing the parser with an unauthenticated
+   POST returned **403 on all three arms**, including the one the parser refuses — the router gates
+   on role before the handler parses. Two accepted arms and no refused arm is not a measurement.
+2. **`dist` was stale at deploy time.** Built at `0ff7291`, before the kajian fixes. Deploying
+   without checking `.build-meta.json` would have shipped the answer work and silently dropped every
+   kajian and register change, with no error anywhere.
+3. **Navigating to an identical hash is a no-op.** After deleting the test row the admin page still
+   showed it — in-memory state, not a stale DB. A cache-buster forced a real load. Reporting the
+   first reading would have called a successful delete a failure.
+
+### Gates
+
+`bun test` **2256/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run build` exit 0 ·
+`wrangler deploy --dry-run --env=""` exit 0 with bindings unchanged. Run locally — **this repo has no
+CI.** Twelve mutations were reddened across the session (1–11 tests each) before restore.
+
+### ISA
+
+**678/694 — 673 `[x]`, 5 `[~]`, 16 open, counted by grep.** Cycle 11 = ISC-642..652.
+
+### Next
+
+The answer-wall cluster's remaining measurement items (ISC-454, 486, 552, ISC-323) are all LIVE
+probes, and prod now carries current code for the first time, so they finally measure the shipped
+build. ISC-487 stays NOT MET — this cycle closed the honesty half and moved no constant. ISC-647
+(the annotation seen painting on a real refused turn) is now runnable and was not run.
+
+---
+
 ## 2026-08-24 (close) — PROD IS DEPLOYED, D1 exists, sign-in is one secret away
 
 Anchor: **`origin/main` `c425e1e`**, verified with `git ls-remote`. Two commits since the morning

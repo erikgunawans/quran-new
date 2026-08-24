@@ -1,3 +1,150 @@
+# Next session — New-Quranku (checkpoint 2026-08-24 evening)
+
+> Prepended by /wrap 2026-08-24 (evening). **Anchor: `431b2c1` on `origin/main`** — verify with
+> `git fetch` + `git ls-remote`, never a push pipe. **Supersedes the 2026-08-24 close block below**,
+> whose anchor `c425e1e` and Worker `8634ed83` are both stale, and whose §3 secrets item is DONE.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 evening**).
+
+## 0. ⚠️ PROD IS CURRENT. SIGN-IN WORKS. QUESTIONS ARE BEING LOGGED.
+
+Live Worker **`7b337a20-d716-491f-9627-c5ddf5cf97ed`**, deployed 2026-08-24, superseding `8634ed83`.
+It shipped **5 commits / 893 insertions / 19 files** — the whole of Cycle 11. Range was read first:
+no scripture, hadith-content or review-record file touched. Verified live afterwards (bundle hash vs
+disk, four routes 200, a real question answered in 7.0 s unblocked).
+
+**ALL FIVE SECRETS ARE SET** — `IDENTITY_HMAC_SECRET`, `RESEND_API_KEY`, `RESEND_FROM`,
+`ADMIN_EMAILS`, `OPENROUTER_API_KEY`. Erik is `admin`, magic-link sign-in works end to end.
+⚠️ **Question logging is therefore LIVE** — `worker/src/index.ts:672` writes the text of every
+question to D1. `events` was **empty** when baselined on 2026-08-24, so every row now is real reader
+traffic. Do not write test rows into it.
+
+⚠️ `RESEND_FROM` is `QuranKu <onboarding@resend.dev>` — Resend TEST mode, which delivers **only to
+the Resend account owner**. Any other reader gets `sent:true` and no email. Verifying `axiara.ai` in
+Resend → Domains is what opens it up. **A real user cannot sign in today.**
+
+## 1. STATE
+
+ISA **678/694** — 673 `[x]` + 5 `[~]`, **16 open**, counted by grep. **No `### Phase` headers, no
+`.planning/STATUS.md`, no `sm-update`** — no phase table and no gap tracker exist in this repo. **The
+16 open ISCs ARE the open-item list:** ISC-98, 323, 353.0, 417, 419, 420, 440.6, 454, 464, 486, 487,
+552, 566, 627.7, **647, 652**. The 5 partial: ISC-418, 617, 624, 624.8, 627.
+
+Gates at the anchor: `bun test` **2256/0** exit 0 · typecheck exit 0 · synthesis build exit 0 ·
+`wrangler deploy --dry-run --env=""` exit 0, bindings **DB + VECTORIZE + AUDIO + CORPUS + ASSETS** —
+**run locally; this repo has no CI.**
+
+`worker/` is now on **wrangler 4.125.0**, matching the root — the `--remote`-only-works-from-root
+split is CLOSED. npm lockfiles are gitignored.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **ISC-647 — see the annotation paint on a real refused turn.** Newly runnable: prod carries the
+   channel as of today. Drive a question through Interceptor and **sample the DOM at 2 s across the
+   WHOLE window, never at settle** — a fall-through lane that flashes and clears is invisible to a
+   settle-time read. Two things must be checked together: whether the note paints, AND whether
+   `gen.reason` on real refused turns is `"blocked"` at all. If prod refusals are dominated by
+   `deadline`, the channel is CORRECT and near-silent — a different finding from broken.
+
+2. **The remaining answer-wall measurements, all LIVE probes** — ISC-454 (`bad_hadith` rate),
+   ISC-486 (bare proper names), ISC-552, and **ISC-323** (hadith-muslim-154). Every one of these was
+   waiting on prod being current. It is, for the first time. Read `ISA.md` for each first.
+
+3. **ISC-487 stays NOT MET and this cycle did NOT touch it.** The annotation is the honesty half;
+   **no constant moved** — `MODEL_DEADLINE_MS`, `MIN_RETRY_MS`, `MAX_ATTEMPTS`, `TIMEOUT_MS` are
+   byte-identical. Do not let a future reading treat the annotation as the bound.
+
+4. **ISC-652** (a role check that THROWS is indistinguishable from being denied, with no retry) —
+   small, self-contained, and recorded rather than fixed because it was not the defect Erik hit.
+
+5. **The other open ISCs, none started:** ISC-98, 419/420, 440.6, 464, 353.0, 627.7.
+
+6. **ISC-566 and ISC-417 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **Verify `axiara.ai` in Resend** so readers other than him can receive a magic link, then move
+  `RESEND_FROM` to `QuranKu <no-reply@axiara.ai>`. Today it is `onboarding@resend.dev` — test mode.
+- 🔶 **Which source does the runner launch on?** Needs a first video with clear rights. **Nothing can
+  be published until this is answered.**
+- 🔶 **Nobody has read a repaired answer for THEOLOGICAL correctness.** Needs Ustadz Ahmad — and his
+  address goes in `REVIEWER_EMAILS`, which is still unset. ⚠️ `admin` and `reviewer` are DISJOINT
+  (ADR 4): `erik@axiara.ai` is in `ADMIN_EMAILS` and therefore can NEVER pass a reviewer gate.
+- 🔶 **No real `short.m4a` has ever been written** — needs `gcloud auth application-default login`,
+  interactive, Erik's.
+- 🔶 **The runner half:** `RUNNER_SECRET` + creating the `new-quranku-kajian` bucket + uncommenting
+  `[[r2_buckets]]`. Until then the admin queue accepts jobs nothing can drain.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **The admin queue accepts jobs NOTHING CAN DRAIN.** Deliberate, accepted by Erik 2026-08-24. A
+  queued job sits `queued` indefinitely. `kajian_jobs` is **empty** as of this checkpoint.
+- **ISC-624.8's remainder:** no real `short.m4a`; no `speechSynthesis` fallback (a feed record carries
+  no summary TEXT — a browser voice could only read the TITLE, and that is a DATA decision); no
+  ground-truth pixel of the native audio control.
+- **The hosted runner has never run.** The LOCAL pipeline has. Do not conflate them.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days. The
+  shared `canonical_user_id` defect is NOT fixed (ADR 2 scopes it out).
+- **ISC-650 was never seen rendered.** The admin form's new styling is verified only as far as "the
+  rules survived the CSS parser into `web/dist`" plus every token resolving. The surface needs an
+  admin session so it cannot be previewed statically. It IS live now — look at it.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a probe with no control arm is not a measurement.** Testing the URL parser with an
+  unauthenticated POST returned **403 on all three arms**, including the one the parser REFUSES,
+  because the router gates on role before the handler parses. It could not have distinguished the fix
+  from its absence in either direction. Before believing a live probe, ask what the REFUSED arm
+  returned.
+- **NEW — check `.build-meta.json` against HEAD before every deploy.** `dist` was stale at deploy
+  time (built at `0ff7291`, before the kajian fixes); shipping it would have silently dropped half
+  the session with no error anywhere. `answerMode` must read `synthesis` and `gitSha` must equal HEAD.
+- **NEW — navigating to an identical hash is a NO-OP.** No `hashchange`, no re-route, so the SPA
+  shows pre-change in-memory state. After a data change, force a real load (cache-buster on the
+  query string) before reading the DOM — otherwise a successful delete reads as a failure.
+- **NEW — a deferral is a conditional that EXPIRES.** ISC-533 sat blocked on ISC-532 for six days
+  after ISC-532 shipped. When marking any ISC `[x]`, grep the ISA for its own id and re-read whatever
+  cites it.
+- **NEW — a copy test cannot see reachability.** Every `answer-blocked` test slices `main.ts` as a
+  source string; all five stayed green while no path could produce the turn. `main.ts` boots the
+  surface on import, so extract the DECISION into its own module (`kept-below.ts`, `withheld-turn.ts`)
+  and test the turn it produces.
+- **A deploy ships the whole range.** `git diff <live>..HEAD` and read the commit list BEFORE
+  deploying, every time.
+- **`wrangler d1 migrations list` does not print in sorted order**, and **a migration is verified by
+  reading the schema, not the ✅.**
+- **A binding and its secret are different switches.** Binding `DB` changed nothing observable;
+  `IDENTITY_HMAC_SECRET` is what started persisting questions.
+- **A fixture in the wrong SHAPE is worse than no fixture** — copy values from the PRODUCER.
+- **A guard line that can never fire looks exactly like one that works** — mutate to find which line
+  is load-bearing; reading cannot tell you.
+- **`interceptor screenshot` cannot paint UA shadow DOM**, and a tab not in the interceptor group
+  returns *"not in the interceptor group"* — use `interceptor tab new`, which DOES inherit the
+  signed-in session from the same Chrome profile.
+- **"Darussalam" is TWO ENTITIES** — the PUBLISHER and *dār as-salām* (Qur'anic). Read every hit.
+- **`admin` and `reviewer` are DISJOINT, not a ladder.** `requireRole` matches EXACTLY (ADR 4).
+- **The runner is a SECOND AUTH PRINCIPAL.** Never reach for `requireRole` on `/api/runner/*`.
+- **Count the ISA with grep, never from expectation.** **Measure before you delete.**
+- **Headless Chrome clamps at ~500 CSS px then CROPS.** Probe narrow layouts at ≥520 or via CDP.
+- **Deleting a string from the working tree does not remove it from a public repo.** A history
+  rewrite is DECLINED (ISC-639) — do not re-offer it.
+- **`bun run typecheck | tail` hides exit 2.** Redirect, echo `$?`, then read. A pre-tool hook blocks
+  the pipe form, and **a blocked hook discards every write in that Bash call.**
+- **Secrets only via the hidden `wrangler secret put` prompt — never pasted into chat.**
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 close)
 
 > Prepended by /wrap 2026-08-24 (close). **Anchor: `c425e1e` on `origin/main`** — verify with
