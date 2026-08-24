@@ -21,10 +21,13 @@ import { guardComposeProse } from "../../web/src/compose-guard.ts";
 import { FRAMING_SYSTEM_PROMPT, FRAMING_PARAMS, buildFramingUserMessage } from "../../web/src/compose-contract.ts";
 import { guardThemes, THEME_SYSTEM_PROMPT } from "../../web/src/theme-understand.ts";
 import {
+  allowedRefsFrom,
   guardAnswerProse,
   groundedHadithFrom,
   markersInProse,
+  refsInProse,
 } from "../../web/src/answer-guard.ts";
+import { echoVersesFor, loadEchoIndex } from "./echo-index.ts";
 import { isRealAyah } from "../../web/src/quran.ts";
 import { hashGrounding } from "../../web/src/grounding-digest.ts";
 import {
@@ -682,6 +685,16 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   const entries = await verifyGrounding(sanitizeGrounding(body.entries, false) as GroundingEntry[], env);
   if (!question) return json({ answer: null }, 200, request);
 
+  // ISC-419's CITED half — started here, awaited far below, so its cost overlaps retrieval.
+  //
+  // The index is ~1.3 MB and is loaded ONCE PER ISOLATE; only the first turn on a fresh isolate pays
+  // for it at all. Kicking it off here rather than at the guard means even that first turn pays
+  // roughly nothing in wall-clock: `cari_dalil` retrieval below runs 1.2-2.7 s on this project, and
+  // the fetch rides inside that. `loadEchoIndex` never rejects — it resolves to null on any failure
+  // and the wall then sees exactly the verses prod has always handed it — so this promise needs no
+  // catch and cannot become an unhandled rejection.
+  const echoIndexLoad = loadEchoIndex(env.ASSETS);
+
   // ISC-418 IS REVERSED BY ERIK, 2026-08-21, AND THE HISTORY STAYS SO THE REVERSAL IS LEGIBLE.
   //
   // A `if (!hasGrounding({ verses, entries })) return json({ answer: null })` stood here. Its reason:
@@ -874,6 +887,14 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
   }));
   const isGroundedHadith = groundedHadithFrom(hadith.map((h) => h.id));
 
+  // ISC-419's CITED half, resolved. `null` here — no asset on this deployment, or a fetch that threw
+  // — means the wall is handed exactly the retrieved verses it has always been handed. See
+  // `echo-index.ts` for why that is the honest failure direction.
+  const echoIndex = await echoIndexLoad;
+  // Which refs this turn was actually GROUNDED on, normalised. Built once per turn rather than per
+  // candidate: it is a property of the retrieval, and `repair` re-guards many times.
+  const retrievedRefs = allowedRefsFrom(verses.map((v) => v.ref));
+
   const user = buildAnswerUserMessage({ question, verses, entries, hadith });
 
   // WHY the answer is null, when it is null. Until this existed the endpoint had ONE null channel for
@@ -965,12 +986,27 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
       //
       // ONE text per verse today; see `EchoVerse` for why the companion translation is not here yet
       // and what carrying it would take.
+      //
+      // ── THE CITED HALF IS NOW WIRED (ISC-419, Erik's ruling 2026-08-25) ──────────────────────
+      //
+      // Until this cycle the fourth argument was `verses.map((v) => ({ ref: v.ref, texts: [v.text] }))`
+      // — retrieval and nothing else — and that is why the located QS 66:6 rendering shipped: the
+      // turn retrieved ZERO verses, `scriptureEchoShape` opened with `if (verses.length === 0)
+      // return null`, and the wall never ran. `echoVersesFor` keeps that argument byte-identical and
+      // APPENDS the ayahs this candidate cites that retrieval did not hand it, at
+      // `ECHO_MIN_RUN_CITED = 6` rather than the retrieved floor of 4 — a separate constant because
+      // the four was calibrated on retrieved verses and re-using it bought two false refusals,
+      // one of them on `bolehkah perempuan jadi pemimpin`, an answer this project names as one a hard
+      // rule must not destroy.
+      //
+      // Per CANDIDATE, not per turn: `repair` re-guards sub-slices, and a slice that no longer names
+      // an ayah must no longer be judged against it.
       guard: (candidate) =>
         guardAnswerProse(
           candidate,
           isRealAyah,
           isGroundedHadith,
-          verses.map((v) => ({ ref: v.ref, texts: [v.text] })),
+          echoVersesFor(candidate, verses, echoIndex, refsInProse, retrievedRefs),
         ),
       // ISC-560/ISC-564 — a violation costs the PARAGRAPH, not the answer.
       //

@@ -125,8 +125,18 @@ describe("the Worker actually forwards its verses — the default is silent othe
     const src = await Bun.file("worker/src/index.ts").text();
     const call = src.slice(src.indexOf("guard: (candidate) =>"));
     expect(call).toContain("guardAnswerProse(");
-    // The mapping from verified grounding to EchoVerse. If this line goes, the wall goes with it.
-    expect(call).toContain("verses.map((v) => ({ ref: v.ref, texts: [v.text] }))");
+    // UPDATED DELIBERATELY 2026-08-25, when the CITED half was wired (ISC-419, Erik's ruling).
+    //
+    // This used to pin the literal `verses.map((v) => ({ ref: v.ref, texts: [v.text] }))`. That
+    // mapping did not go away — it MOVED, into `echoVersesFor`, which now builds the same retrieved
+    // argument and appends the candidate's cited anchors. Pinning the old string here would have
+    // reddened on a change that strengthened the wall, so the assertion follows it: the call site
+    // must still hand the wall THIS TURN'S `verses`, and must do it through the seam.
+    //
+    // ⚠️ A source slice cannot see whether the retrieved mapping survived inside that seam. That is
+    // what `echo-index.test.ts` is for — it asserts the retrieved half behaviourally, and the
+    // mutation that empties it reddens there.
+    expect(call).toContain("echoVersesFor(candidate, verses,");
   });
 });
 

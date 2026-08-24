@@ -41,10 +41,11 @@
     "app:topic-subjects": "bun run src/app/build-topic-subjects.ts",
     "app:coverage-audit": "bun run src/review/build-coverage-audit.ts",
     "dev": "bun run app:corpus && vite web --port 5173",
-    "build": "bun run app:corpus && bun run app:juz && bun run app:hadith && bun run app:surah-intro && bun run app:themes && bun run app:peta && bun run app:topic-subjects && bun run app:peta3d && bun run app:grounding-digest && vite build web && bun run app:build-meta",
+    "build": "bun run app:corpus && bun run app:juz && bun run app:hadith && bun run app:surah-intro && bun run app:themes && bun run app:peta && bun run app:topic-subjects && bun run app:peta3d && bun run app:grounding-digest && bun run app:echo-index && vite build web && bun run app:build-meta",
     "demo:build": "bun run app:corpus && bun run app:juz && bun run app:topic-subjects && vite build web --config web/vite.demo.config.ts && bun run app:build-meta",
     "app:caveat-sheet": "bun run src/review/build-caveat-sheet.ts",
     "app:grounding-digest": "bun run src/app/build-grounding-digest.ts",
+    "app:echo-index": "bun run src/app/build-echo-index.ts",
     "app:split-expansion": "bun run src/review/split-feelings-expansion.ts",
     "app:peta-graph": "bun run src/app/build-peta-graph.ts",
     "app:build-meta": "bun run src/app/build-meta.ts"
