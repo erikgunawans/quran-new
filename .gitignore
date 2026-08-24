@@ -71,3 +71,4 @@ worker/.wrangler/
 # one `git add` away from looking like something we stand behind. Regenerable in
 # seconds; keep it out of history.
 .scratch/kajian/
+.kajian-tts-ledger.json

@@ -409,6 +409,16 @@ if (!NO_BRIEF) {
 const outDir = join(OUT_ROOT, meta.videoId);
 mkdirSync(outDir, { recursive: true });
 
+/**
+ * This invocation's identity, for the TTS daily ceiling (30 runs/day, Erik 2026-08-24).
+ *
+ * The video id ALONE would be wrong in the direction that under-charges: re-running the same video
+ * spends the same money again and must cost a second slot. The timestamp is taken once here, so both
+ * narrations below — long and short — carry the same id and cost ONE run between them, which is what
+ * `chargeTtsRun` is idempotent for.
+ */
+const TTS_RUN_ID = `${meta.videoId}:${Date.now()}`;
+
 const lines: string[] = [];
 if (isDraft) {
   lines.push(
@@ -579,6 +589,7 @@ if ((NARRATION || LONG_AUDIO) && briefing) {
 
       const longWav = join(outDir, `narasi${suffix}.wav`);
       const longOut = await narrateToWav(longScript.full, longWav, {
+        runId: TTS_RUN_ID,
         onChunk: (i, n, chars) => console.log(`    chunk ${i}/${n} — ${chars} karakter`),
       });
       const longM4a = join(outDir, `narasi${suffix}.m4a`);
@@ -619,7 +630,7 @@ if ((NARRATION || LONG_AUDIO) && briefing) {
         console.log(`  · narasi pendek menolak (${d.reason}), poin ini tetap ada di slide: ${short}`);
       }
       const shortWav = join(outDir, `short${suffix}.wav`);
-      const shortOut = await narrateToWav(shortScript.full, shortWav);
+      const shortOut = await narrateToWav(shortScript.full, shortWav, { runId: TTS_RUN_ID });
 
       /**
        * Encoded with the SAME tags the long form gets. The play button's file travels further than

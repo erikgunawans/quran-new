@@ -35,6 +35,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DRAFT_COPY } from "./kajian-slide.ts";
+import { chargeTtsRun } from "./kajian-budget.ts";
 import {
   DEFAULT_CHUNK_BYTES,
   DRAFT_WARNING,
@@ -162,6 +163,12 @@ export interface NarrateOptions extends SynthesizeOptions {
   readonly maxChunkBytes?: number;
   /** Called before each request, so a five-minute run is not five minutes of silence. */
   readonly onChunk?: (index: number, total: number, chars: number) => void;
+  /**
+   * Which RUN this narration belongs to — charged once against the daily ceiling (30 runs/day,
+   * Erik 2026-08-24). REQUIRED, so a caller that forgets it is a compile error rather than a silent
+   * unmetered run. Both narrations of one pipeline run pass the SAME id and cost one between them.
+   */
+  readonly runId: string;
 }
 
 /**
@@ -175,7 +182,7 @@ export interface NarrateOptions extends SynthesizeOptions {
 export async function narrateToWav(
   script: string,
   wavPath: string,
-  opts: NarrateOptions = {},
+  opts: NarrateOptions,
 ): Promise<NarrateResult> {
   const normalized = normalizeForSpeech(script);
   const { chunks } = chunkForTts(normalized, opts.maxChunkBytes ?? DEFAULT_CHUNK_BYTES);
@@ -183,6 +190,14 @@ export async function narrateToWav(
   // Belt and braces: `chunkForTts` already asserts this. Re-asserted here because THIS is the
   // function that is about to spend money and write a file somebody will publish.
   assertChunksCoverText(chunks, normalized);
+
+  // THE DAILY CEILING, charged AFTER the free checks and BEFORE the first paid request.
+  //
+  // Order matters in both directions. After coverage, so a run a chunker bug would have ruined costs
+  // neither money nor a slot. Before the loop, so this is a ceiling rather than a report — a check
+  // that fires after the work is done is a check that costs money to fail, which is the mistake
+  // `refusal-capture.ts` records making with its `--out` containment.
+  chargeTtsRun(opts.runId);
 
   const work = mkdtempSync(join(tmpdir(), "kajian-tts-"));
   try {
