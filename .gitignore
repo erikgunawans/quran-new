@@ -16,6 +16,13 @@ data/
 node_modules/
 node_modules
 worker/node_modules/
+# npm lockfiles, ignored so they cannot come back. This repo is bun-only (bun.lock at the root and in
+# worker/), but `bunx wrangler` in worker/ wrote an npm `package-lock.json` on 2026-08-24 while also
+# bumping wrangler 3 -> 4 — an unreviewed dependency change that would have ridden the next deploy
+# unnoticed. Ignoring the artefact does not stop the bump; it stops the WRONG lockfile from ever
+# being the one that gets committed and silently becomes the source of truth.
+package-lock.json
+**/package-lock.json
 web/dist/
 web/dist-demo/
 web/public/corpus.json
