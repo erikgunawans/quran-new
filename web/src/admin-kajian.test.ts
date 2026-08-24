@@ -249,7 +249,12 @@ describe("renderAdminKajian", () => {
     input3.value = "https://vimeo.com/123456";
     form3.requestSubmit();
     await flush();
-    expect(mount.textContent).toContain("URL ditolak. Gunakan alamat http(s) video yang valid.");
+    // THE COPY NAMES WHAT IS ACCEPTED, because the refusal is the only moment the admin is looking.
+    // The retired sentence — "gunakan alamat http(s) video yang valid" — was TRUE and useless: it was
+    // shown to an admin who had pasted exactly that (a live URL, refused by a parser that only knew
+    // `/shorts/`), and it sent him looking for a broken feature instead of a different link.
+    expect(mount.textContent).toContain("tautan video, siaran langsung, atau Shorts");
+    expect(mount.textContent).not.toContain("URL ditolak. Gunakan alamat http(s) video yang valid.");
 
     const form4 = mount.querySelector("form[data-admin-kajian-form]");
     if (!(form4 instanceof HTMLFormElement)) throw new Error("expected form4");
@@ -261,6 +266,62 @@ describe("renderAdminKajian", () => {
     expect(mount.textContent).toContain("Layanan antrean belum tersedia saat ini.");
 
     expect(seenBodies[0]).toContain(`"url":"https://www.youtube.com/watch?v=queued"`);
+  });
+});
+
+describe("a spent daily allowance is not a broken feature", () => {
+  // THE BRANCH THAT WAS MISSING ENTIRELY. `429` fell through to the generic `else` and told the admin
+  // "Permintaan antrean tidak tersedia pada sesi ini" — which reads as an outage, on the one path
+  // where nothing is wrong with the app at all. The Worker answers 429 with a `Retry-After` precisely
+  // so the UI can say WHEN to come back; nothing read it.
+  //
+  // The wait is derived from that header rather than from a copy of `MAX_JOBS_PER_DAY`: the ceiling
+  // lives in `worker/src/kajian-jobs.ts`, `web/` cannot import across the build graph, and a number
+  // typed into the client would be a second source of truth no test could see drift in.
+  const limited = (retryAfter: string | null): FetchLike =>
+    async (url, init) => {
+      if (url === "/api/auth/role") return jsonResponse({ email: "admin@example.com", role: "admin" });
+      if (url === "/api/admin/kajian/jobs" && init?.method === undefined) return jsonResponse({ ok: true, jobs: [] });
+      const res = jsonResponse({ ok: false, error: "rate_limited" }, { status: 429 });
+      if (retryAfter !== null) res.headers.set("Retry-After", retryAfter);
+      return res;
+    };
+
+  const submitOnce = async (fetchImpl: FetchLike): Promise<string> => {
+    const mount = document.createElement("div");
+    document.body.append(mount);
+    await renderAdminKajian(mount, fetchImpl);
+    await flush();
+    const form = mount.querySelector("form[data-admin-kajian-form]");
+    if (!(form instanceof HTMLFormElement)) throw new Error("expected the admin form");
+    const input = form.elements.namedItem("url");
+    if (!(input instanceof HTMLInputElement)) throw new Error("expected the url input");
+    input.value = "https://www.youtube.com/live/AbCdEf123_-";
+    form.requestSubmit();
+    await flush();
+    return mount.textContent ?? "";
+  };
+
+  test("says the allowance is spent, never that the service is unavailable", async () => {
+    const text = await submitOnce(limited("86400"));
+    expect(text).toContain("Jatah antrean sudah habis");
+    expect(text).toContain("Coba lagi besok.");
+    expect(text).not.toContain("tidak tersedia pada sesi ini");
+  });
+
+  test("a short wait is reported in minutes, a medium one in hours", async () => {
+    expect(await submitOnce(limited("600"))).toContain("10 menit lagi");
+    expect(await submitOnce(limited("7200"))).toContain("2 jam lagi");
+  });
+
+  test("an unusable Retry-After promises nothing rather than printing NaN", async () => {
+    // Missing, non-numeric and negative all have to degrade to a sentence that is still true.
+    for (const header of [null, "soon", "-5"]) {
+      const text = await submitOnce(limited(header));
+      expect(text).toContain("Jatah antrean sudah habis");
+      expect(text).toContain("Coba lagi nanti.");
+      expect(text).not.toContain("NaN");
+    }
   });
 });
 

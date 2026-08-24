@@ -1903,6 +1903,40 @@
 
 .kajian-empty { color: var(--ink-3); padding: 24px 0; }
 
+/* ── Admin kajian queue ─────────────────────────────────────────────────────────────────────────
+   ITS OWN RULES, because it had none. The form was reusing `.kajian-card-foot` — a CARD FOOTER,
+   which brought a `border-top` and card padding to a standalone form row and styled neither the
+   input nor the button, so both rendered as raw UA defaults on a themed dark page. It read as
+   unfinished because it literally was.
+   Modelled on `.masuk-row`, which is the correct sibling: the same wrap-don't-shrink behaviour, the
+   same focus ring, the same button family. Tokens only — this file's force-red test refuses a raw
+   length or colour literal anywhere in it, comments included. */
+.admin-kajian-form { margin: 18px 0 0; }
+.admin-kajian-label { display: block; margin: 0 0 6px; font-size: .85rem; color: var(--ink-2); }
+/* Wraps rather than shrinking: a URL is long, and a squeezed field is the one thing on this page an
+   admin has to read back before submitting. */
+.admin-kajian-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.admin-kajian-row input {
+  flex: 1 1 22rem; min-width: 0; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit;
+}
+.admin-kajian-row input::placeholder { color: var(--ink-3); }
+.admin-kajian-row input:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+/* Only once they have typed something — `:invalid` alone would mark the empty required field on
+   arrival, which is scolding somebody for not having started yet. */
+.admin-kajian-row input:invalid:not(:placeholder-shown) { border-color: var(--caution); }
+.admin-kajian-form button {
+  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: var(--surface-2); color: var(--ink); font: inherit; cursor: pointer; white-space: nowrap;
+}
+.admin-kajian-form button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.admin-kajian-form button:disabled { opacity: .6; cursor: default; }
+.admin-kajian-hint { margin: 8px 0 0; font-size: .78rem; line-height: 1.6; color: var(--ink-3); }
+.admin-kajian-hint code {
+  font-family: var(--f-mono, ui-monospace, monospace); font-size: .95em;
+  padding: 1px 5px; border-radius: 5px; background: var(--surface-2); color: var(--ink-2);
+}
+
 /* ── Masuk (sign-in) ─────────────────────────────────────────────────────────────────────────── */
 .masuk-form { margin: 18px 0 0; }
 /* Wraps rather than shrinking the input: at a phone width an email field and a send button do not

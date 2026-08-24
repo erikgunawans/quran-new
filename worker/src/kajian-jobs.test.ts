@@ -113,6 +113,16 @@ describe("youTubeVideoId accepts only the queue's supported URL forms", () => {
     ["shorts", `https://youtube.com/shorts/${goodId}`],
     ["www shorts", `https://www.youtube.com/shorts/${goodId}`],
     ["m shorts", `http://m.youtube.com/shorts/${goodId}`],
+    // THE SHAPE THIS QUEUE EXISTS FOR, and the one it refused until 2026-08-24. A kajian is usually
+    // streamed before it is a recording, and YouTube hands out `/live/<id>` for exactly those — so
+    // the first real paste an admin made was rejected with `invalid_url`, no D1 row, no queue row.
+    ["live", `https://youtube.com/live/${goodId}`],
+    ["www live", `https://www.youtube.com/live/${goodId}`],
+    ["m live", `http://m.youtube.com/live/${goodId}`],
+    ["live with a share param", `https://www.youtube.com/live/${goodId}?si=xYz123`],
+    ["embed", `https://www.youtube.com/embed/${goodId}`],
+    // Same video, same id, different front door — what the YouTube Music app copies.
+    ["music host", `https://music.youtube.com/watch?v=${goodId}`],
   ])("%s returns the 11-character video id", (_name, raw) => {
     expect(youTubeVideoId(raw)).toBe(goodId);
   });
@@ -140,6 +150,23 @@ describe("youTubeVideoId accepts only the queue's supported URL forms", () => {
   test("rejects anything longer than 2048 characters before parsing", () => {
     const long = `https://www.youtube.com/watch?v=${goodId}&pad=${"a".repeat(2050)}`;
     expect(youTubeVideoId(long)).toBeNull();
+  });
+
+  // WIDENING THE SHAPES MUST NOT WIDEN WHAT COUNTS AS AN ID. Every accepted prefix runs the same
+  // `YOUTUBE_ID` test as `?v=`, and these prove it rather than assert it — without them, admitting
+  // `live` and `embed` would look identical to admitting `/live/<anything>`.
+  test.each([["shorts"], ["live"], ["embed"]])("%s still refuses a malformed id", (prefix) => {
+    expect(youTubeVideoId(`https://www.youtube.com/${prefix}/short`)).toBeNull();
+    expect(youTubeVideoId(`https://www.youtube.com/${prefix}/way-too-long-to-be-an-id`)).toBeNull();
+    expect(youTubeVideoId(`https://www.youtube.com/${prefix}/has.a.dot!`)).toBeNull();
+  });
+
+  test("a prefix that is not a video shape is still refused", () => {
+    // A channel page and a playlist are the two things an admin is most likely to paste BY MISTAKE,
+    // and neither is a video. They must stay refused, or the runner receives a job it cannot fetch.
+    expect(youTubeVideoId("https://www.youtube.com/@SomeChannel/videos")).toBeNull();
+    expect(youTubeVideoId("https://www.youtube.com/playlist?list=PL1234567890")).toBeNull();
+    expect(youTubeVideoId(`https://www.youtube.com/live/${goodId}/extra`)).toBeNull();
   });
 });
 

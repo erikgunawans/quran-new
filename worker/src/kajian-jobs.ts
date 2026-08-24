@@ -49,10 +49,29 @@ const YOUTUBE_HOSTS = new Set([
   "youtube.com",
   "www.youtube.com",
   "m.youtube.com",
+  // Same video, same id, different front door — a link copied from the YouTube Music app resolves to
+  // exactly the `?v=` shape below. Admitting the host costs nothing: the id is extracted and
+  // validated by the identical path, so nothing new is trusted.
+  "music.youtube.com",
   "youtu.be",
   "www.youtu.be",
   "m.youtu.be",
 ]);
+
+/**
+ * Path prefixes that carry the video id as the SECOND segment: `/<prefix>/<id>`.
+ *
+ * `live` IS THE ONE THIS FEATURE ACTUALLY NEEDS, and it was missing. A kajian is very often streamed
+ * before it is a recording, and YouTube hands out `youtube.com/live/<id>` for exactly those — so the
+ * URL shape this queue exists to accept was the one shape it refused, with the generic `invalid_url`
+ * that tells the admin nothing. Reported by Erik 2026-08-24 after a paste was rejected; the queue had
+ * no row and D1 had no row, which is what pointed at the parser rather than at the write.
+ *
+ * `embed` rides along because it is the same `/<prefix>/<id>` shape and is what a copied iframe holds.
+ * Every one of these is validated by the SAME `YOUTUBE_ID` test as `?v=`, so widening the accepted
+ * SHAPES does not widen what counts as an id.
+ */
+const ID_IN_SECOND_SEGMENT = new Set(["shorts", "live", "embed"]);
 
 function isKajianJobStatus(value: unknown): value is KajianJobStatus {
   return value === "queued" || value === "running" || value === "done" || value === "failed";
@@ -133,7 +152,8 @@ export function youTubeVideoId(raw: string): string | null {
     }
 
     const parts = url.pathname.split("/").filter((part) => part !== "");
-    if (parts.length === 2 && parts[0] === "shorts") {
+    const prefix = parts[0];
+    if (parts.length === 2 && prefix !== undefined && ID_IN_SECOND_SEGMENT.has(prefix)) {
       const id = parts[1];
       return id !== undefined && YOUTUBE_ID.test(id) ? id : null;
     }

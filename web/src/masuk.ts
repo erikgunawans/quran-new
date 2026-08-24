@@ -125,7 +125,7 @@ export function requestOutcome(payload: unknown): RequestOutcome {
     return {
       notice:
         "Masuk belum bisa dipakai di server ini — kuncinya belum dipasang. " +
-        "Ini urusan pengelola aplikasi, bukan kesalahan Anda.",
+        "Ini urusan pengelola aplikasi, bukan kesalahanmu.",
       tone: "error",
     };
   }
@@ -138,7 +138,7 @@ export function requestOutcome(payload: unknown): RequestOutcome {
     };
   }
   return {
-    notice: "Tautan masuk sudah dikirim. Buka email Anda — tautannya berlaku 15 menit.",
+    notice: "Tautan masuk sudah dikirim. Cek emailmu — tautannya berlaku 15 menit.",
     tone: "info",
   };
 }
@@ -201,7 +201,7 @@ function formHtml(notice: string, tone: "info" | "error", submitting: boolean): 
       <header class="tematik-head">
         <div class="tematik-head-l">
           <h1 class="qk-hero-gradient tematik-title">Masuk</h1>
-          <p class="tematik-sub">Masukkan email Anda dan kami kirimkan tautan masuk. Tidak ada kata sandi.</p>
+          <p class="tematik-sub">Masukkan emailmu dan aku kirimkan tautan masuk. Tidak ada kata sandi.</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
@@ -228,9 +228,9 @@ function formHtml(notice: string, tone: "info" | "error", submitting: boolean): 
  * to it is the part people are right to be wary of.
  */
 export const MASUK_NOTE =
-  "Masuk hanya untuk menyimpan catatan dan penanda Anda di beberapa perangkat. " +
+  "Masuk hanya untuk menyimpan catatan dan penandamu di beberapa perangkat. " +
   "Seluruh isi Al-Qur'an, terjemahan, dan rangkuman tetap terbuka tanpa masuk. " +
-  "Kami hanya menyimpan alamat email Anda.";
+  "Yang aku simpan hanya alamat emailmu.";
 
 function signedInHtml(view: SessionView): string {
   // The ROLE is shown only when it is not `member`, and only as a plain word. An Administrator or a
@@ -246,7 +246,7 @@ function signedInHtml(view: SessionView): string {
       <header class="tematik-head">
         <div class="tematik-head-l">
           <h1 class="qk-hero-gradient tematik-title">Akun</h1>
-          <p class="tematik-sub">Anda sudah masuk.</p>
+          <p class="tematik-sub">Kamu sudah masuk.</p>
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
@@ -267,7 +267,7 @@ function signedInHtml(view: SessionView): string {
  * here would be the kind of nominal compliance this codebase refuses elsewhere.
  */
 export const LOGOUT_NOTE =
-  "Keluar menghapus sesi di perangkat ini. Catatan dan penanda Anda tetap tersimpan.";
+  "Keluar menghapus sesi di perangkat ini. Catatan dan penandamu tetap tersimpan.";
 
 /**
  * Render the sign-in surface for the current hash.

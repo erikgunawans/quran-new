@@ -207,6 +207,20 @@ function jobsHtml(jobs: readonly KajianJob[], jobsNote: string): string {
   return `<div class="kajian-grid">${jobs.map(jobRow).join("")}</div>`;
 }
 
+/**
+ * Turn a `Retry-After` seconds value into something a person can act on.
+ *
+ * Bounded and checked rather than trusted: a missing, non-numeric or negative header degrades to a
+ * sentence that promises nothing, because "coba lagi dalam NaN jam" is worse than saying less.
+ */
+function retryHint(retryAfter: string | null): string {
+  const seconds = Number(retryAfter);
+  if (!Number.isFinite(seconds) || seconds <= 0) return "Coba lagi nanti.";
+  if (seconds < 3600) return `Coba lagi sekitar ${Math.ceil(seconds / 60)} menit lagi.`;
+  const hours = Math.ceil(seconds / 3600);
+  return hours >= 20 ? "Coba lagi besok." : `Coba lagi sekitar ${hours} jam lagi.`;
+}
+
 function renderAdminShell(mount: HTMLElement, state: AdminKajianState): HTMLFormElement | null {
   const noticeToneClass = state.noticeTone === "error" ? "kajian-unreviewed" : "kajian-has-audio";
   mount.innerHTML = `
@@ -218,20 +232,34 @@ function renderAdminShell(mount: HTMLElement, state: AdminKajianState): HTMLForm
         </div>
         <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
       </header>
-      <form data-admin-kajian-form>
-        <label class="kajian-channel" for="admin-kajian-url">URL video</label>
-        <div class="kajian-card-foot">
+      <form class="admin-kajian-form" data-admin-kajian-form>
+        <label class="admin-kajian-label" for="admin-kajian-url">URL video</label>
+        <div class="admin-kajian-row">
           <input
             id="admin-kajian-url"
             name="url"
             type="url"
             inputmode="url"
-            autocomplete="url"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="admin-kajian-hint"
             placeholder="https://www.youtube.com/watch?v=..."
             required
           />
-          <button type="submit"${state.submitting ? " disabled" : ""}>Masukkan ke antrean</button>
+          <button type="submit"${state.submitting ? " disabled" : ""}>${
+            state.submitting ? "Mengirim…" : "Masukkan ke antrean"
+          }</button>
         </div>
+        <!-- NAMES THE ACCEPTED SHAPES, because the refusal could not. A rejected paste used to say
+             "gunakan alamat http(s) video yang valid" to an admin who had pasted exactly that — the
+             message was true and told him nothing. The shapes belong BEFORE the mistake, not after. -->
+        <p class="admin-kajian-hint" id="admin-kajian-hint">
+          Bisa tautan biasa, siaran langsung, atau Shorts — misalnya
+          <code>youtube.com/watch?v=…</code>, <code>youtube.com/live/…</code>, <code>youtu.be/…</code>.
+          Tautan channel atau playlist belum bisa diproses.
+        </p>
       </form>
       <p class="${noticeToneClass}" role="status">${esc(state.notice)}</p>
       <section aria-label="Status antrean kajian">
@@ -305,7 +333,26 @@ export async function renderAdminKajian(
         } else if (res.status === 400) {
           state = {
             ...state,
-            notice: "URL ditolak. Gunakan alamat http(s) video yang valid.",
+            notice:
+              "URL itu belum bisa aku proses. Yang bisa: tautan video, siaran langsung, atau Shorts — " +
+              "bukan tautan channel atau playlist.",
+            noticeTone: "error",
+            submitting: false,
+          };
+        } else if (res.status === 429) {
+          // THE BRANCH THAT WAS MISSING. A spent daily allowance fell through to the generic "tidak
+          // tersedia pada sesi ini", which reads as a broken feature — while the Worker had gone to
+          // the trouble of answering 429 with a `Retry-After` precisely so the UI could say WHEN.
+          // Nothing is wrong on either side here; the admin just has to come back.
+          //
+          // THE WAIT IS READ OFF `Retry-After`, NOT FROM A COPY OF `MAX_JOBS_PER_DAY`. The ceiling
+          // lives in `worker/src/kajian-jobs.ts` and `web/` cannot import from `worker/` — so a
+          // number typed here would be a second source of truth that drifts the day Erik changes the
+          // real one, silently, with no test able to see it across the build-graph boundary. The
+          // header is what the Worker actually sent, so it cannot disagree with the Worker.
+          state = {
+            ...state,
+            notice: `Jatah antrean sudah habis untuk sekarang. ${retryHint(res.headers.get("retry-after"))}`,
             noticeTone: "error",
             submitting: false,
           };
