@@ -1238,6 +1238,18 @@ export function wordingShape(prose: string): string | null {
 export interface EchoVerse {
   readonly ref: string;
   readonly texts: readonly string[];
+  /**
+   * WHERE this verse came from, which decides WHICH FLOOR applies to it.
+   *
+   * `"retrieved"` (the default, and what every pre-existing caller means) is an ayah retrieval
+   * actually handed this turn. The turn is grounded on it, so a long shared run is strong evidence
+   * of copying and `ECHO_MIN_RUN` applies.
+   *
+   * `"cited"` is an ayah the PROSE named that retrieval never returned. It is not grounding — it is
+   * an anchor the model chose — so it carries `ECHO_MIN_RUN_CITED` instead. See that constant for
+   * the measurement that separates the two.
+   */
+  readonly origin?: "retrieved" | "cited";
 }
 
 /**
@@ -1252,6 +1264,38 @@ export interface EchoVerse {
  * moving this to 3 refuses a real answer that this project has on record as one it wants to keep.
  */
 const ECHO_MIN_RUN = 4;
+
+/**
+ * The same question for an ayah the PROSE CITED that retrieval never handed the turn — SIX, and the
+ * gap from four is measured, not padding.
+ *
+ * WHY A SECOND NUMBER AT ALL. `ECHO_MIN_RUN = 4` was calibrated against RETRIEVED verses, where the
+ * anchor is relevant to the turn by construction. Arming the wall from cited ayahs changes what the
+ * constant is doing: every extra anchor is another chance for an ordinary Indonesian phrase to
+ * collide with a translation the answer never copied. Re-using four here is not the conservative
+ * choice — it is a different rule wearing the old number.
+ *
+ * THE MEASUREMENT (16 live turns, 2026-08-24, `src/eval/echo-widen.ts`; full record in
+ * `docs/review/echo-widening-2026-08-24-cycle15.md`). Newly-refused turns by floor:
+ *
+ *     run≥4 → 5    run≥5 → 3    run≥6 → 2    run≥7 → 2    run≥8 → 0
+ *
+ * At FOUR the two extra refusals matched `laki laki dan perempuan` (against QS 24:32) and
+ * `di sisi allah adalah` (against QS 49:13) — generic Indonesian, in sentences reproducing nothing
+ * of their anchors. ⚠️ The second destroyed `bolehkah perempuan jadi pemimpin`, which this codebase
+ * names as an answer a hard egress rule must not destroy. At SIX both of those survive and the
+ * QS 66:6 rows at `run 7` — the shape ISC-419 was re-opened for — still fire.
+ *
+ * EIGHT is the ceiling: at eight nothing fires at all, including QS 66:6. So the usable band is six
+ * to seven and six is its floor, chosen because a floor keeps the rule as sensitive as the evidence
+ * allows rather than as insensitive as it can get away with.
+ *
+ * ⚠️ LIMITS, because a number this load-bearing must carry them. n = 16 turns from 8 questions is a
+ * measured SET, not a class, and the 5→6 boundary rests on ONE borderline row (QS 2:275 at run 5,
+ * deliberately unclassified). An UNCITED rendering is invisible at any floor. Re-price this constant
+ * against a wider sample before treating it as settled.
+ */
+const ECHO_MIN_RUN_CITED = 6;
 
 /** Words, lower-cased and stripped of punctuation. No stemming — see `scriptureEchoShape`. */
 export const echoWords = (s: string): string[] =>
@@ -1313,15 +1357,23 @@ export function scriptureEchoShape(prose: string, verses: readonly EchoVerse[]):
     const sentence = raw.trim();
     if (!sentence) continue;
     const words = echoWords(sentence);
-    if (words.length < ECHO_MIN_RUN) continue;
+    // The shortest floor any verse in this set could impose — a sentence below it cannot trip ANY
+    // verse, so it is skipped. Computed from the set rather than pinned to `ECHO_MIN_RUN`, because
+    // pinning it would silently re-impose the retrieved floor on a cited-only set.
+    if (words.length < Math.min(...verses.map(floorFor))) continue;
     for (const v of verses) {
+      const floor = floorFor(v);
+      if (words.length < floor) continue;
       for (const text of v.texts) {
-        if (sharedRun(words, echoWords(text)) >= ECHO_MIN_RUN) return sentence;
+        if (sharedRun(words, echoWords(text)) >= floor) return sentence;
       }
     }
   }
   return null;
 }
+
+/** A verse's floor. Absent `origin` means `"retrieved"` — what every pre-existing caller passes. */
+const floorFor = (v: EchoVerse): number => (v.origin === "cited" ? ECHO_MIN_RUN_CITED : ECHO_MIN_RUN);
 
 /**
  * Deferral CONSTRUCTIONS — the grammar of handing the question to a human, not a vocabulary of
