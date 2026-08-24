@@ -49,10 +49,23 @@ bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0004_kaji
 bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0005_tts_runs.sql
 ```
 
-⚠️ **0005 IS NOT YET APPLIED TO REMOTE.** It creates `tts_runs`, the TTS spend ceiling's storage. A
-hosted runner that charges against a table that does not exist gets an error from the Worker and — by
-design — REFUSES TO SPEND, so the failure is a stopped pipeline rather than an uncapped bill. Apply it
-before starting a hosted runner.
+✅ **0005 APPLIED TO REMOTE 2026-08-25.** `tts_runs` exists on `new-quranku-memory` with the compound
+key in the right order (`day` pk 1, `run_id` pk 2, `charged_at` NOT NULL), verified by `PRAGMA
+table_info` and by running the Worker's own conditional INSERT against the live database and deleting
+the probe row (`remaining: 0`).
+
+⚠️ **`d1_migrations` DOES NOT LIST 0005 — and it never listed a hand-applied file.** All five were
+applied with `--file`, not `wrangler d1 migrations apply`, so that table records only 0001-0004. It
+under-reports, and it has already been observed printing what it does hold OUT OF ORDER
+(`0001, 0003, 0004, 0002`). **Read the schema, never that table**, when you need to know what is
+applied:
+
+```
+bunx wrangler d1 execute new-quranku-memory --remote --command \
+  "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+```
+
+Re-running 0005 is safe (`CREATE TABLE IF NOT EXISTS`).
 
 **In that order, and 0004 after 0003.** 0003 is `CREATE TABLE IF NOT EXISTS`; 0004 is `ALTER TABLE`
 and will fail loudly if 0003 has not run. That failure is correct — it means the table is missing,
