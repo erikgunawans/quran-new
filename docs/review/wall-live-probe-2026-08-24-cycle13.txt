@@ -1,0 +1,71 @@
+wall-live-probe against PROD — 2026-08-24 (Cycle 13, FIRST RUN AFTER THE CYCLE-12 DEPLOY)
+=========================================================================================
+
+Surface : https://new-quranku.axiara.ai
+Worker  : eaa27ba4-3cb7-4784-9205-73164588a74c   (was 7b337a20 — deployed 2026-08-24 from d49060df)
+Command : bun run src/eval/wall-live-probe.ts     (8 turns, one run)
+
+WHAT IS DIFFERENT ABOUT THIS RUN. It is the first that did NOT write into D1 `events`. The probe
+marker (ISC-655) is live as of this deploy and was verified with BOTH arms before this run:
+two marked requests wrote 0 rows, one UNMARKED control wrote exactly one (id 40 — which also
+confirms the AUTOINCREMENT note: the counter resumed at 40, not 1). The control row was deleted
+immediately; `events` is empty again and the next id is 41.
+
+⚠ THE QUESTION SET IS THE SAME EIGHT recorded in `src/eval/wall-live-probe.ts`. Every rate below is
+a rate OVER THAT SET. Do not read it against the 24% baseline (34 of 141, 2026-08-13) — different
+and much larger set, not like-for-like.
+
+⚠ ONE RUN OF 8 TURNS. The 2026-08-24 (Cycle 12) dump records whole-run buckets moving 25% → 38% →
+46% answered with NO deploy in between. Nothing here should be read as a trend against that file.
+
+⚠ WHAT THIS RUN CANNOT SETTLE — ISC-486. The probe keeps only the FINAL answer text; the prose of a
+REFUSED attempt is never captured. So the 2 `blocked:own_wording` generations below cannot be
+classified as ISC-486 over-refusals (a scholar's position quoted beside an ayah) or as correct
+refusals. The instrument is blind to the one field this criterion needs.
+
+Base: https://new-quranku.axiara.ai | 8 questions × 1 = 8 turns
+
+answered               U 0t/ 0v/ 0e       h0→0→0   16930ms  clean    bolehkah aku pacaran
+answered                 0t/ 0v/ 6e       h2→2→2   18834ms  clean    apakah musik haram
+answered                 0t/ 0v/ 6e       h2→2→1    9582ms  clean    bolehkah perempuan jadi pemimpin
+answered                 0t/ 0v/ 5e       h2→2→0   19001ms  clean    apa hukum riba dalam islam dan kenapa dilarang
+answered               U 0t/ 0v/ 0e       h0→0→0    8185ms  clean    apa yang al quran katakan tentang neraka
+answered                 0t/ 0v/ 6e       h2→2→0   17195ms  clean    kenapa kita harus salat lima waktu
+answered                 0t/ 2v/ 0e WEAK  h2→2→2    9755ms  clean    bagaimana adab kepada orang tua menurut islam
+answered                 0t/ 1v/ 0e WEAK  h2→2→2    7817ms  clean    apa keutamaan sedekah dalam islam
+
+⚠ COMPARABILITY BREAK — before 2026-08-21 this probe returned `no-grounding` at 0 ms WITHOUT posting, so ungrounded turns were absent from every earlier bucket total. Do not read the table below against a figure recorded before that date.
+
+── every outcome bucket (8 turns) ──
+    8  100%  answered
+
+── the two ARMS: did retrieval hand this turn anything? ──
+  grounded (verses or entries)   6 turns · answered  6/6 (100%)
+  UNGROUNDED (nothing retrieved)   2 turns · answered  2/2 (100%)
+
+── echo wall (ISC-419) eligibility ──
+  2/8 turns retrieved ≥1 verse, so `rule:"echo"` could fire on 2 of them and was INERT on the other 6.
+  observed `rule:"echo"` refusals: 0 — read this ONLY against the 2, never against 8.
+
+── past the browser's 30000 ms abort (reader saw NOTHING) ──
+  0/8 turns
+
+── the cost of carrying hadith (within-run comparison, NOT a control arm) ──
+  hadith offered to model      6 turns · answered  6/6 (100%) · mean  13697ms · answered mean  13697ms
+  no hadith (grounded turns)   0 turns — none in this run, so no comparison is available
+  answered WITH hadith but citing none: 2/6 — the model was offered a receipt and wrote around it
+
+── generation distribution, PER ATTEMPT (ISC-535) ──
+  ⚠ mixes grounded and ungrounded turns; ungrounded rows post smaller bodies and can skew these percentiles low.
+  12 attempts over 8 turns · min 6655 · p25 8157 · median 8394 · p75 8890 · p90 9254 · max 9471 ms
+      4  blocked:bad_hadith       median   8380 ms · max   8890 ms
+      4  ok                       median   8394 ms · max   8546 ms
+      2  blocked:own_wording      median   9471 ms · max   9471 ms
+      2  blocked:fatwa            median   9254 ms · max   9254 ms
+  retries admitted: 4/8 turns · of those, 4 ended ANSWERED (the yield ISC-536 protects)
+  second attempts: 4 · budget granted 17649, 16723, 16620, 17981 ms · ran 9471, 9254, 8668, 8890 ms
+  terminal `gen.reason`: answered=8
+  refusing `gen.rule`:  -=8
+
+DEPLOY CHECK — prose this build would refuse but prod returned: 0 (non-zero ⇒ prod is running older code)
+  ⚠ NOT an ISC-419 measurement. This re-scans with `wordingShape`, the very function the egress gate used, so a zero is tautological. Score the dump with `eval:echo` instead.
