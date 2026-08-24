@@ -4,6 +4,71 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (close) — PROD IS DEPLOYED, D1 exists, sign-in is one secret away
+
+Anchor: **`origin/main` `c425e1e`**, verified with `git ls-remote`. Two commits since the morning
+checkpoint: `b54a7d2` (create + migrate D1) and `c425e1e` (bind `DB`).
+
+### ⚠️ PROD WAS DEPLOYED — read this before assuming anything is unshipped
+
+Live Worker is now **`8634ed83-9036-4f5e-9422-85bc5ef85dc0`**, deployed 2026-08-23T23:48Z
+(06:48 Jakarta, 24th), superseding **`641f8ae2`** which had been live since the 23rd. It shipped
+**22 commits, 44 files, 6,402 insertions** — everything from `44ed447` to `c425e1e`. The whole
+range was diffed BEFORE the deploy, not after: nothing in it touches scripture, answers or hadith.
+It is the kajian runner surface, the Darussalam rights scrub, the sign-in surface and the play
+button.
+
+**Previous handoffs said "nothing is deployed". That is now FALSE and must not be carried forward.**
+
+### The D1 database exists
+
+`new-quranku-memory`, id `caa07809-f6d4-4d8e-92bb-98400f3e08de`, region **APAC**. All four
+migrations applied to REMOTE and verified by reading `sqlite_master` and `pragma_table_info` rather
+than trusting the ✅: `events`, `bookmarks`, `notes`, `reading_position`, `accounts`, `kajian_jobs`
+plus all nine of 0004's `ALTER TABLE` columns.
+
+⚠️ `wrangler d1 migrations list` printed them **0001, 0003, 0004, 0002** — NOT sorted. The SQL was
+read first to confirm the only real ordering constraint (0004 ALTERs the table 0003 creates) held
+and that nothing carries a `REFERENCES` clause. It applied in sorted order regardless.
+
+The account already held `quranku-uat` and `new-quranku-demo-memory`; neither is this one. The name
+came from the config's own commented block.
+
+### `DB` is bound; `KAJIAN` is not — Erik's call, a departure from ISC-617
+
+ISC-617 says bind these in the SAME change that brings the runner up. Erik chose otherwise, knowing
+the cost, and it is written into `wrangler.toml` beside the binding: **the admin queue now accepts
+jobs nothing can drain**, because `/api/runner/*` needs `RUNNER_SECRET` (unset → 403 to everyone)
+and `KAJIAN` (unbound; the bucket does not exist). A queued job sits `queued` indefinitely.
+
+### ⚠️ The secret, not the binding, is the switch that logs questions
+
+`index.ts:671` calls `recordEvent(env.DB, identity.userId, "question", { question }, …)` — it
+persists **the text of every question a reader asks**. It is gated on `identity.userId`, and
+`ensureIdentity` returns `{ userId: null }` whenever `IDENTITY_HMAC_SECRET` is unset
+(`identity.ts:69`). So binding `DB` changed nothing a reader can observe; **setting that secret is
+what starts storing questions**, and the same secret is required for sign-in. Recorded next to the
+cause in `wrangler.toml`, not left to be discovered.
+
+### Verified live on prod, not inferred
+
+| check | result |
+|---|---|
+| `/kajian/index.json` | `application/json`, `{"items":[]}` — a REAL route now, not the SPA fallback |
+| `/api/admin/kajian/jobs` | 403 — `ADMIN_EMAILS` unset, fails closed |
+| `/api/runner/kajian/claim` | 403 — `RUNNER_SECRET` unset |
+| `#/masuk` | renders; submitting gives *"kuncinya belum dipasang"*, the honest branch |
+| `#/surah/1` | Al-Fatihah + Dorar preface intact |
+| `#/kajian` | empty state, provenance note intact |
+
+Pre-flight: no `.DS_Store` in dist, `synthesis` literal inlined, bundle matched HEAD.
+
+### Next
+
+Three secrets (Erik's, hidden prompt, **no redeploy needed**), then the answer-wall cluster.
+
+---
+
 ## 2026-08-24 — the play button, and the sign-in that was never built
 
 Anchor: **`origin/main` `acdde8b`**, verified with `git ls-remote`, never a push pipe. Session began
