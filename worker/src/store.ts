@@ -12,8 +12,22 @@ export interface D1Result<T = unknown> {
   results: T[];
   success: boolean;
 }
+/**
+ * What D1 reports about a write. `meta.changes` is the row count the statement actually affected —
+ * the only honest way to tell a conditional INSERT that inserted from one that was ignored.
+ *
+ * Optional throughout, because a test double is entitled not to model it; a caller that needs it must
+ * treat its absence as "unknown", never as zero.
+ */
+export interface D1RunResult {
+  meta?: { changes?: number };
+}
 export interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
+  // Typed `unknown` and NOT `D1RunResult`, deliberately. Several test doubles in this repo return a
+  // `D1Result` from `run()`, and narrowing this would force every one of them to change to satisfy a
+  // field exactly one caller reads. `chargeTtsRunD1` narrows it at the read site instead, where a
+  // missing `meta` degrades to "no rows changed" rather than to a wrong verdict.
   run(): Promise<unknown>;
   all<T = unknown>(): Promise<D1Result<T>>;
   first<T = unknown>(column?: string): Promise<T | null>;

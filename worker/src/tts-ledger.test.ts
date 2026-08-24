@@ -22,8 +22,11 @@ function d1(db: Database): D1Database {
           return stmt;
         },
         async run() {
-          db.query(sql).run(...(args as never[]));
-          return {};
+          // `meta.changes` is not decoration: `chargeTtsRunD1` reads it to tell an INSERT that
+          // inserted from one `OR IGNORE` swallowed. A façade that omitted it would report every
+          // charge as un-charged and the idempotence tests would pass for the wrong reason.
+          const { changes } = db.query(sql).run(...(args as never[]));
+          return { meta: { changes } };
         },
         async all<T>() {
           return { results: db.query(sql).all(...(args as never[])) as T[], success: true };
@@ -112,6 +115,18 @@ describe("the ceiling", () => {
     const v = await chargeTtsRunD1(store, "run-1", new Date("2026-08-25T18:00:00Z"));
     expect(v.charged).toBe(true);
     expect(v.used).toBe(1);
+  });
+
+  /**
+   * REGRESSION. `charged` was first derived by comparing the stored `charged_at` to this call's clock,
+   * which is correct only when the two calls land in different milliseconds. Inside one millisecond
+   * the second narration reported `charged: true` having inserted nothing — a verdict saying money was
+   * spent when none was. Same `now` on purpose; the fix reads `meta.changes` from the write itself.
+   */
+  test("two charges of one run in the SAME millisecond: the second is not charged", async () => {
+    expect((await chargeTtsRunD1(store, "run-1", NIGHT)).charged).toBe(true);
+    expect((await chargeTtsRunD1(store, "run-1", NIGHT)).charged).toBe(false);
+    expect(db.query("SELECT COUNT(*) AS n FROM tts_runs").get()).toEqual({ n: 1 });
   });
 
   test("the limit is a parameter, so the gate can be forced RED", async () => {

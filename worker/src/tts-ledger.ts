@@ -29,7 +29,7 @@
  * The day key is computed HERE and never read off the request. A runner that supplied its own could
  * reset its allowance by lying about the date.
  */
-import type { D1Database } from "./store.ts";
+import type { D1Database, D1RunResult } from "./store.ts";
 
 /**
  * Erik's ruling, 2026-08-24. The one number both ledgers exist to enforce.
@@ -74,8 +74,8 @@ export interface TtsCharge {
 
 interface ChargeRow {
   readonly used: unknown;
-  /** NULL when the run is not on today's ledger — i.e. the ceiling refused it. */
-  readonly charged_at: unknown;
+  /** 0 when the run is not on today's ledger — i.e. the ceiling refused it. */
+  readonly present: unknown;
 }
 
 const asInt = (v: unknown): number => (typeof v === "number" ? v : Number(v ?? 0));
@@ -93,34 +93,38 @@ export async function chargeTtsRunD1(
   limit: number = TTS_RUNS_PER_DAY,
 ): Promise<TtsCharge> {
   const day = jakartaDayKey(now);
-  const ts = now.getTime();
 
   // The gate. `OR IGNORE` makes the repeat charge of the same run a no-op; the `WHERE` makes a NEW
   // run past the ceiling a no-op too. Both no-ops, different reasons — the SELECT below tells them
   // apart, because one is ALLOWED (the run is already on the ledger) and the other is REFUSED.
-  await db
+  const write = await db
     .prepare(
       "INSERT OR IGNORE INTO tts_runs (day, run_id, charged_at) " +
         "SELECT ?1, ?2, ?3 WHERE (SELECT COUNT(*) FROM tts_runs WHERE day = ?1) < ?4",
     )
-    .bind(day, runId, ts, limit)
+    .bind(day, runId, now.getTime(), limit)
     .run();
 
   const row = await db
     .prepare(
       "SELECT (SELECT COUNT(*) FROM tts_runs WHERE day = ?1) AS used, " +
-        "(SELECT charged_at FROM tts_runs WHERE day = ?1 AND run_id = ?2) AS charged_at",
+        "(SELECT COUNT(*) FROM tts_runs WHERE day = ?1 AND run_id = ?2) AS present",
     )
     .bind(day, runId)
     .first<ChargeRow>();
 
-  const chargedAt = row?.charged_at ?? null;
   // PRESENT means allowed: the run is on today's ledger, whether this call put it there or its first
-  // narration did. `charged` is read off the row's own timestamp rather than off `meta.changes`, so
-  // it stays correct against a D1 shim that does not surface change counts.
+  // narration did.
+  //
+  // ⚠️ `charged` is read off `meta.changes` and NOT off the row's timestamp. An earlier cut compared
+  // `charged_at` to this call's `now` — and a route test caught it inside the same millisecond, where
+  // the second narration of a run reported `charged: true` having inserted nothing. A verdict that
+  // says money was spent when none was is worse than no verdict, so it is derived from the write
+  // itself; where the double does not report changes, it stays false rather than guessing.
+  const present = asInt(row?.present) > 0;
   return {
-    allowed: chargedAt !== null,
-    charged: chargedAt !== null && asInt(chargedAt) === ts,
+    allowed: present,
+    charged: present && asInt((write as D1RunResult | null)?.meta?.changes) > 0,
     used: asInt(row?.used),
     limit,
     day,
