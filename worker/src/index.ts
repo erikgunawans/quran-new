@@ -91,6 +91,7 @@ import {
 import { maybeDistill, readProfile, deleteProfile, type KVNamespace } from "./distill.ts";
 import { isValidEmail, normalizeEmail, signMagicToken, verifyMagicToken, sendMagicLink } from "./auth.ts";
 import { signSession, buildAuthCookie, clearAuthCookie, roleForRequest, type Role } from "./session.ts";
+import { isProbeRequest } from "./probe-marker.ts";
 
 export interface Env {
   /** Encrypted secret — `wrangler secret put OPENROUTER_API_KEY`. */
@@ -668,7 +669,12 @@ async function handleAnswer(request: Request, env: Env, ctx: ExecutionContext, i
 
   // Memory (issue 02): log the question to the raw layer — deferred so it never delays the answer, and
   // best-effort so a D1 hiccup can't break the response. Only the question text is stored, no PII.
-  if (env.DB && identity.userId && question) {
+  //
+  // `isProbeRequest` is the LAST condition on purpose: it suppresses a write and nothing else, so it
+  // must not be able to influence anything evaluated before it. See `probe-marker.ts` — an instrument
+  // gets an anonymous `userId` exactly like a reader does, which is how 39 probe turns ended up in
+  // `events` as reader traffic (ISC-655).
+  if (env.DB && identity.userId && question && !isProbeRequest(request)) {
     ctx.waitUntil(recordEvent(env.DB, identity.userId, "question", { question }, Date.now()).catch(() => {}));
   }
   // Bound it, THEN prove it is ours. Forged grounding is dropped here, before the model ever sees it.

@@ -244,7 +244,13 @@ async function turn(p: Probe): Promise<Row> {
   try {
     const res = await realFetch(`${BASE}/api/answer`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
+      // ISC-655 — DECLARE THAT THIS IS AN INSTRUMENT. Without it the Worker logs every question
+      // below into D1 `events` exactly as if a reader had asked it: an unauthenticated POST still
+      // resolves an anonymous `identity.userId`. Measured 2026-08-24, that put 39 rows across 36
+      // distinct ids into the table with not one reader among them, and they had to be deleted by
+      // hand. The header suppresses that one write and nothing else — it cannot change the answer,
+      // and the Worker's side of it is `worker/src/probe-marker.ts`.
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-cache", "X-QuranKu-Probe": "1" },
       // `weakVerses` must be sent or this probe silently measures the OLD cascade: the Worker reads
       // it as a strict `=== true`, so an omission is indistinguishable from "the Qur'an lane
       // answered properly" and the hadith lane stays shut. The probe posts the body the browser
