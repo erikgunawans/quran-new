@@ -158,8 +158,60 @@ the Worker**, which would otherwise have been the simplest possible host: no VPS
 proxy. It was tested rather than assumed, and the control arm is what makes the 429 mean "YouTube
 refuses this IP" rather than "the request was malformed".
 
-So a hosted runner needs residential egress — a proxy or exported cookies — **whatever cloud it runs
-in**. Cloudflare, Cloud Run and a datacentre VPS are all the same arm of that table.
+#### Google Cloud Run, measured separately — because the sentence that stood here was an overclaim
+
+The line above originally read *"Cloudflare, Cloud Run and a datacentre VPS are all the same arm of
+that table."* **That was a universal asserted from ONE arm** — only Cloudflare had been measured — and
+it is the shape this repo files under `impossibility-is-a-quantifier`. Cloud Run was then measured,
+and the conclusion survives while the reasoning behind it does not: **the two clouds fail at
+DIFFERENT gates, and Cloud Run gets materially further.**
+
+| Host | `GET /watch` | InnerTube key extractable | `yt-dlp --list-subs` |
+|---|---|---|---|
+| Cloudflare edge | **429**, 1,947 bytes | no — never reachable | n/a, blocked before |
+| **Cloud Run** (asia-southeast2) | **200**, ~1.2 MB | **yes** | **`Sign in to confirm you're not a bot`** |
+| Erik's residential IP | 200, ~1.26 MB | yes | full auto-caption list |
+
+⚠️ **The first probe of this was a BLIND INSTRUMENT and its result must not be cited.** It was a
+hand-rolled InnerTube call rather than the skill itself, and it reported `caption_tracks: 0` and
+`playability: UNPLAYABLE` for **every** video from **every** host — including "Me at the zoo" from
+Erik's own machine, which certainly has captions. A field that reads the same on the working arm and
+the broken one measures nothing. The table above uses **real `yt-dlp`** (with a `deno` runtime in the
+image, which current yt-dlp requires and whose absence is a container bug, not an IP symptom), and it
+is controlled: the SAME command from the residential IP returns the caption list.
+
+So the conclusion stands and is now earned: **a hosted runner needs residential egress — exported
+cookies (`--cookies`) or a residential proxy — and that is true on Cloud Run too.** What changes is
+the diagnosis you will see: Cloudflare dies with a 429 at the first request, Cloud Run gets a normal
+page and dies inside `yt-dlp` with the bot wall.
+
+#### If the runner is to live on Cloud Run
+
+Shape it as a **Cloud Run Job** driven by **Cloud Scheduler**, not a Service: the runner is a polling
+loop, and a Service that scales to zero has nothing to poll with, while a Service pinned at
+`min-instances=1` pays for idle. A Job that wakes, claims one item, processes it and exits matches
+both the queue's lease model (`CLAIM_LEASE_MS`, 2 h) and the billing model.
+
+Three things that are NOT obvious and each of which will bite:
+
+1. **The transcript skill is not in this repo.** `src/app/kajian.ts:205` spawns
+   `~/.claude/skills/baoyu-youtube-transcript/scripts/main.ts`, which lives in Erik's PAI directory.
+   A container has no such path. It has to be vendored into the image (or into this repo) before the
+   pipeline can run anywhere but his machine.
+2. **⚠️ THE TTS DAILY CEILING SILENTLY BECOMES UNLIMITED.** `chargeTtsRun` keeps its ledger in a local
+   file (`.kajian-tts-ledger.json`). Cloud Run gives every execution a fresh writable layer, so each
+   run reads an empty ledger, charges slot 1 of 30, and passes — **for ever**. The 30/day cap Erik set
+   on 2026-08-24 is a per-machine ceiling and it does not survive this move. Moving the ledger into
+   D1 (a `tts_runs` table keyed by local day) is the fix, and it must land in the SAME change that
+   deploys the runner, or the ceiling reads as covered and is not.
+3. **Cookies are a credential with an expiry.** `--cookies` means Erik's YouTube session in a secret,
+   rotated by hand when it lapses, and a bot-wall failure is what a lapse looks like. A residential
+   proxy costs money instead and does not expire. Neither is free; the choice is his.
+
+Also observed while testing: **`--allow-unauthenticated` is refused by the org policy on
+`axiara.ai`** — `gcloud run deploy` completes and then warns that setting the IAM policy failed, so
+the service exists but answers nobody. A Job invoked by Scheduler with a service account sidesteps
+that entirely, which is a second reason to prefer the Job shape here.
 
 #### The consequence: the recommended first host is Erik's own machine
 
