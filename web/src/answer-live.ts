@@ -21,11 +21,46 @@ import type { HadithCard } from "./hadith-card.ts";
  * deliberate withhold.
  */
 export class AnswerBlockedError extends Error {
-  constructor(readonly by: AnswerViolationKind) {
+  constructor(
+    readonly by: AnswerViolationKind,
+    /**
+     * HOW THE TURN ENDED, from the Worker's own `gen.reason` — the ONLY field that can tell a real
+     * refusal from an expired clock, and the reason ISC-533 was deferred rather than fixed.
+     *
+     * `by` cannot do it. `verdictAfterFailure` deliberately preserves attempt 1's guard verdict when
+     * attempt 2 throws, and a deadline abort IS a throw — so on a timed-out turn `by` holds a stale
+     * verdict byte-identical to a real second refusal. Measured live 2026-08-19: 2 of 21 grounded
+     * turns carried `blocked:"bad_hadith"` / `blocked:"own_wording"` with `gen.reason:"deadline"`.
+     * Anything reader-facing that branched on `by` alone would name the wrong actor at that rate.
+     *
+     * `null` whenever the Worker did not report one — a build older than ISC-532, or a value outside
+     * the known set. Null is "cannot tell", never "not blocked": callers must fail toward silence.
+     */
+    readonly terminal: GenTerminalReason | null,
+  ) {
     super(`/api/answer blocked by ${by}`);
     this.name = "AnswerBlockedError";
   }
 }
+
+/**
+ * The Worker's terminal generation reason (`GenReason` in `worker/src/answer-generation.ts`).
+ *
+ * Re-declared rather than imported: `web/` and `worker/` are separate build graphs, and this is a
+ * NETWORK boundary — the value is treated as untyped input and narrowed by `asTerminal`, exactly
+ * like `asCards` treats a hadith record. A Worker that starts sending a sixth token degrades to
+ * `null` here instead of leaking an unrecognised string into reader-facing logic.
+ */
+export type GenTerminalReason = "answered" | "blocked" | "deadline" | "threw" | "no_attempt";
+
+const TERMINAL_REASONS: readonly string[] = ["answered", "blocked", "deadline", "threw", "no_attempt"];
+
+/** Narrow `gen.reason` off the wire, or null when it is absent or unrecognised. */
+const asTerminal = (raw: unknown): GenTerminalReason | null => {
+  if (!raw || typeof raw !== "object") return null;
+  const reason = (raw as { reason?: unknown }).reason;
+  return typeof reason === "string" && TERMINAL_REASONS.includes(reason) ? (reason as GenTerminalReason) : null;
+};
 
 const ANSWER_ENDPOINT = "/api/answer";
 /**
@@ -114,13 +149,17 @@ export const liveAnswerModel: AnswerModel = async (ctx: AnswerContext): Promise<
       answer?: string | null;
       blocked?: AnswerViolationKind | null;
       hadith?: unknown;
+      // The whole `gen` report, taken as unknown. Only `reason` is read, and only through
+      // `asTerminal` — the rest of it (attempts, rule, repair counters) is a diagnostic lane that
+      // nothing reader-facing may branch on.
+      gen?: unknown;
     };
     if (typeof data.answer !== "string" || data.answer.length === 0) {
       // A `blocked` field means the Worker generated prose and its wall refused it. Anything else —
       // no field at all (the principled edition, or a Worker deployed before this change), an
       // unrecognised value, or an empty answer with no reason — stays an anonymous absence and falls
       // back exactly as it does today. Fail toward the old behaviour, never toward a claim.
-      if (data.blocked) throw new AnswerBlockedError(data.blocked);
+      if (data.blocked) throw new AnswerBlockedError(data.blocked, asTerminal(data.gen));
       throw new Error("no answer");
     }
     // `reviewed_id` is unreachable from here BY CONSTRUCTION — `asCards` never writes it and the

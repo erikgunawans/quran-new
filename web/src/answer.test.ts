@@ -211,15 +211,18 @@ describe("synthesizeAnswer — a refusal from the edge is reported, not swallowe
     // The bug in one assertion. Before this, the edge said "I had an answer and my wall stopped it"
     // and the orchestrator flattened that into the same null it uses for a corpus gap — so the reader
     // was told no verse matched when the truth was that the answer was in a hadith.
-    const ai = await synthesizeAnswer(corpus, "apakah sakit menghapus dosa", [], throwing(new AnswerBlockedError("bad_hadith")));
-    expect(ai).toEqual({ kind: "blocked", by: "bad_hadith" });
+    const ai = await synthesizeAnswer(corpus, "apakah sakit menghapus dosa", [], throwing(new AnswerBlockedError("bad_hadith", "blocked")));
+    expect(ai).toEqual({ kind: "blocked", by: "bad_hadith", terminal: "blocked" });
   });
 
   test("every other refusal kind is reported with its own name", async () => {
     // main.ts routes on the name and today points only for `bad_hadith`. The other three must still
     // arrive intact rather than being coerced, or that routing decision cannot be revisited later.
-    const ai = await synthesizeAnswer(corpus, "hukum riba", [], throwing(new AnswerBlockedError("fatwa")));
-    expect(ai).toEqual({ kind: "blocked", by: "fatwa" });
+    const ai = await synthesizeAnswer(corpus, "hukum riba", [], throwing(new AnswerBlockedError("fatwa", "deadline")));
+    // The terminal reason rides ALONGSIDE the kind and is not collapsed into it: this refusal names
+    // `fatwa` but ended on the CLOCK, which is the pair `stale-verdict-is-real` measured live and the
+    // pair main.ts must be able to tell apart before it says anything to the reader.
+    expect(ai).toEqual({ kind: "blocked", by: "fatwa", terminal: "deadline" });
   });
 
   test("a model that is merely DOWN is still an absence, not a refusal", async () => {

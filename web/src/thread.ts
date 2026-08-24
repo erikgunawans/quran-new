@@ -51,7 +51,7 @@ const MAX_TURNS = 20;
  * Note there is no `crisis` variant. That is deliberate and load-bearing: the type system makes it
  * impossible to persist a crisis exchange, because there is no shape to put it in.
  */
-export type Turn =
+type TurnBody =
   | { q: string; kind: "ayah"; surah: number; ayah: number }
   | { q: string; kind: "surah"; surah: number }
   | { q: string; kind: "no-such-surah"; surah: number }
@@ -115,6 +115,26 @@ export type Turn =
   // never the refused prose.
   | { q: string; kind: "answer-blocked" }
   | { q: string; kind: "silence" };
+
+/**
+ * A turn, plus the one thing that is true ABOUT a turn rather than OF it.
+ *
+ * `withheld` is an ANNOTATION CHANNEL, and it exists because the late path had none (ISC-533/534).
+ * Past `FAST_ANSWER_MS` the reader is already holding a real, cited, principled answer; when the
+ * model's own attempt is then refused by the wall, the only thing `applyAi` could previously return
+ * was a `Turn`, and a `Turn` REPLACES. So the choice was "downgrade a good answer" or "say nothing",
+ * and the code said nothing — on every refusal slower than 9 s, which ISC-487 measures as nearly all
+ * of them. The reader saw a complete-looking answer and no hint that a fuller one had been composed
+ * and held back.
+ *
+ * A flag on the turn rather than loose DOM, deliberately: the annotation then survives `replaceTurn`
+ * into storage and re-renders on a restored thread, instead of being a node that a later turn's
+ * `innerHTML` silently deletes.
+ *
+ * `true` ONLY when the Worker's `gen.reason` was literally `"blocked"`. A deadline, a throw, an
+ * absent report and an unrecognised token all leave it unset — see `AnswerBlockedError.terminal`.
+ */
+export type Turn = TurnBody & { withheld?: true };
 
 interface Stored {
   v: 1;

@@ -39,6 +39,8 @@ import { composeFraming } from "./compose-contract.ts";
 import { liveFramingModel } from "./compose-live.ts";
 import { isSynthesis } from "./mode.ts";
 import { synthesizeAnswer } from "./answer.ts";
+import type { GenTerminalReason } from "./answer-live.ts";
+import { annotateWithheld } from "./withheld-turn.ts";
 import { markersInProse, stripMarkers, type AnswerViolationKind } from "./answer-guard.ts";
 import { mdEmphasis } from "./prose-format.ts";
 import { hadithCardsEl, type HadithCard } from "./hadith-card.ts";
@@ -227,7 +229,36 @@ const READER_NOTE = `<p class="reader-note">New-Quranku tidak menafsirkan — ba
 //
 // `animate` is off on replay: a restored thread should be *there*, already, the way you left it.
 // Nineteen verses fading in one after another on a cold open is theatre, and it is not the truth.
+/**
+ * A composed answer was produced for this turn and the wall refused it — said ONCE, beside whatever
+ * the turn already shows, never instead of it (ISC-534).
+ *
+ * ISC-529 removed the "masih menyusun" promise on a refusal, which was right — a false promise
+ * cannot be the signal. But it converted a visible-and-wrong signal into NO signal, and a page with
+ * nothing on it reads to the reader as "this is the complete answer". This line is the honest
+ * replacement: it reports OUR limit, names no rule, quotes no fragment, and makes no claim about
+ * what the corpus holds — the same three prohibitions the `answer-blocked` copy carries, because it
+ * reaches the same reader about the same event by a different road.
+ */
+const WITHHELD_NOTE = `
+        <p class="withheld">Tadi aku sempat menyusun jawaban yang lebih panjang untuk pertanyaan ini,
+        tapi jawaban itu tidak lolos pemeriksaanku sendiri, jadi tidak aku tampilkan. Yang di atas tetap
+        utuh.</p>`;
+
+/**
+ * Render a turn, plus its annotation if it carries one.
+ *
+ * The body render is a `switch` where every arm returns, so the annotation cannot live inside it
+ * without touching seventeen cases. It is appended here instead — after the body, once, whatever
+ * the kind. `withheld` is set only on the late refusal path; every other turn renders byte-identical
+ * to before.
+ */
 async function renderTurn(t: Turn, animate = true): Promise<string> {
+  const body = await renderTurnBody(t, animate);
+  return t.withheld ? body + WITHHELD_NOTE : body;
+}
+
+async function renderTurnBody(t: Turn, animate = true): Promise<string> {
   switch (t.kind) {
     case "no-such-surah":
       return `<p class="said">Surah ${t.surah} tidak ada. Al-Qur'an punya <b>114 surah</b> — coba cek lagi nomornya.</p>`;
@@ -709,6 +740,10 @@ function knowledgeHtml(k: KnowledgeAnswer): string {
 }
 
 function announceTurn(t: Turn): void {
+  // ANNOUNCED, not left to the visual layer. A screen-reader user hearing only the fast answer would
+  // have no way to tell this turn apart from one where nothing was ever withheld — the same
+  // conflation `hadith-defer` and `answer-blocked` are announced to undo, one modality over.
+  if (t.withheld) say("Tadi ada jawaban yang lebih panjang, tapi tidak lolos pemeriksaan dan tidak ditampilkan. Jawaban di atas tetap utuh.");
   switch (t.kind) {
     case "ayah":
       say(`${displayName(t.surah)} ${t.surah}:${t.ayah} ditampilkan.`);
@@ -877,6 +912,16 @@ async function ask(question: string) {
     // principled resolution below, so this edition is never worse than the trustworthy one.
     // Remembered, not acted on immediately — see `applyAi`.
     let blockedBy: AnswerViolationKind | null = null;
+    /**
+     * HOW the refused turn ended, kept beside `blockedBy` because the two answer different questions
+     * and this repo has already been bitten by treating them as one.
+     *
+     * `blockedBy` names the RULE the Worker's wall reported. `blockedTerminal` names why the TURN
+     * stopped. On a timed-out turn they disagree — `verdictAfterFailure` preserves attempt 1's
+     * verdict while `gen.reason` says `"deadline"` — and it is the second one the reader is owed.
+     * Measured 2 of 21 grounded turns live, 2026-08-19.
+     */
+    let blockedTerminal: GenTerminalReason | null = null;
 
     /**
      * Fold a settled synthesis result into a turn, or null to fall through to the principled chain.
@@ -911,15 +956,27 @@ async function ask(question: string) {
       // menemukan ayat yang cocok" is a claim about the corpus, and for a blocked fiqh question it is
       // simply false. So the block is remembered and only swapped in at the end, if nothing else
       // filled the turn. Narrower than replacing the copy outright, and it keeps the good outcomes.
-      if (ai?.kind === "blocked") blockedBy = ai.by;
+      if (ai?.kind === "blocked") {
+        blockedBy = ai.by;
+        blockedTerminal = ai.terminal;
+      }
       return null;
     };
 
     /**
      * The turn the PRINCIPLED app would show — the chain synthesis falls through to.
      *
-     * Extracted unchanged so it can run in EITHER order: after synthesis (as it always did), or
-     * ahead of it to produce the fast answer. Same lanes, same precedence, same copy.
+     * Extracted so it can run in EITHER order: after synthesis (as it always did), or ahead of it to
+     * produce the fast answer. Same lanes, same precedence, same copy — WITH ONE EXCEPTION, written
+     * here because the docstring not naming it cost this app the whole `answer-blocked` channel.
+     *
+     * The last statement reads `blockedBy`, a `let` this function closes over. That makes it ORDER
+     * DEPENDENT while nothing in the signature says so, and the fast path calls it at 9 s, before the
+     * model has settled — so `blockedBy` is necessarily null there and the swap can never fire. The
+     * late path then never calls this function again. `tsc` had no parameter to object to and the
+     * copy tests slice this file as a source string, so neither could see it. The late refusal is
+     * handled OUTSIDE this function now (see the `void pending` block); this statement remains for
+     * the sequential principled path, where it still fires.
      */
     const resolvePrincipled = async (base: Turn): Promise<Turn> => {
       let t = base;
@@ -1020,7 +1077,32 @@ async function ask(question: string) {
           // now would resurrect a conversation somebody deleted.
           if (!answer.isConnected) return;
           const composed = applyAi(v, fast);
-          if (!composed) return; // nothing better arrived — the fast answer WAS the answer
+          if (!composed) {
+            // ── ISC-533: the late refusal finally has somewhere to go ────────────────────────────
+            //
+            // This `return` used to be the whole story, and it is why `answer-blocked` was dead on
+            // every turn slower than 9 s: `blockedBy` is written here and read only inside
+            // `resolvePrincipled`, which the fast path already ran and this path never calls again.
+            // The Worker preserved the verdict with care and the browser dropped it on the floor.
+            //
+            // ONLY a terminal `"blocked"` earns a word. A deadline, a throw, an absent `gen` and an
+            // unrecognised token all fall straight back through to the old silence — because the
+            // reader of a timed-out turn must not be told an answer was found and withheld. That is
+            // a verdict naming the wrong actor, and it is exactly what deferred this criterion for
+            // six days rather than shipping it half-built.
+            // `blockedTerminal` is a closure `let`, which is the exact shape that killed this channel
+            // in `resolvePrincipled` — so state the order rather than leave it to be rediscovered:
+            // `applyAi(v, fast)` on the line above is what writes it, one statement before this read.
+            //
+            // The decision itself is in `withheld-turn.ts`, not here, because nothing inside this file
+            // can be reached by a test. Returning null means the reader keeps exactly what they have.
+            const annotated = annotateWithheld(fast, blockedTerminal);
+            if (!annotated) return;
+            answer.innerHTML = await renderTurn(annotated);
+            announceTurn(annotated);
+            replaceTurn(fast, annotated);
+            return;
+          }
           answer.innerHTML = await renderTurn(composed);
           announceTurn(composed);
           replaceTurn(fast, composed);

@@ -731,6 +731,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
  * what the reader just got — muted, one notch down, no border, no box. The dot pulses so it is
  * visibly ongoing rather than a static apology, and it stops dead under reduced motion because a
  * vestibular need outranks an affordance (see the `prefers-reduced-motion` block for the rest). */
+/* The late-refusal annotation. Sits BESIDE the answer the reader already has, never instead of it,
+   so it is set as a quiet aside rather than as a headline: same ink and step as the composing note
+   it replaces on that path, without the pulsing dot, because nothing is in flight any more. */
+.withheld {
+  margin-top: 1rem;
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
 .still-composing {
   display: flex;
   align-items: center;

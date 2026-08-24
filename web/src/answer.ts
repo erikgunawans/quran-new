@@ -31,7 +31,7 @@ import {
   safeAnswer,
   type AnswerViolationKind,
 } from "./answer-guard.ts";
-import { AnswerBlockedError } from "./answer-live.ts";
+import { AnswerBlockedError, type GenTerminalReason } from "./answer-live.ts";
 import type { HadithCard } from "./hadith-card.ts";
 import { retrieveKnowledge } from "./knowledge.ts";
 import { isRealAyah } from "./quran.ts";
@@ -74,7 +74,18 @@ export interface SynthesisAnswer {
  */
 export type SynthesisOutcome =
   | ({ readonly kind: "answer" } & SynthesisAnswer)
-  | { readonly kind: "blocked"; readonly by: AnswerViolationKind };
+  | {
+      readonly kind: "blocked";
+      readonly by: AnswerViolationKind;
+      /**
+       * The Worker's terminal reason, carried through so the caller can tell a REFUSAL from an
+       * EXPIRED CLOCK. `by` alone cannot — see `AnswerBlockedError.terminal`.
+       *
+       * `null` on the second wall below (this file's own `safeAnswer`), because that refusal never
+       * had a Worker turn behind it, and on any Worker too old to report one.
+       */
+      readonly terminal: GenTerminalReason | null;
+    };
 
 /**
  * Collect the grounding for a question: retrieval verses (with their Indonesian text) + KB entries.
@@ -182,7 +193,7 @@ export async function synthesizeAnswer(
     // A NAMED refusal from the Worker's wall is signal, not noise — pass it up so the caller can point
     // instead of falling silent. Every other throw (model down, timeout, 404, malformed body) is still
     // an absence and still returns null.
-    if (err instanceof AnswerBlockedError) return { kind: "blocked", by: err.by };
+    if (err instanceof AnswerBlockedError) return { kind: "blocked", by: err.by, terminal: err.terminal };
     return null; // model error/timeout → fall back to principled
   }
 
