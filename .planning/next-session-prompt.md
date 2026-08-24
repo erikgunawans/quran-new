@@ -1,3 +1,126 @@
+# Next session — New-Quranku (checkpoint 2026-08-24 evening, Cycle 13)
+
+> Prepended by /wrap 2026-08-24 (evening). **Anchor: `547a095` — and unlike the last two wraps this
+> one commits ON TOP of it, so `origin/main` will read as this wrap's checkpoint, not `547a095`.
+> That is expected and is not drift.** Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the 2026-08-24 night block below**, whose "NOTHING DEPLOYED" §1 is now FALSE and
+> whose §2.1 (ask Erik to deploy) and §3 TTS/deploy items are DONE.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 evening, Cycle 13**).
+
+## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW DONE OR FALSE
+
+- **"PROD IS ONE CYCLE BEHIND" is FALSE.** Deployed twice this session. Live Worker
+  `90b3929c-585c-4eed-a87b-5f0a8aaf5250` from `5ba8071`. HEAD `547a095` is **one DOCS-ONLY commit
+  ahead — no code difference, no deploy owed.**
+- **The TTS/`short.m4a` item is CLOSED.** Erik ruled: bill `story-maker-demo`, **temporarily**. The
+  first real `short.m4a` exists and was measured as speech. Do not re-list it as blocked.
+- **ISC-655 is `[x]`** — marker live, verified with both arms.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** (unchanged; `requireRole(…,"reviewer")` has zero call
+  sites). **`RESEND_FROM` is a SECRET, not a `[vars]` entry** — the runbook and `wrangler.toml`
+  comments both say `[vars]` and are wrong.
+
+## 1. STATE
+
+ISA **683/697** — 677 `[x]` + 6 `[~]` + **14 open**: ISC-98, 323, 353.0, 417, 419, 420, 440.6, 454,
+464, 486, 487, 566, 627.7, 654. The 6 partial: ISC-418, 617, 624, 624.8, 627, 647.
+
+Gates at `547a095`: `bun test` **2280/0** exit 0 · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0,
+bindings **DB + VECTORIZE + AUDIO + CORPUS + ASSETS** — **run locally; this repo has no CI.**
+
+`events` is **EMPTY** and the next id is **41** (id 40 was this session's own control row, deleted).
+The probe marker is LIVE, so `wall-live-probe` no longer contaminates the table.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **ISC-486 needs an INSTRUMENT, not a deploy.** Both old gates are discharged and the live
+   re-measure does not settle it: `wall-live-probe` keeps only the FINAL answer text
+   (`src/eval/wall-live-probe.ts:303`) and never a refused attempt's prose. Capture the refused
+   prose, or this criterion cannot be scored at all. Behind it sits the proper-name vocabulary
+   design question, still NOT BUILT.
+
+2. **ISC-323 still needs a DESIGN decision and the cheap fixes are ruled out.** The record is NOT in
+   production's top 50 (`returnValues:false`), is rank 24 with exact scoring, and `MAX_DISPLAY` is 2.
+   Neither a reranker change nor flipping `returnValues` reaches rank 1. Two gaps, one behind the
+   other. Nothing may be built against it (Erik's ISC-323.4 tombstone).
+
+3. **A per-run / per-day COST CEILING.** Newly urgent: TTS now bills real money to
+   `story-maker-demo` and there is no ceiling anywhere in the code. Erik was asked and has not ruled.
+
+4. **ISC-487 stays NOT MET and Cycle 13 did NOT touch it.** No constant moved.
+
+5. **The other open ISCs, none started:** ISC-98, 419/420, 440.6, 464, 353.0, 627.7, 454.
+
+6. **ISC-566, ISC-417 and ISC-654 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **A cost ceiling for TTS** (see §2.3) — and `story-maker-demo` billing is **temporary** by his
+  own word; the revert is `unset GOOGLE_CLOUD_PROJECT`, nothing else.
+- 🔶 **Verify `axiara.ai` in Resend**, then `bunx wrangler secret put RESEND_FROM` →
+  `QuranKu <no-reply@axiara.ai>`. ⚠️ **A Chrome tab observed 2026-08-24 read `Domain verified ·
+  axiara.ai`, so this may already be half-done — CHECK before asking again.** Today the secret is
+  `onboarding@resend.dev`, Resend TEST mode, which delivers ONLY to the account owner. **A real user
+  still cannot sign in.**
+- 🔶 **Which source does the runner launch on?** Needs one video with clear rights. **Nothing can be
+  published until this is answered.**
+- 🔶 **Ustadz Ahmad's theological read of a REPAIRED answer.** Still urgent: repair fires constantly
+  and nobody has checked whether excision leaves the meaning sound. Offer to build the review pack —
+  it needs no secret and no app access.
+- 🔶 **The runner half:** `bunx wrangler r2 bucket create new-quranku-kajian`, uncomment
+  `[[r2_buckets]]` KAJIAN, `bunx wrangler secret put RUNNER_SECRET` (`openssl rand -base64 48`,
+  hidden prompt only). Until then the admin queue accepts jobs nothing can drain. ⚠️ `yt-dlp` on a
+  datacentre IP WILL be refused transcripts.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **The admin queue accepts jobs NOTHING CAN DRAIN.** Deliberate, accepted by Erik 2026-08-24.
+- **The hosted runner has never run.** The LOCAL pipeline has, and now produces real audio. Do not
+  conflate them.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- **ISC-624.8's remainder:** the FILE half is now met and measured; still no `speechSynthesis`
+  fallback (a feed record carries no summary text, so a browser voice could only read the TITLE) and
+  still no ground-truth pixel of the native audio control — it is unphotographable through UA
+  shadow DOM.
+- **ISC-650 and ISC-652 HAVE now been seen rendered** (2026-08-24, admin session via Interceptor) —
+  the previous handoff listed this as unresolvable. Closed.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — `bun run build` exits 0 and writes the WRONG EDITION.** Plain `bun run build` produces
+  `answerMode: "principled"`; prod is `synthesis`. The exit code cannot see it. Always
+  `VITE_ANSWER_MODE=synthesis bun run build`, and read `.build-meta.json` before deploying. The two
+  editions emit DIFFERENT asset hashes, so a live-hash match is a discriminator WITH a control.
+- **NEW — a marked-only arm cannot tell suppression from a dead path.** ISC-655's verification
+  needed the UNMARKED control write to mean anything. Same shape as `control-arm-or-no-claim`.
+- **NEW — a file of the right size is not a file with the right contents.** `short.m4a` at 646 KB is
+  equally consistent with 46 seconds of silence; `volumedetect` is what separates them. Never accept
+  a byte count as evidence of audio.
+- **NEW — "deliberate" in a code comment can be half-right.** The admin route's comment justified
+  having no NAV ITEM and was read as justifying having no LINK ANYWHERE. Check which claim the
+  rationale actually supports before treating a documented decision as settled.
+- **NEW — a cold-edge fetch can return a false zero.** Grepping the served bundle for a shipped
+  string returned 0, then 1 on re-fetch, with byte counts identical. Re-fetch before believing an
+  absence measured over the network.
+- **A guard block is NOT a reader-visible refusal.** ISC-561's repair sits between them. Do not hunt
+  prod for `blocked:*` turns to exercise refusal UI.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutation actually reddens
+  something before trusting it.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 night)
 
 > Prepended by /wrap 2026-08-24 (night). **Anchor: `421213e` — the last WORK commit. This wrap's own

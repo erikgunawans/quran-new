@@ -4,6 +4,108 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (evening) — Cycle 13: DEPLOYED TWICE; the admin queue had no door; the first real short.m4a
+
+**PROD IS CURRENT ON CODE.** Live Worker `90b3929c-585c-4eed-a87b-5f0a8aaf5250`, built from
+`5ba8071`. HEAD is `547a095`, which is **one DOCS-ONLY commit ahead** — no code difference, no
+deploy owed. Two deploys this cycle, both authorised by Erik in-session.
+
+ISA **683/697** — 677 `[x]` + 6 `[~]` + 14 open (ISC-655 moved `[~]` → `[x]`; the open count is
+unchanged on purpose). Gates at HEAD: `bun test` **2280/0** exit 0, typecheck exit 0,
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0, `wrangler deploy --dry-run --env=""` exit 0 with
+DB + VECTORIZE + AUDIO + CORPUS + ASSETS. Run locally; this repo has no CI.
+
+### The deploy trap that nearly shipped the wrong edition
+
+`bun run build` exits **0** and writes `answerMode: "principled"`. Prod is `synthesis`. The exit code
+cannot see it — it was caught by reading `.build-meta.json`, which is why the handoff's check exists.
+**The two editions emit DIFFERENT asset hashes** (`index-PvvRtDsK.js` principled vs `index-Db1xlms1.js`
+synthesis), so matching the live hash is a discriminator WITH a control, not merely "a build shipped".
+Always `VITE_ANSWER_MODE=synthesis bun run build`.
+
+### ISC-655 — `[x]`, verified live with BOTH arms
+
+Probe marker deployed. Against the real prod D1: **two marked POSTs left `events` at 0; one UNMARKED
+control wrote exactly one row.** A marked-only arm could not have told suppression from a dead logging
+path — `IDENTITY_HMAC_SECRET` is set, so the write path was genuinely armed. The control landed at
+**id 40**, independently confirming the `AUTOINCREMENT` note (the counter resumed at 40, not 1), and
+was deleted scoped by id AND by the string it wrote (`changes: 1`). **`events` is empty; next id 41.**
+First uncontaminating probe run: `docs/review/wall-live-probe-2026-08-24-cycle13.txt`.
+
+### ISC-486 — both gates discharged, re-measured live, and it does NOT advance
+
+Deploy gate and `events`-contamination gate are both gone. Fresh run: 8/8 answered, **0 reader-facing
+refusals**, 0 past the 30 s abort; attempt level 4 `bad_hadith` / 2 `own_wording` / 2 `fatwa` / 4 `ok`.
+**THE INSTRUMENT IS BLIND TO THE CLASS THIS CRITERION IS ABOUT.** `wall-live-probe` keeps only the
+FINAL answer text and never a refused attempt's prose, so the 2 `own_wording` blocks cannot be
+classified as ISC-486 over-refusals OR as correct ones. It can report the RATE of the bucket the class
+lives in; it cannot report the class. **The open gate is now an instrument, not a deploy.**
+
+### ISC-654 — ruled by Erik: leave it, and it STAYS `[ ]`
+
+A blocked turn settling under `FAST_ANSWER_MS` (9 s) gets no annotation. Erik ruled: record as a
+bounded gap rather than build it. The second clause (undocumented asymmetry) is discharged; the first
+is not, on purpose — so it stays `[ ]`, the ISC-417/566 shape. Evidence stated as a firing CONDITION:
+the note fires only on terminal `gen.reason === "blocked"`, which was **0 of 32** across the Cycle-12
+runs, so the LATE path's note did not fire either. Read that as a rate over 8 questions, never as
+"it never fires".
+
+### The admin kajian queue had NO DOOR — reported by Erik, reproduced before any code was read
+
+Erik, signed in as admin, clicked **Kajian**, landed on the reader page, and reported there was no
+field to paste a URL into. Reproduced on prod with Interceptor first: the field renders fine at
+`#/admin/kajian` (769×43, visible, hit-tests to itself, "Admin terverifikasi"), and `#/kajian` has no
+field by design. **The defect was that `#/admin/kajian` had no way in** — measured both ways: zero
+anchors containing `admin` in the live DOM, and `#/admin/kajian` appearing exactly ONCE in the whole
+source, in the router's `if`. Matched, never linked.
+
+The route's comment called this deliberate and **half of it was sound**: an operating surface is not a
+reader mode and `markNav`'s union must not be widened. That argues against a NAV ITEM, not against a
+link existing anywhere — the two were conflated. `web/src/kajian-admin-link.ts` mounts one entry point
+on the reader kajian page, drawn only for a proven admin; `checkRole` is EXPORTED from
+`admin-kajian.ts` rather than copied, so there is one role check and not two that drift. `denied` and
+`unavailable` stay separate cases (ISC-652) — what is identical is the OUTPUT, not the verdict. Not
+awaited: awaiting it would put an `/api/auth/role` round trip in front of every reader of a public
+page. **Also fixed a stale nav mark** — `markNav` now accepts `null`, so the admin route CLEARS the
+previous mark instead of skipping the call; the sidebar used to tell a screen reader "Kajian" was
+current while the admin queue was displayed. The union stays closed.
+
+Verified live end to end: the same DOM probe returned `[]` before and `["#/admin/kajian"]` after;
+clicking it routes and renders the 769px field; `navMarked: []` on the admin route. 12 new tests,
+**mutation-checked** — granting the link on `unavailable` reddens 5, dropping the idempotence guard
+reddens exactly 1.
+
+### The first real `short.m4a` — Erik ruled: bill TTS to `story-maker-demo`, TEMPORARILY
+
+Produced by running the real pipeline end to end, not a synthesize probe. **646,080 bytes, 46.24 s,
+AAC 24 kHz mono, and it is SPEECH** — `volumedetect` reads `mean_volume -18.3 dB` / `max -0.3 dB`,
+where silence reads ~`-91 dB`. A 646 KB m4a is equally consistent with 46 seconds of nothing, so the
+byte count alone could not have told them apart. Provenance rides INSIDE the container: `comment`
+carries the source URL, `description` carries all three denials verbatim. Artifacts in
+`.scratch/kajian/`, which is gitignored — no audio committed.
+
+⚠️ **THE RECORDED REASON FOR THIS BEING BLOCKED WAS WRONG.** The runbook said the machine had no
+Google TTS credentials. ADC was live, and the earlier 01:42 run had already written a `narasi.m4a`
+that measures as real speech (126.92 s, `-19.9 dB`) — so credentials were never the blocker and
+anyone acting on that line would have fixed the wrong thing. What was missing was a DECISION about
+which project to bill. **NOT asserted:** why that 01:42 run left no `short.m4a` despite reaching TTS
+for the long form; the independent-`short.m4a` code landed in `ee30022` (04:47) *after* it, which
+fits, but nobody measured it.
+
+**Billing is pointed by an ENV VAR, so the revert is one unset.** `quotaProject()` prefers
+`GOOGLE_CLOUD_PROJECT` over gcloud's configured project; Erik's gcloud default was never touched.
+"Temporarily" is his word and is recorded as a CONDITION, not a settled arrangement.
+⚠️ **There is still NO per-day or per-run cost ceiling in the code.** Harmless while nothing could
+reach the API; a live spend now.
+
+### Commits
+
+`097c43f` deploy + ISC-655/654/486 · `5ba8071` admin entry point + stale nav mark ·
+`547a095` first real short.m4a. Clean tree except untracked `WARP.md` — **leave it, never
+`git add -A`.**
+
+---
+
 ## 2026-08-24 (night) — Cycle 12: the annotation paints but prod never asks it to; ISC-323 is recall, not ranking
 
 **Anchor `421213e` on `origin/main`. NOTHING DEPLOYED THIS CYCLE — prod is still Worker
