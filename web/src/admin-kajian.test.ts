@@ -95,17 +95,6 @@ describe("renderAdminKajian", () => {
       name: "anonymous",
       fetchImpl: (async () => jsonResponse({ email: null, role: "member" })) satisfies FetchLike,
     },
-    {
-      name: "non-ok response",
-      fetchImpl: (async () =>
-        jsonResponse({ email: "admin@example.com", role: "admin" }, { status: 500 })) satisfies FetchLike,
-    },
-    {
-      name: "throwing fetch",
-      fetchImpl: (async () => {
-        throw new Error("boom");
-      }) satisfies FetchLike,
-    },
   ]) {
     test(`renders refusal and no form for ${scenario.name}`, async () => {
       const mount = mountNode();
@@ -116,6 +105,95 @@ describe("renderAdminKajian", () => {
       expect(mount.querySelector("form[data-admin-kajian-form]")).toBeNull();
     });
   }
+
+  /**
+   * ISC-652 — "COULD NOT CHECK" IS NOT "NOT PERMITTED".
+   *
+   * These two scenarios used to sit in the list above and assert the refusal copy. They were
+   * PINNING THE DEFECT: a dropped connection told an administrator they were not one, with no
+   * retry. The cases moved here rather than being deleted, because what they must assert changed
+   * while what they must NOT allow did not.
+   *
+   * Both halves matter. The page must stop claiming a verdict it does not have, AND it must still
+   * open nothing — an honest "I could not tell" that shows the queue would be a far worse bug than
+   * the one being fixed.
+   */
+  for (const scenario of [
+    {
+      name: "a non-ok response",
+      fetchImpl: (async () =>
+        jsonResponse({ email: "admin@example.com", role: "admin" }, { status: 500 })) satisfies FetchLike,
+    },
+    {
+      name: "a fetch that throws",
+      fetchImpl: (async () => {
+        throw new Error("boom");
+      }) satisfies FetchLike,
+    },
+    {
+      /**
+       * The SPA-fallback trap, and the reason shape validation rather than status is the test: a
+       * missing asset on this origin answers 200 with `index.html`. A status-only check reads that
+       * as a successful role lookup.
+       */
+      name: "a 200 that is not the role payload at all",
+      fetchImpl: (async () => new Response("<!doctype html><title>QuranKu</title>", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      })) satisfies FetchLike,
+    },
+  ]) {
+    test(`says it could not check — not that you are refused — for ${scenario.name}`, async () => {
+      const mount = mountNode();
+
+      await renderAdminKajian(mount, scenario.fetchImpl);
+
+      expect(mount.textContent).toContain("belum bisa memastikan status sesimu");
+      expect(mount.textContent).not.toContain("Halaman ini khusus admin");
+      // The security invariant is unchanged: an unproven session still sees no form and no queue.
+      expect(mount.querySelector("form[data-admin-kajian-form]")).toBeNull();
+      expect(mount.querySelector(".admin-kajian-retry")).not.toBeNull();
+    });
+  }
+
+  test("a failure AFTER the session proved admin does not claim they lack permission", async () => {
+    const mount = mountNode();
+    // Role says admin; the very next call blows up. The old outer catch answered this with
+    // "Halaman ini khusus admin" — to a verified administrator.
+    const fetchImpl: FetchLike = async (url) => {
+      if (url === "/api/auth/role") return jsonResponse({ email: "admin@example.com", role: "admin" });
+      throw new Error("boom");
+    };
+
+    await renderAdminKajian(mount, fetchImpl);
+
+    expect(mount.textContent).not.toContain("Halaman ini khusus admin");
+  });
+
+  test("the retry re-runs the check, and a now-healthy session reaches the form", async () => {
+    const mount = mountNode();
+    let attempt = 0;
+    const fetchImpl: FetchLike = async (url) => {
+      if (url === "/api/auth/role") {
+        attempt += 1;
+        if (attempt === 1) throw new Error("boom");
+        return jsonResponse({ email: "admin@example.com", role: "admin" });
+      }
+      return jsonResponse({ ok: true, jobs: [] });
+    };
+
+    await renderAdminKajian(mount, fetchImpl);
+    expect(mount.querySelector("form[data-admin-kajian-form]")).toBeNull();
+
+    const retry = mount.querySelector(".admin-kajian-retry");
+    expect(retry).not.toBeNull();
+    (retry as HTMLElement).click();
+    // The click handler is async; let its microtasks settle before reading the DOM.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(attempt).toBe(2);
+    expect(mount.querySelector("form[data-admin-kajian-form]")).not.toBeNull();
+  });
 
   test("queued copy never says selesai", async () => {
     const mount = mountNode();

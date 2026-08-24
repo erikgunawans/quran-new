@@ -1931,6 +1931,13 @@
 }
 .admin-kajian-form button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
 .admin-kajian-form button:disabled { opacity: .6; cursor: default; }
+.admin-kajian-retry-row { margin: 14px 0 0; }
+.admin-kajian-retry {
+  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: var(--surface-2); color: var(--ink); font: inherit; cursor: pointer; white-space: nowrap;
+}
+.admin-kajian-retry:hover { border-color: var(--primary); color: var(--primary); }
+.admin-kajian-retry:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
 .admin-kajian-hint { margin: 8px 0 0; font-size: .78rem; line-height: 1.6; color: var(--ink-3); }
 .admin-kajian-hint code {
   font-family: var(--f-mono, ui-monospace, monospace); font-size: .95em;

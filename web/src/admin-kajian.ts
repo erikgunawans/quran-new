@@ -7,8 +7,16 @@
  *
  * Halaman ini juga REFUSAL-BY-DEFAULT. Form hanya muncul setelah host ini membuktikan, lewat
  * `/api/auth/role` yang benar-benar JSON dan tervalidasi, bahwa sesi sekarang adalah `admin`.
- * Semua jawaban lain — termasuk 200 HTML dari fallback SPA, payload cacat, atau fetch yang melempar
- * error — mendarat ke penolakan, karena jalur aman di sini memang "jangan buka permukaan admin".
+ * Semua jawaban lain tidak pernah membuka permukaan ini.
+ *
+ * TAPI "TIDAK MEMBUKA" DAN "MENOLAK" BUKAN HAL YANG SAMA (ISC-652). Dulu keduanya mendarat pada
+ * satu kalimat — *"Halaman ini khusus admin"* — sehingga koneksi yang putus, 200 HTML dari fallback
+ * SPA, atau payload cacat memberi tahu seorang admin bahwa dia bukan admin, tanpa cara mencoba lagi.
+ * Sekarang `checkRole` memisahkan tiga hasil: `admin`, `denied` (pemeriksaan berhasil dan jawabannya
+ * bukan admin), dan `unavailable` (pemeriksaannya sendiri tidak selesai). Hanya `denied` yang boleh
+ * mengklaim sesuatu tentang izin. `unavailable` memakai salinan yang tidak mengklaim apa pun dan
+ * menawarkan tombol coba lagi. Yang berubah adalah apa yang DIKATAKAN, bukan apa yang DITAMPILKAN —
+ * keduanya tetap tidak membuka form maupun antrean.
  *
  * Escaping bersifat load-bearing. Baris antrean berisi string yang bisa datang dari URL YouTube,
  * video ID, dan data turunan lain yang akhirnya masuk ke `innerHTML`. Semua interpolasi teks wajib
@@ -119,6 +127,71 @@ async function readJson(res: Response): Promise<unknown | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * WHAT THE ROLE CHECK ACTUALLY SAID — three outcomes, not two (ISC-652).
+ *
+ * The page used to collapse these into one refusal, and that is the defect. `refusalHtml()` says
+ * *"Halaman ini khusus admin"*, which is a statement about the READER's permission. When the check
+ * merely failed to happen — a dropped connection, an edge blip, the SPA fallback answering 200 with
+ * HTML — that sentence tells an administrator they are not one, with no retry and no way back but a
+ * manual reload. The route check runs only on route entry, so a tab opened before an allowlist
+ * change keeps showing it indefinitely.
+ *
+ * Erik's own report looked exactly like this for a moment before turning out to be something else
+ * ("it is actually there, my bad"). The symptom is reachable and was briefly believed; the next
+ * person to hit it would have no way to tell which of the two had happened.
+ *
+ * `denied` is the ONLY outcome that may claim anything about permission. Everything else is
+ * `unavailable` — we could not tell — and that is deliberately NOT treated as permission either:
+ * both still refuse to open the surface. The split changes what the reader is TOLD, never what they
+ * are SHOWN.
+ */
+type RoleCheck = "admin" | "denied" | "unavailable";
+
+/**
+ * Ask `/api/auth/role` and classify the answer without rendering anything.
+ *
+ * Pure of the DOM so the decision can be tested directly. `/api/auth/role` answers 200 with
+ * `{email, role}` for EVERY caller including an anonymous one — so a non-200, a non-JSON body, or a
+ * payload that fails validation is never "you are not an admin", it is "the question did not get
+ * answered". That last case is load-bearing on this origin: a missing asset returns `index.html` at
+ * 200, so shape validation and not status is what separates a real verdict from the SPA fallback.
+ */
+async function checkRole(fetchImpl: FetchLike): Promise<RoleCheck> {
+  let res: Response;
+  try {
+    res = await fetchImpl(ROLE_URL);
+  } catch {
+    return "unavailable";
+  }
+  const payload = await readJson(res);
+  if (!isRolePayload(payload)) return "unavailable";
+  return payload.role === "admin" ? "admin" : "denied";
+}
+
+/**
+ * The page when the check could not be made. Distinct from `refusalHtml()` in what it CLAIMS, and
+ * identical to it in what it EXPOSES — no queue, no form, nothing an administrator would see.
+ *
+ * It carries a retry, because the honest version of "I could not check" is useless without one:
+ * the check runs on route entry only, and without this button the sole recovery is knowing to
+ * reload the page by hand.
+ */
+function unavailableHtml(): string {
+  return `
+    <div class="read-index kajian-index">
+      <header class="tematik-head">
+        <div class="tematik-head-l">
+          <h1 class="qk-hero-gradient tematik-title">Antrean Kajian Admin</h1>
+          <p class="tematik-sub">Permukaan ini khusus admin dan hanya menampilkan status antrean pemrosesan.</p>
+        </div>
+        <div class="tematik-head-r"><a class="tematik-back" href="#/">Kembali</a></div>
+      </header>
+      <p class="kajian-empty" role="alert">Aku belum bisa memastikan status sesimu — pemeriksaannya tidak selesai, bukan berarti kamu ditolak. Coba lagi sebentar.</p>
+      <p class="admin-kajian-retry-row"><button type="button" class="admin-kajian-retry">Coba lagi</button></p>
+    </div>`;
 }
 
 function refusalHtml(): string {
@@ -283,9 +356,16 @@ export async function renderAdminKajian(
   mount.innerHTML = refusalHtml();
 
   try {
-    const roleRes = await fetchImpl(ROLE_URL);
-    const rolePayload = await readJson(roleRes);
-    if (!isRolePayload(rolePayload) || rolePayload.role !== "admin") return;
+    // THE THREE-WAY SPLIT (ISC-652). `denied` keeps the refusal already painted above — it is the
+    // correct and safe answer. `unavailable` swaps in copy that claims nothing about permission and
+    // offers a retry, because the check running only on route entry means there is otherwise no way
+    // back. Neither one opens the surface.
+    const check = await checkRole(fetchImpl);
+    if (check === "unavailable") {
+      showUnavailable(mount, fetchImpl);
+      return;
+    }
+    if (check !== "admin") return;
 
     const jobs = await loadJobs(fetchImpl);
     let state: AdminKajianState = {
@@ -387,7 +467,25 @@ export async function renderAdminKajian(
     const form = renderAdminShell(mount, state);
     if (form !== null) form.addEventListener("submit", submit);
   } catch {
-    // Refusal is the correct answer here; any soft failure must deliberately land on the SAFE side.
-    mount.innerHTML = refusalHtml();
+    // WAS `refusalHtml()`, AND THAT WAS THE SECOND HALF OF ISC-652. Everything reachable from here
+    // runs AFTER the session already proved `admin` — so a throw in `loadJobs` or a render was
+    // telling a verified administrator "Halaman ini khusus admin". It is a failure, not a verdict.
+    // Still opens nothing; only the sentence changes.
+    showUnavailable(mount, fetchImpl);
+  }
+}
+
+/**
+ * Paint the could-not-check page and wire its retry back to a fresh `renderAdminKajian`.
+ *
+ * Re-entering the whole function rather than re-running just the fetch is deliberate: the retry has
+ * to be able to reach a WORKING page, and that means re-running everything the first attempt did,
+ * including loading the queue.
+ */
+function showUnavailable(mount: HTMLElement, fetchImpl: FetchLike): void {
+  mount.innerHTML = unavailableHtml();
+  const retry = mount.querySelector(".admin-kajian-retry");
+  if (retry !== null) {
+    retry.addEventListener("click", () => void renderAdminKajian(mount, fetchImpl), { once: true });
   }
 }
