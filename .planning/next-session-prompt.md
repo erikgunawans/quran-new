@@ -1,3 +1,147 @@
+# Next session — New-Quranku (checkpoint 2026-08-24 night)
+
+> Prepended by /wrap 2026-08-24 (night). **Anchor: `421213e` — the last WORK commit. This wrap's own
+> checkpoint commit sits directly on top of it, so `origin/main` will read as that checkpoint, not as
+> `421213e`. That is expected and is not drift.** Verify with `git fetch` + `git ls-remote`, never a
+> push pipe. **Supersedes the 2026-08-24 evening block below**, whose anchor `431b2c1` is stale and
+> whose §3 items are partly WRONG (see §0).
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 night**).
+
+## 0. ⚠️ TWO ITEMS THE PREVIOUS HANDOFF LISTED AS BLOCKED ON ERIK ARE NOT
+
+- **`gcloud` ADC / `short.m4a` is NOT blocked.** ADC is live on this machine, project
+  `story-maker-demo`, `texttospeech.googleapis.com` ENABLED. A real synthesize call with the
+  narration voice `id-ID-Chirp3-HD-Schedar` returned **HTTP 200, 122,940 bytes**. All that is
+  missing is Erik saying "bill it to story-maker-demo"; then RUN the pipeline.
+- **`REVIEWER_EMAILS` unlocks NOTHING.** `requireRole(…, "reviewer")` has **zero call sites** — the
+  only gated route is `requireRole(request, env, "admin")` at `worker/src/index.ts:264`. The ustadz
+  review can happen offline TODAY with no secret set. Do not re-list it as the blocker.
+- **`RESEND_FROM` is a SECRET, not a `[vars]` entry** (`wrangler secret list` confirms). The runbook
+  and the `wrangler.toml` comments both say `[vars]` and are wrong; following them would collide.
+
+## 1. STATE
+
+**PROD IS ONE CYCLE BEHIND.** Live Worker `7b337a20-d716-491f-9627-c5ddf5cf97ed` from `431b2c1`.
+**HEAD `421213e` is 4 commits ahead and NOTHING from Cycle 12 is deployed.**
+
+ISA **683/697** — 676 `[x]` + 7 `[~]` + **14 open**: ISC-98, 323, 353.0, 417, 419, 420, 440.6, 454,
+464, 486, 487, 566, 627.7, 654. The 7 partial: ISC-418, 617, 624, 624.8, 627, 647, 655.
+
+Gates at the anchor: `bun test` **2268/0** exit 0 · typecheck exit 0 · synthesis build exit 0 ·
+`wrangler deploy --dry-run --env=""` exit 0, bindings **DB + VECTORIZE + AUDIO + CORPUS + ASSETS** —
+**run locally; this repo has no CI.**
+
+`events` is **EMPTY** (39 probe rows deleted 2026-08-24). The next reader is **id 40, not 1** —
+`AUTOINCREMENT`, `sqlite_sequence` still 39, gap left on purpose.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.**
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **ASK ERIK TO DEPLOY — it is the gate on three separate items.** It makes the probe marker live
+   (ISC-655), makes the ISC-652 fix reachable AND finally visible (he has an admin session; ISC-650
+   and ISC-652 have both never been SEEN rendered), and unblocks ISC-486. Read
+   `git diff 431b2c1..HEAD` and the commit list BEFORE deploying, and check `.build-meta.json`
+   `gitSha` equals HEAD and `answerMode` reads `synthesis`.
+
+2. **ISC-486 — re-measure on a fresh live sample, ONLY AFTER that deploy.** Its own "not deployed"
+   gate was stale and is corrected; the fix has been live since 2026-08-23. The blocker now is that
+   a live sample writes `events` rows until the marker ships.
+
+3. **ISC-654 is a QUESTION FOR ERIK, not code.** A blocked turn settling under `FAST_ANSWER_MS`
+   (9 s) gets no annotation — `lateOutcome`/`withheld` are reachable only from the `void pending`
+   block; on the fast path a block only upgrades `silence` → `answer-blocked` (`main.ts:1038`).
+   Sub-9s turns are real (one measured at 8,966 ms). Does the reader deserve the note there too?
+
+4. **ISC-323 needs a DESIGN decision, and the cheap fixes are ruled out.** Measured: the record is
+   NOT in production's top 50 (`returnValues:false`), is rank 24 with exact scoring, and the display
+   cap is 2. So neither a reranker change nor flipping `returnValues` reaches rank 1. Two gaps.
+
+5. **ISC-487 stays NOT MET and Cycle 12 did NOT touch it.** No constant moved.
+
+6. **The other open ISCs, none started:** ISC-98, 419/420, 440.6, 464, 353.0, 627.7, 454.
+
+7. **ISC-566 and ISC-417 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **Deploy** (see §2.1) — the single highest-leverage unblock.
+- 🔶 **Bill TTS to `story-maker-demo`?** One word, then the first real `short.m4a` can be produced.
+- 🔶 **ISC-654 ruling** (see §2.3).
+- 🔶 **Verify `axiara.ai` in Resend**, then `bunx wrangler secret put RESEND_FROM` →
+  `QuranKu <no-reply@axiara.ai>`. Today it is `onboarding@resend.dev`, Resend TEST mode, which
+  delivers ONLY to the account owner. **A real user still cannot sign in.**
+- 🔶 **Which source does the runner launch on?** Needs one video with clear rights. **Nothing can be
+  published until this is answered.** Also: there is NO per-day cost ceiling in the code.
+- 🔶 **Ustadz Ahmad's theological read of a REPAIRED answer.** Newly urgent: repair fires constantly
+  (38 blocked attempts → 0 reader refusals in 32 turns), and nobody has checked whether excision
+  leaves the meaning sound. Offer to build the review pack — it needs no secret and no app access.
+- 🔶 **The runner half:** `bunx wrangler r2 bucket create new-quranku-kajian`, uncomment `[[r2_buckets]]`
+  KAJIAN, `bunx wrangler secret put RUNNER_SECRET` (`openssl rand -base64 48`, hidden prompt only).
+  Until then the admin queue accepts jobs nothing can drain. ⚠️ `yt-dlp` on a datacentre IP WILL be
+  refused transcripts.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- **ISC-652 and ISC-650 have NEVER BEEN SEEN RENDERED.** Both need an admin session from the Worker,
+  so neither can be previewed statically. Look at them after the deploy.
+- **The admin queue accepts jobs NOTHING CAN DRAIN.** Deliberate, accepted by Erik 2026-08-24.
+- **The hosted runner has never run.** The LOCAL pipeline has. Do not conflate them.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- **ISC-624.8's remainder:** no real `short.m4a` yet, no `speechSynthesis` fallback, no ground-truth
+  pixel of the native audio control.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+- Commit `9d8d89f`'s message has one phrase eaten by shell escaping ("rewriting the admin check as
+  ␣ changed nothing"). The ISA carries the correct text; not worth a force-push.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a fake must match the real thing on every field the PREDICATE READS.** A shim set
+  `blocked` while leaving `answer` at its real length; the client ignored it exactly as designed and
+  the turn upgraded, reading as "the channel is dead". The branch tests
+  `answer.length === 0` (`web/src/answer-live.ts:157`) — the one field the fake left alone.
+- **NEW — a sampling window that stops before delivery cannot tell silence from lateness.** T+0..31 s
+  recorded `withheld:0` on a turn that annotated seconds later. Sample until the event arrives OR a
+  stated timeout, and say which one ended the run.
+- **NEW — a mutation that changes no behaviour proves nothing.** Rewriting an admin check as
+  `check === "denied"` passed 22/22 because the branch above already returned. Before trusting a
+  mutation, confirm it actually reddens something.
+- **NEW — a guard block is NOT a reader-visible refusal.** ISC-561's repair sits between them:
+  38 blocked attempts over 56 generations produced 0 refused turns in 32. Do not hunt prod for
+  `blocked:*` turns to exercise refusal UI.
+- **NEW — a deferral is a conditional that EXPIRES, and this is the SECOND instance.** ISC-486 read
+  "not deployed" for a day after its fix shipped; ISC-533 sat six days. Before trusting any deferral,
+  `git merge-base --is-ancestor <fix> <deployed>`.
+- **NEW — an instrument can contaminate the table it measures.** `wall-live-probe` wrote a
+  `question` row per turn. The marker exists but is NOT live until deployed.
+- **A probe with no control arm is not a measurement.** Ask what the REFUSED arm returned.
+- **Check `.build-meta.json` against HEAD before every deploy.** `answerMode` = `synthesis`,
+  `gitSha` = HEAD.
+- **Navigating to an identical hash is a NO-OP** — force a real load with a cache-buster.
+- **A copy test cannot see reachability.** Extract the DECISION into its own module and test the
+  turn it produces.
+- **A deploy ships the whole range.** `git diff <live>..HEAD` and read the commit list, every time.
+- **`wrangler d1 migrations list` does not print in sorted order**, and a migration is verified by
+  reading the schema, not the ✅. The `events` timestamp column is **`ts`**, not `created_at`.
+- **A binding and its secret are different switches.** `IDENTITY_HMAC_SECRET`, not `DB`, is what
+  starts persisting questions.
+- **A fixture in the wrong SHAPE is worse than no fixture** — copy values from the PRODUCER.
+- **A guard line that can never fire looks exactly like one that works** — mutate to find which line
+  is load-bearing.
+- **Gates are never piped into `head`/`tail`** — a pre-flight hook blocks it, and a hook rejection
+  discards EVERY write in that Bash call. Redirect, echo `$?`, then read the file.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 evening)
 
 > Prepended by /wrap 2026-08-24 (evening). **Anchor: `431b2c1` on `origin/main`** — verify with

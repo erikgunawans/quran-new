@@ -4,6 +4,133 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (night) — Cycle 12: the annotation paints but prod never asks it to; ISC-323 is recall, not ranking
+
+**Anchor `421213e` on `origin/main`. NOTHING DEPLOYED THIS CYCLE — prod is still Worker
+`7b337a20` from `431b2c1`, and HEAD is 4 commits ahead of it.** Everything below is verified
+offline or against prod read-only; two of the four changes do nothing until a deploy.
+
+ISA **683/697** — 676 `[x]` + 7 `[~]` + 14 open. Gates at the anchor: `bun test` **2268/0** exit 0,
+typecheck exit 0, synthesis build exit 0, `wrangler deploy --dry-run --env=""` exit 0 with
+DB + VECTORIZE + AUDIO + CORPUS + ASSETS. Run locally; this repo has no CI.
+
+### ISC-647 — split, because the two halves disagreed
+
+**The deployed client DOES paint the late-refusal note.** Driven through Interceptor against prod
+and sampled every 2 s: fast answer at T+12 s, refusal delivered late, note appended as the LAST
+CHILD of the same turn with `.still-composing` retracted and the fast answer intact
+(1,708 → 1,889 chars). ISC-534 and ISC-529 both hold live.
+
+**The wire was synthetic and that is the whole caveat.** A `window.fetch` shim took the real prod
+response and changed exactly three fields — `answer` → `""`, `blocked` → `own_wording`,
+`gen.reason` → `blocked` — then held it 9 s to force the late branch. It verifies the deployed
+CLIENT, never the deployed SYSTEM.
+
+**Prod does not produce that body: 0 of 32 live turns.** `gen.reason` = answered 29 · deadline 3 ·
+**blocked 0**, against **38 blocked ATTEMPTS over 56 generations**. The mechanism was not known when
+the criterion was written: the client honours `blocked` only when `answer` is EMPTY
+(`web/src/answer-live.ts:157`), and **ISC-561's repair sits between a guard block and any
+reader-visible refusal** — captured on the wire, one turn came back
+`attempts:[blocked:bad_hadith, blocked:own_wording]` with `reason:"answered", repaired:true,
+repairedDropped:3`. The channel is CORRECT AND SILENT, which is what the criterion pre-registered.
+It is `[~]`, not `[x]`: no live refused turn of the required shape occurred.
+
+**Two false negatives this probe produced, both recorded as ISC-653.** A first shim set `blocked`
+while leaving `answer` at its real 1,150 chars — the client ignored it exactly as designed and the
+turn upgraded, which reads as "the channel is dead". A fake must match the real thing on every field
+the predicate READS, not on the fields the story is about. And a sampling window that stopped at
+T+31 s ended before delivery. Both were caught only because an unshimmed CONTROL arm painted its
+upgrade at T+21 s.
+
+### The instrument was contaminating the table it measures (ISC-655)
+
+`events` held **39 question rows across 36 distinct `user_id`s and NOT ONE was a reader** — 38 from
+this session's probes, 1 from the previous session's own check. An unauthenticated
+`wall-live-probe` POST still resolves an anonymous `identity.userId`, so every probe turn logged.
+The 2026-08-24 evening handoff's line that `events` "was empty when baselined… so every row now is
+real reader traffic" was FALSE.
+
+**Deleted on Erik's authorisation:** `DELETE FROM events WHERE id <= 39`, `changes: 39`, table now
+counts 0; scoped by `id` with a pre-flight confirming `newer = 0`; `accounts` (1), `kajian_jobs`,
+`bookmarks`, `notes` re-counted untouched. **The next reader is id 40, not 1** — the column is
+`AUTOINCREMENT` and `sqlite_sequence` still reads 39. That gap is left deliberately as the only
+remaining trace the rows existed.
+
+**The marker is built:** `worker/src/probe-marker.ts`, `handleAnswer` gates the write on
+`!isProbeRequest(request)`, the probe sends `X-QuranKu-Probe: 1`. It requires the VALUE `1` rather
+than header presence, because a proxy appending bare headers would otherwise silently stop logging
+real readers — this module's own failure inverted. Client-asserted deliberately: it can only cause
+LESS to be stored and cannot change a byte of the answer. **NOT LIVE UNTIL DEPLOYED.**
+
+### ISC-454 re-measured, ISC-552 closed
+
+Harvested from the same 32 turns, no new traffic. **Reader-facing `bad_hadith` refusals: 0/32.
+Attempt level: 8/56 (14%)** — the wall fires as often as ever and retry plus repair absorb it.
+**Deliberately NOT written as "24% → 0%"**: that baseline was 141 questions over a different set.
+ISC-454 stays `[ ]` because a zero refusal rate cannot distinguish a working wall from one repair
+has defeated by excising the receipt along with the violation — which is the ustadz item.
+ISC-552 `[x]`: five independent runs, the stated 2–3-per-run has never returned.
+Dump committed as `docs/review/wall-live-probe-2026-08-24.txt`.
+
+### ISC-652 — "could not check" is not "not permitted"
+
+`checkRole` returns three outcomes where there were two. Only `denied` may claim anything about
+permission; `unavailable` gets copy that claims nothing plus a retry, because the check runs on
+route entry only. **The outer `catch` was the second half** — everything past it runs AFTER the
+session proved `admin`, so a `loadJobs` throw was telling a verified administrator *"Halaman ini
+khusus admin"*. Neither outcome opens the surface, and a test pins that.
+
+**Two old tests were PINNING THE DEFECT** and were moved, not deleted; a third covers the
+SPA-fallback 200. ⚠️ **The first mutation was a NO-OP** — rewriting the admin check as
+`check === "denied"` passed 22/22 and proved nothing, because the branch above already returns.
+
+### ISC-323 — the diagnosis changed: pool, not ranker
+
+Run through `wrangler.dalil-probe.toml`, which has **no D1 binding**, so it contaminates nothing.
+Display path unchanged (rank 1 `hadith-bukhari-540`, target absent from the top 8). The paired
+scoring arms are the finding, stable over three runs:
+
+| arm | `hadith-muslim-154` rank | latency |
+|---|---|---|
+| plain — **what production runs** | **not in the top 50 at all** | 249–296 ms |
+| `returnValues:true` | 24 | 1,031–1,658 ms |
+
+`identical_positions: 1` of 50. The record IS in the index; production's approximate scoring cannot
+see it. **No reranker change can meet this criterion** — a reranker only orders the array it is
+handed. And even exact-scored it is rank 24 against a display cap of 2: two gaps, one behind the
+other. Vectorize refuses `topK > 100` (`40011`), and `topK > 50` whenever `returnValues:true`
+(`40025`).
+
+### ISC-486 — its deploy gate was STALE
+
+The criterion read *"Still NOT MET: not deployed — deploys are Erik's"*. That stopped being true on
+2026-08-23: `bcc963d` is an ANCESTOR of `431b2c1`, verified with `git merge-base --is-ancestor`.
+**Second instance of the ISC-533 shape** — a deferral is a conditional that expires. The re-measure
+is now blocked on the probe marker being deployed, not on the fix.
+
+### Two handoff items were STALE and are not blocked on Erik
+
+- **`gcloud` ADC / `short.m4a`** — ADC is already live, project `story-maker-demo`,
+  `texttospeech.googleapis.com` ENABLED. A real call with the narration voice
+  `id-ID-Chirp3-HD-Schedar` returned **HTTP 200 and 122,940 bytes**. Only a billing yes is needed.
+- **`REVIEWER_EMAILS`** — `requireRole(…, "reviewer")` has **ZERO call sites**; the only gated route
+  is `requireRole(request, env, "admin")` at `worker/src/index.ts:264`. Setting it unlocks nothing,
+  and the ustadz review can happen offline today. Also: `RESEND_FROM` is a SECRET, not a `[vars]`
+  entry — the runbook and `wrangler.toml` comments both say otherwise and are wrong.
+
+### Next
+
+1. **Deploy** — it unblocks three things at once (ISC-655 live, ISC-652 reachable and finally
+   visible, ISC-486 measurable without re-contaminating `events`). Erik's gate.
+2. **ISC-486** re-measure on a fresh live sample, AFTER that deploy.
+3. **ISC-654** needs Erik's ruling, not code: a blocked turn settling under `FAST_ANSWER_MS` gets no
+   annotation at all — the channel is reachable only from the late path.
+4. **ISC-655's open half** if the marker proves insufficient in practice.
+5. Other open ISCs, none started: 98, 419/420, 440.6, 464, 353.0, 627.7, 487, 454.
+6. **ISC-566 and ISC-417 stay OPEN by Erik's decision.**
+
+---
+
 ## 2026-08-24 (evening) — Cycle 11: the late refusal reaches the reader, and the kajian queue accepts a kajian
 
 **Anchor `431b2c1` on `origin/main`. PROD DEPLOYED: Worker `7b337a20-d716-491f-9627-c5ddf5cf97ed`,
