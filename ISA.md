@@ -1497,6 +1497,37 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       The runner resolves `short.m4a` OR `short-DRAFT.m4a` — the draft suffix is the disk naming rule
       (ADR 5) and the allowlist has one audio key, so without the second name the button would have
       been dead for every auto-caption video, which is most of them.
+
+      **THE FIRST REAL `short.m4a` EXISTS — 2026-08-24 (Cycle 13), on Erik's ruling to bill TTS to
+      `story-maker-demo` temporarily.** Produced by running the real pipeline end to end
+      (`GOOGLE_CLOUD_PROJECT=story-maker-demo bun run src/app/kajian.ts <url>`), not by a synthesize
+      probe: 646,080 bytes, **46.24 s**, AAC 24 kHz mono, and it is SPEECH rather than a file of the
+      right size — `volumedetect` reads `mean_volume -18.3 dB` / `max -0.3 dB`, where silence reads
+      around `-91 dB` or `-inf`. The provenance rides INSIDE the container as specified:
+      `comment` carries the source URL and `description` carries all three denials verbatim
+      (*"Ringkasan otomatis. Tidak dimaksudkan sebagai kutipan, bukan fatwa, dan belum diperiksa
+      ulama."*). Artifacts live in `.scratch/kajian/`, which is gitignored — nothing was committed.
+
+      ⚠️ **THE REASON RECORDED FOR THIS BEING BLOCKED WAS WRONG, and is corrected rather than
+      quietly dropped.** `docs/runbooks/kajian-runner.md` said the machine had no Google TTS
+      credentials. ADC was live, and the earlier 2026-08-24 01:42 run had already written a
+      `narasi.m4a` that measures as real speech (126.92 s, `mean_volume -19.9 dB`) — so credentials
+      were never the blocker, and anyone acting on that line would have gone to fix the wrong thing.
+      What was missing was a DECISION about which project to bill. **What is NOT explained and is
+      not asserted either way:** why that 01:42 run left no `short.m4a` despite reaching TTS for the
+      long form. The independent-`short.m4a` code landed in `ee30022` (04:47), *after* that run,
+      which fits — but this entry does not claim it as the cause, because nobody measured it.
+
+      **Billing is pointed by an ENVIRONMENT VARIABLE, so the revert is one unset.** `quotaProject()`
+      prefers `GOOGLE_CLOUD_PROJECT` over gcloud's configured project, so Erik's gcloud default was
+      never touched. ⚠️ **`temporarily` is Erik's word and is recorded as a condition, not as a
+      settled arrangement** — and there is STILL no per-day or per-run cost ceiling anywhere in the
+      code, which was harmless while nothing could reach the API and is a live spend now.
+
+      **STAYS `[~]`.** The FILE half is now met and measured; the remainder is unchanged — there is
+      still no `speechSynthesis` fallback (a feed record carries no summary text, so a browser voice
+      could only read the TITLE), and still no ground-truth pixel of the native audio control, which
+      is unphotographable through UA shadow DOM.
       **VERIFIED by a PAIRED probe, not by reading:** the pipeline run at `HEAD` and on the fix, same
       flags, same video (`jNQXAC9IVRw`) — `HEAD` never attempts narration at all; the fix reaches the
       Google TTS call. Plus a mutation: deleting `short-DRAFT.m4a` from `UPLOADS` reddens exactly the

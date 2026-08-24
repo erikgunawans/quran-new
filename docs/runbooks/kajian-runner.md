@@ -118,8 +118,24 @@ fails must surface as a job state and never as a silent empty summary.
   mp4 — verified by running the pipeline at `HEAD` and on the fix with identical flags, where `HEAD`
   never attempts narration and the fix reaches the TTS call. The runner uploads `short.m4a` or
   `short-DRAFT.m4a` when one exists and the card ships without audio when neither does.
-  **Not yet verified end to end:** this machine has no Google TTS credentials
-  (`gcloud auth application-default login`), so no real `short.m4a` has ever been written.
+  **VERIFIED END TO END 2026-08-24 — the first real `short.m4a` exists.** 646,080 bytes, 46.24 s,
+  AAC 24 kHz mono, `mean_volume -18.3 dB` / `max -0.3 dB` — measured with `volumedetect`, because a
+  file of that size is equally consistent with 46 seconds of silence and the size alone would not
+  have told them apart. The three denials and the source URL ride INSIDE the container as designed:
+  `description=Ringkasan otomatis. Tidak dimaksudkan sebagai kutipan, bukan fatwa, dan belum
+  diperiksa ulama.`
+  ⚠️ **The reason this line used to give was WRONG, and it is corrected rather than deleted.** It
+  said the machine had no Google TTS credentials. ADC was in fact live, and the 2026-08-24 01:42 run
+  in `.scratch/kajian/jNQXAC9IVRw/` had already written a `narasi.m4a` that measures as real speech
+  (126.92 s, `mean_volume -19.9 dB`) — so credentials were never the blocker and a reader of this
+  file would have gone looking for the wrong thing. What was actually missing was Erik's decision on
+  **which project to bill**, settled 2026-08-24: `story-maker-demo`, **temporarily**.
+  **How the billing is pointed, and how to unpoint it:** `quotaProject()` prefers the
+  `GOOGLE_CLOUD_PROJECT` environment variable over gcloud's configured project, so a run is billed
+  elsewhere with `export GOOGLE_CLOUD_PROJECT=story-maker-demo` and nothing in Erik's gcloud config
+  is touched. Unsetting the variable is the whole of the revert.
+  ⚠️ **There is still NO per-day or per-run cost ceiling in the code** (see the decisions at the
+  top). That was tolerable while nothing could reach the API. It is a live spend now.
   **The CONTROL is built and lives on the CARD** (Erik, 2026-08-24), so `slide.html`'s CSP is
   untouched — it denies `media-src` and `script-src` both, and a player there would have needed it
   relaxed. **No `speechSynthesis` fallback:** a feed record carries no summary text, so a browser
