@@ -31,6 +31,24 @@ export interface GenAttempt {
   readonly ms: number;
   readonly budgetMs: number;
   readonly outcome: GenOutcome;
+  /**
+   * WHICH rule refused this attempt. Present only on a `blocked:*` outcome.
+   *
+   * ── WHY THE OUTCOME ALONE IS NOT ENOUGH ─────────────────────────────────────────────────────
+   *
+   * `outcome` carries the KIND, and `own_wording` is TWO different walls — `wordingShape` (a
+   * grammar question about quoted spans) and `scriptureEchoShape` (a corpus question about shared
+   * runs). Collapsing them was already recorded as a measurement hazard, and on 2026-08-25 it cost
+   * a real answer: after ISC-419's cited half went live, both `apa yang al quran katakan tentang
+   * neraka` turns blocked `own_wording` on their first attempt and then shipped clean prose. That is
+   * exactly what the new wiring firing would look like — and exactly what `wordingShape` firing on
+   * its own would look like too, and the probe could not tell them apart.
+   *
+   * The rule is already known here: `trace.blockedRule` is set from the same `verdict.violations[0]`
+   * that sets `trace.blocked`, eleven lines above the push. It was simply not recorded. Diagnostic
+   * only — it names a guard that already refused, never a reason a reader is shown.
+   */
+  readonly rule?: AnswerViolationRule | null;
 }
 
 export interface GenTrace {
@@ -315,7 +333,9 @@ export async function runGeneration(trace: GenTrace, deps: RunGenerationDeps): P
       trace.attempts.push({ ms, budgetMs, outcome: "empty" });
       continue;
     }
-    trace.attempts.push({ ms, budgetMs, outcome: `blocked:${trace.blocked}` });
+    // `rule` rides the SAME `trace.blockedRule` the turn-level report reads — one binding, not a
+    // second lookup into `verdict.violations`, which is the drift the comment above forbids.
+    trace.attempts.push({ ms, budgetMs, outcome: `blocked:${trace.blocked}`, rule: trace.blockedRule });
     refused.push({ prose: candidate, rule: trace.blockedRule });
   }
 

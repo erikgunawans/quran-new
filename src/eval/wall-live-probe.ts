@@ -151,7 +151,13 @@ interface Row {
    * `MIN_RETRY_MS` from the wrong distribution — the same class of arithmetic error as the 6_000 it
    * would be replacing.
    */
-  readonly attempts: readonly { readonly ms: number; readonly budgetMs: number; readonly outcome: string }[];
+  readonly attempts: readonly {
+    readonly ms: number;
+    readonly budgetMs: number;
+    readonly outcome: string;
+    /** WHICH rule refused it. `own_wording` is two walls; the outcome alone cannot say which. */
+    readonly rule: string | null;
+  }[];
   /** How the generation LOOP terminated, server-side: `deadline` | `blocked` | `ok` | … */
   readonly genReason: string | null;
   /**
@@ -270,7 +276,7 @@ async function turn(p: Probe): Promise<Row> {
       hadith?: unknown[];
       dalil?: { offered?: number; records?: number; failed?: string | null; ms?: { total?: number } | null };
       gen?: {
-        attempts?: { ms?: number; budgetMs?: number; outcome?: string }[];
+        attempts?: { ms?: number; budgetMs?: number; outcome?: string; rule?: string | null }[];
         reason?: string | null;
         rule?: string | null;
       } | null;
@@ -290,6 +296,9 @@ async function turn(p: Probe): Promise<Row> {
         ms: a.ms ?? 0,
         budgetMs: a.budgetMs ?? 0,
         outcome: a.outcome ?? "?",
+        // `null` is a REAL value here (a non-blocked attempt has no rule); `undefined` means the
+        // Worker predates this field. Both read as "unknown" below rather than as "no rule".
+        rule: a.rule ?? null,
       })),
       genReason: data.gen?.reason ?? null,
       genRule: data.gen?.rule ?? null,
@@ -535,6 +544,30 @@ if (allAttempts.length === 0) {
   // and just as wrong.
   const byOutcome = new Map<string, number[]>();
   for (const a of allAttempts) byOutcome.set(a.outcome, [...(byOutcome.get(a.outcome) ?? []), a.ms]);
+
+  // ── WHICH WALL, for the outcome that fuses two of them ────────────────────────────────────────
+  //
+  // `own_wording` is `wordingShape` AND `scriptureEchoShape`. On 2026-08-25 that ambiguity made the
+  // post-deploy re-measure of ISC-419's cited wiring unreadable: both `neraka` turns blocked
+  // `own_wording` on attempt 1 and then shipped clean prose, which is what the new wiring firing
+  // looks like and equally what `wordingShape` firing alone looks like.
+  const ow = allAttempts.filter((a) => a.outcome === "blocked:own_wording");
+  if (ow.length > 0) {
+    const byRule = new Map<string, number>();
+    for (const a of ow) {
+      const k = a.rule ?? "UNKNOWN (Worker predates the per-attempt rule)";
+      byRule.set(k, (byRule.get(k) ?? 0) + 1);
+    }
+    console.log(`  own_wording split by RULE (${ow.length} attempts):`);
+    for (const [rule, n] of [...byRule].sort((a, b) => b[1] - a[1])) {
+      console.log(`     ${String(n).padStart(3)}  ${rule}`);
+    }
+    if (byRule.has("echo")) {
+      console.log(`     ⚠ \`echo\` present — the wall fired. Whether it fired on a RETRIEVED or a CITED`);
+      console.log(`       anchor still needs the turn's verseRefs; an echo block on a 0-verse turn is`);
+      console.log(`       necessarily the CITED half (ISC-419), because the retrieved half is inert there.`);
+    }
+  }
   for (const [o, xs] of [...byOutcome].sort((a, b) => b[1].length - a[1].length)) {
     console.log(
       `    ${String(xs.length).padStart(3)}  ${o.padEnd(24)} median ${String(pct(xs, 50)).padStart(6)} ms` +

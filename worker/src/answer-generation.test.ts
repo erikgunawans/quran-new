@@ -110,7 +110,7 @@ describe("a retry after a guard refusal", () => {
     });
 
     expect(trace.attempts).toEqual([
-      { ms: 4_000, budgetMs: 20_000, outcome: "blocked:bad_hadith" },
+      { ms: 4_000, budgetMs: 20_000, outcome: "blocked:bad_hadith", rule: "fatwa" },
       { ms: 5_500, budgetMs: 16_000, outcome: "ok" },
     ]);
     expect(trace.reason).toBe("answered");
@@ -133,8 +133,8 @@ describe("a retry after a guard refusal", () => {
     });
 
     expect(trace.attempts).toEqual([
-      { ms: 4_500, budgetMs: 20_000, outcome: "blocked:fatwa" },
-      { ms: 6_000, budgetMs: 15_500, outcome: "blocked:fatwa" },
+      { ms: 4_500, budgetMs: 20_000, outcome: "blocked:fatwa", rule: "fatwa" },
+      { ms: 6_000, budgetMs: 15_500, outcome: "blocked:fatwa", rule: "fatwa" },
     ]);
     expect(trace.reason).toBe("blocked");
     expect(trace.blocked).toBe("fatwa");
@@ -162,7 +162,7 @@ describe("a retry refused admission", () => {
       guard: () => blockedVerdict("bad_hadith"),
     });
 
-    expect(trace.attempts).toEqual([{ ms: 5_500, budgetMs: 10_000, outcome: "blocked:bad_hadith" }]);
+    expect(trace.attempts).toEqual([{ ms: 5_500, budgetMs: 10_000, outcome: "blocked:bad_hadith", rule: "fatwa" }]);
     expect(trace.attempts).toHaveLength(1);
     expect(trace.reason).toBe("blocked");
   });
@@ -197,7 +197,7 @@ describe("a retry that throws on the turn deadline", () => {
     ).rejects.toBe(deadlineError);
 
     expect(trace.attempts).toEqual([
-      { ms: 5_000, budgetMs: 20_000, outcome: "blocked:bad_hadith" },
+      { ms: 5_000, budgetMs: 20_000, outcome: "blocked:bad_hadith", rule: "fatwa" },
       { ms: 15_000, budgetMs: 15_000, outcome: "threw" },
     ]);
     expect(trace.reason).toBe("deadline");
@@ -683,5 +683,63 @@ describe("repair sees every refused candidate of the turn (ISC-561)", () => {
     expect(trace.repaired).toBe(false);
     expect(trace.repairedAttempt).toBeNull();
     expect(trace.blockedRule).toBe("fatwa");
+  });
+});
+
+/**
+ * THE PER-ATTEMPT RULE (2026-08-25).
+ *
+ * Added because the post-deploy re-measure of ISC-419's cited wiring could not be READ. Both
+ * `apa yang al quran katakan tentang neraka` turns blocked `own_wording` on attempt 1 and then
+ * shipped clean prose — which is what the new cited wiring firing looks like, and equally what
+ * `wordingShape` firing on its own looks like. `outcome` carries the KIND, and `own_wording` is TWO
+ * different walls.
+ *
+ * The two cases below differ ONLY in the rule and produce an IDENTICAL `outcome`. That is the whole
+ * point: an assertion on `outcome` alone cannot see this field, so dropping `rule` from the push
+ * leaves such a test green.
+ */
+describe("a blocked attempt records WHICH rule refused it", () => {
+  const runBlockedOnce = async (rule: AnswerViolationRule) => {
+    const trace = newGenTrace();
+    const clock = clockFrom(5_000);
+    await runGeneration(trace, {
+      turnDeadline: 25_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(4_000);
+        return "kandidat";
+      },
+      guard: () => blockedVerdict("own_wording", rule),
+    });
+    return trace.attempts.filter((a) => a.outcome === "blocked:own_wording");
+  };
+
+  it("separates the ECHO wall from the WORDING wall on rows whose outcome is identical", async () => {
+    const wording = await runBlockedOnce("wording");
+    const echo = await runBlockedOnce("echo");
+
+    expect(wording.length).toBeGreaterThan(0);
+    expect(echo.length).toBeGreaterThan(0);
+    // Identical on the field the probe used to read — this is the ambiguity that cost the re-measure.
+    expect(wording.map((a) => a.outcome)).toEqual(echo.map((a) => a.outcome));
+    // And distinguishable on the field this change adds.
+    expect(wording.every((a) => a.rule === "wording")).toBe(true);
+    expect(echo.every((a) => a.rule === "echo")).toBe(true);
+  });
+
+  it("leaves a NON-blocked attempt without a rule, so absence still means something", async () => {
+    const trace = newGenTrace();
+    const clock = clockFrom(1_000);
+    await runGeneration(trace, {
+      turnDeadline: 11_000,
+      now: clock.now,
+      generate: async () => {
+        clock.advance(320);
+        return "jawaban lolos";
+      },
+      guard: () => okVerdict(),
+    });
+    expect(trace.attempts).toEqual([{ ms: 320, budgetMs: 10_000, outcome: "ok" }]);
   });
 });
