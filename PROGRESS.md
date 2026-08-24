@@ -4,6 +4,86 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (late night) — Cycle 15: the widening was priced, and it would have shipped a regression
+
+**STILL NO DEPLOY. Live Worker `90b3929c` from `5ba8071`, unchanged — HEAD is now 11 commits ahead.**
+The `KAJIAN` upload route still answers 503. Erik chose to run the deploy himself; the artefacts are
+built and correct (`.build-meta.json` → `answerMode: "synthesis"`), command is
+`cd worker && npx wrangler deploy --env=""`.
+
+Gates at HEAD, all run THIS cycle rather than carried over: `bun test` **2310/0** exit 0 (2300 at the
+anchor, +10), typecheck exit 0, `VITE_ANSWER_MODE=synthesis bun run build` exit 0,
+`wrangler deploy --dry-run --env=""` exit 0 with six bindings.
+
+### Erik ruled three things, and one of the rulings was changed by its own measurement
+
+He chose *build the ISC-419 widening behind a measurement first*. The measurement then showed the
+widening as proposed would destroy a named must-answer, so he ruled again: **arm at run≥6 for cited
+anchors, keep run≥4 for retrieved.** He also chose a **residential proxy** for the kajian runner —
+which makes the D1 `tts_runs` ledger mandatory, not optional.
+
+### ISC-419 — the widening costs two good answers at today's threshold
+
+`src/eval/echo-widen.ts` scores CONTROL (`retrieved`) against TREATMENT (`retrieved ∪ cited`) over
+the same live prose. Both arms call **the real wall**; citations come from the shipped `refsInProse`.
+The control resolves **one** text per ref to match `worker/src/index.ts:973` — over-supplying it
+would understate the delta, the direction that flatters the change under test.
+
+**16 live turns: 23 citations, 19 to ayahs the turn was never handed, control 0/16, treatment 5/16,
+delta 5.** Read by matched run: QS 66:6 at `run 7` **twice** (the Cycle-14 row, fired on);
+QS 2:275 at `run 5` borderline and deliberately unclassified; and **two FALSE REFUSALS at `run 4`
+whose matched text is generic Indonesian** — `laki laki dan perempuan` (QS 24:32) and
+`di sisi allah adalah` (QS 49:13). ⚠️ **The second destroys `bolehkah perempuan jadi pemimpin`**,
+which the ISA names as an answer a hard egress rule must not destroy — the exact failure the
+prompt-first fix was chosen to avoid, arriving as predicted.
+
+Sweep by floor: 4→5, 5→3, **6→2 (both QS 66:6 rows, ZERO false refusals)**, 7→2, 8→0. `ECHO_MIN_RUN`
+was calibrated on RETRIEVED verses; widening the set gives every extra anchor another chance to
+collide. Record: `docs/review/echo-widening-2026-08-24-cycle15.md`.
+
+⚠️ The QS 66:6 rows are called **CANDIDATES, not violations** — both are unquoted, and the Cycle-14
+record leaves the unquoted question as Erik's open ruling. A first draft of the review file called
+them TRUE VIOLATIONS; that promoted a ruling he has not made and was corrected before commit.
+
+### The wall half is built and armed at six; the WIRING is blocked and was not worked around
+
+`EchoVerse` gains `origin: "retrieved" | "cited"` (absent = retrieved, so nothing existing moves).
+`ECHO_MIN_RUN` 4, `ECHO_MIN_RUN_CITED` 6. The per-sentence skip uses the MINIMUM floor across the
+set, so a set containing a retrieved verse cannot silently re-impose the retrieved floor on a cited
+one — pinned by a mixed-set test.
+
+**Behaviour on prod is UNCHANGED: no call site passes `origin: "cited"` yet.** The Worker cannot
+resolve a cited ref to its text — `verifyGrounding` is a hash-MEMBERSHIP test over `(ref,text)` and
+cannot invert, and `guard` is synchronous (`(candidate: string) => GuardVerdict`) with `repair`
+calling it repeatedly on sub-slices. Two wirings, both costed, **both waiting on Erik**: an async
+guard (refactors the generation/repair loop; every `ASSETS.fetch` needs a shape check because the SPA
+fallback returns `index.html` at 200), or a per-isolate ref→text index (loop untouched, cold-start
+load of ~6,236 entries).
+
+### Two instruments proved able to fire, by mutation
+
+`echo-widen`: removing the widening reddens exactly the positive control. `answer-guard-echo-cited`:
+collapsing `ECHO_MIN_RUN_CITED` to 4 reddens 4 of its 6. Both reverted, both green after.
+
+### A hypothesis of mine was falsified, and a memory of mine was stale
+
+I proposed that the wall is blind to the **companion** translation, since prod hands it only the
+primary and the QS 66:6 row tracks Kemenag. **Tested it — FALSE.** The two translations share
+`bahan bakarnya adalah manusia dan` (5 words), so a companion echo is caught *through* the primary.
+Dropped rather than reported.
+
+**The probe marker is LIVE and my memory said it was not.** `git merge-base --is-ancestor 019f015
+5ba8071` succeeds, `worker/src/index.ts:677` makes `!isProbeRequest(request)` the last condition on
+the D1 write, and `probe-marker-route.test.ts` exists to redden if that call site is deleted. So a
+live probe no longer contaminates `events` — **FIFTH deferral found sitting on a discharged gate.**
+
+### Recorded, not chased
+
+The live theme classifier returned **0 themes on 14 of 16 turns**. Cycle 14 saw 0 on 23 of 24. Two
+runs on different days both near-zero is not run-to-run noise; it looks persistent.
+
+---
+
 ## 2026-08-24 (night) — Cycle 14: two stale gates opened, a spend ceiling, and sign-in actually works
 
 **NO DEPLOY THIS CYCLE.** Live Worker `90b3929c-585c-4eed-a87b-5f0a8aaf5250` from `5ba8071`,

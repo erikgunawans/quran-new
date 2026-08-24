@@ -1,3 +1,148 @@
+# Next session — New-Quranku (checkpoint 2026-08-24 late night, Cycle 15)
+
+> Prepended by /wrap 2026-08-24 (late night). **Anchor: `55b57ba` + this wrap's own commit on top,
+> so `origin/main` will read as the wrap checkpoint, not `55b57ba`. That is expected, not drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the 2026-08-24 night (Cycle 14) block below**, whose §2.2 ("Erik has NOT ruled on
+> ISC-419's fix") is now FALSE — he ruled twice — and whose §3 runner-host question is SETTLED.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 late night, Cycle 15**).
+
+## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW DONE OR FALSE
+
+- **"Arm the echo wall from the CITED ayah?" is RULED.** Erik: build behind a measurement first, then
+  — after seeing it — **arm at run≥6 for cited anchors, keep run≥4 for retrieved.** The WALL half is
+  built and pushed. The WIRING is blocked and is now the open question (§2.1).
+- **"Where does the kajian runner run?" is RULED: a cloud host + residential proxy.** This makes the
+  D1 `tts_runs` ledger MANDATORY — it is no longer a "known weakness", it is the next task (§2.2).
+- **"The probe marker is built but NOT DEPLOYED" is FALSE.** `019f015` is an ancestor of `5ba8071`,
+  fully wired at `worker/src/index.ts:677`. **A live probe does NOT contaminate `events`.** Fifth
+  discharged gate. Memory corrected.
+- **"ISC-419 needs a located violation" is DONE and then some** — it is now PRICED, and the price
+  killed the cheap version of the fix.
+
+## 1. STATE
+
+ISA **683/697** — unchanged counts; **no checkbox moved.** ISC-419 stays `[ ]` on purpose: the wall
+half is in, the wiring is not, and Erik has not ruled on which wiring.
+
+Gates at HEAD, all run in Cycle 15: `bun test` **2310/0** exit 0 · typecheck exit 0 ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0 with
+SIX bindings. **Run locally; this repo has no CI.**
+
+**PROD IS BEHIND AND THE DEPLOY IS STILL OWED.** Live Worker `90b3929c` from `5ba8071`; HEAD is 11+
+commits ahead. `KAJIAN` is CONFIG, so the runner upload route answers 503 until Erik deploys. Erik
+chose to run it himself: `cd worker && npx wrangler deploy --env=""`. **Do not rebuild first** — a
+bare `bun run build` writes the WRONG EDITION.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Also untracked and
+DELIBERATELY unstaged: **`.env.runner`** (mode 0600, gitignored) — it holds `RUNNER_SECRET`.
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **THE ECHO-WALL WIRING — Erik must pick, then build it.** The wall half is armed at run≥6 but
+   **no call site passes `origin: "cited"`, so prod behaviour is unchanged.** The Worker cannot turn
+   `QS 66:6` into text: `verifyGrounding` is a hash-MEMBERSHIP test over `(ref,text)` and cannot
+   invert, and `guard` is SYNCHRONOUS (`(candidate: string) => GuardVerdict`) with `repair` calling
+   it repeatedly on sub-slices. Two options, both costed and both his call:
+   **(a) async guard** — refactors `runGeneration` + `repair`; every `env.ASSETS.fetch` needs a SHAPE
+   check because the SPA fallback returns `index.html` at **200**;
+   **(b) per-isolate ref→text index** — loop untouched, cold-start load of ~6,236 entries.
+   ⚠️ `web/src/answer-guard-echo.test.ts:129` pins the exact call-site string
+   `verses.map((v) => ({ ref: v.ref, texts: [v.text] }))`. Changing the call site REDDENS it by
+   design — update it deliberately, never delete it.
+
+2. **BUILD THE D1 `tts_runs` LEDGER.** Erik chose a residential-proxy cloud host, so this is now
+   mandatory and must land in the SAME change that deploys a hosted runner. `chargeTtsRun` keeps a
+   LOCAL-FILE ledger; every hosted execution starts with a fresh filesystem, so it would charge slot
+   1 of 30 for ever and the ceiling would be uncapped. **Keep Erik's number: 30 runs/day**, counted
+   in RUNS (one pipeline run calls `narrateToWav` twice, so a cap in requests would be ~1 run).
+
+3. **ISC-419 re-measure, PAIRED, after the deploy.** Cycle 15's numbers are PRE-deploy. Re-run
+   `wall-live-probe --repeat 2 --dump` then `echo-widen --rows` and compare. Safe now — the probe
+   marker is live.
+
+4. **ISC-486, ISC-323, ISC-487 unchanged.** 486 is SCORED (0 over-refusals of 1 opportunity, 24
+   turns) and the proper-name vocabulary is still NOT BUILT. 323 needs a DESIGN decision and cheap
+   fixes are ruled out (Erik's ISC-323.4 tombstone). 487 stays NOT MET; no constant moved.
+
+5. **The other open ISCs, none started:** ISC-98, 420, 440.6, 464, 353.0, 627.7, 454.
+
+6. **ISC-566, ISC-417 and ISC-654 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **The deploy** (see §1). Gates the `KAJIAN` binding.
+- 🔶 **`ADMIN_EMAILS` — VERIFY FIRST.** He set it blind; secrets cannot be read back. `/api/auth/role`
+  must answer `{"role":"admin"}`. An empty or wrong value **fails closed and locks him out.**
+- 🔶 **Which echo wiring** — (a) or (b) in §2.1.
+- 🔶 **Which source does the runner launch on?** Publishing is gated on ISC-630 / the rights call. His
+  queued `J5x-9tHxeJA` is Ustadz Ali Hasan Bawazier — **nothing may publish until he rules.**
+- 🔶 **Ustadz Ahmad's theological read of a REPAIRED answer.** Repair fires constantly and nobody has
+  checked whether excision leaves the meaning sound. Offer to build the review pack — no secret, no
+  app access needed.
+- 🔶 **A residential proxy provider must actually be chosen and paid for.** The ledger (§2.2) can be
+  built without it, but no hosted runner exists until this is done.
+- 🔶 **TTS billing to `story-maker-demo` is TEMPORARY by his own word.** Revert is
+  `unset GOOGLE_CLOUD_PROJECT`, nothing else.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The theme classifier returned 0 themes on 14 of 16 turns**, and Cycle 14 saw 0 on 23 of 24.
+  Two runs, different days, both near-zero — **this is not run-to-run noise and nobody has looked.**
+- 🔴 **The 30/day TTS ceiling still does not survive a hosted runner** until §2.2 lands.
+- **The transcript skill is NOT in this repo.** `src/app/kajian.ts:205` spawns
+  `~/.claude/skills/baoyu-youtube-transcript/`. Any container must vendor it first.
+- **Every datacentre IP is refused by YouTube** — Cloudflare 429s at the first request, Cloud Run
+  gets a normal page then dies inside `yt-dlp` on the bot wall, on "Me at the zoo" as well as his own
+  video. Residential works. That is WHY the proxy was chosen.
+- **`--allow-unauthenticated` is refused by the `axiara.ai` org policy.** Prefer a Cloud Run **Job**
+  + Scheduler with a service account.
+- **Erik's queued job sits `running` and nothing is running it.** Self-releases after
+  `CLAIM_LEASE_MS` (2 h).
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a measurement can overturn the ruling that ordered it.** Erik ruled "build the widening",
+  the measurement showed it destroys a named must-answer, and he re-ruled. Report the number BEFORE
+  building on the first ruling.
+- **NEW — do not promote a CANDIDATE to a VIOLATION.** A draft review file called the QS 66:6 rows
+  TRUE VIOLATIONS. They are unquoted, and the Cycle-14 record leaves the unquoted question as Erik's
+  open ruling — so the wording would have settled a ruling he never made.
+- **NEW — a threshold calibrated on one input set is a different rule on another.** `ECHO_MIN_RUN=4`
+  was measured on RETRIEVED verses; re-using it for CITED anchors bought two false refusals.
+- **NEW — over-supplying a control arm understates the delta.** The control resolves ONE text per ref
+  because that is what `worker/src/index.ts:973` does. Handing it every shipped translation would
+  have flattered the change under test.
+- **NEW — test the blindness you are about to report.** "The wall can't see the companion
+  translation" was a clean hypothesis and it was FALSE: the two translations share 5 contiguous
+  words, so the companion is caught through the primary.
+- **NEW — a deferral naming a FILE or a CAPABILITY escapes the id grep.** Fifth discharged gate.
+  Before repeating "nothing can do X", grep `src/eval/`, `worker/src/` and the ISA for the CAPABILITY.
+- **A blocked hook discards every write in that Bash call.** Hit again this cycle: a `grep | tail`
+  alongside `bun test` meant the test never ran.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`, and
+  read `.build-meta.json` before deploying.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something, and
+  check WHICH test died.
+- **A guard block is NOT a reader-visible refusal.** ISC-561's repair sits between them.
+- **`cd` inside a Bash call PERSISTS.** A path-scoped `git diff` run from `worker/` silently scoped
+  to `worker/src`, `worker/web` — and returned empty, which read as "no Worker code changed".
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 night, Cycle 14)
 
 > Prepended by /wrap 2026-08-24 (night). **Anchor: `c7feb60` + this wrap's own commit on top, so
