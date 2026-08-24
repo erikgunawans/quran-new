@@ -1938,6 +1938,30 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
 
 ## Decisions
 
+- **2026-08-24 — ISC-642 is recorded, not ruled on, and that is deliberate.** The late-path
+  `hadith-defer` substitution takes a cited answer off the reader's screen at ~25 s and replaces it
+  with the Hadis pointer. It is a genuine ISC-534 violation, it is PRE-EXISTING (the annotation
+  channel only fires where the code previously did nothing, so it cannot have introduced it), and the
+  tension is real in both directions: the pointer is the one refusal this app considers TRUE, and
+  annotating instead would keep the answer but lose the pointer. **Needs Erik: does a real answer on
+  screen outrank the Hadis pointer?** Folding a behaviour change into the same diff would also have
+  made that diff impossible to reason about.
+
+- **2026-08-24 — show your math, delegation floor unmet (E3 wants ≥2).** One delegation ran
+  (`RootCauseAnalysis`, which independently reproduced the closure-order chain and surfaced two things
+  this session would otherwise have missed: the false "runs in EITHER order" docstring at
+  `main.ts:924`, and that a `silence` fast turn currently tells the reader to RESEND after a guard
+  refusal). The second — a `Forge` pass, which the E3 coding-task binding calls for — was NOT run: the
+  session's operating instructions forbid unrequested Agent calls. What it would have bought is an
+  independent read of `annotateWithheld`'s branch table; that surface is instead covered by five
+  force-red mutations, which is the stronger evidence for this particular shape of change.
+
+- **2026-08-24 — refined: `withheld` is a flag on the Turn, not a DOM node.** The obvious
+  implementation appends a `<p>` to the answer element. Rejected: a loose node dies when a later
+  turn's `innerHTML` runs, and it never reaches storage — so a restored thread would show the same
+  turn WITHOUT its annotation, which is a quieter version of the defect being fixed. On the Turn it
+  survives `replaceTurn` and re-renders on restore.
+
 **2026-08-23 — the runner has a host: a VPS, chosen by Erik knowing the cost printed on the option.** Handoff item 1 was a question, not work, and it was put in this session's first exchange. He picked **a VPS** over his Mac (polling) and over a container on his Mac. The option he selected carried its own objection on its face — **a datacentre IP, which YouTube blocks**, so `yt-dlp` on that host will need exported cookies or a residential proxy. That is the runner's cost and the runner is NOT built here; it is recorded so nobody later reads the block as a surprise.
 
 **What that decision settles, and what it does not.** It unblocks the admin route (ISC-575..592) because the enqueue side is Worker work regardless of where the consumer runs. It does NOT settle the runner-facing protocol, and `FirstPrinciples/Deconstruct` is the reason that is a separate change rather than a scope cut: **there are two principals here, not one.** A human at a form proves an ACCOUNT — `requireRole`, exact match, disjoint roles. A machine on a VPS proves ITSELF — a shared bearer secret, no email, no role, no cookie. Serving both with `requireRole` would mean putting an Administrator's 30-day `__Host-qk_auth` into a VPS environment variable, which undoes ISC-568 entirely: it re-domiciles a browser-scoped, `HttpOnly`, person-bound credential onto a shared host as a static admin token that logout cannot revoke (and logout does not revoke anyway — ISC-568). **The runner is not a low-privilege admin; it is not an account at all, and the moment it needs one the design is wrong.**
@@ -2510,6 +2534,49 @@ near-miss cuts both ways: an agent's finding is not evidence, and neither is my 
 
 
 ## Changelog
+
+### 2026-08-24 — the late refusal reaches the reader (Cycle 11 opens)
+
+**Conjecture.** ISC-533's deferral is current: the `answer-blocked` copy must stay unreachable because
+`blocked` on the wire cannot separate a guard refusal from an expired clock, and rendering it would
+name the wrong actor at scale.
+
+**Refuted by.** The gate it names was discharged on **2026-08-18**, the day it was written. ISC-532
+shipped `gen: {attempts, reason}` that same day and reached prod in the 2026-08-23 deploy. The
+discriminator has been on every `/api/answer` response since, and `web/src/answer-live.ts` typed the
+body as `{answer, blocked, hadith}` — so it was arriving and being discarded one line from where it
+was needed. Two handoffs repeated the deferral verbatim without re-reading its precondition.
+
+**Learned.** Three things, in descending generality.
+
+1. **A deferral is a conditional that expires, and nothing here re-opens it.** An `[ ]` criterion that
+   names another ISC as its blocker is read afterwards as a *fact about the item* rather than as a
+   claim with a stated trigger. The workflow fix is mechanical: when marking any ISC `[x]`, grep the
+   ISA for its own id and re-read whatever cites it. ISC-533 named ISC-532 in its first sentence.
+2. **A copy test cannot see reachability, and passing over dead code is its DEFAULT outcome.** All
+   five `answer-blocked` tests slice `main.ts` as a source string to assert what the sentence says;
+   none asks whether any path produces the turn. They were green for the whole six days. The
+   technique can only read text — and it is equally blind to the closure-order bug underneath, where
+   `resolvePrincipled` closes over a mutable `let blockedBy` so the order dependence never reaches
+   the signature and `tsc` has no parameter to object to. Recorded as ISC-646.
+3. **The honest fix was a third option neither side of the old argument had.** The choice had been
+   framed as "downgrade a real answer" versus "say nothing", and the code said nothing. `Turn` was
+   replace-or-nothing; there was no representation for *the fast answer stands, plus a note*. Adding
+   the annotation channel dissolved the dilemma rather than resolving it — which is the shape worth
+   looking for the next time a criterion sits open because both of its options are bad.
+
+**Criterion now.** ISC-533 `[x]` (the anti-criterion was HONOURED — the gate was discharged before the
+copy was made reachable, in that order). ISC-534 `[~]`, not `[x]`: it holds for the channel built here
+and is FALSE of the app, because the late-path `hadith-defer` substitution still takes a real answer
+off the screen at ~25 s. That is ISC-642, found while enumerating this criterion's test list, recorded
+rather than fixed, and waiting on Erik — pinning a known hole with a green test is the failure this
+project already has a memory for. ISC-643/644/645/646 added and met. ISC-647 added and open: the live
+verification, which needs a deploy that is Erik's.
+
+**And what this did NOT do.** ISC-487 stays NOT MET. The annotation closes the *honesty* half of that
+criterion and none of the *latency* half — `MODEL_DEADLINE_MS`, `MIN_RETRY_MS`, `MAX_ATTEMPTS` and the
+client's `TIMEOUT_MS` are byte-identical to the anchor. Nothing here measured, let alone bounded,
+anything. Do not let a future reading treat the annotation as the bound.
 
 **2026-08-18 (Cycle 10) — the 26-second wall was never a wait.**
 - **conjectured:** that ISC-487's ~26 s refusals cost the reader 26 seconds of staring, so the fix
