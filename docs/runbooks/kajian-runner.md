@@ -46,7 +46,13 @@ bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0001_init
 bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0002_accounts.sql
 bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0003_kajian_jobs.sql
 bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0004_kajian_results.sql
+bunx wrangler d1 execute new-quranku-memory --remote --file migrations/0005_tts_runs.sql
 ```
+
+⚠️ **0005 IS NOT YET APPLIED TO REMOTE.** It creates `tts_runs`, the TTS spend ceiling's storage. A
+hosted runner that charges against a table that does not exist gets an error from the Worker and — by
+design — REFUSES TO SPEND, so the failure is a stopped pipeline rather than an uncapped bill. Apply it
+before starting a hosted runner.
 
 **In that order, and 0004 after 0003.** 0003 is `CREATE TABLE IF NOT EXISTS`; 0004 is `ALTER TABLE`
 and will fail loudly if 0003 has not run. That failure is correct — it means the table is missing,
@@ -198,12 +204,25 @@ Three things that are NOT obvious and each of which will bite:
    `~/.claude/skills/baoyu-youtube-transcript/scripts/main.ts`, which lives in Erik's PAI directory.
    A container has no such path. It has to be vendored into the image (or into this repo) before the
    pipeline can run anywhere but his machine.
-2. **⚠️ THE TTS DAILY CEILING SILENTLY BECOMES UNLIMITED.** `chargeTtsRun` keeps its ledger in a local
-   file (`.kajian-tts-ledger.json`). Cloud Run gives every execution a fresh writable layer, so each
-   run reads an empty ledger, charges slot 1 of 30, and passes — **for ever**. The 30/day cap Erik set
-   on 2026-08-24 is a per-machine ceiling and it does not survive this move. Moving the ledger into
-   D1 (a `tts_runs` table keyed by local day) is the fix, and it must land in the SAME change that
-   deploys the runner, or the ceiling reads as covered and is not.
+2. **THE TTS DAILY CEILING — BUILT 2026-08-25, NOT YET APPLIED.** This item used to read *"silently
+   becomes unlimited"*, and it was true: `chargeTtsRun` kept its ledger in a local file
+   (`.kajian-tts-ledger.json`), and a fresh writable layer per execution means every run reads an
+   empty ledger, charges slot 1 of 30, and passes **for ever**. The ledger now lives in D1
+   (`worker/migrations/0005_tts_runs.sql`, `worker/src/tts-ledger.ts`,
+   `POST /api/runner/kajian/tts-charge`), keyed by the ASIA/JAKARTA day the WORKER computes — never a
+   day the runner supplies, or a runner could reset its own allowance.
+
+   **The switch is `QK_BASE_URL` + `QK_RUNNER_SECRET`, not a flag.** With both set, `chargeTtsRunFor`
+   charges the Worker; with neither, the local file. Those are the same two variables `runnerConfig`
+   refuses to start without, so a hosted runner CANNOT be configured to work and miss the ledger — a
+   dedicated `QK_TTS_LEDGER` flag could be forgotten, and forgetting it would restore this exact hole.
+
+   **It fails closed.** An unreachable ledger throws *"refusing to spend without a ledger"* and no
+   audio is generated. That message is deliberately different from the ceiling message: one sends you
+   to wait for midnight, the other sends you to look at the Worker.
+
+   ⚠️ **Two things are still owed before a hosted runner is safe:** migration 0005 applied to REMOTE
+   (see §3), and a deploy carrying the `/api/runner/kajian/tts-charge` route.
 3. **Cookies are a credential with an expiry.** `--cookies` means Erik's YouTube session in a secret,
    rotated by hand when it lapses, and a bot-wall failure is what a lapse looks like. A residential
    proxy costs money instead and does not expire. Neither is free; the choice is his.

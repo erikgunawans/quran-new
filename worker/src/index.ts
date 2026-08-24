@@ -66,6 +66,7 @@ import {
   type KajianJobResult,
 } from "./kajian-jobs.ts";
 import { isRunner } from "./runner-auth.ts";
+import { chargeTtsRunD1 } from "./tts-ledger.ts";
 import {
   artifactContentType,
   artifactKey,
@@ -335,6 +336,10 @@ async function route(request: Request, env: Env, ctx: ExecutionContext, identity
       if (url.pathname === "/api/runner/kajian/upload") return handleRunnerUpload(request, env);
 
       if (!env.DB) return noStore(json({ ok: false, error: "unavailable" }, 503, request));
+      // THE TTS SPEND CEILING. It rides the runner surface rather than living on the runner because
+      // the runner's filesystem does not survive a hosted execution — see `tts-ledger.ts`. Erik's
+      // 30 runs/day is enforced HERE, on state no runner can reset.
+      if (url.pathname === "/api/runner/kajian/tts-charge") return handleTtsCharge(request, env.DB);
       if (url.pathname === "/api/runner/kajian/claim") return handleRunnerClaim(request, env.DB);
       if (url.pathname === "/api/runner/kajian/complete") return handleRunnerComplete(request, env.DB);
       if (url.pathname === "/api/runner/kajian/fail") return handleRunnerFail(request, env.DB);
@@ -1378,6 +1383,58 @@ async function handleRunnerUpload(request: Request, env: Env): Promise<Response>
 
   await bucket.put(key, bytes);
   return noStore(json({ ok: true, url: artifactPath(videoId, name) }, 201, request));
+}
+
+/**
+ * Charge one TTS run against Erik's 30-a-day ceiling.
+ *
+ * ── WHY 429 AND NOT 403 ──────────────────────────────────────────────────────────────────────────
+ *
+ * A refusal here is "you have spent today's allowance", not "you are not allowed to ask". The runner
+ * surface already answers 403 for a bad secret, and a ceiling that spoke the same code as an auth
+ * failure would send an operator hunting for a credential problem that is not there. 429 also carries
+ * the right instruction implicitly: come back later — at local midnight in Jakarta, which the body
+ * names.
+ *
+ * ── WHAT THE BODY MUST CARRY ─────────────────────────────────────────────────────────────────────
+ *
+ * `used`, `limit` and `day` ride on BOTH answers. A runner that is refused needs to be able to log
+ * why in a form a human can read without a database, and `30/30 on 2026-08-25` is that form. It is
+ * also the only way an operator can tell a ceiling from a broken ledger: `0/30` with a refusal would
+ * be a bug, and without the numbers the two look identical.
+ */
+async function handleTtsCharge(request: Request, db: D1Database): Promise<Response> {
+  let body: { runId?: unknown };
+  try {
+    body = (await request.json()) as { runId?: unknown };
+  } catch {
+    return noStore(json({ ok: false, error: "bad_json" }, 400, request));
+  }
+  const runId = typeof body.runId === "string" ? body.runId.trim() : "";
+  // A blank id would collapse every run onto ONE ledger row: the first would charge, and every run
+  // after it for the rest of the day would find itself "already charged" and spend free. Refused
+  // rather than defaulted, exactly as `NarrateOptions.runId` is required rather than optional.
+  if (runId === "" || runId.length > 200) {
+    return noStore(json({ ok: false, error: "bad_run_id" }, 400, request));
+  }
+
+  const verdict = await chargeTtsRunD1(db, runId, new Date());
+  if (!verdict.allowed) {
+    return noStore(
+      json(
+        { ok: false, error: "tts_ceiling", used: verdict.used, limit: verdict.limit, day: verdict.day },
+        429,
+        request,
+      ),
+    );
+  }
+  return noStore(
+    json(
+      { ok: true, charged: verdict.charged, used: verdict.used, limit: verdict.limit, day: verdict.day },
+      200,
+      request,
+    ),
+  );
 }
 
 /** Claim the next job, or say plainly that there is nothing to do. An empty queue is not an error —

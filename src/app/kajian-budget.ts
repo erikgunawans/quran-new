@@ -30,14 +30,28 @@
  *   · It counts a run at its FIRST narration, so a run that dies before narrating costs nothing and
  *     a run that dies after its long script has been spoken still costs one. That is the honest
  *     direction: the money was already spent.
- *   · The ledger is a local file. Deleting it resets the day. It is a spend ceiling for this machine,
+ *   · The LOCAL ledger is a file. Deleting it resets the day. It is a spend ceiling for this machine,
  *     not an accounting system, and it is not a substitute for a budget alert in Google Cloud.
+ *
+ * ── TWO LEDGERS, ONE CEILING ─────────────────────────────────────────────────────────────────
+ *
+ * `chargeTtsRun` below is the LOCAL file ledger. `chargeTtsRunFor` at the bottom of this file picks
+ * between it and the D1 ledger behind the Worker, because a hosted runner's filesystem does not
+ * survive its own execution and a file ledger there enforces nothing at all. Callers that are about
+ * to spend money should call `chargeTtsRunFor`, never `chargeTtsRun` directly.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-/** Erik's ruling, 2026-08-24. The one number this file exists to enforce. */
-export const TTS_RUNS_PER_DAY = 30;
+/**
+ * Erik's ruling, 2026-08-24. The one number BOTH ledgers exist to enforce.
+ *
+ * Defined in `worker/src/tts-ledger.ts` and re-exported here. The direction looks backwards until you
+ * see what can reach what: the Worker cannot import this module (it opens with `node:fs`), and two
+ * copies of a ceiling is two ceilings that drift.
+ */
+export { TTS_RUNS_PER_DAY } from "../../worker/src/tts-ledger.ts";
+import { TTS_RUNS_PER_DAY } from "../../worker/src/tts-ledger.ts";
 
 /** Repo-root, gitignored. Not under `.scratch/`, which the pipeline itself clears per video. */
 export const LEDGER_PATH = resolve(".kajian-tts-ledger.json");
@@ -106,4 +120,89 @@ export function chargeTtsRun(runId: string, now: Date = new Date(), path: string
   runs.push(runId);
   writeFileSync(path, `${JSON.stringify({ day: today, runs } satisfies Ledger, null, 2)}\n`);
   return { charged: true, used: runs.length, limit: TTS_RUNS_PER_DAY };
+}
+
+// ── THE SAME CEILING, ON A HOST WHOSE DISK DOES NOT SURVIVE ──────────────────────────────────────
+//
+// Everything above is a LOCAL-FILE ledger and it is honest on Erik's laptop. On 2026-08-24 he ruled
+// that the kajian runner moves to a CLOUD HOST behind a residential proxy, and a hosted execution
+// starts with a fresh filesystem: every run would read an empty ledger, charge slot 1 of 30, print
+// `1/30`, and spend without limit. The ceiling would REPORT correctly and ENFORCE nothing.
+//
+// So the ledger moves into D1, behind the Worker (`worker/src/tts-ledger.ts`,
+// `POST /api/runner/kajian/tts-charge`), on state no runner can reset.
+
+/** How the remote ledger answers. Mirrors `TtsCharge` in `worker/src/tts-ledger.ts`. */
+interface RemoteCharge {
+  ok?: unknown;
+  error?: unknown;
+  charged?: unknown;
+  used?: unknown;
+  limit?: unknown;
+  day?: unknown;
+}
+
+/**
+ * Charge against the D1 ledger through the Worker.
+ *
+ * ── IT THROWS ON EVERY FAILURE, INCLUDING NETWORK FAILURE ────────────────────────────────────────
+ *
+ * A spend ceiling that degrades to "carry on" when it cannot reach its ledger is not a ceiling. The
+ * only safe reading of "I could not ask whether I may spend" is "do not spend" — this is the same
+ * fail-closed direction `verifyGrounding` takes when the digest will not load, and for the same
+ * reason: the failure costs a run, and the alternative costs money nobody agreed to.
+ */
+export async function chargeTtsRunRemote(runId: string, baseUrl: string, secret: string): Promise<BudgetCharge> {
+  if (runId.trim() === "") throw new Error("chargeTtsRunRemote: runId must not be empty");
+  const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/api/runner/kajian/tts-charge`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ runId }),
+  });
+  const body = (await res.json().catch(() => ({}))) as RemoteCharge;
+  if (res.status === 429) {
+    throw new Error(
+      `TTS daily ceiling reached: ${String(body.used ?? "?")}/${String(body.limit ?? TTS_RUNS_PER_DAY)} runs ` +
+        `already spent on ${String(body.day ?? "today")}.\n` +
+        `  This is a spend ceiling, not a bug. It resets at local midnight in Jakarta.\n` +
+        `  Ledger: D1 \`tts_runs\` via ${baseUrl}`,
+    );
+  }
+  if (!res.ok || body.ok !== true) {
+    // Named as a LEDGER failure, not a ceiling. An operator who reads "ceiling" goes and waits for
+    // midnight; an operator who reads this goes and looks at the Worker.
+    throw new Error(`TTS ledger unreachable (HTTP ${res.status}) — refusing to spend without a ledger.`);
+  }
+  return {
+    charged: body.charged === true,
+    used: typeof body.used === "number" ? body.used : 0,
+    limit: typeof body.limit === "number" ? body.limit : TTS_RUNS_PER_DAY,
+  };
+}
+
+/**
+ * Charge one run against whichever ledger this process actually has.
+ *
+ * ── WHY THE SWITCH IS `QK_BASE_URL` + `QK_RUNNER_SECRET` AND NOT A FLAG OF ITS OWN ───────────────
+ *
+ * A dedicated `QK_TTS_LEDGER=d1` flag would be clearer to read and WRONG to rely on: a hosted deploy
+ * that forgets it falls silently back to the file ledger and the ceiling evaporates — the exact
+ * failure this function exists to prevent, reintroduced by the thing meant to prevent it.
+ *
+ * These two variables cannot be forgotten. A hosted runner cannot claim a single job without both of
+ * them (`runnerConfig` refuses to start otherwise), so the credential that lets it WORK is the same
+ * one that METERS it. There is no configuration in which it runs the pipeline and misses the ledger.
+ *
+ * With neither set, this is Erik's laptop invoking the pipeline directly and the file ledger applies,
+ * byte-for-byte as before.
+ */
+export async function chargeTtsRunFor(
+  runId: string,
+  env: Record<string, string | undefined> = process.env,
+  path: string = LEDGER_PATH,
+): Promise<BudgetCharge> {
+  const baseUrl = (env.QK_BASE_URL ?? "").trim();
+  const secret = (env.QK_RUNNER_SECRET ?? "").trim();
+  if (baseUrl !== "" && secret !== "") return chargeTtsRunRemote(runId, baseUrl, secret);
+  return chargeTtsRun(runId, new Date(), path);
 }

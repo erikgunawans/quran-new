@@ -35,7 +35,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DRAFT_COPY } from "./kajian-slide.ts";
-import { chargeTtsRun } from "./kajian-budget.ts";
+import { chargeTtsRunFor } from "./kajian-budget.ts";
 import {
   DEFAULT_CHUNK_BYTES,
   DRAFT_WARNING,
@@ -197,7 +197,9 @@ export async function narrateToWav(
   // neither money nor a slot. Before the loop, so this is a ceiling rather than a report — a check
   // that fires after the work is done is a check that costs money to fail, which is the mistake
   // `refusal-capture.ts` records making with its `--out` containment.
-  chargeTtsRun(opts.runId);
+  // `chargeTtsRunFor`, not `chargeTtsRun`: on a hosted runner the file ledger is a fresh empty file
+  // on every execution and would meter nothing. See `kajian-budget.ts` → "TWO LEDGERS, ONE CEILING".
+  await chargeTtsRunFor(opts.runId);
 
   const work = mkdtempSync(join(tmpdir(), "kajian-tts-"));
   try {
