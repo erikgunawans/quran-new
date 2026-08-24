@@ -18,6 +18,7 @@ import { gotoSurahInWheel, renderIndex, renderSurah } from "./read.ts";
 import { findSurahLive } from "./find-surah-live.ts";
 import { renderHadis, renderHadisBook, renderFikih, renderDoa } from "./sections.ts";
 import { renderKajian } from "./kajian-summary.ts";
+import { mountAdminKajianLink } from "./kajian-admin-link.ts";
 import { loadKajianSummaries } from "./kajian-feed.ts";
 import { renderAdminKajian } from "./admin-kajian.ts";
 import { renderMasuk, currentSession, parseMasukRoute } from "./masuk.ts";
@@ -1192,8 +1193,16 @@ function showRead() {
   readView.hidden = false;
 }
 
-/** Tell the reader — and the screen reader — which door they are standing in. */
-function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa" | "kajian") {
+/**
+ * Tell the reader — and the screen reader — which door they are standing in.
+ *
+ * ⚠ `null` means NO READER MODE IS CURRENT, and it is not a widening of this union. The admin
+ * kajian queue is not a reader mode and must never become one; before this parameter accepted
+ * `null` it simply skipped the call, which left the PREVIOUS route's mark standing — so the
+ * sidebar told a screen reader that `Kajian` was the current page while the admin queue was on
+ * screen. Clearing is the honest third answer, and it keeps the union closed.
+ */
+function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa" | "kajian" | null) {
   const links = {
     tanya: $<HTMLAnchorElement>("#nav-tanya"),
     baca: $<HTMLAnchorElement>("#nav-baca"),
@@ -1204,6 +1213,7 @@ function markNav(mode: "tanya" | "baca" | "peta" | "hadis" | "fikih" | "doa" | "
     kajian: $<HTMLAnchorElement>("#nav-kajian"),
   };
   for (const [key, el] of Object.entries(links)) {
+    // `mode === null` matches no key, so every mark is removed — which is exactly the intent.
     if (key === mode) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
   }
@@ -1338,6 +1348,9 @@ async function route() {
     markNav("kajian");
     showRead();
     renderKajian(readView, await loadKajianSummaries());
+    // NOT awaited: the admin entry point is progressive enhancement on a public page. Awaiting it
+    // would put a `/api/auth/role` round trip in front of every reader to serve the one admin.
+    void mountAdminKajianLink(readView, fetch);
     return;
   }
 
@@ -1359,12 +1372,25 @@ async function route() {
     return;
   }
 
-  // The admin kajian queue. Deliberately marks NO nav item and has no link anywhere in the shell:
-  // it is an operating surface, not a reader one, and `markNav`'s parameter is a closed union of
-  // reader modes that must not be widened to admit it. Reachable only by typing the hash. The gate
-  // is the Worker's — `renderAdminKajian` refuses by default and only draws the form once
-  // `/api/auth/role` proves an admin, so an unauthorised visit renders a refusal, not a broken page.
+  // The admin kajian queue. Deliberately marks NO nav item: it is an operating surface, not a
+  // reader one, and `markNav`'s parameter is a closed union of reader modes that must not be
+  // widened to admit it — which is why arriving here CLEARS the mark instead of setting one.
+  //
+  // ⚠ CORRECTED 2026-08-24: this comment used to add "and has no link anywhere in the shell …
+  // reachable only by typing the hash", and that was the defect rather than the design. Keeping an
+  // operating surface out of the NAV does not require it to be unreachable; the two were conflated
+  // and an administrator was left to remember the URL. There is now exactly one entry point —
+  // `kajian-admin-link.ts`, mounted on the reader kajian page and drawn only for a proven admin.
+  // Still no nav item, still nothing an ordinary reader sees.
+  //
+  // The gate is unchanged and is the Worker's — `renderAdminKajian` refuses by default and only
+  // draws the form once `/api/auth/role` proves an admin, so an unauthorised visit renders a
+  // refusal, not a broken page. The link is a convenience; it grants nothing.
   if (hash === "#/admin/kajian") {
+    // Clears the previous route's mark rather than setting one. Arriving here from `#/kajian` — now
+    // the ONLY way in, via the link that page mounts — used to leave `Kajian` reading as the
+    // current page to a screen reader while this surface was displayed.
+    markNav(null);
     showRead();
     await renderAdminKajian(readView);
     return;

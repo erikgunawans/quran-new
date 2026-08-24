@@ -148,7 +148,7 @@ async function readJson(res: Response): Promise<unknown | null> {
  * both still refuse to open the surface. The split changes what the reader is TOLD, never what they
  * are SHOWN.
  */
-type RoleCheck = "admin" | "denied" | "unavailable";
+export type RoleCheck = "admin" | "denied" | "unavailable";
 
 /**
  * Ask `/api/auth/role` and classify the answer without rendering anything.
@@ -159,7 +159,16 @@ type RoleCheck = "admin" | "denied" | "unavailable";
  * answered". That last case is load-bearing on this origin: a missing asset returns `index.html` at
  * 200, so shape validation and not status is what separates a real verdict from the SPA fallback.
  */
-async function checkRole(fetchImpl: FetchLike): Promise<RoleCheck> {
+/**
+ * EXPORTED so there is exactly ONE role check in the app, not two that can drift.
+ *
+ * `kajian-admin-link.ts` renders the only entry point to this surface and has to ask the same
+ * question this page asks. Copying the classifier there would have produced two bindings that agree
+ * on the day they are written and diverge on the first change to either — the shape recorded at
+ * `diagnostic-outlives-its-gate`. The consumers differ in what they DO with a verdict, never in how
+ * they reach one.
+ */
+export async function checkRole(fetchImpl: FetchLike): Promise<RoleCheck> {
   let res: Response;
   try {
     res = await fetchImpl(ROLE_URL);
