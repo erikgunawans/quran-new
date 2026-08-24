@@ -6,6 +6,11 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ## 2026-08-24 (late night) — Cycle 15: the widening was priced, and it would have shipped a regression
 
+**WRAP-TIME STATE (2026-08-25).** Gates re-run at the wrap: `bun test` **2310/0** exit 0,
+typecheck exit 0. Tree clean except untracked `WARP.md` (deliberate). ISA **677 `[x]` + 6 `[~]` +
+14 open = 677/697** — **no checkbox moved this cycle**, which is correct: ISC-419's wall half is in
+but unwired, so nothing it gates has changed for a reader.
+
 **DEPLOYED MID-CYCLE.** Erik ran `wrangler deploy --env=""`; live Worker is now **`5c6fe3ca`**
 (was `90b3929c`), six bindings, `EDITION="synthesis"`. The `KAJIAN` upload route is reachable.
 

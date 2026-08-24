@@ -1,7 +1,8 @@
 # Next session — New-Quranku (checkpoint 2026-08-24 late night, Cycle 15)
 
-> Prepended by /wrap 2026-08-24 (late night). **Anchor: `55b57ba` + this wrap's own commit on top,
-> so `origin/main` will read as the wrap checkpoint, not `55b57ba`. That is expected, not drift.**
+> Prepended by /wrap 2026-08-24 late night, REFRESHED at the 2026-08-25 wrap after Erik deployed
+> mid-cycle. **Anchor: `3f5bb84` + this wrap's own commit on top, so `origin/main` will read as the
+> wrap checkpoint, not `3f5bb84`. That is expected, not drift.**
 > Verify with `git fetch` + `git ls-remote`, never a push pipe.
 > **Supersedes the 2026-08-24 night (Cycle 14) block below**, whose §2.2 ("Erik has NOT ruled on
 > ISC-419's fix") is now FALSE — he ruled twice — and whose §3 runner-host question is SETTLED.
@@ -39,10 +40,12 @@ Gates at HEAD, all run in Cycle 15: `bun test` **2310/0** exit 0 · typecheck ex
 `VITE_ANSWER_MODE=synthesis bun run build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0 with
 SIX bindings. **Run locally; this repo has no CI.**
 
-**PROD IS BEHIND AND THE DEPLOY IS STILL OWED.** Live Worker `90b3929c` from `5ba8071`; HEAD is 11+
-commits ahead. `KAJIAN` is CONFIG, so the runner upload route answers 503 until Erik deploys. Erik
-chose to run it himself: `cd worker && npx wrangler deploy --env=""`. **Do not rebuild first** — a
-bare `bun run build` writes the WRONG EDITION.
+**PROD IS DEPLOYED AND CURRENT-ISH.** Live Worker **`5c6fe3ca`** (Erik ran the deploy mid-cycle,
+replacing `90b3929c`), six bindings, `EDITION="synthesis"`. `KAJIAN` is LIVE — proved by a paired
+non-writing probe, NOT by the 403 (see the constraint below). Only the three doc/measurement commits
+after `987126e` are unshipped, and none touch Worker-bundled code.
+⚠️ When you DO deploy: **do not rebuild first with a bare `bun run build`** — it exits 0 and writes
+the WRONG EDITION. Always `VITE_ANSWER_MODE=synthesis`, then read `.build-meta.json`.
 
 Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Also untracked and
 DELIBERATELY unstaged: **`.env.runner`** (mode 0600, gitignored) — it holds `RUNNER_SECRET`.
@@ -71,9 +74,10 @@ co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
    1 of 30 for ever and the ceiling would be uncapped. **Keep Erik's number: 30 runs/day**, counted
    in RUNS (one pipeline run calls `narrateToWav` twice, so a cap in requests would be ~1 run).
 
-3. **ISC-419 re-measure, PAIRED, after the deploy.** Cycle 15's numbers are PRE-deploy. Re-run
-   `wall-live-probe --repeat 2 --dump` then `echo-widen --rows` and compare. Safe now — the probe
-   marker is live.
+3. ✅ **DONE — the paired post-deploy re-measure.** Delta at `run≥4` fell 5→3 and at `run≥6` fell
+   2→1 between runs; **in BOTH runs, at `run≥6`, the only row that fires is QS 66:6.** The QS 66:6
+   shape is persistent (3 occurrences / 32 live turns). **Never quote either run's delta as a rate.**
+   Nothing to redo here — re-measure only AFTER the wiring lands.
 
 4. **ISC-486, ISC-323, ISC-487 unchanged.** 486 is SCORED (0 over-refusals of 1 opportunity, 24
    turns) and the proper-name vocabulary is still NOT BUILT. 323 needs a DESIGN decision and cheap
@@ -141,6 +145,15 @@ co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
   Before repeating "nothing can do X", grep `src/eval/`, `worker/src/` and the ISA for the CAPABILITY.
 - **A blocked hook discards every write in that Bash call.** Hit again this cycle: a `grep | tail`
   alongside `bun test` meant the test never ran.
+- **NEW — a 403 can prove the gate and nothing else.** `isRunner()` gates the whole
+  `/api/runner/kajian/` prefix BEFORE the handler's `if (!bucket) return 503`, so a 403 says nothing
+  about the `KAJIAN` binding. The non-writing discriminator: authed + invalid artifact name → **400
+  `invalid_artifact`**; wrong secret, same request → 403 as the control arm.
+- **NEW — you cannot verify ANY `/api/*` route from a browser address bar.** `Sec-Fetch-Mode:
+  navigate` ALONE flips `/api/auth/role` from JSON to the **SPA shell at 200**
+  (`not_found_handling = "single-page-application"` — Cloudflare's asset handler answers before the
+  Worker). Isolated with a paired control: `Accept: text/html` and `Sec-Fetch-Dest: document` alone
+  do NOT do it. Use curl, or the signed-in UI. `.build-meta.json` is likewise not a served asset.
 - **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
 - **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`, and
   read `.build-meta.json` before deploying.
