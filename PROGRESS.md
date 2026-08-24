@@ -4,6 +4,108 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-24 (night) — Cycle 14: two stale gates opened, a spend ceiling, and sign-in actually works
+
+**NO DEPLOY THIS CYCLE.** Live Worker `90b3929c-585c-4eed-a87b-5f0a8aaf5250` from `5ba8071`,
+unchanged. HEAD is **8 commits ahead**, of which exactly ONE touches code the Worker bundles
+(`026242c`, the `wordingShape` arm refactor) and that is behaviour-neutral by construction. **The
+`KAJIAN` R2 binding IS config and DOES need a deploy** — until Erik runs one, the runner upload route
+answers 503.
+
+ISA **683/697** — 677 `[x]` + 6 `[~]` + 14 open. **No checkbox moved.** Two criteria were re-priced
+with real measurements and both stay `[ ]` on purpose. Gates at HEAD: `bun test` **2300/0** exit 0
+(2280 at the anchor, +20), typecheck exit 0, `VITE_ANSWER_MODE=synthesis bun run build` exit 0
+(`.build-meta.json` `answerMode: "synthesis"`), `wrangler deploy --dry-run --env=""` exit 0 with
+**six** bindings (DB + VECTORIZE + AUDIO + CORPUS + **KAJIAN** + ASSETS). Run locally; no CI.
+
+### ISC-486 — the gate was discharged three days before it was written, and it is now SCORED
+
+The Cycle-13 handoff said this criterion "cannot be scored at all" until something captured refused
+prose. `src/eval/refusal-capture.ts` was built for exactly that and marked `[x]` under **ISC-554 on
+2026-08-21**. **Fourth deferral found sitting on a discharged gate** — and the id-grep rule could not
+catch this one, because the deferral named a FILE, not an id.
+
+What was actually missing was a DISCRIMINATOR. `wordingShape` has FOUR reasons to refuse and reported
+one label; three are refusals we want, and only `adjacent_unowned` can carry this class. `wordingShapeScan`
+now reports the arm per span, **ONE BINDING** — it IS the arm logic, `wordingShape` wraps it. Falsified
+before trusting: relabelling one arm reddens exactly one row and leaves the file's **67 pre-existing
+tests** green (counted by running `HEAD`'s copy, not estimated).
+
+**24 turns of real model prose: 32 `wording` refusals — 22 `verbatim_divine`, 9 `divine_attr`, 1
+`adjacent_unowned`.** That one span was READ and is NOT the class (its lead-in attributes the words to
+Allah). **0 over-refusals out of 1 opportunity — and the denominator is 1 of 144 spans.** A first cut
+of that denominator printed `26 eligible · 0 owned · 0 adjacent_unowned`, three figures that cannot all
+be true: the arms are ORDERED, so a span a divine arm claimed never reached the ownership test.
+Eligibility now means the test RAN, and `arm === "adjacent_unowned"` ⟺ `eligible && !humanAttr` is
+asserted over a corpus exercising both sides.
+
+### ISC-419 — deploy gate also stale, and the re-measure FOUND a violation rather than clearing it
+
+`766d0f8` is an ancestor of `5ba8071` (`git merge-base --is-ancestor`), so the prompt fix has been live
+since 12 Aug. 16 live turns scored with `eval:echo`: run distribution **1×1 · 9×2 · 5×3 · 2×4 · 1×5 ·
+2×7** against a wall threshold of 4. **Candidate: QS 66:6, `run 7`, UNQUOTED** — a shipped sentence
+prefacing the ayah with `Allah berfirman dalam QS At-Tahrim 66:6 bahwa …` then rendering it tracking
+our companion translation for seven contiguous stems. A second row (QS 17:23, run 5) was read and
+judged NOT a violation.
+
+**NEITHER WALL FAILED — both were INERT.** No quoted span, so `wordingShape` could not fire; the turn
+retrieved **zero verses**, so `scriptureEchoShape` got `[]` (ISC-555). The app is least policed exactly
+where it is least grounded. ⚠️ `leak: clean` on all 16 rows is NOT the measurement — it re-runs the
+function the egress gate itself calls. ⚠️ I first read "max run = 3" off the TAIL of the report only;
+the head carries both `run 7` rows. Record: `docs/review/scripture-echo-2026-08-24-cycle14.md`.
+
+### A TTS daily ceiling — 30 runs/day, Erik's number
+
+Counted in RUNS because that is what he said: one pipeline run calls `narrateToWav` twice and each
+makes a dozen-plus requests, so a cap in requests would have been ~1 run. `runId` is REQUIRED in
+`NarrateOptions` (made required first, then read the two TS errors it produced at the call sites).
+Charged after the free coverage check, before the first paid request. **Reachability proven END TO
+END, both arms:** empty ledger → charge passed and real audio was produced; ledger at 30 → threw
+`30/30` in **0.029 s**, which is itself the evidence no request was made.
+
+### Sign-in works for real users — `RESEND_FROM` fixed, with a paired arm
+
+`sent:false` → `sent:true` on the identical `POST /api/auth/request` to a NON-owner address. Both
+places documenting it said `[vars]`, which is worse than wrong: a var of that name is rewritten on
+**every deploy**, so following it would have reverted the verified sender to test mode with no error.
+Verified production binds no such var (dry-run mentions it zero times).
+
+### The kajian runner — three switches on, and the fourth is a decision
+
+`new-quranku-kajian` R2 bucket created, `KAJIAN` binding uncommented, `RUNNER_SECRET` set (64 chars,
+generated and piped in one shell pipeline so the value never reached a terminal or this repo; the
+runner's copy is `.env.runner`, mode 0600, gitignored). **Proved live, three arms, no deploy:** no
+bearer → 403 · correct bearer → 200 returning Erik's real job · wrong bearer of the same 64-char
+length → 403.
+
+**WHERE IT CAN RUN — measured, after an overclaim of my own was falsified.** I wrote that every cloud
+is "the same arm" of the blocking table having measured only Cloudflare. Cloud Run was then measured
+and the conclusion survives while the reasoning did not:
+
+| Host | `GET /watch` | InnerTube key | `yt-dlp --list-subs` |
+|---|---|---|---|
+| Cloudflare edge | **429**, 1,947 B | never reachable | blocked before it starts |
+| Cloud Run (asia-southeast2) | **200**, ~1.2 MB | extractable | **`Sign in to confirm you're not a bot`** |
+| Erik's residential IP | 200, ~1.26 MB | yes | full caption list |
+
+⚠️ **The FIRST probe was a blind instrument.** A hand-rolled InnerTube call reporting `caption_tracks: 0`
+for every video from every host — including "Me at the zoo" from Erik's own machine. A field identical
+on the working and broken arms measures nothing; the table uses real `yt-dlp` with a `deno` runtime.
+Both throwaway Cloud Run services were deleted after measuring.
+
+🔴 **If the runner moves to Cloud Run, the 30/day TTS ceiling SILENTLY BECOMES UNLIMITED** — its ledger
+is a local file and every execution starts with a fresh filesystem. The fix (a `tts_runs` table in D1)
+must land in the SAME change, or the ceiling reads as covered and is not.
+
+### Erik's queued job
+
+`J5x-9tHxeJA` (Ustadz Ali Hasan Bawazier, a LIVE-stream URL) sits `running` — **my auth probe claimed
+it** and nothing processed it. It self-releases after the 2 h `CLAIM_LEASE_MS`; left as-is rather than
+written `failed`, which would be equally untrue. Its captions are AUTO-GENERATED, so the briefing would
+ship marked DRAFT per ADR 5.
+
+---
+
 ## 2026-08-24 (evening) — Cycle 13: DEPLOYED TWICE; the admin queue had no door; the first real short.m4a
 
 **PROD IS CURRENT ON CODE.** Live Worker `90b3929c-585c-4eed-a87b-5f0a8aaf5250`, built from

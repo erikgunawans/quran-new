@@ -1,3 +1,142 @@
+# Next session — New-Quranku (checkpoint 2026-08-24 night, Cycle 14)
+
+> Prepended by /wrap 2026-08-24 (night). **Anchor: `c7feb60` + this wrap's own commit on top, so
+> `origin/main` will read as the wrap checkpoint, not `c7feb60`. That is expected, not drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the 2026-08-24 evening block below**, whose §2.1 ("ISC-486 needs an INSTRUMENT") is
+> now FALSE, whose §2.3 (TTS cost ceiling) is DONE, and whose Resend item is DONE.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 night, Cycle 14**).
+
+## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW DONE OR FALSE
+
+- **"ISC-486 needs an INSTRUMENT" is FALSE.** `src/eval/refusal-capture.ts` (ISC-554, `[x]` since
+  2026-08-21) already read refused prose. What was missing was a DISCRIMINATOR, now built. **It is
+  SCORED: 0 over-refusals out of 1 opportunity, over 24 turns. Read the denominator — 1 of 144 spans.**
+- **The TTS cost ceiling is DONE.** Erik ruled **30 runs/day**; built, and reachability proven in both
+  arms. ⚠️ It is a LOCAL-FILE ledger and does not survive a move to Cloud Run.
+- **Resend is DONE.** `RESEND_FROM` = `QuranKu <no-reply@axiara.ai>`; `sent:false` → `sent:true` on a
+  non-owner address. **Real users can sign in.**
+- **The runner's three switches are ON** (bucket, `KAJIAN` binding, `RUNNER_SECRET`). What is missing
+  is a HOST and a rights decision, not a task.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+
+## 1. STATE
+
+ISA **683/697** — 677 `[x]` + 6 `[~]` + **14 open**: ISC-98, 323, 353.0, 417, 419, 420, 440.6, 454,
+464, 486, 487, 566, 627.7, 654. The 6 partial: ISC-418, 617, 624, 624.8, 627, 647. **No checkbox
+moved this cycle** — two criteria were re-priced with measurements and both stay `[ ]` on purpose.
+
+Gates at HEAD: `bun test` **2300/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run
+build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0 with **SIX** bindings (DB + VECTORIZE +
+AUDIO + CORPUS + **KAJIAN** + ASSETS). **Run locally; this repo has no CI.**
+
+**PROD IS BEHIND AND A DEPLOY IS NOW OWED.** Live Worker `90b3929c` from `5ba8071`; HEAD is 8+
+commits ahead. The `KAJIAN` binding is CONFIG, not a secret, so the runner upload route answers 503
+until Erik deploys. `026242c` (the `wordingShape` arm refactor) is behaviour-neutral.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Also untracked and
+DELIBERATELY unstaged: **`.env.runner`** (mode 0600, gitignored) — it holds `RUNNER_SECRET`.
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **ASK ERIK TO DEPLOY.** It gates the `KAJIAN` binding (upload route is 503 without it) and ships
+   the arm refactor. Nothing reader-visible changes. `VITE_ANSWER_MODE=synthesis bun run build` and
+   read `.build-meta.json` BEFORE deploying.
+
+2. **ISC-419 is now `[ ]` with a LOCATED violation, not an untested claim.** QS 66:6, `run 7`,
+   unquoted, on a zero-verse turn where BOTH walls were inert. The fix Erik has NOT ruled on: arm
+   `scriptureEchoShape` with the ayah the PROSE CITES rather than only retrieved verses. **Measured
+   blast radius: 15 of 16 live citations are to ayahs the turn was never handed**, so the cheap
+   alternative (citable ≡ displayable) would gut the app and is ruled out on the number. Record:
+   `docs/review/scripture-echo-2026-08-24-cycle14.md`.
+
+3. **ISC-486 is SCORED and stays `[]`.** Exposure ~1 opportunity per 24 turns. The proper-name
+   vocabulary design question is UNCHANGED and still NOT BUILT. Never cite one run as a rate — two
+   runs of this instrument disagreed.
+
+4. **ISC-323 still needs a DESIGN decision; cheap fixes ruled out** (Erik's ISC-323.4 tombstone).
+   Nothing may be built against it.
+
+5. **ISC-487 stays NOT MET.** No constant moved this cycle either.
+
+6. **The other open ISCs, none started:** ISC-98, 420, 440.6, 464, 353.0, 627.7, 454.
+
+7. **ISC-566, ISC-417 and ISC-654 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **A deploy** (see §2.1).
+- 🔶 **Where does the kajian runner run?** Measured: **every datacentre IP is refused** — Cloudflare
+  429s at the first request, Cloud Run gets a normal page then dies inside `yt-dlp` with the bot
+  wall, on "Me at the zoo" as well as his own video. Residential IP works. So: (a) run
+  `src/app/kajian-runner.ts` on his Mac — works today, machine must be awake; or (b) a cloud host
+  plus **exported cookies or a residential proxy**, which costs money or a credential that expires.
+- 🔶 **Arm the echo wall from the CITED ayah?** (see §2.2) — a WALL change, and ISC-419 was put in the
+  prompt precisely because a hard egress rule can reject good answers.
+- 🔶 **Which source does the runner launch on?** Publishing is gated on ISC-630 / the rights call.
+  His queued `J5x-9tHxeJA` is Ustadz Ali Hasan Bawazier — **nothing may publish until he rules.**
+- 🔶 **Ustadz Ahmad's theological read of a REPAIRED answer.** Repair fires constantly and nobody has
+  checked whether excision leaves the meaning sound. Offer to build the review pack — no secret, no
+  app access needed.
+- 🔶 **Two admins:** he was asked to set `ADMIN_EMAILS` to
+  `erik@axiara.ai,herliabundaqanda@gmail.com`. **He ran `secret put` once and the value is UNKNOWN to
+  this session** — secrets cannot be read back. ⚠️ **VERIFY FIRST:** `/api/auth/role` must answer
+  `{"role":"admin"}` for him. An empty or wrong value fails closed and locks him out.
+- 🔶 **TTS billing to `story-maker-demo` is TEMPORARY by his own word.** Revert is
+  `unset GOOGLE_CLOUD_PROJECT`, nothing else.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The 30/day TTS ceiling DOES NOT SURVIVE Cloud Run.** `chargeTtsRun` keeps a local-file ledger;
+  every execution starts with a fresh filesystem, so it charges slot 1 of 30 for ever. A `tts_runs`
+  table in D1 must land in the SAME change that deploys a hosted runner.
+- **The transcript skill is NOT in this repo.** `src/app/kajian.ts:205` spawns
+  `~/.claude/skills/baoyu-youtube-transcript/`. Any container must vendor it first.
+- **`--allow-unauthenticated` is refused by the `axiara.ai` org policy** — `gcloud run deploy`
+  completes, then warns the IAM policy failed, and the service answers nobody. Prefer a Cloud Run
+  **Job** + Scheduler with a service account.
+- **Erik's queued job sits `running` and nothing is running it** — my auth probe claimed it. It
+  self-releases after `CLAIM_LEASE_MS` (2 h). Left as-is rather than written `failed`, which would be
+  equally untrue.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- **ISC-624.8's remainder:** no `speechSynthesis` fallback; the native control is unphotographable.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a deferral that names a FILE escapes the id grep.** ISC-486 sat "unscorable" for three days
+  because the blocker named `wall-live-probe` rather than an ISC id. When a deferral names a
+  CAPABILITY ("nothing can read X"), grep `src/eval/` and the ISA for the capability before repeating
+  it. FOURTH instance of a discharged gate.
+- **NEW — a collapsed rule label is not a measurement.** `rule:"wording"` fuses FOUR arms. Ask how
+  many code paths can emit a label before counting it, and split from ONE binding.
+- **NEW — an opportunity denominator must subtract what an earlier arm claimed.** `26 eligible · 0
+  owned · 0 adjacent_unowned` were three figures that could not all be true.
+- **NEW — do not reimplement the tool you are testing.** My InnerTube probe reported the same broken
+  reading from a working IP and a blocked one. Use the real tool (`yt-dlp`), with a control arm.
+- **NEW — a universal from one arm is an overclaim.** "Every cloud is the same" was written having
+  measured only Cloudflare; Cloud Run behaves differently at the first gate.
+- **NEW — read the WHOLE report, not the tail.** "max run = 3" was taken off the last screen while the
+  head carried both `run 7` rows.
+- **NEW — a blocked hook discards every write in that Bash call.** A python heredoc alongside a piped
+  gate command silently never ran.
+- **A guard block is NOT a reader-visible refusal.** ISC-561's repair sits between them.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`, and
+  read `.build-meta.json` before deploying.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 evening, Cycle 13)
 
 > Prepended by /wrap 2026-08-24 (evening). **Anchor: `547a095` — and unlike the last two wraps this
