@@ -6,6 +6,25 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ## 2026-08-24 (late night) — Cycle 15: the widening was priced, and it would have shipped a regression
 
+**DEPLOYED MID-CYCLE.** Erik ran `wrangler deploy --env=""`; live Worker is now **`5c6fe3ca`**
+(was `90b3929c`), six bindings, `EDITION="synthesis"`. The `KAJIAN` upload route is reachable.
+
+**PAIRED RE-MEASURE DONE — the counts moved, the decision did not.** Delta at `run≥4` fell 5→3 and
+at `run≥6` fell 2→1 between the two runs. **In BOTH runs, at `run≥6`, the only row that fires is
+QS 66:6.** Post-deploy's two `run 4` rows both matched `orang yang memakan riba` against QS 2:275 in
+sentences that REWORD the ayah — over-refusals at 4, which six does not make. The QS 66:6 shape is
+PERSISTENT: 3 occurrences across 32 live turns. Never quote either run's delta as a rate.
+
+**Two deploy checks were TRAPS and both were caught:**
+- A **403** on `/api/runner/kajian/upload` proves the auth gate, **not** the `KAJIAN` binding —
+  `isRunner()` gates the whole prefix before the handler's `if (!bucket) return 503`. Proved instead
+  by a paired, non-writing probe: authed + invalid artifact name → **400 `invalid_artifact`**
+  (reached past the bucket check); wrong secret, same request → 403.
+- ⚠️ **`/api/auth/role` cannot be checked from a browser address bar.** `Sec-Fetch-Mode: navigate`
+  ALONE flips it from JSON to the SPA shell at 200 (`not_found_handling = "single-page-application"`
+  — Cloudflare's asset handler answers before the Worker). So **Erik's `ADMIN_EMAILS` verify must be
+  done from the signed-in UI or by curl with the cookie, never by opening the URL.** Still open.
+
 **STILL NO DEPLOY. Live Worker `90b3929c` from `5ba8071`, unchanged — HEAD is now 11 commits ahead.**
 The `KAJIAN` upload route still answers 503. Erik chose to run the deploy himself; the artefacts are
 built and correct (`.build-meta.json` → `answerMode: "synthesis"`), command is

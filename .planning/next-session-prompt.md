@@ -10,6 +10,15 @@ Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-24 lat
 
 ## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW DONE OR FALSE
 
+- **THE DEPLOY IS DONE.** Erik ran it mid-cycle. Live Worker is **`5c6fe3ca`** (was `90b3929c`),
+  six bindings, `EDITION="synthesis"`. `KAJIAN` is LIVE — verified by a paired non-writing probe,
+  NOT by the 403. **Any line below saying "prod is behind" or "the upload route answers 503" is
+  STALE.** §2.3's paired re-measure is also DONE (see PROGRESS.md).
+- ⚠️ **`ADMIN_EMAILS` IS STILL UNVERIFIED, and the obvious way to check it does not work.**
+  `Sec-Fetch-Mode: navigate` alone turns `/api/auth/role` into the SPA shell at 200, so opening the
+  URL in a browser ALWAYS looks like the app. Check it from the signed-in UI, or
+  `curl -H "Cookie: <session>" https://new-quranku.axiara.ai/api/auth/role`. It fails closed.
+
 - **"Arm the echo wall from the CITED ayah?" is RULED.** Erik: build behind a measurement first, then
   — after seeing it — **arm at run≥6 for cited anchors, keep run≥4 for retrieved.** The WALL half is
   built and pushed. The WIRING is blocked and is now the open question (§2.1).

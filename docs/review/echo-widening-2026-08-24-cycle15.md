@@ -108,3 +108,69 @@ of 6 for cited-but-unretrieved anchors catches both QS 66:6 rows and costs nothi
 The live theme classifier returned **0 themes on 14 of 16 turns** in this run. Cycle 14 saw 0 on 23
 of 24. Two runs on different days both near-zero is not run-to-run noise; it looks persistent and is
 recorded here so it is not rediscovered a third time.
+
+---
+
+## PAIRED RE-MEASURE AFTER THE DEPLOY — 2026-08-24, Worker `5c6fe3ca`
+
+Erik deployed (`5c6fe3ca`, replacing `90b3929c`) and the probe was re-run against it, same eight
+questions × 2. This is the paired arm the pre-deploy section said was owed.
+
+```
+                      pre-deploy (90b3929c)   post-deploy (5c6fe3ca)
+answered turns                 16                      16
+citations in prose             23                      22
+  …to unretrieved ayahs        19                      17
+CONTROL refusals              0/16                    0/16
+TREATMENT refusals            5/16                    3/16
+
+sweep, newly-refused by floor
+  run≥4                         5                       3
+  run≥5                         3                       1
+  run≥6                         2                       1
+  run≥7                         2                       1
+  run≥8                         0                       0
+```
+
+**THE ABSOLUTE COUNTS MOVED AND THE DECISION DID NOT.** Delta at `run≥4` fell 5→3; at `run≥6` it
+fell 2→1. This is exactly the run-to-run variance the limits section warned about, and it is why
+n=16 was recorded as a SET rather than a class. **Never quote either run's delta as a rate.**
+
+**What replicates is the thing the threshold was chosen for.** In BOTH runs, at `run≥6`, the ONLY
+row that fires is QS 66:6:
+
+| run | post-deploy row | anchor | verdict |
+|-----|-----------------|--------|---------|
+| **7** | `…neraka itu bahan bakarnya adalah manusia dan batu, dan penjaganya adalah malaikat…` | QS 66:6 | the shape ISC-419 was re-opened for |
+| 4 | `…yang menyamakan orang yang memakan riba dengan orang yang berdiri seperti kemasukan setan…` | QS 2:275 | describes the ayah, reworded — over-refusal at 4 |
+| 4 | `…bahwa orang yang memakan riba akan berdiri di hari kiamat seperti orang yang kemasukan setan…` | QS 2:275 | same |
+
+Both `run 4` rows match `orang yang memakan riba` — a fixed noun phrase with no other way to say it
+in Indonesian, in sentences that REWORD the ayah rather than reproduce it. Refusing them is
+over-refusal, and `ECHO_MIN_RUN_CITED = 6` does not.
+
+**The QS 66:6 shape is PERSISTENT, not a one-off.** It appeared 3 times across 32 live turns
+(2 pre-deploy, 1 post-deploy), each time prefaced `Allah berfirman dalam QS At-Tahrim 66:6 bahwa …`
+and each time reproducing the shipped wording for seven contiguous words. It remains a CANDIDATE —
+the unquoted question is still Erik's open ruling — but it is a reproducible candidate, not a
+sampling artefact.
+
+## Deploy verification, recorded because two of the checks were traps
+
+- **`KAJIAN` is LIVE**, proved by a PAIRED probe, not by the 403. An unauthenticated POST to
+  `/api/runner/kajian/upload` returns **403 `forbidden`** — and that proves NOTHING about the
+  binding, because `isRunner()` gates the whole `/api/runner/kajian/` prefix BEFORE
+  `handleRunnerUpload` (where the `if (!bucket) return 503` lives). The real discriminator, which
+  writes nothing: authenticated + deliberately invalid artifact name → **400 `invalid_artifact`**,
+  i.e. execution reached past the bucket check. Control arm, wrong secret, same request → 403.
+- ⚠️ **`/api/auth/role` CANNOT be verified from a browser address bar.** The same URL returns
+  `application/json` to a normal request and the **SPA shell at 200** to a navigation. Isolated to a
+  single header with a paired control: `Sec-Fetch-Mode: navigate` alone flips it. Cause is
+  `not_found_handling = "single-page-application"` in `worker/wrangler.toml` — Cloudflare's asset
+  handler answers navigation requests before the Worker runs. **So the `ADMIN_EMAILS` check must be
+  made from the app's own UI (which uses XHR) or by curl with the session cookie — never by opening
+  the URL.**
+- ⚠️ **`.build-meta.json` is not a served asset** — requesting it returns the SPA shell at 200. The
+  shipped bundle's `gitSha` reads `987126e`, one commit behind `55b57ba`, because the build ran
+  before that commit; the bundle CONTENT includes the cited floor (built from the working tree).
+  Behaviour is identical either way since no call site passes `origin: "cited"`.
