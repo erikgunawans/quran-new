@@ -1,3 +1,139 @@
+# Next session — New-Quranku (checkpoint 2026-08-25, Cycle 16)
+
+> Prepended by /wrap 2026-08-25. **Anchor: `7e1606c` + this wrap's own commit on top, so
+> `origin/main` will read as the wrap checkpoint, not `7e1606c`. That is expected, not drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the Cycle 15 block below**, whose §2.1 (echo wiring undecided), §3 `ADMIN_EMAILS`
+> item, and "0005 not applied" are all now SETTLED.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-25, Cycle 16**).
+
+## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW DONE OR FALSE
+
+- **The echo wiring question is RULED and BUILT.** Erik chose (b), the per-isolate ref→text index.
+  Live. Any line saying "Erik must pick" is stale.
+- **`ADMIN_EMAILS` IS VERIFIED CORRECT.** The "Antrean admin" link renders, and it is drawn on the
+  `admin` verdict alone. The lockout item is CLOSED — do not re-raise it.
+- **Migration 0005 IS APPLIED TO REMOTE**, verified by schema, not by the checkmark.
+- **PROD IS DEPLOYED AT `fb75d322`** (was `5c6fe3ca`). Only this wrap's commits are unshipped.
+- **The paired re-measure RAN. It is a NULL RESULT.** See §2.1 — this is the single most
+  misreadable fact in this handoff.
+
+## 1. STATE
+
+ISA **683/697** — unchanged; **no checkbox moved.** ISC-419 stays `[ ]` on purpose.
+
+Gates at HEAD: `bun test` **2356/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun run
+build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0, six bindings. **Run locally; no CI.**
+
+Live Worker **`fb75d322`**, `EDITION="synthesis"`, six bindings. `/echo-index.json` serves
+`application/json`, 1,338,552 B, 6,236 entries.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Also deliberately unstaged:
+`.env.runner` (mode 0600, gitignored) — it holds `RUNNER_SECRET`.
+
+**The ustadz position is UNCHANGED.** ISC-417 stays `[ ]` PERMANENTLY. ⚠️ Never write a blanket
+*"the ustadz has approved nothing"* — FALSE, and it voids three real permissions (F-1 2026-07-17;
+co-display 2026-07-23; machine hadith Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **DO NOT RECORD ISC-419 AS CONFIRMED.** The post-deploy re-measure is a NULL RESULT: 16/16
+   answered, 0 refusals, and at `run≥6` (the live cited floor) **0 newly-refused**. **The QS 66:6
+   shape did not occur at all**, where pre-deploy it fired 3× in 32 turns. Both `neraka` turns
+   blocked `own_wording` on attempt 1 then shipped clean — which is what the cited wall firing looks
+   like AND what `wordingShape` firing alone looks like, since those turns retrieve zero verses and
+   `own_wording` fuses both walls. **Confirming it needs BOTH:** (a) a deploy, so the new per-attempt
+   `rule` field reaches prod; (b) a run in which the shape recurs — **`apa yang al quran katakan
+   tentang neraka` is the reproducer**, so repeat that question specifically rather than the whole
+   8-question probe. An `echo` block on a 0-verse turn is necessarily the CITED half.
+
+2. **KAJIAN: two INDEPENDENT blockers, neither of them code.**
+   - **Automation** → a residential proxy must be chosen and paid for. Every datacentre IP is refused
+     by YouTube (Cloudflare 429s at once; Cloud Run dies inside `yt-dlp` on the bot wall, on "Me at
+     the zoo" as well as Erik's own video). Then: vendor the transcript skill (`src/app/kajian.ts:205`
+     spawns `~/.claude/skills/baoyu-youtube-transcript/`, outside this repo), and prefer a Cloud Run
+     **Job** + Scheduler — `--allow-unauthenticated` is refused by the `axiara.ai` org policy.
+   - **Publishing** → Erik's ISC-630 rights ruling. The queued video is Ustadz Ali Hasan Bawazier's.
+   ⚠️ Job `J5x-9tHxeJA` is `running`, claimed 8.1 h ago against a **2 h lease** — six hours past
+   expiry and fully reclaimable. **It is NOT stuck; nobody is polling.** No runner process, no
+   `[triggers]` in `wrangler.toml`, no `scheduled()` in `index.ts`. A local run works today:
+   `bun run src/app/kajian.ts <url>` (residential IP, skill installed, TTS bills `story-maker-demo`).
+
+3. **BUILD THE USTADZ REVIEW PACK for a REPAIRED answer.** Offered repeatedly, never built, and it
+   has the LONGEST clock on the board because it waits on a human. Repair fired on **12 of 30
+   attempts** in the Cycle-16 probe — it is constantly rewriting answers and nobody has checked
+   whether excision leaves the meaning theologically sound. Needs no secret and no app access.
+
+4. **ISC-486, ISC-323, ISC-487 unchanged.** 486 SCORED (0 over-refusals of 1 opportunity, 24 turns);
+   the proper-name vocabulary is still NOT BUILT. 323 needs a DESIGN decision. 487 NOT MET.
+
+5. **The other open ISCs, none started:** ISC-98, 420, 440.6, 464, 353.0, 627.7, 454.
+
+6. **ISC-566, ISC-417 and ISC-654 stay OPEN by Erik's decision.** Do not "fix" them.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **A residential proxy provider must be chosen and paid for.** Gates all kajian automation.
+- 🔶 **ISC-630 / the rights call** — nothing may publish until he rules.
+- 🔶 **Ustadz Ahmad's theological read of a REPAIRED answer** — offer the pack (§2.3).
+- 🔶 **A deploy**, whenever convenient — it makes the ISC-419 re-measure readable (§2.1). No urgency.
+- 🔶 **TTS billing to `story-maker-demo` is TEMPORARY by his own word.** Revert is
+  `unset GOOGLE_CLOUD_PROJECT`, nothing else.
+- 🔶 **Is `/echo-index.json` as a public asset acceptable?** I recommended YES and shipped it: the
+  same Thalib translations already ship from the same domain in the 114 surah shards, so the rights
+  delta is ~zero, and an asset ships ATOMICALLY with the build where an R2 object can drift from the
+  deployed code and silently weaken the wall. He has not objected; it is recorded, not agreed.
+- Unchanged and older: a correction with no delivery path · Answer Record retention · roster entries
+  (`docs/kajian/roster.yaml` ships EMPTY on purpose — 2 non-comment lines in 122).
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The theme classifier returned 0 themes on 14 of 16 turns**, and Cycle 14 saw 0 on 23 of 24.
+  Multiple runs, different days — **not run-to-run noise, and nobody has looked.**
+- 🔴 **Memory headroom is ~746 B (~5 entries).** `MEMORY.md` is 24,240 B / 158 entries against a
+  24.4 KB budget, and overflow silently drops the NEWEST. The cull bought days; the rule in
+  `CLAUDE.md` (state never enters memory; retire before adding at /wrap) is what has to hold.
+  ⚠️ Two approaches were TRIED AND REVERTED — mechanical hook trimming and merging. Read CLAUDE.md
+  before attempting either again.
+- **`d1_migrations` lists only 0001-0004** and has printed out of order. Read the schema.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- The ISA denominator counts checkbox LINES; ~10 ids are duplicated, pre-existing.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a null result is not a pass.** The absence of the shape you were testing for means the
+  instrument never ran, not that the wall works. Say which.
+- **NEW — a "realistic" test clock can hide a same-instant bug.** The unit test offset its clock by
+  60 s and was blind to two charges inside one millisecond; the route test, going through
+  `worker.fetch` twice in a row, caught it. Realistic is not the same as adversarial.
+- **NEW — `cd` from the USER's command persists into your shell too.** A `cd worker` in Erik's deploy
+  made `src/eval/wall-live-probe.ts` "not exist" on the next call.
+- **NEW — read the dump's ACTUAL keys.** The probe dump is flat (`genReason`/`genRule`), not a nested
+  `gen` object; reading the wrong key looked exactly like a blind instrument.
+- **NEW — a merge costs retrieval precision.** One 145-char hook cannot carry unrelated triggers.
+  Prefer deleting a superseded entry over shortening a surviving one.
+- **NEW — a bulk grep count is not an edition check.** `synthesis` appears twice and `principled`
+  once in BOTH bundles; the discriminator is the constant fold
+  ``function zc(){try{return `synthesis`}catch{return `principled`}}``.
+- **A 200 is not existence.** `/echo-index.json` had to be checked for `content-type` AND length —
+  a missing asset returns `index.html` at 200 and the wall would stay silently inert.
+- **A 403 on `/api/runner/*` proves the GATE and nothing else** — `isRunner` runs before the handler.
+- **You cannot verify ANY `/api/*` route from a browser address bar** — `Sec-Fetch-Mode: navigate`
+  alone flips it to the SPA shell at 200. Use curl, or the signed-in UI.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`, and
+  read `.build-meta.json` before deploying.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something, and
+  check WHICH test died.
+- **A guard block is NOT a reader-visible refusal.** ISC-561's repair sits between them.
+- **A blocked hook discards every write in that Bash call.**
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-24 late night, Cycle 15)
 
 > Prepended by /wrap 2026-08-24 late night, REFRESHED at the 2026-08-25 wrap after Erik deployed

@@ -4,6 +4,92 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-25 — Cycle 16: ISC-419's cited half shipped, and the re-measure could not read it
+
+**THE DEPLOY LANDED.** Erik ran it; live Worker `5c6fe3ca` → **`fb75d322`**, six bindings,
+`EDITION="synthesis"`. Verified from outside: bundle hashes match local `dist` byte-for-byte, and
+`/echo-index.json` returns `application/json` at **1,338,552 bytes / 6,236 entries** — not the 25 KB
+SPA shell, which is the failure that would have left the wall silently inert at 200.
+
+**ISC-419's CITED WIRING IS BUILT AND LIVE — and STAYS `[ ]`.** Erik ruled option (b), a per-isolate
+ref→text index, over an async guard. `guard` stays `(candidate) => GuardVerdict`, `repair` and
+`runGeneration` untouched. `src/app/build-echo-index.ts` emits the asset selecting through
+`groundingTextOf` — the same function `gatherGrounding` uses — so an index text is byte-identical to
+what the retrieved path supplies and `ECHO_MIN_RUN_CITED = 6` still means what it was measured to
+mean. `worker/src/echo-index.ts` loads once per isolate behind a SHAPE check.
+
+⚠️ **THE POST-DEPLOY RE-MEASURE IS A NULL RESULT, NOT A PASS. Do not record ISC-419 as confirmed.**
+16 turns, 16 answered, 0 refusals reached a reader. Scored against the wall: at `run≥6` (the LIVE
+cited floor) **0 newly-refused**; the single row that fires is at `run≥4`, the RETRIEVED floor, which
+does not apply to cited anchors. **The QS 66:6 shape did not occur at all** this run, where
+pre-deploy it fired 3 times in 32 turns. Both `neraka` turns blocked `own_wording` on attempt 1 then
+shipped clean prose — which is what the cited wall firing looks like **and equally what
+`wordingShape` firing alone looks like**, because those turns retrieve zero verses and `own_wording`
+fuses both walls. The input that would exercise the change did not recur.
+
+**SO THE INSTRUMENT WAS FIXED.** `trace.blockedRule` was already set from the same
+`verdict.violations[0]` that sets `trace.blocked`, eleven lines above the attempt push — known and
+simply not recorded. `GenAttempt` now carries `rule` on a `blocked:*` outcome, and
+`wall-live-probe` splits `own_wording` by rule. **An `echo` block on a 0-verse turn is necessarily
+the CITED half**, because the retrieved half is inert there. ⚠️ Needs a deploy to change what prod
+reports; until then the probe prints `UNKNOWN (Worker predates the per-attempt rule)` rather than
+misreading it as "no rule".
+
+**THE TTS CEILING SURVIVES A HOSTED RUNNER NOW.** Erik's 30 runs/day moved into D1.
+`worker/migrations/0005_tts_runs.sql` **APPLIED TO REMOTE** and verified by `PRAGMA table_info` and by
+running the Worker's own conditional INSERT against the live database, then deleting the probe row
+(`remaining: 0`). The gate and the write are ONE statement so two runners cannot both take the last
+slot. The day key is **Asia/Jakarta, computed by the Worker** — a runner supplying its own could reset
+its allowance. The switch is `QK_BASE_URL` + `QK_RUNNER_SECRET`, not a flag: those are the two vars
+`runnerConfig` refuses to start without, so a hosted runner cannot be configured to work and miss the
+ledger. It **fails closed** — an unreachable ledger refuses the spend rather than falling back to the
+file, which on a hosted runner is always empty.
+
+⚠️ **`d1_migrations` LISTS ONLY 0001-0004.** All five were applied with `--file`, not
+`migrations apply`, so it does not record them. It under-reports, and has already been seen printing
+what it does hold OUT OF ORDER. **Read the schema, never that table.**
+
+**`ADMIN_EMAILS` IS CONFIRMED CORRECT** — the "Antrean admin" link renders, and that link is drawn on
+the `admin` verdict and nothing else. The lockout risk is closed.
+
+**A ROUTE TEST CAUGHT A FALSE SPEND REPORT.** `chargeTtsRunD1` derived `charged` by comparing the
+stored `charged_at` to the call's clock — correct only across different milliseconds. Two calls
+through `worker.fetch` landed inside one, and the second narration of a run reported `charged: true`
+having inserted nothing. The unit test was blind because it offsets its clock by 60 s, which is
+realistic and therefore useless here. Now read off `meta.changes`.
+
+**MEMORY WAS AT CAPACITY AND SILENTLY DROPPING THE NEWEST ENTRIES.** `MEMORY.md` stood at 26.9 KB /
+167 against a 24.4 KB budget; overflow cuts the TAIL, and the tail is the newest. **Nine entries never
+loaded**, five of which were needed that same session — they only landed because the handoff repeats
+them. Culled to **158 entries / 24,240 B**: 6 superseded entries deleted, 4 QuranKu surface-state
+entries merged into `quranku-surfaces`, 3 bodies stripped of state while keeping their rights facts,
+33 hooks hand-trimmed, and **7 pre-existing dangling wikilinks repaired**. Backup at
+`scratchpad/memory-backup-2026-08-25.tgz`.
+
+⚠️ **TWO APPROACHES WERE TRIED AND REVERTED, recorded so nobody re-tries them.** (1) A mechanical trim
+of 80 hooks cut the ACTIONABLE half — "write the failing test BEFORE implementing it", "verify by
+schema not the checkmark" — and severed several mid-phrase. (2) Merging is a bad trade in general: one
+145-char hook cannot carry four unrelated retrieval triggers, which is why the OKF and hadith merges
+were struck. **The rule that actually holds is in `CLAUDE.md`**: state never enters memory, and
+retiring is part of writing. Headroom is only ~746 B — the cull bought days, the rule buys the rest.
+
+**KAJIAN, ASKED AND ANSWERED PRECISELY.** The pipeline is finished as code and runs on Erik's laptop.
+What is missing is a host YouTube will talk to, and a rights ruling before anything publishes. His job
+`J5x-9tHxeJA` is `running`, claimed **8.1 h ago against a 2 h lease** — six hours past expiry and
+fully reclaimable. **It is not stuck; nobody is polling.** No runner process, no `[triggers]` in
+`wrangler.toml`, no `scheduled()` in `index.ts`.
+
+**Gates at HEAD:** `bun test` **2356/0** exit 0 · typecheck exit 0 · `VITE_ANSWER_MODE=synthesis bun
+run build` exit 0 · `wrangler deploy --dry-run --env=""` exit 0, six bindings. Run locally; no CI.
+
+**Next:** the wiring's confirmation needs a deploy (for the per-attempt rule) plus a run in which the
+QS 66:6 shape recurs — `neraka` is the reproducer. Kajian needs a residential proxy (automation) and
+Erik's ISC-630 ruling (publishing); the two are independent. The ustadz review pack for a REPAIRED
+answer is still unbuilt and still has the longest clock on it — repair fired on 12 of 30 attempts in
+this very run.
+
+---
+
 ## 2026-08-24 (late night) — Cycle 15: the widening was priced, and it would have shipped a regression
 
 **WRAP-TIME STATE (2026-08-25).** Gates re-run at the wrap: `bun test` **2310/0** exit 0,
