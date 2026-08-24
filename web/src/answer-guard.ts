@@ -1060,8 +1060,100 @@ const ADJACENT_CHARS = 48;
  */
 const VERBATIM_DIVINE = [/\bberfirman\b/, /\bfirman(-?\s?nya)?\b/];
 
-export function wordingShape(prose: string): string | null {
+/**
+ * WHICH ARM of `wordingShape` refused — the discriminator ISC-486 cannot be scored without.
+ *
+ * `wordingShape` has FOUR independent reasons to refuse and reports one label, `rule: "wording"`.
+ * Three of them are refusals this project WANTS: the prose claimed divine speech (`verbatim_divine`,
+ * `divine_attr`) or prophetic speech (`prophetic`). The fourth, `adjacent_unowned`, is the only one
+ * ISC-486's open class can live in — a long quote sitting next to a Qur'an citation with no
+ * `HUMAN_ATTR` role noun in the 160 characters before it. `before` is lower-cased before any arm
+ * sees it, so a bare proper name ("Ibnu Katsir menjelaskan, …") cannot be distinguished from no
+ * owner at all, and a scholar's position quoted beside an ayah refuses here.
+ *
+ * This is the same move `gen.rule` was for one level up: `own_wording` collapsed two checks and made
+ * the echo wall's live effect unattributable. Here `wording` collapses four, and an instrument
+ * counting `rule:"wording"` refusals over real model prose cannot say whether ANY of them are the
+ * class the criterion is about. With the arm on the row it can — and a count of zero
+ * `adjacent_unowned` refusals becomes evidence rather than an absence.
+ *
+ * ONE BINDING, deliberately. This function IS the arm logic and `wordingShape` is a wrapper over it,
+ * rather than a second copy tested against the first. This repo has already paid for
+ * duplicate-and-test-the-copies (`worker/src/index.ts`: "sharing the binding means they cannot
+ * differ"), and a diagnostic that can drift from the gate it describes is worse than no diagnostic,
+ * because it reads as covered.
+ *
+ * NOT ON THE WIRE. Nothing reader-facing and nothing in `GenTrace` reads this; it is called by the
+ * offline instruments only. The arm names are non-revealing, but the span it returns is the refused
+ * text, which is subject to the same handling rule as everything `refusal-capture.ts` retains.
+ */
+export type WordingArm = "verbatim_divine" | "divine_attr" | "prophetic" | "adjacent_unowned";
+
+export interface WordingHit {
+  /** The quoted span, exactly as `wordingShape` returns it. */
+  readonly span: string;
+  readonly arm: WordingArm;
+}
+
+/**
+ * ONE QUOTED SPAN, and every fact the arms decided it on — including the spans that were NOT refused.
+ *
+ * WHY THE NON-REFUSALS ARE HERE. The first run of `refusal-capture` with arms reported **0
+ * `adjacent_unowned` refusals out of 15**, and that number was not yet evidence: the arm needs a
+ * quoted span of at least `OWN_WORDING_MIN_WORDS` words with a citation inside `ADJACENT_CHARS`, and
+ * if the sample contained no such span the zero was guaranteed before the model was called. This
+ * repo has paid for that shape more than once (`bundle-absence-needs-a-control`,
+ * `control-arm-or-no-claim`): an absence measured over an instrument that could not have reported a
+ * presence is a denominator, not a result.
+ *
+ * So the scan reports the OPPORTUNITY as well as the outcome. `eligible` is true of a span that
+ * reached the ownership test — long enough, and adjacent to a citation — whichever way that test then
+ * went. `0 refusals over 0 eligible spans` and `0 refusals over 40 eligible spans` are opposite
+ * findings and were the same printed zero before this existed.
+ */
+export interface WordingSpan {
+  readonly span: string;
+  readonly words: number;
+  /** A citation sits within `ADJACENT_CHARS` on either side. */
+  readonly adjacent: boolean;
+  /** A `HUMAN_ROLE`/`kami|kita|kamu|anda` token owns the words. Suppresses `adjacent_unowned` only. */
+  readonly humanAttr: boolean;
+  /**
+   * The exact window the arms judged on — 160 characters, LOWER-CASED, ending at the opening quote.
+   *
+   * Carried because scoring ISC-486 means asking who owns the quoted words, and that question is
+   * decided entirely by this string. Without it an `adjacent_unowned` row can only be read against
+   * the quote, which is the half that does NOT contain the owner. The lower-casing is the defect
+   * itself, visible: a bare proper name and a common noun are the same bytes here, which is why the
+   * wall cannot tell a scholar's position from an unowned rendering.
+   */
+  readonly before: string;
+  /**
+   * THE OWNERSHIP ARM ACTUALLY RAN on this span, so its verdict is a decision the wall made.
+   *
+   * ⚠ NOT merely "long enough and adjacent". A first cut defined it that way and printed
+   * `26 eligible · 0 owned · 0 adjacent_unowned` — three numbers that cannot all be true, because a
+   * span with no owner that reached the arm refuses by definition. The arms are ORDERED: a span
+   * carrying a divine or prophetic verbatim claim is taken before the ownership test is reached, so
+   * counting it as an opportunity the wall declined credits the wall with a judgement it never made.
+   *
+   * With this definition the identity holds and is asserted in the suite:
+   * `arm === "adjacent_unowned"` ⟺ `eligible && !humanAttr`.
+   */
+  readonly eligible: boolean;
+  /** The arm that refused this span, or null if it passed. */
+  readonly arm: WordingArm | null;
+}
+
+/**
+ * Every quoted span in the prose, in order, with the arms' working shown.
+ *
+ * ONE BINDING for the whole rule: `wordingShapeHit` is the first refusing span of this scan and
+ * `wordingShape` is that span's text. There is no second copy of the arms to drift.
+ */
+export function wordingShapeScan(prose: string): readonly WordingSpan[] {
   const text = normaliseForSentences(prose);
+  const out: WordingSpan[] = [];
   QUOTED_SPAN_ANY.lastIndex = 0;
   for (const m of text.matchAll(QUOTED_SPAN_ANY)) {
     const span = (m[1] ?? "").trim();
@@ -1076,22 +1168,48 @@ export function wordingShape(prose: string): string | null {
     const adjacent = REF_IN_PROSE.test(near);
     REF_IN_PROSE.lastIndex = 0;
 
-    // Checked BEFORE the length floor, which is the whole fix. A verbatim claim in front of a quote
-    // is not made innocent by the quote being short — a shorter forgery is a more compact one.
+    const humanAttr = HUMAN_ATTR.test(before);
+    const longEnough = words >= OWN_WORDING_MIN_WORDS;
+    const verbatimDivine = VERBATIM_DIVINE.some((re) => re.test(before));
+    const divine = longEnough && DIVINE_ATTR.some((re) => re.test(before));
+    const prophetic = longEnough && (muhammadSpeechAct(before) || PROPHETIC.some((re) => re.test(before)));
+
+    // The arms, in the order the rule applies them.
     //
-    // DIVINE ONLY, deliberately. See the SCOPE block above `VERBATIM_DIVINE` before adding a
-    // prophetic clause here; three attempts at one shipped three separate defects.
-    if (VERBATIM_DIVINE.some((re) => re.test(before))) return (m[0] ?? "").trim();
+    // `verbatim_divine` is checked BEFORE the length floor, which is the whole fix. A verbatim claim
+    // in front of a quote is not made innocent by the quote being short — a shorter forgery is a
+    // more compact one. DIVINE ONLY, deliberately: see the SCOPE block above `VERBATIM_DIVINE`
+    // before adding a prophetic clause here; three attempts at one shipped three separate defects.
+    //
+    // `divine` is separated from `prophetic` for the LABEL only. The rule was `if (divine ||
+    // prophetic)`, one refusal either way; a row labelled `prophetic` when `DIVINE_ATTR` matched
+    // would send a reader to the wrong vocabulary.
+    const arm: WordingArm | null = verbatimDivine
+      ? "verbatim_divine"
+      : !longEnough
+        ? null
+        : divine
+          ? "divine_attr"
+          : prophetic
+            ? "prophetic"
+            : adjacent && !humanAttr
+              ? "adjacent_unowned"
+              : null;
 
-    if (words < OWN_WORDING_MIN_WORDS) continue;
-
-    const divine = DIVINE_ATTR.some((re) => re.test(before));
-    const prophetic = muhammadSpeechAct(before) || PROPHETIC.some((re) => re.test(before));
-    if (divine || prophetic) return (m[0] ?? "").trim();
-
-    if (adjacent && !HUMAN_ATTR.test(before)) return (m[0] ?? "").trim();
+    // The ownership test is reached only when every earlier arm passed on the span.
+    const eligible = !verbatimDivine && longEnough && !divine && !prophetic && adjacent;
+    out.push({ span: (m[0] ?? "").trim(), words, adjacent, humanAttr, before, eligible, arm });
   }
+  return out;
+}
+
+export function wordingShapeHit(prose: string): WordingHit | null {
+  for (const s of wordingShapeScan(prose)) if (s.arm !== null) return { span: s.span, arm: s.arm };
   return null;
+}
+
+export function wordingShape(prose: string): string | null {
+  return wordingShapeHit(prose)?.span ?? null;
 }
 
 /**

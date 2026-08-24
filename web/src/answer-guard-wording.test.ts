@@ -15,7 +15,15 @@
  * is pinned below as a regression test rather than left to luck.
  */
 import { describe, expect, test } from "bun:test";
-import { allowedRefsFrom, groundedHadithFrom, guardAnswerProse, safeAnswer, wordingShape } from "./answer-guard.ts";
+import {
+  allowedRefsFrom,
+  groundedHadithFrom,
+  guardAnswerProse,
+  safeAnswer,
+  wordingShape,
+  wordingShapeHit,
+  wordingShapeScan,
+} from "./answer-guard.ts";
 
 describe("an ayah's wording, written by the app", () => {
   test("the live 2026-08-17 violation is refused", () => {
@@ -589,5 +597,192 @@ describe("the 40-character window catches what neither the span nor the ownershi
     [`Allah serta kami menyebutkan, ${AYAH_RENDERING}`, "`kami` adjacent"],
   ])("refused: %s (%s)", (prose) => {
     expect(wordingShape(prose)).not.toBeNull();
+  });
+});
+
+/**
+ * WHICH ARM refused — the discriminator ISC-486 cannot be scored without.
+ *
+ * `wordingShape` has four independent reasons to refuse and `guardAnswerProse` reports one label for
+ * all of them, `rule: "wording"`. Three are refusals this project wants (a divine or prophetic
+ * verbatim claim); the fourth, `adjacent_unowned`, is the ONLY arm ISC-486's open class can live in.
+ * So an instrument counting `rule:"wording"` refusals over real model prose cannot say whether any of
+ * them are the class the criterion is about, and a count of zero means nothing.
+ *
+ * THIS SUITE IS ALSO THE REFACTOR'S CONTROL. `wordingShapeHit` is not a second copy of the arms — it
+ * IS the arms, and `wordingShape` is a one-line wrapper over it. The rows below therefore have two
+ * jobs: pin the labels, and prove the wrapper still returns exactly what the arm returns, on prose
+ * that reaches each arm by a different route.
+ *
+ * HOW TO CHECK THESE ASSERTIONS CAN FAIL rather than believing them: swap any two `arm` strings below
+ * and the row reddens; change `hit(\"divine_attr\")` to `hit(\"prophetic\")` in `answer-guard.ts` and the
+ * `divine_attr` row reddens while every existing `wordingShape` test in this file stays green — which
+ * is the whole point, because the old code could not tell those two apart at all.
+ */
+describe("wordingShapeHit names the arm that refused", () => {
+  const AYAH = '“Dan janganlah kamu mendekati zina; sesungguhnya zina itu adalah perbuatan yang keji dan jalan yang buruk.”';
+
+  test.each([
+    [
+      'Allah berfirman, "Bertakwalah kepada Allah."',
+      "verbatim_divine",
+      "`berfirman` — taken BEFORE the eight-word floor, so a three-word span still lands here",
+    ],
+    [
+      `Dalam QS Al-Baqarah 2:187, Allah menggambarkan hubungan itu — ${AYAH}`,
+      "divine_attr",
+      "no `berfirman`; DIVINE_ATTR's subject+verb span is what matches",
+    ],
+    [
+      'Rasulullah ﷺ bersabda, “Tidak akan beruntung suatu kaum yang menyerahkan urusan mereka kepada seorang perempuan.”',
+      "prophetic",
+      "muhammadSpeechAct — the arm the old `divine || prophetic` union hid",
+    ],
+    [
+      `Islam menutup jalan menuju zina: ${AYAH} (QS Al-Isra 17:32)`,
+      "adjacent_unowned",
+      "the original ISC-419 shape: the citation IS the claim, and no owner precedes the quote",
+    ],
+  ])("%s → %s", (prose, arm) => {
+    const hit = wordingShapeHit(prose);
+    expect(hit).not.toBeNull();
+    expect(hit?.arm).toBe(arm as never);
+    // The wrapper and the arm must not be able to disagree.
+    expect(wordingShape(prose)).toBe(hit?.span ?? null);
+  });
+
+  test("clean prose yields no hit, and the wrapper agrees", () => {
+    const prose = "Tidak ada satu ayat pun yang menyebut kata “musik”, dan QS Luqman 31:6 berbicara tentang “lahwal hadits”.";
+    expect(wordingShapeHit(prose)).toBeNull();
+    expect(wordingShape(prose)).toBeNull();
+  });
+
+  /**
+   * ISC-486's OPEN CLASS, pinned as the fact it is — a refusal, labelled, with its firing condition.
+   *
+   * The three rows below differ only in WHO is said to have concluded it, and the ayah citation sits
+   * inside `ADJACENT_CHARS` of the quote in all three. `sebagian ulama` and `Imam Ibnu Katsir` both
+   * carry a `HUMAN_ROLE` token, so `HUMAN_ATTR` matches and the ownership arm stands down. The bare
+   * proper name does not: `before` is lower-cased before any arm sees it, so capitalisation is
+   * unavailable and no vocabulary in this file contains him — the scholar's position refuses.
+   *
+   * ⚠ THE FIRING CONDITION IS ADJACENCY, not the name. A first draft of this suite asserted the
+   * refusal on a sentence whose `QS An-Naml 27:23` sat further than `ADJACENT_CHARS` (48) from the
+   * quote; it PASSED the wall, the test reddened, and the fixture — not the guard — was wrong. So do
+   * not read "a named scholar refuses" as unconditional: it refuses when the citation is adjacent.
+   *
+   * The assertion is deliberately NOT `toBeNull()` on the bare-name row. That would pin a known hole
+   * with a green test, which this repo forbids (`dont-pin-a-known-hole-with-a-green-test`). What is
+   * pinned instead is the ARM: when this class is finally fixed, this row is the one that must
+   * change, and it names the arm the fix has to move.
+   */
+  test("a named scholar's position beside an ayah refuses on adjacent_unowned; a role noun in the same slot does not", () => {
+    const POSITION =
+      '“perempuan boleh memegang kepemimpinan dalam urusan dunia selama ia memenuhi syarat kecakapan”';
+    const said = (owner: string) => `${owner} menafsirkan QS An-Naml 27:23 begini: ${POSITION}.`;
+
+    expect(wordingShapeHit(said("Sebagian ulama"))).toBeNull();
+    expect(wordingShapeHit(said("Imam Ibnu Katsir"))).toBeNull();
+    expect(wordingShapeHit(said("Ibnu Katsir"))?.arm).toBe("adjacent_unowned");
+  });
+});
+
+/**
+ * THE OPPORTUNITY DENOMINATOR — so a zero can be told from a zero that could never have been anything else.
+ *
+ * `refusal-capture`'s first run with arms reported 0 `adjacent_unowned` refusals over 15 `wording`
+ * refusals, and that figure was not yet evidence: the arm needs a span of at least
+ * `OWN_WORDING_MIN_WORDS` words WITH a citation inside `ADJACENT_CHARS`, and a sample containing no
+ * such span produces that zero before the model is called. `eligible` is the flag that separates the
+ * two readings, and this suite exists to prove it is not a constant — it must be true on prose that
+ * reaches the ownership test and false on prose that cannot, or it is decoration.
+ */
+describe("wordingShapeScan reports the opportunity, not only the outcome", () => {
+  const LONG = '“perempuan boleh memegang kepemimpinan dalam urusan dunia selama ia memenuhi syarat kecakapan”';
+  const SHORT = '“lahwal hadits”';
+
+  test("long AND adjacent → eligible, and the ownership arm decides it", () => {
+    const spans = wordingShapeScan(`Ibnu Katsir menafsirkan QS An-Naml 27:23 begini: ${LONG}.`);
+    expect(spans).toHaveLength(1);
+    expect(spans[0]?.eligible).toBe(true);
+    expect(spans[0]?.humanAttr).toBe(false);
+    expect(spans[0]?.arm).toBe("adjacent_unowned");
+  });
+
+  test("long AND adjacent but OWNED → still eligible, and the wall stands down", () => {
+    const spans = wordingShapeScan(`Sebagian ulama menafsirkan QS An-Naml 27:23 begini: ${LONG}.`);
+    expect(spans[0]?.eligible).toBe(true);
+    expect(spans[0]?.humanAttr).toBe(true);
+    expect(spans[0]?.arm).toBeNull();
+  });
+
+  test("long but NOT adjacent → not eligible: the arm never ran", () => {
+    const spans = wordingShapeScan(`Ibnu Katsir menyimpulkan, setelah membahas panjang lebar soal kepemimpinan dalam sejarah Islam, bahwa ${LONG}.`);
+    expect(spans[0]?.adjacent).toBe(false);
+    expect(spans[0]?.eligible).toBe(false);
+    expect(spans[0]?.arm).toBeNull();
+  });
+
+  test("adjacent but SHORT → not eligible: below the eight-word floor", () => {
+    const spans = wordingShapeScan(`Dalam QS Luqman 31:6 disebut ${SHORT}.`);
+    expect(spans[0]?.words).toBeLessThan(8);
+    expect(spans[0]?.eligible).toBe(false);
+    expect(spans[0]?.arm).toBeNull();
+  });
+
+  /**
+   * `verbatim_divine` is taken BEFORE the floor, so it can refuse a span that is not `eligible`.
+   * That asymmetry is the rule's, not the scan's, and it is pinned here so a future reader does not
+   * "fix" the denominator by making `eligible` cover every refusal.
+   */
+  test("a short `berfirman` span is refused while NOT eligible", () => {
+    const spans = wordingShapeScan('Allah berfirman, "Bertakwalah kepada Allah."');
+    expect(spans[0]?.eligible).toBe(false);
+    expect(spans[0]?.arm).toBe("verbatim_divine");
+  });
+
+  /**
+   * A span an EARLIER arm claimed is not an opportunity the ownership arm declined.
+   *
+   * This row is the control for the reporting defect that produced `26 eligible · 0 owned ·
+   * 0 adjacent_unowned` — three figures that cannot all be true. The prose below is long, adjacent
+   * and unowned, and would refuse on `adjacent_unowned` if `divine_attr` did not take it first.
+   */
+  test("a divine claim takes the span before the ownership test, so it is NOT counted as an opportunity", () => {
+    const spans = wordingShapeScan(
+      `Dalam QS An-Naml 27:23 Allah menggambarkan begini: ${LONG}.`,
+    );
+    expect(spans[0]?.adjacent).toBe(true);
+    expect(spans[0]?.humanAttr).toBe(false);
+    expect(spans[0]?.arm).toBe("divine_attr");
+    expect(spans[0]?.eligible).toBe(false);
+  });
+
+  /**
+   * THE IDENTITY, asserted rather than described — over every fixture this file already carries.
+   *
+   * `arm === "adjacent_unowned"` ⟺ `eligible && !humanAttr`. If it ever fails, the instrument's
+   * denominator and its numerator are measuring different things, which is exactly the state the
+   * first cut shipped in.
+   */
+  test("eligible && !humanAttr is exactly the adjacent_unowned arm", () => {
+    const corpus = [
+      `Ibnu Katsir menafsirkan QS An-Naml 27:23 begini: ${LONG}.`,
+      `Sebagian ulama menafsirkan QS An-Naml 27:23 begini: ${LONG}.`,
+      `Dalam QS An-Naml 27:23 Allah menggambarkan begini: ${LONG}.`,
+      'Allah berfirman, "Bertakwalah kepada Allah."',
+      `Dalam QS Luqman 31:6 disebut ${SHORT}.`,
+      'Rasulullah ﷺ bersabda, “Tidak akan beruntung suatu kaum yang menyerahkan urusan mereka kepada seorang perempuan.”',
+      `Islam menutup jalan menuju zina: ${LONG} (QS Al-Isra 17:32)`,
+    ];
+    let seenTrue = 0;
+    for (const prose of corpus) {
+      for (const sp of wordingShapeScan(prose)) {
+        expect(sp.arm === "adjacent_unowned").toBe(sp.eligible && !sp.humanAttr);
+        if (sp.arm === "adjacent_unowned") seenTrue += 1;
+      }
+    }
+    // Both sides of the identity must be exercised, or it is satisfied by never being true.
+    expect(seenTrue).toBeGreaterThan(0);
   });
 });

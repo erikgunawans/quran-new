@@ -74,8 +74,11 @@ import { gatherGrounding } from "../../web/src/answer.ts";
 import {
   guardAnswerProse,
   groundedHadithFrom,
+  wordingShapeHit,
+  wordingShapeScan,
   type AnswerViolationKind,
   type AnswerViolationRule,
+  type WordingArm,
 } from "../../web/src/answer-guard.ts";
 import { isRealAyah } from "../../web/src/quran.ts";
 import {
@@ -281,6 +284,27 @@ interface GuardCall {
   readonly ok: boolean;
   readonly rules: readonly AnswerViolationRule[];
   readonly kinds: readonly AnswerViolationKind[];
+  /**
+   * WHICH ARM of `wordingShape` refused — null unless `rules` contains `"wording"`.
+   *
+   * ISC-486 CANNOT BE SCORED WITHOUT THIS, and that is why it is here. `rule: "wording"` collapses
+   * four independent reasons to refuse. Three are refusals this project wants: the prose claimed
+   * divine speech (`verbatim_divine`, `divine_attr`) or prophetic speech (`prophetic`). The fourth,
+   * `adjacent_unowned`, is the ONLY arm ISC-486's class can live in — a long quote next to a Qur'an
+   * citation with no `HUMAN_ROLE` token in the 160 characters before it, which is what a bare proper
+   * name looks like to a lower-cased window.
+   *
+   * Before this field, a run of this harness could report "N refused candidates, K of them
+   * `wording`" and K was not a measurement of anything the criterion asks about — a K of zero and a
+   * K of ten were equally consistent with the wall never once refusing a scholar's position.
+   *
+   * ONE BINDING: `wordingShapeHit` IS the arm logic and `wordingShape` is a wrapper over it, so this
+   * label cannot drift from the gate that produced the refusal. It is recomputed here rather than
+   * carried on the violation because nothing reader-facing may acquire it.
+   */
+  readonly wordingArm: WordingArm | null;
+  /** `violations[].detail` — the span each rule objected to. Same handling rule as `prose`. */
+  readonly details: readonly string[];
 }
 
 interface Turn {
@@ -316,12 +340,17 @@ async function capture(q: string, sample: number): Promise<Turn> {
   const calls: GuardCall[] = [];
   const guard = (candidate: string) => {
     const verdict = guardAnswerProse(candidate, isRealAyah, isGroundedHadith, echoVerses);
+    const rules = verdict.violations.map((v) => v.rule);
     calls.push({
       n: calls.length + 1,
       prose: candidate,
       ok: verdict.ok,
-      rules: verdict.violations.map((v) => v.rule),
+      rules,
       kinds: verdict.violations.map((v) => v.kind),
+      // Only meaningful when `wordingShape` is what refused. On any other verdict the arm would be
+      // reporting a hit no rule acted on, which is worse than a blank.
+      wordingArm: rules.includes("wording") ? (wordingShapeHit(candidate)?.arm ?? null) : null,
+      details: verdict.violations.map((v) => v.detail),
     });
     return verdict;
   };
@@ -413,8 +442,10 @@ for (const q of questions) {
     say(`   guard was shown ${t.calls.length} candidate(s):`);
     for (const c of t.calls) {
       say();
-      say(`   [${c.n}] ${c.ok ? "PASS" : `REFUSED — kinds=${c.kinds.join(",")} rules=${c.rules.join(",")}`}` +
+      const arm = c.wordingArm ? ` arm=${c.wordingArm}` : "";
+      say(`   [${c.n}] ${c.ok ? "PASS" : `REFUSED — kinds=${c.kinds.join(",")} rules=${c.rules.join(",")}${arm}`}` +
         `  (${c.prose.split(/\s+/).filter(Boolean).length} words)`);
+      if (!c.ok && c.details.length > 0) say(`       spans: ${c.details.map((d) => JSON.stringify(d)).join(" · ")}`);
       say(indent(c.prose));
     }
     say();
@@ -440,6 +471,94 @@ say(
     `${turns.filter(dalilEligible).length}/${turns.length} would have been ELIGIBLE on prod ` +
     `(${DALIL_GATE_SRC}). Those rows are the ones this harness reproduces least faithfully.`,
 );
+say("═".repeat(96));
+
+// ── ISC-486: which arm of `wordingShape` refused ────────────────────────────────────
+/**
+ * THE ONE NUMBER THIS CRITERION HAS NEVER HAD, with its firing condition stated.
+ *
+ * ISC-486 asks whether the wall refuses a scholar's position quoted beside an ayah. Every figure it
+ * has ever been scored against was built by hand — `ISA.md`'s "120 of 120" is a constructed grid —
+ * and `guard-tests-need-production-prose` is on record here as the reason that is not enough: the
+ * hadith wall stood open for two sessions while every case it was tested on was prose we wrote.
+ *
+ * This block reads REAL model prose. It cannot decide the criterion on its own and does not pretend
+ * to: `adjacent_unowned` is a NECESSARY condition for an ISC-486 over-refusal, not a sufficient one.
+ * The arm fires whenever no `HUMAN_ROLE` token precedes the quote — which is true of a bare proper
+ * name AND of prose with no owner at all, and the second is a refusal this project WANTS (the
+ * original ISC-419 shape, `"…" (QS 17:32)`, lands on this same arm). Separating them needs a reader
+ * of the span, and the span is refused model output that stays on this surface.
+ *
+ * So read it as a CEILING: over the sample, at most this many refusals could have been the class. A
+ * count of zero here is a real negative — the wall did not refuse a scholar's position, because it
+ * did not take that arm at all. A count above zero is a shortlist to read, not a verdict.
+ */
+const wordingCalls = turns.flatMap((t) => t.calls.filter((c) => !c.ok && c.rules.includes("wording")));
+const byArm = new Map<string, number>();
+for (const c of wordingCalls) byArm.set(c.wordingArm ?? "—", (byArm.get(c.wordingArm ?? "—") ?? 0) + 1);
+const ceiling = byArm.get("adjacent_unowned") ?? 0;
+
+// THE DENOMINATOR, over EVERY candidate the guard was shown — passing ones included.
+//
+// The arm needs a span of at least eight words with a citation inside 48 characters. If the sample
+// never produced one, `0 adjacent_unowned` was fixed before the model was called, and printing it
+// beside the refusals would read as "the wall did not over-refuse" when the honest reading is "the
+// wall was never asked". Counted over all calls, not just refused ones, because a span that cleared
+// the ownership test is exactly an opportunity the wall took and declined.
+const allSpans = turns.flatMap((t) => t.calls.flatMap((c) => wordingShapeScan(c.prose)));
+const eligibleSpans = allSpans.filter((sp) => sp.eligible);
+const ownedSpans = eligibleSpans.filter((sp) => sp.humanAttr);
+
+say("ISC-486 — `wordingShape` refusals BY ARM (the criterion's class lives in exactly one of them):");
+say(
+  `   OPPORTUNITY: ${eligibleSpans.length} of ${allSpans.length} quoted span(s) were ELIGIBLE for the` +
+    ` ownership arm (≥8 words AND a citation within 48 chars) — ${ownedSpans.length} of those carried a` +
+    ` HUMAN_ROLE owner and stood the wall down.`,
+);
+if (eligibleSpans.length === 0) {
+  say(`   ⚠ ZERO ELIGIBLE SPANS. Every count below is a denominator, not a result: the ownership arm`);
+  say(`     could not have fired on this sample whatever the wall does. Sample more turns before`);
+  say(`     citing any figure here as evidence about this criterion.`);
+}
+if (wordingCalls.length === 0) {
+  say(`   0 of ${refusedCandidates} refused candidate(s) were refused by \`wordingShape\` at all.`);
+} else {
+  for (const [arm, n] of [...byArm].sort((a, b) => b[1] - a[1])) {
+    const note =
+      arm === "adjacent_unowned"
+        ? "  ← ISC-486's class lives HERE, and only here"
+        : arm === "—"
+          ? "  ← rule fired but no arm resolved: a BUG in this instrument, not a result"
+          : "  ← a divine/prophetic verbatim claim: a refusal this project wants";
+    say(`   ${String(n).padStart(3)}  ${arm.padEnd(16)}${note}`);
+  }
+  say();
+  say(`   CEILING: at most ${ceiling} of ${wordingCalls.length} \`wording\` refusal(s) could be ISC-486`);
+  say(`   over-refusals. Necessary, NOT sufficient — the arm also takes the owner-less ISC-419 shape`);
+  say(`   \`"…" (QS 17:32)\`, which must keep refusing. Read those ${ceiling} span(s) above to split them;`);
+  say(`   do not quote them anywhere that ships.`);
+}
+
+/**
+ * THE SHORTLIST, printed in the summary so a run can be SCORED without dumping every candidate.
+ *
+ * The first run with arms was invoked `--blocked-only`, no turn ended blocked, and so the ledger
+ * printed nothing at all — while the summary still counted one `adjacent_unowned` refusal that was
+ * therefore unreadable. A count whose evidence the same run withheld cannot settle anything.
+ *
+ * `before` is what decides the criterion: it is the window the arm judged on, lower-cased, and the
+ * lower-casing IS the defect. Reading it answers the only question left — a named scholar (an
+ * ISC-486 over-refusal) or no owner at all (the ISC-419 shape, which must keep refusing).
+ */
+const shortlist = allSpans.filter((sp) => sp.arm === "adjacent_unowned");
+if (shortlist.length > 0) {
+  say();
+  say(`   THE ${shortlist.length} SPAN(S) TO SPLIT — read the lead-in, not the quote:`);
+  for (const [i, sp] of shortlist.entries()) {
+    say(`   [${i + 1}] lead-in …${sp.before.slice(-90)}`);
+    say(`       quote   ${sp.span.slice(0, 90)}`);
+  }
+}
 say("═".repeat(96));
 
 if (OUT_PATH) {
