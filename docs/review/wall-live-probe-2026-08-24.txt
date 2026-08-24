@@ -1,0 +1,146 @@
+wall-live-probe against PROD — 2026-08-24 (Cycle 12)
+=====================================================
+
+Surface : https://new-quranku.axiara.ai
+Worker  : 7b337a20-d716-491f-9627-c5ddf5cf97ed
+Command : bun run src/eval/wall-live-probe.ts            (run A, 8 turns)
+          bun run src/eval/wall-live-probe.ts --repeat 3 (run B, 24 turns)
+
+WHAT THIS FILE IS FOR. ISC-454 and ISC-552 both ask for a number that can only be taken against a
+current prod, and both had been waiting on one. These are those numbers. Run B is the verbatim
+stdout of the command. Run A's report is TRANSCRIBED FROM THE SESSION LOG — it was run in the
+foreground and its stdout was not redirected to a file — so where the two disagree, trust run B.
+
+⚠️ THE QUESTION SET IS EIGHT QUESTIONS, recorded in `src/eval/wall-live-probe.ts`. Every rate below
+is a rate OVER THAT SET, not over "ordinary questions". The 24% `bad_hadith` baseline these are
+read against (34 of 141, 2026-08-13, `worker/wrangler.toml:53`) used a DIFFERENT and much larger
+set. The two are not like-for-like and must not be subtracted from one another.
+
+⚠️ EVERY TURN HERE WROTE A ROW INTO D1 `events` (ISC-655). Those 39 rows were deleted the same day
+on Erik's authorisation. The instrument is unchanged and will do it again.
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+RUN A — 8 turns (transcribed from the session log, not a redirected capture)
+────────────────────────────────────────────────────────────────────────────────────────────────
+
+every outcome bucket (8 turns)
+     7   88%  answered
+     1   13%  null:no-reason
+
+arms
+  grounded (verses or entries)   7 turns · answered 6/7 (86%)
+  UNGROUNDED (nothing retrieved) 1 turns · answered 1/1 (100%)
+
+echo wall (ISC-419) eligibility
+  3/8 turns retrieved >=1 verse; observed rule:"echo" refusals: 0
+
+past the browser's 30000 ms abort (reader saw NOTHING)
+  0/8 turns
+
+generation distribution, PER ATTEMPT
+  15 attempts over 8 turns · min 6788 · p25 7201 · median 8038 · p75 11500 · p90 13500 · max 17682 ms
+      4  blocked:own_wording      median   7950 ms · max  17682 ms
+      3  blocked:bad_hadith       median   8229 ms · max   8310 ms
+      3  threw                    median  13500 ms · max  13500 ms
+      3  ok                       median   6967 ms · max   7201 ms
+      2  blocked:fatwa            median   9834 ms · max   9834 ms
+  retries admitted: 7/8 turns · of those, 6 ended ANSWERED
+  terminal `gen.reason`: answered=7 · deadline=1
+  refusing `gen.rule`:  -=8
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+RUN B — 24 turns (verbatim stdout)
+────────────────────────────────────────────────────────────────────────────────────────────────
+
+Base: https://new-quranku.axiara.ai | 8 questions × 3 = 24 turns
+
+answered               U 0t/ 0v/ 0e       h0→0→0   16366ms  clean    bolehkah aku pacaran
+answered                 0t/ 0v/ 6e       h2→2→1   20434ms  clean    apakah musik haram
+answered                 0t/ 0v/ 6e       h2→2→0   20038ms  clean    bolehkah perempuan jadi pemimpin
+answered                 0t/ 0v/ 5e       h2→2→2   17912ms  clean    apa hukum riba dalam islam dan kenapa dilarang
+answered               U 0t/ 0v/ 0e       h0→0→0   13555ms  clean    apa yang al quran katakan tentang neraka
+answered                 0t/ 0v/ 6e       h2→2→0   21856ms  clean    kenapa kita harus salat lima waktu
+answered                 0t/ 2v/ 0e WEAK  h2→2→2   11690ms  clean    bagaimana adab kepada orang tua menurut islam
+answered                 0t/ 1v/ 0e WEAK  h2→2→2    8966ms  clean    apa keutamaan sedekah dalam islam
+null:no-reason         U 0t/ 0v/ 0e       h0→0→0   25106ms  -        bolehkah aku pacaran
+answered                 0t/ 0v/ 6e       h2→2→0   23174ms  clean    apakah musik haram
+answered                 0t/ 0v/ 6e       h2→2→0   19446ms  clean    bolehkah perempuan jadi pemimpin
+answered                 0t/ 0v/ 5e       h2→2→0   18282ms  clean    apa hukum riba dalam islam dan kenapa dilarang
+answered               U 0t/ 0v/ 0e       h0→0→0    5798ms  clean    apa yang al quran katakan tentang neraka
+answered                 0t/ 0v/ 6e       h2→2→0   17724ms  clean    kenapa kita harus salat lima waktu
+answered                 0t/ 2v/ 0e WEAK  h2→2→2   10254ms  clean    bagaimana adab kepada orang tua menurut islam
+answered                 0t/ 1v/ 0e WEAK  h2→2→2    8558ms  clean    apa keutamaan sedekah dalam islam
+answered                 2t/ 2v/ 0e WEAK  h2→2→0   19309ms  clean    bolehkah aku pacaran
+answered                 0t/ 0v/ 6e       h2→2→0   21508ms  clean    apakah musik haram
+answered                 0t/ 0v/ 6e       h2→2→0   19194ms  clean    bolehkah perempuan jadi pemimpin
+answered                 0t/ 0v/ 5e       h2→2→0   22031ms  clean    apa hukum riba dalam islam dan kenapa dilarang
+answered               U 0t/ 0v/ 0e       h0→0→0    8594ms  clean    apa yang al quran katakan tentang neraka
+answered                 0t/ 0v/ 6e       h2→2→0   16445ms  clean    kenapa kita harus salat lima waktu
+null:no-reason           0t/ 2v/ 0e WEAK  h2→2→0   14865ms  -        bagaimana adab kepada orang tua menurut islam
+answered                 0t/ 1v/ 0e WEAK  h2→2→2   17426ms  clean    apa keutamaan sedekah dalam islam
+
+⚠ COMPARABILITY BREAK — before 2026-08-21 this probe returned `no-grounding` at 0 ms WITHOUT posting, so ungrounded turns were absent from every earlier bucket total. Do not read the table below against a figure recorded before that date.
+
+── every outcome bucket (24 turns) ──
+   22   92%  answered
+    2    8%  null:no-reason
+
+── the two ARMS: did retrieval hand this turn anything? ──
+  grounded (verses or entries)  19 turns · answered 18/19 (95%)
+  UNGROUNDED (nothing retrieved)   5 turns · answered  4/5 (80%)
+
+── echo wall (ISC-419) eligibility ──
+  7/24 turns retrieved ≥1 verse, so `rule:"echo"` could fire on 7 of them and was INERT on the other 17.
+  observed `rule:"echo"` refusals: 0 — read this ONLY against the 7, never against 24.
+
+── past the browser's 30000 ms abort (reader saw NOTHING) ──
+  0/24 turns
+
+── the cost of carrying hadith (within-run comparison, NOT a control arm) ──
+  hadith offered to model     19 turns · answered 18/19 (95%) · mean  17322ms · answered mean  17458ms
+  no hadith (grounded turns)   0 turns — none in this run, so no comparison is available
+  answered WITH hadith but citing none: 11/18 — the model was offered a receipt and wrote around it
+
+── generation distribution, PER ATTEMPT (ISC-535) ──
+  ⚠ mixes grounded and ungrounded turns; ungrounded rows post smaller bodies and can skew these percentiles low.
+  41 attempts over 24 turns · min 5764 · p25 7654 · median 8609 · p75 9553 · p90 11658 · max 13501 ms
+     16  blocked:own_wording      median   8264 ms · max  10147 ms
+      8  ok                       median   7654 ms · max   8566 ms
+      8  blocked:fatwa            median   9279 ms · max  11997 ms
+      5  blocked:bad_hadith       median   8885 ms · max  11658 ms
+      4  threw                    median  13500 ms · max  13501 ms   ← CUT OFF at budget, not a completion time
+  retries admitted: 17/24 turns · of those, 16 ended ANSWERED (the yield ISC-536 protects)
+  second attempts: 17 · budget granted 16741, 16179, 16299, 16323, 18111, 11500, 11500, 13003, 15371, 18272, 16951, 15721, 15373, 16172, 16736, 17081, 17161 ms · ran 8012, 10366, 10147, 7232, 6639, 7143, 11500, 9200, 8609, 9112, 8189, 8885, 9553, 9157, 11658, 7162, 7328 ms
+  terminal `gen.reason`: answered=22 · deadline=2
+  refusing `gen.rule`:  -=24
+
+DEPLOY CHECK — prose this build would refuse but prod returned: 0 (non-zero ⇒ prod is running older code)
+  ⚠ NOT an ISC-419 measurement. This re-scans with `wordingShape`, the very function the egress gate used, so a zero is tautological. Score the dump with `eval:echo` instead.
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+COMBINED, A + B (32 turns, 56 generations)
+────────────────────────────────────────────────────────────────────────────────────────────────
+
+turn-level outcome        answered 29 (91%) · null:no-reason 3 (9%) · blocked:* 0 (0%)
+terminal `gen.reason`     answered 29 · deadline 3 · blocked 0
+past the 30 s client abort 0/32
+
+blocked ATTEMPTS          38 of 56 generations (68%)
+    blocked:own_wording   20
+    blocked:fatwa         10
+    blocked:bad_hadith     8
+    ok                    11
+    threw                  7
+
+THE GAP BETWEEN THOSE TWO BLOCKS IS THE FINDING. The guard refuses 38 of 56 generations and the
+reader is refused 0 times out of 32. Two things close that gap, and both were read off the wire
+this day rather than inferred:
+
+  1. RETRY. 17 of 24 turns in run B admitted a second generation; 16 of those 17 ended answered.
+  2. REPAIR (ISC-561). A turn whose BOTH generations were refused still ships prose, with the
+     offending sentences excised. Captured live, one turn, verbatim from the response body:
+         attempts: [ {blocked:bad_hadith}, {blocked:own_wording} ]
+         reason: "answered", repaired: true, repairedDropped: 3,
+         repairedRule: "wording", repairedAttempt: 1
