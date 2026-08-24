@@ -1254,11 +1254,11 @@ export interface EchoVerse {
 const ECHO_MIN_RUN = 4;
 
 /** Words, lower-cased and stripped of punctuation. No stemming — see `scriptureEchoShape`. */
-const echoWords = (s: string): string[] =>
+export const echoWords = (s: string): string[] =>
   s.toLowerCase().normalize("NFC").replace(/[^a-z0-9' ]+/gu, " ").split(/\s+/u).filter(Boolean);
 
 /** Longest run of consecutive words appearing in both sequences. */
-function sharedRun(a: readonly string[], b: readonly string[]): number {
+export function sharedRun(a: readonly string[], b: readonly string[]): number {
   let best = 0;
   for (let i = 0; i < a.length; i += 1) {
     for (let j = 0; j < b.length; j += 1) {
