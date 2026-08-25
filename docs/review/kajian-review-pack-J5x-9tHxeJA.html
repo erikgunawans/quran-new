@@ -1,0 +1,444 @@
+<title>Berkas Periksa Ringkasan Kajian</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ink:        #16202E;
+    --ink-soft:   #47566B;
+    --ink-faint:  #7C8AA0;
+    --paper:      #F7F8F7;
+    --surface:    #FFFFFF;
+    --rule:       #DDE2DF;
+    --rule-soft:  #EAEEEB;
+
+    --pine:       #2F6B54;
+    --pine-wash:  #EDF4F0;
+    --brass:      #8A6A2F;
+    --brass-wash: #F7F1E3;
+    --slate:      #62707F;
+    --slate-wash: #EEF1F3;
+
+    --shadow: 0 1px 2px rgba(22,32,46,.05), 0 8px 24px -16px rgba(22,32,46,.28);
+
+    --measure: 68ch;
+    --s1: .5rem;  --s2: .875rem; --s3: 1.375rem;
+    --s4: 2.25rem; --s5: 3.5rem;  --s6: 5.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink:        #E4E8E5;
+      --ink-soft:   #A3AFBD;
+      --ink-faint:  #74818F;
+      --paper:      #10151B;
+      --surface:    #171E26;
+      --rule:       #2A343E;
+      --rule-soft:  #212A33;
+
+      --pine:       #7FBFA1;
+      --pine-wash:  #16261F;
+      --brass:      #CBA05A;
+      --brass-wash: #241E12;
+      --slate:      #93A0AE;
+      --slate-wash: #1B222A;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink:        #E4E8E5;
+    --ink-soft:   #A3AFBD;
+    --ink-faint:  #74818F;
+    --paper:      #10151B;
+    --surface:    #171E26;
+    --rule:       #2A343E;
+    --rule-soft:  #212A33;
+
+    --pine:       #7FBFA1;
+    --pine-wash:  #16261F;
+    --brass:      #CBA05A;
+    --brass-wash: #241E12;
+    --slate:      #93A0AE;
+    --slate-wash: #1B222A;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: var(--s5) var(--s3) var(--s6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s5);
+  }
+
+  .prose { max-width: var(--measure); }
+
+  h1, h2, h3 {
+    font-family: Spectral, ui-serif, Georgia, serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+    line-height: 1.2;
+  }
+  h1 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.1rem); letter-spacing: -.015em; }
+  h2 { font-size: clamp(1.4rem, 1.1rem + 1vw, 1.85rem); letter-spacing: -.01em; }
+  h3 { font-size: 1.12rem; font-weight: 600; }
+
+  p { margin: 0; }
+  .stack   { display: flex; flex-direction: column; gap: var(--s3); }
+  .stack-s { display: flex; flex-direction: column; gap: var(--s2); }
+  .stack-l { display: flex; flex-direction: column; gap: var(--s4); }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .715rem;
+    font-weight: 500;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .lede { font-size: 1.16rem; color: var(--ink-soft); }
+  .fine { font-size: .93rem; color: var(--ink-soft); }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  a { color: var(--pine); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--pine);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* ── masthead ───────────────────────────────────────────── */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    padding-bottom: var(--s4);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .source {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--s1) var(--s3);
+    padding: var(--s3);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-size: .93rem;
+  }
+  .source dt { color: var(--ink-faint); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; align-self: baseline; padding-top: .22rem; }
+  .source dd { margin: 0; }
+
+  /* ── the flag: what actually needs a scholar ────────────── */
+  .flag {
+    background: var(--brass-wash);
+    border: 1px solid var(--brass);
+    border-radius: 4px;
+    padding: var(--s4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+  }
+  .flag .eyebrow { color: var(--brass); }
+  .flag blockquote {
+    margin: 0;
+    padding-left: var(--s3);
+    border-left: 3px solid var(--brass);
+    font-family: Spectral, ui-serif, Georgia, serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  /* ── verification table ─────────────────────────────────── */
+  .scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+    font-size: .95rem;
+  }
+  caption {
+    text-align: left;
+    color: var(--ink-soft);
+    font-size: .93rem;
+    padding-bottom: var(--s2);
+  }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: var(--s2) var(--s3) var(--s2) 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  thead th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 500; }
+
+  .tag {
+    display: inline-block;
+    white-space: nowrap;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    padding: .18rem .5rem;
+    border-radius: 3px;
+  }
+  .tag-ok    { color: var(--pine);  background: var(--pine-wash);  border: 1px solid var(--pine); }
+  .tag-open  { color: var(--brass); background: var(--brass-wash); border: 1px solid var(--brass); }
+  .tag-out   { color: var(--slate); background: var(--slate-wash); border: 1px solid var(--slate); }
+
+  /* ── cue sheet ──────────────────────────────────────────── */
+  .cues { display: flex; flex-direction: column; gap: var(--s3); }
+  .cue {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: var(--s3);
+    align-items: baseline;
+    padding: var(--s2) 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .cue:last-child { border-bottom: none; }
+  .cue-time {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: .88rem;
+    font-weight: 500;
+    color: var(--pine);
+  }
+  .cue-what { display: flex; flex-direction: column; gap: .25rem; }
+  .cue-what b { font-weight: 600; }
+  .cue-what span { color: var(--ink-soft); font-size: .93rem; }
+
+  details {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: var(--s2) var(--s3);
+  }
+  summary { cursor: pointer; font-weight: 500; font-size: .95rem; }
+  details[open] summary { margin-bottom: var(--s2); padding-bottom: var(--s2); border-bottom: 1px solid var(--rule-soft); }
+
+  .section { display: flex; flex-direction: column; gap: var(--s3); }
+
+  .closing {
+    border-top: 2px solid var(--ink);
+    padding-top: var(--s4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+  }
+
+  ul, ol { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: var(--s1); }
+  li::marker { color: var(--ink-faint); }
+
+  @media (max-width: 34rem) {
+    .cue { grid-template-columns: 1fr; gap: var(--s1); }
+    .source { grid-template-columns: 1fr; }
+    .source dt { padding-top: var(--s1); }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Berkas periksa &middot; untuk ditinjau seorang ustadz</p>
+    <div class="stack-s prose">
+      <h1>Ringkasan Kajian Silaturahim</h1>
+      <p class="lede">Ringkasan ini ditulis mesin dari transkrip otomatis sebuah rekaman kajian. Belum ada ulama yang memeriksanya. Berkas ini menjelaskan apa yang sudah kami periksa sendiri, apa yang belum, dan satu hal yang kami rasa hanya bisa diputuskan seorang ustadz.</p>
+    </div>
+
+    <dl class="source">
+      <dt>Kajian</dt>
+      <dd>SILATURAHIM (Kitab Ahadits Al-Akhlak)</dd>
+      <dt>Sumber</dt>
+      <dd>Kanal YouTube <b>Masjid Darussalam Kota Wisata</b> &middot; <a href="https://www.youtube.com/live/J5x-9tHxeJA">tonton rekamannya</a></dd>
+      <dt>Durasi</dt>
+      <dd class="mono">1:08:25 &middot; ditayangkan 23 Agustus 2026</dd>
+      <dt>Transkrip</dt>
+      <dd>Teks otomatis YouTube (bahasa Indonesia) &mdash; <b>tidak pernah kami perbaiki</b></dd>
+      <dt>Status kini</dt>
+      <dd>Sudah tayang di situs dengan penanda &ldquo;Belum diperiksa&rdquo;. Bisa kami turunkan kapan saja atas permintaan Anda.</dd>
+    </dl>
+  </header>
+
+  <section class="flag">
+    <p class="eyebrow">Yang kami minta dinilai</p>
+    <div class="stack-s prose">
+      <h2>Soal umur yang bertambah &mdash; angkanya, atau keberkahannya?</h2>
+      <p>Pernyataan ini kami naikkan sampai ke ringkasan eksekutif, jadi pembaca menemukannya paling awal:</p>
+    </div>
+    <blockquote>&ldquo;Manfaat duniawi langsung: dilapangkan rezeki dan dipanjangkan umur, secara nominal (bukan sekadar keberkahan), sebagaimana penjelasan Ibnu Taimiyah.&rdquo;</blockquote>
+    <div class="stack-s prose">
+      <p>Di rekaman, penjelasan ini berlanjut ke pembedaan antara Lauhul Mahfuz yang tidak berubah dan catatan di tangan malaikat yang bisa bertambah, lalu diqiyaskan dengan kisah Nabi Adam yang memberikan 60 tahun usianya kepada Nabi Daud (menit <span class="mono">44:10</span>&ndash;<span class="mono">47:38</span>).</p>
+      <p><b>Kami tidak berwenang menilai bagian ini.</b> Mesin kami bisa memeriksa apakah sebuah ayat atau hadis benar-benar ada dan benar bunyinya; mesin tidak bisa menilai apakah sebuah pemahaman tentang takdir sudah tepat, apalagi meringkasnya dalam satu kalimat tanpa merusak maksudnya. Dua hal yang ingin kami tanyakan:</p>
+      <ul>
+        <li>Apakah kalimat di atas sudah tepat menggambarkan apa yang disampaikan di rekaman?</li>
+        <li>Kalaupun sudah tepat, layakkah kalimat sependek itu berdiri sendiri &mdash; tanpa penjelasan Lauhul Mahfuz yang menyertainya &mdash; di hadapan pembaca umum?</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="stack-s prose">
+      <p class="eyebrow">Sudah kami periksa</p>
+      <h2>Rujukan yang kami cocokkan sendiri</h2>
+      <p>Kami tidak mencocokkan ringkasan dengan transkripnya, melainkan dengan sumber aslinya &mdash; mushaf dan kitab hadis. Cara ini lebih kuat karena yang diuji adalah <i>isi pernyataannya</i>, bukan sekadar ketepatan teks otomatis.</p>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <caption>Enam rujukan yang disebut ringkasan, beserta hasil pencocokannya.</caption>
+        <thead>
+          <tr><th scope="col">Rujukan</th><th scope="col">Yang dinyatakan ringkasan</th><th scope="col">Hasil</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>QS An-Nisa: 1</td>
+            <td>Perintah bertakwa digandengkan dengan perintah menjaga silaturahim.</td>
+            <td><span class="tag tag-ok">COCOK</span></td>
+          </tr>
+          <tr>
+            <td>QS Muhammad: 22&ndash;23</td>
+            <td>Memutus hubungan kekeluargaan, lalu ancaman laknat.</td>
+            <td><span class="tag tag-ok">COCOK</span></td>
+          </tr>
+          <tr>
+            <td>QS Al-Ahzab: 6</td>
+            <td>Kerabat sedarah lebih berhak satu sama lain.</td>
+            <td><span class="tag tag-ok">COCOK</span></td>
+          </tr>
+          <tr>
+            <td>Hadis Anas bin Malik</td>
+            <td>Siapa ingin dilapangkan rezeki dan dipanjangkan umur, sambunglah silaturahim.</td>
+            <td><span class="tag tag-ok">COCOK</span><br><span class="fine mono">Sahih Bukhari</span></td>
+          </tr>
+          <tr>
+            <td>Hadis Amr bin Abasah</td>
+            <td>Misi kerasulan: menyambung silaturahim, menghancurkan berhala, mengesakan Allah.</td>
+            <td><span class="tag tag-ok">COCOK</span><br><span class="fine mono">Sahih Muslim</span></td>
+          </tr>
+          <tr>
+            <td>Hadis orang dusun</td>
+            <td>Empat perkara yang mendekatkan ke surga, termasuk silaturahim.</td>
+            <td><span class="tag tag-open">BELUM KETEMU</span><br><span class="fine">Belum tentu keliru &mdash; lihat catatan</span></td>
+          </tr>
+          <tr>
+            <td>Hadis &ldquo;Aku Ar-Rahman&rdquo;</td>
+            <td>Siapa menyambungnya Aku sambung, siapa memutusnya Aku putus.</td>
+            <td><span class="tag tag-out">DI LUAR JANGKAUAN</span><br><span class="fine">Riwayat Abu Dawud</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details>
+      <summary>Sejauh apa alat kami bisa memeriksa &mdash; dan apa yang tidak terlihat olehnya</summary>
+      <div class="stack-s">
+        <p class="fine">Salinan kitab hadis yang kami punya hanya <b>Sahih Bukhari dan Sahih Muslim</b>. Abu Dawud, Tirmidzi, dan yang lain tidak ada sama sekali. Karena itu hadis &ldquo;Aku Ar-Rahman&rdquo; kami tandai <i>di luar jangkauan</i>, bukan <i>tidak sahih</i> &mdash; alat kami memang tidak memuatnya. Penyandarannya kepada Abu Dawud sendiri konsisten dengan yang diucapkan di rekaman pada menit <span class="mono">17:40</span> dan <span class="mono">18:16</span>.</p>
+        <p class="fine">Salinan itu juga <b>hanya berisi terjemahan Inggris</b>; tidak satu pun dari 14.736 berkasnya memuat teks Arab. Karena itu, pencarian berdasarkan lafaz Arab pasti tidak menemukan apa pun, terlepas dari kenyataannya &mdash; hasilnya kami buang, bukan kami laporkan.</p>
+        <p class="fine">Hadis orang dusun tidak ketemu lewat pencarian frasa Inggris. Redaksi terjemahan terlalu beragam untuk dijadikan ukuran, jadi hasil ini kami sebut <i>belum ketemu</i> dan tidak lebih dari itu.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="section">
+    <div class="stack-s prose">
+      <p class="eyebrow">Belum kami periksa</p>
+      <h2>Bagian yang hanya bisa dipastikan dengan mendengar rekamannya</h2>
+      <p>Transkrip YouTube dibuat mesin, dan mesin paling sering keliru justru pada istilah Arab, nama perawi, dan nomor surah &mdash; bagian yang paling menentukan di kajian seperti ini. Kami menandai <b>72 titik</b> yang menyebut rujukan, tanpa memperbaiki satu pun. Di bawah ini titik-titik yang paling menentukan, dikelompokkan agar bisa disimak berurutan.</p>
+    </div>
+
+    <div class="cues">
+      <div class="cue">
+        <span class="cue-time">5:32</span>
+        <span class="cue-what"><b>An-Nisa ayat 1 disebut bernomor</b><span>Nomor surah dan ayat terdengar jelas? Ayatnya sendiri sudah cocok dengan yang kami periksa.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">8:37</span>
+        <span class="cue-what"><b>Muhammad ayat 22&ndash;23 disebut bernomor</b><span>Rentang ayatnya benar dua-duanya?</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">15:57 &ndash; 15:59</span>
+        <span class="cue-what"><b>&ldquo;Riwayat Imam Muslim dari Aisyah&rdquo;</b><span>Nama perawi dan kitabnya sesuai yang diucapkan?</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">17:40 &ndash; 18:18</span>
+        <span class="cue-what"><b>&ldquo;Rawahu Abu Dawud&rdquo;, Abdurrahman bin Auf, derajat sahih</b><span>Ini hadis yang tidak bisa kami periksa sendiri. Penyandaran dan derajatnya perlu dipastikan.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">31:21 &ndash; 31:22</span>
+        <span class="cue-what"><b>&ldquo;Muttafaqun alaih, Bukhari dan Muslim&rdquo;</b><span>Terkait hadis orang dusun yang belum ketemu di salinan kami.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">33:54 &ndash; 34:44</span>
+        <span class="cue-what"><b>Sahih Bukhari, dari Abu Hurairah dan Aisyah</b><span>Dua perawi disebut berdekatan; mesin mudah tertukar di sini.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">40:17 &ndash; 40:22</span>
+        <span class="cue-what"><b>Anas bin Malik, lalu Bukhari dari Abu Hurairah</b><span>Hadisnya sudah cocok; yang perlu dipastikan penyandaran perawinya.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">44:10 &ndash; 47:38</span>
+        <span class="cue-what"><b>Kisah Nabi Adam dan Nabi Daud, 60 tahun</b><span>Bagian terpanjang, dan yang paling menentukan bagi pertanyaan di awal berkas ini.</span></span>
+      </div>
+      <div class="cue">
+        <span class="cue-time">1:03:18</span>
+        <span class="cue-what"><b>Al-Ahzab ayat 6 disebut bernomor</b><span>Ayatnya sudah cocok dengan yang kami periksa.</span></span>
+      </div>
+    </div>
+
+    <p class="fine">Selebihnya dari 72 titik itu kebanyakan hanya menyebut kata &ldquo;hadis&rdquo; atau &ldquo;muslim&rdquo; secara umum. Penandanya sengaja dibuat sederhana dan cenderung berlebihan: tugasnya menunjukkan <i>di mana harus menyimak</i>, bukan menebak apa yang salah. Daftar lengkapnya kami sertakan bila diperlukan.</p>
+  </section>
+
+  <section class="section">
+    <div class="stack-s prose">
+      <p class="eyebrow">Yang tidak dilakukan alat ini</p>
+      <h2>Batas yang kami pegang</h2>
+      <ul>
+        <li><b>Transkripnya tidak pernah kami perbaiki.</b> Begitu sebuah mesin &ldquo;membetulkan&rdquo; penyandaran hadis, tidak ada lagi yang bisa membedakan koreksi yang tepat dari koreksi yang keliru tapi terdengar masuk akal &mdash; aslinya sudah hilang.</li>
+        <li><b>Tidak ada nama penceramah yang kami cantumkan.</b> Ringkasan ini tidak menisbatkan apa pun kepada siapa pun. Judul dan nama kanal disalin apa adanya dari YouTube sebagai penunjuk sumber, bukan sebagai hasil identifikasi kami.</li>
+        <li><b>Ringkasan ini bukan kutipan dan bukan fatwa.</b> Ini tulisan kami tentang sebuah kajian, bukan pengganti kajiannya. Rujukan yang sahih tetap pada rekamannya sendiri.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="closing prose">
+    <p class="eyebrow">Yang kami harapkan</p>
+    <div class="stack-s">
+      <h2>Tiga kemungkinan jawaban</h2>
+      <ol>
+        <li><b>Boleh tayang seperti ini.</b> Penanda &ldquo;Belum diperiksa&rdquo; kami ganti dengan keterangan bahwa Anda sudah memeriksanya, persis sebatas yang Anda periksa.</li>
+        <li><b>Boleh tayang setelah diperbaiki.</b> Sebutkan bagian mana; kami perbaiki lalu kirim ulang berkas ini sebelum apa pun berubah di situs.</li>
+        <li><b>Jangan ditayangkan.</b> Kami turunkan hari itu juga, tanpa perlu alasan.</li>
+      </ol>
+      <p class="fine">Tidak ada tenggat dari pihak kami. Berkas ini dibuat 25 Agustus 2026 dan menggambarkan ringkasan sebagaimana yang tayang pada tanggal itu.</p>
+    </div>
+  </footer>
+
+</div>

@@ -3494,3 +3494,44 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
 
   **THIS IS NOT A COMPLETE ACCOUNT OF ISC-486's STATE, and the block read as one for a pass.** A second, PRE-EXISTING path refuses a named scholar with no help from the appositive arm: `wordingShape` tests `VERBATIM_DIVINE` against the 160 characters before the quote, and that window CROSSES SENTENCE BOUNDARIES. So *"Allah berfirman tentang riba dalam QS Ali Imran 3:130. Ibnu Katsir menjelaskan bahwa «…»"* refuses on HEAD and on the current tree alike. Not a regression and not introduced here — but any fix aimed only at the appositive span will leave it standing, and a reader of the block above would not have known to look.
 - [ ] ISC-487: the wall's cost to the reader is latency, not refusal, and it is bounded. **NOT MET — measured, and the number is the finding.** Of the remaining `own_wording` refusals, 3 of 4 land at ~26 s: the retry exhausted the Worker's 25 s `MODEL_DEADLINE_MS` and the first attempt's verdict was reported. Only one (15.8 s) is a genuine second violation. `answered` turns average 12.2 s against 24.8 s for refusals. The dominant cost of this wall is that a retry does not fit inside the turn budget, and there are only 5 s of headroom before `MODEL_DEADLINE_MS` would cross the client's `TIMEOUT_MS` (30 s) — so the lever is first-attempt latency, not the deadline. Erik has not ruled on it. **Sharpened 2026-08-17 (late-5): this wall is ARM-INDEPENDENT, which makes it the only thing left in the cycle.** The ISC-484 paired control arm put `turns ≥20 s` at 3/9 with the hadith lane ON and 3/9 with it OFF — identical — and the pre-cascade arm produced its own ~25 s dead turns (`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). So it is not the cascade, not the hadith payload and not `bad_hadith`: it is that a retry does not fit inside `MODEL_DEADLINE_MS` on ANY lane. A whole-run measurement the same afternoon (`wall-live-probe --repeat 3`, 24 turns) read **25% answered** against the late-4 run's 46%, with 0 leaks — the buckets move this much run-to-run, so the paired arm is the only comparison in this cycle worth acting on. **RE-DIAGNOSED 2026-08-18 (Cycle 10) — the framing above is WRONG in its most load-bearing word, and the correction changes what the fix is.** "The wall's cost to the reader is latency" assumed the reader waits out the turn. They do not: `FAST_ANSWER_MS = 9000` hands them a real, cited, principled answer at 9 s and upgrades it in place, so a 24.8 s refusal is a 9 s answer followed by something arriving 16 s later — not a 25 s stare. **The turn duration and the reader's wait stopped being the same number at ISC-466 and every reading of this criterion since has conflated them.** What actually lands at ~26 s is two browser-side failures and one mis-set constant, now split out as their own criteria: the `answer-blocked` copy is UNREACHABLE past 9 s (ISC-528, the Worker preserves the verdict and the browser discards it); the "still composing" promise was never retracted on a refusal (ISC-529, FIXED); and `MIN_RETRY_MS = 6_000` is the FLOOR of the generation distribution used as a completion predictor when the median is ~8,450 ms (ISC-535). **This criterion stays NOT MET** — nothing here bounded latency, and deliberately so: the two remaining levers (rendering the verdict, moving the retry threshold) are both gated on an instrument that does not exist yet, ISC-532. Recorded so no future reading treats the re-diagnosis as the fix. **UPDATE 2026-08-24 — the FIRST lever is built, and this criterion is STILL NOT MET, which is the point worth writing down.** Rendering the verdict shipped (ISC-644): a late refusal now annotates the fast answer instead of vanishing. That closes the *honesty* half — the reader is told a fuller answer was composed and held back — and closes NOTHING of the latency half. No constant moved: `MODEL_DEADLINE_MS` 25_000, `MIN_RETRY_MS`, `MAX_ATTEMPTS` 2 and the client's `TIMEOUT_MS` 30_000 are byte-identical to the anchor. The second lever (the retry threshold, ISC-535) is untouched here. **Do not let the annotation be read as the bound.** The criterion says *bounded*, and nothing in this session measured, let alone bounded, anything: it is a browser-side change verified offline, and the live re-measurement is ISC-647, which needs Erik's deploy.
+
+- [x] ISC-656: **the kajian queue drains end to end on production, and the two defects that stopped it were never the two blockers on the board.**
+      Two consecutive handoffs recorded kajian automation as gated on (a) a residential proxy, because
+      "every datacentre IP is refused by YouTube", and (b) ISC-630's rights call. Tested first rather
+      than assumed: the transcript skill fetched **1,483 snippets** for `J5x-9tHxeJA` from Erik's machine
+      on the first attempt. The proxy premise was never the thing stopping a local run, and no code in
+      this repo had ever completed one.
+
+      **DEFECT 1 — the `/live/` URL never reached the transcript skill intact.** `youTubeVideoId`
+      (`worker/src/kajian-jobs.ts`) has parsed `youtube.com/live/<id>` since 2026-08-24, so the queue row
+      holds the correct `video_id`; `src/app/kajian.ts` then handed the skill the RAW argument, and the
+      skill understands `watch?v=` and bare ids only. It answered *"Invalid video ID: pass the ID, not the
+      URL"* and exited in ~1 s. **A kajian is streamed before it is a recording, so the stream URL is the
+      NORMAL input, and it was the one input that could not work.** Closed by `src/app/kajian-source.ts`,
+      which reduces the argument to a bare id through the QUEUE'S OWN parser — imported, never copied, so
+      the admin page and the runner cannot disagree about what is admissible.
+
+      **DEFECT 2 — the runner reported every failure as a timeout, and that is why defect 1 stayed
+      invisible.** `runPipeline` derived `timedOut` from `proc.signalCode !== null`, and `Bun.spawnSync`
+      leaves `signalCode` **undefined** on an ordinary exit — so the expression was true for every failure
+      there is. A one-second death on an unparseable URL was reported to the admin as *"pipeline exceeded
+      its time limit and was killed"*, with the real stderr discarded. `failureReason` now takes the spawn
+      result itself (`PipelineExit`) — there is no boolean left for a caller to get wrong — and checks a
+      timeout verdict against the clock it names, since SIGTERM is also what an operator `kill` sends.
+      The measured shapes are recorded on the interface, not assumed.
+
+      ⚠️ **THE OLD TESTS COULD NOT HAVE CAUGHT EITHER ONE.** They passed `timedOut` by hand, so they
+      exercised the function while the JOIN was what was broken. Both fixes were written test-first and
+      both new tests were confirmed RED before implementation.
+
+      **VERIFIED LIVE, not by the checkmark.** The runner claimed job `666022fc` against production, ran
+      the pipeline, uploaded to R2 and completed. `/kajian/index.json` → `application/json`; `slide.html`
+      → `text/html` 37,309 B; `slide.png` → `image/png` 445,957 B at 3840x2160, byte-DISTINCT from the
+      25,233 B SPA shell — the check that matters, because a missing asset returns `index.html` at 200.
+      Card renders at `#/kajian` in real Chrome with `Belum diperiksa` and `speaker: null`.
+      Gates: `bun test` **2374/0** exit 0 · typecheck exit 0 · synthesis build exit 0. Commit `3707095`.
+      **No deploy was required** — both files run on the runner host, not in the Worker bundle.
+
+      **A THIRD BLOCKER SURFACED AND IS NOT CODE: OpenRouter hit HTTP 402 mid-session** (topped up by
+      Erik, re-verified). And the play button is still silent: `audioUrl` is `null` because Google ADC
+      needs an INTERACTIVE `gcloud auth application-default login` that only Erik can run.

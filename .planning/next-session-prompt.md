@@ -1,3 +1,128 @@
+# Next session — New-Quranku (checkpoint 2026-08-25 late, Cycle 17)
+
+> Prepended by /wrap 2026-08-25 late. **Anchor: `3707095` + this wrap's own commit on top**, so
+> `origin/main` reads as the wrap checkpoint, not `3707095`. That is expected, not drift.
+> Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the Cycle 16 block below**, whose §2.2 ("KAJIAN: two INDEPENDENT blockers") is now
+> FALSIFIED — see §0.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-25 late, Cycle 17**).
+
+## 0. ⚠️ WHAT THE PREVIOUS HANDOFF SAID THAT IS NOW FALSE
+
+- **"KAJIAN: two INDEPENDENT blockers, neither of them code" IS WRONG ON BOTH COUNTS.** It was code,
+  twice, and the proxy premise was disproved in 90 seconds: the transcript skill fetched 1,483
+  snippets from Erik's machine on the first attempt. **No residential proxy was bought and none is
+  needed for a local run.** Do not re-raise the proxy as a kajian blocker without re-testing first.
+- **The pipeline has now COMPLETED end to end on prod** (ISC-656). It had never once done so.
+- **The queued job is DONE and the summary is LIVE** at `#/kajian`, on Erik's explicit ruling.
+
+## 1. STATE
+
+ISA **684/698** (678 done · 6 partial · 14 open). **ISC-656 added and `[x]`** — the only checkbox
+that moved. ISC-419 still `[ ]` on purpose; ISC-417/566/654 still OPEN by Erik's decision.
+
+Gates at HEAD: `bun test` **2374/0** exit 0 · typecheck exit 0 (all five tsc passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; no CI.**
+
+Live Worker unchanged at **`fb75d322`** — this cycle shipped NO Worker code. `src/app/kajian.ts`
+and `src/app/kajian-runner.ts` run on the RUNNER HOST, not in the bundle, so the fixes needed no
+deploy. Do not "deploy the kajian fix"; there is nothing to deploy.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Also deliberately
+unstaged: `.env.runner` (mode 0600, gitignored).
+
+**The ustadz position is UNCHANGED.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* —
+FALSE, and it voids three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith
+Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **THE REVIEW PACK IS BUILT AND UNSENT.** Artifact `eee00c72-04bf-49f0-88c5-1c05ab04522e`
+   (private until Erik shares it). It asks the ustadz two specific questions about the
+   *"dipanjangkan umur secara nominal"* claim at `44:10-47:38`. **The next move is Erik's: share it,
+   or tell me to revise it.** Do not rebuild it; republish the same file path to update in place.
+
+2. **THE PLAY BUTTON IS DEAD ON THE LIVE CARD** — `audioUrl: null`. One interactive command Erik
+   must run himself: `gcloud auth application-default login`. Then re-run the runner and the card
+   gains `short.m4a`. Everything else about the card is complete. TTS still bills `story-maker-demo`.
+
+3. **THERE IS STILL NO SCHEDULER.** The runner is a foreground process
+   (`set -a && . ./.env && . ./.env.runner && set +a && bun run src/app/kajian-runner.ts`) and dies
+   with its shell. No `[triggers]` in `wrangler.toml`, no `scheduled()` in `index.ts`. A hosted
+   runner still needs a residential IP **for the hosted case only** — Cloud Run Job + Scheduler,
+   since `--allow-unauthenticated` is refused by the `axiara.ai` org policy — and vendoring the
+   transcript skill, which lives OUTSIDE this repo at `~/.claude/skills/baoyu-youtube-transcript/`.
+
+4. **ISC-419 unchanged: still a NULL RESULT, still `[ ]`.** Reproducer remains
+   `apa yang al quran katakan tentang neraka`. Needs a run in which the QS 66:6 shape recurs.
+
+5. **ISC-486, ISC-323, ISC-487 unchanged.** 486's proper-name vocabulary still NOT BUILT. 323 needs
+   a DESIGN decision. 487 NOT MET. Other open: ISC-98, 420, 440.6, 464, 353.0, 627.7, 454.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **ISC-630 / the rights call — STILL HIS, and now with a live artifact riding on it.** He ruled
+  "publish as-is" for THIS summary after unpublishing it once; that is a decision about one video,
+  not a general rule. The review pack is the instrument for settling it properly.
+- 🔶 **Share the review pack** (or say what to change). Longest clock on the board — it waits on a
+  human, and now on two.
+- 🔶 **`gcloud auth application-default login`** — gates the play button, item 2.
+- 🔶 **A residential proxy** — gates HOSTED automation only. **No longer gates anything local.**
+- 🔶 **TTS billing to `story-maker-demo` is TEMPORARY by his own word.** Revert: `unset GOOGLE_CLOUD_PROJECT`.
+- 🔶 **`kominfodarussalam@gmail.com` was sent a magic link** and Erik was given the
+  `wrangler secret put ADMIN_EMAILS --env=""` command. **Unknown whether he ran it** — a secret
+  cannot be read back. Check by asking, not by probing.
+- Unchanged/older: `/echo-index.json` as a public asset (recorded, not agreed) · a correction with
+  no delivery path · Answer Record retention · `docs/kajian/roster.yaml` ships EMPTY on purpose.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The published slide contradicts itself.** It carries *"DRAFT — belum diperiksa, belum boleh
+  diposting"* and is posted. Clears only by checking the 72 flagged spans against the video.
+- 🔴 **The hadith instrument is half-blind.** OKF mirror is Bukhari + Muslim ONLY, and **0 of 14,736
+  files contain Arabic body text.** Any Arabic-lafaz search returns nothing REGARDLESS of truth —
+  it is not evidence. English phrase search is the only valid instrument, and it is weak.
+- 🔴 **The theme classifier returned 0 themes on 14 of 16 turns**; Cycle 14 saw 0 on 23 of 24.
+  Multiple runs, different days — not noise, and still nobody has looked.
+- 🔴 **`MEMORY.md` is at 24,400 B — ZERO headroom.** The next memory costs an old one. Retire before
+  adding. ⚠️ Mechanical trimming and merging were both TRIED AND REVERTED; read `CLAUDE.md` first.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+- **The artifact's rendering is UNVERIFIED in pixels** — Chrome window minimized, `macos windows`
+  returns `[]`, so Interceptor cannot screenshot. Only Erik can restore it from the Dock.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — test the blocker before inheriting it.** Two handoffs carried a proxy requirement that
+  cost the feature two cycles and was disproved by ONE command. A blocker written down twice is not
+  thereby true.
+- **NEW — `Bun.spawnSync` leaves `signalCode` UNDEFINED, not null.** `!== null` fires on every clean
+  exit. Test `typeof signalCode === "string"`. A verdict that always fires destroys the evidence
+  beneath it, which is worse than one that never fires.
+- **NEW — hand a classifier the whole result, not a boolean the caller derives.** That retires the
+  CLASS of defect; fixing the one expression would not have.
+- **NEW — a search that cannot match is not evidence of absence.** State the instrument's blindness
+  in the output, or discard the arm. 0/14,736 files had Arabic; that search proved nothing.
+- **`cd` from the USER's command persists into your shell too** — and from YOUR OWN previous call.
+  A stale `cd worker` made `worker/src/index.ts` "not exist" this session.
+- **From `worker/`, wrangler is 3.114.17 and `--remote` is an UNKNOWN ARGUMENT.** From the repo root
+  it is 4.120.0 and works. Run R2/D1 remote commands from the ROOT.
+- **A 200 is not existence.** `slide.png` returned 200 `text/html` at 25,233 B AFTER deletion —
+  byte-identical to the site root. Check content-type AND compare against the shell.
+- **A 403 on `/api/runner/*` proves the GATE and nothing else** — `isRunner` runs before the handler.
+- **You cannot verify ANY `/api/*` route from a browser address bar** — `Sec-Fetch-Mode: navigate`
+  alone flips it to the SPA shell at 200. Use curl, or the signed-in UI.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something.
+- **A blocked hook discards every write in that Bash call.**
+- **Never claim a scholar reviewed something.** `reviewed` is false until a record SAYS otherwise.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-25, Cycle 16)
 
 > Prepended by /wrap 2026-08-25. **Anchor: `7e1606c` + this wrap's own commit on top, so

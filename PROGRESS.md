@@ -4,6 +4,57 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-25 late — Cycle 17: the kajian queue drains, and both recorded blockers were innocent
+
+**THE KAJIAN PIPELINE COMPLETED END TO END ON PRODUCTION FOR THE FIRST TIME.** Job `666022fc`:
+claim -> transcript -> briefing -> slide -> R2 upload -> complete -> reader card. ISC-656.
+
+⚠️ **THE TWO BLOCKERS TWO HANDOFFS CARRIED WERE BOTH WRONG, AND ONE WAS DISPROVED IN 90 SECONDS.**
+"Every datacentre IP is refused by YouTube" was true and irrelevant: the transcript skill fetched
+**1,483 snippets** from Erik's own machine on the first try. No residential proxy was bought, and
+none was needed for a local run. The rights call gated PUBLISHING, never RUNNING. What actually
+stopped it was two code defects that hid each other:
+
+1. **`youtube.com/live/<id>` never reached the transcript skill intact.** The queue parses `/live/`
+   correctly (the row's `video_id` was right all along); `kajian.ts` passed the RAW argument to a
+   skill that takes `watch?v=` and bare ids only. **The stream URL is the normal shape for a kajian,
+   and it was the one shape that could not work.** Fixed in `src/app/kajian-source.ts`, importing the
+   queue's own parser rather than copying it.
+2. **`proc.signalCode !== null` is true on EVERY clean exit** — Bun leaves it `undefined`, not
+   `null`. So the runner reported a 1-second death as *"pipeline exceeded its time limit and was
+   killed"* and threw the real stderr away. That verdict is why defect 1 survived two sessions: it
+   destroyed its own evidence and sent every reader hunting proxies and durations.
+
+Both fixed test-first, both new tests confirmed RED first. Gates `2374/0` · typecheck 0 · build 0.
+Commit `3707095`, pushed. **No deploy needed** — both files run on the runner host, not the Worker.
+
+**THE PUBLISH DECISION WAS ERIK'S, TWICE, IN OPPOSITE DIRECTIONS, AND BOTH ARE RECORDED.** I raised
+that the slide carries its own banner *"DRAFT - belum diperiksa, belum boleh diposting"* while being
+posted. He unpublished, had me delete both R2 objects, then after the OpenRouter top-up ruled
+**publish as-is**. It is live now. ISC-630 is still HIS open call; nothing here settled it.
+
+**A THIRD BLOCKER, NOT CODE:** OpenRouter returned **HTTP 402** mid-session (topped up, re-verified).
+The play button is still silent — `audioUrl: null`, because Google ADC needs an INTERACTIVE
+`gcloud auth application-default login` nobody but Erik can run.
+
+**THE REVIEW PACK IS BUILT** — offered across several cycles, never made until now. Published as a
+private Artifact (`eee00c72-04bf-49f0-88c5-1c05ab04522e`), in Indonesian, leading with the one item
+that genuinely needs a scholar: the *"dipanjangkan umur secara nominal"* claim, which our own summary
+promotes into its executive summary stripped of the Lauhul Mahfuz explanation that accompanies it at
+44:10-47:38. Three Quran citations verified EXACT against `data/canonical` (QS 4:1, 47:22-23, 33:6);
+two hadith verified exact (Anas bin Malik -> Bukhari; Amr bin Abasah -> Muslim).
+
+⚠️ **THE HADITH INSTRUMENT IS HALF-BLIND AND THE PACK SAYS SO.** Our OKF mirror is Bukhari + Muslim
+ONLY, and **0 of 14,736 files contain Arabic body text** - so the Arabic search I ran could not have
+matched anything and was DISCARDED rather than reported. The bedouin four-things hadith is recorded
+`belum ketemu`, explicitly NOT `tidak sahih`; the Abu Dawud narration is `di luar jangkauan`.
+
+**NOT VERIFIED, stated rather than implied:** the artifact's rendering. Erik's Chrome window is
+minimized (`macos windows` returns `[]`), so Interceptor cannot screenshot. Sound by construction,
+unconfirmed in pixels.
+
+---
+
 ## 2026-08-25 — Cycle 16: ISC-419's cited half shipped, and the re-measure could not read it
 
 **THE DEPLOY LANDED.** Erik ran it; live Worker `5c6fe3ca` → **`fb75d322`**, six bindings,
