@@ -3711,14 +3711,53 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       `scrollIntoView` to 3:150 lands with **1 px of drift**, so no correction pass was added — writing one
       would have been the `no-op fix` shape.
 
-      🔴 **THIS DOES NOT EXPLAIN ERIK'S SCREENSHOTS AND MUST NOT BE RECORDED AS FIXING THEM.** The blank
-      cards were never reproduced. The paint-pressure story that motivated this change is exactly the
-      story the controlled measurement above knocked down, so it cannot be turned around and used as the
-      explanation. Card header + action row present with the middle blank is the shape of content that is
-      in the DOM but unpainted, or of a card mid-render — neither demonstrated. **Open, and it needs Erik's
-      reproduction conditions**, not another theory.
+      ✅ **THE BLANK CARDS ARE REPRODUCED — 2026-08-27 (Cycle 19), ON PROD, FIRST TIME IN THREE SESSIONS.**
+      What unblocked it was not a theory but Erik answering the question the last two handoffs carried:
+      the cards go blank **after the page has been SITTING**, and **scrolling back up repaints them**.
+      That pair names a paint failure, not a content failure, and it is why every instrument used so far
+      reported the page healthy.
+
+      **THE PROCEDURE, so it can be re-run.** Open Ali 'Imran on prod in a tab and leave it BACKGROUNDED
+      for roughly fifteen minutes. Foreground it, then scroll. ⚠️ **The instrument must be
+      `interceptor screenshot --pixel`** — the default screenshot RE-RENDERS from the DOM and repaints the
+      very artifact being hunted, and on a 90,887 px scroller it times out at 15 s anyway.
+
+      **WHAT THE BROKEN STATE MEASURES.** `data-pane="text"` (the collapsed-rail state of the screenshots),
+      **200 cards, 0 blank by `innerText`, 0 of zero height**, and card #2 laid out ON SCREEN at
+      `top: 78, height: 346` — while the screen shows nothing there. **DOM correct, LAYOUT correct, PAINT
+      absent.** This is the finding: `innerText` was never the wrong reading, it was the wrong INSTRUMENT,
+      and so is `getBoundingClientRect` — both report a healthy page in the middle of the defect. Only a
+      pixel-true compositor capture can see it.
+
+      **IT REPAINTS PARTIALLY, WHICH IS EXACTLY THE SCREENSHOT.** After a scroll the action row
+      (Dengar / Salin / Bagikan / Kartu) comes back while the card middles stay blank — header + action row
+      + blank middle, Erik's image reproduced. The sidebar corrupts too (a black block over "Hadits"), so
+      this is not a verse-card bug; it is the whole renderer.
+
+      **WHAT DOES NOT CLEAR IT, each with a control.** A forced layer invalidation (`translateZ(0)` toggle
+      + reflow): no change. A style recalc from a no-op injected rule: no change — and this is the control
+      arm for the next line. Injecting **this very rule** (`content-visibility: auto` +
+      `contain-intrinsic-size: auto 370px`) into the broken page: **no change.** A document reload: **fully
+      restores.** So the raster for a ~90,887 × 1,076 px composited scroller is lost and is never
+      regenerated within the document's life.
+
+      ⚠️ **DO NOT UPGRADE THAT NEGATIVE INTO A VERDICT ON THIS FIX.** What was tested is whether the rule
+      RESCUES a page already in the broken state. It does not. Whether it PREVENTS the state from arising —
+      which is the only claim that would matter, and is plausible because it is layer size that is at issue
+      — **is UNTESTED.** Testing it needs the full fifteen-minute background-sit with the rule present from
+      first paint, in both arms. Until that runs, this fix is justified by the worst-frame number ABOVE and
+      by nothing else.
+
+      🔴 **STILL OPEN, and the open part is now sharp rather than mysterious.** Nothing here is a fix. What
+      exists is a reproduction, a procedure, an instrument that can see the defect, and four eliminated
+      remedies. The remaining question is whether the render budget prevents it, and behind that whether a
+      ~90,000 px composited scroller is viable at all on this surface.
 
       Gates: `bun test` **2400/0** exit 0 · typecheck exit 0 · synthesis build exit 0, and the rule was
       verified present in the BUILT css (`contain-intrinsic-size:auto 370px` in `web/dist/assets/*.css`)
       because a build exits 0 even when the parser discards a rule. Five tests, five mutations, five
-      reddenings. **NOT DEPLOYED.**
+      reddenings. **DEPLOYED 2026-08-27 on Erik's explicit call** (he chose keep-and-deploy knowing the
+      premise was withdrawn): Worker **`0d33ef55-800a-4924-8523-895312ad1e1e`**, was `2dc1775e`. Verified
+      LIVE by fetching the asset rather than trusting the upload — `131,303 B` of `text/css`, not the
+      25,233 B SPA shell, carrying `#read #surah-body .verse{content-visibility:auto;contain-intrinsic-size:auto 370px}`
+      exactly once.
