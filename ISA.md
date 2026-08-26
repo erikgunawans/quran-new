@@ -1759,6 +1759,17 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       shortcuts. **`.scratch/kajian/jNQXAC9IVRw/` — "Me at the zoo", 19 seconds — was NOT deleted**
       and is retained as the pipeline's only working test capture; it is third-party material too,
       recorded rather than glossed.
+      ⚠️ **2026-08-27 — A LATER RULING WIDENED PUBLISHING TO "ALL KAJIAN, ANY CHANNEL", AND IT DOES
+      NOT REACH THIS CRITERION.** Erik extended "publish as-is" from the one SILATURAHIM video to every
+      kajian the runner processes, from any channel, and separately chose to leave the DRAFT gate's
+      self-contradiction standing (`docs/review/erik-ruling-2026-08-27-kajian-publish-scope.md`). **That
+      is a PUBLISHING rule and this is a SOURCING hold** — the distinction this file already draws at
+      ISC-631's neighbour, *"ISC-630 gates what the runner may be pointed AT, not whether it may be
+      built"*. **The hold recorded above stands unchanged: that channel stays off the queue and its
+      capture stays deleted.** A reader who takes the 2026-08-27 ruling as re-opening it has read a
+      permission about what may be published as one about what may be captured. The DA raised the
+      widest-reading concern before Erik chose it; he chose it anyway, and both halves are recorded in
+      that file rather than only the outcome.
 - [x] ISC-630.1: **the ORIGINAL text of this criterion, kept because the record must show what was
       open before it was closed.** It read: the publish hold has lost its stated basis and is now
       an OPEN question for Erik. It was written into `.scratch/kajian-summarize/PRD.md` as a
