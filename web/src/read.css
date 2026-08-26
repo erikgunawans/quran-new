@@ -407,6 +407,38 @@
 
 #read .verses { display: flex; flex-direction: column; gap: 1rem; }
 
+/* ── the render budget ────────────────────────────────────────────────────────
+ *
+ * A long surah is too much to paint at once. Ali 'Imran is 200 ayahs — 11,581 nodes and ~92,000 px
+ * of live content in ONE scroll container — and measured on prod that scrolls at 19.7 fps against
+ * 120.4 for a short surah, with a worst frame of 1,458 ms. The same excess is why cards appear
+ * BLANK: their text is in the DOM (0 of 200 empty by `innerText`) but the compositor will not keep
+ * that many screens painted, so a text assertion reports everything fine while the reader sees
+ * nothing.
+ *
+ * `content-visibility: auto` keeps every ayah in the DOM and skips only its layout and paint while
+ * off-screen. That matters more here than raw speed: `read.ts` chunks insertion through `idle()`
+ * and keeps a completeness backstop precisely so a surah never quietly stops short, and `tryLand()`
+ * deep-links to an ayah by querying the DOM. Windowing would delete all of that. This does not —
+ * find-in-page, "salin", "bagikan" and the deep link all still reach an off-screen ayah.
+ *
+ * `contain-intrinsic-size` is NOT optional beside it. Without it every off-screen card collapses to
+ * zero height, the surah reports about one screen of scroll, and the scrollbar jumps under the
+ * reader's thumb — a worse bug than the one being fixed. The `auto` keyword makes the length a
+ * first guess only: once a card has rendered, its real height is remembered.
+ *
+ * 370px is the MEDIAN measured across all 200 cards of Ali 'Imran on prod (min 323, p25 346,
+ * median 370, p75 450, p95 520, max 728) — the value that minimises total estimate error before
+ * anything has rendered. It is a measurement, not a round number.
+ *
+ * Scoped to `#surah-body` on purpose: `.verse` is shared with the answer surface, where a turn
+ * holds a handful of cards and there is nothing to save.
+ */
+#read #surah-body .verse {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 370px;
+}
+
 /* arriving at the ayah you came for — it says "here", then settles.
    `forwards`, matching the fix above — lower stakes here (a missed highlight, not hidden
    scripture), but the same failure mode, so the same discipline applies everywhere it appears. */
