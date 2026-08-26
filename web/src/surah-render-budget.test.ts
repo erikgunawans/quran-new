@@ -18,10 +18,21 @@
  * ── ⚠️ THIS RULE DOES NOT EXPLAIN THE BLANK AYAH CARDS ──────────────────────────────────────────
  *
  * Erik's screenshots show cards with a header and action row and a blank middle. Every card holds its
- * text — `innerText` confirms 0 of 200 empty — so the DOM is not the broken part, and a text-content
- * assertion reports everything fine. The paint-pressure story that would have explained it is the
- * same story the controlled measurement knocked down, so it cannot be turned around and used as the
- * cause. NOTHING BELOW ASSERTS A FIX FOR IT. It is recorded open in ISC-659.
+ * text, so the DOM is not the broken part and a text-content assertion reports everything fine. The
+ * paint-pressure story that would have explained it is the same story the controlled measurement
+ * knocked down, so it cannot be turned around and used as the cause. NOTHING BELOW ASSERTS A FIX FOR
+ * IT. It is recorded open in ISC-659.
+ *
+ * ⚠️ DO NOT DIAGNOSE THIS WITH `innerText`, IN EITHER DIRECTION. An earlier version of this block
+ * cited "`innerText` confirms 0 of 200 empty" as the evidence the DOM was intact. That reading was
+ * taken BEFORE the rule below was live, and the rule INVERTS it: `content-visibility: auto` skips
+ * layout for off-screen content and `innerText` is layout-dependent, so on prod it now reports ~194
+ * of 200 cards blank while the page paints pixel-identically to a control arm with the rule disabled.
+ * Both readings — 0 and 194 — are uncorrelated with whether anything is actually wrong. Use a
+ * `--pixel` compositor capture, or `textContent`, which is not layout-dependent.
+ *
+ * This is diagnostics only: `innerText` appears in no production source, and `Salin`/`Bagikan`/`Kartu`
+ * go through `shareText(v: VerseCard)` in `share.ts`, which reads the data object and never the DOM.
  *
  * ── WHY `content-visibility` AND NOT VIRTUALISATION ─────────────────────────────────────────────
  *

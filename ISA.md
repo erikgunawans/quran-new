@@ -3761,3 +3761,41 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       LIVE by fetching the asset rather than trusting the upload — `131,303 B` of `text/css`, not the
       25,233 B SPA shell, carrying `#read #surah-body .verse{content-visibility:auto;contain-intrinsic-size:auto 370px}`
       exactly once.
+
+      ⚠️ **THE DEPLOY BROKE THE DIAGNOSTIC THIS CRITERION IS WRITTEN AROUND — found the same session,
+      by the paired test above, and it is MY regression.** With the rule live, `innerText` on the surah
+      reader reports **194 of 200 cards blank** while the page paints PIXEL-IDENTICALLY to a control arm
+      with the rule disabled (verse 3:3 fully rendered in both). `content-visibility: auto` skips layout
+      for off-screen content and `innerText` is layout-dependent, so it returns empty for every skipped
+      card. `textContent` is not layout-dependent and is unaffected.
+
+      **So the instrument has INVERTED, and both of its readings are uncorrelated with the defect.**
+      Before the deploy it said `0 of 200 empty` while the reader saw nothing — recorded above as the
+      wrong instrument. After the deploy it says `194 of 200 empty` while the reader sees everything.
+      ⚠️ **A later session running the probe this criterion documents will read 194 and conclude the
+      surah reader is catastrophically broken. It is not.** Use `--pixel` capture, or `textContent`.
+
+      **NOT user-facing, checked rather than assumed.** `innerText` appears in NO production source —
+      only in this file, `PROGRESS.md`, and a test docblock. `Salin` / `Bagikan` / `Kartu` go through
+      `shareText(v: VerseCard)` (`web/src/share.ts:28`), which reads the DATA object and never the DOM,
+      so the copy and share paths are untouched. The blast radius is diagnostics only.
+
+      🔶 **THE PREVENTION TEST IS INCONCLUSIVE, and its own control says so.** Two prod tabs, one with
+      the rule and one with `content-visibility: visible !important` injected, backgrounded together for
+      26 minutes and then scrolled by an identical delta. **Neither arm reproduced the blank state** —
+      both stayed `data-pane="split"` and both painted correctly. Since the CONTROL never failed, the
+      test arm being clean measures nothing: the trigger did not fire in either. The pane collapse to
+      `data-pane="text"` that preceded the original reproduction did not recur, and it is now the part
+      of the trigger that is NOT understood. **Do not record this run as evidence either way.**
+
+      **What the paired run DID establish, because it appeared in both arms:** the intro panel ghosts
+      reliably after a ~26-minute sit — two renderings of the Dorar preface superimposed at different
+      scroll offsets, sharp text over dim text on the same rows. It is OUTSIDE this rule's scope by
+      construction (`#read #surah-body .verse` does not cover the preface panel), it reproduces without
+      the pane collapse, and it is therefore the CHEAPEST known handle on the same compositor failure —
+      minutes rather than a trigger nobody can yet summon. Start there.
+
+      **The first-paint scroll-height cost is also worse than this criterion states.** Measured in the
+      paired arms at the same viewport: control `110,667` against test `78,081` — **29% short**, not the
+      3% recorded above. The 3% figure was measured AFTER cards had rendered, which is the best case;
+      29% is what the reader's scrollbar is wrong by when the surah first opens.
