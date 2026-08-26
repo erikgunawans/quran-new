@@ -3627,9 +3627,32 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       lexicon already missed, and an abort leaves that reader with zero themes — and `bolehkah aku
       pacaran` is recorded in this repo as retrieving NOTHING on `[]`.
 
-      **PARTIAL, not met.** What is measured is recorded; nothing is fixed. Two halves, and they are not
-      the same kind of decision. The OBSERVABILITY half is unambiguous — an abort must not be reportable
-      as an empty result — and is mine. The CONSTANT is a reader-latency trade-off (the call BLOCKS
-      retrieval, so raising the cap delays every answer that takes the model path) and is **Erik's**, put
-      to him 2026-08-26. Both land in one deploy or neither; shipping the constant without the
-      instrument would leave the next reading of this rate exactly as blind as the last three.
+      **BOTH HALVES ARE BUILT — 2026-08-26, and the constant was Erik's to choose.** The cap is a
+      reader-latency trade-off (the call BLOCKS retrieval, so raising it delays every answer that takes
+      the model path); put to him with the measured distribution, he ruled **5000 ms**, which clears the
+      whole measured body with margin. `CLASSIFY_TIMEOUT_MS` is now EXPORTED rather than a bare literal,
+      so a probe or a runbook cannot assert on a drifted copy of it.
+
+      The observability half names the four causes on the wire: `/api/classify` returns
+      `outcome: "matched" | "none" | "dropped" | "error"` beside `themes`. **`dropped` is deliberately
+      not folded into `none`** — the model naming themes the guard removes means it is answering out of
+      vocabulary, which is a different event and is what the 80-token incident would have looked like
+      from outside. Client-side, `liveThemeModel` now throws a self-identifying timeout and exports
+      `isClassifyTimeout`, so an abort can be COUNTED rather than silently becoming `[]`.
+      ⚠️ **`themes` is unchanged and an arm asserts it** — a client reading only `themes` cannot tell
+      this shipped.
+
+      **MUTATION-VERIFIED ON BOTH FILES, six mutations, six reddenings**, each restored to green:
+      cap back to 3000 (1), removing the timeout marker (1), a predicate true for ANY error (1 — the
+      control arm, the `signalCode !== null` shape), collapsing `dropped` into `none` (1), reporting a
+      thrown call as `none` (1), and a guard that always returns empty (2, including the control).
+      Gates: `bun test` **2395/0** exit 0 · typecheck exit 0 · synthesis build exit 0 ·
+      `wrangler deploy --dry-run` exit 0 with all six bindings. Verified in the BUILT bundle, not just
+      the source: the minified call site reads `_u=5e3` at the `setTimeout` guarding `/api/classify`,
+      and the marker string is present.
+
+      ⚠️ **NOT LIVE — prod still discards roughly one theme result in eight.** This is a client-bundle
+      AND Worker change, so it needs a deploy, and deploys are Erik's. Until then the measurement above
+      remains the current description of production. And **do not read a later run's improved rate as
+      this criterion being met**: the rate was never the defect, and a run whose questions happen to be
+      feeling-shaped will move it on its own.

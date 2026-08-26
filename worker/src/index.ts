@@ -1598,17 +1598,38 @@ interface ClassifyBody {
   provider?: unknown;
 }
 
+/**
+ * Why a classify call produced the themes it did.
+ *
+ * ADDITIVE TELEMETRY — `themes` is the contract and does not move. This exists because `[]` had four
+ * causes and one appearance, so three cycles of probe output could not tell a broken classifier from
+ * a working one answering ruling questions against an emotional vocabulary (ISC-658).
+ *
+ * `none`    the model answered and nothing in the closed set fitted — legitimate, and the common
+ *           case for a ruling or knowledge question. Also the no-op case: no question, no candidates.
+ * `matched` at least one theme survived the guard.
+ * `dropped` the model named themes and the guard removed ALL of them — it is answering out of
+ *           vocabulary, which is a different event from "nothing fitted" and is what the 80-token
+ *           incident below would have looked like from outside.
+ * `error`   the model call threw. Never again reportable as an empty result.
+ */
+type ClassifyOutcome = "matched" | "none" | "dropped" | "error";
+
 async function handleClassify(request: Request, env: Env): Promise<Response> {
   let body: ClassifyBody;
   try {
     body = (await request.json()) as ClassifyBody;
   } catch {
-    return json({ themes: [] }, 400, request);
+    return json({ themes: [], outcome: "error" satisfies ClassifyOutcome }, 400, request);
   }
 
   const question = asBoundedString(body.question);
   const valid = Array.isArray(body.themes) ? body.themes.filter((t): t is string => typeof t === "string") : [];
-  if (!question || valid.length === 0) return json({ themes: [] }, 200, request);
+  // Nothing to classify and nothing to classify INTO. Reported as `none` rather than `error`: no
+  // call was attempted, so nothing failed.
+  if (!question || valid.length === 0) {
+    return json({ themes: [], outcome: "none" satisfies ClassifyOutcome }, 200, request);
+  }
 
   const user =
     `Daftar tema yang boleh dipilih (pilih HANYA dari ini, salin persis):\n` +
@@ -1626,11 +1647,17 @@ async function handleClassify(request: Request, env: Env): Promise<Response> {
     // and no essay, but it does need room to answer at all.
     raw = await callChatModel(cfg, THEME_SYSTEM_PROMPT, user, { temperature: 0.2, maxTokens: 200, reasoning: "none" });
   } catch {
-    return json({ themes: [] }, 200, request); // failure → browser keeps the keyword lexicon
+    // Failure → browser keeps the keyword lexicon, exactly as before. What changed is that the
+    // caller can now tell this apart from the model having answered with nothing.
+    return json({ themes: [], outcome: "error" satisfies ClassifyOutcome }, 200, request);
   }
 
   // guardThemes drops anything not in the closed set, so parse loosely and let the wall clean up.
-  return json({ themes: guardThemes(parseThemeList(raw), valid) }, 200, request);
+  const candidates = parseThemeList(raw);
+  const themes = guardThemes(candidates, valid);
+  const outcome: ClassifyOutcome =
+    themes.length > 0 ? "matched" : candidates.length > 0 ? "dropped" : "none";
+  return json({ themes, outcome }, 200, request);
 }
 
 // ── /api/find-surah — AI-supported surah finder (recognize from the closed 114, never invent) ──
