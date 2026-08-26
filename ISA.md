@@ -3,7 +3,7 @@ project: New-Quranku
 task: "Cycle 5 — the generative companion (ISC-190..203): wrap retrieve() with a rung-1 pastoral model behind an egress wall (point, never author); resolves the ISC-80..97 deferral. Wall built + verified; the wrap/understander/model-wiring pending (prior: Cycle 4 cosmos ISCs, complete; Cycle 3 Peta Tematik, complete; Cycle 2 UI redesign, complete)"
 effort: E4
 phase: learn
-progress: 683/697  # 677 `[x]` + 6 `[~]`; 14 open `[ ]`. **Counted by grep, 2026-08-24 (Cycle 13)** — `grep -c '^- \[x\] ISC-'` = 677, `'^- \[ \] ISC-'` = 14, `'^- \[~\] ISC-'` = 6, sum 697. **Cycle 13 is a DEPLOY cycle and moved one checkbox, not the total: ISC-655 `[~]` → `[x]` (the probe marker is live on Worker `eaa27ba4` and was verified with BOTH arms against the real prod D1 — two marked POSTs wrote 0 rows, one unmarked control wrote `id 40`, since deleted). ISC-654 was RULED by Erik and stays `[ ]` by decision — a declined fix does not satisfy its criterion. ISC-486 had its deploy gate discharged and was re-measured live; it does NOT advance, because `wall-live-probe` never captures refused prose and so is blind to the class this criterion is about.** The open count is unchanged at 14 on purpose. **Cycle 12 opened on ISC-647 and split it: the deployed CLIENT paints the late-refusal annotation (verified live through Interceptor, synthetic wire), and prod PRODUCES the input 0 times in 32 live turns — `gen.reason` answered 29 / deadline 3 / blocked 0, against 38 blocked ATTEMPTS. The mechanism is `ISC-561`'s repair sitting between a guard block and a reader-visible refusal, plus a client that honours `blocked` only when `answer` is empty. ISC-647 is `[~]`, not `[x]`. ISC-653/654/655 added.** **Cycle 11 opened on the answer-wall cluster: ISC-533 CLOSED (its gate had been discharged for six days — ISC-532 met 2026-08-18 and on prod since 2026-08-23 — while `answer-live.ts` dropped `gen` at the parse boundary), ISC-534 CLOSED (it was `[~]` for one pass; ISC-642 closed the hole the same day on Erik's ruling), and ISC-643/644/645/646 added and met, ISC-642/647 added and open.** A late refusal now annotates the fast answer instead of vanishing; nothing that ran out of clock says anything. **Offline only — ISC-647 is the live verification and the deploy is Erik's.** **ISC-487 STAYS NOT MET: the annotation is the honesty half, not the latency half; no constant moved.** **D1 IS BOUND AND DEPLOYED** — the older line in this file saying `NO D1 BINDING … commented out in worker/wrangler.toml` is FALSE as of 2026-08-24; `new-quranku-memory` exists, all four migrations are applied to REMOTE, `DB` is bound, and Worker `8634ed83` carries it. Sign-in still cannot sign anyone in for THREE operator reasons (`IDENTITY_HMAC_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS`), and `IDENTITY_HMAC_SECRET` — not the binding — is the switch that starts persisting the text of every question. **ISC-624.8 stays `[~]`**: the file is produced and the player is built on the card per Erik 2026-08-24, but no real `short.m4a` has been written (no TTS credentials), there is no `speechSynthesis` fallback (the feed carries no summary text to speak), and no ground-truth pixel of the native control was obtainable. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. Gates at this edit: `bun test` **2256/0** exit 0 (2213 at the anchor, +43 new), typecheck exit 0, `VITE_ANSWER_MODE=synthesis bun run build` exit 0 — run locally, no CI. **DEPLOYED 2026-08-23: Worker `8634ed83` from `24674ec` (22 commits, 6,402 insertions); everything in Cycle 11 is AHEAD of prod.**
+progress: 685/699  # **RECOUNTED BY GREP 2026-08-26 (Cycle 18): 679 `[x]` + 6 `[~]` + 14 `[ ]` = 699.** Cycle 18 added ISC-657 and marked it `[x]` (runner supervision); the open count is unchanged at 14. What follows is the Cycle-13 measurement, kept because its reasoning is still load-bearing: 677 `[x]` + 6 `[~]`; 14 open `[ ]`. **Counted by grep, 2026-08-24 (Cycle 13)** — `grep -c '^- \[x\] ISC-'` = 677, `'^- \[ \] ISC-'` = 14, `'^- \[~\] ISC-'` = 6, sum 697. **Cycle 13 is a DEPLOY cycle and moved one checkbox, not the total: ISC-655 `[~]` → `[x]` (the probe marker is live on Worker `eaa27ba4` and was verified with BOTH arms against the real prod D1 — two marked POSTs wrote 0 rows, one unmarked control wrote `id 40`, since deleted). ISC-654 was RULED by Erik and stays `[ ]` by decision — a declined fix does not satisfy its criterion. ISC-486 had its deploy gate discharged and was re-measured live; it does NOT advance, because `wall-live-probe` never captures refused prose and so is blind to the class this criterion is about.** The open count is unchanged at 14 on purpose. **Cycle 12 opened on ISC-647 and split it: the deployed CLIENT paints the late-refusal annotation (verified live through Interceptor, synthetic wire), and prod PRODUCES the input 0 times in 32 live turns — `gen.reason` answered 29 / deadline 3 / blocked 0, against 38 blocked ATTEMPTS. The mechanism is `ISC-561`'s repair sitting between a guard block and a reader-visible refusal, plus a client that honours `blocked` only when `answer` is empty. ISC-647 is `[~]`, not `[x]`. ISC-653/654/655 added.** **Cycle 11 opened on the answer-wall cluster: ISC-533 CLOSED (its gate had been discharged for six days — ISC-532 met 2026-08-18 and on prod since 2026-08-23 — while `answer-live.ts` dropped `gen` at the parse boundary), ISC-534 CLOSED (it was `[~]` for one pass; ISC-642 closed the hole the same day on Erik's ruling), and ISC-643/644/645/646 added and met, ISC-642/647 added and open.** A late refusal now annotates the fast answer instead of vanishing; nothing that ran out of clock says anything. **Offline only — ISC-647 is the live verification and the deploy is Erik's.** **ISC-487 STAYS NOT MET: the annotation is the honesty half, not the latency half; no constant moved.** **D1 IS BOUND AND DEPLOYED** — the older line in this file saying `NO D1 BINDING … commented out in worker/wrangler.toml` is FALSE as of 2026-08-24; `new-quranku-memory` exists, all four migrations are applied to REMOTE, `DB` is bound, and Worker `8634ed83` carries it. Sign-in still cannot sign anyone in for THREE operator reasons (`IDENTITY_HMAC_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAILS`), and `IDENTITY_HMAC_SECRET` — not the binding — is the switch that starts persisting the text of every question. **ISC-624.8 stays `[~]`**: the file is produced and the player is built on the card per Erik 2026-08-24, but no real `short.m4a` has been written (no TTS credentials), there is no `speechSynthesis` fallback (the feed carries no summary text to speak), and no ground-truth pixel of the native control was obtainable. The denominator counts checkbox LINES, not unique criteria — ~10 ids are duplicated, pre-existing. Cycle 9 = ISC-569..640. Gates at this edit: `bun test` **2256/0** exit 0 (2213 at the anchor, +43 new), typecheck exit 0, `VITE_ANSWER_MODE=synthesis bun run build` exit 0 — run locally, no CI. **DEPLOYED 2026-08-23: Worker `8634ed83` from `24674ec` (22 commits, 6,402 insertions); everything in Cycle 11 is AHEAD of prod.**
 mode: build
 started: 2026-07-13
 updated: 2026-08-24
@@ -3535,3 +3535,59 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       **A THIRD BLOCKER SURFACED AND IS NOT CODE: OpenRouter hit HTTP 402 mid-session** (topped up by
       Erik, re-verified). And the play button is still silent: `audioUrl` is `null` because Google ADC
       needs an INTERACTIVE `gcloud auth application-default login` that only Erik can run.
+
+- [x] ISC-657: **the kajian runner survives the shell it was started from — supervision, not a scheduler.**
+      Three consecutive handoffs recorded "THERE IS STILL NO SCHEDULER" and pointed at Cloud Run Job +
+      Cloud Scheduler, which is blocked on a residential proxy Erik has not bought. **Reading the code
+      first changed what the gap was.** `kajian-runner.ts` is already a `for(;;)` poll loop that catches
+      network blips, Worker restarts and pipeline deaths and keeps going — it needs no scheduler and no
+      cron. The single thing it cannot survive is the SHELL EXITING: it is a foreground process, so it
+      dies with the terminal, with a logout and with a reboot, and a queue whose consumer is dead is
+      indistinguishable from a queue nobody has clicked Summarize on.
+
+      **So what was missing was supervision, and supervision is not blocked by the proxy.** The proxy
+      gates the HOSTED case only, because YouTube refuses a transcript to a datacentre IP — measured on
+      both clouds and recorded in `docs/runbooks/kajian-runner.md`, where the runbook's own conclusion
+      already reads *"the recommended first host is Erik's own machine"*. Local supervision needs no
+      residential egress, no container, and no vendoring of the transcript skill.
+
+      `src/app/kajian-agent.ts` generates a launchd LaunchAgent — `RunAtLoad` at login, `KeepAlive` on
+      death, `ThrottleInterval` 30 s so a runner that CANNOT start does not respawn into prod's 403 in a
+      hot loop. `bun run kajian:agent` writes it with every absolute path resolved on the machine that
+      will run it, so nothing absolute is committed.
+
+      **THE PLIST HOLDS NO CREDENTIAL, and its absence is a tested guardrail.** `~/Library/LaunchAgents`
+      is world-readable and rides along in every home-directory backup, so launchd is handed a `sh -c`
+      that SOURCES `.env` and `.env.runner` (mode 0600, gitignored) at start; there is deliberately no
+      `EnvironmentVariables` block. Two other fields are load-bearing and silent if wrong: `WorkingDirectory`,
+      because BOTH `kajian-runner.ts` and `kajian.ts` call `resolve(".scratch/kajian")` and a job started
+      from `/` would fail naming the wrong cause; and the absolute `bun` path, since launchd reads no
+      shell profile. The `[ -r ./.env.runner ] || exit 78` guard exists because `sh` sourcing a MISSING
+      file prints an error and CARRIES ON — without it the runner starts with no secret, is refused by
+      its own config check, exits 2, and is restarted by `KeepAlive` for ever.
+
+      **VERIFIED AGAINST launchd'S OWN PARSER AND ON BOTH ARMS, not by reading the XML.** `plutil -lint`
+      → OK; `plutil -extract` returns `WorkingDirectory` = the repo root, `KeepAlive` = true,
+      `ThrottleInterval` = 30. The generated plist contains **0 occurrences** of the runner secret. The
+      exact `sh -c` string launchd will run was then executed directly: with the env files present it
+      exported `QK_BASE_URL`, a 64-character `QK_RUNNER_SECRET` (length printed, never the value) and
+      `OPENROUTER_API_KEY`, exit 0; from a directory holding `.env` but no `.env.runner` it printed
+      `kajian-agent: ./.env.runner is missing or unreadable` and exited **78** before reaching `exec`.
+
+      ⚠️ **THE FIRST RED WAS THE MODULE-MISSING RED AND PROVED NOTHING**, so all five load-bearing
+      assertions were mutation-tested individually: dropping `WorkingDirectory` reddens 2, dropping the
+      `.env.runner` guard 1, defeating XML escaping 1, dropping `ThrottleInterval` 1, and inlining a
+      secret into the plist 1. Five mutations, five reddenings, restored green after each.
+      Gates: `bun test` **2385/0** exit 0 · typecheck exit 0 · synthesis build exit 0.
+
+      ⚠️ **NOT LOADED, AND THAT IS DELIBERATE.** `launchctl bootstrap` starts a live consumer of the
+      production queue that spends model tokens on every job it claims, so the installer WRITES the
+      inert plist and PRINTS the two `launchctl` lines rather than running them. Erik's call, one command.
+
+      **WHAT THIS DOES NOT BUY, stated rather than glossed:** the machine must be awake and logged in.
+      This is survival of the shell, the logout and the reboot — not survival of a closed lid. Unattended
+      operation still needs a host with residential egress, and that is still ISC-630-adjacent and still
+      Erik's money. Nor does it touch the two other kajian gaps: `audioUrl` is still `null` pending an
+      interactive `gcloud auth application-default login`, and there is still **NO per-day cost ceiling**
+      on the pipeline's model spend — a supervised runner that restarts for ever makes that gap larger,
+      not smaller, and it is recorded here as the direct consequence of this change.

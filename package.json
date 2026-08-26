@@ -48,7 +48,8 @@
     "app:echo-index": "bun run src/app/build-echo-index.ts",
     "app:split-expansion": "bun run src/review/split-feelings-expansion.ts",
     "app:peta-graph": "bun run src/app/build-peta-graph.ts",
-    "app:build-meta": "bun run src/app/build-meta.ts"
+    "app:build-meta": "bun run src/app/build-meta.ts",
+    "kajian:agent": "bun run src/app/install-kajian-agent.ts"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",

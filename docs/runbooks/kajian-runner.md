@@ -253,6 +253,64 @@ results publish to the public site. Only the transcript fetch stays on an IP You
 The cost is that the machine has to be awake. A cloud host plus a residential proxy buys unattended
 operation and is the upgrade, not the starting point.
 
+### 8. Keep it running — `bun run kajian:agent`
+
+**The runner needs supervision, not a scheduler, and the difference is why this took three handoffs
+to see.** `kajian-runner.ts` is already a poll loop that catches network blips, Worker restarts and
+pipeline deaths and keeps going. Cron would add nothing. What it cannot survive is the SHELL EXITING
+— it is a foreground process, so it dies with the terminal, with a logout and with a reboot. A queue
+whose consumer is dead looks exactly like a queue nobody has clicked Summarize on.
+
+```
+bun run kajian:agent
+```
+
+That writes `~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist` and stops. It resolves
+the repo root, the log directory and the `bun` binary **on the machine that runs it**, so nothing
+absolute is committed to the repo. Then, to start it:
+
+```
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist
+launchctl list | grep ai.axiara.quranku.kajian-runner   # middle column is the last exit code
+launchctl bootout  gui/$(id -u)/ai.axiara.quranku.kajian-runner   # stop, leaving nothing behind
+```
+
+**The install step does not load it, on purpose.** Bootstrapping starts a live consumer of the
+production queue that spends model tokens on every job it claims. Writing an inert plist is undone
+with `rm`; starting a paid background process is a decision, so it is one explicit command.
+
+Logs land in `~/Library/Logs/quranku/kajian-runner.{out,err}.log` — without `StandardOutPath` and
+`StandardErrorPath` every reason the runner was written to surface would go to `/dev/null`.
+
+#### Four things in that plist that fail SILENTLY if you change them
+
+1. **No credential is in it, and there is no `EnvironmentVariables` block.**
+   `~/Library/LaunchAgents` is world-readable and is copied by every home-directory backup. launchd
+   is handed a `sh -c` that sources `.env` and `.env.runner` (mode 0600, gitignored) at start, so the
+   bearer token stays in the one file that already holds it. Do not "simplify" this by pasting the
+   secret in.
+2. **`WorkingDirectory` is load-bearing.** Both `kajian-runner.ts` and `kajian.ts` call
+   `resolve(".scratch/kajian")`. Started from `/` by launchd, the runner hunts artefacts under
+   `/.scratch` and fails with *"pipeline reported success but produced no slide.html"* — a reason
+   that names the wrong cause entirely.
+3. **`bun` is an absolute path.** launchd sources no shell profile, so `~/.bun/bin` is not on its
+   PATH. The installer uses `process.execPath` — the bun actually running the install — which is
+   correct for a bun from any installer, not just the default location.
+4. **`[ -r ./.env.runner ] || exit 78` runs before anything else.** `sh` sourcing a MISSING file
+   prints an error and CARRIES ON. Without the guard the runner would start with no secret, be
+   refused by its own config check, exit 2, and be respawned by `KeepAlive` for ever — a hot loop of
+   failed auth against prod. `ThrottleInterval` 30 s is the second half of that belt.
+
+#### What this buys, and what it does not
+
+It buys survival of the shell, the logout and the reboot. **It does not buy an awake machine** — the
+lid still has to be open and the user logged in. Unattended operation needs a host with residential
+egress, which is the blocked path measured above, not this one.
+
+⚠️ **It makes the missing cost ceiling matter more, not less.** A runner that restarts for ever is a
+runner that will claim every job ever queued. There is still no per-day or per-run cap in the code
+(see the decisions at the top of this file).
+
 ## What is still not built
 
 - **The play button itself** (ISC-624.8, partly closed). The FILE is now produced: the short
