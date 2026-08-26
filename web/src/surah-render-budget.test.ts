@@ -1,22 +1,27 @@
 /**
- * The surah reader renders every ayah at once, and for a long surah that is too much to paint.
+ * The surah reader renders every ayah at once. This suite pins the rule that bounds what it PAINTS.
  *
- * ── WHAT WAS MEASURED, ON PROD, BEFORE ANY OF THIS WAS WRITTEN ──────────────────────────────────
+ * ── ⚠️ THE ORIGINAL JUSTIFICATION FOR THIS RULE WAS WITHDRAWN ───────────────────────────────────
  *
- * Ali 'Imran (200 ayahs) against Al-Ikhlas (4), same probe, real Chrome, 2026-08-26:
+ * This file first carried a table showing Ali 'Imran (200 ayahs) scrolling at a fraction of the frame
+ * rate of Al-Ikhlas (4 ayahs), with a worst frame well over a second. I falsified that myself. Under
+ * an identical cold-load procedure with ALTERNATING arms, the same page with the same node count and
+ * scroll height measures the same frame rate as the short surah, with zero long frames — and still
+ * does after churning between long surahs eight times. The original readings were a transient
+ * degraded browser state, not a property of surah length. Those numbers are gone from this file on
+ * purpose. Do not reinstate them, and do not cite them anywhere else.
  *
- *   | | Al-Ikhlas | Ali 'Imran |
- *   | DOM nodes            |   649 |  11,581 |
- *   | scroll height        | 1,683 |  92,933 |
- *   | avg fps scrolling    | 120.4 |    19.7 |  (10.5 on a second run)
- *   | frames over 50 ms    | 0/362 |   48/60 |
- *   | worst frame          |  10.1 | 1,458.4 |  ms
+ * What six PAIRED runs do support, and the entire case for the rule below: frame rate unchanged,
+ * worst frame consistently lower with no overlap between the groups. Real, small, and inside one
+ * frame budget either way.
  *
- * The 1.5-second frame is the one a reader feels. Erik's screenshots show the other end of the same
- * cause: cards that are in the DOM with all their text — `innerText` confirms 0 of 200 empty — but
- * are not PAINTED, because ~92,000 px of live content in one scroll container exceeds what the
- * compositor will keep. The DOM was never the broken part, which is why a text-content assertion
- * would have reported everything fine.
+ * ── ⚠️ THIS RULE DOES NOT EXPLAIN THE BLANK AYAH CARDS ──────────────────────────────────────────
+ *
+ * Erik's screenshots show cards with a header and action row and a blank middle. Every card holds its
+ * text — `innerText` confirms 0 of 200 empty — so the DOM is not the broken part, and a text-content
+ * assertion reports everything fine. The paint-pressure story that would have explained it is the
+ * same story the controlled measurement knocked down, so it cannot be turned around and used as the
+ * cause. NOTHING BELOW ASSERTS A FIX FOR IT. It is recorded open in ISC-659.
  *
  * ── WHY `content-visibility` AND NOT VIRTUALISATION ─────────────────────────────────────────────
  *
