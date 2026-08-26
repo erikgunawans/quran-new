@@ -1,3 +1,137 @@
+# Next session — New-Quranku (checkpoint 2026-08-26, Cycle 18)
+
+> Prepended by /wrap 2026-08-26. **Anchor: `164e2b8` + this wrap's own commit on top**, so
+> `origin/main` reads as the wrap checkpoint, not `164e2b8`. That is expected, not drift.
+> Verify with `git fetch` + `git ls-remote`, never a push pipe.
+> **Supersedes the Cycle 17 block below**, whose §2.3 ("THERE IS STILL NO SCHEDULER") is answered
+> and whose §2.1/2.2 are unchanged.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-26, Cycle 18**).
+
+## 0. ⚠️ WHAT I SAID THIS CYCLE THAT IS FALSE
+
+- **"Long surahs scroll at 19.7 fps against 120" IS WITHDRAWN — I falsified it myself.** Under an
+  identical cold-load procedure with alternating arms, Ali 'Imran measures **119.9/120.1 fps with
+  ZERO frames over 50 ms**, and still does after churning between long surahs eight times. The
+  original 19.7/10.5 fps and the 1,458 ms frame were a transient degraded browser state. **Do not
+  re-cite those numbers.** ISC-659's `content-visibility` change is committed but its performance
+  justification is gone; what remains is a small worst-frame gain (10.6/11.7/12.4 vs 14.6/15.0/16.5 ms).
+- **"THERE IS STILL NO SCHEDULER" was the wrong noun.** The runner never needed a scheduler — it is
+  already a self-healing poll loop. It needed SUPERVISION, and that was never gated on the proxy.
+- **Profile 3 is NOT a spare profile — it IS the live Interceptor profile** (extension
+  `hkjbaciefhhgekldhncknbjkofbpenng`). Running `install.sh` against it killed the working connection.
+
+## 1. STATE
+
+ISA **687/701** (680 `[x]` · 7 `[~]` · 14 `[ ]`). ISC-657 `[x]`, ISC-658 `[x]`, ISC-659 `[~]` added.
+
+Gates at HEAD: `bun test` **2400/0** exit 0 · typecheck exit 0 (all five passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; no CI.**
+
+**Live Worker is `2dc1775e-4c46-41ae-951c-0fd44380d859`** (was `fb75d322`), built from `35ae177c`,
+six bindings, `EDITION="synthesis"`. **`164e2b8` is AHEAD of prod and unshipped.**
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** `.env.runner` (0600,
+gitignored) stays unstaged.
+
+**The ustadz position is UNCHANGED.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* —
+FALSE, and it voids three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith
+Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **ERIK'S REPRODUCTION CONDITIONS FOR THE BLANK AYAH CARDS — ASKED TWICE, UNANSWERED.** His
+   screenshots show card header + action row with the middle BLANK, in the `data-pane="text"`
+   collapsed-rail state. **Never reproduced.** All 200 cards hold their text (`innerText`), so the DOM
+   is not the broken part and a content assertion reports everything fine. Ask: right after OPENING
+   Ali 'Imran, or after the page had been sitting? Did scrolling back up repaint them?
+   **Do not theorise further without this** — one theory has already been falsified.
+
+2. **DECIDE ISC-659's FATE.** `164e2b8` is committed, tested (5 tests, 5 mutations) and NOT deployed.
+   Its premise is withdrawn; it buys a small worst-frame gain and costs a 3% scroll-height estimate
+   error. Keep-and-deploy, or revert — **Erik's call, and he has not made it.**
+
+3. **THE REVIEW PACK IS STILL BUILT AND UNSENT.** Artifact `eee00c72-04bf-49f0-88c5-1c05ab04522e`,
+   private. ⚠️ **The live watch on it DROPPED this session** — this session will not hear a republish;
+   re-watch if needed. Republish the same file path to update in place; do not rebuild.
+
+4. **THE PLAY BUTTON IS STILL DEAD** — `audioUrl: null`. Needs `gcloud auth application-default login`,
+   interactive, Erik only. ⚠️ **Two `docs.cloud.google.com/sdk/auth_success` tabs were open in his
+   Chrome this session** — he may already have run it. **Check before asking again.**
+
+5. **ISC-419 unchanged: still a NULL RESULT, still `[ ]`.** Reproducer
+   `apa yang al quran katakan tentang neraka`. ⚠️ That question legitimately returns **0 themes** —
+   emotional vocabulary, ruling question — so do not read its 0 as a classifier fault.
+
+6. **ISC-486, ISC-323, ISC-487 unchanged.** 486's proper-name vocabulary still NOT BUILT. 323 needs a
+   DESIGN decision. 487 NOT MET. Other open: ISC-98, 420, 440.6, 464, 353.0, 627.7, 454.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **Reproduction conditions for the blank cards** (item 1) — blocks the only unexplained defect.
+- 🔶 **ISC-659 keep or revert** (item 2).
+- 🔶 **`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist`**
+  — the agent is WRITTEN and inert. Loading it starts a live queue consumer that spends tokens per job.
+- 🔶 **Share the review pack**, or say what to revise.
+- 🔶 **A SECOND Interceptor context**, if wanted: `bash ~/Projects/interceptor/scripts/install.sh
+  --chrome --profile "Default" --browser-only`, run INTERACTIVELY (prompts for Developer mode) and with
+  **Chrome fully quit**. NOT Profile 3 — that is the existing one.
+- 🔶 **Did Erik lose Chrome tabs?** Interceptor listed 7 tabs early, 2 after the extension reload.
+  Storymaker / JDIH / gcloud tabs unaccounted for. **Unresolved; ask.**
+- 🔶 **TTS still bills `story-maker-demo`** — temporary by his word. Revert: `unset GOOGLE_CLOUD_PROJECT`.
+- 🔶 **ISC-630 / the rights call.** "Publish as-is" covered ONE video, not a general rule.
+- 🔶 **`ADMIN_EMAILS` for `kominfodarussalam@gmail.com`** — ⚠️ **two "Secret Change" deployments exist on
+  2026-08-25 (02:57, 02:58)**, so he probably DID run it. A secret change records no name; confirm by asking.
+- Unchanged/older: `/echo-index.json` as a public asset · a correction with no delivery path · Answer
+  Record retention · `docs/kajian/roster.yaml` ships EMPTY on purpose.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The blank ayah cards are UNEXPLAINED.** See item 1.
+- 🔴 **The published slide contradicts itself** — carries *"DRAFT — belum diperiksa, belum boleh
+  diposting"* and is posted. Clears only by checking the 72 flagged spans against the video.
+- 🔴 **The hadith instrument is half-blind.** OKF mirror is Bukhari + Muslim ONLY, and **0 of 14,736
+  files contain Arabic body text.** An Arabic-lafaz search returns nothing REGARDLESS of truth.
+- 🔴 **`MEMORY.md` is at ZERO headroom** (~24.4 KB). The next memory costs an old one. ⚠️ Mechanical
+  trimming and merging were both TRIED AND REVERTED; read `CLAUDE.md` first. **Nothing was written this
+  cycle** — the Cycle-18 trap worth saving is *"a cap must be measured against the distribution it
+  bounds"*, still unwritten.
+- **There is NO per-day cost ceiling** on the kajian pipeline. A supervised runner that restarts for
+  ever makes this LARGER, not smaller.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — drive Interceptor with `open --reuse`, NEVER bare `navigate`.** `navigate` retargets the
+  ACTIVE tab, which is how Erik's Storymaker flow got overwritten and how several evals silently
+  measured the wrong tab. `open` is background-first and stays in the Interceptor tab group.
+- **NEW — Chrome's `Preferences` is written LAZILY and is STALE while Chrome runs.** It reported 0
+  extensions and `dev_mode: None` for every profile on a machine where the extension was live. Read
+  **`Secure Preferences`**. Never run an installer against a profile you have not identified this way.
+- **NEW — a measurement taken while the page is still chunking, or with other tabs competing, is not a
+  property of the page.** Two headline numbers this cycle were artifacts. Use an identical cold-load
+  procedure with ALTERNATING arms before believing any delta.
+- **NEW — a 0-result from `/api/classify` is now attributable.** Read `outcome`
+  (`matched|none|dropped|error`), never the empty array.
+- **`cd` from the USER's command persists into your shell too** — and from YOUR OWN previous call.
+- **From `worker/`, wrangler is 3.114.17 and `--remote` is an UNKNOWN ARGUMENT.** From the repo root it
+  is 4.120.0 and works. Run R2/D1 remote commands from the ROOT.
+- **A 200 is not existence.** Compare bytes against the **25,233 B** SPA shell and check content-type.
+- **A 403 on `/api/runner/*` proves the GATE and nothing else.**
+- **You cannot verify ANY `/api/*` route from a browser address bar** — `Sec-Fetch-Mode: navigate` alone
+  flips it to the SPA shell at 200. Use curl, or the signed-in UI.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`.
+- **A build exits 0 even when the CSS parser DISCARDS a rule.** Verify in `web/dist/assets/*.css`.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something.
+- **A blocked hook discards every write in that Bash call.**
+- **Never claim a scholar reviewed something.** `reviewed` is false until a record SAYS otherwise.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-25 late, Cycle 17)
 
 > Prepended by /wrap 2026-08-25 late. **Anchor: `3707095` + this wrap's own commit on top**, so

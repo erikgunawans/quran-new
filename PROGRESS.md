@@ -4,6 +4,62 @@ Append-only checkpoint log. Newest at the top. Never rewrite history — add a n
 
 ---
 
+## 2026-08-26 — Cycle 18: two fixes shipped, and I falsified my own diagnosis of the third
+
+**A DEPLOY LANDED (ISC-658).** Erik authorised it; Worker `fb75d322` → **`2dc1775e-4c46-41ae-951c-0fd44380d859`**,
+built from `35ae177c`, six bindings, `EDITION="synthesis"`, 2 assets changed. The range was diffed
+BEFORE shipping (`87c7583..HEAD`): only `web/src/theme-live.ts` and `worker/src/index.ts` are
+shipping code — the other ~1,400 lines are runner-host `src/app/*`, docs and the ISA, which enter
+neither bundle.
+
+**ISC-657 — THE KAJIAN "SCHEDULER" WAS THE WRONG NOUN.** Three handoffs carried "THERE IS STILL NO
+SCHEDULER" pointing at Cloud Run + Scheduler, blocked on a residential proxy. Reading the code first
+changed the gap: `kajian-runner.ts` is already a `for(;;)` poll loop that survives blips, Worker
+restarts and pipeline deaths. It cannot survive the SHELL EXITING. So the missing piece was
+SUPERVISION, which the proxy does not gate — the runbook's own conclusion already said the first host
+should be Erik's machine. `bun run kajian:agent` writes a launchd LaunchAgent; `plutil -lint` OK, and
+the exact `sh -c` was run on BOTH arms (env present → exported a 64-char secret at exit 0; `.env.runner`
+absent → named reason, exit 78 before `exec`). **0 occurrences of the secret in the plist.**
+⚠️ **NOT LOADED on purpose** — `launchctl bootstrap` starts a live consumer of the prod queue that spends
+tokens per job.
+
+**ISC-658 — THE "0 THEMES ON 14 OF 16 TURNS" ALARM WAS MOSTLY INNOCENT.** Three handoffs carried it red
+and unexamined. Measured by calling prod's `/api/classify` directly: 7 of 8 of the probe's own questions
+return `[]`, but SIX answered honestly in 2.07–2.46 s. The probe set is RULING questions; the vocabulary
+is EMOTIONAL. There is no emotional theme for *what does the Qur'an say about hell*. What the rate MASKED
+is real: `TIMEOUT_MS = 3000` sat INSIDE the latency distribution (0.93 1.04 1.47 2.41 2.60 2.64 2.68 **3.36**),
+and `main.ts` calls the classifier ONLY when keywords found nothing, with `() => []` as fallback — so an
+abort left that reader with zero themes. Erik ruled **5000 ms**. `outcome: matched|none|dropped|error` now
+names the four causes. Live-verified on four arms plus a control set measured against the 25,233 B SPA shell.
+
+⚠️ **ISC-659 — I REPORTED A LONG-SURAH PERFORMANCE BUG AND THEN FALSIFIED IT MYSELF.** Erik reported weird
+behaviour on long surahs with screenshots of BLANK ayah cards. True: Ali 'Imran renders all 200 ayahs at
+once (**11,581 nodes, 119,756 px, no virtualisation**) and every card holds its text (**0 of 200 empty**).
+I measured 19.7 then 10.5 fps with a **1,458 ms frame** against 120.4 for a short surah and reported that
+as a property of surah length. **It is not.** Under an identical cold-load procedure with alternating arms
+the same page measures **119.9/120.1 fps, ZERO frames over 50 ms**, and still does after churning between
+long surahs eight times. The premise is WITHDRAWN. `content-visibility: auto` + `contain-intrinsic-size:
+auto 370px` (370 = measured MEDIAN of all 200 cards) is committed at `164e2b8` and **NOT DEPLOYED**: fps
+unchanged, worst frame consistently lower with no overlap (10.6/11.7/12.4 vs 14.6/15.0/16.5 ms), cost is a
+3% scroll-height estimate error. Deep link measured not assumed — `scrollIntoView` to 3:150 drifts **1 px**,
+so no correction pass was written (that would have been the `no-op fix` shape).
+🔴 **THE BLANK CARDS WERE NEVER REPRODUCED and this change must not be recorded as fixing them.**
+
+⚠️ **I BROKE THE INTERCEPTOR CONNECTION AND COST ERIK TABS.** Two mistakes. (1) I drove with
+`interceptor navigate`, which retargets the ACTIVE tab — it overwrote his Storymaker flow and made several
+evals report a `projectId=…` URL, so those readings were discarded. `open --reuse` stays in Interceptor-group
+tabs and is the correct loop. (2) I ran `install.sh` against **Profile 3 — which IS the live automation
+profile**, holding extension `hkjbaciefhhgekldhncknbjkofbpenng`. That regenerated the native-messaging
+manifest and killed the working connection; Erik recovered it by opening the extensions page. **`Preferences`
+is written LAZILY and is STALE while Chrome runs** — it showed 0 extensions and `dev_mode: None` for every
+profile. The truth is in **`Secure Preferences`**, which I read only after the damage. Interceptor's tab list
+afterwards showed 2 tabs where it had shown 7; whether the others were lost is UNRESOLVED.
+
+**Gates at HEAD:** `bun test` **2400/0** exit 0 · typecheck exit 0 (all five passes) · synthesis build exit 0.
+ISA **687/701** (680 `[x]` · 7 `[~]` · 14 `[ ]`). Commits `a0b3d31`, `9c3b0fd`, `35ae177`, `e0463d5`, `164e2b8`.
+
+---
+
 ## 2026-08-25 late — Cycle 17: the kajian queue drains, and both recorded blockers were innocent
 
 **THE KAJIAN PIPELINE COMPLETED END TO END ON PRODUCTION FOR THE FIRST TIME.** Job `666022fc`:
