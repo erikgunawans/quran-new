@@ -3716,9 +3716,20 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       16.5 ms** — but both sit inside one frame budget, so this is a small real improvement and nothing
       a reader would notice.
 
-      **COSTS, stated rather than glossed.** `contain-intrinsic-size` makes the scroll height an ESTIMATE
-      until each card has rendered once: 116,164 px against a true 119,756 — **3% off**, so the scrollbar
-      thumb is slightly wrong at first. Against that, the deep link was measured rather than assumed:
+      **COSTS, stated rather than glossed — AND THE FIRST STATEMENT OF THEM WAS TOO KIND BY TEN TIMES.**
+      `contain-intrinsic-size` makes the scroll height an ESTIMATE until each card has rendered once.
+      ⚠️ **The cost is 29%, not the 3% first recorded here.** At FIRST PAINT, same viewport, paired arms:
+      **78,081 px with the rule against 110,667 px without it — 29% short.** The 3% (116,164 against a
+      true 119,756) is not wrong, it is the wrong MOMENT: it was measured AFTER the cards had rendered,
+      which is the best case and not what the reader's scrollbar shows on arrival. **The number a
+      criterion states must be the one the reader meets** — kept here rather than swapped silently,
+      because publishing the flattering half of a paired measurement is the failure this file exists to
+      catch. **Re-measured 2026-08-28 (Cycle 19) as a SAME-MOMENT PAIRED READING**, which the original
+      29% was not: two prod tabs open at once, same viewport, same build, one with the rule live and one
+      with `content-visibility: visible` injected — `#surah-body.scrollHeight` **77,826 px against
+      112,914 px, 31% short.** Two independent measurements a day apart, by different procedures, land
+      on 29% and 31%. The 3% is not reproducible at first paint by either.
+      Against that, the deep link was measured rather than assumed:
       `scrollIntoView` to 3:150 lands with **1 px of drift**, so no correction pass was added — writing one
       would have been the `no-op fix` shape.
 
@@ -3758,6 +3769,58 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       — **is UNTESTED.** Testing it needs the full fifteen-minute background-sit with the rule present from
       first paint, in both arms. Until that runs, this fix is justified by the worst-frame number ABOVE and
       by nothing else.
+
+      ✅ **THE `data-pane="text"` COLLAPSE IS NOT AN UNSUMMONABLE TRIGGER — IT IS A READER CLICKING A TAB.
+      Settled 2026-08-28 (Cycle 20) by catching one in the act.** Two handoffs recorded the collapse as the
+      part of the trigger "nobody can yet summon on demand", and a session was nearly spent waiting for it.
+      It is summoned by clicking **Teks Surah**. Read the code first: `data-pane` is written in exactly ONE
+      place — the delegated click handler in `bindSplit` (`read.ts`) — with **no resize observer, no timer,
+      no visibility handler**, so the attribute CANNOT change without a click. Then caught live: a recorder
+      installed in the page world (`--main`; an isolated-world `eval` silently loses `window` state between
+      calls) logged `{kind:"click", trusted:true, closestTab:true, hidden:false}` followed 6 ms later by
+      `{kind:"attr", from:"split", to:"text"}`. **`isTrusted: true` cannot be forged by script**, so that
+      was a real input device — Erik's, on a window this session had raised in front of him.
+      ⚠️ **Every instrument step was excluded individually first**, each on a clean probe tab that stayed
+      `split`: `tab switch`, raising the Chrome window, `screenshot --pixel`, and `read --tree-only`. The
+      collapse is ordinary UI, which means **the blank-card state is reachable by normal reading** — collapse
+      the rail to read the text full width, leave the tab, come back — and the procedure below can now be run
+      deliberately instead of waited for.
+
+      ⚠️ **TWO SITS, TEN ARM-RUNS, NOTHING REPRODUCED — AND THE PROCEDURE ABOVE IS THEREFORE NOT
+      SUFFICIENT AS WRITTEN.** Cycle 20 ran five prod tabs twice. Run 1: 23 minutes, all five in
+      `data-pane="split"` — nothing. Run 2, correcting run 1 by collapsing the rail first because the
+      reported defect is a `text`-state defect: **35–39 minutes of UNINTERRUPTED background each**, verified
+      per-arm from the recorder's own `visibilitychange` timestamps rather than assumed —
+
+      | arm | config | background | pane held | opacity 0 | pixels |
+      |-----|--------|-----------|-----------|-----------|--------|
+      | A | prod as shipped | 35.3 min | text | 0/200 | painted |
+      | B | Al-Fatihah (28× smaller scroller) | 39 min | text | 0/7 | painted |
+      | C | `animation: none` on `.verse` | 37.3 min | text | 0/200 | painted |
+      | D | `content-visibility: visible` | 37.5 min | text | 0/200 | painted |
+      | E | split, intro pre-scrolled | 38 min | split | 0/200 | painted; **no ghost**, and none after a 6.4k scroll |
+
+      **THE POSITIVE CONTROL NEVER FAILED, SO ARMS C AND D MEASURE NOTHING.** The `qkin` and
+      `content-visibility` hypotheses below are UNTESTED, not eliminated — recorded so no later session
+      reads this table as having cleared them. What the run does establish is a bound on the recipe: **the
+      documented fifteen-minute sit did not reproduce at 35–39 minutes**, in EITHER pane state, on prod as
+      shipped, with and without the closing scroll. Erik saw the defect and it was reproduced once, so the
+      defect is real; what is missing is a condition nobody has named yet. ⚠️ **Do not re-run this recipe
+      unchanged and expect a different answer** — vary something (machine sleep, memory pressure, a second
+      heavy tab, a real pointer scroll rather than a scripted `scrollTop`) or the next session buys another
+      null.
+
+      **TWO MEASUREMENTS OF THE COMPOSITED COST, taken because layer size is the standing suspicion.**
+      A census of the live surah page found **all 200 `article.verse` carrying
+      `backdrop-filter: blur(18px) saturate(1.5)`** — one composited blur READBACK per card inside the
+      ~78,000 px scroller — plus `blur(28px)` on the composer. ⚠️ **The blur is very nearly invisible:**
+      the card fill is `rgba(208,190,151,.94)`, 94% opaque, and an A/B with the rule disabled differs by a
+      **maximum of 3/255 in any channel** (mean 0.044, 8.3% of pixels). Scope stated: one surah (112), one
+      theme, one viewport — it is a cost/benefit reading, not yet a licence to delete. Separately, every
+      card runs `@keyframes qkin { from { opacity: 0 } }`, and `shell.css` ALREADY carries a comment saying
+      that animation "could strand a card invisible if the tab backgrounded first" — the same symptom class,
+      hit once before. With `content-visibility: auto` live, a card first becomes rendered when scrolled
+      toward, which is when that animation fires. **Both are hypotheses with arms built, not findings.**
 
       🔴 **STILL OPEN, and the open part is now sharp rather than mysterious.** Nothing here is a fix. What
       exists is a reproduction, a procedure, an instrument that can see the defect, and four eliminated
