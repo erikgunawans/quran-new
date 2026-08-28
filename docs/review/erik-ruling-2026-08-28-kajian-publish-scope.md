@@ -1,6 +1,6 @@
 # Erik's ruling — the scope of "publish as-is", and the DRAFT gate
 
-> **Decided by Erik, 2026-08-27, in session.**
+> **Decided by Erik, 2026-08-28, in session.**
 >
 > **FORM: HE CHOSE FROM OPTIONS THE DA PUT TO HIM. HE GAVE NO REASONING, AND NONE IS ATTRIBUTED
 > TO HIM HERE.** The DA raised that ISC-630's earlier "publish as-is" had covered ONE video and was

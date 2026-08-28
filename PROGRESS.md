@@ -2,6 +2,87 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-28 — Cycle 19: the blank cards are REPRODUCED, and my own deploy inverted the instrument
+
+**THE THING TWO HANDOFFS WERE BLOCKED ON IS DONE.** Erik answered the question asked twice and never
+answered: the cards go blank **after the page has been SITTING**, and **scrolling back up repaints
+them**. That pair names a PAINT failure, not a content one — which is why three sessions of
+instruments all reported the page healthy.
+
+**REPRODUCED on prod**, Ali 'Imran backgrounded ~15 min, foregrounded, scrolled. In the broken state:
+`data-pane="text"` (the collapsed-rail state of the screenshots), **200 cards, 0 blank by `innerText`,
+0 of zero height**, card #2 laid out ON SCREEN at `top:78 height:346` — with nothing painted there.
+**DOM correct, LAYOUT correct, PAINT absent.** `innerText` was never the wrong reading, it was the
+wrong INSTRUMENT; so is `getBoundingClientRect`. It repaints PARTIALLY on scroll — the action row
+returns, the card middles do not — which is Erik's screenshot exactly. The sidebar corrupts too, so
+this is the renderer, not verse cards.
+
+⚠️ **THE INSTRUMENT IS `interceptor screenshot --pixel`.** The default screenshot RE-RENDERS from the
+DOM and repaints the very artifact being hunted, and on a 90,887 px scroller it times out at 15 s.
+
+**Four remedies eliminated, each against a control:** forced layer invalidation (`translateZ(0)`
+toggle) — no change; style recalc from a no-op injected rule — no change; injecting the ISC-659 rule
+itself — no change; reload — fully restores. So the raster for a ~90,887 × 1,076 px composited
+scroller is lost and never regenerated within the document's life.
+
+**ISC-659 DEPLOYED on Erik's explicit keep-and-deploy call**, made knowing the premise was withdrawn.
+Worker **`0d33ef55-800a-4924-8523-895312ad1e1e`** (was `2dc1775e`). Verified LIVE by FETCHING the
+asset, not trusting the upload: 131,303 B of `text/css`, not the 25,233 B SPA shell, rule present once.
+
+🔴 **AND THAT DEPLOY BROKE THE DIAGNOSTIC THIS WHOLE INVESTIGATION RAN ON — MY REGRESSION, found by my
+own paired test an hour later.** With the rule live `innerText` reports **194 of 200 cards blank**
+while the page paints PIXEL-IDENTICALLY to a control arm with the rule disabled.
+`content-visibility: auto` skips layout for off-screen content and `innerText` is layout-dependent;
+`textContent` is not. **The instrument has INVERTED and both readings are uncorrelated with the
+defect** — 0/200 while the reader saw nothing, 194/200 while the reader sees everything. A later
+session running the documented probe will read 194 and declare the reader catastrophically broken.
+**NOT user-facing, checked not assumed:** `innerText` is in no production source, and
+`Salin`/`Bagikan`/`Kartu` go through `shareText(v: VerseCard)`, which reads the data object.
+
+🔶 **THE PREVENTION TEST IS INCONCLUSIVE AND ITS OWN CONTROL SAYS SO.** Two prod tabs, rule on and rule
+off, backgrounded together 26 min then scrolled an identical delta. **NEITHER arm reproduced** — both
+stayed `data-pane="split"`, both painted. The control never failed, so the test arm being clean
+measures nothing. **The pane collapse to `data-pane="text"` did not recur and is now the part of the
+trigger that is NOT understood.** What the run DID establish, in BOTH arms: **the intro panel ghosts
+reliably after a ~26 min sit** — two renderings of the preface superimposed at different scroll
+offsets. Outside the rule's scope by construction, needs no pane collapse, minutes rather than an
+unsummonable trigger. **Start there.**
+
+**Cost correction:** first-paint scroll height is **29% short** (110,667 control vs 78,081 test, same
+viewport), not the 3% ISC-659 recorded — that was the after-render best case.
+
+**A WITHDRAWAL THAT LIVED ONLY IN A COMMIT MESSAGE IS NOT A WITHDRAWAL.** `164e2b8` withdrew the
+19.7 fps premise in its message but left it standing as live justification in the `read.css` comment
+and the test docblock — both also asserting the paint-pressure story as the blank-card explanation,
+which that same message forbids. Fixed. The ISA/PROGRESS statements of those numbers are the
+CONFESSION and were deliberately left.
+
+**ERIK RULED TWICE ON KAJIAN** (`docs/review/erik-ruling-2026-08-28-kajian-publish-scope.md`):
+"publish as-is" widened from the one SILATURAHIM video to **ALL KAJIAN, ANY CHANNEL**; and the DRAFT
+gate's self-contradiction is **LEFT STANDING**. The DA raised the widest-reading concern in the option
+text and again in session; he chose it anyway, and BOTH halves are recorded. ⚠️ **It is a PUBLISHING
+rule and does NOT reach ISC-630's SOURCING hold** — that channel stays off the queue, capture stays
+deleted. Softening and unpublishing were both offered and DECLINED, so **no DRAFT carrier may be
+edited on the strength of it** — "as-is" was chosen OVER "soften".
+
+**Review pack link handed over** (`eee00c72`, Indonesian, honest — states plainly no scholar has
+checked it, names the tool's limits, offers same-day takedown). Two discrepancies flagged, NOT edited
+because it is Erik's approved document: it says *"tidak ada nama penceramah yang kami cantumkan"*
+while the live card's HEADLINE is `… | USTADZ ALI HASAN BAWAZIER, M.A.`; and it describes the marker
+as `Belum diperiksa` while the slide/audio carry `belum boleh diposting`.
+
+**gcloud ADC ANSWERED:** Erik DID run it (credentials written 2026-08-26 08:26) but the token now
+fails *"Reauthentication failed, cannot prompt during non-interactive execution"*. Still needs one
+interactive run. Quota project inside is still `story-maker-demo`.
+
+**Date defect caught at wrap:** this session's records were first written as 2026-08-27. It was
+2026-08-28 throughout. The ruling file was renamed and every date corrected — a rights ruling's
+decision date is load-bearing.
+
+**ISC counts UNCHANGED — 680 `[x]` · 7 `[~]` · 14 `[ ]` = 701.** No checkbox moved; ISC-659 stays
+`[~]` because a reproduction is not a fix. Gates at HEAD: `bun test` **2400/0** exit 0 · typecheck
+exit 0 · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. Run locally; **no CI in this repo.**
+
 ---
 
 ## 2026-08-26 — Cycle 18: two fixes shipped, and I falsified my own diagnosis of the third

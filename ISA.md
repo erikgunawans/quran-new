@@ -1759,14 +1759,14 @@ blocked turn, and the two defects below are named from its MECHANISM, not from t
       shortcuts. **`.scratch/kajian/jNQXAC9IVRw/` — "Me at the zoo", 19 seconds — was NOT deleted**
       and is retained as the pipeline's only working test capture; it is third-party material too,
       recorded rather than glossed.
-      ⚠️ **2026-08-27 — A LATER RULING WIDENED PUBLISHING TO "ALL KAJIAN, ANY CHANNEL", AND IT DOES
+      ⚠️ **2026-08-28 — A LATER RULING WIDENED PUBLISHING TO "ALL KAJIAN, ANY CHANNEL", AND IT DOES
       NOT REACH THIS CRITERION.** Erik extended "publish as-is" from the one SILATURAHIM video to every
       kajian the runner processes, from any channel, and separately chose to leave the DRAFT gate's
-      self-contradiction standing (`docs/review/erik-ruling-2026-08-27-kajian-publish-scope.md`). **That
+      self-contradiction standing (`docs/review/erik-ruling-2026-08-28-kajian-publish-scope.md`). **That
       is a PUBLISHING rule and this is a SOURCING hold** — the distinction this file already draws at
       ISC-631's neighbour, *"ISC-630 gates what the runner may be pointed AT, not whether it may be
       built"*. **The hold recorded above stands unchanged: that channel stays off the queue and its
-      capture stays deleted.** A reader who takes the 2026-08-27 ruling as re-opening it has read a
+      capture stays deleted.** A reader who takes the 2026-08-28 ruling as re-opening it has read a
       permission about what may be published as one about what may be captured. The DA raised the
       widest-reading concern before Erik chose it; he chose it anyway, and both halves are recorded in
       that file rather than only the outcome.
@@ -3722,7 +3722,7 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       `scrollIntoView` to 3:150 lands with **1 px of drift**, so no correction pass was added — writing one
       would have been the `no-op fix` shape.
 
-      ✅ **THE BLANK CARDS ARE REPRODUCED — 2026-08-27 (Cycle 19), ON PROD, FIRST TIME IN THREE SESSIONS.**
+      ✅ **THE BLANK CARDS ARE REPRODUCED — 2026-08-28 (Cycle 19), ON PROD, FIRST TIME IN THREE SESSIONS.**
       What unblocked it was not a theory but Erik answering the question the last two handoffs carried:
       the cards go blank **after the page has been SITTING**, and **scrolling back up repaints them**.
       That pair names a paint failure, not a content failure, and it is why every instrument used so far
@@ -3767,7 +3767,7 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       Gates: `bun test` **2400/0** exit 0 · typecheck exit 0 · synthesis build exit 0, and the rule was
       verified present in the BUILT css (`contain-intrinsic-size:auto 370px` in `web/dist/assets/*.css`)
       because a build exits 0 even when the parser discards a rule. Five tests, five mutations, five
-      reddenings. **DEPLOYED 2026-08-27 on Erik's explicit call** (he chose keep-and-deploy knowing the
+      reddenings. **DEPLOYED 2026-08-28 on Erik's explicit call** (he chose keep-and-deploy knowing the
       premise was withdrawn): Worker **`0d33ef55-800a-4924-8523-895312ad1e1e`**, was `2dc1775e`. Verified
       LIVE by fetching the asset rather than trusting the upload — `131,303 B` of `text/css`, not the
       25,233 B SPA shell, carrying `#read #surah-body .verse{content-visibility:auto;contain-intrinsic-size:auto 370px}`

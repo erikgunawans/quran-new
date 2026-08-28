@@ -1,3 +1,147 @@
+# Next session — New-Quranku (checkpoint 2026-08-28, Cycle 19)
+
+> Prepended by /wrap 2026-08-28. **Anchor: `1ea8617` + this wrap's own commit on top**, so
+> `origin/main` reads as the wrap checkpoint, not `1ea8617`. That is EXPECTED, not drift — the
+> handoff records the branch head and merging the handoff moves it. **More than one commit, or one
+> whose subject does NOT name this checkpoint, means a parallel session pushed: that IS drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push piped into `tail`.
+> **Supersedes the Cycle 18 block below**, whose §2.1 (reproduction conditions) and §2.2 (ISC-659's
+> fate) are both ANSWERED, and whose §2.4 (gcloud) is answered but not resolved.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-28, Cycle 19**).
+
+## 0. ⚠️ WHAT CHANGED THAT INVALIDATES OLD METHOD
+
+- **`innerText` IS NOW A BROKEN INSTRUMENT ON PROD, AND IT FAILS LOUD IN THE OPPOSITE DIRECTION.**
+  ISC-659 is deployed, so `content-visibility: auto` is live on `#read #surah-body .verse`. It skips
+  layout for off-screen content and `innerText` is layout-dependent, so the reader now reports
+  **194 of 200 cards blank while the page paints perfectly.** Every prior handoff cites "0 of 200
+  empty by `innerText`" as proof the DOM is fine. **Both readings are worthless.** Use
+  `interceptor screenshot --pixel`, or `textContent`. Not user-facing — `innerText` is in no
+  production source and share/copy go through `shareText(v: VerseCard)`.
+- **The default `interceptor screenshot` RE-RENDERS FROM THE DOM** and therefore repaints the exact
+  artifact you are hunting. It also times out at 15 s on a 90,887 px scroller. **`--pixel` is the
+  only instrument that can see a compositor bug**, and it needs the tab foregrounded AND in the
+  interceptor group (`tab switch` refuses a tab it does not manage).
+- **From `worker/`, wrangler is now 4.125.0, NOT 3.114.17.** The old constraint said `--remote` is an
+  unknown argument there. That has drifted; re-check before relying on either.
+- **This session's records were first written 2026-08-27 and corrected to 2026-08-28 at wrap.** If
+  anything still reads 08-27, it is mine and it is wrong.
+
+## 1. STATE
+
+ISA **687/701** (680 `[x]` · 7 `[~]` · 14 `[ ]`) — **UNCHANGED this cycle. No checkbox moved.**
+ISC-659 stays `[~]`: a reproduction is not a fix.
+
+Gates at HEAD: `bun test` **2400/0** exit 0 · typecheck exit 0 (all five passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; NO CI in this repo.**
+
+**Live Worker is `0d33ef55-800a-4924-8523-895312ad1e1e`** (was `2dc1775e`), `EDITION="synthesis"`,
+six bindings. **Prod and `main` are in sync** — ISC-659 is deployed, not pending.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Work lands directly on
+`main` in this repo; there is no open PR and none is expected.
+
+**The ustadz position is UNCHANGED.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* —
+FALSE, and it voids three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith
+Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **CHASE THE INTRO-PANEL GHOST — it is the cheap handle on the blank cards.** Both arms of a paired
+   run showed it after a ~26-minute sit: two renderings of the Dorar preface superimposed at
+   different scroll offsets, sharp text over dim. It needs **no pane collapse**, reproduces in
+   minutes, and is the same compositor failure. The blank-card trigger needs a `data-pane="text"`
+   collapse that **nobody can yet summon on demand** — that is the open unknown. Do not burn a
+   session waiting for it when the ghost is available.
+
+2. **THE PREVENTION QUESTION FOR ISC-659 IS STILL OPEN AND THE LAST RUN CANNOT ANSWER IT.** Injecting
+   the rule does NOT rescue an already-broken page (tested). Whether it PREVENTS the state is
+   untested: in the paired run **neither arm failed**, so the clean test arm measures nothing.
+   ⚠️ **A run where the control does not reproduce is not evidence.** Get the control to fail first.
+
+3. **ISC-659's stated cost is wrong and should be corrected in the criterion body.** First-paint
+   scroll height is **29% short** (110,667 control vs 78,081 test, same viewport), not 3%. The 3%
+   was measured after cards had rendered — the best case, not what the reader's scrollbar shows.
+
+4. **ISC-486, ISC-323, ISC-487 unchanged.** 486's proper-name vocabulary still NOT BUILT. 323 needs a
+   DESIGN decision. 487 NOT MET. Other open: ISC-98, 417, 419, 420, 440.6, 454, 464, 566, 627.7,
+   654, 353.0.
+
+5. **ISC-419 is still a NULL RESULT.** Reproducer `apa yang al quran katakan tentang neraka`.
+   ⚠️ That question legitimately returns **0 themes** — do not read its 0 as a classifier fault.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **`gcloud auth application-default login`** — he DID run it (creds written 2026-08-26 08:26) but
+  the token now fails *"Reauthentication failed, cannot prompt during non-interactive execution"*.
+  Needs ONE more interactive run. Play button stays dead (`audioUrl: null`) until then. Quota project
+  inside is still `story-maker-demo`.
+- 🔶 **`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist`**
+  — written and inert. ⚠️ **Loading it now matters MORE than before:** Erik's 2026-08-28 ruling removed
+  the per-item human gate that was incidentally the pipeline's ONLY cost ceiling. There is still no
+  per-day cap.
+- 🔶 **The two review-pack discrepancies** (`eee00c72`, link already handed over, sharing is his UI
+  action). It says *"tidak ada nama penceramah yang kami cantumkan"* while the live card's HEADLINE is
+  `… | USTADZ ALI HASAN BAWAZIER, M.A.`; and it describes the marker as `Belum diperiksa` while the
+  slide/audio carry `belum boleh diposting`. **NOT edited — it is his approved document.**
+- 🔶 **`ADMIN_EMAILS` for `kominfodarussalam@gmail.com`** — two "Secret Change" deploys on 2026-08-25
+  (02:57, 02:58) suggest he did it; a secret change records no name. Only he can confirm.
+- 🔶 **TTS still bills `story-maker-demo`** — temporary by his word. Revert: `unset GOOGLE_CLOUD_PROJECT`.
+- 🔶 **Did Erik lose Chrome tabs?** Unresolved from Cycle 18. Two prod tabs from this session
+  (`893418550` test arm, `893418554` control arm) were left OPEN for him.
+- Unchanged/older: `/echo-index.json` as a public asset · a correction with no delivery path · Answer
+  Record retention · `docs/kajian/roster.yaml` ships EMPTY on purpose.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The blank-card TRIGGER is still not understood.** The state is reproducible and fully
+  characterised (DOM correct, layout correct, paint absent; partial repaint on scroll; only a reload
+  restores). What is NOT known is what causes the `data-pane="text"` collapse that precedes it.
+- 🔴 **`innerText` is a live trap** — see §0. It will read 194/200 and look like a catastrophe.
+- 🔴 **The published slide contradicts itself BY ERIK'S EXPLICIT RULING** — carries *"DRAFT — belum
+  diperiksa, belum boleh diposting"* and is posted. ⚠️ **Softening and unpublishing were both offered
+  and DECLINED on 2026-08-28. Do NOT "fix" this** — "as-is" was chosen OVER "soften", so an edit
+  inverts the decision. See `docs/review/erik-ruling-2026-08-28-kajian-publish-scope.md`.
+- 🔴 **The hadith instrument is half-blind.** OKF mirror is Bukhari + Muslim ONLY, and **0 of 14,736
+  files contain Arabic body text.** An Arabic-lafaz search returns nothing REGARDLESS of truth.
+- 🔴 **`MEMORY.md` is at 24,400 B / 159 entries — ZERO headroom.** Two durable traps from this cycle
+  are UNWRITTEN because writing one costs an old one: (a) `innerText` is layout-dependent and
+  `content-visibility` makes it report blank; (b) the default screenshot re-renders from the DOM and
+  repaints the artifact you are hunting. Cycle 18's *"a cap must be measured against the distribution
+  it bounds"* is ALSO still unwritten. ⚠️ Mechanical trimming and merging were TRIED AND REVERTED;
+  read `CLAUDE.md` first, and RETIRE deliberately rather than evicting silently.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — never diagnose paint with `innerText` or `getBoundingClientRect`.** Both report a healthy
+  page in the middle of the defect, and `innerText` now reports a broken one on a healthy page.
+- **NEW — the default `interceptor screenshot` repaints what you are hunting.** `--pixel` only, tab
+  foregrounded, and the tab MUST be in the interceptor group.
+- **NEW — a paired run whose CONTROL did not fail is not evidence.** Ask what the failing arm returned
+  before believing the clean one.
+- **NEW — Erik's 2026-08-28 kajian ruling is a PUBLISHING rule and does NOT reach ISC-630's SOURCING
+  hold.** That channel stays off the queue; its capture stays deleted.
+- **A withdrawal that lives only in a commit message is not a withdrawal.** Fix the comment and the
+  docblock, or the next reader inherits the dead premise.
+- **`cd` from the USER's command persists into your shell too** — and from YOUR OWN previous call.
+- **A 200 is not existence.** Compare bytes against the **25,233 B** SPA shell and check content-type.
+- **A 403 on `/api/runner/*` proves the GATE and nothing else.**
+- **You cannot verify ANY `/api/*` route from a browser address bar** — `Sec-Fetch-Mode: navigate`
+  alone flips it to the SPA shell at 200. Use curl, or the signed-in UI.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`.
+- **A build exits 0 even when the CSS parser DISCARDS a rule.** Verify in `web/dist/assets/*.css`.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something.
+- **A blocked hook discards every write in that Bash call.**
+- **Never claim a scholar reviewed something.** `reviewed` is false until a record SAYS otherwise.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-26, Cycle 18)
 
 > Prepended by /wrap 2026-08-26. **Anchor: `164e2b8` + this wrap's own commit on top**, so
