@@ -1,9 +1,12 @@
 # Next session — New-Quranku (checkpoint 2026-08-29, Cycle 21)
 
-> Prepended by /wrap 2026-08-29. **Anchor: `7317a33` + this wrap's own commit on top**, so
-> `origin/main` reads as the wrap checkpoint, not `7317a33`. That is EXPECTED, not drift — the
-> handoff records the branch head and merging the handoff moves it. **More than one commit, or one
-> whose subject does NOT name this checkpoint, means a parallel session pushed: that IS drift.**
+> Prepended by /wrap 2026-08-29. **Anchor: `7317a33`, plus THIS WRAP'S OWN COMMITS on top — there
+> are THREE of them, named here so none is mistaken for drift:** `28d997a` (the checkpoint),
+> `a1070f7` (correcting the Arm F record after it was hijacked mid-wrap), and the commit carrying
+> this very line. So `origin/main` reads several commits past `7317a33` and that is EXPECTED.
+> ⚠️ **The test is the SUBJECT, not the count** — an earlier draft of this line said "more than one
+> commit IS drift" and was falsified by this wrap's own second commit an hour later. **A commit whose
+> subject does not name this checkpoint means a parallel session pushed: THAT is drift.**
 > Verify with `git fetch` + `git ls-remote`, never a push piped into `tail`.
 > **Supersedes the Cycle 20 block below.** Cycle 20's §2.2 (the two untested arms) and §2.4(b) (the
 > `qkin` lead) are ANSWERED IN CODE; its §2.5 ISC-486 line is now half-done and half-FALSIFIED.
