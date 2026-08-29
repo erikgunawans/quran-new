@@ -3556,6 +3556,33 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
   *"mendekatkan kita kepada allah"*), and `kita` within 72 characters is the single token that
   collapses the stand-down. **The trigger is attested in production; the full shape is not.**
 
+
+  🔬 **THE TWO DIRECTIONS CAN BE DECOUPLED RATHER THAN TRADED — measured 2026-08-29, NOT BUILT, and
+  the price is now a number instead of an argument.** The coupling exists only because a divine row
+  carrying a LOOSE verb is refused by nothing but `adjacent_unowned`, which is the same arm that has
+  to stand down to rescue a scholar. Widening `DIVINE_VERB` by the six loose verbs gives those rows
+  their own arm: **direction B goes 0/24 → 24/24 refused, every one now labelled `divine_attr`
+  instead of `adjacent_unowned`, and direction A is byte-identical.** After that widening the
+  ownership vocabulary could be widened for ISC-486 without re-opening ISC-419 — which is precisely
+  the trade the 2026-08-20 narrowing was reverted over.
+
+  ⚠️ **IT IS NOT FREE, AND THE SUITE CANNOT SEE THE PRICE.** `bun test` was **2400/0 exit 0 with the
+  widening in place** — green through the whole experiment, exactly the shape `a-swap-is-not-a-widening`
+  records. A paired HEAD-vs-tree probe on rows the suite does not contain found the cost: `dia` and
+  `ia` are ordinary HUMAN pronouns as well as the divine ones `DIVINE_ATTR` arm 4 reads, so a scholar
+  referred to by pronoun starts refusing. **Human `ia`/`dia` × loose verb: 6/18 refused on HEAD,
+  18/18 with the widening — 12 NEW over-refusals**, all `divine_attr`.
+
+  **The trade, stated without pretending it is a rate:** 24 under-refusals closed on the epithet grid,
+  12 over-refusals added on the human-pronoun grid. **Different constructed row sets with different
+  denominators — this is NOT 24-for-12 as an exchange**, and this entry's own correction of the
+  discredited "3 in 6" and "72 of 207" applies to any attempt to divide them. What IS comparable is
+  the DIRECTION: the reverted 2026-08-20 narrowing added under-refusals, and this adds over-refusals
+  while removing under-refusals — the opposite polarity, on a wall where this file's standing ruling
+  is that an under-refusal (the app printing its own rendering as Allah's words) outweighs an
+  over-refusal (a quotation declined). **That ruling is Erik's to apply, not mine, and nothing was
+  built or shipped here.** Reproduce with `src/eval/ownership-grid.ts` plus the six-verb widening.
+
 - [ ] ISC-487: the wall's cost to the reader is latency, not refusal, and it is bounded. **NOT MET — measured, and the number is the finding.** Of the remaining `own_wording` refusals, 3 of 4 land at ~26 s: the retry exhausted the Worker's 25 s `MODEL_DEADLINE_MS` and the first attempt's verdict was reported. Only one (15.8 s) is a genuine second violation. `answered` turns average 12.2 s against 24.8 s for refusals. The dominant cost of this wall is that a retry does not fit inside the turn budget, and there are only 5 s of headroom before `MODEL_DEADLINE_MS` would cross the client's `TIMEOUT_MS` (30 s) — so the lever is first-attempt latency, not the deadline. Erik has not ruled on it. **Sharpened 2026-08-17 (late-5): this wall is ARM-INDEPENDENT, which makes it the only thing left in the cycle.** The ISC-484 paired control arm put `turns ≥20 s` at 3/9 with the hadith lane ON and 3/9 with it OFF — identical — and the pre-cascade arm produced its own ~25 s dead turns (`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). So it is not the cascade, not the hadith payload and not `bad_hadith`: it is that a retry does not fit inside `MODEL_DEADLINE_MS` on ANY lane. A whole-run measurement the same afternoon (`wall-live-probe --repeat 3`, 24 turns) read **25% answered** against the late-4 run's 46%, with 0 leaks — the buckets move this much run-to-run, so the paired arm is the only comparison in this cycle worth acting on. **RE-DIAGNOSED 2026-08-18 (Cycle 10) — the framing above is WRONG in its most load-bearing word, and the correction changes what the fix is.** "The wall's cost to the reader is latency" assumed the reader waits out the turn. They do not: `FAST_ANSWER_MS = 9000` hands them a real, cited, principled answer at 9 s and upgrades it in place, so a 24.8 s refusal is a 9 s answer followed by something arriving 16 s later — not a 25 s stare. **The turn duration and the reader's wait stopped being the same number at ISC-466 and every reading of this criterion since has conflated them.** What actually lands at ~26 s is two browser-side failures and one mis-set constant, now split out as their own criteria: the `answer-blocked` copy is UNREACHABLE past 9 s (ISC-528, the Worker preserves the verdict and the browser discards it); the "still composing" promise was never retracted on a refusal (ISC-529, FIXED); and `MIN_RETRY_MS = 6_000` is the FLOOR of the generation distribution used as a completion predictor when the median is ~8,450 ms (ISC-535). **This criterion stays NOT MET** — nothing here bounded latency, and deliberately so: the two remaining levers (rendering the verdict, moving the retry threshold) are both gated on an instrument that does not exist yet, ISC-532. Recorded so no future reading treats the re-diagnosis as the fix. **UPDATE 2026-08-24 — the FIRST lever is built, and this criterion is STILL NOT MET, which is the point worth writing down.** Rendering the verdict shipped (ISC-644): a late refusal now annotates the fast answer instead of vanishing. That closes the *honesty* half — the reader is told a fuller answer was composed and held back — and closes NOTHING of the latency half. No constant moved: `MODEL_DEADLINE_MS` 25_000, `MIN_RETRY_MS`, `MAX_ATTEMPTS` 2 and the client's `TIMEOUT_MS` 30_000 are byte-identical to the anchor. The second lever (the retry threshold, ISC-535) is untouched here. **Do not let the annotation be read as the bound.** The criterion says *bounded*, and nothing in this session measured, let alone bounded, anything: it is a browser-side change verified offline, and the live re-measurement is ISC-647, which needs Erik's deploy.
 
 - [x] ISC-656: **the kajian queue drains end to end on production, and the two defects that stopped it were never the two blockers on the board.**
