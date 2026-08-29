@@ -3504,6 +3504,58 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
   **A THIRD PATH, ALSO PRE-EXISTING AND ALSO NOT A REGRESSION: arm 1's 40-character window overrides the ownership stand-down.** The ownership arm stands down when an owner is adjacent to the verb, but the window arm reads straight through one, so the two arms disagree about who owns `menegaskan` in *"Allah dan kita menegaskan, «…»"* and the union keeps the REFUSING answer. HEAD refuses it too, so union discipline requires keeping it — but it means the wall's answer to "who owns this verb" depends on a character count. Pinned by the `the 40-character window catches what neither the span nor the ownership arm can` block, which exists because deleting arm 1 was briefly green across the whole file.
 
   **THIS IS NOT A COMPLETE ACCOUNT OF ISC-486's STATE, and the block read as one for a pass.** A second, PRE-EXISTING path refuses a named scholar with no help from the appositive arm: `wordingShape` tests `VERBATIM_DIVINE` against the 160 characters before the quote, and that window CROSSES SENTENCE BOUNDARIES. So *"Allah berfirman tentang riba dalam QS Ali Imran 3:130. Ibnu Katsir menjelaskan bahwa «…»"* refuses on HEAD and on the current tree alike. Not a regression and not introduced here — but any fix aimed only at the appositive span will leave it standing, and a reader of the block above would not have known to look.
+
+  **THE GRID IS NOW AN EXECUTABLE INSTRUMENT, NOT A DESCRIPTION — `src/eval/ownership-grid.ts`, added
+  2026-08-29 (Cycle 21).** Every number this criterion argues from was prose in this file; the probe
+  prints them from `wordingShapeScan` on demand, scores BOTH directions on ONE row set, and carries
+  an `adjacent` column so a refusal count can never be read without its denominator. It asserts
+  nothing and is not a test — per this entry's own convention that a known hole is recorded, not
+  pinned green.
+
+  **REPRODUCED AT HEAD `b52264e`, with a working control in both directions:**
+
+  | row | refused | adjacent | reading |
+  |---|---|---|---|
+  | bare proper name, no owner token | **30/30** | 30/30 | the ISC-486 defect, 100% as recorded |
+  | `-nya` possessive, no owner token | **18/18** | 18/18 | same defect, `gurunya` · `penulisnya` · `muridnya` |
+  | role-noun form (`Imam Nawawi`, `seorang mufti`) | 0/24 | 24/24 | **CONTROL — the rescued class still passes** |
+  | bare name / possessive, owner token in window | 0/30 · 0/18 | all | rescued by the 72-char window, not by vocabulary |
+
+  The control is the load-bearing row: a probe on which nothing passes cannot show that a rescue
+  worked, and the earlier "3 in 6" rate this entry already corrects came from exactly that shape.
+
+  ⚠️ **CAPITALISATION CANNOT BE THE WHOLE RULE, and that narrows the design question this entry
+  leaves open.** The block above frames the obstacle as `wordingShape` lower-casing its 160-character
+  window, which is true and is a single site (`answer-guard.ts`, `before = …slice(…).toLowerCase()`).
+  But **half the broken class carries no capital at all**: `gurunya`, `penulisnya` and `muridnya`
+  refuse 18/18 and are ordinary lower-case nouns with a `-nya` possessive. Preserving case rescues
+  the `Ibnu Katsir` half and leaves the possessive half exactly where it is. **Two signals are needed,
+  not one** — and this is the first time that has been written down here.
+
+  🔶 **THE TWO DIRECTIONS SHARE ONE PREDICATE, WHICH IS WHY THIS IS A RULING AND NOT A PATCH.**
+  `humanAttr` decides both. Direction A refuses because the vocabulary is too NARROW; direction B
+  (`epithet × loose verb, owner token in window` — **0/24 refused, 24/24 adjacent**) goes unrefused
+  because the same stand-down is too WIDE. Any widening that rescues a bare name widens the
+  stand-down that already lets a divine attribution through. That is the trade the 2026-08-20
+  narrowing was reverted over, measured here in one place rather than argued.
+
+  ⚠️ **THE DIRECTION-B ROW IS A REPRODUCTION OF ISC-419's RECORDED LIMIT, NOT A NEW HOLE — checked
+  before it was written up.** ISC-419 limit 3 already records the loose-verb bypass at `72 of 72` and
+  `7,488 of 7,488`. **One aspect may not be covered by its enumerated shapes and is flagged as a
+  CANDIDATE, not a violation:** the rows here carry NO epithet and put the owner token UPSTREAM of the
+  designation (*"Seperti kita pahami, Allah menerangkan bahwa «…»"*), whereas the eight enumerated
+  shapes place it at the TAIL of an epithet. I did not score this against those eight shapes, so
+  whether it is a distinct shape or the same one restated is **UNVERIFIED**. Do not cite it as new
+  without that comparison.
+
+  ⚠️ **THE ROWS ARE PROSE I WROTE, and this repo has been burned by exactly that
+  (`guard-tests-need-production-prose` — the hadith wall stood open for two sessions because every
+  case was ours).** The one real capture available (`docs/review/captures/api-answer-9ab57d4b`) holds
+  no long Indonesian quote and so could not have exercised these arms. What it DOES attest is the
+  precondition: its genuine prod prose uses `kita` freely (*"kadang kita menjalankan shalat"*,
+  *"mendekatkan kita kepada allah"*), and `kita` within 72 characters is the single token that
+  collapses the stand-down. **The trigger is attested in production; the full shape is not.**
+
 - [ ] ISC-487: the wall's cost to the reader is latency, not refusal, and it is bounded. **NOT MET — measured, and the number is the finding.** Of the remaining `own_wording` refusals, 3 of 4 land at ~26 s: the retry exhausted the Worker's 25 s `MODEL_DEADLINE_MS` and the first attempt's verdict was reported. Only one (15.8 s) is a genuine second violation. `answered` turns average 12.2 s against 24.8 s for refusals. The dominant cost of this wall is that a retry does not fit inside the turn budget, and there are only 5 s of headroom before `MODEL_DEADLINE_MS` would cross the client's `TIMEOUT_MS` (30 s) — so the lever is first-attempt latency, not the deadline. Erik has not ruled on it. **Sharpened 2026-08-17 (late-5): this wall is ARM-INDEPENDENT, which makes it the only thing left in the cycle.** The ISC-484 paired control arm put `turns ≥20 s` at 3/9 with the hadith lane ON and 3/9 with it OFF — identical — and the pre-cascade arm produced its own ~25 s dead turns (`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). So it is not the cascade, not the hadith payload and not `bad_hadith`: it is that a retry does not fit inside `MODEL_DEADLINE_MS` on ANY lane. A whole-run measurement the same afternoon (`wall-live-probe --repeat 3`, 24 turns) read **25% answered** against the late-4 run's 46%, with 0 leaks — the buckets move this much run-to-run, so the paired arm is the only comparison in this cycle worth acting on. **RE-DIAGNOSED 2026-08-18 (Cycle 10) — the framing above is WRONG in its most load-bearing word, and the correction changes what the fix is.** "The wall's cost to the reader is latency" assumed the reader waits out the turn. They do not: `FAST_ANSWER_MS = 9000` hands them a real, cited, principled answer at 9 s and upgrades it in place, so a 24.8 s refusal is a 9 s answer followed by something arriving 16 s later — not a 25 s stare. **The turn duration and the reader's wait stopped being the same number at ISC-466 and every reading of this criterion since has conflated them.** What actually lands at ~26 s is two browser-side failures and one mis-set constant, now split out as their own criteria: the `answer-blocked` copy is UNREACHABLE past 9 s (ISC-528, the Worker preserves the verdict and the browser discards it); the "still composing" promise was never retracted on a refusal (ISC-529, FIXED); and `MIN_RETRY_MS = 6_000` is the FLOOR of the generation distribution used as a completion predictor when the median is ~8,450 ms (ISC-535). **This criterion stays NOT MET** — nothing here bounded latency, and deliberately so: the two remaining levers (rendering the verdict, moving the retry threshold) are both gated on an instrument that does not exist yet, ISC-532. Recorded so no future reading treats the re-diagnosis as the fix. **UPDATE 2026-08-24 — the FIRST lever is built, and this criterion is STILL NOT MET, which is the point worth writing down.** Rendering the verdict shipped (ISC-644): a late refusal now annotates the fast answer instead of vanishing. That closes the *honesty* half — the reader is told a fuller answer was composed and held back — and closes NOTHING of the latency half. No constant moved: `MODEL_DEADLINE_MS` 25_000, `MIN_RETRY_MS`, `MAX_ATTEMPTS` 2 and the client's `TIMEOUT_MS` 30_000 are byte-identical to the anchor. The second lever (the retry threshold, ISC-535) is untouched here. **Do not let the annotation be read as the bound.** The criterion says *bounded*, and nothing in this session measured, let alone bounded, anything: it is a browser-side change verified offline, and the live re-measurement is ISC-647, which needs Erik's deploy.
 
 - [x] ISC-656: **the kajian queue drains end to end on production, and the two defects that stopped it were never the two blockers on the board.**
@@ -3873,3 +3925,57 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
       paired arms at the same viewport: control `110,667` against test `78,081` — **29% short**, not the
       3% recorded above. The 3% figure was measured AFTER cards had rendered, which is the best case;
       29% is what the reader's scrollbar is wrong by when the surah first opens.
+
+      ── Cycle 21 (2026-08-29) ─────────────────────────────────────────────────────────────────────
+
+      ✅ **THE `qkin` LEAD AND THIS RULE LAND ON THE SAME ELEMENT, and the reading surface's entrance
+      is NOT the `data-new` one.** Read in code, not inferred: `web/index.html:226` wraps `#read` in
+      `.qk-panel-body`, so `shell.css:832` — `.qk-panel-body .verse { animation: qkin 320ms forwards }`,
+      gated only on `prefers-reduced-motion: no-preference` — applies to **every one of the 200 surah
+      cards**, the same cards `read.css:453` gives `content-visibility: auto`. The second rule at
+      `shell.css:839` (`.verse[data-new]`) is CHAT-ONLY: `verse.ts:255` stamps `data-new` only when the
+      caller passes `animate`, and `read.ts` never does — `verse.ts:179` records that as a deliberate
+      opt-in after 286 simultaneous filters on Al-Baqarah. **So item 4(b) is not a separate lead from
+      this criterion; it is the same element carrying both mechanisms.**
+
+      ⚠️ **`forwards` DOES NOT CLOSE THIS.** `shell.css:827` and `shell.css:1058` both record the
+      `both` → `forwards` fix and state its reasoning correctly: `forwards` leaves the *un-animated*
+      state visible, so an animation that never STARTS cannot strand a card. **That protects the
+      before-phase only.** It says nothing about an animation frozen mid-ACTIVE-phase, where the
+      committed style is the interpolated `opacity`, which near t=0 is 0. The fix as written is not
+      wrong; its scope is narrower than the comment's confidence implies.
+
+      🔬 **NEW INSTRUMENT TRAP — `interceptor eval` SILENTLY NO-OPS ON A NEVER-ACTIVATED TAB.** Four
+      evals against background tab `893423825` each returned `success: true` / `ok` / `data: null` and
+      **none of them ran**: `document.title = "PROBE|…"` left the title at `New-Quranku` when read back
+      through `interceptor state`, and an appended `<div id="probe-marker">` was not findable. This is
+      not the isolated-world trap from Cycle 20 and not a reachability problem — `interceptor state`
+      and `interceptor read` returned a **full tree for that same tab**. Same family as the `--pixel`
+      activeTab trap: the read paths reach a background tab, the execute path does not.
+
+      ✅ **`interceptor read --include-style` MEASURES OPACITY ON A NEVER-ACTIVATED TAB** — 230 styled
+      elements, `opacity=1` on all of them, no eval and no reveal. **This is a strictly better
+      instrument for this defect than an eval recorder**, because it removes the reveal from the
+      measurement loop.
+
+      🔶 **AND THAT EXPOSES A LIMIT IN THE TEN ARM-RUNS — stated as a hypothesis with its firing
+      condition, NOT as a finding.** IF the blank state is a frozen CSS animation, then activating the
+      tab resumes animations and `qkin` completes to `opacity: 1` within 320 ms. Every prior arm was
+      measured through an instrument that required activation (an eval recorder cannot be installed or
+      read on a background tab, per the trap above) or a repaint. **Under that condition a post-reveal
+      reading cannot distinguish "never stranded" from "stranded, and healed by the reveal itself".**
+      ⚠️ The condition is real but not established: it fires only for an animation-freeze mechanism, and
+      NOT for a `content-visibility` mechanism, which would heal on scroll rather than on activation.
+      What it does establish is narrower and sufficient: **reveal-then-measure is not by itself a valid
+      method for this defect**, and the ten null arm-runs should not be read as having excluded the
+      animation-freeze hypothesis. They did not test it; they could not have.
+
+      🧪 **ARM F IS RUNNING and is the first arm measured without revealing.** Surah 3 opened in a tab
+      created in the background by `interceptor open` (background-first by default) and **never
+      activated**, sampled every 10 minutes by `read --include-style` for up to 16 h, logging the
+      opacity histogram per sample and keeping only samples that show a strand. Baseline 14:41:45,
+      `elems=230 opacity0=0 opacity_sub1=0`. The new variable against Cycle 20 is twofold: the tab is
+      **loaded while hidden and never foregrounded** (`shell.css:827` names precisely this order —
+      "if the tab backgrounded FIRST" — and all ten prior arms painted first, then backgrounded), and
+      the measurement never touches the tab. ⚠️ **A null from Arm F is a null for the never-revealed
+      state only**; it does not clear either mechanism, for the same control reason recorded above.
