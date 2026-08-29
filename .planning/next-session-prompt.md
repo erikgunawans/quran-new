@@ -50,7 +50,16 @@ passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; NO 
 `0d33ef55-800a-4924-8523-895312ad1e1e`, `EDITION="synthesis"`. **The `ia`/`dia` over-refusal Erik
 accepted is NOT live**, and neither is the divine-bypass closure. Deploying is Erik's call.
 
-🟢 **ARM F IS PROBABLY STILL RUNNING — check before starting anything.** `pgrep -f armF-poll`
+🔴 **ARM F IS DEAD — IT WAS HIJACKED AT 15:12 AND KILLED. Do NOT go looking for the poller.**
+Log preserved at `.planning/armF-cycle21.log` (committed). **Three clean samples over ~31 min of a
+NEVER-ACTIVATED tab, all `opacity0=0`** — a real but SHORT null, nothing like the 35–39 min Cycle 20
+reached. Sample 4 read `file:///…/Story-Maker-Commercial-Case.html` with `elems=0`: another tab
+became active and `interceptor read` follows the ACTIVE tab, so the arm silently changed subject.
+⚠️ **The `url=` column is the only reason this was caught — keep it in any successor.** A poller
+without it reports `opacity0=0` from the wrong page and reads as a clean null.
+**A re-run needs the tab guarded, not just opened:** assert `url` matches before counting a sample,
+and treat a mismatch as ABORT, not as a zero.
+(dead pid was **12445**) — the old note follows: `pgrep -f armF-poll`
 (was pid **12445**). It samples surah 3 in a NEVER-ACTIVATED tab every 10 min for up to 16 h.
 Log: `/private/tmp/claude-501/-Users-erikgunawansupriatna-quran-new/0c11b343-b014-4b78-b71f-39731283b439/scratchpad/armF.log`
 (⚠️ `/private/tmp` — gone after a reboot). 3 samples at wrap, all `opacity0=0`. **The poller reads

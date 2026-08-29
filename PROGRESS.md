@@ -75,6 +75,15 @@ same 200 cards `read.css:453` gives `content-visibility: auto`. The `[data-new]`
 the BEFORE-phase only**, not an animation frozen mid-active-phase; the comment's confidence is wider
 than its scope.
 
+🔴 **ARM F RAN THREE CLEAN SAMPLES AND WAS THEN HIJACKED — a SHORT null, and the hijack is the
+more useful half.** ~31 min of a NEVER-ACTIVATED tab, 0 cards below opacity 1; **sample 4 read
+`file:///…/Story-Maker-Commercial-Case.html` with `elems=0`** because another tab became active and
+`interceptor read` follows the ACTIVE tab. Killed at wrap; log committed to
+`.planning/armF-cycle21.log`. ⚠️ **The `url=` column is the ONLY reason this was caught, and it was
+put there on purpose** — a poller without it reports `opacity0=0` from the wrong page, which is a
+clean-looking null over a page that has no verses at all. **A successor must ASSERT the url and abort
+on mismatch, never score the sample.** The 31 min is far short of Cycle 20's 35–39, so the
+never-foregrounded variable is NOT yet tested. Original note follows.
 🔴 **ARM F IS RUNNING AND HAS REPRODUCED NOTHING YET — 3 samples, 0 cards below opacity 1.** Surah 3
 in a tab opened by `interceptor open` (background by default) and **NEVER activated**, sampled every
 10 min by `read --include-style`, up to 16 h. The new variable is the ORDER: `shell.css:827` warns
