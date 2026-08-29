@@ -1,3 +1,142 @@
+# Next session — New-Quranku (checkpoint 2026-08-29, Cycle 21)
+
+> Prepended by /wrap 2026-08-29. **Anchor: `7317a33` + this wrap's own commit on top**, so
+> `origin/main` reads as the wrap checkpoint, not `7317a33`. That is EXPECTED, not drift — the
+> handoff records the branch head and merging the handoff moves it. **More than one commit, or one
+> whose subject does NOT name this checkpoint, means a parallel session pushed: that IS drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push piped into `tail`.
+> **Supersedes the Cycle 20 block below.** Cycle 20's §2.2 (the two untested arms) and §2.4(b) (the
+> `qkin` lead) are ANSWERED IN CODE; its §2.5 ISC-486 line is now half-done and half-FALSIFIED.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-29, Cycle 21**).
+
+## 0. ⚠️ WHAT CHANGED THAT INVALIDATES OLD METHOD
+
+- **`interceptor eval` SILENTLY NO-OPS ON A NEVER-ACTIVATED TAB.** Four calls returned
+  `success: true` / `ok` / `data: null` and none ran — `document.title` unchanged on readback, an
+  appended `<div>` not findable — while `interceptor state` and `read` returned a FULL TREE for that
+  same tab. **Not** Cycle 20's isolated-world trap, and not unreachability: read paths reach a
+  background tab, the execute path does not. **Use `read --include-style`**, which DOES report
+  opacity on a never-activated tab.
+- 🔶 **THEREFORE THE TEN CYCLE-20 ARMS COULD NOT HAVE TESTED THE ANIMATION-FREEZE HYPOTHESIS.** If
+  the blank state is a frozen CSS animation, activating the tab resumes it and `qkin` completes to
+  `opacity: 1` in 320 ms, so a post-reveal reading cannot tell "never stranded" from "healed by the
+  reveal". ⚠️ **Fires ONLY for an animation-freeze mechanism, NOT a `content-visibility` one** (which
+  heals on scroll). Do not overstate it — it disqualifies reveal-then-measure as the SOLE method, it
+  does not prove the arms were wrong.
+- **`String.replace` ATE A LINE OF `answer-guard.ts`.** ``$` `` is a substitution pattern in a
+  replacement STRING and `HUMAN_ATTR`'s own source contains one, so the tail of its declaration was
+  deleted and the file failed to PARSE **seven lines later, in an unrelated docblock at line 959**.
+  Caught by the test run, never committed. **Use a replacer FUNCTION for any scripted source edit.**
+- **A MEMORY-PRESSURE ARM THAT APPLIES NO PRESSURE READS AS A CLEAN NULL.** 3 GB allocated and
+  touched, but `ps` showed **RSS 11 MB** and `memory_pressure` never left 41–44% across 12 ramp
+  steps — one near-constant byte per page and **macOS compressed it away**. ⚠️ **Fill with
+  INCOMPRESSIBLE random bytes and assert system-free actually MOVES before letting the arm count.**
+- **STILL TRUE from Cycle 20:** `--pixel` needs the tab's WINDOW OS-focused; `tab close/switch <id>`
+  ignores the id; `screenshot --save` writes to the REPO; a LOADED MACHINE (`uptime` ~44) turns
+  `bun test` red with no regression — check `uptime` and re-run the file alone before investigating.
+- **STILL TRUE from Cycle 19:** `innerText` is a broken instrument on prod, and the DEFAULT
+  `screenshot` re-renders from the DOM and repaints the artifact you are hunting.
+
+## 1. STATE
+
+ISA **687/701** (680 `[x]` · 7 `[~]` · 14 `[ ]`) — **UNCHANGED. No checkbox moved**, and that is
+correct: ISC-486 is HALF closed (half is not met) and ISC-419 stays `[ ]` on its own deploy gate.
+
+Gates at HEAD: `bun test` **2425/0** exit 0 (2400 at the anchor, +25) · typecheck exit 0 (all five
+passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; NO CI in this repo.**
+
+⚠️ **PROD IS UNCHANGED AND THE WALL CHANGES ARE AHEAD OF IT.** Worker still
+`0d33ef55-800a-4924-8523-895312ad1e1e`, `EDITION="synthesis"`. **The `ia`/`dia` over-refusal Erik
+accepted is NOT live**, and neither is the divine-bypass closure. Deploying is Erik's call.
+
+🟢 **ARM F IS PROBABLY STILL RUNNING — check before starting anything.** `pgrep -f armF-poll`
+(was pid **12445**). It samples surah 3 in a NEVER-ACTIVATED tab every 10 min for up to 16 h.
+Log: `/private/tmp/claude-501/-Users-erikgunawansupriatna-quran-new/0c11b343-b014-4b78-b71f-39731283b439/scratchpad/armF.log`
+(⚠️ `/private/tmp` — gone after a reboot). 3 samples at wrap, all `opacity0=0`. **The poller reads
+"the active Interceptor tab", so OPENING ANY OTHER INTERCEPTOR TAB SILENTLY HIJACKS IT** — the log's
+`url=` column is the tell. Kill it before any other browser work.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Work lands directly on
+`main`; no open PR and none expected.
+
+**The ustadz position is UNCHANGED.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* —
+FALSE, and it voids three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith
+Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **READ `armF.log` FIRST — it may have answered item 1 while you were away.** Any row with
+   `opacity0` or `opacity_sub1` non-zero is the reproduction two cycles have been chasing, and the
+   matching `armF-s<N>.txt` sample was KEPT (clean samples self-delete). If every row is still zero,
+   the never-foregrounded variable is ALSO a null and the next variable is **machine sleep** — the
+   one Erik must supply — or a **correctly-built** memory-pressure arm (see §0; the first one
+   measured nothing).
+
+2. **ISC-486's BARE-NAME HALF IS NOW PRICED, AND IT IS A RULING, NOT A BUILD.** The capitalisation
+   arm was BUILT AND FALSIFIED this cycle — it rescued *"Islam menutup jalan menuju zina: «…»"*, a
+   bare unowned quote, caught by two PRE-EXISTING tests. ⚠️ **Do not rebuild it**: `Islam`,
+   `Ramadan`, `Madinah` and all 114 surah names are name-shaped, and no subtraction list fixes that.
+   The five names still refuse **30/30**. Closing them costs an under-refusal, which is the trade
+   ISA declines — so this needs Erik, or a curated person-name list that inherits the same
+   generalisation problem. Reproduce with `bun src/eval/ownership-grid.ts`.
+
+3. **ISC-419 LIMIT 3 IS STILL OPEN and was verified so against its OWN failing strings** after this
+   cycle's fix — including a tail-position row rewritten with a loose verb. It is a DIFFERENT class
+   (tail-position owner token defeating the appositive break). Recorded at `72 of 72`. ⚠️ Do not
+   read the `DIVINE_VERB` widening as having touched it.
+
+4. **THE BACKDROP-FILTER RE-MEASURE (Cycle 20 §4a) IS STILL UNDONE and needs a browser tab**, which
+   conflicts with Arm F (see §1). Do it AFTER killing the poller. All 200 `article.verse` carry
+   `backdrop-filter: blur(18px)` behind a 94%-opaque fill for a ≤3/255 difference; the same selector
+   styles CHAT cards over a different ground, so **re-measure there before deleting anything**.
+
+5. **ISC-487, ISC-323 unchanged.** 323 needs a DESIGN decision. 487 NOT MET. Other open: ISC-98,
+   417, 419, 420, 440.6, 454, 464, 566, 627.7, 654, 353.0. **ISC-419's reproducer
+   `apa yang al quran katakan tentang neraka` is a NULL RESULT** — it legitimately returns 0 themes;
+   do not read its 0 as a classifier fault.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **DEPLOY DECISION, NEW THIS CYCLE.** The divine-bypass closure AND the accepted `ia`/`dia`
+  over-refusal are built, gated and **un-deployed**. Prod still runs the old wall. Ask before assuming.
+- 🔶 **`gcloud auth application-default login`** — creds written 2026-08-26 08:26 but the token fails
+  *"Reauthentication failed…"*. Needs ONE interactive run. **Play button stays dead (`audioUrl: null`)
+  until then.** Quota project inside is still `story-maker-demo`. **Raised three cycles running.**
+- 🔶 **`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist`**
+  — written and inert. ⚠️ Erik's 2026-08-28 ruling removed the per-item human gate that was the
+  pipeline's ONLY cost ceiling. **There is still no per-day cap.**
+- 🔶 **The two review-pack discrepancies** (`eee00c72`): it says *"tidak ada nama penceramah yang kami
+  cantumkan"* while the live card's HEADLINE names the ustadz; and it calls the marker
+  `Belum diperiksa` while the slide/audio carry `belum boleh diposting`. **NOT edited — his document.**
+- 🔶 **`ADMIN_EMAILS` for `kominfodarussalam@gmail.com`** — two "Secret Change" deploys 2026-08-25
+  suggest he did it; a secret change records no name. Only he can confirm.
+- 🔶 **TTS still bills `story-maker-demo`** — temporary by his word. Revert: `unset GOOGLE_CLOUD_PROJECT`.
+- 🔶 **`MEMORY.md` TRADE AUTHORIZATION — now FIVE unwritten traps and still zero headroom.** Cycle 21
+  adds: `eval` no-ops on a never-activated tab; `String.replace` `$\`` eats source. Plus Cycle 20's
+  three and Cycle 19's two. ⚠️ Mechanical trimming and merging were TRIED AND REVERTED; read
+  `CLAUDE.md` first.
+- 🔶 **Three Cycle-20 tabs may still be open** and two (`893422594`, `893422597`) carry **INJECTED
+  NON-PRODUCTION CSS** — do not read them as prod. Plus Cycle 21's Arm F tab, which must NOT be
+  activated while the poller runs.
+- Unchanged/older: `/echo-index.json` as a public asset · a correction with no delivery path · Answer
+  Record retention · `docs/kajian/roster.yaml` ships EMPTY on purpose.
+
+## 4. Constraints to honor
+
+- **bun/bunx only, TypeScript only** — no npm, no Python. (Cycle 21 used `python3` for three ISA
+  inserts before catching it; the bun equivalents are in the commits.)
+- **Never `git add -A`** — `WARP.md` is untracked on purpose.
+- **Gates are local and are read by EXIT CODE, not by grepping output.** Never pipe a gate into
+  `head`/`tail`; a preflight hook blocks it.
+- **A green suite is not evidence a wall change is safe.** `bun test` was **2400/0 with AND without**
+  the `DIVINE_VERB` widening while behaviour moved in BOTH directions. Score a paired HEAD-vs-tree
+  probe on rows the suite does not contain.
+- **A known hole is recorded in the ISA, never pinned as a passing test** — and never left as a RED
+  one either. Cycle 21 withdrew 5 rows and wrote the reason where they had been.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-29, Cycle 20)
 
 > Prepended by /wrap 2026-08-29. **Anchor: `207463e` + this wrap's own commit on top**, so

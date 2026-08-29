@@ -2,6 +2,103 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-29 — Cycle 21: a ruling shipped, a fix falsified, and the pressure arm measured nothing
+
+**Ran 14:37–15:10 WIB, same day as Cycle 20's wrap.** ISC counts UNCHANGED by grep: **680 `[x]` ·
+7 `[~]` · 14 `[ ]` = 701.** No checkbox moved, and that is correct: ISC-486 is half closed (half is
+not met) and ISC-419 stays `[ ]` on its own deploy gate.
+
+✅ **THE LOOSE-VERB DIVINE BYPASS IS CLOSED, on Erik's explicit ruling.** A divine designation
+carrying one of six ordinary attribution verbs — `menerangkan`, `menuturkan`, `menyampaikan`,
+`mengungkapkan`, `menyatakan`, `mengatakan` — was refused by NOTHING but `adjacent_unowned`, and that
+arm stands down whenever a `HUMAN_ATTR` token sits within 72 characters of the quote. **One `kita`,
+which real prod prose uses freely, left a divine attribution unrefused: 0 of 24, with `adjacent`
+24/24 so the arm declined rather than never ran.** Now **24 of 24 on `divine_attr`**. Written
+test-first — 12 rows confirmed **RED (12 fail / 86 pass)** before the edit — with **6 role-noun
+CONTROL rows that passed BEFORE the fix**, so the block cannot be satisfied by refusing everything.
+
+⚠️ **IT DOES NOT CLOSE ISC-419 LIMIT 3, and that was checked rather than assumed.** Limit 3's own
+three recorded failing strings were run against the fixed tree and **all three are still open** —
+including a tail-position row rewritten with a LOOSE verb specifically to test whether the two
+classes were one. They are not: limit 3 is a tail-position owner token defeating the appositive
+break; what closed here is an owner token UPSTREAM of a plain designation with no epithet. Limit 3
+stays at its recorded `72 of 72`, and ISC-419's block now carries a cross-reference saying so.
+
+⚠️ **THE PRICE WAS PAID, NOT AVOIDED.** `dia`/`ia` are ordinary human pronouns as well as divine
+ones, so a scholar referred to only by pronoun now refuses: **6/18 → 18/18** on a paired HEAD-vs-tree
+probe. Erik ruled to accept it on this file's standing asymmetry. Recorded in `ISA.md` and the
+guard's docblock, **deliberately NOT pinned as a passing test** so a later recovery is not fighting a
+green assertion; the 12 refusal rows ARE pinned, so narrowing `DIVINE_VERB` back goes red.
+
+◐ **ISC-486 IS HALF CLOSED — AND THE OTHER HALF IS NOW FALSIFIED RATHER THAN UNBUILT.** The `-nya`
+possessive half is closed by a CLOSED vocabulary (`gurunya` · `penulisnya` · `muridnya`, **18/18
+refused → 0/18**, direction B byte-identical). A list rather than `\w+nya` on purpose: a generic
+possessive matches `firmannya`, `terjemahannya`, `bunyinya`, which `DIVINE_ATTR` reads as verbatim
+divine claims. **This half was invisible to the entry's own diagnosis** — `ISA.md` has framed ISC-486
+as a lower-casing problem since 2026-08-19, and these three carry no capital, so preserving case
+would have left every one of them exactly where it was. **Two signals, not one.**
+
+🔴 **THE CAPITALISATION ARM WAS BUILT AND WITHDRAWN — a falsification, and the suite caught it, not
+me.** A case-preserved window plus one-to-three capitalised tokens before the verb, minus a
+subtraction list of divine designations, **rescued *"Islam menutup jalan menuju zina: «…»"*** — a
+bare unowned quote against its own citation. It was caught by **TWO PRE-EXISTING tests**, not by the
+rows written for the change. **Capitalisation cannot separate a scholar from any capitalised noun and
+no subtraction list closes it:** `Islam`, `Ramadan`, `Madinah` and all 114 surah names are
+name-shaped. Reverted in full. **The bare-name half is therefore PRICED, not merely open: it can only
+be bought with an under-refusal** — the trade the 2026-08-20 narrowing was reverted over. The five
+names still refuse **30/30**, recorded as a reasoned ABSENCE in the test file rather than a red test.
+
+✅ **`src/eval/ownership-grid.ts` — the grid is executable now.** Every number this criterion argued
+from was prose. It scores BOTH directions on ONE row set and prints an `adjacent` column so a refusal
+count is never readable without its denominator. **Three confounds are written into it because each
+produced a wrong reading while it was built:** a citation placed before the quote drifts outside
+`ADJACENT_CHARS` and the arm never runs; "upstream" is a DISTANCE (`HUMAN_ATTR` is end-anchored at 72
+chars), not a position; and mixing tight and loose verbs averages an airtight arm with an open one.
+
+🔬 **A FIFTH INTERCEPTOR TRAP, and it changes how the blank-card arms must be read.**
+**`interceptor eval` SILENTLY NO-OPS ON A NEVER-ACTIVATED TAB** — four calls returned
+`success: true` / `ok` / `data: null` and none ran: `document.title` was unchanged on readback and an
+appended `<div>` was not findable, while `interceptor state` and `read` returned a FULL TREE for that
+same tab. Not the Cycle 20 isolated-world trap and not unreachability: the read paths reach a
+background tab, the execute path does not. **`read --include-style` DOES report opacity on a
+never-activated tab** and is the better instrument for ISC-659.
+🔶 **Consequence, stated as a hypothesis with its firing condition:** IF the blank state is a frozen
+CSS animation, activating the tab resumes it and `qkin` completes to `opacity: 1` in 320 ms — so a
+post-reveal reading cannot tell "never stranded" from "stranded, healed by the reveal". Every prior
+arm needed activation. **It fires only for an animation-freeze mechanism, NOT a `content-visibility`
+one**, which would heal on scroll. Enough to disqualify reveal-then-measure as the sole method.
+
+✅ **THE TWO ISC-659 MECHANISMS LAND ON THE SAME ELEMENT.** `web/index.html:226` wraps `#read` in
+`.qk-panel-body`, so `shell.css:832`'s unconditional `animation: qkin 320ms forwards` applies to the
+same 200 cards `read.css:453` gives `content-visibility: auto`. The `[data-new]` rule is CHAT-ONLY —
+`read.ts` never passes `animate` (`verse.ts:179` records that as deliberate). **`forwards` protects
+the BEFORE-phase only**, not an animation frozen mid-active-phase; the comment's confidence is wider
+than its scope.
+
+🔴 **ARM F IS RUNNING AND HAS REPRODUCED NOTHING YET — 3 samples, 0 cards below opacity 1.** Surah 3
+in a tab opened by `interceptor open` (background by default) and **NEVER activated**, sampled every
+10 min by `read --include-style`, up to 16 h. The new variable is the ORDER: `shell.css:827` warns
+about a tab "backgrounded FIRST", and all ten Cycle 20 arms painted first and backgrounded after.
+
+⚠️ **THE MEMORY-PRESSURE ARM WAS DEFECTIVE AND MEASURED NOTHING — found at wrap, and it would have
+read as a clean null.** 3 GB was allocated and touched, but `ps` showed **RSS 11 MB** and
+`memory_pressure` never left 41–44% across all 12 ramp steps: the buffer was written with one
+near-constant byte per page, and **macOS simply compressed it away**. Killed rather than left
+running. **A retry must fill with INCOMPRESSIBLE random bytes and assert that system-free actually
+MOVES before the arm is allowed to count** — an untouched-or-compressible allocation is a pressure
+probe that cannot apply pressure, the same shape as `bundle-absence-needs-a-control`.
+
+⚠️ **`String.replace` ATE A LINE OF `answer-guard.ts` AND THE FILE FAILED TO PARSE SEVEN LINES
+LATER.** ``$` `` is a substitution pattern in a replacement STRING, and `HUMAN_ATTR`'s own source
+contains one, so the tail of its declaration was deleted and the error surfaced in an unrelated
+docblock at line 959. Caught by the test run, never committed. **Use a replacer FUNCTION for any
+scripted edit to source.**
+
+Gates at `7317a33`: `bun test` **2425/0** exit 0 (2400 at the anchor, +25 new) · typecheck exit 0
+(all five passes) · `VITE_ANSWER_MODE=synthesis bun run build` exit 0. Run locally; **no CI.**
+**PROD IS UNCHANGED — nothing was deployed.** Worker still `0d33ef55-800a-4924-8523-895312ad1e1e`.
+⚠️ **The wall changes are AHEAD of prod and un-deployed; the `ia`/`dia` over-refusal is not live.**
+
 ## 2026-08-29 — Cycle 20: the "unsummonable" trigger is a CLICK, and ten arm-runs reproduced NOTHING
 
 **Work ran the night of 2026-08-28 (21:41–23:03 WIB); wrapped 2026-08-29.** No checkbox moved.
