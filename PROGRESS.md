@@ -2,6 +2,89 @@
 
 Append-only checkpoint log. Newest at the top. Never rewrite history — add a new checkpoint.
 
+## 2026-08-29 — Cycle 20: the "unsummonable" trigger is a CLICK, and ten arm-runs reproduced NOTHING
+
+**Work ran the night of 2026-08-28 (21:41–23:03 WIB); wrapped 2026-08-29.** No checkbox moved.
+ISC counts unchanged by grep: **680 `[x]` · 7 `[~]` · 14 `[ ]` = 701.** ISC-659 stays `[~]` —
+a null result is not a fix, and neither was the reproduction that preceded it.
+
+✅ **THE `data-pane="text"` COLLAPSE IS A READER CLICKING A TAB. Two handoffs called it the part of
+the trigger "nobody can yet summon on demand", and it was about to cost a third session.** Code
+first: `read.ts` writes `data-pane` in exactly ONE place — the delegated click handler in
+`bindSplit` — with no resize observer, no timer, no visibility handler, so the attribute cannot
+change without a click. Then caught in the act: a page-world recorder logged
+`{kind:"click", trusted:true, closestTab:true, hidden:false}` followed 6 ms later by
+`{kind:"attr", from:"split", to:"text"}`. **`isTrusted: true` cannot be forged by script** — real
+input device, on a window this session had raised in front of Erik. ⚠️ **Every instrument step was
+excluded FIRST**, each on a clean probe tab that stayed `split`: `tab switch`, raising the Chrome
+window, `screenshot --pixel`, `read --tree-only`. **Consequence: the blank-card state is reachable
+by ordinary reading** — collapse the rail to read full width, leave the tab, come back — and the
+procedure can now be run deliberately instead of waited for.
+
+🔴 **TWO SITS, TEN ARM-RUNS, NOTHING REPRODUCED — AND THAT IS THE HEADLINE, NOT A FOOTNOTE.**
+Run 1: five prod tabs, 23 min, all in `split` — nothing. Run 2, correcting run 1 by collapsing the
+rail first because the reported defect is a `text`-state defect: **35–39 min of UNINTERRUPTED
+background each**, verified per-arm from each recorder's own `visibilitychange` stamps rather than
+assumed. A 35.3 prod-as-shipped · B 39 Al-Fatihah (28× smaller scroller) · C 37.3 `animation:none`
+· D 37.5 `content-visibility:visible` · E 38 split with the intro pre-scrolled. **Every arm painted;
+0 cards at opacity 0 in all five; no ghost in E, and none after a 6.4k scroll.**
+⚠️ **THE POSITIVE CONTROL NEVER FAILED, SO ARMS C AND D MEASURE NOTHING** — the `qkin` and
+`content-visibility` hypotheses are UNTESTED, not eliminated, and are recorded that way so no later
+session reads the table as having cleared them. What the run DOES establish is a bound: **the
+documented fifteen-minute recipe does not reproduce at 35–39 minutes, in EITHER pane state, on prod
+as shipped, with and without the closing scroll.** Erik saw the defect and it was reproduced once,
+so it is real; the missing condition has not been named. **Do not re-run this recipe unchanged.**
+
+✅ **ISC-659's STATED COST WAS WRONG BY TEN TIMES AND IS CORRECTED — 3% → 31%.** The 3% was measured
+AFTER the cards had rendered: the best case, not what the reader's scrollbar shows on arrival. New
+**same-moment paired reading**, which the prior 29% was not: two prod tabs at once, same viewport
+and build, one with the rule live and one with `content-visibility: visible` injected —
+`#surah-body.scrollHeight` **77,826 px against 112,914 px**. Two procedures a day apart land on 29%
+and 31%; 3% reproduces under neither. **The 3% was KEPT in place as the confession**, not swapped
+out silently.
+
+**MEASURED IN PASSING, both hypotheses with arms built rather than findings.** A compositing census
+of the live surah page: **all 200 `article.verse` carry `backdrop-filter: blur(18px) saturate(1.5)`**
+— one composited blur READBACK per card inside the ~78,000 px scroller — behind a fill of
+`rgba(208,190,151,.94)`, **94% opaque**. A/B with the blur disabled differs by a **maximum of 3/255
+in any channel** (mean 0.044). ⚠️ Scope: surah 112, one theme, one viewport, and the same selector
+also styles verse cards in CHAT over a different ground — a cost/benefit reading, NOT a licence to
+delete. Separately, every card runs `@keyframes qkin { from { opacity: 0 } }`, and `shell.css`
+ALREADY carries a comment that this animation "could strand a card invisible if the tab backgrounded
+first" — same symptom class, hit once before.
+
+⚠️ **FOUR INSTRUMENT TRAPS, one of which explains a past all-session failure.**
+(a) `interceptor screenshot --pixel` fails with *"Extension has not been invoked for the current
+page"* purely because the target tab's **WINDOW** is not the OS-focused one — Chrome had 5 windows.
+Raise the window first; this is the same class as the old minimized-window blocker.
+(b) `interceptor eval` runs in an **ISOLATED WORLD**, so `window.X` silently does not persist between
+calls — any recorder needs `--main`.
+(c) After `tab switch`, the next `eval` often returns the stale `ok` ack (response-queue desync);
+throw away a warmup eval.
+(d) `interceptor tab close/switch <id>` follows the **focused window's active tab** and ignores the
+id — it refused on Erik's WhatsApp tab rather than closing mine. Its guard held, and no tab of his
+was lost (verified by re-listing all 48).
+
+**A DOM/PIXEL "MISMATCH" THAT WAS NOT ONE.** At reveal the DOM read `data-pane="text"` while the
+pixels showed the split layout. The recorder showed three TRUSTED clicks in 20 s — Erik interacting
+with the window I had raised. My two reads straddled his click. **Caught before it was written up as
+a reproduction**; read the recorder before believing any state read taken across a reveal.
+
+⚠️ **A LOADED MACHINE TURNS THIS SUITE RED WITHOUT A REGRESSION — found during this wrap.** At
+`uptime` load **44.6** (DisplayLink 137% CPU, a Virtualization VM 89%, WindowServer 91%) `bun test`
+returned **exit 1, 2399/1**: `web/src/peta.test.ts` → *"attribution — F-2, on every route > Anti: no
+category route renders without attribution"* **timed out after 5000 ms** (5540 ms), and the whole
+run took **254.8 s against 24.5 s** on the same tree. Four readings settle it: 24.5 s green →
+255 s RED under load → 61 s green → the file ALONE 25/25 in 2.05 s. **No code changed between them —
+only markdown.** So an F-2 ATTRIBUTION test going red is not automatically a rights regression;
+**check `uptime` before hunting one**, and re-run the file in isolation.
+
+Gates at `207463e`: `bun test` **2400/0** exit 0 · typecheck exit 0 (all five passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. Run locally; **no CI in this repo.**
+Commit **`207463e`** pushed and verified by `git ls-remote` (not a pipe into `tail`).
+**Prod is UNCHANGED this cycle** — Worker `0d33ef55-800a-4924-8523-895312ad1e1e` still live; nothing
+was deployed, because nothing was fixed.
+
 ## 2026-08-28 — Cycle 19: the blank cards are REPRODUCED, and my own deploy inverted the instrument
 
 **THE THING TWO HANDOFFS WERE BLOCKED ON IS DONE.** Erik answered the question asked twice and never

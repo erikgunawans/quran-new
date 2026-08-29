@@ -1,3 +1,178 @@
+# Next session — New-Quranku (checkpoint 2026-08-29, Cycle 20)
+
+> Prepended by /wrap 2026-08-29. **Anchor: `207463e` + this wrap's own commit on top**, so
+> `origin/main` reads as the wrap checkpoint, not `207463e`. That is EXPECTED, not drift — the
+> handoff records the branch head and merging the handoff moves it. **More than one commit, or one
+> whose subject does NOT name this checkpoint, means a parallel session pushed: that IS drift.**
+> Verify with `git fetch` + `git ls-remote`, never a push piped into `tail`.
+> **Supersedes the Cycle 19 block below**, whose §2.1 (chase the intro-panel ghost) and §2.3
+> (correct ISC-659's cost) are ANSWERED, and whose framing of the pane collapse is now FALSIFIED.
+
+Resume New-Quranku — read `PROGRESS.md` first (top checkpoint **2026-08-29, Cycle 20**).
+
+## 0. ⚠️ WHAT CHANGED THAT INVALIDATES OLD METHOD
+
+- **THE `data-pane="text"` COLLAPSE IS NOT AN UNSUMMONABLE TRIGGER. IT IS A READER CLICKING
+  "Teks Surah".** Two handoffs recorded it as the part of the trigger nobody could summon, and a
+  session was nearly spent waiting for it. `read.ts` writes `data-pane` in exactly ONE place — the
+  delegated click handler in `bindSplit` — with no resize observer, timer, or visibility handler.
+  Caught live: `{click, trusted:true, closestTab:true}` then `{attr, split→text}` 6 ms later.
+  **Summon it by clicking the tab.** Do not wait for it, and do not describe it as mysterious.
+- **THE DOCUMENTED FIFTEEN-MINUTE RECIPE DOES NOT REPRODUCE AT 35–39 MINUTES.** Ten arm-runs across
+  two sits, both pane states, prod as shipped, with and without the closing scroll: **every arm
+  painted, 0 cards at opacity 0, no ghost.** ⚠️ **Do NOT re-run the recipe unchanged and expect a
+  different answer** — vary something (machine sleep, memory pressure, a competing heavy tab, a REAL
+  pointer scroll rather than a scripted `scrollTop`, a longer sit) or you buy another null.
+- **`interceptor screenshot --pixel` FAILS WHEN THE TAB'S *WINDOW* IS NOT OS-FOCUSED**, with the
+  misleading *"Extension has not been invoked for the current page (see activeTab permission)"*.
+  Erik has ~5 Chrome windows. **Raise the window first** (AppleScript `set index of window i to 1`).
+  Same class as the old minimized-window blocker; this is the cause, not a permissions problem.
+- **`interceptor eval` RUNS IN AN ISOLATED WORLD** — `window.X` silently does NOT persist between
+  calls. Any recorder/state needs `--main`. A recorder that reads back `undefined` is this, not a
+  failed install.
+- **After `tab switch`, the next `eval` often returns the stale `ok` ack** (response-queue desync).
+  Throw away one warmup eval, or re-read. An `ok` where you expected JSON is this.
+- **`interceptor tab close/switch <id>` follows the FOCUSED WINDOW's active tab and IGNORES the id.**
+  It errored naming Erik's WhatsApp tab. Its guard refused rather than closing his tab, and all 48
+  of his tabs were verified intact — but never assume the id was honoured.
+- **`interceptor screenshot --save` writes to CWD, which is THE REPO.** Move files out; three landed
+  in the repo root this session.
+- **A LOADED MACHINE TURNS `bun test` RED WITH NO REGRESSION.** At `uptime` load **44.6** the suite
+  returned **exit 1, 2399/1** — `web/src/peta.test.ts` *"attribution — F-2 … no category route renders
+  without attribution"* **timed out at 5000 ms**, and the run took **254.8 s vs 24.5 s** on the same
+  tree. Green again at 61 s once load eased; the file alone is 25/25 in 2.05 s. ⚠️ **An F-2
+  ATTRIBUTION test going red is not automatically a rights regression** — run `uptime` and re-run the
+  file in isolation BEFORE investigating.
+- **STILL TRUE from Cycle 19:** `innerText` is a broken instrument on prod (`content-visibility:auto`
+  makes it report ~194/200 blank on a page that paints perfectly), and the DEFAULT `screenshot`
+  re-renders from the DOM and repaints the artifact you are hunting.
+
+## 1. STATE
+
+ISA **687/701** (680 `[x]` · 7 `[~]` · 14 `[ ]`) — **UNCHANGED. No checkbox moved.** ISC-659 stays
+`[~]`: a null result is not a fix, and neither was the reproduction before it.
+
+Gates at HEAD: `bun test` **2400/0** exit 0 · typecheck exit 0 (all five passes) ·
+`VITE_ANSWER_MODE=synthesis bun run build` exit 0. **Run locally; NO CI in this repo.**
+
+**PROD IS UNCHANGED THIS CYCLE — nothing was deployed, because nothing was fixed.** Worker still
+`0d33ef55-800a-4924-8523-895312ad1e1e`, `EDITION="synthesis"`. Prod and `main` in sync.
+
+Clean tree except untracked `WARP.md` — **leave it, never `git add -A`.** Work lands directly on
+`main`; there is no open PR and none is expected.
+
+**The ustadz position is UNCHANGED.** ⚠️ Never write a blanket *"the ustadz has approved nothing"* —
+FALSE, and it voids three real permissions (F-1 2026-07-17; co-display 2026-07-23; machine hadith
+Indonesian as-is 2026-08-12, VERBAL).
+
+## 2. DO NEXT, IN ORDER
+
+1. **THE BLANK-CARD REPRODUCTION NEEDS A NEW VARIABLE, NOT ANOTHER SIT.** The state is real (Erik saw
+   it; it was reproduced once in Cycle 19) but 35–39 minutes backgrounded no longer summons it.
+   ⚠️ **Do not spend another session on the same recipe.** Untried variables, cheapest first:
+   **let the machine SLEEP** with the tab open (Cycle 19's reproduction may have straddled a sleep);
+   add **memory pressure** (several heavy tabs); use a **real pointer scroll** rather than
+   `scrollTop =` (a scripted scroll may not exercise the compositor path); sit **hours, not minutes**.
+   Erik's own report was "after the page has been SITTING" with no stated bound.
+
+2. **TWO ARMS ARE BUILT AND MEASURE NOTHING UNTIL A CONTROL FAILS.** `animation: none` on `.verse`
+   (kills the `qkin` opacity-0 entrance) and `content-visibility: visible` (reverts ISC-659) were
+   both run for 37+ minutes and both painted — **but so did the positive control**, so neither is
+   tested and NEITHER IS CLEARED. ⚠️ **Get the control to fail FIRST.** Re-running these against a
+   healthy control buys nothing.
+
+3. **THE ISC-659 PREVENTION QUESTION IS STILL OPEN** — same blocker as Cycle 19, now for the second
+   cycle running. Injecting the rule does not RESCUE a broken page (tested). Whether it PREVENTS the
+   state is untested, and cannot be tested until item 1 lands.
+
+4. **TWO MEASURED LEADS worth pursuing on their own merits, independent of the bug.**
+   (a) All 200 `article.verse` carry `backdrop-filter: blur(18px)` behind a **94%-opaque** fill, and
+   disabling it moves the page by **≤3/255 in any channel**. That is 200 composited blur readbacks
+   for nothing visible. ⚠️ Before deleting: the same selector styles verse cards in CHAT, over a
+   different ground — **re-measure there**, and scope was one surah/theme/viewport.
+   (b) `@keyframes qkin { from { opacity: 0 } }` runs on every card, and `shell.css` already warns it
+   "could strand a card invisible if the tab backgrounded first."
+
+5. **ISC-486, ISC-323, ISC-487 unchanged.** 486's proper-name vocabulary still NOT BUILT. 323 needs a
+   DESIGN decision. 487 NOT MET. Other open: ISC-98, 417, 419, 420, 440.6, 454, 464, 566, 627.7,
+   654, 353.0. **ISC-419 is still a NULL RESULT** — reproducer
+   `apa yang al quran katakan tentang neraka` legitimately returns **0 themes**; do not read its 0 as
+   a classifier fault.
+
+## 3. Open items waiting on Erik
+
+- 🔶 **`gcloud auth application-default login`** — creds written 2026-08-26 08:26 but the token now
+  fails *"Reauthentication failed, cannot prompt during non-interactive execution"*. Needs ONE more
+  interactive run. **Play button stays dead (`audioUrl: null`) until then.** Quota project inside is
+  still `story-maker-demo`. **Raised again this cycle, still not done.**
+- 🔶 **`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.axiara.quranku.kajian-runner.plist`**
+  — written and inert. ⚠️ Erik's 2026-08-28 ruling removed the per-item human gate that was
+  incidentally the pipeline's ONLY cost ceiling. **There is still no per-day cap.**
+- 🔶 **The two review-pack discrepancies** (`eee00c72`): it says *"tidak ada nama penceramah yang kami
+  cantumkan"* while the live card's HEADLINE names the ustadz; and it calls the marker
+  `Belum diperiksa` while the slide/audio carry `belum boleh diposting`. **NOT edited — his approved
+  document.**
+- 🔶 **`ADMIN_EMAILS` for `kominfodarussalam@gmail.com`** — two "Secret Change" deploys 2026-08-25
+  suggest he did it; a secret change records no name. Only he can confirm.
+- 🔶 **TTS still bills `story-maker-demo`** — temporary by his word. Revert: `unset GOOGLE_CLOUD_PROJECT`.
+- 🔶 **`MEMORY.md` TRADE AUTHORIZATION — now FOUR unwritten traps and still zero headroom.** Cycle 20
+  adds: `--pixel` needs the tab's WINDOW focused; `eval` is isolated-world without `--main`;
+  `tab close <id>` ignores the id. Plus Cycle 19's two and Cycle 18's cap-distribution one.
+  ⚠️ Mechanical trimming and merging were TRIED AND REVERTED; read `CLAUDE.md` first.
+- 🔶 **Three of my tabs were left OPEN and could not be closed** (interceptor followed his focused
+  window): `893422594` and `893422597` carry **INJECTED NON-PRODUCTION CSS** — do not read them as
+  prod. Also `893422600` and an `about:blank`. (Cycle 19's "did Erik lose tabs?" is moot — Chrome
+  had restarted and all 48 of his tabs were verified present.)
+- Unchanged/older: `/echo-index.json` as a public asset · a correction with no delivery path · Answer
+  Record retention · `docs/kajian/roster.yaml` ships EMPTY on purpose.
+
+## 4. Known weaknesses — recorded, NOT fixed
+
+- 🔴 **The blank-card TRIGGER is STILL not understood, and is now HARDER than last cycle thought.**
+  The pane collapse is explained (a click), but that was never the whole trigger — collapsing the
+  rail deliberately and sitting 39 minutes reproduces nothing.
+- 🔴 **Arms C and D are UNTESTED, not cleared.** Anyone reading Cycle 20's results table must not
+  conclude `qkin` or `content-visibility` was eliminated.
+- 🔴 **The published slide contradicts itself BY ERIK'S EXPLICIT RULING** — carries *"DRAFT — belum
+  diperiksa, belum boleh diposting"* and is posted. ⚠️ Softening and unpublishing were both offered
+  and DECLINED 2026-08-28. **Do NOT "fix" this** — "as-is" was chosen OVER "soften".
+  See `docs/review/erik-ruling-2026-08-28-kajian-publish-scope.md`.
+- 🔴 **The hadith instrument is half-blind.** OKF mirror is Bukhari + Muslim ONLY, and **0 of 14,736
+  files contain Arabic body text.** An Arabic-lafaz search returns nothing REGARDLESS of truth.
+- **`REVIEWER_EMAILS` still unlocks NOTHING** — `requireRole(…,"reviewer")` has zero call sites.
+- **Logout does not REVOKE** — `Max-Age=0`, the value stays valid for its remaining 30 days.
+
+---
+
+## Constraints to honor (carried forward — plus new)
+
+- **NEW — a state read taken ACROSS a reveal can straddle a human click.** Erik clicks tabs you
+  foreground in a window in front of him; six trusted clicks were logged this cycle. One pair of
+  reads briefly looked like a DOM/pixel mismatch and was NOT one. **Read the recorder first.**
+- **NEW — verify a "backgrounded N minutes" claim from the page's OWN `visibilitychange` stamps**,
+  not from wall-clock intent. Setup churn re-foregrounds tabs.
+- **NEW — never diagnose paint with `innerText` or `getBoundingClientRect`.** Both report a healthy
+  page mid-defect, and `innerText` now reports a broken one on a healthy page.
+- **NEW — a paired run whose CONTROL did not fail is not evidence.** Said last cycle, and it cost
+  this cycle's headline result anyway. Ask what the FAILING arm returned before believing a clean one.
+- **Erik's 2026-08-28 kajian ruling is a PUBLISHING rule and does NOT reach ISC-630's SOURCING hold.**
+  That channel stays off the queue; its capture stays deleted.
+- **A withdrawal that lives only in a commit message is not a withdrawal.**
+- **`cd` from the USER's command persists into your shell too** — and from YOUR OWN previous call.
+- **A 200 is not existence.** Compare bytes against the **25,233 B** SPA shell and check content-type.
+- **A 403 on `/api/runner/*` proves the GATE and nothing else.**
+- **You cannot verify ANY `/api/*` route from a browser address bar** — `Sec-Fetch-Mode: navigate`
+  alone flips it to the SPA shell at 200. Use curl, or the signed-in UI.
+- **`git ls-remote` is the ONLY arbiter of a push** — never a pipe into `tail`.
+- **`bun run build` exits 0 and writes the WRONG EDITION.** Always `VITE_ANSWER_MODE=synthesis`.
+- **A build exits 0 even when the CSS parser DISCARDS a rule.** Verify in `web/dist/assets/*.css`.
+- **A mutation that changes no behaviour proves nothing.** Confirm a mutant reddens something.
+- **A blocked hook discards every write in that Bash call.**
+- **Gate commands must REDIRECT, never pipe into `head`/`tail`** — the preflight hook blocks it,
+  because `$?` becomes the pipe's status and a failing gate reads as a pass.
+
+---
+
 # Next session — New-Quranku (checkpoint 2026-08-28, Cycle 19)
 
 > Prepended by /wrap 2026-08-28. **Anchor: `1ea8617` + this wrap's own commit on top**, so
