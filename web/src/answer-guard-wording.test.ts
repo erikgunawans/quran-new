@@ -840,3 +840,58 @@ describe("a loose attribution verb cannot walk a divine claim past the wall", ()
     expect(wordingShape(prose)).toBeNull();
   });
 });
+
+/**
+ * ISC-486 — a named scholar's position, quoted beside an ayah, is no longer refused.
+ *
+ * OPEN SINCE 2026-08-19 and un-markable until now, because the ownership stand-down that has to
+ * widen to rescue these rows was the ONLY arm refusing a divine claim with a loose verb. Closing
+ * that first (`DIVINE_VERB` widening above, Erik's ruling 2026-08-29) decoupled them: the divine
+ * rows are now taken by `divine_attr`, so widening `HUMAN_ATTR` cannot hand them back.
+ *
+ * TWO SIGNALS, NOT ONE, and this is the correction that unblocked the design. `ISA.md` framed the
+ * obstacle as `wordingShape` lower-casing its 160-character window, which is true — but HALF the
+ * broken class carries no capital at all. `gurunya`, `penulisnya` and `muridnya` refused 18/18 and
+ * are ordinary lower-case nouns. Case preservation rescues `Ibnu Katsir`; only a possessive
+ * vocabulary rescues the other half.
+ *
+ * ⚠ THE DIVINE PRONOUNS ARE DELIBERATELY NOT RESCUED. `Ia`/`Dia` are capitalised and would be
+ * proper-name-shaped, so they are excluded by name. That is the accepted over-refusal recorded under
+ * ISC-486 — a scholar referred to only by pronoun still refuses — and it is the SAFE direction.
+ */
+describe("a named scholar's position is not refused", () => {
+  const QUOTE = "riba itu diharamkan dan jual beli itu dihalalkan bagi kalian";
+  const CITED = `bahwa "${QUOTE}." (QS Al-Baqarah 2:275)`;
+  const VERBS = ["menjelaskan", "menegaskan", "menyatakan", "menuturkan"];
+
+  /**
+   * ⚠ THE BARE-NAME HALF IS NOT HERE, AND ITS ABSENCE IS THE RECORD. `Ibnu Katsir`,
+   * `Quraish Shihab`, `Buya Hamka`, `Al-Ghazali` and `Ibnu Taimiyah` still refuse 30/30 — measured
+   * by `src/eval/ownership-grid.ts`. A capitalisation arm was built for them on 2026-08-29 and
+   * WITHDRAWN: it rescued `Islam menutup jalan menuju zina: "…"`, a bare unowned quote against its
+   * citation, and two existing tests in this file caught it. No subtraction list fixes that —
+   * `Islam`, `Ramadan`, `Madinah` and every surah name are name-shaped too.
+   *
+   * Recorded in `ISA.md` under ISC-486 as an open gap rather than pinned here, per this file's rule
+   * that a known hole is written down and never made green. Adding those rows as passing tests would
+   * require buying them with an under-refusal, which is the trade the 2026-08-20 narrowing was
+   * reverted over.
+   */
+
+  test.each(["gurunya", "penulisnya", "muridnya"])("passes: the possessive %s owns the verb", (poss) => {
+    for (const v of VERBS) expect(wordingShape(`${poss} ${v} ${CITED}`)).toBeNull();
+  });
+
+  /**
+   * THE ANTI-ROWS. Without these the rescue above is satisfiable by standing down on everything,
+   * which is precisely the failure mode that got the 2026-08-20 narrowing reverted. A divine
+   * designation must still refuse whether or not it looks like a capitalised name.
+   */
+  test.each(["Allah", "Tuhan"])("still refused: %s is not rescued by looking like a name", (d) => {
+    for (const v of VERBS) expect(wordingShape(`${d} ${v} ${CITED}`)).not.toBeNull();
+  });
+
+  test.each(["Ia", "Dia"])("still refused: the divine pronoun %s (the accepted cost)", (p) => {
+    for (const v of VERBS) expect(wordingShape(`${p} ${v} ${CITED}`)).not.toBeNull();
+  });
+});

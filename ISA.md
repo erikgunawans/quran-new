@@ -3618,6 +3618,41 @@ Recorded as his knowing decision, not as a cleared gate — **ISC-417 remains NO
   identical before and after. What changed is that closing it no longer costs an under-refusal on the
   classes this grid covers. **Nothing was deployed; prod is unchanged.**
 
+
+  ◐ **HALF OF THIS CRITERION IS CLOSED, AND THE OTHER HALF IS NOW FALSIFIED RATHER THAN MERELY
+  UNBUILT. 2026-08-29 (Cycle 21). STAYS `[ ]` — half is not met.**
+
+  **CLOSED — the `-nya` possessive half.** `HUMAN_POSSESSIVE_ATTR`, a CLOSED vocabulary of human
+  nouns plus `-nya`, joins the ownership test. `gurunya` · `penulisnya` · `muridnya` go **18/18
+  refused → 0/18**, and direction B is byte-identical: all four epithet rows still refuse 24/24 on
+  `divine_attr`. The vocabulary is a list and not `\w+nya` on purpose — a generic possessive matches
+  `firmannya`, `terjemahannya` and `bunyinya`, which `DIVINE_ATTR` reads as VERBATIM DIVINE claims,
+  so the lazy version would have handed back the bypass this wall exists to stop.
+
+  ⚠️ **WITHDRAWN — the capitalisation half, and this is a FALSIFICATION, not a deferral.** This entry
+  has said since 2026-08-19 that the obstacle is the lower-casing and that the fix is "a hand-kept
+  list that will not generalise". Both halves of that are now tested. The arm was BUILT — a
+  case-preserved window carried alongside the lower-cased one, one to three capitalised tokens before
+  the verb, minus a subtraction list of divine designations — and it **rescued
+  *"Islam menutup jalan menuju zina: «…»"*, a bare unowned quote against its own citation.** It was
+  caught by **two PRE-EXISTING tests in `answer-guard-wording.test.ts`, not by the rows written for
+  this change** — the suite already held the tripwire. **Capitalisation cannot separate a scholar from
+  any capitalised noun, and no subtraction list closes it:** `Islam`, `Ramadan`, `Madinah` and all 114
+  surah names are name-shaped. Reverted in full; `answer-guard.ts` carries no case-preserved window.
+
+  **SO THE COST OF THE BARE-NAME HALF IS NOW PRICED: it can only be bought with an under-refusal** —
+  the same trade the 2026-08-20 narrowing was reverted over, and the one Erik's 2026-08-29 ruling
+  spends in the OPPOSITE direction. The five names still refuse **30/30**. Recorded here and as a
+  reasoned absence in the test file; **deliberately NOT pinned as passing tests**, since making them
+  green requires the trade this entry declines.
+
+  **What a future attempt should NOT repeat:** preserving case is not the missing piece — it was
+  implemented and it was not sufficient. The missing piece is a signal that separates a PERSON from a
+  capitalised noun, which capitalisation is not. A curated person-name list is the remaining option
+  and inherits the generalisation problem this entry named on 2026-08-19.
+
+  Gates: `bun test` **2425/0** exit 0 · typecheck exit 0 · synthesis build exit 0. Nothing deployed.
+
 - [ ] ISC-487: the wall's cost to the reader is latency, not refusal, and it is bounded. **NOT MET — measured, and the number is the finding.** Of the remaining `own_wording` refusals, 3 of 4 land at ~26 s: the retry exhausted the Worker's 25 s `MODEL_DEADLINE_MS` and the first attempt's verdict was reported. Only one (15.8 s) is a genuine second violation. `answered` turns average 12.2 s against 24.8 s for refusals. The dominant cost of this wall is that a retry does not fit inside the turn budget, and there are only 5 s of headroom before `MODEL_DEADLINE_MS` would cross the client's `TIMEOUT_MS` (30 s) — so the lever is first-attempt latency, not the deadline. Erik has not ruled on it. **Sharpened 2026-08-17 (late-5): this wall is ARM-INDEPENDENT, which makes it the only thing left in the cycle.** The ISC-484 paired control arm put `turns ≥20 s` at 3/9 with the hadith lane ON and 3/9 with it OFF — identical — and the pre-cascade arm produced its own ~25 s dead turns (`null:no-reason` ×2 at 25.0 s, `own_wording` at 25.3 s). So it is not the cascade, not the hadith payload and not `bad_hadith`: it is that a retry does not fit inside `MODEL_DEADLINE_MS` on ANY lane. A whole-run measurement the same afternoon (`wall-live-probe --repeat 3`, 24 turns) read **25% answered** against the late-4 run's 46%, with 0 leaks — the buckets move this much run-to-run, so the paired arm is the only comparison in this cycle worth acting on. **RE-DIAGNOSED 2026-08-18 (Cycle 10) — the framing above is WRONG in its most load-bearing word, and the correction changes what the fix is.** "The wall's cost to the reader is latency" assumed the reader waits out the turn. They do not: `FAST_ANSWER_MS = 9000` hands them a real, cited, principled answer at 9 s and upgrades it in place, so a 24.8 s refusal is a 9 s answer followed by something arriving 16 s later — not a 25 s stare. **The turn duration and the reader's wait stopped being the same number at ISC-466 and every reading of this criterion since has conflated them.** What actually lands at ~26 s is two browser-side failures and one mis-set constant, now split out as their own criteria: the `answer-blocked` copy is UNREACHABLE past 9 s (ISC-528, the Worker preserves the verdict and the browser discards it); the "still composing" promise was never retracted on a refusal (ISC-529, FIXED); and `MIN_RETRY_MS = 6_000` is the FLOOR of the generation distribution used as a completion predictor when the median is ~8,450 ms (ISC-535). **This criterion stays NOT MET** — nothing here bounded latency, and deliberately so: the two remaining levers (rendering the verdict, moving the retry threshold) are both gated on an instrument that does not exist yet, ISC-532. Recorded so no future reading treats the re-diagnosis as the fix. **UPDATE 2026-08-24 — the FIRST lever is built, and this criterion is STILL NOT MET, which is the point worth writing down.** Rendering the verdict shipped (ISC-644): a late refusal now annotates the fast answer instead of vanishing. That closes the *honesty* half — the reader is told a fuller answer was composed and held back — and closes NOTHING of the latency half. No constant moved: `MODEL_DEADLINE_MS` 25_000, `MIN_RETRY_MS`, `MAX_ATTEMPTS` 2 and the client's `TIMEOUT_MS` 30_000 are byte-identical to the anchor. The second lever (the retry threshold, ISC-535) is untouched here. **Do not let the annotation be read as the bound.** The criterion says *bounded*, and nothing in this session measured, let alone bounded, anything: it is a browser-side change verified offline, and the live re-measurement is ISC-647, which needs Erik's deploy.
 
 - [x] ISC-656: **the kajian queue drains end to end on production, and the two defects that stopped it were never the two blockers on the board.**

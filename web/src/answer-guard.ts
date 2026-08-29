@@ -951,6 +951,32 @@ const DIVINE_ATTR = [
  */
 const HUMAN_ATTR = new RegExp(`\\b(?:${HUMAN_ROLE}|kami|kita|kamu|anda)\\b[^“"]{0,72}$`);
 /**
+ * Human nouns that take a `-nya` possessive and can own a speech act. ISC-486, 2026-08-29.
+ *
+ * WHY A CLOSED LIST AND NOT `\w+nya`. A generic possessive would match `firmannya`,
+ * `terjemahannya` and `bunyinya` — three strings `DIVINE_ATTR` reads as a VERBATIM DIVINE claim.
+ * Rescuing those would hand back the exact bypass this wall exists to stop.
+ */
+const HUMAN_POSSESSIVE = "guru|penulis|murid|sahabat|rekan|kawan|pengarang|penyusun|perawi";
+/**
+ * A `-nya` possessive of a human noun owns the quoted words: `gurunya menjelaskan bahwa "…"`.
+ *
+ * THIS IS HALF OF ISC-486, AND THE HALF `ISA.md` DID NOT SEE. That entry frames the whole criterion
+ * as `wordingShape` lower-casing its window, so that capitalisation — "the thing that actually marks
+ * a proper name" — is unavailable. True for `Ibnu Katsir`; false for this half. `gurunya`,
+ * `penulisnya` and `muridnya` refused 18/18 and carry no capital at all, so preserving case would
+ * have left every one of them exactly where it was. Two signals, not one.
+ *
+ * ⚠ THE OTHER HALF IS DELIBERATELY NOT ATTEMPTED HERE, and the attempt is recorded because it
+ * FAILED. A capitalisation arm was built on 2026-08-29 (one to three capitalised tokens before the
+ * verb, minus a subtraction list of divine designations) and it rescued
+ * `Islam menutup jalan menuju zina: "…"` — a bare unowned quote against its citation, caught by two
+ * existing tests. Capitalisation cannot tell a scholar from any capitalised noun, and no subtraction
+ * list closes that: `Islam`, `Ramadan`, `Madinah` and every surah name are all name-shaped. The
+ * bare-name half of ISC-486 stays OPEN rather than being bought with a new under-refusal.
+ */
+const HUMAN_POSSESSIVE_ATTR = new RegExp(`\\b(?:${HUMAN_POSSESSIVE})nya\\b[^“"]{0,72}$`);
+/**
  * Quoted spans, straight or curly, anywhere in the prose. Matched left-to-right so a run of terms —
  * `"musik" atau "alat musik"` — yields two short spans rather than one long one.
  *
@@ -1181,7 +1207,11 @@ export function wordingShapeScan(prose: string): readonly WordingSpan[] {
     const adjacent = REF_IN_PROSE.test(near);
     REF_IN_PROSE.lastIndex = 0;
 
-    const humanAttr = HUMAN_ATTR.test(before);
+    // ISC-486 — two disjoint ways a human owns the quoted words. `HUMAN_ATTR` is the role-noun
+    // vocabulary; `HUMAN_POSSESSIVE_ATTR` is the `-nya` half, which carries no capital and so is
+    // invisible to any case-based signal. The bare-name half is still open — see the docblock above
+    // `HUMAN_POSSESSIVE_ATTR` for the arm that was built for it and withdrawn.
+    const humanAttr = HUMAN_ATTR.test(before) || HUMAN_POSSESSIVE_ATTR.test(before);
     const longEnough = words >= OWN_WORDING_MIN_WORDS;
     const verbatimDivine = VERBATIM_DIVINE.some((re) => re.test(before));
     const divine = longEnough && DIVINE_ATTR.some((re) => re.test(before));
