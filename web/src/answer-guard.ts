@@ -672,7 +672,20 @@ const OWN_WORDING_MIN_WORDS = 8;
  */
 /** Verbs that put a subject in an attribution relation to the quoted words. */
 const DIVINE_VERB =
-  "berfirman|berkata|menyebut|menyebutkan|menggambarkan|menegaskan|menjelaskan|memerintahkan|melarang|mengingatkan";
+  "berfirman|berkata|menyebut|menyebutkan|menggambarkan|menegaskan|menjelaskan|memerintahkan|melarang|mengingatkan" +
+  // ── the six "loose verbs", added 2026-08-29 on Erik's ruling. ISC-419 limit 3. ──────────────────
+  // These were absent, so a divine row carrying one was refused by NOTHING but `adjacent_unowned` —
+  // an arm that stands down whenever a `HUMAN_ATTR` token sits within 72 characters of the quote.
+  // One `kita`, which real prod prose uses freely, left a divine attribution unrefused: measured at
+  // 0 of 24 by `src/eval/ownership-grid.ts`, with `adjacent` 24/24, so the arm declined rather than
+  // never ran. Moving these onto `divine_attr` also DECOUPLES this from ISC-486, which needs that
+  // same stand-down widened — the coupling the reverted 2026-08-20 narrowing died on.
+  //
+  // ⚠ THE PRICE, ACCEPTED AND NOT HIDDEN: `dia`/`ia` are ordinary HUMAN pronouns too, so a scholar
+  // referred to by pronoun now refuses — 6/18 → 18/18 on a paired HEAD-vs-tree probe. An
+  // over-refusal (a quotation declined) taken deliberately over an under-refusal (the app printing
+  // its own rendering as Allah's words). Recorded in ISA.md under ISC-486, never pinned green.
+  "|menerangkan|menuturkan|menyampaikan|mengungkapkan|menyatakan|mengatakan";
 
 /**
  * Human roles that can own a speech act. One definition, two consumers — `HUMAN_ATTR` below, whose

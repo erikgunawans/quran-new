@@ -786,3 +786,57 @@ describe("wordingShapeScan reports the opportunity, not only the outcome", () =>
     expect(seenTrue).toBeGreaterThan(0);
   });
 });
+
+/**
+ * ISC-419 LIMIT 3 — the loose-verb divine bypass, CLOSED on Erik's ruling 2026-08-29 (Cycle 21).
+ *
+ * WHAT WAS OPEN. `DIVINE_ATTR` reads a designation followed by a verb drawn from `DIVINE_VERB`, and
+ * six ordinary attribution verbs were absent from that list. A divine row carrying one of them was
+ * therefore refused by NOTHING but `adjacent_unowned` — and that arm stands down the moment any
+ * `HUMAN_ATTR` token sits within 72 characters of the quote. One `kita`, which real prod prose uses
+ * freely, was enough to leave a divine attribution unrefused. Measured before the fix by
+ * `src/eval/ownership-grid.ts`: `epithet × loose verb, owner in window` refused **0 of 24**, with
+ * `adjacent` at 24/24 so the arm had every opportunity to fire and declined.
+ *
+ * WHY THE FIX IS THE VERB LIST AND NOT THE STAND-DOWN. ISC-486 needs that same stand-down WIDER, to
+ * stop refusing a named scholar. The two criteria were coupled through one predicate, and the
+ * 2026-08-20 narrowing was reverted for exactly that reason. Moving these rows onto `divine_attr`
+ * decouples them: the divine rows stop depending on the ownership arm at all, and the ownership
+ * vocabulary can then be widened for ISC-486 without re-opening this.
+ *
+ * ⚠ THE PRICE, ACCEPTED BY ERIK AND NOT HIDDEN. `dia` and `ia` are ordinary HUMAN pronouns as well
+ * as the divine ones `DIVINE_ATTR` reads, so a scholar referred to by pronoun now refuses:
+ * `human ia/dia × loose verb` went **6/18 → 18/18** on a paired HEAD-vs-tree probe. That is an
+ * over-refusal — a quotation declined — taken deliberately over an under-refusal, which on this wall
+ * is the app printing its own rendering as Allah's words. It is recorded in `ISA.md` under ISC-486
+ * rather than pinned here as a passing test, per this file's rule that an accepted gap is written
+ * down, never made green.
+ *
+ * ⚠ THE WHOLE SUITE WAS 2400/0 GREEN WITH AND WITHOUT THIS CHANGE while the behaviour moved in both
+ * directions (`a-swap-is-not-a-widening`). These rows exist so a future narrowing of `DIVINE_VERB`
+ * goes RED instead of silently re-opening the bypass.
+ */
+describe("a loose attribution verb cannot walk a divine claim past the wall", () => {
+  const QUOTE = "riba itu diharamkan dan jual beli itu dihalalkan bagi kalian";
+  /** `kita` ~13 characters from the quote — well inside `HUMAN_ATTR`'s 72-character window. */
+  const OWNER = "Seperti kita pahami, ";
+  const LOOSE = ["menerangkan", "menuturkan", "menyampaikan", "mengungkapkan", "menyatakan", "mengatakan"];
+
+  test.each(LOOSE.flatMap((verb) => ["Allah", "Tuhan"].map((d) => [d, verb] as const)))(
+    "refused: %s %s, with an owner token inside the stand-down window",
+    (designation, verb) => {
+      const prose = `${OWNER}${designation} ${verb} bahwa "${QUOTE}." (QS Al-Baqarah 2:275)`;
+      expect(wordingShapeHit(prose)?.arm).toBe("divine_attr");
+    },
+  );
+
+  /**
+   * THE CONTROL. Without it the block above is satisfiable by refusing everything, and this file has
+   * already paid for a grid that could not fail (`bundle-absence-needs-a-control`). A role-noun form
+   * is the class ISC-486 was written for and it must keep passing — the fix above must not reach it.
+   */
+  test.each(LOOSE)("still passes: a role-noun form owns %s", (verb) => {
+    const prose = `Imam Nawawi ${verb} bahwa "${QUOTE}." (QS Al-Baqarah 2:275)`;
+    expect(wordingShape(prose)).toBeNull();
+  });
+});
