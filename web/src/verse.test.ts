@@ -72,3 +72,29 @@ describe("verse card — interpretive primary reads open, everything else one ta
     expect(html).toContain('<div class="sources">');
   });
 });
+
+describe("verse card — the reserved height scales with the ayah", () => {
+  /**
+   * `contain-intrinsic-size` is the height reserved for a card the browser has skipped. `read.css`
+   * carried ONE number for all 6,236 (370px, the median of Ali 'Imran measured at full width), and
+   * after the surah view became a ~534px split column it under-reserved by ~36% — measured on prod
+   * 2026-08-30, with 2:282 needing 1,940px against the 372 reserved. That gap is what jumps the
+   * scrollbar. These rows assert the PROPERTY that fixes it — the reservation tracks the text —
+   * rather than the fitted constants, which are expected to be re-measured when the layout moves.
+   */
+  test("every card carries a reserved height", () => {
+    expect(verseEl(base())).toContain("contain-intrinsic-size: auto ");
+  });
+
+  test("a long ayah reserves more than a short one — the whole point", () => {
+    const px = (html: string): number => Number(html.match(/contain-intrinsic-size: auto (\d+)px/)?.[1]);
+    const short = px(verseEl(base({ arabic: "الم", primary: { text: "Alif lam mim.", translator: "T" } })));
+    const long = px(verseEl(base({ arabic: "ا".repeat(1200), primary: { text: "x".repeat(1800), translator: "T" } })));
+    expect(short).toBeGreaterThan(0);
+    expect(long).toBeGreaterThan(short * 3);
+  });
+
+  test("`auto` is kept, so a rendered card's REAL height still wins over the estimate", () => {
+    expect(verseEl(base())).toMatch(/contain-intrinsic-size: auto \d+px/);
+  });
+});

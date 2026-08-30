@@ -443,7 +443,21 @@
  * before anything has rendered. It is a measurement, not a round number; a first draft guessed 420.
  *
  * COST, STATED: until each card has rendered, `scrollHeight` is an estimate — about 3% short — so
- * the scrollbar is slightly wrong at first. The deep link was MEASURED, not assumed: scrollIntoView
+ * the scrollbar is slightly wrong at first.
+ *
+ * ⚠️ THAT 3% AND THE 370px BELOW ARE BOTH STALE, AND THE FALLBACK IS NO LONGER WHAT USUALLY APPLIES.
+ * The distribution above was measured when this surface was FULL WIDTH. It is now a SPLIT column
+ * (`#read:has(.surah-split)`) about 534px wide, so the same text wraps to roughly twice the height,
+ * and nothing re-measured. Measured on prod 2026-08-30 at 1394x859: the reserved total is ~36% BELOW
+ * the real one on BOTH surahs — Ali 'Imran's real median is 526px against the 372 reserved (not 370
+ * against 370), Al-Baqarah's is 552, and 2:282 needs 1,940px. Al-Baqarah reserved ~107k px of scroll
+ * and needed ~174k, which is the ~67k px of missing scroll that jumps the scrollbar, worst exactly
+ * where the ayahs are longest. The residual is 36%, not 3%.
+ * `verse.ts`'s `intrinsicHeight()` now sets `contain-intrinsic-size` INLINE per card from that
+ * card's own character count (fitted over all 486 cards of surahs 2 and 3: MAE 20.2px against the
+ * flat value's 211.7px). Inline wins, so the 370px here is only the fallback for a card rendered
+ * without it. It is kept rather than corrected because re-tuning one global number is the thing that
+ * went stale; the per-card estimate is what should be maintained. The deep link was MEASURED, not assumed: scrollIntoView
  * to 3:150 lands within a pixel, so no correction pass was added.
  *
  * Scoped to `#surah-body` on purpose: `.verse` is shared with the answer surface, where a turn holds

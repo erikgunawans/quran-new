@@ -248,11 +248,42 @@ function passageEl(v: VerseCard, side: "before" | "after"): string {
     </div>`;
 }
 
+/**
+ * The height the browser reserves for this card BEFORE it has rendered — `contain-intrinsic-size`'s
+ * fallback, set per card instead of one number for all 6,236.
+ *
+ * WHY NOT THE FLAT 370px IN `read.css`. That number was the median of Ali 'Imran measured when the
+ * surah view was full width. The view is now SPLIT (`#read:has(.surah-split)`), so `#surah-body` is a
+ * ~534px column and the same text wraps to roughly twice the height — and nothing re-measured. Its
+ * docblock still claims the residual is "about 3% short". Measured on prod 2026-08-30 at 1394x859:
+ * the reserved total is ~36% BELOW the real one on BOTH surahs — Ali 'Imran's real median is 526px
+ * against 372 reserved, Al-Baqarah's is 552, and 2:282 is 1,940px against the same 372. Al-Baqarah
+ * reserved ~107k px of scroll and needed ~174k. That gap is what moves the scrollbar under the
+ * reader's thumb, and it is worst exactly where the ayahs are longest.
+ *
+ * THE COEFFICIENTS ARE A FIT, NOT A GUESS — the standard `read.css` set for itself and then drifted
+ * from. Least squares over all 486 cards of surahs 2 and 3, real heights measured in the browser with
+ * `content-visibility` forced visible, against corpus character counts:
+ *
+ *     h = 320 + 0.3371 x chars     MAE  20.2px    aggregate error  0.00%
+ *     flat 372px                   MAE 211.7px    aggregate error -36.25%
+ *
+ * `auto` is kept, so this is only the FIRST guess: once a card has rendered, its real height is
+ * remembered and this number stops mattering. It has to be close, not exact.
+ *
+ * ⚠ IT UNDER-ESTIMATES A CARD CARRYING A `passage`, whose neighbouring ayahs are extra height the
+ * character count above does not include. The reading surface is the surface that has
+ * `content-visibility`, and it does not render passages, so the gap is not currently reachable —
+ * stated because that is a property of today's callers, not of this function.
+ */
+const intrinsicHeight = (v: VerseCard): number =>
+  Math.round(320 + 0.3371 * (v.arabic.length + (v.primary?.text.length ?? 0) + (v.companion?.text.length ?? 0)));
+
 export function verseEl(v: VerseCard): string {
   const flag = FLAGGED[v.ref];
 
   return `
-    <article class="verse"${v.animate ? " data-new" : ""} data-ref="${v.ref}">
+    <article class="verse"${v.animate ? " data-new" : ""} data-ref="${v.ref}" style="contain-intrinsic-size: auto ${intrinsicHeight(v)}px">
       <header class="verse-head">
         <span class="ref">${v.ref}</span>
         <span class="surah-name">${esc(v.surah_name)}</span>
