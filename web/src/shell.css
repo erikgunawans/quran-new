@@ -827,10 +827,31 @@
 }
 /* The card's entrance was declared outside any media query with `both`, so it ran at full strength
    under reduced motion AND could strand a card invisible if the tab backgrounded first. Gated, and
-   `forwards` so the un-animated state is the visible one. */
-@media (prefers-reduced-motion: no-preference) {
-  .qk-panel-body .verse { animation: qkin 320ms var(--ease) forwards; }
-}
+   `forwards` so the un-animated state is the visible one.
+
+   THE UNCONDITIONAL RULE THAT STOOD HERE IS DELETED (2026-08-30). It read
+   `.qk-panel-body .verse { animation: qkin ... }` — no `[data-new]` — so it matched EVERY verse
+   card and made the `[data-new]` rule below redundant. That defeated TWO separately documented
+   intents, neither of which knew it was being overridden:
+
+     - `verse.ts`'s `animate` is OPT-IN, and its docblock says why in these words: "in Al-Baqarah
+       it was 286 simultaneous blur(7px) filters ... Now the reading surface simply never asks for
+       it." `read.ts` never passes `animate`, so no reading card carries `data-new` — and every
+       one of them animated anyway.
+     - `main.ts` replays a restored thread with `animate = false` because "a restored thread should
+       be *there*, already, the way you left it." Those cards animated too.
+
+   `read.css` had retired the reading surface's defensive override on the stated grounds that the
+   opt-in at source made it unnecessary. It was not: the override was removed against a gate this
+   rule never consulted.
+
+   WHY IT MATTERS BEYOND TIDINESS: `qkin` starts at `opacity: 0`, and `#read #surah-body .verse`
+   also carries `content-visibility: auto`. A card skipped mid-animation freezes part-way, and
+   `forwards` fills only AFTER an animation ENDS — it cannot rescue one frozen in its active phase.
+   Long-ayah surahs churn the most cards through that state, because `contain-intrinsic-size`'s
+   370px is the median of Ali 'Imran and under-estimates them worst. ISC-659.
+   ⚠ NOT YET CONFIRMED IN A BROWSER as the cause of the blank cards — this removes a mechanism that
+   CAN strand a card and that was never meant to apply here. Verify before claiming ISC-659 closed. */
 /* Below `rgb(5,15,10)`, the panel's darkest stop, so the well never inverts. The border also comes up
    .13 → .22: at this separation the edge is what stops the card dissolving into the ground where the
    gradient runs closest to it. */
