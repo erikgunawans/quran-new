@@ -1,0 +1,5 @@
+2026-08-30 13:30:44 | START | expected=https://new-quranku.axiara.ai/#/surah/3 | interval=10min max=96
+2026-08-30 13:31:11 | url=https://new-quranku.axiara.ai/#/surah/3 | elems=222 | opacity0=0 | opacity_sub1=0 | vis_hidden=0
+2026-08-30 13:41:37 | url=https://new-quranku.axiara.ai/#/surah/3 | elems=222 | opacity0=0 | opacity_sub1=0 | vis_hidden=0
+2026-08-30 13:52:02 | url=https://new-quranku.axiara.ai/#/surah/3 | elems=222 | opacity0=0 | opacity_sub1=0 | vis_hidden=0
+2026-08-30 14:02:02 | ABORT | url before read | got=
