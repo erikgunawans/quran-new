@@ -813,8 +813,38 @@ const HUMAN_ROLE =
  *     "all four nouns … and both pronoun forms", which reads as six and is twenty-six. `berfirman` is
  *     airtight throughout. Deliberately NOT pinned by a passing test; recorded with its failing
  *     strings under ISC-419 in `ISA.md`, per this file's convention for a declined gap.
+ *   - **LIMIT 3 IS NARROWED 2026-08-30 ON ERIK'S RULING, NOT CLOSED — and the mechanism was never
+ *     the "proximity" limit 1 names.** The lookbehind below already carried a preposition list; it
+ *     rejected a preposition only IMMEDIATELY before the owner token, and ALL EIGHT tail shapes put a
+ *     word in between (`kepada setiap <T>`, `bagi hamba dan <T>`, `beserta <T> semua`). So the guard
+ *     never saw prepositions that were already in its own vocabulary. Widened with
+ *     `beserta|bersama|dalam|antara|atas|tentang` and a `(?:\w+\s){0,2}` gap.
+ *     **Measured by `src/eval/tail-position-grid.ts`, which exists because this limit's `72 of 72`
+ *     had only ever been prose: 540 -> 2,040 refused of 3,120, and `divine_attr` goes from firing
+ *     ZERO times across every tail row to 1,950.** Six of the eight shapes close completely, 0 -> 390.
+ *     **THE TWO `dan banyak <T>` SHAPES STAY OPEN BY DESIGN.** `dan` is a coordinate conjunction and
+ *     genuinely can introduce a new subject — `…, dan kita menegaskan, "…"` — which is the one case
+ *     this arm must not swallow. That is a declined half, not an oversight, and it is why the word
+ *     here is NARROWED. The residual is still not pinned by a passing test.
+ *     ⚠ **THE PRICE, MEASURED RATHER THAN ESTIMATED: a human owner introduced by a preposition now
+ *     over-refuses.** `bersama para sahabat Imam Syafii menuturkan, "…"` and `dalam pengajiannya
+ *     ustadz kami mengatakan, "…"` PASS on HEAD and REFUSE on tree — +2 over-refusals on 4 clean
+ *     rows. (A cost probe of 8 rows was built and 4 of them were CONFOUNDED: they contained `Nabi`
+ *     and tripped the `prophetic` wall on BOTH arms, so they could not witness this change either
+ *     way. Only the clean 4 are quoted.) Taken deliberately in the same direction as the 2026-08-29
+ *     divine-verb ruling: an under-refusal is the app printing its own rendering as Allah's words,
+ *     an over-refusal is a quotation declined.
+ *     ⚠ **`bun test` WAS 2425/0 WITH AND WITHOUT THIS CHANGE.** The suite contains no row of this
+ *     shape, so it was blind in both directions; only the paired grids saw behaviour move. Same
+ *     finding as the `DIVINE_VERB` widening one day earlier — on this wall a green suite is not
+ *     evidence, and the grids are the instrument.
+ *     ⚠ **THE PREPOSITION LIST IS DUPLICATED IN `OTHER_AGENT` (~line 438) AND WAS NOT WIDENED THERE.**
+ *     That const answers a different question. This is the drift hazard `HUMAN_ROLE`'s "one
+ *     definition, two consumers" note exists to prevent, and it bit during this very change: a
+ *     scripted edit anchored on the shared list hit `OTHER_AGENT` FIRST and left line 817 untouched,
+ *     which a readback caught. Two copies of one list, noted rather than silently merged.
  */
-const APPOSITIVE_BREAK = `(?<!\\b(?:kepada|bagi|untuk|pada|terhadap|dari|oleh|sama)\\s)\\b(?:${AGENT_PRONOUN}|${HUMAN_ROLE})\\b`;
+const APPOSITIVE_BREAK = `(?<!\\b(?:kepada|bagi|untuk|pada|terhadap|dari|oleh|sama|beserta|bersama|dalam|antara|atas|tentang)\\s(?:\\w+\\s){0,2})\\b(?:${AGENT_PRONOUN}|${HUMAN_ROLE})\\b`;
 const DIVINE_APPOSITIVE = `(?:(?!${APPOSITIVE_BREAK})[^.!?])*`;
 
 /**
